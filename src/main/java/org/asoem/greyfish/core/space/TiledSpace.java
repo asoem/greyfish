@@ -16,11 +16,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
-import edu.wlu.cs.levy.CG.KDTree;
-import edu.wlu.cs.levy.CG.KeyDuplicateException;
-import edu.wlu.cs.levy.CG.KeySizeException;
-
-
 /**
  * @author christoph
  * This class is used to handle a 2D space implemented as a Matrix of Locations.
@@ -110,7 +105,7 @@ public class TiledSpace implements Space {
 	private static final int DIMENSIONS = 3;
 
 	/* reconstructed each step */
-	private KDTree<Object2DInterface> kdTree = new KDTree<Object2DInterface>(DIMENSIONS);
+	//private KDTree<Object2DInterface> kdTree = new KDTree<Object2DInterface>(DIMENSIONS);
 
 	private int nOccupants;
 
@@ -320,6 +315,7 @@ public class TiledSpace implements Space {
 	}
 
 	public void updateTopo() {
+		/*
 		kdTree = new KDTree<Object2DInterface>(DIMENSIONS);
 		for (Object2DInterface individual : occupantsIterable) {
 			try {
@@ -332,6 +328,7 @@ public class TiledSpace implements Space {
 				GreyfishLogger.warn("", e);
 			}
 		}
+		//*/
 	}
 
 	private boolean hasLocation(Location2DInterface newLocation) {
@@ -456,22 +453,18 @@ public class TiledSpace implements Space {
 	public Iterable<Object2DInterface> findNeighbours(Location2DInterface p, double range) {
 
 		Iterable<Object2DInterface> found = null;
-		try {
 			double[] point = new double[] {p.getX(), p.getY(), 0};
 
 			long start = 0;
 			if (GreyfishLogger.isTraceEnabled())
 				start  = System.currentTimeMillis();
 
-			found = kdTree.nearestEuclidean(point, range);
+			//found = kdTree.nearestEuclidean(point, range);
 
 			if (GreyfishLogger.isTraceEnabled()) {
 				long end = System.currentTimeMillis();
 				GreyfishLogger.trace(TiledSpace.class.getSimpleName() + "#findNeighbours: Found " + Iterables.size(found) + " Neighbours in " + (end - start) + "ms");
 			}
-		} catch (KeySizeException e) {
-			throw new AssertionError();
-		}
 
 		return (found == null) ? ImmutableList.<Object2DInterface>of() : found;
 	}
