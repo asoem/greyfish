@@ -1,4 +1,4 @@
-package org.asoem.sico.lang;
+package org.asoem.greyfish.lang;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,7 +1,7 @@
-package org.asoem.sico.helper;
+package org.asoem.greyfish.helper;
 
-import org.asoem.sico.core.conditions.GFCondition;
-import org.asoem.sico.utils.ClassFinder;
+import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.utils.ClassFinder;
 
 public class FindConditions {
 
