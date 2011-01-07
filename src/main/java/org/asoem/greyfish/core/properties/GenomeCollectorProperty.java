@@ -1,16 +1,16 @@
 /**
  * 
  */
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.Collection;
 import java.util.Map;
 
-import org.asoem.sico.core.genes.Genome;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.lang.CircularFifoBuffer;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.RandomUtils;
+import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.CircularFifoBuffer;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.RandomUtils;
 
 import com.google.common.collect.Iterables;
 

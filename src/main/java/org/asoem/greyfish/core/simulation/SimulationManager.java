@@ -1,13 +1,13 @@
-package org.asoem.sico.core.simulation;
+package org.asoem.greyfish.core.simulation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.Executors;
 
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.core.scenario.Scenario;
-import org.asoem.sico.lang.Functor;
-import org.asoem.sico.utils.ListenerSupport;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.scenario.Scenario;
+import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.ListenerSupport;
 
 
 public class SimulationManager implements Iterable<Simulation> {

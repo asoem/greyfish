@@ -1,12 +1,12 @@
 /**
  * 
  */
-package org.asoem.sico.core.conditions;
+package org.asoem.greyfish.core.conditions;
 
 import java.util.Map;
 
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 /**
  * @author christoph
@@ -26,7 +26,7 @@ public class IntervalCondition extends DelayCondition {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.asoem.sico.actions.conditions.Condition#evaluate(org.asoem.sico.competitors.Individual)
+	 * @see org.asoem.greyfish.actions.conditions.Condition#evaluate(org.asoem.greyfish.competitors.Individual)
 	 */
 	@Override
 	public boolean evaluate(Simulation simulation) {

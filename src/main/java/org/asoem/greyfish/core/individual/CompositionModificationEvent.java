@@ -1,4 +1,4 @@
-package org.asoem.sico.core.individual;
+package org.asoem.greyfish.core.individual;
 
 import javax.swing.event.ChangeEvent;
 

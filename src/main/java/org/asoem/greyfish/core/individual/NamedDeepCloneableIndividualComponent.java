@@ -1,6 +1,6 @@
-package org.asoem.sico.core.individual;
+package org.asoem.greyfish.core.individual;
 
-import org.asoem.sico.utils.DeepClonable;
+import org.asoem.greyfish.utils.DeepClonable;
 
 public interface NamedDeepCloneableIndividualComponent extends NamedIndividualComponent, DeepClonable {
 }

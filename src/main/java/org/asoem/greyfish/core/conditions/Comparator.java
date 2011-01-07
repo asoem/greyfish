@@ -1,4 +1,4 @@
-package org.asoem.sico.core.conditions;
+package org.asoem.greyfish.core.conditions;
 
 import org.simpleframework.xml.Root;
 

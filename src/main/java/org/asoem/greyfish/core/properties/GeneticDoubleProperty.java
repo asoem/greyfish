@@ -1,8 +1,8 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
-import org.asoem.sico.core.genes.DoubleGene;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.Exporter;
+import org.asoem.greyfish.core.genes.DoubleGene;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.Exporter;
 
 @ClassGroup(tags="property")
 public class GeneticDoubleProperty extends DoubleProperty {

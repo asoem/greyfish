@@ -1,4 +1,4 @@
-package org.asoem.sico.core.scenario;
+package org.asoem.greyfish.core.scenario;
 
 import java.util.EventListener;
 

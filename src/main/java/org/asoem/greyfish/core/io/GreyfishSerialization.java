@@ -1,4 +1,4 @@
-package org.asoem.sico.core.io;
+package org.asoem.greyfish.core.io;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,8 +6,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.scenario.Scenario;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.CycleStrategy;

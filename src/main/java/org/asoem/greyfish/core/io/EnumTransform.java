@@ -1,4 +1,4 @@
-package org.asoem.sico.core.io;
+package org.asoem.greyfish.core.io;
 
 import org.simpleframework.xml.transform.Transform;
 

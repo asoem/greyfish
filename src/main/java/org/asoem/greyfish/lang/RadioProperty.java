@@ -1,4 +1,4 @@
-package org.asoem.sico.lang;
+package org.asoem.greyfish.lang;
 
 
 public abstract class RadioProperty<T> extends Property<T> {

@@ -1,9 +1,9 @@
-package org.asoem.sico.core.conditions;
+package org.asoem.greyfish.core.conditions;
 
 import java.util.List;
 import java.util.Map;
 
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 public abstract class LeafCondition extends AbstractCondition {
 

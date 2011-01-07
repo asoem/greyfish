@@ -1,6 +1,6 @@
-package org.asoem.sico.core.genes;
+package org.asoem.greyfish.core.genes;
 
-import org.asoem.sico.utils.RandomUtils;
+import org.asoem.greyfish.utils.RandomUtils;
 import org.uncommons.maths.random.GaussianGenerator;
 
 public class DoubleGene extends AbstractGene<Double> {

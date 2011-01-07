@@ -1,13 +1,13 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import com.google.common.base.Preconditions;
 

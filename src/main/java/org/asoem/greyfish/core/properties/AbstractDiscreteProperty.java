@@ -1,8 +1,8 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.Map;
 
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 
 public abstract class AbstractDiscreteProperty<T> extends AbstractGFProperty implements DiscreteProperty<T> {

@@ -1,4 +1,4 @@
-package org.asoem.sico.lang;
+package org.asoem.greyfish.lang;
 
 import java.util.AbstractQueue;
 import java.util.Iterator;

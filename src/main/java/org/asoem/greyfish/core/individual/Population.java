@@ -1,11 +1,11 @@
-package org.asoem.sico.core.individual;
+package org.asoem.greyfish.core.individual;
 
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.asoem.sico.utils.Rainbow;
-import org.asoem.sico.utils.RandomUtils;
+import org.asoem.greyfish.utils.Rainbow;
+import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Element;
 
 

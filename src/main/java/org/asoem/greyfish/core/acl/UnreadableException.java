@@ -1,4 +1,4 @@
-package org.asoem.sico.core.acl;
+package org.asoem.greyfish.core.acl;
 
 @SuppressWarnings("serial")
 public class UnreadableException extends Exception {

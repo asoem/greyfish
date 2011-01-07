@@ -1,6 +1,6 @@
-package org.asoem.sico.core.genes;
+package org.asoem.greyfish.core.genes;
 
-import org.asoem.sico.lang.HasName;
+import org.asoem.greyfish.lang.HasName;
 
 
 

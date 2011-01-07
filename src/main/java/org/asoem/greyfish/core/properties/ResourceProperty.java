@@ -1,12 +1,12 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.Map;
 
-import org.asoem.sico.core.share.Consumer;
-import org.asoem.sico.core.share.ConsumerGroup;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.share.Consumer;
+import org.asoem.greyfish.core.share.ConsumerGroup;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 @ClassGroup(tags="property")
 public class ResourceProperty extends DoubleProperty {

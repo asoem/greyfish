@@ -1,4 +1,4 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import javax.swing.AbstractAction;
 

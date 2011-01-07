@@ -1,9 +1,9 @@
-package org.asoem.sico.core.individual;
+package org.asoem.greyfish.core.individual;
 
 
-import org.asoem.sico.core.simulation.Initializeable;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.utils.DeepClonable;
+import org.asoem.greyfish.core.simulation.Initializeable;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.DeepClonable;
 
 public interface GFComponent extends Initializeable, DeepClonable {
 	public Individual getComponentOwner();

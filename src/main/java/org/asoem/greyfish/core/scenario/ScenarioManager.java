@@ -1,15 +1,15 @@
-package org.asoem.sico.core.scenario;
+package org.asoem.greyfish.core.scenario;
 
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.individual.PrototypeManager;
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.lang.Functor;
-import org.asoem.sico.utils.DeepClonable;
-import org.asoem.sico.utils.ListenerSupport;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.PrototypeManager;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.ListenerSupport;
 
 import com.google.common.base.Preconditions;
 

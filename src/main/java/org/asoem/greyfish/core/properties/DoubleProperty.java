@@ -1,10 +1,10 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.Map;
 
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.Exporter;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.Exporter;
 
 @ClassGroup(tags="property")
 public class DoubleProperty extends OrderedSetProperty<Double> {

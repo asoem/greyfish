@@ -1,6 +1,6 @@
-package org.asoem.sico.core.space;
+package org.asoem.greyfish.core.space;
 
-import org.asoem.sico.utils.PolarPoint;
+import org.asoem.greyfish.utils.PolarPoint;
 
 public class MovingObject2D extends Object2D implements MovingObject2DInterface {
 

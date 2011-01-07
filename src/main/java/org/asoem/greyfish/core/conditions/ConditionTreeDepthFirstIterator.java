@@ -1,4 +1,4 @@
-package org.asoem.sico.core.conditions;
+package org.asoem.greyfish.core.conditions;
 
 import java.util.Iterator;
 import java.util.List;

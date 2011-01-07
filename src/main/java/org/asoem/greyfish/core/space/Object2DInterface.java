@@ -1,4 +1,4 @@
-package org.asoem.sico.core.space;
+package org.asoem.greyfish.core.space;
 
 
 public interface Object2DInterface extends Location2DInterface {

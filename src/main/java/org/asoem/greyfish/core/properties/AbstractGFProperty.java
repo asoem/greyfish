@@ -1,13 +1,13 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.Map;
 
-import org.asoem.sico.core.genes.Gene;
-import org.asoem.sico.core.individual.AbstractGFComponent;
-import org.asoem.sico.lang.Functor;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.Exporter;
-import org.asoem.sico.utils.ListenerSupport;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Root;
 
 import com.google.common.collect.ObjectArrays;

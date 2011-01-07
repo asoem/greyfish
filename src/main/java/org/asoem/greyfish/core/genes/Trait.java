@@ -1,4 +1,4 @@
-package org.asoem.sico.core.genes;
+package org.asoem.greyfish.core.genes;
 
 public interface Trait<T> {
 	public T getValue();

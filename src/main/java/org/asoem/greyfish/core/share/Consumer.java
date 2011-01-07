@@ -1,7 +1,7 @@
-package org.asoem.sico.core.share;
+package org.asoem.greyfish.core.share;
 
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.properties.AbstractGFProperty;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.properties.AbstractGFProperty;
 
 public class Consumer<T extends AbstractGFProperty> {
 	private Individual individual;

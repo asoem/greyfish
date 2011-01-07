@@ -1,13 +1,13 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import java.awt.Color;
 import java.util.Map;
 
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.Exporter;
-import org.asoem.sico.utils.ValueAdaptor;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="action")

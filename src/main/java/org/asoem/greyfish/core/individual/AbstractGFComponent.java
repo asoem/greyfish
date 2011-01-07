@@ -1,10 +1,10 @@
-package org.asoem.sico.core.individual;
+package org.asoem.greyfish.core.individual;
 
 import java.util.Map;
 
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.lang.HasName;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.HasName;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Attribute;
 
 import com.google.common.base.Preconditions;

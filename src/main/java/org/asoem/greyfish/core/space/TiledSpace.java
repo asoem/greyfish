@@ -1,12 +1,12 @@
-package org.asoem.sico.core.space;
+package org.asoem.greyfish.core.space;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.utils.RandomUtils;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.core.Commit;
 
@@ -447,7 +447,7 @@ public class TiledSpace implements Space {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.asoem.sico.core.space.Space#findNeighbours(org.asoem.sico.core.space.Location2D, double, java.lang.Class)
+	 * @see org.asoem.greyfish.core.space.Space#findNeighbours(org.asoem.greyfish.core.space.Location2D, double, java.lang.Class)
 	 */
 	@Override
 	public Iterable<Object2DInterface> findNeighbours(Location2DInterface p, double range) {

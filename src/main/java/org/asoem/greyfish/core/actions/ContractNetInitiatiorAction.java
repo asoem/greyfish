@@ -1,18 +1,18 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import java.util.Collection;
 import java.util.Map;
 
 import javolution.util.FastList;
 
-import org.asoem.sico.core.acl.ACLMessage;
-import org.asoem.sico.core.acl.ACLMessageReceiver;
-import org.asoem.sico.core.acl.ACLMessageTransmitter;
-import org.asoem.sico.core.acl.ACLPerformative;
-import org.asoem.sico.core.acl.MessageTemplate;
-import org.asoem.sico.core.interfaces.MessageInterface;
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.ACLMessageReceiver;
+import org.asoem.greyfish.core.acl.ACLMessageTransmitter;
+import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.interfaces.MessageInterface;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 public abstract class ContractNetInitiatiorAction extends FSMAction {
 

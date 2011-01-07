@@ -1,16 +1,16 @@
 /**
  * 
  */
-package org.asoem.sico.core.conditions;
+package org.asoem.greyfish.core.conditions;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.ElementList;
 
 import com.google.common.collect.ImmutableList;

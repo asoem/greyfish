@@ -1,4 +1,4 @@
-package org.asoem.sico.core.acl;
+package org.asoem.greyfish.core.acl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -16,7 +16,7 @@ import javolution.context.ObjectFactory;
 import javolution.lang.Reusable;
 import javolution.util.FastList;
 
-import org.asoem.sico.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;

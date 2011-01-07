@@ -1,4 +1,4 @@
-package org.asoem.sico.core.genes;
+package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ObjectArrays;

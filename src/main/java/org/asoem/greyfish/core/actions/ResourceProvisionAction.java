@@ -1,18 +1,18 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import java.util.Map;
 
 import javolution.util.FastMap;
 
-import org.asoem.sico.core.acl.ACLMessage;
-import org.asoem.sico.core.acl.ACLPerformative;
-import org.asoem.sico.core.acl.MessageTemplate;
-import org.asoem.sico.core.properties.ResourceProperty;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.Exporter;
-import org.asoem.sico.utils.ValueAdaptor;
-import org.asoem.sico.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.properties.ResourceProperty;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="action")

@@ -1,10 +1,10 @@
-package org.asoem.sico.core.simulation;
+package org.asoem.greyfish.core.simulation;
 
-import org.asoem.sico.core.genes.Gene;
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.individual.Population;
-import org.asoem.sico.core.properties.GFProperty;
-import org.asoem.sico.utils.Table;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.utils.Table;
 
 import com.google.common.base.Preconditions;
 

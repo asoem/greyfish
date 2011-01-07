@@ -1,7 +1,7 @@
-package org.asoem.sico.core.space;
+package org.asoem.greyfish.core.space;
 
-import org.asoem.sico.lang.Functor;
-import org.asoem.sico.utils.ListenerSupport;
+import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Element;
 
 public class Object2D implements Object2DInterface {

@@ -1,4 +1,4 @@
-package org.asoem.sico.core.simulation;
+package org.asoem.greyfish.core.simulation;
 
 public interface Initializeable {
 	/**
@@ -6,7 +6,7 @@ public interface Initializeable {
 	 * (i.e. fully configured, cloned and added to a scenario in simulation state.
 	 * This function will be called by the owning individuals <code>birth()</code> method.
 	 * @param simulation TODO
-	 * @see org.asoem.sico.core.individual.Individual#birth()
+	 * @see org.asoem.greyfish.core.individual.Individual#birth()
 	 */
 	public void initialize(Simulation simulation);
 }

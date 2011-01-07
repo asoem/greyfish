@@ -1,8 +1,8 @@
-package org.asoem.sico.core.simulation;
+package org.asoem.greyfish.core.simulation;
 
 import java.util.concurrent.TimeUnit;
 
-import org.asoem.sico.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.io.GreyfishLogger;
 
 public class SimulationRunner implements Runnable {
 

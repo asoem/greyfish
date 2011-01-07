@@ -1,17 +1,17 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import java.util.Map;
 
-import org.asoem.sico.core.genes.Genome;
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.core.properties.EvaluatedGenomeStorage;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.Exporter;
-import org.asoem.sico.utils.ValueAdaptor;
-import org.asoem.sico.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 

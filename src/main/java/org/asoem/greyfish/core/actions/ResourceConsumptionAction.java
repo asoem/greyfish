@@ -1,18 +1,18 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import java.util.Map;
 
-import org.asoem.sico.core.acl.ACLMessage;
-import org.asoem.sico.core.acl.ACLPerformative;
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.properties.DoubleProperty;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.Exporter;
-import org.asoem.sico.utils.RandomUtils;
-import org.asoem.sico.utils.ValueAdaptor;
-import org.asoem.sico.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.properties.DoubleProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 import com.google.common.base.Preconditions;

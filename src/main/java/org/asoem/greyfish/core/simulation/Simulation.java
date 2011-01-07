@@ -1,4 +1,4 @@
-package org.asoem.sico.core.simulation;
+package org.asoem.greyfish.core.simulation;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,19 +12,19 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.KeyedPoolableObjectFactory;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.individual.Population;
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.core.scenario.Scenario;
-import org.asoem.sico.core.space.Location2D;
-import org.asoem.sico.core.space.Placeholder;
-import org.asoem.sico.core.space.TiledSpace;
-import org.asoem.sico.lang.Command;
-import org.asoem.sico.lang.Functor;
-import org.asoem.sico.utils.DeepClonable;
-import org.asoem.sico.utils.FastLists;
-import org.asoem.sico.utils.ListenerSupport;
-import org.asoem.sico.utils.RandomUtils;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.scenario.Scenario;
+import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.Placeholder;
+import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.lang.Command;
+import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.FastLists;
+import org.asoem.greyfish.utils.ListenerSupport;
+import org.asoem.greyfish.utils.RandomUtils;
 
 import com.google.common.base.Preconditions;
 

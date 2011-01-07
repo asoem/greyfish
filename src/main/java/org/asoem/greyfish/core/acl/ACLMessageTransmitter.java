@@ -1,4 +1,4 @@
-package org.asoem.sico.core.acl;
+package org.asoem.greyfish.core.acl;
 
 public interface ACLMessageTransmitter {
 

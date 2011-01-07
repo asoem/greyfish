@@ -1,10 +1,10 @@
-package org.asoem.sico.core.space;
+package org.asoem.greyfish.core.space;
 
 import java.util.List;
 
 import javolution.util.FastList;
 
-import org.asoem.sico.core.space.TiledSpace.Direction;
+import org.asoem.greyfish.core.space.TiledSpace.Direction;
 import org.simpleframework.xml.Attribute;
 
 public class TileLocation {

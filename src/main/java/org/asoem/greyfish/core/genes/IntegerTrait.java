@@ -1,4 +1,4 @@
-package org.asoem.sico.core.genes;
+package org.asoem.greyfish.core.genes;
 
 public class IntegerTrait extends AbstractTrait<Integer> {
 

@@ -1,4 +1,4 @@
-package org.asoem.sico.core.acl;
+package org.asoem.greyfish.core.acl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -99,11 +99,11 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 	}
 
 	public static MessageTemplate all(MessageTemplate ... templates) {
-		return new MessageTemplate(Predicates.and(templates));
+		return new MessageTemplate(Predicates.<ACLMessage>and(templates));
 	}
 
 	public static MessageTemplate or(MessageTemplate t1, MessageTemplate t2) {
-		return new MessageTemplate(Predicates.or(t1, t2));
+		return new MessageTemplate(Predicates.<ACLMessage>or(t1, t2));
 	}
 
 	public static MessageTemplate inReplyTo(String inReplyTo) {
@@ -111,7 +111,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 	}
 
 	public static MessageTemplate and(MessageTemplate t1, MessageTemplate t2) {
-		return new MessageTemplate(Predicates.and(t1, t2));
+		return new MessageTemplate(Predicates.<ACLMessage>and(t1, t2));
 	}
 
 	public static MessageTemplate replyWith(String replyWith) {
@@ -127,6 +127,6 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 	}
 
 	public static MessageTemplate any(MessageTemplate ... templates) {
-		return new MessageTemplate(Predicates.or(templates));
+		return new MessageTemplate(Predicates.<ACLMessage>or(templates));
 	}
 }

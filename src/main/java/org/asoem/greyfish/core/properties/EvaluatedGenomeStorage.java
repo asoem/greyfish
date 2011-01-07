@@ -1,17 +1,17 @@
 /**
  * 
  */
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.asoem.sico.core.genes.Genome;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.RandomUtils;
+import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.RandomUtils;
 import org.uncommons.watchmaker.framework.EvaluatedCandidate;
 import org.uncommons.watchmaker.framework.selection.RouletteWheelSelection;
 

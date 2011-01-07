@@ -1,4 +1,4 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 
 

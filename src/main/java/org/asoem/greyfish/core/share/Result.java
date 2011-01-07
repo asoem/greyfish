@@ -1,6 +1,6 @@
-package org.asoem.sico.core.share;
+package org.asoem.greyfish.core.share;
 
-import org.asoem.sico.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Individual;
 
 public class Result {
 

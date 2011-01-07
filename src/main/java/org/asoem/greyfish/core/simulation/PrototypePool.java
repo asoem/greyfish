@@ -1,9 +1,9 @@
-package org.asoem.sico.core.simulation;
+package org.asoem.greyfish.core.simulation;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
-import org.asoem.sico.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Individual;
 
 /**
  * This class acts as an object pool for the Individual class to increase performance by object reuse.

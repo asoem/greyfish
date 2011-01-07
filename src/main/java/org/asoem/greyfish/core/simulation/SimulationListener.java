@@ -1,4 +1,4 @@
-package org.asoem.sico.core.simulation;
+package org.asoem.greyfish.core.simulation;
 
 public interface SimulationListener {
 

@@ -1,9 +1,9 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
-import org.asoem.sico.core.conditions.ConditionTree;
-import org.asoem.sico.core.individual.NamedDeepCloneableIndividualComponent;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.utils.ConfigurableValueProvider;
+import org.asoem.greyfish.core.conditions.ConditionTree;
+import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.ConfigurableValueProvider;
 
 public interface GFAction extends NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
 

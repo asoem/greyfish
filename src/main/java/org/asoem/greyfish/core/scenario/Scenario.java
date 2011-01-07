@@ -1,16 +1,16 @@
-package org.asoem.sico.core.scenario;
+package org.asoem.greyfish.core.scenario;
 
 import java.util.Collection;
 
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.individual.PrototypeManager;
-import org.asoem.sico.core.individual.PrototypeRegistryListener;
-import org.asoem.sico.core.space.Object2DInterface;
-import org.asoem.sico.core.space.Placeholder;
-import org.asoem.sico.core.space.TileLocation;
-import org.asoem.sico.core.space.TiledSpace;
-import org.asoem.sico.utils.DeepClonable;
-import org.asoem.sico.utils.ListenerSupport;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.PrototypeManager;
+import org.asoem.greyfish.core.individual.PrototypeRegistryListener;
+import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.core.space.Placeholder;
+import org.asoem.greyfish.core.space.TileLocation;
+import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementArray;

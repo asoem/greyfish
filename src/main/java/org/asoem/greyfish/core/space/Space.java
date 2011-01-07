@@ -1,4 +1,4 @@
-package org.asoem.sico.core.space;
+package org.asoem.greyfish.core.space;
 
 import org.simpleframework.xml.Root;
 

@@ -1,6 +1,6 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
-import org.asoem.sico.core.genes.Genome;
+import org.asoem.greyfish.core.genes.Genome;
 
 public class EvaluatedGenome extends Genome {
 

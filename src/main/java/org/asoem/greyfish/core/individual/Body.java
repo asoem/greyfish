@@ -1,14 +1,14 @@
-package org.asoem.sico.core.individual;
+package org.asoem.greyfish.core.individual;
 
 import java.awt.Color;
 
 import javolution.lang.MathLib;
 
-import org.asoem.sico.core.simulation.Initializeable;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.core.space.Location2D;
-import org.asoem.sico.core.space.MovingObject2D;
-import org.asoem.sico.utils.RandomUtils;
+import org.asoem.greyfish.core.simulation.Initializeable;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Element;
 
 public class Body extends MovingObject2D implements Initializeable {

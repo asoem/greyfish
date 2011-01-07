@@ -1,8 +1,8 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
-import org.asoem.sico.core.genes.Gene;
-import org.asoem.sico.core.individual.NamedDeepCloneableIndividualComponent;
-import org.asoem.sico.utils.ConfigurableValueProvider;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
+import org.asoem.greyfish.utils.ConfigurableValueProvider;
 
 public interface GFProperty extends NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
 	public void mutate();

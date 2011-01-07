@@ -1,4 +1,4 @@
-package org.asoem.sico.core.actions;
+package org.asoem.greyfish.core.actions;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -9,19 +9,19 @@ import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.VariableResolver;
 import net.sourceforge.jeval.function.FunctionException;
 
-import org.asoem.sico.core.conditions.ConditionTree;
-import org.asoem.sico.core.conditions.GFCondition;
-import org.asoem.sico.core.individual.AbstractGFComponent;
-import org.asoem.sico.core.individual.GFComponent;
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.io.GreyfishLogger;
-import org.asoem.sico.core.properties.ContinuosProperty;
-import org.asoem.sico.core.properties.DoubleProperty;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.utils.AbstractDeepCloneable;
-import org.asoem.sico.utils.Exporter;
-import org.asoem.sico.utils.ValueAdaptor;
-import org.asoem.sico.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.core.conditions.ConditionTree;
+import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.properties.ContinuosProperty;
+import org.asoem.greyfish.core.properties.DoubleProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;

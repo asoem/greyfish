@@ -1,11 +1,11 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.Map;
 
-import org.asoem.sico.core.genes.BitStringGene;
-import org.asoem.sico.core.genes.Gene;
-import org.asoem.sico.lang.ClassGroup;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.genes.BitStringGene;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.uncommons.maths.binary.BitString;
 
 @ClassGroup(tags="property")

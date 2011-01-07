@@ -1,6 +1,6 @@
-package org.asoem.sico.core.space;
+package org.asoem.greyfish.core.space;
 
-import org.asoem.sico.utils.DeepClonable;
+import org.asoem.greyfish.utils.DeepClonable;
 import org.simpleframework.xml.Element;
 
 public class Placeholder extends Object2D {

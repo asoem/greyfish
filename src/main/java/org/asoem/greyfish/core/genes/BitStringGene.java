@@ -1,6 +1,6 @@
-package org.asoem.sico.core.genes;
+package org.asoem.greyfish.core.genes;
 
-import org.asoem.sico.core.utils.BitStringUtils;
+import org.asoem.greyfish.core.utils.BitStringUtils;
 import org.uncommons.maths.binary.BitString;
 
 public class BitStringGene extends AbstractGene<BitString> {

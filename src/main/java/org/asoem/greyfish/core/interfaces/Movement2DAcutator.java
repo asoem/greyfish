@@ -1,15 +1,15 @@
-package org.asoem.sico.core.interfaces;
+package org.asoem.greyfish.core.interfaces;
 
 import java.util.Map;
 
 import javolution.lang.MathLib;
 
-import org.asoem.sico.core.individual.AbstractGFComponent;
-import org.asoem.sico.core.simulation.Simulation;
-import org.asoem.sico.core.space.Location2D;
-import org.asoem.sico.core.space.Location2DInterface;
-import org.asoem.sico.lang.Command;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.lang.Command;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 public class Movement2DAcutator extends AbstractGFComponent implements GFInterface {
 	

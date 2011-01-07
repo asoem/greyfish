@@ -1,12 +1,12 @@
-package org.asoem.sico.core.utils;
+package org.asoem.greyfish.core.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.asoem.sico.core.genes.Gene;
-import org.asoem.sico.core.genes.Genome;
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.simulation.Simulation;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.uncommons.maths.statistics.DataSet;
 
 public class GenomeUtils {

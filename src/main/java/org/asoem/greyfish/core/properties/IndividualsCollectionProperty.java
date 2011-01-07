@@ -1,9 +1,9 @@
-package org.asoem.sico.core.properties;
+package org.asoem.greyfish.core.properties;
 
 import java.util.Map;
 
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 public class IndividualsCollectionProperty extends AbstractDiscreteProperty<Individual[]> implements ContinuosProperty<Integer> {
 

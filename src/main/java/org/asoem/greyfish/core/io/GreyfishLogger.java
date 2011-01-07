@@ -1,4 +1,4 @@
-package org.asoem.sico.core.io;
+package org.asoem.greyfish.core.io;
 
 import java.util.Enumeration;
 import java.util.ResourceBundle;

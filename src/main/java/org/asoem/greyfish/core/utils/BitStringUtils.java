@@ -1,7 +1,7 @@
-package org.asoem.sico.core.utils;
+package org.asoem.greyfish.core.utils;
 
-import org.asoem.sico.utils.RandomUtils;
-import org.asoem.sico.utils.SingleElementListDecorator;
+import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.greyfish.utils.SingleElementListDecorator;
 import org.uncommons.maths.binary.BitString;
 import org.uncommons.maths.random.Probability;
 import org.uncommons.watchmaker.framework.operators.BitStringMutation;
