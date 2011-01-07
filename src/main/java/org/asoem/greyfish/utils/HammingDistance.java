@@ -1,6 +1,6 @@
 // Hamming distance metric class
 
-package org.asoem.sico.utils;
+package org.asoem.greyfish.utils;
 
 public class HammingDistance {
 

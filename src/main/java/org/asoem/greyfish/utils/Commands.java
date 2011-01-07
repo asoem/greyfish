@@ -1,6 +1,6 @@
-package org.asoem.sico.utils;
+package org.asoem.greyfish.utils;
 
-import org.asoem.sico.lang.Command;
+import org.asoem.greyfish.lang.Command;
 
 public class Commands {
 

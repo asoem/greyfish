@@ -1,6 +1,6 @@
-package org.asoem.sico.utils;
+package org.asoem.greyfish.utils;
 
-import org.asoem.sico.lang.Property;
+import org.asoem.greyfish.lang.Property;
 
 import com.google.common.base.Predicates;
 

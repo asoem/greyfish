@@ -1,4 +1,4 @@
-package org.asoem.sico.lang;
+package org.asoem.greyfish.lang;
 
 public interface HasName {
 	public String getName();

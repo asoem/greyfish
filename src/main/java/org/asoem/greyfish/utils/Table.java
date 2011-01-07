@@ -1,11 +1,11 @@
-package org.asoem.sico.utils;
+package org.asoem.greyfish.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.asoem.sico.lang.Functor;
+import org.asoem.greyfish.lang.Functor;
 
 import com.google.common.base.Preconditions;
 

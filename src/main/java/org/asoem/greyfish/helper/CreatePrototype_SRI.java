@@ -1,12 +1,12 @@
-package org.asoem.sico.helper;
+package org.asoem.greyfish.helper;
 
-import org.asoem.sico.core.actions.MatingReceiverAction;
-import org.asoem.sico.core.actions.MatingTransmitterAction;
-import org.asoem.sico.core.actions.RandomMovementAction;
-import org.asoem.sico.core.actions.SexualReproductionAction;
-import org.asoem.sico.core.individual.Individual;
-import org.asoem.sico.core.individual.Population;
-import org.asoem.sico.core.properties.EvaluatedGenomeStorage;
+import org.asoem.greyfish.core.actions.MatingReceiverAction;
+import org.asoem.greyfish.core.actions.MatingTransmitterAction;
+import org.asoem.greyfish.core.actions.RandomMovementAction;
+import org.asoem.greyfish.core.actions.SexualReproductionAction;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 
 public class CreatePrototype_SRI {
 

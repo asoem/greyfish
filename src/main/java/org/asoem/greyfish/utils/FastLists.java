@@ -1,6 +1,6 @@
-package org.asoem.sico.utils;
+package org.asoem.greyfish.utils;
 
-import org.asoem.sico.lang.Functor;
+import org.asoem.greyfish.lang.Functor;
 
 import com.google.common.base.Preconditions;
 

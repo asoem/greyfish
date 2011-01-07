@@ -1,4 +1,4 @@
-package org.asoem.sico.utils;
+package org.asoem.greyfish.utils;
 
 @SuppressWarnings("unchecked")
 public class Range<T extends Comparable> {

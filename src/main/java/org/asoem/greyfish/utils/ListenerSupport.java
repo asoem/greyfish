@@ -1,4 +1,4 @@
-package org.asoem.sico.utils;
+package org.asoem.greyfish.utils;
 
 import java.util.Iterator;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.asoem.sico.lang.Functor;
+import org.asoem.greyfish.lang.Functor;
 
 public class ListenerSupport<T> {
 
