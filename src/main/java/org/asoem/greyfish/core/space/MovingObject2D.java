@@ -10,12 +10,12 @@ public class MovingObject2D extends Object2D implements MovingObject2DInterface 
 	}
 	
 	@Override
-	public float getOrientation() {
+	public double getOrientation() {
 		return polarPoint.getPhi();
 	}
 	
 	@Override
-	public float getSpeed() {
+	public double getSpeed() {
 		return polarPoint.getDistance();
 	}
 	
@@ -24,7 +24,7 @@ public class MovingObject2D extends Object2D implements MovingObject2DInterface 
 	}
 	
 	@Override
-	public void rotate(float alpha) {
+	public void rotate(double alpha) {
 		polarPoint.addToPhi(alpha);
 	}
 }

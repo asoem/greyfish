@@ -1,20 +1,17 @@
 package org.asoem.greyfish.core.space;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
-import org.asoem.greyfish.core.io.GreyfishLogger;
-import org.asoem.greyfish.utils.RandomUtils;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.core.Commit;
-
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.kdtree.HyperPoint;
+import org.asoem.kdtree.KDTree;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.core.Commit;
+import scala.Tuple2;
+
+import java.util.*;
 
 /**
  * @author christoph
@@ -116,8 +113,9 @@ public class TiledSpace implements Space {
 
 		}
 	};
+    private KDTree<Object2DInterface> kdtree;
 
-	public int countOwnersAt(int i, int j) {
+    public int countOwnersAt(int i, int j) {
 		return tileMatrix[i][j].occupants.size();
 	}
 
@@ -329,11 +327,18 @@ public class TiledSpace implements Space {
 			}
 		}
 		//*/
+        List<Tuple2<HyperPoint, Object2DInterface>> pointList = new ArrayList<Tuple2<HyperPoint, Object2DInterface>>();
+        for (Object2DInterface individual : occupantsIterable) {
+            final Location2D b = individual.getAnchorPoint();
+            final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
+            pointList.add(new Tuple2(hp, individual));
+        }
+        kdtree = new KDTree<Object2DInterface>(pointList);
 	}
 
 	private boolean hasLocation(Location2DInterface newLocation) {
-		float x = newLocation.getX();
-		float y = newLocation.getY();
+		double x = newLocation.getX();
+		double y = newLocation.getY();
 		return (x >= 0 && x < width && y >= 0 && y < height);
 	}
 
@@ -453,13 +458,14 @@ public class TiledSpace implements Space {
 	public Iterable<Object2DInterface> findNeighbours(Location2DInterface p, double range) {
 
 		Iterable<Object2DInterface> found = null;
-			double[] point = new double[] {p.getX(), p.getY(), 0};
 
 			long start = 0;
 			if (GreyfishLogger.isTraceEnabled())
 				start  = System.currentTimeMillis();
 
-			//found = kdTree.nearestEuclidean(point, range);
+            HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
+            scala.collection.immutable.List l = kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
+            found = scala.collection.JavaConversions.asJavaIterable(l);
 
 			if (GreyfishLogger.isTraceEnabled()) {
 				long end = System.currentTimeMillis();

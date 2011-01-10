@@ -1,15 +1,14 @@
 package org.asoem.greyfish.core.interfaces;
 
-import java.util.Map;
-
 import javolution.lang.MathLib;
-
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
+
+import java.util.Map;
 
 public class Movement2DAcutator extends AbstractGFComponent implements GFInterface {
 	
@@ -21,7 +20,7 @@ public class Movement2DAcutator extends AbstractGFComponent implements GFInterfa
 		super(component, mapDict);
 	}
 
-	public void rotate(Simulation simulation, final float angle) {
+	public void rotate(Simulation simulation, final double angle) {
 		simulation.enqueAfterStepCommand(new Command() {		
 			@Override
 			public void execute() {
@@ -32,11 +31,11 @@ public class Movement2DAcutator extends AbstractGFComponent implements GFInterfa
 
 	public void translate(final Simulation simulation, double distance) {
 
-		final float x_add = (float) (distance * Math.cos(componentOwner.getOrientation()));
-		final float y_add = (float) (distance * Math.sin(componentOwner.getOrientation()));
+		final double x_add = distance * Math.cos(componentOwner.getOrientation());
+		final double y_add = distance * Math.sin(componentOwner.getOrientation());
 
-		final float x_res = componentOwner.getAnchorPoint().getX() + x_add;
-		final float y_res = componentOwner.getAnchorPoint().getY() + y_add;
+		final double x_res = componentOwner.getAnchorPoint().getX() + x_add;
+		final double y_res = componentOwner.getAnchorPoint().getY() + y_add;
 
 		simulation.enqueAfterStepCommand(new Command() {
 			@Override
@@ -45,7 +44,7 @@ public class Movement2DAcutator extends AbstractGFComponent implements GFInterfa
 				Location2DInterface location2d = simulation.getSpace().moveObject(componentOwner, newLocation2d);
 				
 				if ( ! newLocation2d.equals(location2d)) { // collision
-					componentOwner.rotate((float)MathLib.PI);
+					componentOwner.rotate(MathLib.PI);
 				}
 			}
 		});

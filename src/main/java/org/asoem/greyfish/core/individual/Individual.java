@@ -593,25 +593,25 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 		body.setAnchorPoint(location2d);
 	}
 
-	public float getOrientation() {
+	public double getOrientation() {
 		return body.getOrientation();
 	}
 
-	public float getSpeed() {
+	public double getSpeed() {
 		return body.getSpeed();
 	}
 
-	public void rotate(float alpha) {
+	public void rotate(double alpha) {
 		body.rotate(alpha);
 	}
 
 	@Override
-	public float getX() {
+	public double getX() {
 		return body.getX();
 	}
 
 	@Override
-	public float getY() {
+	public double getY() {
 		return body.getY();
 	}	
 }

@@ -46,18 +46,18 @@ public class Object2D implements Object2DInterface {
 		setAnchorPoint(location2d.getX(), location2d.getY());
 	}
 	
-	void setAnchorPoint(float x, float y) {
+	void setAnchorPoint(double x, double y) {
 		anchorPoint.set(x, y);
 		fireHasChanged();
 	}
 
 	@Override
-	public float getX() {
+	public double getX() {
 		return anchorPoint.getX();
 	}
 
 	@Override
-	public float getY() {
+	public double getY() {
 		return anchorPoint.getY();
 	}
 }

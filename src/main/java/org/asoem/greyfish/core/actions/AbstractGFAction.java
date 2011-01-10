@@ -1,14 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
-
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.VariableResolver;
 import net.sourceforge.jeval.function.FunctionException;
-
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
@@ -26,8 +24,8 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
@@ -41,7 +39,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
 	@Element(name="costs_formula")
 	private String energyCostsFormula = "0";
-	private double energyCosts;
 
 	@Element(name="energy_source", required=false)
 	private DoubleProperty energySource;
@@ -103,7 +100,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 	public boolean evaluate(Simulation simulation) {
 
 		if (energySource != null) {
-			if (energySource.getValue().compareTo(energyCosts) < 0 )
+			if (energySource.getValue().compareTo(evaluateFormula()) < 0 )
 				return false;		
 		}
 
@@ -114,7 +111,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 	/**
 	 * Called by the individual to evaluate the condition if set and trigger the action
 	 * @param simulation
-	 * @param componentOwner
 	 */
 	@Override
 	public final boolean execute(final Simulation simulation) {
@@ -133,14 +129,13 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 		lastExecutionStep = simulation.getSteps();
 
 		if (energySource != null && done()) {
-			energySource.substract(energyCosts);
+			energySource.substract(evaluateFormula());
 		}
 	}
 
 	/**
 	 * This is the actual action
-	 * @param simulation 
-	 * @param componentOwner
+	 * @param simulation
 	 */
 	protected abstract void performAction(Simulation simulation);
 
@@ -162,7 +157,11 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 			conditionTree.getRootCondition().initialize(simulation);
 		executionCount = 0;
 		lastExecutionStep = simulation.getSteps();
-		energyCosts = evaluateFormula();
+        try{
+            FORMULA_EVALUATOR.parse(energyCostsFormula);
+        } catch (EvaluationException e) {
+            throw new IllegalStateException("energyCostsFormula is not valid");
+        }
 	}
 
 	@Override
@@ -173,7 +172,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 	@Override
 	public double evaluateFormula() {
 		try {
-			return FORMULA_EVALUATOR.getNumberResult(energyCostsFormula);
+			return Double.valueOf(FORMULA_EVALUATOR.evaluate());
 		}
 		catch (EvaluationException e) {
 			GreyfishLogger.warn("CostsFormula is not a valid expression", e);

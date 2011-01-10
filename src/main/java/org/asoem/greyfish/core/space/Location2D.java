@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.space;
 
-import java.awt.geom.Point2D;
-
+import com.google.common.primitives.Doubles;
 import org.simpleframework.xml.Attribute;
 
-import com.google.common.primitives.Floats;
+import java.awt.geom.Point2D;
 
 public class Location2D implements Location2DInterface {
 
 	@Attribute
-	private float x;
+	private double x;
 	@Attribute
-	private float y;
+	private double y;
 
 	public Location2D() {
 	}
@@ -20,7 +19,7 @@ public class Location2D implements Location2DInterface {
 		set(location2d);
 	}
 
-	public Location2D(float x, float y) {
+	public Location2D(double x, double y) {
 		set(x, y);
 	}
 	
@@ -28,58 +27,57 @@ public class Location2D implements Location2DInterface {
 		set(location2d.x, location2d.y);
 	}
 
-	public void set(float x, float y) {
+	public void set(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 	
-	public float getX() {
+	public double getX() {
 		return x;
 	}
 
-	public void setX(float x) {
+	public void setX(double x) {
 		this.x = x;
 	}
 
-	public float getY() {
+	public double getY() {
 		return y;
 	}
 
-	public void setY(float y) {
+	public void setY(double y) {
 		this.y = y;
 	}
 
 	@Override
 	public String toString() {
-		return Floats.join(",", x, y);
+		return Doubles.join(",", x, y);
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Float.floatToIntBits(x);
-		result = prime * result + Float.floatToIntBits(y);
-		return result;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Location2D other = (Location2D) obj;
-		if (Float.floatToIntBits(x) != Float.floatToIntBits(other.x))
-			return false;
-		if (Float.floatToIntBits(y) != Float.floatToIntBits(other.y))
-			return false;
-		return true;
-	}
-	
-	public Point2D asPoint2D() {
-		return new Point2D.Float(x, y);
+        Location2D that = (Location2D) o;
+
+        if (Double.compare(that.x, x) != 0) return false;
+        if (Double.compare(that.y, y) != 0) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = x != +0.0d ? Double.doubleToLongBits(x) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    public Point2D asPoint2D() {
+		return new Point2D.Double(x, y);
 	}
 }
