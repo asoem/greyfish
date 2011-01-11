@@ -1,13 +1,14 @@
 package org.asoem.greyfish.core.conditions;
 
-import java.util.Map;
-
+import com.google.common.base.Objects;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
+
+import java.util.Map;
 
 public class StatePropertyCondition extends LeafCondition {
 	
@@ -30,8 +31,8 @@ public class StatePropertyCondition extends LeafCondition {
 
 	@Override
 	public boolean evaluate(Simulation simulation) {
-		return parameterStateProperty != null && 
-			parameterStateProperty.getValue().equals(parameterState);
+		return parameterStateProperty != null &&
+                Objects.equal(parameterStateProperty.getValue(), parameterState);
 	}
 
 	@Override

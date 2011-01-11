@@ -1,15 +1,13 @@
 package org.asoem.greyfish.core.properties;
 
-import java.util.Map;
-
+import com.google.common.base.Function;
 import org.asoem.greyfish.core.genes.AbstractGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 
-import com.google.common.base.Function;
+import java.util.Map;
 
 @ClassGroup(tags="property")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<String> {
@@ -21,16 +19,12 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 	private static final String ASEX = "Asex";
 	
 	private static final String[] GENDER = new String[] {MALE, FEMALE, ASEX};
-	private static final Function<Gene<Byte>, String> GENE_EXPRESSION_FUNCTION = new Function<Gene<Byte>, String>() {	
+	private static final Function<Gene<Byte>, String> GENE_EXPRESSION_FUNCTION = new Function<Gene<Byte>, String>() {
 		@Override
 		public String apply(Gene<Byte> input) {
-			try {
-				return GENDER[input.getRepresentation().byteValue()];
-			}
-			catch (Exception e) {
-				GreyfishLogger.error(input);
-			}
-			return null;
+            assert input != null;
+            assert input.getRepresentation() != null;
+            return GENDER[input.getRepresentation().byteValue()];
 		}
 	};
 
@@ -40,12 +34,12 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 		@Override
 		public void mutate() {
 			if (RandomUtils.nextDouble() < 0.001)
-				representation = 2; // ASEX
+				setRepresentation((byte)2); // ASEX
 		}
 
 		@Override
 		public void initialize() {
-			representation = (byte) (RandomUtils.nextBoolean() ? 0 : 1); // Male or Female
+            setRepresentation((byte)(RandomUtils.nextBoolean() ? 0 : 1)); // Male or Female
 		}
 	});
 

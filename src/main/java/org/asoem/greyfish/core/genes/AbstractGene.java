@@ -1,12 +1,11 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Strings;
-
+import com.google.common.base.Preconditions;
 
 public abstract class AbstractGene<T> implements Gene<T> {
 
 	protected  T representation;
-	private String name;
+	private String name = "";
 	
 	public AbstractGene(T element) {
 		this.representation = element;
@@ -17,6 +16,7 @@ public abstract class AbstractGene<T> implements Gene<T> {
 		return representation;
 	}
 
+    @SuppressWarnings("unchecked")
 	@Override
 	public void setRepresentation(Object value) {
 		this.representation = (T) value;
@@ -24,7 +24,7 @@ public abstract class AbstractGene<T> implements Gene<T> {
 
 	@Override
 	public String toString() {
-		return ((Strings.isNullOrEmpty(name)) ? "" : name + "=") + representation.toString();
+		return "Gene[" + getName() + "]=" + String.valueOf(representation);
 	}
 
 	@Override
@@ -44,6 +44,6 @@ public abstract class AbstractGene<T> implements Gene<T> {
 	
 	@Override
 	public void setName(String name) {
-		this.name = name;
+		this.name = Preconditions.checkNotNull(name);
 	}
 }

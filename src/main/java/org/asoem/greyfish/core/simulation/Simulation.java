@@ -160,6 +160,8 @@ public class Simulation implements Runnable {
 		//		for (Individual individual : getPrototypes()) {
 		//			populationLogs.put(individual.getPopulation(), new PopulationLog(this, individual));
 		//		}
+
+        space.updateTopo();
 	}
 
 	/**
@@ -416,9 +418,9 @@ public class Simulation implements Runnable {
 	 * @return
 	 */
 	public synchronized void step() {
-		space.updateTopo();
 		processAgents();
 		processAfterStepCommands();
+        space.updateTopo();
 		commandList.clear();
 		steps.incrementAndGet();
 		notifyStep();

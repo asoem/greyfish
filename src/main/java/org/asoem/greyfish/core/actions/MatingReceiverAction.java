@@ -3,8 +3,9 @@
  */
 package org.asoem.greyfish.core.actions;
 
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.genes.Genome;
@@ -13,16 +14,10 @@ import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.RandomUtils;
-import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
+import java.util.Map;
 
 /**
  * @author christoph
@@ -109,8 +104,8 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 
 	public boolean receiveGenome(EvaluatedGenome genome) {
 		collectorProperty.addGenome(genome, genome.getFitness());
-		if (GreyfishLogger.isDebugEnabled())
-			GreyfishLogger.debug(componentOwner + " received genome: " + genome);
+		if (GreyfishLogger.isTraceEnabled())
+			GreyfishLogger.trace(componentOwner + " received sperm: " + genome);
 		return true;
 	}
 
@@ -166,7 +161,9 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 	@Override
 	public boolean evaluate(Simulation simulation) {
 		if ( super.evaluate(simulation) ) {
-			sensedMates = Iterables.filter(simulation.getSpace().findNeighbours(componentOwner.getAnchorPoint(), sensorRange), Individual.class);
+            final Iterable neighbours = simulation.getSpace().findNeighbours(componentOwner.getAnchorPoint(), sensorRange);
+			sensedMates = Iterables.filter(neighbours, Individual.class);
+
 			sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(componentOwner)));
 			return ! Iterables.isEmpty(sensedMates);
 		}

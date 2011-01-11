@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.asoem.kdtree.HyperPoint;
 import org.asoem.kdtree.KDTree;
+import org.asoem.kdtree.NNResult;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.core.Commit;
 import scala.Tuple2;
@@ -331,7 +331,7 @@ public class TiledSpace implements Space {
         for (Object2DInterface individual : occupantsIterable) {
             final Location2D b = individual.getAnchorPoint();
             final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
-            pointList.add(new Tuple2(hp, individual));
+            pointList.add(new Tuple2<HyperPoint, Object2DInterface>(hp, individual));
         }
         kdtree = new KDTree<Object2DInterface>(pointList);
 	}
@@ -454,24 +454,29 @@ public class TiledSpace implements Space {
 	/* (non-Javadoc)
 	 * @see org.asoem.greyfish.core.space.Space#findNeighbours(org.asoem.greyfish.core.space.Location2D, double, java.lang.Class)
 	 */
+    @SuppressWarnings("unchecked")
 	@Override
 	public Iterable<Object2DInterface> findNeighbours(Location2DInterface p, double range) {
 
-		Iterable<Object2DInterface> found = null;
+		ArrayList<Object2DInterface> found = new ArrayList<Object2DInterface>();
 
 			long start = 0;
 			if (GreyfishLogger.isTraceEnabled())
 				start  = System.currentTimeMillis();
 
             HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
-            scala.collection.immutable.List l = kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
-            found = scala.collection.JavaConversions.asJavaIterable(l);
+            scala.collection.immutable.List<NNResult<Object2DInterface>> l
+                    = (scala.collection.immutable.List<NNResult<Object2DInterface>>) kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
+            Iterable<NNResult<Object2DInterface>> resultList = scala.collection.JavaConversions.asJavaIterable(l);
+            for (NNResult<Object2DInterface> result : resultList) {
+                found.add((Object2DInterface)result.value());
+            }
 
 			if (GreyfishLogger.isTraceEnabled()) {
 				long end = System.currentTimeMillis();
 				GreyfishLogger.trace(TiledSpace.class.getSimpleName() + "#findNeighbours: Found " + Iterables.size(found) + " Neighbours in " + (end - start) + "ms");
 			}
 
-		return (found == null) ? ImmutableList.<Object2DInterface>of() : found;
+		return found;
 	}
 }
