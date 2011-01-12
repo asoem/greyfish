@@ -17,7 +17,7 @@
         <repository>
             <id>sonatype-public-repository-group</id>
             <name>Sonatype Public Repository Group</name>
-            <url>http://mvn.collide.info/content/groups/public/</url>
+            <url>http://mvn.collide.info/stringContent/groups/public/</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>
@@ -31,7 +31,7 @@
         <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <url>http://repository.jboss.org/nexus/stringContent/groups/public/</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>
