@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
 
-	private static final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
+	private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
 	private final ConditionTree conditionTree = new ConditionTree();
 
@@ -47,10 +47,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
 	private int executionCount;
 
-	private int lastExecutionStep;
-
-	//	@Attribute(name="last", required=false)
-	//	private boolean parameterLast = true;
+	private int timeOfLastExecution;
 
 	public AbstractGFAction() {
 		initFields();
@@ -126,10 +123,10 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 	public void executeUnevaluated(final Simulation simulation) {
 		performAction(simulation);
 		++executionCount;
-		lastExecutionStep = simulation.getSteps();
+		timeOfLastExecution = simulation.getSteps();
 
 		if (energySource != null && done()) {
-			energySource.substract(evaluateFormula());
+			energySource.subtract(evaluateFormula());
 		}
 	}
 
@@ -156,7 +153,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 		if (conditionTree.hasRootCondition())
 			conditionTree.getRootCondition().initialize(simulation);
 		executionCount = 0;
-		lastExecutionStep = simulation.getSteps();
+		timeOfLastExecution = simulation.getSteps();
         try{
             FORMULA_EVALUATOR.parse(energyCostsFormula);
         } catch (EvaluationException e) {
@@ -231,8 +228,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 	//	}
 
 	public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
-		// TODO: logical error: lastExecutionStep = 0 does not mean, that it really did execute at 0
-		return simulation.getSteps() - lastExecutionStep >= steps;
+		// TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
+		return simulation.getSteps() - timeOfLastExecution >= steps;
 	}
 
 	@Override

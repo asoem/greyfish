@@ -55,7 +55,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 				compare = object.getReplyWith();
 				break;
 			case CONTENT:
-				compare = object.getContent();
+				compare = object.getStringContent();
 				break;
 			default:
 				break;

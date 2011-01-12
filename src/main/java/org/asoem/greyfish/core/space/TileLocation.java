@@ -1,11 +1,10 @@
 package org.asoem.greyfish.core.space;
 
-import java.util.List;
-
 import javolution.util.FastList;
-
 import org.asoem.greyfish.core.space.TiledSpace.Direction;
 import org.simpleframework.xml.Attribute;
+
+import java.util.List;
 
 public class TileLocation {
 
@@ -21,7 +20,7 @@ public class TileLocation {
 	final public static int BORDER_EAST = 8;
 	int borderFlags = 0;
 	
-	List<Object2DInterface>	occupants = new FastList<Object2DInterface>();
+	final List<Object2DInterface> occupants = new FastList<Object2DInterface>();
 	TileLocation[] adjacents;
 	TileLocation[] reachables;
 	

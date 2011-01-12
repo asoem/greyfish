@@ -15,7 +15,7 @@ public class GeneticDoubleProperty extends DoubleProperty {
 	}
 	
 	@Override
-	public void substract(double costs) {
+	public void subtract(double costs) {
 		throw new UnsupportedOperationException();
 	}
 	

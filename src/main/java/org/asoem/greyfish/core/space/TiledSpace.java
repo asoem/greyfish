@@ -1,17 +1,14 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.RandomUtils;
-import org.asoem.kdtree.HyperPoint;
-import org.asoem.kdtree.KDTree;
-import org.asoem.kdtree.NNResult;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.core.Commit;
-import scala.Tuple2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * @author christoph
@@ -99,11 +96,6 @@ public class TiledSpace implements Space {
 
 	private TileLocation[][] tileMatrix;
 
-	private static final int DIMENSIONS = 3;
-
-	/* reconstructed each step */
-	//private KDTree<Object2DInterface> kdTree = new KDTree<Object2DInterface>(DIMENSIONS);
-
 	private int nOccupants;
 
 	private final Object2DListener listener = new Object2DListener() {
@@ -113,11 +105,8 @@ public class TiledSpace implements Space {
 
 		}
 	};
-    private KDTree<Object2DInterface> kdtree;
 
-    public int countOwnersAt(int i, int j) {
-		return tileMatrix[i][j].occupants.size();
-	}
+    private KDTreeAdaptor<Object2DInterface> kdtree = new AsoemScalaKDTreeAdaptor<Object2DInterface>();
 
 	@SuppressWarnings("unused")
 	@Commit
@@ -170,8 +159,8 @@ public class TiledSpace implements Space {
 	}
 
 	private void initFields(int width, int height) {
-		if(width<0 || height<0)
-			throw new IllegalArgumentException();
+        Preconditions.checkArgument(width >= 0);
+        Preconditions.checkArgument(height >= 0);
 
 		this.width = width;
 		this.height = height;
@@ -229,7 +218,7 @@ public class TiledSpace implements Space {
 	}
 
 	@SuppressWarnings("unused")
-	private final void createRandomBorders() {
+	private void createRandomBorders() {
 		for (TileLocation location : tilesIterable) {
 			if (RandomUtils.nextFloat() < 0.2) {
 				location.borderFlags |= TileLocation.BORDER_WEST;
@@ -313,27 +302,7 @@ public class TiledSpace implements Space {
 	}
 
 	public void updateTopo() {
-		/*
-		kdTree = new KDTree<Object2DInterface>(DIMENSIONS);
-		for (Object2DInterface individual : occupantsIterable) {
-			try {
-				final Location2D b = individual.getAnchorPoint();
-				final double[] point = new double[] {b.getX(), b.getY(), RandomUtils.nextDouble(0.0, 0.000001)};
-				kdTree.insert(point, individual);
-			} catch (KeySizeException e) {
-				throw new AssertionError();
-			} catch (KeyDuplicateException e) {
-				GreyfishLogger.warn("", e);
-			}
-		}
-		//*/
-        List<Tuple2<HyperPoint, Object2DInterface>> pointList = new ArrayList<Tuple2<HyperPoint, Object2DInterface>>();
-        for (Object2DInterface individual : occupantsIterable) {
-            final Location2D b = individual.getAnchorPoint();
-            final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
-            pointList.add(new Tuple2<HyperPoint, Object2DInterface>(hp, individual));
-        }
-        kdtree = new KDTree<Object2DInterface>(pointList);
+		kdtree.rebuild(occupantsIterable);
 	}
 
 	private boolean hasLocation(Location2DInterface newLocation) {
@@ -425,24 +394,25 @@ public class TiledSpace implements Space {
 	public TileLocation getDestination(TileLocation source, Direction direction) {
 		Preconditions.checkNotNull(source);
 		return (direction == Direction.CENTER)
-		? source
-				: (hasDestination(source, direction))
-				? this.getLocationAt(source.getX()+direction.xTranslation, source.getY()+direction.yTranslation)
-						: null;
+            ? source
+                    : (hasDestination(source, direction))
+                    ? this.getLocationAt(source.getX()+direction.xTranslation, source.getY()+direction.yTranslation)
+                            : null;
 	}
 
 	private boolean hasDestination(TileLocation source, Direction direction) {
 		Preconditions.checkNotNull(source);
 		return direction == Direction.CENTER
-		|| source.getY() + direction.yTranslation >= 0
-		&& source.getX() + direction.xTranslation >= 0
-		&& source.getY() + direction.yTranslation < getHeight()
-		&& source.getX() + direction.xTranslation < getWidth();
+            || source.getY() + direction.yTranslation >= 0
+            && source.getX() + direction.xTranslation >= 0
+            && source.getY() + direction.yTranslation < getHeight()
+            && source.getX() + direction.xTranslation < getWidth();
 	}
 
 	private static boolean borderCheck(TileLocation source, Direction direction) {
 		assert (source != null);
 		assert (direction != null);
+
 		if (direction == Direction.CENTER)
 			return true;
 		if (source.hasBorder(direction.borderCheck))
@@ -454,29 +424,8 @@ public class TiledSpace implements Space {
 	/* (non-Javadoc)
 	 * @see org.asoem.greyfish.core.space.Space#findNeighbours(org.asoem.greyfish.core.space.Location2D, double, java.lang.Class)
 	 */
-    @SuppressWarnings("unchecked")
 	@Override
 	public Iterable<Object2DInterface> findNeighbours(Location2DInterface p, double range) {
-
-		ArrayList<Object2DInterface> found = new ArrayList<Object2DInterface>();
-
-			long start = 0;
-			if (GreyfishLogger.isTraceEnabled())
-				start  = System.currentTimeMillis();
-
-            HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
-            scala.collection.immutable.List<NNResult<Object2DInterface>> l
-                    = (scala.collection.immutable.List<NNResult<Object2DInterface>>) kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
-            Iterable<NNResult<Object2DInterface>> resultList = scala.collection.JavaConversions.asJavaIterable(l);
-            for (NNResult<Object2DInterface> result : resultList) {
-                found.add((Object2DInterface)result.value());
-            }
-
-			if (GreyfishLogger.isTraceEnabled()) {
-				long end = System.currentTimeMillis();
-				GreyfishLogger.trace(TiledSpace.class.getSimpleName() + "#findNeighbours: Found " + Iterables.size(found) + " Neighbours in " + (end - start) + "ms");
-			}
-
-		return found;
+          return kdtree.findNeighbours(p, range);
 	}
 }

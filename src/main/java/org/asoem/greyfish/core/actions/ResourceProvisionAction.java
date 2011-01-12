@@ -1,12 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Map;
-
-import javolution.util.FastMap;
-
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -14,6 +11,8 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
+
+import java.util.Map;
 
 @ClassGroup(tags="action")
 public class ResourceProvisionAction extends ContractNetResponderAction {
@@ -24,15 +23,15 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 	@Element(name="messageType", required=false)
 	private String parameterMessageType;
 
-	private final FastMap<Integer, Double> conversationIdOfferMap = new FastMap<Integer, Double>();
+    private double offer;
 
 	public ResourceProvisionAction() {
-		// TODO Auto-generated constructor stub
 	}	
 
 	@Override
 	protected ACLMessage handleAccept(ACLMessage message) {
-		resourceProperty.substract(conversationIdOfferMap.get(message.getConversationId()));
+        resourceProperty.subtract(offer);
+
 		ACLMessage reply = message.createReply();
 		reply.setPerformative(ACLPerformative.INFORM);
 		return reply;
@@ -47,15 +46,17 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 
 	@Override
 	protected ACLMessage handleCFP(ACLMessage message) {
-		String amountRequestedStr = message.getContent();
-		Double amountRequested = Double.valueOf(amountRequestedStr);
-
-		Double offer = Math.min(amountRequested, resourceProperty.getValue());
-		resourceProperty.substract(offer);
-		conversationIdOfferMap.put(message.getConversationId(), offer);
+		String amountRequestedStr = message.getStringContent();
+        double amountRequested = 0;
+        try {
+            amountRequested = Double.valueOf(amountRequestedStr).doubleValue();
+        } catch (Exception e) {
+            GreyfishLogger.error("Unexpected message content", e);
+        }
+        offer = Math.min(amountRequested, resourceProperty.getValue());
 
 		final ACLMessage reply = message.createReply();
-		reply.setContent(String.valueOf(offer));
+		reply.setStringContent(String.valueOf(offer));
 		reply.setPerformative(ACLPerformative.PROPOSE);
 		return reply;
 	}
@@ -73,18 +74,25 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 
 	@Override
 	protected void handleReject(ACLMessage message) {
-		resourceProperty.add(conversationIdOfferMap.get(message.getConversationId()));
+		resourceProperty.add(offer);
 	}
 	
 	@Override
 	public void export(Exporter e) {
 		super.export(e);
-		e.addField(new ValueAdaptor<String>("Ontology", String.class, parameterMessageType) {
+		e.addField(new ValueAdaptor<String>(
+                "Ontology",
+                String.class,
+                parameterMessageType) {
 			@Override protected void writeThrough(String arg0) {
 				parameterMessageType = arg0;
 			}
 		});
-		e.addField(new ValueSelectionAdaptor<ResourceProperty>("Ontology", ResourceProperty.class, resourceProperty, componentOwner.getProperties(ResourceProperty.class)) {
+		e.addField(new ValueSelectionAdaptor<ResourceProperty>(
+                "ResourceProperty",
+                ResourceProperty.class,
+                resourceProperty,
+                componentOwner.getProperties(ResourceProperty.class)) {
 			@Override protected void writeThrough(ResourceProperty arg0) {
 				resourceProperty = arg0;
 			}

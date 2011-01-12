@@ -9,6 +9,7 @@ public class Location2D implements Location2DInterface {
 
 	@Attribute
 	private double x;
+
 	@Attribute
 	private double y;
 

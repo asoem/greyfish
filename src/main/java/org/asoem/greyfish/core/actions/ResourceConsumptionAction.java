@@ -1,39 +1,34 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.RandomUtils;
-import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
+import java.util.Map;
 
 @ClassGroup(tags="action")
 public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
 	@Element(name = "property")
-	private DoubleProperty consumerProperty;
+	private DoubleProperty consumerProperty = null;
 
 	@Element(name="messageType", required=false)
-	private String parameterMessageType;
+	private String parameterMessageType = "";
 
 	@Element(name="amountPerRequest", required=false)
-	private Double amountPerRequest;
+	private double amountPerRequest = 0;
 	
 	@Element(name="sensorRange")
-	private double sensorRange;
+	private double sensorRange = 0;
 	
 	private Iterable<Individual> sensedMates;
 	
@@ -56,20 +51,28 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 		message.setPerformative(ACLPerformative.CFP);
 
 		/*
-		 * 
 		 * Choose only one. Adding all possible candidates as receivers will decrease the performance in high density populations!
 		 */
 		message.addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))));
 		message.setOntology(parameterMessageType);
-		message.setContent(String.valueOf(amountPerRequest));
+		message.setStringContent(Double.toString(amountPerRequest));
 
 		return message;
 	}
 
 	@Override
 	protected ACLMessage handlePropose(ACLMessage message) {
-		Double offer = Double.valueOf(message.getContent());
-		consumerProperty.add(offer);
+        assert(message != null);
+
+        final String messageContent = message.getStringContent();
+
+        double offer = 0;
+        try {
+            offer = Double.valueOf(messageContent).doubleValue();
+        } catch (Exception e) {
+            GreyfishLogger.error("Unexpected message content", e);
+        }
+        consumerProperty.add(offer);
 		
 		ACLMessage replyMessage = message.createReply();
 		replyMessage.setPerformative(ACLPerformative.ACCEPT_PROPOSAL);

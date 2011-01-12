@@ -1,11 +1,6 @@
 package org.asoem.greyfish.core.io;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
+import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
@@ -13,7 +8,7 @@ import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.CycleStrategy;
 import org.simpleframework.xml.strategy.Strategy;
 
-import com.google.common.base.Preconditions;
+import java.io.*;
 
 public class GreyfishSerialization {
 
@@ -21,7 +16,7 @@ public class GreyfishSerialization {
 	private final static Serializer serializer = new Persister(strategy, GreyfishMatcher.getInstance());
 
 	public static void writeScenario(Scenario scenario, File dest) throws Exception {
-		serializeOject(dest, scenario);
+		serializeObject(dest, scenario);
 	}
 
 	public static Individual readPrototype(File source) throws Exception {
@@ -33,7 +28,7 @@ public class GreyfishSerialization {
 	}
 
 	public static void writeObject(File dest, Object object) throws Exception {
-		serializeOject(dest, object);
+		serializeObject(dest, object);
 	}
 
 	public static <T> T deserializeFile(File file, Class<T> clazz) throws Exception {
@@ -61,17 +56,17 @@ public class GreyfishSerialization {
 		return false;
 	}
 
-	public static <T> void serializeOject(File file, Object object) throws Exception {
+	public static <T> void serializeObject(File file, Object object) throws Exception {
 		Preconditions.checkNotNull(file);
 		if (file.exists())
 			Preconditions.checkArgument( file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
-		serializeOject(new FileOutputStream(file), object);
+		serializeObject(new FileOutputStream(file), object);
 		if (GreyfishLogger.isDebugEnabled())
 			GreyfishLogger.debug("Object written to: " + file.getAbsolutePath());
 	}
 
-	public static <T> void serializeOject(OutputStream oStream, Object object) throws Exception {
+	public static <T> void serializeObject(OutputStream oStream, Object object) throws Exception {
 		Preconditions.checkNotNull(oStream);
 		Preconditions.checkNotNull(object);
 

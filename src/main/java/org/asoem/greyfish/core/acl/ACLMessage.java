@@ -1,25 +1,18 @@
 package org.asoem.greyfish.core.acl;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
+import javolution.context.ObjectFactory;
+import javolution.lang.Reusable;
+import javolution.util.FastList;
+import org.asoem.greyfish.core.individual.Individual;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javolution.context.ObjectFactory;
-import javolution.lang.Reusable;
-import javolution.util.FastList;
-
-import org.asoem.greyfish.core.individual.Individual;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ACLMessage implements Reusable {
 	
@@ -42,11 +35,21 @@ public class ACLMessage implements Reusable {
 	private List<Individual> dests = new FastList<Individual>(RECEIVERS_EXPECTED_SIZE);
 	private List<Individual> reply_to = null;
 
-	// At a given time or content or byteSequenceContent are != null,
-	// it is not allowed that both are != null
-	private StringBuffer content = null;
-	private byte[] byteSequenceContent = null;
-	private Object referenceContent = null;
+    public enum ContentType {
+        NULL,
+        STRING,
+        BYTE_ARRAY,
+        OTHER
+    }
+
+    public ContentType getContentType() {
+        return contentType;
+    }
+
+    private ContentType contentType = ContentType.BYTE_ARRAY;
+
+    private final static Object NULL_CONTENT = new Object();
+    private Object content = NULL_CONTENT;
 
 	private String reply_with = null;
 
@@ -76,75 +79,26 @@ public class ACLMessage implements Reusable {
 		FACTORY.recycle(message);
 	}
 
-	/**
-	 Writes the <code>:sender</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param source The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getSender()
-	 */
 	public void setSender(Individual s) {
 		source = checkNotNull(s);
 	}
 
-	/**
-	 * set the performative of this ACL message object to the passed constant.
-	 * Remind to 
-	 * use the set of constants (i.e. <code> INFORM, REQUEST, ... </code>)
-	 * defined in this class
-	 */
 	public void setPerformative(ACLPerformative perf) {
 		performative = perf;
 	}
 
-	/**
-	 * Writes the <code>:content</code> slot. <em><b>Warning:</b> no
-	 * checks are made to validate the slot value.</em> <p>
-	 * <p>Notice that, in general, setting a String content and getting
-	 * back a byte sequence content - or viceversa - does not return
-	 * the same value, i.e. the following relation does not hold
-	 * <code>
-	 * getByteSequenceContent(setByteSequenceContent(getContent().getBytes())) 
-	 * is equal to getByteSequenceContent()
-	 * </code>
-	 * @param content The new value for the slot.
-	 * @see jade.lang.acl.ACLMessage#getContent()
-	 * @see jade.lang.acl.ACLMessage#setByteSequenceContent(byte[])
-	 * @see jade.lang.acl.ACLMessage#setContentObject(Serializable s)
-	 */
-	public void setContent(String content) {
-		byteSequenceContent = null;
-		referenceContent = null;
-		if (content != null) {
-			this.content = new StringBuffer(content);
-		}
-		else {
-			this.content = null;
-		}
+	public void setStringContent(String stringContent) {
+        this.content = new StringBuffer(stringContent);
+        this.contentType = ContentType.STRING;
 	}
 
-	/**
-	 * Writes the <code>:content</code> slot. <em><b>Warning:</b> no
-	 * checks are made to validate the slot value.</em> <p>
-	 * <p>Notice that, in general, setting a String content and getting
-	 * back a byte sequence content - or viceversa - does not return
-	 * the same value, i.e. the following relation does not hold
-	 * <code>
-	 * getByteSequenceContent(setByteSequenceContent(getContent().getBytes())) 
-	 * is equal to getByteSequenceContent()
-	 * </code>
-	 * @param byteSequenceContent The new value for the slot.
-	 * @see jade.lang.acl.ACLMessage#setContent(String s)
-	 * @see jade.lang.acl.ACLMessage#getByteSequenceContent()
-	 * @see jade.lang.acl.ACLMessage#setContentObject(Serializable s)
-	 */
 	public void setByteSequenceContent(byte[] byteSequenceContent) {
-		content = null;
-		referenceContent = null;
-		this.byteSequenceContent = byteSequenceContent;
+        this.contentType = ContentType.BYTE_ARRAY;
+        this.content = byteSequenceContent;
 	}
 
 	/**
-	 * This method sets the content of this ACLMessage to a Java object.
+	 * This method sets the StringContent of this ACLMessage to a Java object.
 	 * It is not FIPA compliant so its usage is not encouraged.
 	 * For example:<br>
 	 * <PRE>
@@ -155,7 +109,7 @@ public class ACLMessage implements Reusable {
 	 * }catch(IOException e){}
 	 * </PRE>
 	 *
-	 * @param s the object that will be used to set the content of the ACLMessage. 
+	 * @param s the object that will be used to set the StringContent of the ACLMessage.
 	 * @exception IOException if an I/O error occurs.
 	 */
 	public void setContentObject(java.io.Serializable s) throws IOException
@@ -169,10 +123,10 @@ public class ACLMessage implements Reusable {
 
 
 	/**
-	 * This method returns the content of this ACLMessage when they have
+	 * This method returns the StringContent of this ACLMessage when they have
 	 * been written via the method <code>setContentObject</code>.
 	 * It is not FIPA compliant so its usage is not encouraged.
-	 * For example to read Java objects from the content 
+	 * For example to read Java objects from the StringContent
 	 * <PRE>
 	 * ACLMessage msg = blockingReceive();
 	 * try{
@@ -180,7 +134,7 @@ public class ACLMessage implements Reusable {
 	 * }catch(UnreadableException e){}
 	 * </PRE>
 	 * 
-	 * @return the object read from the content of this ACLMessage
+	 * @return the object read from the StringContent of this ACLMessage
 	 * @exception UnreadableException when an error occurs during the decoding.
 	 */
 	public java.io.Serializable getContentObject() throws UnreadableException
@@ -207,82 +161,41 @@ public class ACLMessage implements Reusable {
 	}
 
 	public void setReferenceContent(Object o) {
-		referenceContent = o;
+        this.content = o;
+        this.contentType = ContentType.OTHER;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getReferenceContent(Class<T> clazz) throws IllegalArgumentException {
 		Preconditions.checkArgument(clazz != null
-				&& clazz.isInstance(referenceContent));
-		return (T) referenceContent;
+				&& clazz.isInstance(content));
+		return (T) content;
 	}
-	
-	/**
-	 Writes the <code>:reply-with</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param reply The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getReplyWith()
-	 */
+
 	public void setReplyWith(String reply) {
 		reply_with = reply; 
 	}
 
-	/**
-	 Writes the <code>:in-reply-to</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param reply The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getInReplyTo()
-	 */
 	public void setInReplyTo(String reply) {
 		in_reply_to = reply;
 	}
 
-	/**
-	 Writes the <code>:encoding</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param str The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getEncoding()
-	 */
 	public void setEncoding(String str) {
 		encoding = str;
 	}
 
-	/**
-	 Writes the <code>:language</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param str The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getLanguage()
-	 */
 	public void setLanguage(String str) {
 		language = str;
 	}
 
-	/**
-	 Writes the <code>:ontology</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param str The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getOntology()
-	 */
 	public void setOntology(String str) {
 		ontology = str;
 	}
 
-	/**
-	 Writes the <code>:protocol</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param str The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getProtocol()
-	 */
 	public void setProtocol( String str ) {
 		protocol = str;
 	}
 
-	/**
-	 Writes the <code>:conversation-id</code> slot. <em><b>Warning:</b> no
-	 checks are made to validate the slot value.</em>
-	 @param str The new value for the slot.
-	 @see jade.lang.acl.ACLMessage#getConversationId()
-	 */
 	public void setConversationId( int str ) {
 		conversation_id = str;
 	}
@@ -298,11 +211,6 @@ public class ACLMessage implements Reusable {
 		return dests;
 	}
 
-	/**
-	 Reads <code>:reply_to</code> slot.
-	 @return An <code>Iterator</code> containing the Agent IDs of the
-	 reply_to agents for this message.
-	 */
 	public Iterator<Individual> getAllReplyTo() {
 		if (reply_to == null) {
 			return Iterators.emptyIterator();
@@ -312,11 +220,6 @@ public class ACLMessage implements Reusable {
 		}
 	}
 
-	/**
-	 Reads <code>:sender</code> slot.
-	 @return The value of <code>:sender</code>slot.
-	 @see jade.lang.acl.ACLMessage#setSender(AID).
-	 */
 	public Individual getSender() {
 		return source;
 	}
@@ -328,134 +231,68 @@ public class ACLMessage implements Reusable {
 	public ACLPerformative getPerformative() {
 		return performative;
 	}
-
-	/**
-	 * This method allows to check if the content of this ACLMessage
-	 * is a byteSequence or a String
-	 * @return true if it is a byteSequence, false if it is a String
-	 */
-	public boolean hasByteSequenceContent(){
-		return (byteSequenceContent != null);
-	}
-
-	public boolean hasReferenceContent() {
-		return referenceContent != null;
-	}
 	
 	/**
-	 * Reads <code>:content</code> slot. <p>
-	 * <p>Notice that, in general, setting a String content and getting
-	 * back a byte sequence content - or viceversa - does not return
+	 * Reads <code>:StringContent</code> slot. <p>
+	 * <p>Notice that, in general, setting a String StringContent and getting
+	 * back a byte sequence StringContent - or viceversa - does not return
 	 * the same value, i.e. the following relation does not hold
 	 * <code>
-	 * getByteSequenceContent(setByteSequenceContent(getContent().getBytes())) 
+	 * getByteSequenceContent(setByteSequenceContent(getStringContent().getBytes()))
 	 * is equal to getByteSequenceContent()
 	 * </code>
-	 * @return The value of <code>:content</code> slot.
-	 * @see jade.lang.acl.ACLMessage#setContent(String)
-	 * @see jade.lang.acl.ACLMessage#getByteSequenceContent()
-	 * @see jade.lang.acl.ACLMessage#getContentObject()
-	 */
-	public String getContent() {
-		if(content != null)
-			return new String(content);
-		else if (byteSequenceContent != null)
-			return new String(byteSequenceContent);
-		return null;
+	 * @return The value of <code>:StringContent</code> slot. Guarantied to be not <code>null</code>
+     */
+	public String getStringContent() {
+        switch (contentType) {
+            case STRING:
+                return new String((StringBuffer)content);
+            case BYTE_ARRAY:
+                return new String((byte[])content);
+            default:
+            case OTHER:
+                return content.toString();
+        }
 	}
 
-	/**
-	 * Reads <code>:content</code> slot. <p>
-	 * <p>Notice that, in general, setting a String content and getting
-	 * back a byte sequence content - or viceversa - does not return
-	 * the same value, i.e. the following relation does not hold
-	 * <code>
-	 * getByteSequenceContent(setByteSequenceContent(getContent().getBytes())) 
-	 * is equal to getByteSequenceContent()
-	 * </code>
-	 * @return The value of <code>:content</code> slot.
-	 * @see jade.lang.acl.ACLMessage#getContent()
-	 * @see jade.lang.acl.ACLMessage#setByteSequenceContent(byte[])
-	 * @see jade.lang.acl.ACLMessage#getContentObject()
-	 */
 	public byte[] getByteSequenceContent() {
-		if (content != null) 
-			return content.toString().getBytes();
-		else if (byteSequenceContent != null)
-			return byteSequenceContent;
-		return null;
+		switch (contentType) {
+            default:
+            case STRING:
+                return content.toString().getBytes();
+            case BYTE_ARRAY:
+                return (byte[]) content;
+        }
 	}
 
-	/**
-	 Reads <code>:reply-with</code> slot.
-	 @return The value of <code>:reply-with</code>slot.
-	 @see jade.lang.acl.ACLMessage#setReplyWith(String).
-	 */
 	public String getReplyWith() {
 		return reply_with;
 	}
 
-	/**
-	 Reads <code>:reply-to</code> slot.
-	 @return The value of <code>:reply-to</code>slot.
-	 @see jade.lang.acl.ACLMessage#setInReplyTo(String).
-	 */
 	public String getInReplyTo() {
 		return in_reply_to;
 	}
 
-
-
-	/**
-	 Reads <code>:encoding</code> slot.
-	 @return The value of <code>:encoding</code>slot.
-	 @see jade.lang.acl.ACLMessage#setEncoding(String).
-	 */
 	public String getEncoding() {
 		return encoding;
 	}
 
-	/**
-	 Reads <code>:language</code> slot.
-	 @return The value of <code>:language</code>slot.
-	 @see jade.lang.acl.ACLMessage#setLanguage(String).
-	 */
 	public String getLanguage() {
 		return language;
 	}
 
-	/**
-	 Reads <code>:ontology</code> slot.
-	 @return The value of <code>:ontology</code>slot.
-	 @see jade.lang.acl.ACLMessage#setOntology(String).
-	 */
 	public String getOntology() {
 		return ontology;
 	}
 
-	/**
-	 Reads <code>:protocol</code> slot.
-	 @return The value of <code>:protocol</code>slot.
-	 @see jade.lang.acl.ACLMessage#setProtocol(String).
-	 */
 	public String getProtocol() {
 		return protocol;
 	}
 
-	/**
-	 Reads <code>:conversation-id</code> slot.
-	 @return The value of <code>:conversation-id</code>slot.
-	 @see jade.lang.acl.ACLMessage#setConversationId(String).
-	 */
 	public int getConversationId() {
 		return conversation_id;
 	}
 
-	/**
-	 Adds a value to <code>:receiver</code> slot. <em><b>Warning:</b>
-	 no checks are made to validate the slot value.</em>
-	 @param r The value to add to the slot value set.
-	 */
 	public void addReceiver(Individual r) {
 		dests.add(checkNotNull(r));
 	}
@@ -473,7 +310,7 @@ public class ACLMessage implements Reusable {
 	 * In particular, it sets the following parameters of the new message:
 	 * receiver, language, ontology, protocol, conversation-id,
 	 * in-reply-to, reply-with.
-	 * The programmer needs to set the communicative-act and the content.
+	 * The programmer needs to set the communicative-act and the StringContent.
 	 * Of course, if he wishes to do that, he can reset any of the fields.
 	 * @return the ACLMessage to send as a reply
 	 */
@@ -528,16 +365,21 @@ public class ACLMessage implements Reusable {
 				str.append(it.next().toString()+" ");
 			str.append(")\n");
 		}
-		if (hasByteSequenceContent()) {
-			str.append(":content" + " <BINARY> \n");
-		} else {
-			String content = getContent();
-			if (content != null) {
-				content = content.trim();
-				if (content.length() > 0)
-					str.append(":content" + " \"" + content + "\" \n");
-			}
-		}
+        switch (contentType) {
+            case BYTE_ARRAY:
+               str.append(":StringContent" + " <BINARY> \n");
+                break;
+            case STRING:
+                String content = getStringContent().trim();
+				str.append(":StringContent" + " \"" + content + "\" \n");
+                break;
+            case NULL:
+                 str.append(":StringContent" + " <Not set> \n");
+                break;
+            case OTHER:
+                str.append(":StringContent" + " <OBJECT> \n");
+                break;
+        }
 		
 		// Description of Content
 		str.append(":encoding " + getEncoding() + "\n");
@@ -558,8 +400,8 @@ public class ACLMessage implements Reusable {
 	@Override
 	public void reset() {
 		this.performative = null;
-		this.byteSequenceContent = null;
-		this.content = null;
+		this.content = NULL_CONTENT;
+        this.contentType = ContentType.NULL;
 		this.conversation_id = 0;
 		this.dests.clear();
 		this.encoding = null;
@@ -567,7 +409,6 @@ public class ACLMessage implements Reusable {
 		this.language = null;
 		this.ontology = null;
 		this.protocol = null;
-		this.referenceContent = null;
 		this.reply_to = null;
 		this.reply_with = null;
 		this.source = null;
@@ -577,8 +418,8 @@ public class ACLMessage implements Reusable {
 		ACLMessage ret = newInstance();
 		
 		ret.performative = this.performative;
-		ret.byteSequenceContent = this.byteSequenceContent;
-		ret.content = this.content;
+        ret.content = this.content;
+        ret.contentType = this.contentType;
 		ret.conversation_id = this.conversation_id;
 		ret.dests.clear();
 		ret.dests.addAll(this.dests);
@@ -587,7 +428,6 @@ public class ACLMessage implements Reusable {
 		ret.language = this.language;
 		ret.ontology = this.ontology;
 		ret.protocol = this.protocol;
-		ret.referenceContent = this.referenceContent;
 		ret.reply_to = this.reply_to;
 		ret.reply_with = this.reply_with;
 		ret.source = this.source;

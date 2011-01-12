@@ -1,18 +1,13 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Collection;
-import java.util.Map;
-
 import javolution.util.FastList;
-
-import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.ACLMessageReceiver;
-import org.asoem.greyfish.core.acl.ACLMessageTransmitter;
-import org.asoem.greyfish.core.acl.ACLPerformative;
-import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
+
+import java.util.Collection;
+import java.util.Map;
 
 public abstract class ContractNetInitiatiorAction extends FSMAction {
 
@@ -72,6 +67,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 				Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(createCFPReplyTemplate());
 				
 				for (ACLMessage receivedMessage : receivedMessages) {
+
 					if (receivedMessage.matches(MessageTemplate.performative(
 							ACLPerformative.PROPOSE))) {
 
@@ -140,7 +136,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 		});
 	}
 
-	private final MessageTemplate createAcceptReplyTemplate() {
+	private MessageTemplate createAcceptReplyTemplate() {
 		return MessageTemplate.and(
 				MessageTemplate.isReply(proposeReplies),
 				MessageTemplate.or(
@@ -148,7 +144,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 						MessageTemplate.performative(ACLPerformative.FAILURE)));
 	}
 
-	private final MessageTemplate createCFPReplyTemplate() {
+	private MessageTemplate createCFPReplyTemplate() {
 		return MessageTemplate.and(
 				MessageTemplate.inReplyTo(cfpMessage.getReplyWith()),
 				MessageTemplate.or(
@@ -156,22 +152,18 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 						MessageTemplate.performative(ACLPerformative.REFUSE)));
 	}
 
-	private final void checkCFP(ACLMessage cfpMessage) {
-		if (cfpMessage == null)
-			throw new NullPointerException();
+	private void checkCFP(ACLMessage cfpMessage) {
+        assert(cfpMessage != null);
 		// TODO: add sender, receiver, etc. ?
-		if ( ! cfpMessage.matches(MessageTemplate.performative(ACLPerformative.CFP)))
-			throw new AssertionError();
+		assert(cfpMessage.matches(MessageTemplate.performative(ACLPerformative.CFP)));
 	}
 
-	private final void checkProposeReply(ACLMessage response) {
-		if (response == null)
-			throw new NullPointerException();
-		if (! response.matches(MessageTemplate.any(
+	private void checkProposeReply(ACLMessage response) {
+        assert(response != null);
+		assert(response.matches(MessageTemplate.any(
 				MessageTemplate.performative(ACLPerformative.ACCEPT_PROPOSAL),
 				MessageTemplate.performative(ACLPerformative.REJECT_PROPOSAL),
-				MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))))
-			throw new AssertionError();
+				MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
 	}
 	
 	protected ACLMessageReceiver getReceiver() {

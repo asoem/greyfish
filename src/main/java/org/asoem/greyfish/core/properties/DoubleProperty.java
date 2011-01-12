@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
-import java.util.Map;
-
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
+
+import java.util.Map;
 
 @ClassGroup(tags="property")
 public class DoubleProperty extends OrderedSetProperty<Double> {
@@ -29,7 +29,7 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
 		super.export(e, Double.class);
 	}
 
-	public void substract(double costs) {
+	public void subtract(double costs) {
 		setValue(value-costs);
 	}
 	
