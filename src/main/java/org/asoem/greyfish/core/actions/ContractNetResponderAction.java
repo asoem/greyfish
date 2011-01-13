@@ -1,18 +1,13 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Collection;
-import java.util.Map;
-
 import javolution.util.FastList;
-
-import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.ACLMessageReceiver;
-import org.asoem.greyfish.core.acl.ACLMessageTransmitter;
-import org.asoem.greyfish.core.acl.ACLPerformative;
-import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
+
+import java.util.Collection;
+import java.util.Map;
 
 public abstract class ContractNetResponderAction extends FSMAction {
 
@@ -24,6 +19,8 @@ public abstract class ContractNetResponderAction extends FSMAction {
 	private static final int TIMEOUT_TIME = 10;
 	
 	private int timeoutCounter;
+
+    private ACLMessage sent;
 
 	private int nExpectedProposeAnswers;
 	private Collection<ACLMessage> cfpReplies = new FastList<ACLMessage>();
@@ -43,23 +40,24 @@ public abstract class ContractNetResponderAction extends FSMAction {
 		initFSM();
 	}
 
+    private void send(final ACLMessage message) {
+        message.send(getTransmitter());
+        sent = message;
+    }
+
 	private void initFSM() {
 		registerInitialState(CHECK_CFP, new StateAction() {
 
 			@Override
 			public String action() {
-				final MessageTemplate specificTemplate = createCFPTemplate();
-				final MessageTemplate generalTemplate = MessageTemplate.performative(ACLPerformative.CFP);
-				Iterable<ACLMessage> matches = getReceiver().pollMessages(MessageTemplate.and(
-						generalTemplate,
-						specificTemplate));
+				final Iterable<ACLMessage> matches = getReceiver().pollMessages(createCFPTemplate());
 
 				for (ACLMessage message : matches) {
 
 					ACLMessage cfpReply = handleCFP(message);
 					checkCFPReply(cfpReply);
 					cfpReplies.add(cfpReply);
-					cfpReply.send(getTransmitter());
+					send(cfpReply);
 					if (cfpReply.matches(MessageTemplate.performative(ACLPerformative.PROPOSE)))
 						++nExpectedProposeAnswers;
 					
@@ -83,7 +81,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 						ACLMessage response = handleAccept(receivedMessage);
 						checkAcceptReply(response);
 
-						response.send(getTransmitter());
+                        send(response);
 					}
 					else {
 						handleReject(receivedMessage);
@@ -160,5 +158,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
 	protected abstract ACLMessage handleCFP(ACLMessage message);
 	
-	protected abstract MessageTemplate createCFPTemplate();
+	protected MessageTemplate createCFPTemplate() {
+        return MessageTemplate.performative(ACLPerformative.CFP);
+    };
 }

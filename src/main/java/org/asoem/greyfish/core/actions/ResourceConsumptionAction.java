@@ -42,6 +42,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 		consumerProperty = deepClone(action.consumerProperty, mapDict);
 		parameterMessageType = action.parameterMessageType;
 		amountPerRequest = action.amountPerRequest;
+        sensorRange = action.sensorRange;
 	}
 
 

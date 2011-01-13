@@ -49,6 +49,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 			@Override
 			public String action() {
 				cfpMessage = createCFP();
+
 				checkCFP(cfpMessage);
 
 				cfpMessage.send(getTransmitter());
@@ -153,9 +154,10 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 	}
 
 	private void checkCFP(ACLMessage cfpMessage) {
-        assert(cfpMessage != null);
-		// TODO: add sender, receiver, etc. ?
-		assert(cfpMessage.matches(MessageTemplate.performative(ACLPerformative.CFP)));
+        assert cfpMessage != null : "Message must not be null";
+//        assert ! Strings.isNullOrEmpty(cfpMessage.getReplyWith()) : "Message has invalid field reply-with: " + String.valueOf(cfpMessage.getReplyWith());
+		assert cfpMessage.matches(MessageTemplate.performative(ACLPerformative.CFP)) : "Message must have performative set to CFP";
+        // TODO: add sender, receiver, etc. ?
 	}
 
 	private void checkProposeReply(ACLMessage response) {

@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.acl;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterators;
 import javolution.context.ObjectFactory;
 import javolution.lang.Reusable;
@@ -24,7 +25,7 @@ public class ACLMessage implements Reusable {
 		}
 	};
 	
-	private ACLPerformative performative;
+	private ACLPerformative performative = ACLPerformative.NOT_UNDERSTOOD;
 
 	private Individual source;
 
@@ -67,8 +68,6 @@ public class ACLMessage implements Reusable {
 	private int conversation_id = 0;
 
 	private ACLMessage() {
-		this.performative = ACLPerformative.NOT_UNDERSTOOD;
-		this.conversation_id = ++progressiveId;
 	}
 
 	public static ACLMessage newInstance() {
@@ -302,6 +301,9 @@ public class ACLMessage implements Reusable {
 	}
 	
 	public void send(final ACLMessageTransmitter transmitter) {
+        if (Strings.isNullOrEmpty(reply_with))
+            generateReplyWith();
+
 		transmitter.deliverMessage(this);
 	}
 
@@ -337,7 +339,7 @@ public class ACLMessage implements Reusable {
 		if (source != null)
 			setReplyWith(source.getName() + java.lang.System.currentTimeMillis()); 
 		else
-			setReplyWith("X"+java.lang.System.currentTimeMillis());
+			setReplyWith("X" + java.lang.System.currentTimeMillis());
 	}
 
 	public boolean matches(MessageTemplate performative) {
@@ -399,10 +401,10 @@ public class ACLMessage implements Reusable {
 
 	@Override
 	public void reset() {
-		this.performative = null;
+		this.performative = ACLPerformative.NOT_UNDERSTOOD;
 		this.content = NULL_CONTENT;
         this.contentType = ContentType.NULL;
-		this.conversation_id = 0;
+		this.conversation_id = ++progressiveId;
 		this.dests.clear();
 		this.encoding = null;
 		this.in_reply_to = null;

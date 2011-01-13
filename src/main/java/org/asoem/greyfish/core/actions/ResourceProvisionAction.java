@@ -63,7 +63,9 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 
 	@Override
 	protected MessageTemplate createCFPTemplate() {
-		return MessageTemplate.ontology(parameterMessageType);
+        return MessageTemplate.and(
+            super.createCFPTemplate(),
+            MessageTemplate.ontology(parameterMessageType));
 	}
 
 	@Override
