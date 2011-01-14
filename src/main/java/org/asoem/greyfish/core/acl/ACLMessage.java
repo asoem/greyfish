@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.acl;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterators;
 import javolution.context.ObjectFactory;
@@ -163,12 +162,9 @@ public class ACLMessage implements Reusable {
         this.content = o;
         this.contentType = ContentType.OTHER;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> T getReferenceContent(Class<T> clazz) throws IllegalArgumentException {
-		Preconditions.checkArgument(clazz != null
-				&& clazz.isInstance(content));
-		return (T) content;
+
+	public Object getReferenceContent() {
+		return content;
 	}
 
 	public void setReplyWith(String reply) {

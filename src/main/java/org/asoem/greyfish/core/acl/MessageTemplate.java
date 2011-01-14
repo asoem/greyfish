@@ -1,16 +1,15 @@
 package org.asoem.greyfish.core.acl;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
-
-import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MessageTemplate implements Predicate<ACLMessage> {
 
-	private static class PerformativeTemplate implements Predicate<ACLMessage> {
+
+    private static class PerformativeTemplate implements Predicate<ACLMessage> {
 
 		private final ACLPerformative performative;
 		
@@ -65,18 +64,55 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 				|| literal != null && compare != null && literal.equals(compare);
 		}
 	}
-	
+
+    private static class ConversationIDTemplate implements Predicate<ACLMessage> {
+        private int conversationID;
+
+        private ConversationIDTemplate(int conversationID) {
+            this.conversationID = conversationID;
+        }
+
+        @Override
+        public boolean apply(ACLMessage aclMessage) {
+            return this.conversationID == aclMessage.getConversationId();
+        }
+    }
+
+
+    private static class ReferenceContentTemplate<T> implements Predicate<ACLMessage> {
+        private Class<T> clazz;
+        private Predicate<T> predicate;
+
+        private ReferenceContentTemplate(Class<T> clazz, Predicate<T> predicate) {
+            this.clazz = clazz;
+            this.predicate = predicate;
+        }
+
+        @Override
+        public boolean apply(ACLMessage aclMessage) {
+            return clazz.isInstance(aclMessage.getReferenceContent())
+                    && predicate.apply((T) aclMessage.getReferenceContent());
+        }
+    }
+
 	private static class IsReplyTemplate implements Predicate<ACLMessage> {
-		private Collection<ACLMessage> messages;
+		private ACLMessage messages;
 		
-		public IsReplyTemplate(Collection<ACLMessage> messages) {
+		public IsReplyTemplate(ACLMessage messages) {
 			this.messages = checkNotNull(messages);
 		}
 
 		@Override
 		public boolean apply(ACLMessage object) {
-			return Iterables.any(messages, MessageTemplate.replyWith(object.getInReplyTo()));
+			return Objects.equal(messages.getConversationId(), object.getConversationId())
+                    && messages.getReplyWith().equals(object.getInReplyTo());
 		}
+	}
+
+    private Predicate<ACLMessage> predicate;
+
+	private MessageTemplate(Predicate<ACLMessage> predicate) {
+		this.predicate = predicate;
 	}
 
 	@Override
@@ -91,12 +127,10 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 	public static MessageTemplate ontology(String ontology) {
 		return new MessageTemplate(new LiteralTemplate(ontology, ACLLiteralMessageField.ONTOLOGY));
 	}
-	
-	private Predicate<ACLMessage> predicate;
-	
-	private MessageTemplate(Predicate<ACLMessage> predicate) {
-		this.predicate = predicate;
-	}
+
+    public static MessageTemplate conversationId(int conversationId) {
+        return new MessageTemplate(new ConversationIDTemplate(conversationId));
+    }
 
 	public static MessageTemplate all(MessageTemplate ... templates) {
 		return new MessageTemplate(Predicates.<ACLMessage>and(templates));
@@ -118,7 +152,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 		return new MessageTemplate(new LiteralTemplate(replyWith, ACLLiteralMessageField.REPLY_WITH));
 	}
 
-	public static MessageTemplate isReply(Collection<ACLMessage> cfpReplies) {
+	public static MessageTemplate isReplyTo(ACLMessage cfpReplies) {
 		return new MessageTemplate(new IsReplyTemplate(cfpReplies));
 	}
 
@@ -129,4 +163,18 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 	public static MessageTemplate any(MessageTemplate ... templates) {
 		return new MessageTemplate(Predicates.<ACLMessage>or(templates));
 	}
+
+    private static final MessageTemplate ALWAYS_FALSE_TEMPLATE = new MessageTemplate(Predicates.<ACLMessage>alwaysFalse());
+    public static MessageTemplate alwaysFalse() {
+        return ALWAYS_FALSE_TEMPLATE;
+    }
+
+    private static final MessageTemplate ALWAYS_TRUE_TEMPLATE = new MessageTemplate(Predicates.<ACLMessage>alwaysFalse());
+    public static MessageTemplate alwaysTrue() {
+        return ALWAYS_TRUE_TEMPLATE;
+    }
+    public static <T> MessageTemplate referenceContent(Class<T> clazz, Predicate<T> predicate) {
+        return new MessageTemplate(new ReferenceContentTemplate(clazz, predicate));
+    }
+
 }

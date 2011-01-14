@@ -1,191 +1,234 @@
 package org.asoem.greyfish.core.actions;
 
-import javolution.util.FastList;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 public abstract class ContractNetInitiatiorAction extends FSMAction {
 
-	private static final String SEND_CFP = "Send-cfp";
-	private static final String WAIT_FOR_POROPOSALS = "Wait-for-proposals";
-	private static final String WAIT_FOR_INFORM = "Wait-for-inform";
-	private static final String END = "End";
-	private static final String TIMEOUT = "Timeout";
+    private static final String SEND_CFP = "Send-cfp";
+    private static final String WAIT_FOR_POROPOSALS = "Wait-for-proposals";
+    private static final String WAIT_FOR_INFORM = "Wait-for-inform";
+    private static final String END = "End";
+    private static final String TIMEOUT = "Timeout";
 
-	private static final int PROPOSAL_TIMEOUT = 10;
-	private static final int INFORM_TIMEOUT = 10;
+    private static final int PROPOSAL_TIMEOUT = 10;
+    private static final int INFORM_TIMEOUT = 10;
 
-	private int timeoutCounter;
-	private int nReceivedProposals;
-	private int nReceivedAcceptAnswers;
+    private int timeoutCounter;
+    private int nReceivedProposals;
+    private int nReceivedAcceptAnswers;
 
-	private ACLMessage cfpMessage;
-	private final Collection<ACLMessage> proposeReplies = new FastList<ACLMessage>();
-	private int nProposalsExpected;
+    private MessageTemplate template = MessageTemplate.alwaysFalse();
+    private int nProposalsExpected;
 
-	public ContractNetInitiatiorAction() {
-		initFSM();
-	}
+    public ContractNetInitiatiorAction() {
+        initFSM();
+    }
 
-	public ContractNetInitiatiorAction(String name) {
-		super(name);
-		initFSM();
-	}
+    public ContractNetInitiatiorAction(String name) {
+        super(name);
+        initFSM();
+    }
 
-	public ContractNetInitiatiorAction(ContractNetInitiatiorAction action,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(action, mapDict);
-		initFSM();
-	}
+    public ContractNetInitiatiorAction(ContractNetInitiatiorAction action,
+                                       Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        super(action, mapDict);
+        initFSM();
+    }
 
-	private void initFSM() {
-		registerInitialState(SEND_CFP, new StateAction() {
+    private void initFSM() {
+        registerInitialState(SEND_CFP, new StateAction() {
 
-			@Override
-			public String action() {
-				cfpMessage = createCFP();
+            @Override
+            public String action() {
+                ACLMessage cfpMessage = createCFP();
 
-				checkCFP(cfpMessage);
+                checkCFP(cfpMessage);
 
-				cfpMessage.send(getTransmitter());
-				nProposalsExpected = cfpMessage.getAllReceiver().size();
-				timeoutCounter = 0;
-				nReceivedProposals = 0;
-				
-				return WAIT_FOR_POROPOSALS;
-			}
-		});
+                cfpMessage.send(getTransmitter());
+                nProposalsExpected = cfpMessage.getAllReceiver().size();
+                timeoutCounter = 0;
+                nReceivedProposals = 0;
+                template = createCFPReplyTemplate(cfpMessage);
 
-		registerState(WAIT_FOR_POROPOSALS, new StateAction() {
+                return WAIT_FOR_POROPOSALS;
+            }
+        });
 
-			@Override
-			public String action() {
-				Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(createCFPReplyTemplate());
-				
-				for (ACLMessage receivedMessage : receivedMessages) {
+        registerState(WAIT_FOR_POROPOSALS, new StateAction() {
 
-					if (receivedMessage.matches(MessageTemplate.performative(
-							ACLPerformative.PROPOSE))) {
+            @Override
+            public String action() {
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(template);
 
-						ACLMessage proposeReply = handlePropose(receivedMessage); // TODO: Wait for all proposals, than handle them all at once
-						checkProposeReply(proposeReply);
-						proposeReplies.add(proposeReply);
-						++nReceivedProposals;
+                Collection<ACLMessage> proposeReplies = new ArrayList<ACLMessage>();
+                for (ACLMessage receivedMessage : receivedMessages) {
 
-						proposeReply.send(getTransmitter());
-					}
-					else {
-						handleRefuse(receivedMessage);
-					}
-					
-					ACLMessage.recycle(receivedMessage);
-				}
-				++timeoutCounter;
-				if (timeoutCounter == PROPOSAL_TIMEOUT) {
-					timeoutCounter = 0;
-					return WAIT_FOR_INFORM;
-				}
-				
-				return (nReceivedProposals != nProposalsExpected) ? WAIT_FOR_POROPOSALS : WAIT_FOR_INFORM;
-			}
-		});
+                    ACLMessage proposeReply = null;
+                    switch (receivedMessage.getPerformative()) {
+                        case PROPOSE:
 
-		registerState(WAIT_FOR_INFORM, new StateAction() {
+                            try {
+                                proposeReply = handlePropose(receivedMessage);
+                                proposeReplies.add(proposeReply);
+                                ++nReceivedProposals;
+                            } catch (NotUnderstoodException e) {
+                                proposeReply = e.createReply(receivedMessage);
+                                if (GreyfishLogger.isDebugEnabled())
+                                    GreyfishLogger.debug("Message not understood", e);
+                            } finally {
+                                assert proposeReply != null;
+                            }
+                            checkProposeReply(proposeReply);
+                            proposeReply.send(getTransmitter());
+                            break;
 
-			@Override
-			public String action() {
-				Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(createCFPReplyTemplate());
-				for (ACLMessage receivedMessage : receivedMessages) {
-					if (receivedMessage.matches(MessageTemplate.performative(
-							ACLPerformative.INFORM))) {
-						handleInform(receivedMessage);
-					}
-					else {
-						handleFailure(receivedMessage);
-					}
-					++nReceivedAcceptAnswers;
-					ACLMessage.recycle(receivedMessage);
-				}
-				++timeoutCounter;
-				return (nReceivedAcceptAnswers == nReceivedProposals
-						|| timeoutCounter == INFORM_TIMEOUT) ? TIMEOUT : WAIT_FOR_INFORM;
-			}
-		});
+                        case REFUSE:
+                            if (GreyfishLogger.isDebugEnabled())
+                                GreyfishLogger.debug("CFP was refused: " + receivedMessage);
+                            handleRefuse(receivedMessage);
+                            --nProposalsExpected;
+                            break;
+                        case NOT_UNDERSTOOD:
+                            if (GreyfishLogger.isDebugEnabled())
+                                GreyfishLogger.debug("Communication Error: NOT_UNDERSTOOD received");
+                            --nProposalsExpected;
+                            break;
+                        default:
+                            if (GreyfishLogger.isDebugEnabled())
+                                GreyfishLogger.debug("Protocol Error: Expected PROPOSE, REFUSE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
+                            --nProposalsExpected;
+                            break;
 
-		registerEndState(TIMEOUT, new StateAction() {
+                    }
 
-			@Override
-			public String action() {
-				if (GreyfishLogger.isDebugEnabled())
-					GreyfishLogger.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": Timeout");
-				return TIMEOUT;
-			}
-		});
-		
-		registerEndState(END, new StateAction() {
+                    ACLMessage.recycle(receivedMessage);
+                }
+                ++timeoutCounter;
+                if (timeoutCounter == PROPOSAL_TIMEOUT) {
+                    timeoutCounter = 0;
+                    return WAIT_FOR_INFORM;
+                }
 
-			@Override
-			public String action() {
-				proposeReplies.clear();
-				return END;
-			}
-		});
-	}
+                template = createAcceptReplyTemplate(proposeReplies);
+                assert nProposalsExpected >= 0;
+                if (nProposalsExpected == 0)
+                    return END;
+                else
+                    return (nReceivedProposals != nProposalsExpected) ? WAIT_FOR_POROPOSALS : WAIT_FOR_INFORM;
+            }
+        });
 
-	private MessageTemplate createAcceptReplyTemplate() {
-		return MessageTemplate.and(
-				MessageTemplate.isReply(proposeReplies),
-				MessageTemplate.or(
-						MessageTemplate.performative(ACLPerformative.INFORM),
-						MessageTemplate.performative(ACLPerformative.FAILURE)));
-	}
+        registerState(WAIT_FOR_INFORM, new StateAction() {
 
-	private MessageTemplate createCFPReplyTemplate() {
-		return MessageTemplate.and(
-				MessageTemplate.inReplyTo(cfpMessage.getReplyWith()),
-				MessageTemplate.or(
-						MessageTemplate.performative(ACLPerformative.PROPOSE),
-						MessageTemplate.performative(ACLPerformative.REFUSE)));
-	}
+            @Override
+            public String action() {
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(template);
+                for (ACLMessage receivedMessage : receivedMessages) {
+                    switch (receivedMessage.getPerformative()) {
+                        case INFORM:
+                            handleInform(receivedMessage);
+                            break;
+                        case FAILURE:
+                            handleFailure(receivedMessage);
+                            break;
+                        case NOT_UNDERSTOOD:
+                            if (GreyfishLogger.isDebugEnabled())
+                                GreyfishLogger.debug("Communication Error: NOT_UNDERSTOOD received");
+                            break;
+                        default:
+                            if (GreyfishLogger.isDebugEnabled())
+                                GreyfishLogger.debug("Protocol Error: Expected INFORM, FAILURE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
+                            break;
+                    }
 
-	private void checkCFP(ACLMessage cfpMessage) {
+                    ++nReceivedAcceptAnswers;
+                    ACLMessage.recycle(receivedMessage);
+                }
+                ++timeoutCounter;
+                return (nReceivedAcceptAnswers == nReceivedProposals
+                        || timeoutCounter == INFORM_TIMEOUT) ? TIMEOUT : WAIT_FOR_INFORM;
+            }
+        });
+
+        registerEndState(TIMEOUT, new StateAction() {
+
+            @Override
+            public String action() {
+                if (GreyfishLogger.isDebugEnabled())
+                    GreyfishLogger.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": Timeout");
+                return TIMEOUT;
+            }
+        });
+
+        registerEndState(END, new StateAction() {
+
+            @Override
+            public String action() {
+                return END;
+            }
+        });
+    }
+
+    private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
+        return MessageTemplate.any( // is a reply
+                Iterables.toArray(
+                        Iterables.transform(acceptMessages, new Function<ACLMessage, MessageTemplate>() {
+                            @Override
+                            public MessageTemplate apply(ACLMessage aclMessage) {
+                                return MessageTemplate.isReplyTo(aclMessage);
+                            }
+                        }),
+                        MessageTemplate.class));
+    }
+
+    private static MessageTemplate createCFPReplyTemplate(final ACLMessage cfp) {
+        return MessageTemplate.isReplyTo(cfp);
+    }
+
+    private static void checkCFP(ACLMessage cfpMessage) {
         assert cfpMessage != null : "Message must not be null";
 //        assert ! Strings.isNullOrEmpty(cfpMessage.getReplyWith()) : "Message has invalid field reply-with: " + String.valueOf(cfpMessage.getReplyWith());
-		assert cfpMessage.matches(MessageTemplate.performative(ACLPerformative.CFP)) : "Message must have performative set to CFP";
+        assert cfpMessage.matches(MessageTemplate.performative(ACLPerformative.CFP)) : "Message must have performative set to CFP";
         // TODO: add sender, receiver, etc. ?
-	}
+    }
 
-	private void checkProposeReply(ACLMessage response) {
+    private static void checkProposeReply(ACLMessage response) {
         assert(response != null);
-		assert(response.matches(MessageTemplate.any(
-				MessageTemplate.performative(ACLPerformative.ACCEPT_PROPOSAL),
-				MessageTemplate.performative(ACLPerformative.REJECT_PROPOSAL),
-				MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
-	}
-	
-	protected ACLMessageReceiver getReceiver() {
-		return componentOwner.getInterface(MessageInterface.class);
-	}
+        assert(response.matches(MessageTemplate.any(
+                MessageTemplate.performative(ACLPerformative.ACCEPT_PROPOSAL),
+                MessageTemplate.performative(ACLPerformative.REJECT_PROPOSAL),
+                MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
+    }
 
-	protected ACLMessageTransmitter getTransmitter() {
-		return componentOwner.getInterface(MessageInterface.class);
-	}
+    protected ACLMessageReceiver getReceiver() {
+        return componentOwner.getInterface(MessageInterface.class);
+    }
 
-	protected abstract ACLMessage createCFP();
+    protected ACLMessageTransmitter getTransmitter() {
+        return componentOwner.getInterface(MessageInterface.class);
+    }
 
-	protected abstract ACLMessage handlePropose(ACLMessage message);
+    protected abstract ACLMessage createCFP();
 
-	protected void handleRefuse(ACLMessage message) {
-	}
+    protected abstract ACLMessage handlePropose(ACLMessage message) throws NotUnderstoodException;
 
-	protected void handleFailure(ACLMessage message) {
-	}
+    protected void handleRefuse(ACLMessage message) {
+    }
 
-	protected void handleInform(ACLMessage message) {
-	}
+    protected void handleFailure(ACLMessage message) {
+    }
+
+    protected void handleInform(ACLMessage message) {
+    }
+
+    protected abstract String getOntology();
 }

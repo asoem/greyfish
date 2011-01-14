@@ -5,8 +5,8 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -18,119 +18,120 @@ import java.util.Map;
 @ClassGroup(tags="action")
 public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
-	@Element(name = "property")
-	private DoubleProperty consumerProperty = null;
+    @Element(name = "property")
+    private DoubleProperty consumerProperty = null;
 
-	@Element(name="messageType", required=false)
-	private String parameterMessageType = "";
+    @Element(name="messageType", required=false)
+    private String parameterMessageType = "";
 
-	@Element(name="amountPerRequest", required=false)
-	private double amountPerRequest = 0;
-	
-	@Element(name="sensorRange")
-	private double sensorRange = 0;
-	
-	private Iterable<Individual> sensedMates;
-	
-	public ResourceConsumptionAction() {
-	}
-	
-	
-	protected ResourceConsumptionAction(ResourceConsumptionAction action,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(action, mapDict);
-		consumerProperty = deepClone(action.consumerProperty, mapDict);
-		parameterMessageType = action.parameterMessageType;
-		amountPerRequest = action.amountPerRequest;
+    @Element(name="amountPerRequest", required=false)
+    private double amountPerRequest = 0;
+
+    @Element(name="sensorRange")
+    private double sensorRange = 0;
+
+    private Iterable<Individual> sensedMates;
+
+    public ResourceConsumptionAction() {
+    }
+
+
+    protected ResourceConsumptionAction(ResourceConsumptionAction action,
+                                        Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        super(action, mapDict);
+        consumerProperty = deepClone(action.consumerProperty, mapDict);
+        parameterMessageType = action.parameterMessageType;
+        amountPerRequest = action.amountPerRequest;
         sensorRange = action.sensorRange;
-	}
+    }
 
 
-	@Override
-	protected ACLMessage createCFP() {
-		ACLMessage message = ACLMessage.newInstance();
-		message.setPerformative(ACLPerformative.CFP);
+    @Override
+    protected ACLMessage createCFP() {
+        ACLMessage message = ACLMessage.newInstance();
+        message.setPerformative(ACLPerformative.CFP);
+        message.setOntology(getOntology());
+        // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+        message.addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))));
+        message.setReferenceContent(amountPerRequest);
+        return message;
+    }
 
-		/*
-		 * Choose only one. Adding all possible candidates as receivers will decrease the performance in high density populations!
-		 */
-		message.addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))));
-		message.setOntology(parameterMessageType);
-		message.setStringContent(Double.toString(amountPerRequest));
-
-		return message;
-	}
-
-	@Override
-	protected ACLMessage handlePropose(ACLMessage message) {
+    @Override
+    protected ACLMessage handlePropose(ACLMessage message) throws NotUnderstoodException {
         assert(message != null);
 
-        final String messageContent = message.getStringContent();
+        final Object messageContent = message.getReferenceContent();
 
-        double offer = 0;
         try {
-            offer = Double.valueOf(messageContent).doubleValue();
+            final double offer = (Double) messageContent;
+            consumerProperty.add(offer);
+
+            ACLMessage replyMessage = message.createReply();
+            replyMessage.setPerformative(ACLPerformative.ACCEPT_PROPOSAL);
+            return replyMessage;
         } catch (Exception e) {
-            GreyfishLogger.error("Unexpected message content", e);
+            throw new NotUnderstoodException();
         }
-        consumerProperty.add(offer);
-		
-		ACLMessage replyMessage = message.createReply();
-		replyMessage.setPerformative(ACLPerformative.ACCEPT_PROPOSAL);
-		return replyMessage;
-	}
 
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new ResourceConsumptionAction(this, mapDict);
-	}
+    }
 
-	@Override
-	public boolean evaluate(Simulation simulation) {
-		if ( super.evaluate(simulation) ) {
-			sensedMates = Iterables.filter(simulation.getSpace().findNeighbours(componentOwner, sensorRange), Individual.class);
-			sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(componentOwner)));
-			return ! Iterables.isEmpty(sensedMates);
-		}
-		return false;
-	}	
-	
-	@Override
-	public void initialize(Simulation simulation) {
-		super.initialize(simulation);
-		checkValidity();
-	}
+    @Override
+    protected String getOntology() {
+        return parameterMessageType;
+    }
 
-	private void checkValidity() {
-		Preconditions.checkNotNull(consumerProperty);
-		Preconditions.checkNotNull(parameterMessageType);
-	}
-	
-	@Override
-	public void export(Exporter e) {
-		super.export(e);
-		e.addField(new ValueAdaptor<String>("Ontology", String.class, parameterMessageType) {
-			@Override protected void writeThrough(String arg0) {
-				parameterMessageType = arg0;
-			}
-		});
-		e.addField(new ValueAdaptor<Double>("Amount", Double.class, amountPerRequest) {
-			@Override protected void writeThrough(Double arg0) {
-				amountPerRequest = arg0;
-			}
-		});
-		e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, componentOwner.getProperties(DoubleProperty.class)) {
-			@Override protected void writeThrough(DoubleProperty arg0) {
-				consumerProperty = arg0;
-			}
-		});
-		e.addField(new ValueAdaptor<Double>("Sensor Range", Double.class, sensorRange) {
+    @Override
+    protected AbstractDeepCloneable deepCloneHelper(
+            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        return new ResourceConsumptionAction(this, mapDict);
+    }
 
-			@Override
-			protected void writeThrough(Double arg0) {
-				sensorRange = arg0;
-			}
-		});
-	}
+    @Override
+    public boolean evaluate(Simulation simulation) {
+        if ( super.evaluate(simulation) ) {
+            sensedMates = Iterables.filter(simulation.getSpace().findNeighbours(componentOwner, sensorRange), Individual.class);
+            sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(componentOwner)));
+            return ! Iterables.isEmpty(sensedMates);
+        }
+        return false;
+    }
+
+    @Override
+    public void initialize(Simulation simulation) {
+        super.initialize(simulation);
+        checkValidity();
+    }
+
+    private void checkValidity() {
+        Preconditions.checkNotNull(consumerProperty);
+        Preconditions.checkNotNull(parameterMessageType);
+    }
+
+    @Override
+    public void export(Exporter e) {
+        super.export(e);
+        e.addField(new ValueAdaptor<String>("Ontology", String.class, parameterMessageType) {
+            @Override protected void writeThrough(String arg0) {
+                parameterMessageType = arg0;
+            }
+        });
+        e.addField(new ValueAdaptor<Double>("Amount", Double.class, amountPerRequest) {
+            @Override protected void writeThrough(Double arg0) {
+                amountPerRequest = arg0;
+            }
+        });
+        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, componentOwner.getProperties(DoubleProperty.class)) {
+            @Override protected void writeThrough(DoubleProperty arg0) {
+                consumerProperty = arg0;
+            }
+        });
+        e.addField(new ValueAdaptor<Double>("Sensor Range", Double.class, sensorRange) {
+
+            @Override
+            protected void writeThrough(Double arg0) {
+                sensorRange = arg0;
+            }
+        });
+    }
 }

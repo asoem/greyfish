@@ -2,8 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
-import org.asoem.greyfish.core.acl.MessageTemplate;
-import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -26,9 +25,14 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
     private double offer;
 
 	public ResourceProvisionAction() {
-	}	
+	}
 
-	@Override
+    @Override
+    protected String getOntology() {
+        return parameterMessageType;
+    }
+
+    @Override
 	protected ACLMessage handleAccept(ACLMessage message) {
         resourceProperty.subtract(offer);
 
@@ -45,27 +49,19 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 	}
 
 	@Override
-	protected ACLMessage handleCFP(ACLMessage message) {
-		String amountRequestedStr = message.getStringContent();
+	protected ACLMessage handleCFP(ACLMessage message) throws NotUnderstoodException {
         double amountRequested = 0;
         try {
-            amountRequested = Double.valueOf(amountRequestedStr).doubleValue();
+            amountRequested = (Double) message.getReferenceContent();
         } catch (Exception e) {
-            GreyfishLogger.error("Unexpected message content", e);
+            throw new NotUnderstoodException("Double value expected, received " + message.getReferenceContent());
         }
         offer = Math.min(amountRequested, resourceProperty.getValue());
 
 		final ACLMessage reply = message.createReply();
-		reply.setStringContent(String.valueOf(offer));
+		reply.setReferenceContent(offer);
 		reply.setPerformative(ACLPerformative.PROPOSE);
 		return reply;
-	}
-
-	@Override
-	protected MessageTemplate createCFPTemplate() {
-        return MessageTemplate.and(
-            super.createCFPTemplate(),
-            MessageTemplate.ontology(parameterMessageType));
 	}
 
 	@Override
