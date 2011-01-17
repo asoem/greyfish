@@ -1,9 +1,9 @@
 package org.asoem.greyfish.utils;
 
+import com.google.common.base.Preconditions;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.base.Preconditions;
 
 public abstract class AbstractDeepCloneable implements DeepClonable {
 	
@@ -38,4 +38,6 @@ public abstract class AbstractDeepCloneable implements DeepClonable {
 		// There must not exist any implementation of DeepClonable which doesn't extend DeepCloneable
 		return (component != null) ? (T) ((AbstractDeepCloneable)component).deepClone(map) : null;
 	}
+
+//    protected void deepCloneInitializer(DeepClonable component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {};
 }
