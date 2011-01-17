@@ -1,38 +1,26 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Map;
-
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
-@ClassGroup(tags="action")
+import java.util.Map;
+
+@ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
 
 	private int parameterClones = 1;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8819196846768101838L;
-
 	public ClonalReproductionAction() {
 	}
 
-	public ClonalReproductionAction(String name) {
-		super(name);
-	}
+    public ClonalReproductionAction(Builder builder) {
+        this.parameterClones = builder.nClones;
+    }
 
-	protected ClonalReproductionAction(
-			ClonalReproductionAction action,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(action, mapDict);
-		setParameterClones(action.getParameterClones());
-	}
-
-	public int getParameterClones() {
+    public int getParameterClones() {
 		return parameterClones;
 	}
 
@@ -61,8 +49,26 @@ public class ClonalReproductionAction extends AbstractGFAction {
 	@Override
 	protected AbstractDeepCloneable deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new ClonalReproductionAction(this, mapDict);
+		return new Builder().deepClone(this, mapDict).build();
 	}
 
+    public static class Builder extends AbstractGFAction.Builder {
+        int nClones;
 
+        protected Builder deepClone(ClonalReproductionAction action,
+			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.deepClone(action, mapDict);
+            nClones = action.parameterClones;
+            return this;
+        }
+
+        public Builder nClones(int nClones) {
+            this.nClones = nClones;
+            return this;
+        }
+
+        public ClonalReproductionAction build() {
+            return new ClonalReproductionAction(this);
+        }
+    }
 }

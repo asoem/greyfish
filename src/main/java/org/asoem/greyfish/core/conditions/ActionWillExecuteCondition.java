@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 /**
  * @author christoph
- * Pre-Evaluate an other action
+ * Pre-Evaluate an other actions
  */
 public class ActionWillExecuteCondition extends LeafCondition {
 

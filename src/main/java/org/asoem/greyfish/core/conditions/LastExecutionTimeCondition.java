@@ -14,7 +14,7 @@ import org.simpleframework.xml.Element;
 @ClassGroup(tags="condition")
 public class LastExecutionTimeCondition extends LeafCondition {
 
-	@Element(name="action")
+	@Element(name="actions")
 	private GFAction action;
 	
 	@Element(name="steps")

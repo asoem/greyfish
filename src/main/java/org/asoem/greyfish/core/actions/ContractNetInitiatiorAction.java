@@ -5,11 +5,9 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 public abstract class ContractNetInitiatiorAction extends FSMAction {
 
@@ -26,6 +24,14 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     private int nReceivedProposals;
     private int nReceivedAcceptAnswers;
 
+    private MessageTemplate getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(MessageTemplate template) {
+        this.template = template;
+    }
+
     private MessageTemplate template = MessageTemplate.alwaysFalse();
     private int nProposalsExpected;
 
@@ -33,14 +39,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
         initFSM();
     }
 
-    public ContractNetInitiatiorAction(String name) {
-        super(name);
-        initFSM();
-    }
-
-    public ContractNetInitiatiorAction(ContractNetInitiatiorAction action,
-                                       Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        super(action, mapDict);
+    public ContractNetInitiatiorAction(Builder builder) {
         initFSM();
     }
 
@@ -67,7 +66,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(template);
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getTemplate());
 
                 Collection<ACLMessage> proposeReplies = new ArrayList<ACLMessage>();
                 for (ACLMessage receivedMessage : receivedMessages) {
@@ -131,7 +130,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(template);
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     switch (receivedMessage.getPerformative()) {
                         case INFORM:
@@ -231,4 +230,8 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     }
 
     protected abstract String getOntology();
+
+    protected static class Builder {
+
+    }
 }

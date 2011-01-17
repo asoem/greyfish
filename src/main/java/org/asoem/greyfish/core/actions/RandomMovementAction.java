@@ -11,7 +11,7 @@ import org.asoem.greyfish.utils.RandomUtils;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
-@ClassGroup(tags = "action")
+@ClassGroup(tags = "actions")
 public class RandomMovementAction extends AbstractGFAction {
 
 	@Attribute(required=false)

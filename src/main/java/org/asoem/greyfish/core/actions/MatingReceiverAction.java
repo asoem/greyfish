@@ -8,6 +8,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.io.GreyfishLogger;
@@ -23,7 +24,7 @@ import java.util.Map;
  * @author christoph
  *
  */
-@ClassGroup(tags="action")
+@ClassGroup(tags="actions")
 public class MatingReceiverAction extends ContractNetInitiatiorAction {
 
 	private static final long serialVersionUID = 312940508902682288L;
@@ -144,21 +145,25 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 	}
 
 	@Override
-	protected ACLMessage handlePropose(ACLMessage message) {
+	protected ACLMessage handlePropose(ACLMessage message) throws NotUnderstoodException {
 		ACLMessage replyMessage = message.createReply();
 		try {
-			EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
+			EvaluatedGenome evaluatedGenome = (EvaluatedGenome) message.getReferenceContent();
 			receiveGenome(evaluatedGenome);
 			replyMessage.setPerformative(ACLPerformative.ACCEPT_PROPOSAL);
 		} catch (IllegalArgumentException e) {
-			GreyfishLogger.error("Error in sperm reception", e);
-			replyMessage.setPerformative(ACLPerformative.NOT_UNDERSTOOD);
+            throw new NotUnderstoodException("MessageContent is not a genome");
 		}
 
 		return replyMessage;
 	}
 
-	@Override
+    @Override
+    protected String getOntology() {
+        return parameterMessageType;
+    }
+
+    @Override
 	public boolean evaluate(Simulation simulation) {
 		if ( super.evaluate(simulation) ) {
             final Iterable neighbours = simulation.getSpace().findNeighbours(componentOwner.getAnchorPoint(), sensorRange);

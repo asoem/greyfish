@@ -16,7 +16,7 @@ public class ExitValueCondition extends IntCompareCondition {
 	 */
 	private static final long serialVersionUID = -1945674389029474126L;
 	
-	@Element(name="action")
+	@Element(name="actions")
 	private GFAction parameterAction;
 
 	public ExitValueCondition(ExitValueCondition condition,

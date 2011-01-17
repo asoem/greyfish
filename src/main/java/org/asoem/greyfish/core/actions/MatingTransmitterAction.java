@@ -1,10 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
-import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -13,12 +11,10 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import com.google.common.base.Preconditions;
+import java.util.Map;
 
-@ClassGroup(tags="action")
+@ClassGroup(tags="actions")
 public class MatingTransmitterAction extends ContractNetResponderAction {
-
-	private static final long serialVersionUID = -1990456980403718718L;
 
 	@Element(name="messageType", required=false)
 	private String parameterMessageType;
@@ -30,7 +26,12 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 		super(name);
 	}
 
-	public MatingTransmitterAction(String name, String parameterMessageType) {
+    @Override
+    protected String getOntology() {
+        return parameterMessageType;
+    }
+
+    public MatingTransmitterAction(String name, String parameterMessageType) {
 		super(name);
 		this.parameterMessageType = parameterMessageType;
 	}
@@ -61,13 +62,13 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 	@Override
 	public void export(Exporter e) {
 		super.export(e);
-		e.addField( new ValueAdaptor<String>("Message Type", String.class, parameterMessageType) {
+		e.addField(new ValueAdaptor<String>("Message Type", String.class, parameterMessageType) {
 
-			@Override
-			protected void writeThrough(String arg0) {
-				MatingTransmitterAction.this.parameterMessageType = arg0;
-			}
-		});
+            @Override
+            protected void writeThrough(String arg0) {
+                MatingTransmitterAction.this.parameterMessageType = arg0;
+            }
+        });
 	}
 
 	@Override
@@ -86,10 +87,5 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 		reply.setReferenceContent(new EvaluatedGenome(sperm, evaluateFormula()));
 		reply.setPerformative(ACLPerformative.PROPOSE);
 		return reply;
-	}
-
-	@Override
-	protected MessageTemplate createCFPTemplate() {
-		return MessageTemplate.ontology(parameterMessageType);
 	}
 }

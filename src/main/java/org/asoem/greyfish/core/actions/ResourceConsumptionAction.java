@@ -15,7 +15,7 @@ import org.simpleframework.xml.Element;
 
 import java.util.Map;
 
-@ClassGroup(tags="action")
+@ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     @Element(name = "property")

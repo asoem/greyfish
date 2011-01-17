@@ -22,7 +22,7 @@ import java.util.Map;
  * @author christoph
  * 
  */
-@ClassGroup(tags="action")
+@ClassGroup(tags="actions")
 public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
     private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);

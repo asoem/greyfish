@@ -8,7 +8,7 @@ import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Element;
 
-@ClassGroup(tags="action")
+@ClassGroup(tags="actions")
 public class ConvertQuantityAction extends AbstractGFAction {
 
 	/**

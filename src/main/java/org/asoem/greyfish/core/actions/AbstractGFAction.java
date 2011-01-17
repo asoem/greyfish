@@ -30,210 +30,214 @@ import java.util.NoSuchElementException;
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
 
-	private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
+    private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
-	private final ConditionTree conditionTree = new ConditionTree();
+    private final ConditionTree conditionTree = new ConditionTree();
 
-	@Attribute(name="level")
-	private int parameterExecutionLevel = -1;
+    @Attribute(name="level")
+    private int parameterExecutionLevel = -1;
 
-	@Element(name="costs_formula")
-	private String energyCostsFormula = "0";
+    @Element(name="costs_formula")
+    private String energyCostsFormula = "0";
 
-	@Element(name="energy_source", required=false)
-	private DoubleProperty energySource;
+    @Element(name="energy_source", required=false)
+    private DoubleProperty energySource;
 
-	private int exitValue;
+    private int exitValue;
 
-	private int executionCount;
+    private int executionCount;
 
-	private int timeOfLastExecution;
+    private int timeOfLastExecution;
 
-	public AbstractGFAction() {
-		initFields();
-	}
+    public AbstractGFAction() {
+    }
 
-	public AbstractGFAction(String name) {
-		super(name);
-		initFields();
-	}
+    public AbstractGFAction(Builder builder) {
+        super(builder);
+        this.conditionTree.setRootCondition(builder.rootCondition);
+        this.parameterExecutionLevel = builder.parameterExecutionLevel;
+        this.energySource = builder.energySource;
+        this.energyCostsFormula = builder.energyCostsFormula;
+    }
 
-	public AbstractGFAction(AbstractGFAction action,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(action, mapDict);
+    @Override
+    public boolean evaluate(Simulation simulation) {
 
-		conditionTree.setRootCondition(deepClone(action.getRootCondition(), mapDict));
-		//		parameterLast = action.parameterLast;
-		parameterExecutionLevel = action.parameterExecutionLevel;
-		energyCostsFormula = action.energyCostsFormula;
-		energySource = deepClone(action.energySource, mapDict);
+        if (energySource != null) {
+            if (energySource.getValue().compareTo(evaluateFormula()) < 0 )
+                return false;
+        }
 
-		initFields();
-	}
+        GFCondition rootCondition = conditionTree.getRootCondition();
+        return (rootCondition == null) ? true : rootCondition.evaluate(simulation);
+    }
 
-	private void initFields() {
-		FORMULA_EVALUATOR.setVariableResolver( new VariableResolver() {
+    /**
+     * Called by the individual to evaluate the condition if set and trigger the actions
+     * @param simulation
+     */
+    @Override
+    public final boolean execute(final Simulation simulation) {
+        if( evaluate(simulation) ) {
+            executeUnevaluated(simulation);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-			@Override
-			public String resolveVariable(final String arg0) throws FunctionException {
-				try {				
-					ContinuosProperty<?> property = Iterables.find(componentOwner.getProperties(ContinuosProperty.class), new Predicate<ContinuosProperty>() {
-					
-						@Override
-						public boolean apply(ContinuosProperty object) {
-							return object.getName().equals(arg0);
-						}
-					});
-					return String.valueOf(property.getAmount());
-				} catch(NoSuchElementException e) {
-					GreyfishLogger.warn(e);
-					return "0";
-				}
-			}
-		});
-	}
+    public void executeUnevaluated(final Simulation simulation) {
+        performAction(simulation);
+        ++executionCount;
+        timeOfLastExecution = simulation.getSteps();
 
-	@Override
-	public boolean evaluate(Simulation simulation) {
+        if (energySource != null && done()) {
+            energySource.subtract(evaluateFormula());
+        }
+    }
 
-		if (energySource != null) {
-			if (energySource.getValue().compareTo(evaluateFormula()) < 0 )
-				return false;		
-		}
+    /**
+     * This is the actual actions
+     * @param simulation
+     */
+    protected abstract void performAction(Simulation simulation);
 
-		GFCondition rootCondition = conditionTree.getRootCondition();	
-		return (rootCondition == null) ? true : rootCondition.evaluate(simulation);
-	}
+    @Override
+    public void setComponentOwner(Individual individual) {
+        super.setComponentOwner(individual);
+        conditionTree.setComponentOwner(componentOwner);
+    }
 
-	/**
-	 * Called by the individual to evaluate the condition if set and trigger the action
-	 * @param simulation
-	 */
-	@Override
-	public final boolean execute(final Simulation simulation) {
-		if( evaluate(simulation) ) {
-			executeUnevaluated(simulation);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+    @Override
+    public int getExitValue() {
+        return exitValue;
+    }
 
-	public void executeUnevaluated(final Simulation simulation) {
-		performAction(simulation);
-		++executionCount;
-		timeOfLastExecution = simulation.getSteps();
+    @Override
+    public void initialize(Simulation simulation) {
+        super.initialize(simulation);
+        if (conditionTree.hasRootCondition())
+            conditionTree.getRootCondition().initialize(simulation);
+        executionCount = 0;
+        timeOfLastExecution = simulation.getSteps();
+        FORMULA_EVALUATOR.setVariableResolver( new VariableResolver() {
 
-		if (energySource != null && done()) {
-			energySource.subtract(evaluateFormula());
-		}
-	}
+            @Override
+            public String resolveVariable(final String arg0) throws FunctionException {
+                try {
+                    ContinuosProperty<?> property = Iterables.find(componentOwner.getProperties(ContinuosProperty.class), new Predicate<ContinuosProperty>() {
 
-	/**
-	 * This is the actual action
-	 * @param simulation
-	 */
-	protected abstract void performAction(Simulation simulation);
-
-	@Override
-	public void setComponentOwner(Individual individual) {
-		super.setComponentOwner(individual);
-		conditionTree.setComponentOwner(componentOwner);
-	}
-
-	@Override
-	public int getExitValue() {
-		return exitValue;
-	}
-
-	@Override
-	public void initialize(Simulation simulation) {
-		super.initialize(simulation);
-		if (conditionTree.hasRootCondition())
-			conditionTree.getRootCondition().initialize(simulation);
-		executionCount = 0;
-		timeOfLastExecution = simulation.getSteps();
+                        @Override
+                        public boolean apply(ContinuosProperty object) {
+                            return object.getName().equals(arg0);
+                        }
+                    });
+                    return String.valueOf(property.getAmount());
+                } catch(NoSuchElementException e) {
+                    GreyfishLogger.warn(e);
+                    return "0";
+                }
+            }
+        });
         try{
             FORMULA_EVALUATOR.parse(energyCostsFormula);
         } catch (EvaluationException e) {
             throw new IllegalStateException("energyCostsFormula is not valid");
         }
-	}
+    }
 
-	@Override
-	public ConditionTree getConditionTree() {
-		return conditionTree;
-	}
+    @Override
+    public ConditionTree getConditionTree() {
+        return conditionTree;
+    }
 
-	@Override
-	public double evaluateFormula() {
-		try {
-			return Double.valueOf(FORMULA_EVALUATOR.evaluate());
-		}
-		catch (EvaluationException e) {
-			GreyfishLogger.warn("CostsFormula is not a valid expression", e);
-			return 0;
-		}
-	}
+    @Override
+    public double evaluateFormula() {
+        try {
+            return Double.valueOf(FORMULA_EVALUATOR.evaluate());
+        }
+        catch (EvaluationException e) {
+            GreyfishLogger.warn("CostsFormula is not a valid expression", e);
+            return 0;
+        }
+    }
 
-	public void setParameterCostsFormula(String parameterCostsFormula) {
-		this.energyCostsFormula = parameterCostsFormula;
-	}
+    public void setParameterCostsFormula(String parameterCostsFormula) {
+        this.energyCostsFormula = parameterCostsFormula;
+    }
 
-	public String getParameterCostsFormula() {
-		return energyCostsFormula;
-	}
+    public String getParameterCostsFormula() {
+        return energyCostsFormula;
+    }
 
-	@Element(name="condition", required=false)
-	public GFCondition getRootCondition() {
-		return conditionTree.getRootCondition();
-	}
+    @Element(name="condition", required=false)
+    public GFCondition getRootCondition() {
+        return conditionTree.getRootCondition();
+    }
 
-	@Element(name="condition", required=false)
-	public void setRootCondition(GFCondition rootCondition) {
-		conditionTree.setRootCondition(rootCondition);
-	}
+    @Element(name="condition", required=false)
+    public void setRootCondition(GFCondition rootCondition) {
+        conditionTree.setRootCondition(rootCondition);
+    }
 
-	@Override
-	public int getExecutionCount() {
-		return this.executionCount;
-	}
+    @Override
+    public int getExecutionCount() {
+        return this.executionCount;
+    }
 
-	@Override
-	public void export(Exporter e) {
-		e.addField( new ValueAdaptor<String>("Energy Costs", String.class, energyCostsFormula)
-				{ @Override protected void writeThrough(String arg0) { energyCostsFormula = arg0; }});
-		//		e.addField( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
-		//				{ @Override protected void writeThrough(Boolean arg0) { parameterLast = arg0; }});
-		e.addField(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class, energySource, componentOwner.getProperties(DoubleProperty.class)) {
+    @Override
+    public void export(Exporter e) {
+        e.addField( new ValueAdaptor<String>("Energy Costs", String.class, energyCostsFormula)
+        { @Override protected void writeThrough(String arg0) { energyCostsFormula = arg0; }});
+        //		e.addField( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
+        //				{ @Override protected void writeThrough(Boolean arg0) { parameterLast = arg0; }});
+        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class, energySource, componentOwner.getProperties(DoubleProperty.class)) {
 
-			@Override
-			protected void writeThrough(DoubleProperty arg0) {
-				energySource = arg0;
-			}
-		});
-	}
+            @Override
+            protected void writeThrough(DoubleProperty arg0) {
+                energySource = arg0;
+            }
+        });
+    }
 
-	@Override
-	public void checkDependencies(Iterable<? extends GFComponent> components) {
-		super.checkDependencies(components);
-		if (! Iterables.contains(components, energySource))
-			energySource = null;
-	}
+    @Override
+    public void checkDependencies(Iterable<? extends GFComponent> components) {
+        super.checkDependencies(components);
+        if (! Iterables.contains(components, energySource))
+            energySource = null;
+    }
 
-	//	@Override
-	//	public boolean isLast() {
-	//		return parameterLast;
-	//	}
+    //	@Override
+    //	public boolean isLast() {
+    //		return parameterLast;
+    //	}
 
-	public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
-		// TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
-		return simulation.getSteps() - timeOfLastExecution >= steps;
-	}
+    public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
+        // TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
+        return simulation.getSteps() - timeOfLastExecution >= steps;
+    }
 
-	@Override
-	public boolean done() {
-		return true;
-	}
+    @Override
+    public boolean done() {
+        return true;
+    }
+
+    public static class Builder extends AbstractGFComponent.Builder {
+        GFCondition rootCondition;
+        int parameterExecutionLevel;
+        String energyCostsFormula;
+        DoubleProperty energySource;
+
+        protected Builder deepClone(AbstractGFAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.deepClone(action, mapDict);
+//            super(action, mapDict);
+            rootCondition = AbstractDeepCloneable.deepClone(action.getRootCondition(), mapDict);
+            energySource = AbstractDeepCloneable.deepClone(action.energySource, mapDict);
+
+            parameterExecutionLevel = action.parameterExecutionLevel;
+            energyCostsFormula = action.energyCostsFormula;
+            return this;
+        }
+    }
 }

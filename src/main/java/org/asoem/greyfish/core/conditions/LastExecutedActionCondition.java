@@ -11,7 +11,7 @@ import org.simpleframework.xml.Element;
 
 public class LastExecutedActionCondition extends LeafCondition {
 
-	@Element(name="action", required=false)
+	@Element(name="actions", required=false)
 	private GFAction parameterAction;
 	
 	public LastExecutedActionCondition() {

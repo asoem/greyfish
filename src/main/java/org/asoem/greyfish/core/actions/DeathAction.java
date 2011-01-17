@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
-@ClassGroup(tags="action")
+@ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
 
 	/**

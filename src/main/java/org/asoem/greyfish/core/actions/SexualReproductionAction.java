@@ -15,7 +15,7 @@ import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
-@ClassGroup(tags="action")
+@ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
 
 	private static final long serialVersionUID = 7844538525466224834L;
@@ -79,7 +79,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 	@Override
 	public void export(Exporter e) {
 		super.export(e);
-		e.addField( new ValueAdaptor<Integer>("Offsprings per action", Integer.class, parameterOffspringsPerAction) {
+		e.addField( new ValueAdaptor<Integer>("Offsprings per actions", Integer.class, parameterOffspringsPerAction) {
 			@Override
 			protected void writeThrough(Integer arg0) {
 				parameterOffspringsPerAction = arg0;

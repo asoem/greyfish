@@ -13,7 +13,7 @@ import org.simpleframework.xml.Element;
 
 public class ActionExecutionCountCondition extends IntCompareCondition {
 
-	@Element(name="action")
+	@Element(name="actions")
 	private GFAction parameterAction;
 	
 	public ActionExecutionCountCondition() {

@@ -23,6 +23,11 @@ public abstract class ContractNetResponderAction extends FSMAction {
     private int timeoutCounter;
 
     private int nExpectedProposeAnswers;
+
+    private MessageTemplate getTemplate() {
+        return template;
+    }
+
     private MessageTemplate template = MessageTemplate.alwaysFalse();
 
     public ContractNetResponderAction() {
@@ -82,7 +87,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(template);
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
@@ -110,7 +115,8 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
                 ++timeoutCounter;
 
-                return (nExpectedProposeAnswers == 0) ? END : (timeoutCounter == TIMEOUT_TIME) ? TIMEOUT : WAIT_FOR_ACCEPT;
+                return (nExpectedProposeAnswers == 0) ? END :
+                        (timeoutCounter == TIMEOUT_TIME) ? TIMEOUT : WAIT_FOR_ACCEPT;
             }
         });
 
@@ -155,21 +161,19 @@ public abstract class ContractNetResponderAction extends FSMAction {
     }
 
     private static void checkCFPReply(ACLMessage response) {
-        if (response == null)
-            throw new NullPointerException();
-        if (! response.matches(MessageTemplate.or(
+        assert (response != null);
+        assert (response.matches(MessageTemplate.any(
                 MessageTemplate.performative(ACLPerformative.PROPOSE),
-                MessageTemplate.performative(ACLPerformative.REFUSE))))
-            throw new AssertionError();
+                MessageTemplate.performative(ACLPerformative.REFUSE),
+                MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
     private static void checkAcceptReply(ACLMessage response) {
-        if (response == null)
-            throw new NullPointerException();
-        if (! response.matches(MessageTemplate.or(
+        assert (response != null);
+        assert (response.matches(MessageTemplate.any(
                 MessageTemplate.performative(ACLPerformative.INFORM),
-                MessageTemplate.performative(ACLPerformative.FAILURE))))
-            throw new AssertionError();
+                MessageTemplate.performative(ACLPerformative.FAILURE),
+                MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
     protected abstract ACLMessage handleAccept(ACLMessage message);

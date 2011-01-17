@@ -1,14 +1,8 @@
 package org.asoem.greyfish.core.individual;
 
-import static com.google.common.base.Predicates.instanceOf;
-import static com.google.common.collect.Iterables.filter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.interfaces.GFInterface;
@@ -28,9 +22,10 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.*;
+
+import static com.google.common.base.Predicates.instanceOf;
+import static com.google.common.collect.Iterables.filter;
 
 @Root
 public class Individual extends AbstractDeepCloneable implements MovingObject2DInterface {
@@ -43,7 +38,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	@ElementList(inline=true, entry="property", required=false)
 	private List<GFProperty> properties = new ArrayList<GFProperty>();
 
-	@ElementList(inline=true, entry="action", required=false)
+	@ElementList(inline=true, entry="actions", required=false)
 	private List<GFAction> actions = new ArrayList<GFAction>();
 
 	private final Collection<GFInterface> interfaces = new ArrayList<GFInterface>();
@@ -118,10 +113,10 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	}
 
 	/**
-	 * Adds the given action to this individual.
-	 * The action's execution level is set to the highest execution level found in this individual's actions +1;
+	 * Adds the given actions to this individual.
+	 * The actions's execution level is set to the highest execution level found in this individual's actions +1;
 	 * @param action
-	 * @return {@code true} if action could be added, {@code false} otherwise.
+	 * @return {@code true} if actions could be added, {@code false} otherwise.
 	 */
 	public boolean addAction(final GFAction action) throws IllegalArgumentException {
 		return addComponent(actions, action);
@@ -132,7 +127,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 			checkComponentAddition(component);
 		}
 		catch (IllegalArgumentException e) {
-			GreyfishLogger.error("Could not add action", e);
+			GreyfishLogger.error("Could not add actions", e);
 			throw e;
 		}
 
@@ -478,7 +473,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	}
 
 	/**
-	 * Find the first action in the order of priority and execute it.
+	 * Find the first actions in the order of priority and execute it.
 	 * @param simulation
 	 * @return 
 	 */
@@ -500,8 +495,8 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 				toExecute.executeUnevaluated(simulation);
 				lastExecutedAction = toExecute;
 
-				if (GreyfishLogger.isTraceEnabled())
-					GreyfishLogger.trace("Executed " + toExecute.getName() + "@" + this.getId());
+				if (GreyfishLogger.isDebugEnabled())
+					GreyfishLogger.debug("Executed " + toExecute + "@" + this.getId());
 			}
 		}
 		catch (RuntimeException e) {

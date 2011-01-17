@@ -13,8 +13,8 @@ import org.junit.runner.RunWith
 @RunWith(classOf[JUnitRunner])
 class GFActionSpec extends FlatSpec {
 
-  "All classes implementing GFAction which have annotation @ClassGroup(tags=[\"action\"])" should "correctly clone themselves" in {
-    // find all GFActions in classpath org.asoem.greyfish.core.actions with annotation @ClassGroup(tags=["action"])
+  "All classes implementing GFAction which have annotation @ClassGroup(tags=[\"actions\"])" should "correctly clone themselves" in {
+    // find all GFActions in classpath org.asoem.greyfish.core.actions with annotation @ClassGroup(tags=["actions"])
     val finder = ClassFinder()
     val classes = finder.getClasses
     val concreteSubclasses = ClassFinder.concreteSubclasses("org.asoem.greyfish.core.actions.GFAction", classes)
@@ -55,9 +55,10 @@ class GFActionSpec extends FlatSpec {
       // assert all fields annotated with an "SimpleXML" Attribute are properly cloned
       val b = (instanceList zip cloneList).forall(
         e => {
-          val fieldList = Nil // TODO: = classFieldListMap.get(classOf(instance))
-          fieldList.forall(f => f.get(e._1) == f.get(e._2))
-          // TODO: does the == relation always hold?
+//          val fieldList = Nil // TODO: = classFieldListMap.get(classOf(instance))
+//          fieldList.forall(f => f.get(e._1) == f.get(e._2))
+//           TODO: does the == relation always hold?
+          false
         }
       )
 
