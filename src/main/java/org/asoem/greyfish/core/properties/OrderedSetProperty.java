@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
-import java.util.Map;
-
+import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -9,120 +8,102 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import com.jgoodies.validation.ValidationResult;
+import java.util.Map;
 
 
-public abstract class OrderedSetProperty<T extends Comparable<T>> extends AbstractGFProperty implements DiscreteProperty<T> {
+public abstract class OrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements DiscreteProperty<E> {
 
-	private static final long serialVersionUID = 1L;
+    @Element(name="min")
+    protected E upperBound;
 
-	@Element(name="min")
-	protected T upperBound;
-	
-	@Element(name="max")
-	protected T lowerBound;
-	
-	@Element(name="init")
-	protected T initialValue;
-	
-	protected T value;
+    @Element(name="max")
+    protected E lowerBound;
 
-	public OrderedSetProperty(T min, T max, T init) {
-		init(min, max, init);
-	}
+    @Element(name="init")
+    protected E initialValue;
 
-	protected OrderedSetProperty(OrderedSetProperty<T> property,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(property, mapDict);
-		init(property.lowerBound,
-				property.upperBound,
-				property.initialValue);
-	}
+    protected E value;
 
-	private void init(T min, T max, T init) {
-		lowerBound = min;
-		upperBound = max;
-		initialValue = init;
-	}
+    @Override
+    public E getValue() {
+        return value;
+    }
 
-	public T getUpperBound() {
-		return upperBound;
-	}
+    public void setValue(E amount) {
+        if (rangeCheck(lowerBound, upperBound, amount)) {
+            this.value = amount;
+            firePropertyChanged();
+        }
+        else
+        if (GreyfishLogger.isDebugEnabled())
+            GreyfishLogger.debug(this.getClass().getSimpleName() + "#setValue("+amount+"): Out of range ("+lowerBound+","+upperBound+")");
+    }
 
-	public void setUpperBound(T upperBound) {
-		this.upperBound = upperBound;
-	}
+    private boolean rangeCheck(E from, E to, E value) {
+        return from.compareTo( value ) <= 0
+                && to.compareTo( value ) >= 0;
+    }
 
-	public T getLowerBound() {
-		return lowerBound;
-	}
+    @Override
+    public void initialize(Simulation simulation) {
+        super.initialize(simulation);
+        setValue(initialValue);
+    }
 
-	public void setLowerBound(T lowerBound) {
-		this.lowerBound = lowerBound;
-	}
+    public void export(Exporter e, Class<E> clazz) {
+        e.addField(new ValueAdaptor<E>("Min", clazz, lowerBound) {
 
-	public T getInitialValue() {
-		return initialValue;
-	}
+            @Override
+            protected void writeThrough(E arg0) {
+                lowerBound = arg0;
+            }
+        });
+        e.addField(new ValueAdaptor<E>("Max", clazz, upperBound) {
 
-	public void setInitialValue(T initialValue) {
-		this.initialValue = initialValue;
-	}
+            @Override
+            protected void writeThrough(E arg0) {
+                upperBound = arg0;
+            }
+        });
+        e.addField(new ValueAdaptor<E>("Initial", clazz, initialValue) {
 
-	@Override
-	public T getValue() {
-		return value;
-	}
+            @Override
+            protected void writeThrough(E arg0) {
+                initialValue = arg0;
+            }
+            @Override
+            public ValidationResult validate() {
+                ValidationResult validationResult = new ValidationResult();
+                if (!rangeCheck(lowerBound, upperBound, initialValue))
+                    validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
+                return validationResult;
+            }
+        });
+    }
 
-	public void setValue(T amount) {
-		if (rangeCheck(lowerBound, upperBound, amount)) {
-			this.value = amount;
-			firePropertyChanged();
-		}
-		else
-			if (GreyfishLogger.isDebugEnabled())
-				GreyfishLogger.debug(this.getClass().getSimpleName() + "#setValue("+amount+"): Out of range ("+lowerBound+","+upperBound+")");
-	}
+    protected OrderedSetProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
+        super(builder);
+    }
 
-	private boolean rangeCheck(T from, T to, T value) {
-		return from.compareTo( value ) <= 0
-			&& to.compareTo( value ) >= 0;
-	}
-	
-	@Override
-	public void initialize(Simulation simulation) {
-		super.initialize(simulation);
-		setValue(initialValue);
-	}
-	
-	public void export(Exporter e, Class<T> clazz) {
-		e.addField(new ValueAdaptor<T>("Min", clazz, getLowerBound()) {
+    public static final class Builder<E extends Comparable<E>> extends AbstractBuilder<Builder<E>, E> {
+        @Override protected Builder self() {  return this; }
+    }
 
-			@Override
-			protected void writeThrough(T arg0) {
-				setLowerBound(arg0);
-			}
-		});
-		e.addField(new ValueAdaptor<T>("Max", clazz, getUpperBound()) {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<T> {
+        protected E upperBound;
+        protected E lowerBound;
+        protected E initialValue;
 
-			@Override
-			protected void writeThrough(T arg0) {
-				setUpperBound(arg0);
-			}
-		});
-		e.addField(new ValueAdaptor<T>("Initial", clazz, getInitialValue()) {
+        public T upperBound(E upperBound) { this.upperBound = upperBound; return self(); }
+        public T lowerBound(E lowerBound) { this.lowerBound = lowerBound; return self(); }
+        public T initialValue(E initialValue) { this.initialValue = initialValue; return self(); }
 
-			@Override
-			protected void writeThrough(T arg0) {
-				setInitialValue(arg0);
-			}
-			@Override
-			public ValidationResult validate() {
-				ValidationResult validationResult = new ValidationResult();
-				if (!rangeCheck(getLowerBound(), getUpperBound(), getInitialValue()))
-					validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
-				return validationResult;
-			}
-		});
-	}
+        protected T fromClone(OrderedSetProperty<E> property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(property, mapDict).
+                    lowerBound(property.lowerBound).
+                    upperBound(property.upperBound).
+                    initialValue(property.initialValue);
+            return self();
+        }
+    }
 }

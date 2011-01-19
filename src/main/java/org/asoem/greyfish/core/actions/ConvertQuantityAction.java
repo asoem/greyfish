@@ -1,127 +1,94 @@
 package org.asoem.greyfish.core.actions;
 
-import java.util.Map;
-
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Element;
 
+import java.util.Map;
+
 @ClassGroup(tags="actions")
 public class ConvertQuantityAction extends AbstractGFAction {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1791069218971587293L;
+    @Element(name="source")
+    private DoubleProperty parameterSource = null;
 
-	@Element(name="source")
-	private DoubleProperty parameterSource;
+    @Element(name="target")
+    private DoubleProperty parameterTarget = null;
 
-	@Element(name="target")
-	private DoubleProperty parameterTarget;
+    @Element(name="factor")
+    private double parameterFactor = 0;
 
-	@Element(name="factor")
-	private double parameterFactor;
+    @Element(name="max")
+    private double parameterMax = 0;
 
-	@Element(name="max")
-	private double parameterMax;
+    @Override
+    protected void performAction(Simulation simulation) {
+        if (parameterSource != null && parameterTarget != null) {
+            double add_amount = Math.min(parameterSource.getValue(), parameterMax) * parameterFactor;
 
-	public ConvertQuantityAction() {
-		init(null, null, 0, 0);
-	}
+            if (parameterTarget.getValue() + add_amount > parameterTarget.getUpperBound()) {
+                add_amount = parameterTarget.getUpperBound() - parameterTarget.getValue();
+            }
 
-	public ConvertQuantityAction(String name) {
-		super(name);
-		init(null, null, 0, 0);
-	}
+            parameterTarget.setValue(parameterTarget.getValue() + add_amount);
+            parameterSource.setValue(parameterSource.getValue() - add_amount / parameterFactor );
+        }
+    }
 
-	protected ConvertQuantityAction(ConvertQuantityAction action,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(action, mapDict);
-		final DoubleProperty source = deepClone(action.getParameterSource(), mapDict);
-		final DoubleProperty target = deepClone(action.getParameterTarget(), mapDict);
-		init(source, target, action.parameterFactor, action.parameterMax);
-	}
+    @Override
+    public void initialize(Simulation simulation) {
+        super.initialize(simulation);
+        if (parameterSource == null) {
+            parameterSource = new DoubleProperty();
+            getComponentOwner().addProperty(parameterSource);
+        }
+        if (parameterTarget == null) {
+            parameterTarget = new DoubleProperty();
+            getComponentOwner().addProperty(parameterTarget);
+        }
+    }
 
-	private void init(DoubleProperty source, DoubleProperty target, double factor, double max) {
-		setParameterSource(source);
-		setParameterTarget(target);
-		setParameterFactor(factor);
-		setParameterMax(max);
-	}
+    @Override
+    protected AbstractDeepCloneable deepCloneHelper(
+            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        return new Builder().fromClone(this, mapDict).build();
+    }
 
-	@Override
-	protected void performAction(Simulation simulation) {
-		if (parameterSource != null && parameterTarget != null) {
-			double add_amount = Math.min(parameterSource.getValue(), parameterMax) * parameterFactor;
+    protected ConvertQuantityAction(AbstractBuilder<?> builder) {
+        super(builder);
+        this.parameterTarget = builder.parameterTarget;
+        this.parameterFactor = builder.parameterFactor;
+        this.parameterSource = builder.parameterSource;
+        this.parameterMax = builder.parameterMax;
+    }
 
-			if (parameterTarget.getValue() + add_amount > parameterTarget.getUpperBound()) {
-				add_amount = parameterTarget.getUpperBound() - parameterTarget.getValue();
-			}
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
 
-			parameterTarget.setValue(parameterTarget.getValue() + add_amount);
-			parameterSource.setValue(parameterSource.getValue() - add_amount / parameterFactor );
-		}
-	}
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+        private DoubleProperty parameterSource = null;
+        private DoubleProperty parameterTarget = null;
+        private double parameterFactor = 0;
+        private double parameterMax = 0;
 
-	public DoubleProperty getParameterSource() {
-		return parameterSource;
-	}
+        public T parameterSource(DoubleProperty parameterSource) { this.parameterSource = parameterSource; return self(); }
+        public T parameterTarget(DoubleProperty parameterTarget) { this.parameterTarget = parameterTarget; return self(); }
+        public T parameterFactor(double parameterFactor) { this.parameterFactor = parameterFactor; return self(); }
+        public T parameterMax(double parameterMax) { this.parameterMax = parameterMax; return self(); }
 
-	public void setParameterSource(DoubleProperty parameterSource) {
-		this.parameterSource = parameterSource;
-	}
 
-	public DoubleProperty[] valuesParameterSource() {
-		return getComponentOwner().getProperties(DoubleProperty.class).toArray(new DoubleProperty[0]);
-	}
+        protected T fromClone(ConvertQuantityAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(action, mapDict).
+                    parameterFactor(action.parameterFactor).
+                    parameterTarget(deepClone(action.parameterTarget, mapDict)).
+                    parameterSource(deepClone(action.parameterSource, mapDict)).
+                    parameterMax(action.parameterMax);
+            return self();
+        }
 
-	public DoubleProperty getParameterTarget() {
-		return parameterTarget;
-	}
-
-	public void setParameterTarget(DoubleProperty parameterTarget) {
-		this.parameterTarget = parameterTarget;
-	}
-
-	public DoubleProperty[] valuesParameterTarget() {
-		return getComponentOwner().getProperties(DoubleProperty.class).toArray(new DoubleProperty[0]);
-	}
-
-	public double getParameterFactor() {
-		return parameterFactor;
-	}
-
-	public void setParameterFactor(double parameterFactor) {
-		this.parameterFactor = parameterFactor;
-	}
-
-	public double getParameterMax() {
-		return parameterMax;
-	}
-
-	public void setParameterMax(double parameterMax) {
-		this.parameterMax = parameterMax;
-	}
-
-	@Override
-	public void initialize(Simulation simulation) {
-		super.initialize(simulation);
-		if (parameterSource == null) {
-			parameterSource = new DoubleProperty();
-			getComponentOwner().addProperty(parameterSource);
-		}
-		if (parameterTarget == null) {
-			parameterTarget = new DoubleProperty();
-			getComponentOwner().addProperty(parameterTarget);
-		}
-	}
-
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new ConvertQuantityAction(this, mapDict);
-	}
+        public ConvertQuantityAction build() { return new ConvertQuantityAction(this); }
+    }
 }

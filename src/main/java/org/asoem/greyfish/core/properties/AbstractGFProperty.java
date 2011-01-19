@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
-import java.util.Map;
-
+import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.Functor;
@@ -10,35 +9,28 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Root;
 
-import com.google.common.collect.ObjectArrays;
+import java.util.Map;
 
 @Root
 public abstract class AbstractGFProperty extends AbstractGFComponent implements GFProperty {
 
 	private final ListenerSupport<GFPropertyChangeListener> listenerSupport = new ListenerSupport<GFPropertyChangeListener>();
-	
-	private static final long serialVersionUID = -2745483694884432599L;
 
-	private static final Gene<?>[] NULL_GENES = new Gene[0];
-	private Gene<?>[] genes = NULL_GENES;
+    private ImmutableList<? extends Gene<?>> geneList = ImmutableList.of();
 
-	public AbstractGFProperty() {
-	}
-
-	protected AbstractGFProperty(AbstractGFProperty property,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(property, mapDict);
-	}
-
-	@Override
+    @Override
 	public void mutate() {}
 
 	@Override
 	public final Gene<?>[] getGenes() {
-		return genes;
+		return geneList.toArray(new Gene<?>[geneList.size()]);
 	}
-	
-	@Override
+
+    public ImmutableList<? extends Gene<?>> getGeneList() {
+        return geneList;
+    }
+
+    @Override
 	public void export(Exporter e) {
 	}
 	
@@ -47,10 +39,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
 	}
 	
 	public final <R extends Gene<?>> R registerGene(final R gene) {
-		if (this.genes == NULL_GENES)
-			this.genes = new Gene<?>[] {gene};
-		else
-			ObjectArrays.concat(genes, gene);
+        geneList = new ImmutableList.Builder<Gene<?>>().addAll(geneList).add(gene).build();
 		return gene;
 	}
 	
@@ -67,4 +56,15 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
 			}
 		});
 	}
+
+    protected AbstractGFProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
+        protected T fromClone(AbstractGFProperty action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(action, mapDict);
+            return self();
+        }
+    }
 }

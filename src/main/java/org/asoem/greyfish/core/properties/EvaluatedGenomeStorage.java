@@ -3,10 +3,6 @@
  */
 package org.asoem.greyfish.core.properties;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -14,6 +10,10 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.uncommons.watchmaker.framework.EvaluatedCandidate;
 import org.uncommons.watchmaker.framework.selection.RouletteWheelSelection;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author christoph
@@ -23,17 +23,6 @@ import org.uncommons.watchmaker.framework.selection.RouletteWheelSelection;
 public class EvaluatedGenomeStorage extends AbstractDiscreteProperty<List<EvaluatedCandidate<Genome>>> {
 
 	final private static RouletteWheelSelection SELECTOR = new RouletteWheelSelection();
-
-	public EvaluatedGenomeStorage() {
-		value = new ArrayList<EvaluatedCandidate<Genome>>();
-	}
-
-	public EvaluatedGenomeStorage(
-			EvaluatedGenomeStorage genomeCollectorProperty,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(genomeCollectorProperty, mapDict);
-		value = new ArrayList<EvaluatedCandidate<Genome>>();
-	}
 
 	public void addGenome(Genome genome, double d) {
 		if (!value.contains(genome))
@@ -70,6 +59,27 @@ public class EvaluatedGenomeStorage extends AbstractDiscreteProperty<List<Evalua
 	@Override
 	protected AbstractDeepCloneable deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new EvaluatedGenomeStorage(this, mapDict);
+		return new Builder().fromClone(this, mapDict).build();
 	}
+
+        protected EvaluatedGenomeStorage(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+    }
+
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractDiscreteProperty.AbstractBuilder<T, List<EvaluatedCandidate<Genome>>> {
+        protected AbstractBuilder() {
+            value(new ArrayList<EvaluatedCandidate<Genome>>());
+        }
+
+        protected T fromClone(EvaluatedGenomeStorage property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(property, mapDict);
+            return self();
+        }
+
+        public EvaluatedGenomeStorage build() { return new EvaluatedGenomeStorage(this); }
+    }
 }

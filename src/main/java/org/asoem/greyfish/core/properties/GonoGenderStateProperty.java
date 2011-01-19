@@ -12,8 +12,6 @@ import java.util.Map;
 @ClassGroup(tags="property")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<String> {
 
-	private static final long serialVersionUID = 6435914714926346900L;
-
 	private static final String MALE = "Male";
 	private static final String FEMALE = "Female";
 	private static final String ASEX = "Asex";
@@ -24,13 +22,11 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 		public String apply(Gene<Byte> input) {
             assert input != null;
             assert input.getRepresentation() != null;
-            return GENDER[input.getRepresentation().byteValue()];
+            return GENDER[input.getRepresentation()];
 		}
 	};
 
-	private final Gene<Byte> gene = registerGene(new AbstractGene<Byte>(new Byte((byte) 0)) {
-		
-		
+	private final Gene<Byte> gene = registerGene(new AbstractGene<Byte>((byte) 0) {
 		@Override
 		public void mutate() {
 			if (RandomUtils.nextDouble() < 0.001)
@@ -43,21 +39,6 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 		}
 	});
 
-	public GonoGenderStateProperty() {
-	}
-
-	protected GonoGenderStateProperty(
-			GonoGenderStateProperty property,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(property, mapDict);
-	}
-
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new GonoGenderStateProperty(this, mapDict);
-	}
-
 	@Override
 	public String getValue() {
 		return GENE_EXPRESSION_FUNCTION.apply(gene);
@@ -67,4 +48,28 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 	public String[] getSet() {
 		return GENDER;
 	}
+
+    @Override
+	protected AbstractDeepCloneable deepCloneHelper(
+			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+		return new Builder().fromClone(this, mapDict).build();
+	}
+
+    protected GonoGenderStateProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+    }
+
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
+
+        protected T fromClone(GonoGenderStateProperty property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(property, mapDict);
+            return self();
+        }
+
+        public GonoGenderStateProperty build() { return new GonoGenderStateProperty(this); }
+    }
 }

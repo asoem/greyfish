@@ -16,76 +16,83 @@ import java.util.Map;
 @ClassGroup(tags="actions")
 public class MatingTransmitterAction extends ContractNetResponderAction {
 
-	@Element(name="messageType", required=false)
-	private String parameterMessageType;
+    @Element(name="messageType", required=false)
+    private String parameterMessageType;
 
-	public MatingTransmitterAction() {
-	}
-
-	public MatingTransmitterAction(String name) {
-		super(name);
-	}
+    private MatingTransmitterAction() {
+        this(new Builder());
+    }
 
     @Override
     protected String getOntology() {
         return parameterMessageType;
     }
 
-    public MatingTransmitterAction(String name, String parameterMessageType) {
-		super(name);
-		this.parameterMessageType = parameterMessageType;
-	}
+    @Override
+    public void initialize(Simulation simulation) {
+        super.initialize(simulation);
+        checkValidity();
+    }
 
-	protected MatingTransmitterAction(
-			MatingTransmitterAction action,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(action, mapDict);
-		parameterMessageType = action.parameterMessageType;
-	}
+    private void checkValidity() {
+        Preconditions.checkNotNull(parameterMessageType);
+    }
 
-	@Override
-	public void initialize(Simulation simulation) {
-		super.initialize(simulation);
-		checkValidity();
-	}
+    @Override
+    protected AbstractDeepCloneable deepCloneHelper(
+            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        return new Builder().fromClone(this, mapDict).build();
+    }
 
-	private void checkValidity() {
-		Preconditions.checkNotNull(parameterMessageType);
-	}
-
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new MatingTransmitterAction(this, mapDict);
-	}
-
-	@Override
-	public void export(Exporter e) {
-		super.export(e);
-		e.addField(new ValueAdaptor<String>("Message Type", String.class, parameterMessageType) {
+    @Override
+    public void export(Exporter e) {
+        super.export(e);
+        e.addField(new ValueAdaptor<String>("Message Type", String.class, parameterMessageType) {
 
             @Override
             protected void writeThrough(String arg0) {
                 MatingTransmitterAction.this.parameterMessageType = arg0;
             }
         });
-	}
+    }
 
-	@Override
-	protected ACLMessage handleAccept(ACLMessage message) {
-		ACLMessage reply = message.createReply();
-		reply.setPerformative(ACLPerformative.INFORM);
-		return reply;
-	}
+    @Override
+    protected ACLMessage handleAccept(ACLMessage message) {
+        ACLMessage reply = message.createReply();
+        reply.setPerformative(ACLPerformative.INFORM);
+        return reply;
+    }
 
-	@Override
-	protected ACLMessage handleCFP(ACLMessage message) {
-		final Genome sperm = new Genome(componentOwner.getGenome());
-		sperm.mutate();
+    @Override
+    protected ACLMessage handleCFP(ACLMessage message) {
+        final Genome sperm = new Genome(componentOwner.getGenome());
+        sperm.mutate();
 
-		final ACLMessage reply = message.createReply();
-		reply.setReferenceContent(new EvaluatedGenome(sperm, evaluateFormula()));
-		reply.setPerformative(ACLPerformative.PROPOSE);
-		return reply;
-	}
+        final ACLMessage reply = message.createReply();
+        reply.setReferenceContent(new EvaluatedGenome(sperm, evaluateFormula()));
+        reply.setPerformative(ACLPerformative.PROPOSE);
+        return reply;
+    }
+
+    protected MatingTransmitterAction(AbstractBuilder<?> builder) {
+        super(builder);
+        this.parameterMessageType = builder.parameterMessageType;
+    }
+
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
+        private String parameterMessageType;
+
+        public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
+
+        protected T fromClone(MatingTransmitterAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(action, mapDict).parameterMessageType(action.parameterMessageType);
+            return self();
+        }
+
+        public MatingTransmitterAction build() { return new MatingTransmitterAction(this); }
+    }
 }

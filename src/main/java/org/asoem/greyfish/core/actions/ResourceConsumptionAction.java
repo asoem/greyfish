@@ -32,17 +32,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     private Iterable<Individual> sensedMates;
 
-    public ResourceConsumptionAction() {
-    }
-
-
-    protected ResourceConsumptionAction(ResourceConsumptionAction action,
-                                        Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        super(action, mapDict);
-        consumerProperty = deepClone(action.consumerProperty, mapDict);
-        parameterMessageType = action.parameterMessageType;
-        amountPerRequest = action.amountPerRequest;
-        sensorRange = action.sensorRange;
+    private ResourceConsumptionAction() {
+        this(new Builder());
     }
 
 
@@ -84,7 +75,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Override
     protected AbstractDeepCloneable deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new ResourceConsumptionAction(this, mapDict);
+        return new Builder().fromClone(this, mapDict).build();
     }
 
     @Override
@@ -133,5 +124,40 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 sensorRange = arg0;
             }
         });
+    }
+
+    protected ResourceConsumptionAction(AbstractBuilder<?> builder) {
+        super(builder);
+        this.consumerProperty = builder.consumerProperty;
+        this.parameterMessageType = builder.parameterMessageType;
+        this.amountPerRequest = builder.amountPerRequest;
+        this.sensorRange = builder.sensorRange;
+    }
+
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
+        private DoubleProperty consumerProperty = null;
+        private String parameterMessageType = "";
+        private double amountPerRequest = 0;
+        private double sensorRange = 0;
+
+        public T consumerProperty(DoubleProperty consumerProperty) { this.consumerProperty = consumerProperty; return self(); }
+        public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
+        public T amountPerRequest(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
+        public T sensorRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+
+        protected T fromClone(ResourceConsumptionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(action, mapDict).
+                    consumerProperty(deepClone(action.consumerProperty, mapDict)).
+                    parameterMessageType(action.parameterMessageType).
+                    amountPerRequest(action.amountPerRequest).
+                    sensorRange(action.sensorRange);
+            return self();
+        }
+
+        public ResourceConsumptionAction build() { return new ResourceConsumptionAction(this); }
     }
 }

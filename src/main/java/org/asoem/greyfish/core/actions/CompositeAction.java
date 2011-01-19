@@ -10,9 +10,4 @@ import javax.swing.AbstractAction;
  */
 public abstract class CompositeAction extends AbstractAction {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -9015935844151041743L;
-
 }

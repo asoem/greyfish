@@ -33,25 +33,8 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     @Element(name = "energyRenewalFormula")
 	private String energyCostsFormula = "0";
 
-	/**
-	 * 
-	 */
-	public ModifyQuantitivePropertyAction() {
-	}
-
-	/**
-	 * @param name
-	 */
-	public ModifyQuantitivePropertyAction(String name) {
-		super(name);
-	}
-
-	protected ModifyQuantitivePropertyAction(
-			ModifyQuantitivePropertyAction action,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(action, mapDict);
-		parameterQuantitiveProperty = deepClone(action.parameterQuantitiveProperty, mapDict);
-		energyCostsFormula = action.energyCostsFormula;
+	private ModifyQuantitivePropertyAction() {
+        this(new Builder());
 	}
 
 	@Override
@@ -72,7 +55,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 	@Override
 	protected AbstractDeepCloneable deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new ModifyQuantitivePropertyAction(this, mapDict);
+		return new Builder().fromClone(this, mapDict).build();
 	}
 
     @Override
@@ -104,5 +87,32 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
         } catch (EvaluationException e) {
             throw new IllegalStateException("energyCostsFormula is not valid");
         }
+    }
+
+        protected ModifyQuantitivePropertyAction(AbstractBuilder<?> builder) {
+        super(builder);
+        this.energyCostsFormula = builder.energyCostsFormula;
+        this.parameterQuantitiveProperty = builder.quantitiveProperty;
+    }
+
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+        private DoubleProperty quantitiveProperty;
+        private String energyCostsFormula = "0";
+
+        public T quantitiveProperty(DoubleProperty quantitiveProperty) { this.quantitiveProperty = quantitiveProperty; return self(); }
+        public T energyCostsFormula(String energyCostsFormula) { this.energyCostsFormula = energyCostsFormula; return self(); }
+
+        protected T fromClone(ModifyQuantitivePropertyAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(action, mapDict).
+                    quantitiveProperty(deepClone(action.parameterQuantitiveProperty, mapDict)).
+                    energyCostsFormula(action.energyCostsFormula);
+            return self();
+        }
+
+        public ModifyQuantitivePropertyAction build() { return new ModifyQuantitivePropertyAction(this); }
     }
 }

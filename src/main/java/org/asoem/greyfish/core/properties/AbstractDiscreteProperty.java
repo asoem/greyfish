@@ -1,31 +1,40 @@
 package org.asoem.greyfish.core.properties;
 
-import java.util.Map;
-
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
+import java.util.Map;
 
-public abstract class AbstractDiscreteProperty<T> extends AbstractGFProperty implements DiscreteProperty<T> {
+public abstract class AbstractDiscreteProperty<E> extends AbstractGFProperty implements DiscreteProperty<E> {
 
-	private static final long serialVersionUID = 2723870674494281995L;
+	protected E value;
 
-	protected T value;
-
-	public AbstractDiscreteProperty() {
-	}
-
-	public AbstractDiscreteProperty(AbstractDiscreteProperty<T> property,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(property, mapDict);
+    @SuppressWarnings("unused")
+	private AbstractDiscreteProperty() {
+        this(new Builder<E>());
 	}
 
 	@Override
-	public T getValue() {
+	public E getValue() {
 		return value;
 	}
-	
-//	@Override
-//	public String toString() {
-//		return new String(super.toString() + " (item=" + String.valueOf(item) + ")");
-//	}
+
+    protected AbstractDiscreteProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
+        super(builder);
+    }
+
+    public static final class Builder<E> extends AbstractBuilder<Builder<E>, E> {
+        @Override protected Builder<E> self() {  return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E> extends AbstractGFProperty.AbstractBuilder<T> {
+        protected E value;
+
+        public T value(E upperBound) { this.value = upperBound; return self(); }
+
+        protected T fromClone(AbstractDiscreteProperty<E> property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(property, mapDict).
+                    value(property.value);
+            return self();
+        }
+    }
 }

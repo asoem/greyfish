@@ -1,32 +1,22 @@
 package org.asoem.greyfish.core.properties;
 
-import java.util.Map;
-
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 
+import java.util.Map;
+
 @ClassGroup(tags="property")
 public class IntProperty extends OrderedSetProperty<Integer> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3487136329379950991L;
-
-	public IntProperty() {
-		super(0, 100, 100);
-	}
-
-	protected IntProperty(IntProperty intProperty,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(intProperty, mapDict);
-	}
+    private IntProperty() {
+        this(new Builder());
+    }
 
 	@Override
 	protected AbstractDeepCloneable deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new IntProperty(this, mapDict);
+		return new Builder().fromClone(this, mapDict).build();
 	}
 	
 	@Override
@@ -34,7 +24,32 @@ public class IntProperty extends OrderedSetProperty<Integer> {
 		super.export(e, Integer.class);
 	}
 
-	public void substract(int costs) {
-		setValue(value-costs);
+	public void subtract(int val) {
+		setValue(value - val);
 	}
+	
+	public void add(int val) {
+		setValue(value + val);
+	}
+
+    protected IntProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+    }
+
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Integer> {
+        protected AbstractBuilder() {
+            lowerBound(0).upperBound(100).initialValue(50);
+        }
+
+        protected T fromClone(IntProperty property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(property, mapDict);
+            return self();
+        }
+
+        public IntProperty build() { return new IntProperty(this); }
+    }
 }

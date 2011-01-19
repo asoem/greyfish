@@ -15,11 +15,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     @Attribute(name="name", required = false)
     protected String name = "";
 
-    public AbstractGFComponent() {
-    }
-
-    public AbstractGFComponent(Builder builder) {
-        this.name = builder.name;
+    private AbstractGFComponent() {
     }
 
     @Override
@@ -52,24 +48,22 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
         Preconditions.checkNotNull(componentOwner, name + " (" + this.getClass().getSimpleName() + "): Missing component owner is reqiured");
     }
 
-//	@Override
-//	public boolean isCloneOf(IndividualComponent component) {
-//		return this.getClass().isInstance(component)
-//			&& this.name.equals(component.getParameterName());
-//	}
-
     @Override
     public void checkDependencies(Iterable<? extends GFComponent> components) {
     }
 
-    public static class Builder {
-        private String name;
-        private Individual owner;
+    protected AbstractGFComponent(AbstractBuilder<?> builder) {
+        this.name = builder.name;
+    }
 
-        public Builder deepClone(AbstractGFComponent action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            name = action.name;
-            owner = AbstractDeepCloneable.deepClone(action.getComponentOwner(), mapDict);
-            return this;
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
+        private String name;
+
+        public T name(String name) { this.name = name; return self(); }
+
+        protected T fromClone(AbstractGFComponent component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            name(component.name);
+            return self();
         }
     }
 }

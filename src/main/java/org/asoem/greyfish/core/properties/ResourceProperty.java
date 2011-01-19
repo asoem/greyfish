@@ -1,55 +1,56 @@
 package org.asoem.greyfish.core.properties;
 
-import java.util.Map;
-
 import org.asoem.greyfish.core.share.Consumer;
 import org.asoem.greyfish.core.share.ConsumerGroup;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
+import java.util.Map;
+
 @ClassGroup(tags="property")
 public class ResourceProperty extends DoubleProperty {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4267082118277134951L;
+    private final ConsumerGroup<DoubleProperty> consumerGroup = new ConsumerGroup<DoubleProperty>(getName());
 
-	private ConsumerGroup<DoubleProperty> consumerGroup;
+    public ConsumerGroup<? extends DoubleProperty> getConsumerGroup() {
+        return consumerGroup;
+    }
 
-	public ResourceProperty() {
-		init(10, 0);
-	}
+    public void addConsumer(Consumer<DoubleProperty> consumer) {
+        consumerGroup.addConsumer(consumer);
+    }
 
-	protected ResourceProperty(ResourceProperty property,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(property, mapDict);
-		init(property.getUpperBound(), property.getInitialValue());
-	}
+    @Override
+    public void initialize(Simulation simulation) {
+        super.initialize(simulation);
+        consumerGroup.removeAllConsumer();
+    }
 
-	protected void init(double max, double initial) {
-		setUpperBound(max);
-		setInitialValue(initial);
-	}
+    @Override
+    protected AbstractDeepCloneable deepCloneHelper(
+            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        return new Builder().fromClone(this, mapDict).build();
+    }
 
-	public ConsumerGroup<? extends DoubleProperty> getConsumerGroup() {
-		return consumerGroup;
-	}
+    protected ResourceProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+    }
 
-	public void addConsumer(Consumer<DoubleProperty> consumer) {
-		consumerGroup.addConsumer(consumer);
-	}
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
 
-	@Override
-	public void initialize(Simulation simulation) {
-		super.initialize(simulation);
-		consumerGroup = new ConsumerGroup<DoubleProperty>(getName());
-	}
-	
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new ResourceProperty(this, mapDict);
-	}
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DoubleProperty.AbstractBuilder<T> {
+        protected AbstractBuilder() {
+            lowerBound(0.0).upperBound(100.0).initialValue(50.0);
+        }
+
+        protected T fromClone(ResourceProperty property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(property, mapDict);
+            return self();
+        }
+
+        public ResourceProperty build() { return new ResourceProperty(this); }
+    }
 }

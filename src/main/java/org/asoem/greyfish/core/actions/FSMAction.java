@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +12,10 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class FSMAction extends AbstractGFAction {
+
+    protected FSMAction(AbstractBuilder<?> builder) {
+        super(builder);
+    }
 
     protected abstract interface StateAction {
         public String action();
@@ -25,13 +28,6 @@ public abstract class FSMAction extends AbstractGFAction {
     private Set<String> endStates = new HashSet<String>();
 
     private String currentStateName;
-
-    public FSMAction() {
-    }
-
-    public FSMAction(Builder builder) {
-        super(builder);
-    }
 
     @Override
     protected final void performAction(Simulation simulation) {
@@ -81,14 +77,5 @@ public abstract class FSMAction extends AbstractGFAction {
                 "name='" + name + "\', " +
                 "state='" + currentStateName + '\'' +
                 '}';
-    }
-
-    protected abstract static class Builder extends AbstractGFAction.Builder {
-
-        protected Builder deepClone(FSMAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.deepClone(action, mapDict);
-            return this;
-        }
-
     }
 }

@@ -24,6 +24,11 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     private int nReceivedProposals;
     private int nReceivedAcceptAnswers;
 
+    public ContractNetInitiatiorAction(AbstractBuilder<?> builder) {
+        super(builder);
+        initFSM();
+    }
+
     private MessageTemplate getTemplate() {
         return template;
     }
@@ -34,14 +39,6 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
     private MessageTemplate template = MessageTemplate.alwaysFalse();
     private int nProposalsExpected;
-
-    public ContractNetInitiatiorAction() {
-        initFSM();
-    }
-
-    public ContractNetInitiatiorAction(Builder builder) {
-        initFSM();
-    }
 
     private void initFSM() {
         registerInitialState(SEND_CFP, new StateAction() {
@@ -230,8 +227,4 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     }
 
     protected abstract String getOntology();
-
-    protected static class Builder {
-
-    }
 }

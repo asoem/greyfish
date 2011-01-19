@@ -16,12 +16,8 @@ public class ChangeBodyAction extends AbstractGFAction {
     @Element(name="color")
     private Color parameterColor;
 
-    public ChangeBodyAction() {
-    }
-
-    public ChangeBodyAction(Builder builder) {
-        super(builder);
-        parameterColor = builder.color;
+    private ChangeBodyAction() {
+        this(new Builder());
     }
 
     @Override
@@ -32,7 +28,7 @@ public class ChangeBodyAction extends AbstractGFAction {
     @Override
     protected AbstractDeepCloneable deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().deepClone(this, mapDict).build();
+        return new Builder().fromClone(this, mapDict).build();
     }
 
     @Override
@@ -47,23 +43,25 @@ public class ChangeBodyAction extends AbstractGFAction {
         });
     }
 
-    public static class Builder extends AbstractGFAction.Builder {
+    protected ChangeBodyAction(AbstractBuilder<?> builder) {
+        super(builder);
+        this.parameterColor = builder.parameterColor;
+    }
 
-        private Color color;
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() {  return this; }
+    }
 
-        protected Builder deepClone(ChangeBodyAction clone, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.deepClone(clone, mapDict);
-            color = clone.parameterColor;
-            return this;
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+        private Color parameterColor;
+
+        public T parameterColor(Color parameterColor) { this.parameterColor = parameterColor; return self(); }
+
+        protected T fromClone(ChangeBodyAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(action, mapDict).parameterColor(action.parameterColor);
+            return self();
         }
 
-        public Builder color(Color color) {
-            this.color = color;
-            return this;
-        }
-
-        public ChangeBodyAction build() {
-            return new ChangeBodyAction(this);
-        }
+        public ChangeBodyAction build() { return new ChangeBodyAction(this); }
     }
 }

@@ -20,7 +20,6 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -34,9 +33,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     private final ConditionTree conditionTree = new ConditionTree();
 
-    @Attribute(name="level")
-    private int parameterExecutionLevel = -1;
-
     @Element(name="costs_formula")
     private String energyCostsFormula = "0";
 
@@ -48,17 +44,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     private int executionCount;
 
     private int timeOfLastExecution;
-
-    public AbstractGFAction() {
-    }
-
-    public AbstractGFAction(Builder builder) {
-        super(builder);
-        this.conditionTree.setRootCondition(builder.rootCondition);
-        this.parameterExecutionLevel = builder.parameterExecutionLevel;
-        this.energySource = builder.energySource;
-        this.energyCostsFormula = builder.energyCostsFormula;
-    }
 
     @Override
     public boolean evaluate(Simulation simulation) {
@@ -208,11 +193,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             energySource = null;
     }
 
-    //	@Override
-    //	public boolean isLast() {
-    //		return parameterLast;
-    //	}
-
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
         // TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
         return simulation.getSteps() - timeOfLastExecution >= steps;
@@ -223,21 +203,28 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         return true;
     }
 
-    public static class Builder extends AbstractGFComponent.Builder {
-        GFCondition rootCondition;
-        int parameterExecutionLevel;
-        String energyCostsFormula;
-        DoubleProperty energySource;
+    protected AbstractGFAction(AbstractBuilder<?> builder) {
+        super(builder);
+        this.energyCostsFormula = builder.energyCostsFormula;
+        this.energySource = builder.enegySource;
+        this.conditionTree.setRootCondition(builder.rootCondition);
+    }
 
-        protected Builder deepClone(AbstractGFAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.deepClone(action, mapDict);
-//            super(action, mapDict);
-            rootCondition = AbstractDeepCloneable.deepClone(action.getRootCondition(), mapDict);
-            energySource = AbstractDeepCloneable.deepClone(action.energySource, mapDict);
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
+        private GFCondition rootCondition;
+        private DoubleProperty enegySource;
+        private String energyCostsFormula;
 
-            parameterExecutionLevel = action.parameterExecutionLevel;
-            energyCostsFormula = action.energyCostsFormula;
-            return this;
+        public T rootCondition(GFCondition rootCondition) { this.rootCondition = rootCondition; return self(); }
+        public T enegySource(DoubleProperty enegySource) { this.enegySource = enegySource; return self(); }
+        public T energyCostsFormula(String energyCostsFormula) { this.energyCostsFormula = energyCostsFormula; return self(); }
+
+        protected T fromClone(AbstractGFAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(action, mapDict).
+                    rootCondition(AbstractDeepCloneable.deepClone(action.getRootCondition(), mapDict)).
+                    enegySource(AbstractDeepCloneable.deepClone(action.energySource, mapDict)).
+                    energyCostsFormula(action.energyCostsFormula);
+            return self();
         }
     }
 }

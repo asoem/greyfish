@@ -5,11 +5,9 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 public abstract class ContractNetResponderAction extends FSMAction {
 
@@ -24,30 +22,15 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
     private int nExpectedProposeAnswers;
 
+    public ContractNetResponderAction(AbstractBuilder<?> builder) {
+        super(builder);
+    }
+
     private MessageTemplate getTemplate() {
         return template;
     }
 
     private MessageTemplate template = MessageTemplate.alwaysFalse();
-
-    public ContractNetResponderAction() {
-        initFSM();
-    }
-
-    public ContractNetResponderAction(String name) {
-        super(name);
-        initFSM();
-    }
-
-    public ContractNetResponderAction(ContractNetResponderAction action,
-                                      Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        super(action, mapDict);
-        initFSM();
-    }
-
-    private void send(final ACLMessage message) {
-        message.send(getTransmitter());
-    }
 
     private void initFSM() {
         registerInitialState(CHECK_CFP, new StateAction() {
@@ -136,6 +119,10 @@ public abstract class ContractNetResponderAction extends FSMAction {
                 return END;
             }
         });
+    }
+
+    private void send(final ACLMessage message) {
+        message.send(getTransmitter());
     }
 
     protected abstract String getOntology();
