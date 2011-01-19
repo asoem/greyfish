@@ -30,14 +30,11 @@ public abstract class AbstractDeepCloneable implements DeepClonable {
 	///Classes should override this method
 	///with the following code:
 	/// return new NameOfMyClass(this, mapDict);
-	protected abstract AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict);
+	protected abstract AbstractDeepCloneable deepCloneHelper(Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict);
 	
 	@SuppressWarnings("unchecked")
 	protected static <T extends DeepClonable> T deepClone(T component, Map<AbstractDeepCloneable, AbstractDeepCloneable> map) {
 		// There must not exist any implementation of DeepClonable which doesn't extend DeepCloneable
 		return (component != null) ? (T) ((AbstractDeepCloneable)component).deepClone(map) : null;
 	}
-
-//    protected void deepCloneInitializer(DeepClonable component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {};
 }
