@@ -76,15 +76,6 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
-        if (spermStorage == null) {
-            spermStorage = new EvaluatedGenomeStorage();
-            getComponentOwner().addProperty(spermStorage);
-        }
-    }
-
-    @Override
     protected AbstractDeepCloneable deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();

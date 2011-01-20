@@ -47,6 +47,11 @@
             <name>Scala-tools Maven2 Repository</name>
             <url>http://scala-tools.org/repo-releases</url>
         </repository>
+        <repository>
+            <id>laughing-panda</id>
+            <name>Laughing Panda</name>
+            <url>http://maven.laughingpanda.org/maven2/</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -72,6 +77,12 @@
             <groupId>org.clapper</groupId>
             <artifactId>classutil_2.8.1</artifactId>
             <version>0.3.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdave</groupId>
+            <artifactId>jdave-junit4</artifactId>
+            <version>1.2</version>
             <scope>test</scope>
         </dependency>
 

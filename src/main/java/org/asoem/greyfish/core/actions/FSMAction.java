@@ -13,7 +13,7 @@ import java.util.Set;
 
 public abstract class FSMAction extends AbstractGFAction {
 
-    protected FSMAction(AbstractBuilder<?> builder) {
+    protected FSMAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
     }
 

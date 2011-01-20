@@ -1,10 +1,6 @@
 package org.asoem.greyfish.core.interfaces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLMessageReceiver;
 import org.asoem.greyfish.core.acl.ACLMessageTransmitter;
@@ -15,9 +11,12 @@ import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.lang.CircularFifoBuffer;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
-import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
-public class MessageInterface extends AbstractGFComponent implements GFInterface, ACLMessageTransmitter, ACLMessageReceiver {
+public final class MessageInterface extends AbstractGFComponent implements GFInterface, ACLMessageTransmitter, ACLMessageReceiver {
 
 	/**
 	 * max 32 messages
@@ -28,18 +27,31 @@ public class MessageInterface extends AbstractGFComponent implements GFInterface
 		};
 	};
 	
-	public MessageInterface() {
+	private MessageInterface(Builder builder) {
+        super(builder);
 	}
 
-	protected MessageInterface(MessageInterface component,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(component, mapDict);
-	}
+    public static MessageInterface newInstance() {
+        return new Builder().build();
+    }
+
+    public static class Builder extends AbstractBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        protected Builder fromClone(MessageInterface component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            return super.fromClone(component, mapDict);
+        }
+
+        public MessageInterface build() { return new MessageInterface(this); }
+    }
 
 	@Override
 	protected AbstractDeepCloneable deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new MessageInterface(this, mapDict);
+		return new Builder().fromClone(this, mapDict).build();
 	}
 
 	public Collection<ACLMessage> pollMessages(final MessageTemplate messageTemplate) {

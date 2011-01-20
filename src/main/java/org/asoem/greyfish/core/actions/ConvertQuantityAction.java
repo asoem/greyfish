@@ -38,19 +38,6 @@ public class ConvertQuantityAction extends AbstractGFAction {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
-        if (parameterSource == null) {
-            parameterSource = new DoubleProperty();
-            getComponentOwner().addProperty(parameterSource);
-        }
-        if (parameterTarget == null) {
-            parameterTarget = new DoubleProperty();
-            getComponentOwner().addProperty(parameterTarget);
-        }
-    }
-
-    @Override
     protected AbstractDeepCloneable deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();

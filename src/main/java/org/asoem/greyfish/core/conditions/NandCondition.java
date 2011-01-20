@@ -3,10 +3,10 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import java.util.Map;
-
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
+
+import java.util.Map;
 
 /**
  * This class can be used to prefix one <code>Condition</code> with a logical NOT operator.
@@ -14,18 +14,6 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
  *
  */
 public class NandCondition extends AndCondition {
-
-	private static final String name = "NAND";
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5294949469903839030L;
-
-	public NandCondition(NandCondition nandCondition,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(nandCondition, mapDict);
-	}
 
 	/* (non-Javadoc)
 	 * @see org.asoem.greyfish.actions.conditions.Condition#evaluate(org.asoem.greyfish.competitors.Individual)
@@ -35,9 +23,26 @@ public class NandCondition extends AndCondition {
 		return ! super.evaluate(simulation);
 	}
 
-	@Override
-	public AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new NandCondition(this, mapDict);
-	}
+    @Override
+    public AbstractDeepCloneable deepCloneHelper(
+            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        return new Builder().fromClone(this, mapDict).build();
+    }
+
+    protected NandCondition(AbstractBuilder<?> builder) {
+        super(builder);
+    }
+
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() { return this; }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AndCondition.AbstractBuilder<T> {
+        protected T fromClone(NandCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(component, mapDict);
+            return self();
+        }
+
+        public NandCondition build() { return new NandCondition(this); }
+    }
 }

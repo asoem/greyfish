@@ -1,23 +1,12 @@
 package org.asoem.greyfish.core.conditions;
 
-import java.util.Map;
-
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
-public abstract class DoubleCompareCondition extends CompareCondition<Double> {
+import java.util.Map;
 
-	private static final long serialVersionUID = -7349763764527840921L;
-	
-	public DoubleCompareCondition() {
-	}
-	
-	protected DoubleCompareCondition(
-			DoubleCompareCondition actionExecutionCountCondition,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(actionExecutionCountCondition, mapDict);
-	}
+public abstract class DoubleCompareCondition extends CompareCondition<Double> {
 	
 	@Override
 	public void export(Exporter e) {
@@ -30,4 +19,15 @@ public abstract class DoubleCompareCondition extends CompareCondition<Double> {
 			}
 		});
 	}
+
+    protected DoubleCompareCondition(AbstractBuilder<?> builder) {
+        super(builder);
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends CompareCondition.AbstractBuilder<T, Double> {
+        protected T fromClone(IntCompareCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(component, mapDict);
+            return self();
+        }
+    }
 }

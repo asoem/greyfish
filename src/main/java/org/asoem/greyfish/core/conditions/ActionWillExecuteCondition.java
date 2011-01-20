@@ -1,11 +1,10 @@
 package org.asoem.greyfish.core.conditions;
 
-import java.util.Map;
-
-import org.asoem.greyfish.core.actions.AbstractGFAction;
-import org.asoem.greyfish.core.actions.NullAction;
+import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
+
+import java.util.Map;
 
 /**
  * @author christoph
@@ -13,36 +12,39 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
  */
 public class ActionWillExecuteCondition extends LeafCondition {
 
-	private static final long serialVersionUID = -890674817061339870L;
-	
-	
-	private AbstractGFAction parameterAction;
+    private GFAction parameterAction;
 
-	public ActionWillExecuteCondition() {
-	}
+    @Override
+    public boolean evaluate(Simulation simulation) {
+        return parameterAction.evaluate(simulation);
+    }
 
-	private ActionWillExecuteCondition(
-			ActionWillExecuteCondition actionWillExecuteCondition,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		this.parameterAction = deepClone(actionWillExecuteCondition.parameterAction, mapDict);
-	}
+    @Override
+    protected AbstractDeepCloneable deepCloneHelper(
+            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        return new Builder().fromClone(this, mapDict).build();
+    }
 
-	@Override
-	public boolean evaluate(Simulation simulation) {
-		return parameterAction.evaluate(simulation);
-	}
+    protected ActionWillExecuteCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+        this.parameterAction = builder.parameterAction;
+    }
 
-	@Override
-	public void initialize(Simulation simulation) {
-		super.initialize(simulation);
-		if (parameterAction == null) {
-			parameterAction = new NullAction();
-		}
-	}
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() { return this; }
+    }
 
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new ActionWillExecuteCondition(this, mapDict);
-	}
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
+        private GFAction parameterAction;
+
+        public T action(GFAction action) { this.parameterAction = action; return self(); }
+
+        protected T fromClone(ActionWillExecuteCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(component, mapDict).
+                    action(deepClone(component.parameterAction, mapDict));
+            return self();
+        }
+
+        public ActionWillExecuteCondition build() { return new ActionWillExecuteCondition(this); }
+    }
 }

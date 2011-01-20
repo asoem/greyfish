@@ -10,14 +10,33 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.Map;
 
-public class Movement2DAcutator extends AbstractGFComponent implements GFInterface {
+public final class Movement2DAcutator extends AbstractGFComponent implements GFInterface {
 	
-	public Movement2DAcutator() {
+	private Movement2DAcutator(Builder builder) {
+        super(builder);
 	}
-		
-	public Movement2DAcutator(Movement2DAcutator component,
+
+    public static Movement2DAcutator newInstance() {
+        return new Builder().build();
+    }
+
+    public static class Builder extends AbstractBuilder<Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        protected Builder fromClone(Movement2DAcutator component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            return super.fromClone(component, mapDict);
+        }
+
+        public Movement2DAcutator build() { return new Movement2DAcutator(this); }
+    }
+
+	@Override
+	protected AbstractDeepCloneable deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(component, mapDict);
+		return new Builder().fromClone(this, mapDict).build();
 	}
 
 	public void rotate(Simulation simulation, final double angle) {
@@ -48,11 +67,5 @@ public class Movement2DAcutator extends AbstractGFComponent implements GFInterfa
 				}
 			}
 		});
-	}
-
-	@Override
-	protected Movement2DAcutator deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Movement2DAcutator(this, mapDict);
 	}
 }

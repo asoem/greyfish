@@ -22,7 +22,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
     private int nExpectedProposeAnswers;
 
-    public ContractNetResponderAction(AbstractBuilder<?> builder) {
+    public ContractNetResponderAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
     }
 

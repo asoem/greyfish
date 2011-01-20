@@ -16,6 +16,7 @@ import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ContinuosProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -31,15 +32,13 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
-    private final ConditionTree conditionTree = new ConditionTree();
+    private ConditionTree conditionTree;
 
     @Element(name="costs_formula")
     private String energyCostsFormula = "0";
 
     @Element(name="energy_source", required=false)
     private DoubleProperty energySource;
-
-    private int exitValue;
 
     private int executionCount;
 
@@ -53,8 +52,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                 return false;
         }
 
-        GFCondition rootCondition = conditionTree.getRootCondition();
-        return (rootCondition == null) ? true : rootCondition.evaluate(simulation);
+        return conditionTree.evaluate(simulation);
     }
 
     /**
@@ -95,15 +93,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public int getExitValue() {
-        return exitValue;
-    }
-
-    @Override
     public void initialize(Simulation simulation) {
         super.initialize(simulation);
-        if (conditionTree.hasRootCondition())
-            conditionTree.getRootCondition().initialize(simulation);
+        conditionTree.getRootCondition().initialize(simulation);
         executionCount = 0;
         timeOfLastExecution = simulation.getSteps();
         FORMULA_EVALUATOR.setVariableResolver( new VariableResolver() {
@@ -148,22 +140,15 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         }
     }
 
-    public void setParameterCostsFormula(String parameterCostsFormula) {
-        this.energyCostsFormula = parameterCostsFormula;
-    }
-
-    public String getParameterCostsFormula() {
-        return energyCostsFormula;
-    }
-
     @Element(name="condition", required=false)
     public GFCondition getRootCondition() {
         return conditionTree.getRootCondition();
     }
 
     @Element(name="condition", required=false)
+    @Override
     public void setRootCondition(GFCondition rootCondition) {
-        conditionTree.setRootCondition(rootCondition);
+        conditionTree = new ConditionTree(rootCondition);
     }
 
     @Override
@@ -203,11 +188,11 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         return true;
     }
 
-    protected AbstractGFAction(AbstractBuilder<?> builder) {
+    protected AbstractGFAction(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
         this.energyCostsFormula = builder.energyCostsFormula;
         this.energySource = builder.enegySource;
-        this.conditionTree.setRootCondition(builder.rootCondition);
+        this.conditionTree = new ConditionTree(builder.rootCondition);
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {

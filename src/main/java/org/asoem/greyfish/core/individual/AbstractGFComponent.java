@@ -15,9 +15,6 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     @Attribute(name="name", required = false)
     protected String name = "";
 
-    private AbstractGFComponent() {
-    }
-
     @Override
     public Individual getComponentOwner() {
         return componentOwner;
@@ -56,7 +53,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
         this.name = builder.name;
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
+    public static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
         private String name;
 
         public T name(String name) { this.name = name; return self(); }

@@ -3,17 +3,17 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.ElementList;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -24,27 +24,8 @@ import com.google.common.collect.ImmutableList;
  */
 public abstract class LogicalOperatorCondition extends AbstractCondition {
 
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9078240526207725015L;
-
 	@ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
 	protected List<GFCondition> conditions = new ArrayList<GFCondition>(0);
-
-	public LogicalOperatorCondition() {
-		super();
-	}
-
-	protected LogicalOperatorCondition(LogicalOperatorCondition condition,
-			Map<AbstractDeepCloneable,AbstractDeepCloneable> mapDict) {
-		super(condition, mapDict);
-			
-		for (GFCondition itCond : condition.getConditions()) {
-			conditions.add(deepClone(itCond, mapDict));
-		}
-	}
 
 	private void integrate(Collection<? extends GFCondition> condition2) {
 		for (GFCondition gfCondition : condition2) {
@@ -138,5 +119,22 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 	@Override
 	public boolean remove(GFCondition condition) {
 		return conditions.remove(condition);
-	}	
+	}
+
+    protected LogicalOperatorCondition(AbstractBuilder<?> builder) {
+        super(builder);
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractCondition.AbstractBuilder<T> {
+        private final List<GFCondition> conditions = new ArrayList<GFCondition>();
+
+        public T addCondition(GFCondition condition) { this.conditions.add(condition); return self(); }
+        public T addConditions(Iterable<GFCondition> conditions) { Iterables.addAll(this.conditions, conditions); return self(); }
+
+        protected T fromClone(LogicalOperatorCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(component, mapDict).
+                    addConditions(deepClone(component.conditions, mapDict));
+            return self();
+        }
+    }
 }

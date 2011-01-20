@@ -39,6 +39,18 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
             GreyfishLogger.debug(this.getClass().getSimpleName() + "#setValue("+amount+"): Out of range ("+lowerBound+","+upperBound+")");
     }
 
+    public E getUpperBound() {
+        return upperBound;
+    }
+
+    public E getLowerBound() {
+        return lowerBound;
+    }
+
+    public E getInitialValue() {
+        return initialValue;
+    }
+
     private boolean rangeCheck(E from, E to, E value) {
         return from.compareTo( value ) <= 0
                 && to.compareTo( value ) >= 0;
@@ -86,7 +98,7 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
     }
 
     public static final class Builder<E extends Comparable<E>> extends AbstractBuilder<Builder<E>, E> {
-        @Override protected Builder self() {  return this; }
+        @Override protected Builder<E> self() {  return this; }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<T> {

@@ -1,33 +1,20 @@
 package org.asoem.greyfish.core.conditions;
 
-import java.util.Map;
-
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.simpleframework.xml.core.Commit;
 
+import java.util.Map;
+
 /**
- * A class that implements the <code>Condition</code> interface can be used to make a <code>IndividualAction</code> conditional.
+ * A class that implements the <code>Condition</code> interface.
+ * Can be used to make a <code>GFAction</code> conditional.
  * @author christoph
  */
 public abstract class AbstractCondition extends AbstractGFComponent implements GFCondition {
 
 	private GFCondition parentCondition;
-
-	public AbstractCondition() {
-	}
-
-	protected AbstractCondition(AbstractCondition condition,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(condition, mapDict);
-		parentCondition = deepClone(condition.parentCondition, mapDict);
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1764101723431506928L;
 
 	@Override
 	public GFCondition getParentCondition() {
@@ -72,4 +59,18 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 	@Override
 	public void export(Exporter e) {
 	}
+
+    protected AbstractCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
+        GFCondition parentCondition;
+
+        protected T fromClone(AbstractCondition condition, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(condition, mapDict);
+            parentCondition = deepClone(condition.parentCondition, mapDict);
+            return self();
+        }
+    }
 }

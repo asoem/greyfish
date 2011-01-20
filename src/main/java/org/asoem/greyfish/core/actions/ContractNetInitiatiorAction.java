@@ -24,7 +24,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     private int nReceivedProposals;
     private int nReceivedAcceptAnswers;
 
-    public ContractNetInitiatiorAction(AbstractBuilder<?> builder) {
+    public ContractNetInitiatiorAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
         initFSM();
     }

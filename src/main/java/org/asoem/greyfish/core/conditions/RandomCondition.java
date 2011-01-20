@@ -1,51 +1,57 @@
 package org.asoem.greyfish.core.conditions;
 
-import java.util.Map;
-
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
+import java.util.Map;
+
 public class RandomCondition extends LeafCondition {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8799634725139546159L;
+    @Element(name="propability")
+    private double parameterTruePropability;
 
-	@Element(name="propability")
-	private double parameterTruePropability;
+    @Override
+    public boolean evaluate(Simulation simulation) {
+        return Math.random() < parameterTruePropability;
+    }
 
-	public RandomCondition() {
-		this.parameterTruePropability = 0.5;
-	}
+    @Override
+    protected AbstractDeepCloneable deepCloneHelper(
+            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+        return new Builder().fromClone(this, mapDict).build();
+    }
 
-	public RandomCondition(RandomCondition condition,
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		super(condition, mapDict);
-		this.parameterTruePropability = condition.parameterTruePropability;
-	}
+    @Override
+    public void export(Exporter e) {
+        e.addField( new ValueAdaptor<Double>("", Double.class, parameterTruePropability) {
+            @Override
+            protected void writeThrough(Double arg0) {
+                parameterTruePropability = arg0;
+            }
+        });
+    }
 
-	@Override
-	public boolean evaluate(Simulation simulation) {
-		return Math.random() < parameterTruePropability;
-	}
+    protected RandomCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+        super(builder);
+    }
 
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new RandomCondition(this, mapDict);
-	}
+    public static final class Builder extends AbstractBuilder<Builder> {
+        @Override protected Builder self() { return this; }
+    }
 
-	@Override
-	public void export(Exporter e) {
-		e.addField( new ValueAdaptor<Double>("", Double.class, parameterTruePropability) {
-			@Override
-			protected void writeThrough(Double arg0) {
-				RandomCondition.this.parameterTruePropability = arg0;
-			}
-		});
-	}
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
+        private double parameterTruePropability;
+
+        public T parameterTruePropability(double parameterTruePropability) { this.parameterTruePropability = parameterTruePropability; return self(); }
+
+        protected T fromClone(RandomCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+            super.fromClone(component, mapDict);
+            return self();
+        }
+
+        public AbstractDeepCloneable build() { return new RandomCondition(this); }
+    }
 }
