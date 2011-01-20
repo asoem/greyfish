@@ -1,6 +1,8 @@
 package org.asoem.greyfish.utils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,4 +39,8 @@ public abstract class AbstractDeepCloneable implements DeepClonable {
 		// There must not exist any implementation of DeepClonable which doesn't extend DeepCloneable
 		return (component != null) ? (T) ((AbstractDeepCloneable)component).deepClone(map) : null;
 	}
+
+    protected static <T extends DeepClonable> Iterable<T> deepClone(Iterable<T> components, final Map<AbstractDeepCloneable, AbstractDeepCloneable> map) {
+        return Iterables.transform(components, new Function<T, T>() { public T apply(T e) {return deepClone(e, map);}});
+    }
 }
