@@ -51,7 +51,7 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable {
 	}
 	
 	private void fireValueChanged(Object oldValue, Object newValue) {
-		propertyChangeSupport.firePropertyChange("value", oldValue, newValue);
+		propertyChangeSupport.firePropertyChange("to", oldValue, newValue);
 	}
 
 	protected abstract void writeThrough(T arg0);

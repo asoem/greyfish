@@ -376,7 +376,7 @@ implements List<E>, RandomAccess, Cloneable, java.io.Serializable
 
 	/*
 	 * Private remove method that skips bounds checking and does not
-	 * return the value removed.
+	 * return the to removed.
 	 */
 	private void fastRemove(int index) {
 		modCount++;

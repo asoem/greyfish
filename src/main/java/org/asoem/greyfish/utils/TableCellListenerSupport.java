@@ -11,8 +11,8 @@ import javax.swing.SwingUtilities;
 
 /*
  *  This class listens for changes made to the data in the table via the
- *  TableCellEditor. When editing is started, the value of the cell is saved
- *  When editing is stopped the new value is saved. When the oold and new
+ *  TableCellEditor. When editing is started, the to of the cell is saved
+ *  When editing is stopped the new to is saved. When the oold and new
  *  values are different, then the provided Action is invoked.
  *
  *  The source of the Action is a TableCellListener instance.
@@ -60,9 +60,9 @@ public class TableCellListenerSupport implements PropertyChangeListener, Runnabl
 	}
 
 	/**
-	 *  Get the new value in the cell
+	 *  Get the new to in the cell
 	 *
-	 *  @return the new value in the cell
+	 *  @return the new to in the cell
 	 */
 	public Object getNewValue()
 	{
@@ -70,9 +70,9 @@ public class TableCellListenerSupport implements PropertyChangeListener, Runnabl
 	}
 
 	/**
-	 *  Get the old value of the cell
+	 *  Get the old to of the cell
 	 *
-	 *  @return the old value of the cell
+	 *  @return the old to of the cell
 	 */
 	public Object getOldValue()
 	{

@@ -59,7 +59,7 @@ public class Table {
 	}
 
 	public void setValueAt(int col, int row, Object value) {
-		Preconditions.checkArgument(classes.get(col).isInstance(value), "Class of value does not match Class of target column.");
+		Preconditions.checkArgument(classes.get(col).isInstance(value), "Class of to does not match Class of target column.");
 
 		final Object oldValue = getValueAt(col, row);
 		table.get(col).set(row, value);
