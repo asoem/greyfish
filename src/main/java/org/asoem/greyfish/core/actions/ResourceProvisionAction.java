@@ -48,7 +48,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
         try {
             amountRequested = (Double) message.getReferenceContent();
         } catch (Exception e) {
-            throw new NotUnderstoodException("Double value expected, received " + message.getReferenceContent());
+            throw new NotUnderstoodException("Double to expected, received " + message.getReferenceContent());
         }
         offer = Math.min(amountRequested, resourceProperty.getValue());
 

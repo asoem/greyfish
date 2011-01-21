@@ -231,12 +231,12 @@ public class ACLMessage implements Reusable {
 	 * Reads <code>:StringContent</code> slot. <p>
 	 * <p>Notice that, in general, setting a String StringContent and getting
 	 * back a byte sequence StringContent - or viceversa - does not return
-	 * the same value, i.e. the following relation does not hold
+	 * the same to, i.e. the following relation does not hold
 	 * <code>
 	 * getByteSequenceContent(setByteSequenceContent(getStringContent().getBytes()))
 	 * is equal to getByteSequenceContent()
 	 * </code>
-	 * @return The value of <code>:StringContent</code> slot. Guarantied to be not <code>null</code>
+	 * @return The to of <code>:StringContent</code> slot. Guarantied to be not <code>null</code>
      */
 	public String getStringContent() {
         switch (contentType) {

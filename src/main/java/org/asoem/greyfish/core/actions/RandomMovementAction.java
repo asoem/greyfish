@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.interfaces.Movement2DAcutator;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
@@ -64,8 +65,11 @@ public class RandomMovementAction extends AbstractGFAction {
         this.speed = builder.speed;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<RandomMovementAction> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public RandomMovementAction build() { return new RandomMovementAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
@@ -77,7 +81,5 @@ public class RandomMovementAction extends AbstractGFAction {
             super.fromClone(action, mapDict).speed(action.speed);
             return self();
         }
-
-        public RandomMovementAction build() { return new RandomMovementAction(this); }
     }
 }

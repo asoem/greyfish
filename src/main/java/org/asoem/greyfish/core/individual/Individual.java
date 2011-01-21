@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
@@ -22,13 +23,16 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.Iterables.filter;
 
 @Root
-public class Individual extends AbstractDeepCloneable implements MovingObject2DInterface {
+public class Individual extends AbstractDeepCloneable implements MovingObject2DInterface, Freezable {
 
 	private final ListenerSupport<IndividualCompositionListener> listenerSupport = new ListenerSupport<IndividualCompositionListener>();
 
@@ -41,7 +45,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	@ElementList(inline=true, entry="actions", required=false)
 	private List<GFAction> actions = new ArrayList<GFAction>();
 
-	private final Collection<GFInterface> interfaces = new ArrayList<GFInterface>();
+	private Collection<GFInterface> interfaces = new ArrayList<GFInterface>();
 
 	public enum State {
 		PROTOTYPE,
@@ -118,18 +122,12 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	 * @param action
 	 * @return {@code true} if actions could be added, {@code false} otherwise.
 	 */
-	public boolean addAction(final GFAction action) throws IllegalArgumentException {
+	public boolean addAction(final GFAction action) {
 		return addComponent(actions, action);
 	}
 
 	private <T extends NamedIndividualComponent> boolean addComponent(final List<T> collection, final T component) {
-		try {
-			checkComponentAddition(component);
-		}
-		catch (IllegalArgumentException e) {
-			GreyfishLogger.error("Could not add actions", e);
-			throw e;
-		}
+		checkComponentAddition(component);
 
 		// duplicate check
 		if (Iterables.find(collection, new Predicate<NamedIndividualComponent>() {
@@ -156,6 +154,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	 * @param action
 	 */
 	public boolean removeAction(final GFAction action) {
+        checkFrozen();
 		if (this.actions.remove(action)) {
 			action.setComponentOwner(null);
 			componentRemoved(action);
@@ -168,6 +167,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	 * 
 	 */
 	public void removeAllActions() {
+        checkFrozen();
 		for (GFAction a : actions) {
 			removeAction(a);
 		}
@@ -238,6 +238,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	}
 
 	private boolean checkComponentAddition(final GFComponent component) {
+        checkFrozen();
 		Preconditions.checkNotNull(component);
 
 		if(component.getComponentOwner() != null
@@ -254,6 +255,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	 * @param property
 	 */
 	public boolean removeProperty(final GFProperty property) {
+        checkFrozen();
 		if (this.properties.remove(property)) {
 			property.setComponentOwner(null);
 			componentRemoved(property);
@@ -266,6 +268,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	 * 
 	 */
 	public void removeAllProperties() {
+        checkFrozen();
 		for (GFProperty p : properties) {
 			removeProperty(p);
 		}
@@ -358,7 +361,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 		assert properties != null;
 		genome.clear();
 		for (GFProperty property : this.properties) {
-			genome.addAll(Arrays.asList(property.getGenes()));
+			genome.addAll(property.getGeneList());
 		}
 	}
 
@@ -447,6 +450,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	 * @param clazz
 	 * @return The instance of {@code clazz} associated with this individual
 	 */
+    @SuppressWarnings("unchecked")
 	public <T extends GFInterface> T getInterface(Class<T> clazz) {
 		GFInterface ret = Iterables.find(interfaces, instanceOf(clazz), null);
 		if (ret == null) {
@@ -459,8 +463,6 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 				throw new AssertionError(e.getMessage());
 			}
 		}
-		
-		assert(ret != null);
 		return (T) ret;
 	}
 
@@ -542,7 +544,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 
 		final Iterable<? extends GFComponent> components = getComponents();
 		for (GFComponent individualComponent : components) {
-			individualComponent.checkDependencies(components);
+			individualComponent.checkIfFreezable(components);
 		}
 	}
 
@@ -561,7 +563,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	 * @return a deepClone of this individual fetched from the simulations pool of clones with the identical genetic constitution
 	 * @throws Exception
 	 */
-	public Individual createClone(Simulation simulation) throws Exception {
+	public Individual createClone(Simulation simulation) {
 		Preconditions.checkNotNull(simulation);
 		final Individual ret = simulation.createClone(population);
 		ret.setGenome(new Genome(genome));
@@ -608,5 +610,31 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	@Override
 	public double getY() {
 		return body.getY();
-	}	
+	}
+
+    public void freeze() {
+        for (GFComponent component : getComponents())
+            component.freeze();
+        actions = ImmutableList.copyOf(actions);
+        properties = ImmutableList.copyOf(properties);
+        interfaces = ImmutableList.copyOf(interfaces);
+    }
+
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        for (GFComponent component : getComponents())
+            component.checkIfFreezable(components);
+    }
+
+    @Override
+    public <T> T checkFrozen(T value) {
+        checkFrozen();
+        return value;
+    }
+
+    @Override
+    public void checkFrozen() {
+        if (state == State.PROTOTYPE)
+            throw new IllegalStateException("Individual is frozen");
+    }
 }

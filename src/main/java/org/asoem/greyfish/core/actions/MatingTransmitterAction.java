@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
@@ -13,11 +14,13 @@ import org.simpleframework.xml.Element;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @ClassGroup(tags="actions")
 public class MatingTransmitterAction extends ContractNetResponderAction {
 
     @Element(name="messageType", required=false)
-    private String parameterMessageType;
+    private String ontology;
 
     private MatingTransmitterAction() {
         this(new Builder());
@@ -25,7 +28,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     @Override
     protected String getOntology() {
-        return parameterMessageType;
+        return ontology;
     }
 
     @Override
@@ -35,7 +38,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
     }
 
     private void checkValidity() {
-        Preconditions.checkNotNull(parameterMessageType);
+        Preconditions.checkNotNull(ontology);
     }
 
     @Override
@@ -47,11 +50,11 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueAdaptor<String>("Message Type", String.class, parameterMessageType) {
+        e.addField(new ValueAdaptor<String>("Message Type", String.class, ontology) {
 
             @Override
             protected void writeThrough(String arg0) {
-                MatingTransmitterAction.this.parameterMessageType = arg0;
+                ontology = checkFrozen(checkNotNull(arg0));
             }
         });
     }
@@ -76,20 +79,23 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     protected MatingTransmitterAction(AbstractBuilder<?> builder) {
         super(builder);
-        this.parameterMessageType = builder.parameterMessageType;
+        this.ontology = builder.ontology;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<MatingTransmitterAction> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public MatingTransmitterAction build() { return new MatingTransmitterAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
-        private String parameterMessageType;
+        private String ontology;
 
-        public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
+        public T offersSpermToMatesOfType(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         protected T fromClone(MatingTransmitterAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).parameterMessageType(action.parameterMessageType);
+            super.fromClone(action, mapDict).offersSpermToMatesOfType(action.ontology);
             return self();
         }
 

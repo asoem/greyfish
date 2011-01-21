@@ -2,9 +2,12 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author christoph
@@ -12,7 +15,7 @@ import java.util.Map;
  */
 public class ActionWillExecuteCondition extends LeafCondition {
 
-    private GFAction parameterAction;
+    private final GFAction parameterAction;
 
     @Override
     public boolean evaluate(Simulation simulation) {
@@ -30,21 +33,22 @@ public class ActionWillExecuteCondition extends LeafCondition {
         this.parameterAction = builder.parameterAction;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
+    public static Builder trueIf() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ActionWillExecuteCondition> {
+        private Builder() {};
         @Override protected Builder self() { return this; }
+        @Override public ActionWillExecuteCondition build() { return new ActionWillExecuteCondition(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
         private GFAction parameterAction;
 
-        public T action(GFAction action) { this.parameterAction = action; return self(); }
+        public T followingActionWillExecute(GFAction action) { this.parameterAction = checkNotNull(action); return self(); }
 
         protected T fromClone(ActionWillExecuteCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(component, mapDict).
-                    action(deepClone(component.parameterAction, mapDict));
+                    followingActionWillExecute(deepClone(component.parameterAction, mapDict));
             return self();
         }
-
-        public ActionWillExecuteCondition build() { return new ActionWillExecuteCondition(this); }
     }
 }

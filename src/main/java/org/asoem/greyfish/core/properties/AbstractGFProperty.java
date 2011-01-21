@@ -39,6 +39,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
 	}
 	
 	public final <R extends Gene<?>> R registerGene(final R gene) {
+        checkFrozen();
         geneList = new ImmutableList.Builder<Gene<?>>().addAll(geneList).add(gene).build();
 		return gene;
 	}

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
@@ -7,7 +8,7 @@ import org.asoem.greyfish.utils.Exporter;
 import java.util.Map;
 
 @ClassGroup(tags="property")
-public class DoubleProperty extends OrderedSetProperty<Double> {
+public final class DoubleProperty extends OrderedSetProperty<Double> {
 
     private DoubleProperty() {
         this(new Builder());
@@ -36,8 +37,11 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoubleProperty> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public DoubleProperty build() { return new DoubleProperty(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Double> {
@@ -49,7 +53,5 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
             super.fromClone(property, mapDict);
             return self();
         }
-
-        public DoubleProperty build() { return new DoubleProperty(this); }
     }
 }

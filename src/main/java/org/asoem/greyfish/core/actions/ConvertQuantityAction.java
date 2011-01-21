@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Element;
@@ -51,8 +52,11 @@ public class ConvertQuantityAction extends AbstractGFAction {
         this.parameterMax = builder.parameterMax;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static final Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ConvertQuantityAction> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public ConvertQuantityAction build() { return new ConvertQuantityAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
@@ -66,7 +70,6 @@ public class ConvertQuantityAction extends AbstractGFAction {
         public T parameterFactor(double parameterFactor) { this.parameterFactor = parameterFactor; return self(); }
         public T parameterMax(double parameterMax) { this.parameterMax = parameterMax; return self(); }
 
-
         protected T fromClone(ConvertQuantityAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(action, mapDict).
                     parameterFactor(action.parameterFactor).
@@ -75,7 +78,5 @@ public class ConvertQuantityAction extends AbstractGFAction {
                     parameterMax(action.parameterMax);
             return self();
         }
-
-        public ConvertQuantityAction build() { return new ConvertQuantityAction(this); }
     }
 }

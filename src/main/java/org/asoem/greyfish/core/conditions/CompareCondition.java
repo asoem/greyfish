@@ -9,41 +9,42 @@ import org.simpleframework.xml.Element;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class CompareCondition<T extends Comparable<T>> extends LeafCondition {
 
     @Attribute(name="comparator")
-    protected Comparator parameterComparator = Comparator.EQ;
+    protected Comparator comparator = Comparator.EQ;
 
-    @Element(name="value")
+    @Element(name="to")
     protected T value;
 
     @Override
     public boolean evaluate(Simulation simulation) {
-        return parameterComparator.compare(getCompareValue(simulation), value);
+        return comparator.compare(getCompareValue(simulation), value);
     }
 
     protected abstract T getCompareValue(Simulation simulation);
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueSelectionAdaptor<Comparator>("", Comparator.class, parameterComparator, Comparator.values()) {
-            @Override
-            protected void writeThrough(Comparator arg0) {
-                CompareCondition.this.parameterComparator = arg0;
-            }
+        e.addField( new ValueSelectionAdaptor<Comparator>("", Comparator.class, comparator, Comparator.values()) {
+            @Override protected void writeThrough(Comparator arg0) { comparator = checkFrozen(checkNotNull(arg0)); }
         });
     }
 
     protected CompareCondition(AbstractBuilder<? extends AbstractBuilder, T> builder) {
         super(builder);
+        this.comparator = builder.comparator;
+        this.value = builder.value;
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<T> {
-        private Comparator parameterComparator;
+        private Comparator comparator;
         private E value;
 
-        public T parameterComparator(Comparator parameterComparator) { this.parameterComparator = parameterComparator; return self(); }
-        public T value(E value) { this.value = value; return self(); }
+        public T is(Comparator comparator) { this.comparator = checkNotNull(comparator); return self(); }
+        public T to(E value) { this.value = checkNotNull(value); return self(); }
 
         protected T fromClone(CompareCondition<E> component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(component, mapDict);

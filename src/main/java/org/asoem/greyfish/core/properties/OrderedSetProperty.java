@@ -10,6 +10,8 @@ import org.simpleframework.xml.Element;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 public abstract class OrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements DiscreteProperty<E> {
 
@@ -67,21 +69,21 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
 
             @Override
             protected void writeThrough(E arg0) {
-                lowerBound = arg0;
+                lowerBound = checkFrozen(checkNotNull(arg0));
             }
         });
         e.addField(new ValueAdaptor<E>("Max", clazz, upperBound) {
 
             @Override
             protected void writeThrough(E arg0) {
-                upperBound = arg0;
+                upperBound = checkFrozen(checkNotNull(arg0));
             }
         });
         e.addField(new ValueAdaptor<E>("Initial", clazz, initialValue) {
 
             @Override
             protected void writeThrough(E arg0) {
-                initialValue = arg0;
+                initialValue = checkFrozen(checkNotNull(arg0));
             }
             @Override
             public ValidationResult validate() {
@@ -106,9 +108,9 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
         protected E lowerBound;
         protected E initialValue;
 
-        public T upperBound(E upperBound) { this.upperBound = upperBound; return self(); }
-        public T lowerBound(E lowerBound) { this.lowerBound = lowerBound; return self(); }
-        public T initialValue(E initialValue) { this.initialValue = initialValue; return self(); }
+        public T upperBound(E upperBound) { this.upperBound = checkNotNull(upperBound); return self(); }
+        public T lowerBound(E lowerBound) { this.lowerBound = checkNotNull(lowerBound); return self(); }
+        public T initialValue(E initialValue) { this.initialValue = checkNotNull(initialValue); return self(); }
 
         protected T fromClone(OrderedSetProperty<E> property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(property, mapDict).

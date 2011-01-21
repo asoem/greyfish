@@ -22,12 +22,12 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void setComponentOwner(Individual individual) {
-        componentOwner = individual;
+        componentOwner = checkFrozen(individual);
     }
 
     public void setName(String name) {
         Preconditions.checkNotNull(name);
-        this.name = name;
+        this.name = checkFrozen(name);
     }
 
     @Override
@@ -42,11 +42,25 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void initialize(Simulation simulation) {
-        Preconditions.checkNotNull(componentOwner, name + " (" + this.getClass().getSimpleName() + "): Missing component owner is reqiured");
     }
 
     @Override
-    public void checkDependencies(Iterable<? extends GFComponent> components) {
+    public void freeze() {
+    }
+
+    public final <T> T checkFrozen(T value) {
+        checkFrozen();
+        return value;
+    }
+
+    public final void checkFrozen() {
+        componentOwner.checkFrozen();
+    }
+
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        if (componentOwner == null)
+            throw new IllegalStateException(name + " (" + this.getClass().getSimpleName() + "): Components must have an owner");
     }
 
     protected AbstractGFComponent(AbstractBuilder<?> builder) {

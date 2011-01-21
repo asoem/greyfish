@@ -1,13 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.google.common.base.Preconditions;
 import javolution.util.FastList;
-
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.KeyedPoolableObjectFactory;
@@ -26,7 +20,11 @@ import org.asoem.greyfish.utils.FastLists;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.RandomUtils;
 
-import com.google.common.base.Preconditions;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Simulation implements Runnable {
 
@@ -261,7 +259,6 @@ public class Simulation implements Runnable {
 	}
 
 	/**
-	 * @param individual
 	 * @return a deepClone of the prototype for given population registered by the underlying scenario of this simulation
 	 * @throws Exception if the clone could not be created
 	 */
@@ -271,6 +268,7 @@ public class Simulation implements Runnable {
 		try {
 			return (Individual) objectPool.borrowObject(population);
 		} catch (Exception e) {
+            GreyfishLogger.fatal("Error using objectPool", e);
 			throw new AssertionError(e);
 		}
 	}
@@ -414,7 +412,7 @@ public class Simulation implements Runnable {
 	}
 
 	/**
-	 * Increase the time by one and return its (increased) value
+	 * Increase the time by one and return its (increased) to
 	 * @return
 	 */
 	public synchronized void step() {

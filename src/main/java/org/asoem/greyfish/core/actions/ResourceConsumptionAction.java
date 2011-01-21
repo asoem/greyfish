@@ -9,16 +9,19 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
-    @Element(name = "property")
+    @Element(name="property")
     private DoubleProperty consumerProperty = null;
 
     @Element(name="messageType", required=false)
@@ -104,24 +107,23 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         super.export(e);
         e.addField(new ValueAdaptor<String>("Ontology", String.class, parameterMessageType) {
             @Override protected void writeThrough(String arg0) {
-                parameterMessageType = arg0;
+                parameterMessageType = checkFrozen(checkNotNull(arg0));
             }
         });
         e.addField(new ValueAdaptor<Double>("Amount", Double.class, amountPerRequest) {
             @Override protected void writeThrough(Double arg0) {
-                amountPerRequest = arg0;
+                amountPerRequest = checkFrozen(checkNotNull(arg0));
             }
         });
         e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, componentOwner.getProperties(DoubleProperty.class)) {
             @Override protected void writeThrough(DoubleProperty arg0) {
-                consumerProperty = arg0;
+                consumerProperty = checkFrozen(checkNotNull(arg0));
             }
         });
         e.addField(new ValueAdaptor<Double>("Sensor Range", Double.class, sensorRange) {
-
             @Override
             protected void writeThrough(Double arg0) {
-                sensorRange = arg0;
+                sensorRange = checkFrozen(checkNotNull(arg0));
             }
         });
     }
@@ -134,8 +136,11 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         this.sensorRange = builder.sensorRange;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceConsumptionAction> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public ResourceConsumptionAction build() { return new ResourceConsumptionAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
@@ -144,20 +149,18 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         private double amountPerRequest = 0;
         private double sensorRange = 0;
 
-        public T consumerProperty(DoubleProperty consumerProperty) { this.consumerProperty = consumerProperty; return self(); }
-        public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
-        public T amountPerRequest(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
-        public T sensorRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+        public T storesEnergyIn(DoubleProperty consumerProperty) { this.consumerProperty = consumerProperty; return self(); }
+        public T viaMessagesOfType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
+        public T requesting(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
+        public T inRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
 
         protected T fromClone(ResourceConsumptionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(action, mapDict).
-                    consumerProperty(deepClone(action.consumerProperty, mapDict)).
-                    parameterMessageType(action.parameterMessageType).
-                    amountPerRequest(action.amountPerRequest).
-                    sensorRange(action.sensorRange);
+                    storesEnergyIn(deepClone(action.consumerProperty, mapDict)).
+                    viaMessagesOfType(action.parameterMessageType).
+                    requesting(action.amountPerRequest).
+                    inRange(action.sensorRange);
             return self();
         }
-
-        public ResourceConsumptionAction build() { return new ResourceConsumptionAction(this); }
     }
 }

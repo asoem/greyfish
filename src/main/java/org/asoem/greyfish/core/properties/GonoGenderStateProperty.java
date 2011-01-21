@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.genes.AbstractGene;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
@@ -59,8 +60,11 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<GonoGenderStateProperty> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public GonoGenderStateProperty build() { return new GonoGenderStateProperty(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
@@ -69,7 +73,5 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
             super.fromClone(property, mapDict);
             return self();
         }
-
-        public GonoGenderStateProperty build() { return new GonoGenderStateProperty(this); }
     }
 }

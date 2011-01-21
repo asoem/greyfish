@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.share.Consumer;
 import org.asoem.greyfish.core.share.ConsumerGroup;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
@@ -37,8 +38,11 @@ public class ResourceProperty extends DoubleProperty {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProperty> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public ResourceProperty build() { return new ResourceProperty(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DoubleProperty.AbstractBuilder<T> {
@@ -50,7 +54,5 @@ public class ResourceProperty extends DoubleProperty {
             super.fromClone(property, mapDict);
             return self();
         }
-
-        public ResourceProperty build() { return new ResourceProperty(this); }
     }
 }

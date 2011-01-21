@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
@@ -29,8 +30,11 @@ public class DeathAction extends AbstractGFAction {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DeathAction> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public DeathAction build() { return new DeathAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
@@ -39,8 +43,5 @@ public class DeathAction extends AbstractGFAction {
             super.fromClone(action, mapDict);
             return self();
         }
-
-        public DeathAction build() { return new DeathAction(this); }
     }
-
 }

@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Attribute;
@@ -44,22 +45,24 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     protected ClonalReproductionAction(AbstractBuilder<?> builder) {
         super(builder);
+        this.parameterClones = builder.nClones;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static final Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ClonalReproductionAction> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public ClonalReproductionAction build() { return new ClonalReproductionAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
-        private int parameterClones;
+        private int nClones;
 
-        public T parameterClones(int parameterClones) { this.parameterClones = parameterClones; return self(); }
+        public T clones(int parameterClones) { this.nClones = parameterClones; return self(); }
 
         protected T fromClone(ClonalReproductionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).parameterClones(action.parameterClones);
+            super.fromClone(action, mapDict).clones(action.parameterClones);
             return self();
         }
-
-        public ClonalReproductionAction build() { return new ClonalReproductionAction(this); }
     }
 }

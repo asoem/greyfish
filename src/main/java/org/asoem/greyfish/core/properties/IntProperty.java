@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
@@ -36,8 +37,11 @@ public class IntProperty extends OrderedSetProperty<Integer> {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<IntProperty> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public IntProperty build() { return new IntProperty(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Integer> {
@@ -49,7 +53,5 @@ public class IntProperty extends OrderedSetProperty<Integer> {
             super.fromClone(property, mapDict);
             return self();
         }
-
-        public IntProperty build() { return new IntProperty(this); }
     }
 }

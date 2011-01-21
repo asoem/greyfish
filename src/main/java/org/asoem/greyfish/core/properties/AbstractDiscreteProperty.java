@@ -4,6 +4,8 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractDiscreteProperty<E> extends AbstractGFProperty implements DiscreteProperty<E> {
 
 	protected E value;
@@ -29,7 +31,7 @@ public abstract class AbstractDiscreteProperty<E> extends AbstractGFProperty imp
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E> extends AbstractGFProperty.AbstractBuilder<T> {
         protected E value;
 
-        public T value(E upperBound) { this.value = upperBound; return self(); }
+        public T value(E upperBound) { this.value = checkNotNull(upperBound); return self(); }
 
         protected T fromClone(AbstractDiscreteProperty<E> property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(property, mapDict).

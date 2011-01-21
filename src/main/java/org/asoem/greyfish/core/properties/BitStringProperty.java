@@ -11,7 +11,7 @@ import java.util.Map;
 @ClassGroup(tags="property")
 public class BitStringProperty extends AbstractGFProperty implements DiscreteProperty<String> {
 
-	private Gene<BitString> gene = registerGene( new BitStringGene(3, 0.01) );
+	private final Gene<BitString> gene = registerGene( new BitStringGene(3, 0.01) );
 
 	private BitStringProperty() {
         this(new Builder());

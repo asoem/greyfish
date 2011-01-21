@@ -16,7 +16,6 @@ import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ContinuosProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -26,6 +25,8 @@ import org.simpleframework.xml.Root;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
@@ -120,7 +121,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         try{
             FORMULA_EVALUATOR.parse(energyCostsFormula);
         } catch (EvaluationException e) {
-            throw new IllegalStateException("energyCostsFormula is not valid");
+            throw new IllegalStateException("formula is not valid");
         }
     }
 
@@ -148,7 +149,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Element(name="condition", required=false)
     @Override
     public void setRootCondition(GFCondition rootCondition) {
-        conditionTree = new ConditionTree(rootCondition);
+        conditionTree = new ConditionTree(checkFrozen(rootCondition));
     }
 
     @Override
@@ -158,22 +159,20 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueAdaptor<String>("Energy Costs", String.class, energyCostsFormula)
-        { @Override protected void writeThrough(String arg0) { energyCostsFormula = arg0; }});
+        e.addField( new ValueAdaptor<String>("Energy Costs", String.class, energyCostsFormula) {
+            @Override protected void writeThrough(String arg0) { energyCostsFormula = checkFrozen(arg0); }
+        });
         //		e.addField( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
         //				{ @Override protected void writeThrough(Boolean arg0) { parameterLast = arg0; }});
-        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class, energySource, componentOwner.getProperties(DoubleProperty.class)) {
-
-            @Override
-            protected void writeThrough(DoubleProperty arg0) {
-                energySource = arg0;
-            }
+        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class,
+                energySource, componentOwner.getProperties(DoubleProperty.class)) {
+            @Override protected void writeThrough(DoubleProperty arg0) { energySource = checkFrozen(arg0); }
         });
     }
 
     @Override
-    public void checkDependencies(Iterable<? extends GFComponent> components) {
-        super.checkDependencies(components);
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
+        super.checkIfFreezable(components);
         if (! Iterables.contains(components, energySource))
             energySource = null;
     }
@@ -190,25 +189,26 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected AbstractGFAction(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
-        this.energyCostsFormula = builder.energyCostsFormula;
-        this.energySource = builder.enegySource;
-        this.conditionTree = new ConditionTree(builder.rootCondition);
+        this.energyCostsFormula = builder.formula;
+        this.energySource = builder.source;
+        this.conditionTree = new ConditionTree(builder.condition);
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
-        private GFCondition rootCondition;
-        private DoubleProperty enegySource;
-        private String energyCostsFormula;
+        private GFCondition condition;
+        private DoubleProperty source;
+        private String formula;
 
-        public T rootCondition(GFCondition rootCondition) { this.rootCondition = rootCondition; return self(); }
-        public T enegySource(DoubleProperty enegySource) { this.enegySource = enegySource; return self(); }
-        public T energyCostsFormula(String energyCostsFormula) { this.energyCostsFormula = energyCostsFormula; return self(); }
+        public T executesIf(GFCondition condition) { this.condition = checkNotNull(condition); return self(); }
+        private T source(DoubleProperty source) { this.source = source; return self(); }
+        private T formula(String formula) { this.formula = formula; return self(); }
+        public T generatesCosts(DoubleProperty source, String formula) { return source(checkNotNull(source)).formula(checkNotNull(formula)); }
 
         protected T fromClone(AbstractGFAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(action, mapDict).
-                    rootCondition(AbstractDeepCloneable.deepClone(action.getRootCondition(), mapDict)).
-                    enegySource(AbstractDeepCloneable.deepClone(action.energySource, mapDict)).
-                    energyCostsFormula(action.energyCostsFormula);
+                    executesIf(AbstractDeepCloneable.deepClone(action.getRootCondition(), mapDict)).
+                    source(AbstractDeepCloneable.deepClone(action.energySource, mapDict)).
+                    formula(action.energyCostsFormula);
             return self();
         }
     }

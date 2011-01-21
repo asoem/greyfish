@@ -6,6 +6,8 @@ import org.asoem.greyfish.utils.ValueAdaptor;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class IntCompareCondition extends CompareCondition<Integer> {
 
     @Override
@@ -15,7 +17,7 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
 
             @Override
             protected void writeThrough(Integer arg0) {
-                value = arg0;
+                value = checkFrozen(checkNotNull(arg0));
             }
         });
     }

@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
@@ -21,7 +22,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
 			@Override
 			protected void writeThrough(DoubleProperty arg0) {
-				doubleProperty = arg0;
+				doubleProperty = checkFrozen(arg0);
 			}
 		});
 	}
@@ -42,21 +43,22 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
         this.doubleProperty = builder.doubleProperty;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
+    public static Builder isTrueIf() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoublePropertyCondition> {
+        private Builder() {};
         @Override protected Builder self() { return this; }
+        @Override public DoublePropertyCondition build() { return new DoublePropertyCondition(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DoubleCompareCondition.AbstractBuilder<T> {
         private DoubleProperty doubleProperty;
 
-        public T doubleProperty(DoubleProperty doubleProperty) { this.doubleProperty = doubleProperty; return self(); }
+        public T valueOf(DoubleProperty doubleProperty) { this.doubleProperty = doubleProperty; return self(); }
 
         protected T fromClone(DoublePropertyCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(component, mapDict).
-                    doubleProperty(deepClone(component.doubleProperty, mapDict));
+                    valueOf(deepClone(component.doubleProperty, mapDict));
             return self();
         }
-
-        public DoublePropertyCondition build() { return new DoublePropertyCondition(this); }
     }
 }

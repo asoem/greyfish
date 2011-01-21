@@ -23,7 +23,7 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 
 	@Override
 	public void setParent(GFCondition parent) {
-		this.parentCondition = parent;
+		this.parentCondition = checkFrozen(parent);
 	}
 
 	@Override
@@ -62,10 +62,11 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 
     protected AbstractCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
+        this.parentCondition = builder.parentCondition;
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
-        GFCondition parentCondition;
+        private GFCondition parentCondition;
 
         protected T fromClone(AbstractCondition condition, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(condition, mapDict);

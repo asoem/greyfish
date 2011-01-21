@@ -20,7 +20,7 @@ public class PrototypePool {
 	private final ArrayList<ArrayDeque<Individual>> clonePool = new ArrayList<ArrayDeque<Individual>>();
 
 	/**
-	 * Keeps a list of all available prototypes (defined by isCloneOf(clone) function) and a value indicating its usage
+	 * Keeps a list of all available prototypes (defined by isCloneOf(clone) function) and a to indicating its usage
 	 */
 	private final ArrayList<Individual> prototypeIndexMap = new ArrayList<Individual>();
 

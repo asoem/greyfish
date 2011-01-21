@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
@@ -15,6 +15,8 @@ import org.simpleframework.xml.Element;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
 
@@ -22,7 +24,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     private EvaluatedGenomeStorage spermStorage;
 
     @Attribute(name = "reproductive_value")
-    private int parameterOffspringsPerAction = 1;
+    private int nOffspring = 1;
 
     public SexualReproductionAction() {
         this(new Builder());
@@ -31,7 +33,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public boolean evaluate(Simulation simulation) {
         return super.evaluate(simulation)
-                && parameterOffspringsPerAction > 0
+                && nOffspring > 0
                 && spermStorage.isEmpty() == false;
     }
 
@@ -39,38 +41,34 @@ public class SexualReproductionAction extends AbstractGFAction {
     protected void performAction(Simulation simulation) {
         assert(!spermStorage.isEmpty());
 
-        try {
-            for (int i = 0; i < parameterOffspringsPerAction; i++) {
-                final Individual offspring = componentOwner.createClone(simulation);
+        for (int i = 0; i < nOffspring; i++) {
+            final Individual offspring = componentOwner.createClone(simulation);
 
-                final Genome sperm = spermStorage.getRWS();
-                Genome egg = new Genome(componentOwner.getGenome());
-                egg.mutate();
-                egg = egg.recombine(sperm);
+            final Genome sperm = spermStorage.getRWS();
+            Genome egg = new Genome(componentOwner.getGenome());
+            egg.mutate();
+            egg = egg.recombine(sperm);
 
-                offspring.setGenome(egg);
+            offspring.setGenome(egg);
 
-                simulation.addIndividual(offspring, componentOwner);
-            }
-        } catch (Exception e) {
-            GreyfishLogger.error("Error creating a clone", e);
+            simulation.addIndividual(offspring, componentOwner);
         }
     }
 
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField( new ValueAdaptor<Integer>("Offsprings per actions", Integer.class, parameterOffspringsPerAction) {
+        e.addField( new ValueAdaptor<Integer>("Offsprings per actions", Integer.class, nOffspring) {
             @Override
             protected void writeThrough(Integer arg0) {
-                parameterOffspringsPerAction = arg0;
+                nOffspring = checkFrozen(checkNotNull(arg0));
             }
         });
 
         e.addField( new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class, spermStorage, getComponentOwner().getProperties(EvaluatedGenomeStorage.class)) {
             @Override
             protected void writeThrough(EvaluatedGenomeStorage arg0) {
-                spermStorage = arg0;
+                spermStorage = checkFrozen(checkNotNull(arg0));
             }
         });
     }
@@ -83,26 +81,29 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     protected SexualReproductionAction(AbstractBuilder<?> builder) {
         super(builder);
+        this.spermStorage = builder.spermStorage;
+        this.nOffspring = builder.nOffspring;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
-        @Override protected Builder self() {  return this; }
+    public static final Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<SexualReproductionAction> {
+        private Builder() {}
+        @Override protected Builder self() { return this; }
+        @Override public SexualReproductionAction build() { return new SexualReproductionAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
         private EvaluatedGenomeStorage spermStorage;
-        private int parameterOffspringsPerAction = 1;
+        private int nOffspring = 1;
 
-        public T spermStorage(EvaluatedGenomeStorage spermStorage) { this.spermStorage = spermStorage; return self(); }
-        public T parameterOffspringsPerAction(int parameterOffspringsPerAction) { this.parameterOffspringsPerAction = parameterOffspringsPerAction; return self(); }
+        public T spermStorage(EvaluatedGenomeStorage spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
+        public T constantOffspringNumber(int nOffspring) { this.nOffspring = nOffspring; return self(); }
 
         protected T fromClone(SexualReproductionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(action, mapDict).
-                    parameterOffspringsPerAction(action.parameterOffspringsPerAction).
+                    constantOffspringNumber(action.nOffspring).
                     spermStorage(deepClone(action.spermStorage, mapDict));
             return self();
         }
-
-        public SexualReproductionAction build() { return new SexualReproductionAction(this); }
     }
 }
