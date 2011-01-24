@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ActionExecutionCountCondition extends IntCompareCondition {
 
-	@Element(name="actions")
+	@Element(name="action")
 	private GFAction action;
 	
 	@Override
@@ -42,6 +42,10 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     protected AbstractDeepCloneable deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();
+    }
+
+    private ActionExecutionCountCondition() {
+        this(new Builder());
     }
 
     protected ActionExecutionCountCondition(AbstractBuilder<? extends AbstractBuilder> builder) {

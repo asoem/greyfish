@@ -56,6 +56,10 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 		return new Builder().fromClone(this, mapDict).build();
 	}
 
+    private GonoGenderStateProperty() {
+        this(new Builder());
+    }
+
     protected GonoGenderStateProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
     }

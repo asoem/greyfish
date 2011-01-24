@@ -199,7 +199,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         private DoubleProperty source;
         private String formula;
 
-        public T executesIf(GFCondition condition) { this.condition = checkNotNull(condition); return self(); }
+        public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
         private T source(DoubleProperty source) { this.source = source; return self(); }
         private T formula(String formula) { this.formula = formula; return self(); }
         public T generatesCosts(DoubleProperty source, String formula) { return source(checkNotNull(source)).formula(checkNotNull(formula)); }

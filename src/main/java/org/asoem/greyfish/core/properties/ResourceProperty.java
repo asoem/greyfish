@@ -34,11 +34,15 @@ public class ResourceProperty extends DoubleProperty {
         return new Builder().fromClone(this, mapDict).build();
     }
 
-    protected ResourceProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected ResourceProperty(DoubleProperty.AbstractBuilder<? extends DoubleProperty.AbstractBuilder> builder) {
         super(builder);
     }
 
-    public static Builder with() { return new Builder(); }
+    private ResourceProperty() {
+        super(new Builder());
+    }
+
+//    public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProperty> {
         private Builder() {}
         @Override protected Builder self() { return this; }

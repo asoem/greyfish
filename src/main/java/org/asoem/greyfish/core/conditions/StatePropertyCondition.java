@@ -63,6 +63,10 @@ public class StatePropertyCondition extends LeafCondition {
         Preconditions.checkState(Iterables.contains(components, stateProperty));
     }
 
+    private StatePropertyCondition() {
+        this(new Builder());
+    }
+
     protected StatePropertyCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
         this.state = builder.state;

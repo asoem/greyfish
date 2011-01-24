@@ -34,6 +34,10 @@ public class RandomCondition extends LeafCondition {
         });
     }
 
+    private RandomCondition() {
+        this(new Builder());
+    }
+
     protected RandomCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
     }

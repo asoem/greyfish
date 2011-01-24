@@ -31,6 +31,10 @@ public class NorCondition extends LogicalOperatorCondition {
         return trueIf().fromClone(this, mapDict).build();
     }
 
+    private NorCondition() {
+        this(new Builder());
+    }
+
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<NorCondition> {
         private Builder() {}
         @Override protected Builder self() { return this; }

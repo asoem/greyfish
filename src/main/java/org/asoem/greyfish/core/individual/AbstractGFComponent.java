@@ -8,12 +8,14 @@ import org.simpleframework.xml.Attribute;
 
 import java.util.Map;
 
-public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent, HasName {
+public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent {
 
     protected Individual componentOwner;
 
     @Attribute(name="name", required = false)
     protected String name = "";
+
+    private boolean frozen = false;
 
     @Override
     public Individual getComponentOwner() {
@@ -46,6 +48,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void freeze() {
+        frozen = true;
     }
 
     public final <T> T checkFrozen(T value) {
@@ -54,7 +57,8 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     public final void checkFrozen() {
-        componentOwner.checkFrozen();
+        if (frozen)
+            throw new IllegalStateException("Component is frozen");
     }
 
     @Override
@@ -68,7 +72,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     public static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
-        private String name;
+        private String name = "";
 
         public T name(String name) { this.name = name; return self(); }
 

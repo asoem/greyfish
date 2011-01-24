@@ -37,6 +37,10 @@ public class OrCondition extends LogicalOperatorCondition {
         return new Builder().fromClone(this, mapDict).build();
     }
 
+    private OrCondition() {
+        this(new Builder());
+    }
+
     protected OrCondition(AbstractBuilder<?> builder) {
         super(builder);
     }

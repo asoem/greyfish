@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ClassGroup(tags="condition")
 public class LastExecutionTimeCondition extends LeafCondition {
 
-	@Element(name="actions")
+	@Element(name="action")
 	private GFAction action;
 	
 	@Element(name="steps")
@@ -55,6 +55,10 @@ public class LastExecutionTimeCondition extends LeafCondition {
 			}
 		});
 	}
+
+    private LastExecutionTimeCondition() {
+        this(new Builder());
+    }
 
     protected LastExecutionTimeCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);

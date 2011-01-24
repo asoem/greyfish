@@ -34,16 +34,15 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
     }
 
     @Override
-    protected ACLMessage handleAccept(ACLMessage message) {
+    protected ACLMessage.Builder handleAccept(ACLMessage message) {
         resourceProperty.subtract(offer);
 
-        ACLMessage reply = message.createReply();
-        reply.setPerformative(ACLPerformative.INFORM);
-        return reply;
+        return message.replyFrom(componentOwner)
+                .performative(ACLPerformative.INFORM);
     }
 
     @Override
-    protected ACLMessage handleCFP(ACLMessage message) throws NotUnderstoodException {
+    protected ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
         double amountRequested = 0;
         try {
             amountRequested = (Double) message.getReferenceContent();
@@ -52,10 +51,9 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
         }
         offer = Math.min(amountRequested, resourceProperty.getValue());
 
-        final ACLMessage reply = message.createReply();
-        reply.setReferenceContent(offer);
-        reply.setPerformative(ACLPerformative.PROPOSE);
-        return reply;
+        return message.replyFrom(componentOwner)
+                .objectContent(offer)
+                .performative(ACLPerformative.PROPOSE);
     }
 
     @Override

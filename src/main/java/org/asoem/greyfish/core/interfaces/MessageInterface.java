@@ -21,11 +21,7 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
 	/**
 	 * max 32 messages
 	 */
-	private final Collection<ACLMessage> inBox = new CircularFifoBuffer<ACLMessage>() {
-		public void elementReplaced(ACLMessage element) {
-			ACLMessage.recycle(element);
-		};
-	};
+	private final Collection<ACLMessage> inBox = new CircularFifoBuffer<ACLMessage>();
 	
 	private MessageInterface(Builder builder) {
         super(builder);
@@ -69,13 +65,12 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
 	}
 	
 	public synchronized void addMessage(final ACLMessage message) {
-		inBox.add(Preconditions.checkNotNull(message).createCopy()); // add a copy for save object recycling
+		inBox.add(Preconditions.checkNotNull(message).createCopy().build()); // add a copy for save object recycling
 	}
 
 	@Override
 	public void deliverMessage(ACLMessage message) {
 		Preconditions.checkNotNull(message);
-		message.setSender(componentOwner);
 		for (Individual individual : message.getAllReceiver()) {
 			individual.getInterface(MessageInterface.class).addMessage(message);
 			if (GreyfishLogger.isTraceEnabled())

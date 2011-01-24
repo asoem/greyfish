@@ -32,7 +32,7 @@ public class ConditionTreeDepthFirstIterator implements Iterator<GFCondition> {
 		}
 		GFCondition node = stack.pop( );
 		currentDepth = depthStack.pop();
-		if (node.isLeafCondition() == false) {
+		if (!node.isLeafCondition()) {
 			final List<GFCondition> childConditionsList = node.getChildConditions();
 			for (ListIterator<GFCondition> iterator = childConditionsList.listIterator(childConditionsList.size()); iterator.hasPrevious();) {
 				GFCondition condition = iterator.previous();

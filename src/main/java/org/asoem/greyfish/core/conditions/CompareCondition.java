@@ -16,7 +16,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     @Attribute(name="comparator")
     protected Comparator comparator = Comparator.EQ;
 
-    @Element(name="to")
+    @Element(name="value")
     protected T value;
 
     @Override

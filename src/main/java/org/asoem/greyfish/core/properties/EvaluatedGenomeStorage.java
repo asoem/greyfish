@@ -63,6 +63,10 @@ public class EvaluatedGenomeStorage extends AbstractDiscreteProperty<List<Evalua
         return new Builder().fromClone(this, mapDict).build();
     }
 
+    private EvaluatedGenomeStorage() {
+        this(new Builder());
+    }
+
     protected EvaluatedGenomeStorage(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
     }

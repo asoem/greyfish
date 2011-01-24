@@ -41,18 +41,17 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
 
     @Override
-    protected ACLMessage createCFP() {
-        ACLMessage message = ACLMessage.newInstance();
-        message.setPerformative(ACLPerformative.CFP);
-        message.setOntology(getOntology());
-        // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
-        message.addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))));
-        message.setReferenceContent(amountPerRequest);
-        return message;
+    protected ACLMessage.Builder createCFP() {
+        return ACLMessage.with()
+                .performative(ACLPerformative.CFP)
+                .ontology(getOntology())
+                // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+                .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
+                .objectContent(amountPerRequest);
     }
 
     @Override
-    protected ACLMessage handlePropose(ACLMessage message) throws NotUnderstoodException {
+    protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
         assert(message != null);
 
         final Object messageContent = message.getReferenceContent();
@@ -61,9 +60,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
             final double offer = (Double) messageContent;
             consumerProperty.add(offer);
 
-            ACLMessage replyMessage = message.createReply();
-            replyMessage.setPerformative(ACLPerformative.ACCEPT_PROPOSAL);
-            return replyMessage;
+            return message.replyFrom(componentOwner)
+                    .performative(ACLPerformative.ACCEPT_PROPOSAL);
         } catch (Exception e) {
             throw new NotUnderstoodException();
         }

@@ -13,7 +13,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
-public abstract class OrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements DiscreteProperty<E> {
+public abstract class OrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements DiscreteProperty<E>, OrderedSet<E> {
 
     @Element(name="min")
     protected E upperBound;
@@ -41,10 +41,12 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
             GreyfishLogger.debug(this.getClass().getSimpleName() + "#setValue("+amount+"): Out of range ("+lowerBound+","+upperBound+")");
     }
 
+    @Override
     public E getUpperBound() {
         return upperBound;
     }
 
+    @Override
     public E getLowerBound() {
         return lowerBound;
     }

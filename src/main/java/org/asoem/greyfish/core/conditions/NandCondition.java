@@ -29,6 +29,10 @@ public class NandCondition extends AndCondition {
         return new Builder().fromClone(this, mapDict).build();
     }
 
+    private NandCondition() {
+        this(new Builder());
+    }
+
     protected NandCondition(AbstractBuilder<?> builder) {
         super(builder);
     }

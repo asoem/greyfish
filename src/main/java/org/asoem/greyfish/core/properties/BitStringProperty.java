@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.BitStringGene;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.uncommons.maths.binary.BitString;
@@ -32,8 +33,9 @@ public class BitStringProperty extends AbstractGFProperty implements DiscretePro
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<BitStringProperty> {
         @Override protected Builder self() {  return this; }
+        public BitStringProperty build() { return new BitStringProperty(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
@@ -41,6 +43,5 @@ public class BitStringProperty extends AbstractGFProperty implements DiscretePro
             super.fromClone(property, mapDict);
             return self();
         }
-         public BitStringProperty build() { return new BitStringProperty(this); }
     }
 }

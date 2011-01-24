@@ -44,9 +44,11 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
                     ACLMessage cfpReply = null;
                     try {
-                        cfpReply = handleCFP(message);
+                        cfpReply = handleCFP(message).build();
                     } catch (NotUnderstoodException e) {
-                        cfpReply = e.createReply(message);
+                        cfpReply = message.replyFrom(componentOwner)
+                                .performative(ACLPerformative.NOT_UNDERSTOOD)
+                                .stringContent(e.getMessage()).build();
                         if (GreyfishLogger.isDebugEnabled())
                             GreyfishLogger.debug("Message not understood", e);
                     }
@@ -56,8 +58,6 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
                     if (cfpReply.matches(MessageTemplate.performative(ACLPerformative.PROPOSE)))
                         ++nExpectedProposeAnswers;
-
-                    ACLMessage.recycle(message);
                 }
 
                 template = createProposalReplyTemplate(cfpReplies);
@@ -75,7 +75,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
                         case ACCEPT_PROPOSAL:
-                            ACLMessage response = handleAccept(receivedMessage);
+                            ACLMessage response = handleAccept(receivedMessage).build();
                             checkAcceptReply(response);
                             send(response);
                             break;
@@ -93,7 +93,6 @@ public abstract class ContractNetResponderAction extends FSMAction {
                     }
 
                     --nExpectedProposeAnswers;
-                    ACLMessage.recycle(receivedMessage);
                 }
 
                 ++timeoutCounter;
@@ -163,12 +162,12 @@ public abstract class ContractNetResponderAction extends FSMAction {
                 MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ACLMessage handleAccept(ACLMessage message);
+    protected abstract ACLMessage.Builder handleAccept(ACLMessage message);
 
     protected void handleReject(ACLMessage message) {
     }
 
-    protected abstract ACLMessage handleCFP(ACLMessage message) throws NotUnderstoodException;
+    protected abstract ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException;
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         return MessageTemplate.and(

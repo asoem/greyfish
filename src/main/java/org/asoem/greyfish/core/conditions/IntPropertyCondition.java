@@ -14,30 +14,34 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class IntPropertyCondition extends IntCompareCondition {
 
-	@Element(name="property")
-	private IntProperty intProperty;
-	
-	@Override
-	public void export(Exporter e) {
-		super.export(e);
-		e.addField(new ValueSelectionAdaptor<IntProperty>("", IntProperty.class, intProperty, getComponentOwner().getProperties(IntProperty.class)) {
+    @Element(name="property")
+    private IntProperty intProperty;
 
-			@Override
-			protected void writeThrough(IntProperty arg0) {
-				intProperty = checkFrozen(checkNotNull(arg0));
-			}
-		});
-	}
+    @Override
+    public void export(Exporter e) {
+        super.export(e);
+        e.addField(new ValueSelectionAdaptor<IntProperty>("", IntProperty.class, intProperty, getComponentOwner().getProperties(IntProperty.class)) {
 
-	@Override
-	protected Integer getCompareValue(Simulation simulation) {
-		return intProperty.getValue();
-	}
+            @Override
+            protected void writeThrough(IntProperty arg0) {
+                intProperty = checkFrozen(checkNotNull(arg0));
+            }
+        });
+    }
+
+    @Override
+    protected Integer getCompareValue(Simulation simulation) {
+        return intProperty.getValue();
+    }
 
     @Override
     protected AbstractDeepCloneable deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();
+    }
+
+    private IntPropertyCondition() {
+        this(new Builder());
     }
 
     protected IntPropertyCondition(AbstractBuilder<? extends AbstractBuilder> builder) {

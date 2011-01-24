@@ -37,6 +37,10 @@ public class AndCondition extends LogicalOperatorCondition {
         return new Builder().fromClone(this, mapDict).build();
     }
 
+    private AndCondition() {
+        this(new Builder());
+    }
+
     protected AndCondition(AbstractBuilder<?> builder) {
         super(builder);
     }

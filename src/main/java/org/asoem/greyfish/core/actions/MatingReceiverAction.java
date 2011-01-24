@@ -36,7 +36,7 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     @Element(name="messageType", required=false)
     private String ontology;
 
-    @Element(name="closerThan", required=false)
+    @Element(name="sensorRange", required=false)
     private double sensorRange;
 
     private Iterable<Individual> sensedMates;
@@ -104,31 +104,28 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    protected ACLMessage createCFP() {
+    protected ACLMessage.Builder createCFP() {
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluate(Simulation)
 
-        ACLMessage message = ACLMessage.newInstance();
-        message.setPerformative(ACLPerformative.CFP);
-
-        // Choose only one. Adding all possible candidates as receivers will decrease the performance in high density populations!
-        message.addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))));
-        message.setOntology(ontology);
-
-        return message;
+        return ACLMessage.with()
+        .performative(ACLPerformative.CFP)
+                // Choose only one. Adding all possible candidates as receivers will decrease the performance in high density populations!
+        .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
+        .ontology(ontology);
     }
 
     @Override
-    protected ACLMessage handlePropose(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage replyMessage = message.createReply();
+    protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
+        ACLMessage.Builder builder = message.replyFrom(this.componentOwner);
         try {
             EvaluatedGenome evaluatedGenome = (EvaluatedGenome) message.getReferenceContent();
             receiveGenome(evaluatedGenome);
-            replyMessage.setPerformative(ACLPerformative.ACCEPT_PROPOSAL);
+            builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
         } catch (IllegalArgumentException e) {
             throw new NotUnderstoodException("MessageContent is not a genome");
         }
 
-        return replyMessage;
+        return builder;
     }
 
     @Override

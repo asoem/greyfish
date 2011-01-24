@@ -14,11 +14,4 @@ public class NotUnderstoodException extends Exception {
     public NotUnderstoodException(String message) {
         super(message);
     }
-
-    public ACLMessage createReply(ACLMessage message) {
-        ACLMessage ret = message.createReply();
-        ret.setPerformative(ACLPerformative.NOT_UNDERSTOOD);
-        ret.setStringContent(getMessage());
-        return ret;
-    }
 }

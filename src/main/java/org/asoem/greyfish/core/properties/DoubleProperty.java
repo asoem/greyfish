@@ -8,7 +8,7 @@ import org.asoem.greyfish.utils.Exporter;
 import java.util.Map;
 
 @ClassGroup(tags="property")
-public final class DoubleProperty extends OrderedSetProperty<Double> {
+public class DoubleProperty extends OrderedSetProperty<Double> {
 
     private DoubleProperty() {
         this(new Builder());

@@ -60,21 +60,19 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
     }
 
     @Override
-    protected ACLMessage handleAccept(ACLMessage message) {
-        ACLMessage reply = message.createReply();
-        reply.setPerformative(ACLPerformative.INFORM);
-        return reply;
+    protected ACLMessage.Builder handleAccept(ACLMessage message) {
+        return message.replyFrom(componentOwner)
+                .performative(ACLPerformative.INFORM);
     }
 
     @Override
-    protected ACLMessage handleCFP(ACLMessage message) {
+    protected ACLMessage.Builder handleCFP(ACLMessage message) {
         final Genome sperm = new Genome(componentOwner.getGenome());
         sperm.mutate();
 
-        final ACLMessage reply = message.createReply();
-        reply.setReferenceContent(new EvaluatedGenome(sperm, evaluateFormula()));
-        reply.setPerformative(ACLPerformative.PROPOSE);
-        return reply;
+        return message.replyFrom(componentOwner)
+                .objectContent(new EvaluatedGenome(sperm, evaluateFormula()))
+                .performative(ACLPerformative.PROPOSE);
     }
 
     protected MatingTransmitterAction(AbstractBuilder<?> builder) {

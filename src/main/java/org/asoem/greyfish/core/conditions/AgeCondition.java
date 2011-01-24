@@ -8,7 +8,7 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import java.util.Map;
 
 @ClassGroup(tags="condition")
-public class AgeCondition extends IntCompareCondition {
+public final class AgeCondition extends IntCompareCondition {
 
 	@Override
 	public boolean evaluate(Simulation simulation) {
@@ -26,7 +26,11 @@ public class AgeCondition extends IntCompareCondition {
 		return simulation.getSteps() - componentOwner.getTimeOfBirth();
 	}
 
-    protected AgeCondition(AbstractBuilder<?> builder) {
+    private AgeCondition() {
+        this(new Builder());
+    }
+
+    private AgeCondition(AbstractBuilder<?> builder) {
         super(builder);
     }
 

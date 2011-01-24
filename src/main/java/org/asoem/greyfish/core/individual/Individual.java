@@ -42,7 +42,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 	@ElementList(inline=true, entry="property", required=false)
 	private List<GFProperty> properties = new ArrayList<GFProperty>();
 
-	@ElementList(inline=true, entry="actions", required=false)
+	@ElementList(inline=true, entry="action", required=false)
 	private List<GFAction> actions = new ArrayList<GFAction>();
 
 	private Collection<GFInterface> interfaces = new ArrayList<GFInterface>();
@@ -634,7 +634,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 
     @Override
     public void checkFrozen() {
-        if (state == State.PROTOTYPE)
+        if (state != State.PROTOTYPE)
             throw new IllegalStateException("Individual is frozen");
     }
 }

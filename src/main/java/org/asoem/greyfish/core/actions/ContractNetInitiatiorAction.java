@@ -45,10 +45,11 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                ACLMessage cfpMessage = createCFP();
+                ACLMessage.Builder cfpMessageBuilder = createCFP();
 
+
+                ACLMessage cfpMessage =  cfpMessageBuilder.build();
                 checkCFP(cfpMessage);
-
                 cfpMessage.send(getTransmitter());
                 nProposalsExpected = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
@@ -73,11 +74,13 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                         case PROPOSE:
 
                             try {
-                                proposeReply = handlePropose(receivedMessage);
+                                proposeReply = handlePropose(receivedMessage).build();
                                 proposeReplies.add(proposeReply);
                                 ++nReceivedProposals;
                             } catch (NotUnderstoodException e) {
-                                proposeReply = e.createReply(receivedMessage);
+                                proposeReply = receivedMessage.replyFrom(componentOwner)
+                                        .performative(ACLPerformative.NOT_UNDERSTOOD)
+                                        .stringContent(e.getMessage()).build();
                                 if (GreyfishLogger.isDebugEnabled())
                                     GreyfishLogger.debug("Message not understood", e);
                             } finally {
@@ -105,8 +108,6 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                             break;
 
                     }
-
-                    ACLMessage.recycle(receivedMessage);
                 }
                 ++timeoutCounter;
                 if (timeoutCounter == PROPOSAL_TIMEOUT) {
@@ -147,7 +148,6 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                     }
 
                     ++nReceivedAcceptAnswers;
-                    ACLMessage.recycle(receivedMessage);
                 }
                 ++timeoutCounter;
                 return (nReceivedAcceptAnswers == nReceivedProposals
@@ -213,9 +213,9 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
         return componentOwner.getInterface(MessageInterface.class);
     }
 
-    protected abstract ACLMessage createCFP();
+    protected abstract ACLMessage.Builder createCFP();
 
-    protected abstract ACLMessage handlePropose(ACLMessage message) throws NotUnderstoodException;
+    protected abstract ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException;
 
     protected void handleRefuse(ACLMessage message) {
     }

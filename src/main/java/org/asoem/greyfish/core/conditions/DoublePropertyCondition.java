@@ -38,6 +38,10 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
         return new Builder().fromClone(this, mapDict).build();
     }
 
+    private DoublePropertyCondition() {
+        this(new Builder());
+    }
+
     protected DoublePropertyCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
         this.doubleProperty = builder.doubleProperty;

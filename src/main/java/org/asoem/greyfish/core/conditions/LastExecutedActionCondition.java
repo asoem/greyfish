@@ -44,6 +44,10 @@ public class LastExecutedActionCondition extends LeafCondition {
         return new Builder().fromClone(this, mapDict).build();
     }
 
+    private LastExecutedActionCondition() {
+        this(new Builder());
+    }
+
     protected LastExecutedActionCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
         this.action = builder.action;

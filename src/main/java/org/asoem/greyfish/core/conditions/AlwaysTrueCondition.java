@@ -19,6 +19,10 @@ public final class AlwaysTrueCondition extends LeafCondition {
         return new Builder().fromClone(this, mapDict).build();
     }
 
+    private AlwaysTrueCondition() {
+        this(new Builder());
+    }
+
     private AlwaysTrueCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
     }

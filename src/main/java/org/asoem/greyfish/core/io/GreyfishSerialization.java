@@ -51,7 +51,7 @@ public class GreyfishSerialization {
 			return serializer.validate(clazz, file);
 		} catch (Exception e) {
 			if (GreyfishLogger.isDebugEnabled())
-				GreyfishLogger.debug("XML error", e);
+				GreyfishLogger.debug(file + "is cannot be deserialized to class " + clazz, e);
 		}
 		return false;
 	}
