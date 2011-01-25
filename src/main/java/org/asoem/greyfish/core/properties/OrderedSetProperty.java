@@ -1,8 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
 import com.jgoodies.validation.ValidationResult;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.Comparables;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -11,6 +13,7 @@ import org.simpleframework.xml.Element;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 
 public abstract class OrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements DiscreteProperty<E>, OrderedSet<E> {
@@ -32,7 +35,8 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
     }
 
     public void setValue(E amount) {
-        if (rangeCheck(lowerBound, upperBound, amount)) {
+        checkNotNull(amount);
+        if (Comparables.areInOrder(lowerBound, amount, upperBound)) {
             this.value = amount;
             firePropertyChanged();
         }
@@ -53,11 +57,6 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
 
     public E getInitialValue() {
         return initialValue;
-    }
-
-    private boolean rangeCheck(E from, E to, E value) {
-        return from.compareTo( value ) <= 0
-                && to.compareTo( value ) >= 0;
     }
 
     @Override
@@ -90,19 +89,27 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
             @Override
             public ValidationResult validate() {
                 ValidationResult validationResult = new ValidationResult();
-                if (!rangeCheck(lowerBound, upperBound, initialValue))
+                if (!Comparables.areInOrder(lowerBound, initialValue, upperBound))
                     validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
                 return validationResult;
             }
         });
     }
 
-    protected OrderedSetProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
-        super(builder);
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        super.checkIfFreezable(components);
+        checkState(lowerBound != null);
+        checkState(upperBound != null);
+        checkState(initialValue != null);
+        checkState(Comparables.areInOrder(lowerBound, initialValue, upperBound));
     }
 
-    public static final class Builder<E extends Comparable<E>> extends AbstractBuilder<Builder<E>, E> {
-        @Override protected Builder<E> self() {  return this; }
+    protected OrderedSetProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
+        super(builder);
+        this.lowerBound = builder.lowerBound;
+        this.upperBound = builder.upperBound;
+        this.initialValue = builder.initialValue;
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<T> {

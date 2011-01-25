@@ -1,13 +1,17 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public abstract class ContractNetInitiatiorAction extends FSMAction {
 
@@ -41,15 +45,11 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     private int nProposalsExpected;
 
     private void initFSM() {
-        registerInitialState(SEND_CFP, new StateAction() {
+        registerInitialFSMState(SEND_CFP, new StateAction() {
 
             @Override
             public String action() {
-                ACLMessage.Builder cfpMessageBuilder = createCFP();
-
-
-                ACLMessage cfpMessage =  cfpMessageBuilder.build();
-                checkCFP(cfpMessage);
+                ACLMessage cfpMessage = createCFP().performative(ACLPerformative.CFP).build();
                 cfpMessage.send(getTransmitter());
                 nProposalsExpected = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
@@ -60,7 +60,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
             }
         });
 
-        registerState(WAIT_FOR_POROPOSALS, new StateAction() {
+        registerFSMState(WAIT_FOR_POROPOSALS, new StateAction() {
 
             @Override
             public String action() {
@@ -124,7 +124,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
             }
         });
 
-        registerState(WAIT_FOR_INFORM, new StateAction() {
+        registerFSMState(WAIT_FOR_INFORM, new StateAction() {
 
             @Override
             public String action() {
@@ -150,12 +150,16 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                     ++nReceivedAcceptAnswers;
                 }
                 ++timeoutCounter;
-                return (nReceivedAcceptAnswers == nReceivedProposals
-                        || timeoutCounter == INFORM_TIMEOUT) ? TIMEOUT : WAIT_FOR_INFORM;
+                if (nReceivedAcceptAnswers == nReceivedProposals)
+                    return END;
+                else if (timeoutCounter == INFORM_TIMEOUT)
+                    return TIMEOUT;
+                else
+                    return WAIT_FOR_INFORM;
             }
         });
 
-        registerEndState(TIMEOUT, new StateAction() {
+        registerEndFSMState(TIMEOUT, new StateAction() {
 
             @Override
             public String action() {
@@ -165,7 +169,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
             }
         });
 
-        registerEndState(END, new StateAction() {
+        registerEndFSMState(END, new StateAction() {
 
             @Override
             public String action() {
@@ -188,13 +192,6 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
     private static MessageTemplate createCFPReplyTemplate(final ACLMessage cfp) {
         return MessageTemplate.isReplyTo(cfp);
-    }
-
-    private static void checkCFP(ACLMessage cfpMessage) {
-        assert cfpMessage != null : "Message must not be null";
-//        assert ! Strings.isNullOrEmpty(cfpMessage.getReplyWith()) : "Message has invalid field reply-with: " + String.valueOf(cfpMessage.getReplyWith());
-        assert cfpMessage.matches(MessageTemplate.performative(ACLPerformative.CFP)) : "Message must have performative set to CFP";
-        // TODO: add sender, receiver, etc. ?
     }
 
     private static void checkProposeReply(ACLMessage response) {
@@ -227,4 +224,10 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     }
 
     protected abstract String getOntology();
+
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
+        super.checkIfFreezable(components);
+        checkState(!Strings.isNullOrEmpty(getOntology()));
+    }
 }

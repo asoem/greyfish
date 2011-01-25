@@ -51,7 +51,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
             offspring.setGenome(egg);
 
-            simulation.addIndividual(offspring, componentOwner);
+            simulation.addNextStep(offspring, componentOwner);
         }
     }
 

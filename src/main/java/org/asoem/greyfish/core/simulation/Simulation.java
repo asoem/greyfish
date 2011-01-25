@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import javolution.util.FastList;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.commons.pool.KeyedPoolableObjectFactory;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.Population;
@@ -18,7 +17,6 @@ import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.DeepClonable;
 import org.asoem.greyfish.utils.FastLists;
 import org.asoem.greyfish.utils.ListenerSupport;
-import org.asoem.greyfish.utils.RandomUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,444 +24,446 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class Simulation implements Runnable {
 
-	/**
-	 * Key has type {@code Population} and Object type {@code Individual}
-	 */
-	private final KeyedPoolableObjectFactory factory = new BaseKeyedPoolableObjectFactory() {
+    private final Map<Population, Individual> prototypeMap = new HashMap<Population, Individual>();
 
-		@Override
-		public Object makeObject(Object key) throws Exception {
-			return prototypeMap.get(key).deepClone();
-		}
+    public enum Speed {
+        SLOW(20),
+        MEDIUM(10),
+        FAST(5),
+        FASTEST(0);
 
-		public void activateObject(Object key, Object obj) throws Exception {
-			Individual individual = (Individual)obj;
-			individual.activate(Simulation.this);
-		};
+        private double sleepMillies;
 
-		@Override
-		public void passivateObject(Object key, Object obj) throws Exception {
-			Individual individual = (Individual)obj;
-			individual.passivate();
-			//			individual.setLocation(null); // TODO: move this to somewhere else (as part of death()?)
-		}
-	};
+        private Speed(double sleepMillies) {
+            this.sleepMillies = sleepMillies;
+        }
 
-	private final Map<Population, Individual> prototypeMap = new HashMap<Population, Individual>();
+        public double getTps() {
+            return sleepMillies;
+        }
+    }
 
-	public enum Speed {
-		SLOW(20),
-		MEDIUM(10),
-		FAST(5),
-		FASTEST(0);
+    private final FastList<Command> commandList	= new FastList<Command>();
 
-		private double sleepMillies;
+    public final boolean enqueAfterStepCommand(Command value) {
+        return commandList.add(value);
+    }
 
-		private Speed(double sleepMillies) {
-			this.sleepMillies = sleepMillies;
-		}
+    private final FastList<Individual> individuals = new FastList<Individual>();
 
-		public double getTps() {
-			return sleepMillies;
-		}
-	}
+    private final ListenerSupport<SimulationListener> listenerSupport = new ListenerSupport<SimulationListener>();
 
-	private final FastList<Command> commandList	= new FastList<Command>();
+    private final KeyedObjectPool objectPool = new StackKeyedObjectPool(
+            new BaseKeyedPoolableObjectFactory() {
 
-	public final boolean enqueAfterStepCommand(Command value) {
-		return commandList.add(value);
-	}
+                @Override
+                public Object makeObject(Object key) throws Exception {
+                    checkNotNull(key);
+                    checkArgument(key instanceof Population);
+                    Individual prototype = prototypeMap.get(key);
+                    Individual clone = (Individual) prototype.deepClone();
+                    clone.finishAssembly();
+                    return clone;
+                }
 
-	private final FastList<Individual> individuals = new FastList<Individual>();
+                @Override
+                public void activateObject(Object key, Object obj) throws Exception {
+                    Individual individual = (Individual)obj;
+                    individual.initialize(Simulation.this);
+                }
 
-	private final ListenerSupport<SimulationListener> listenerSupport = new ListenerSupport<SimulationListener>();
+                @Override
+                public void passivateObject(Object key, Object obj) throws Exception {
+                    Individual individual = (Individual)obj;
+                    individual.passivate();
+                    //			individual.setLocation(null); // TODO: move this to somewhere else (as part of death()?)
+                }
+            },
+            10000, 100);
 
-	private final KeyedObjectPool objectPool = new StackKeyedObjectPool(factory, 10000, 100);
+    //	private final HashMap<Population, PopulationLog> populationLogs = new HashMap<Population, PopulationLog>();
 
-	//	private final HashMap<Population, PopulationLog> populationLogs = new HashMap<Population, PopulationLog>();
+    private Speed currentSpeed;
 
-	private Speed currentSpeed;
+    private boolean infinite = true;
 
-	private boolean infinite = true;
+    private int initTicks;
 
-	private int initTicks;
+    private long lastExecutionTimeMillis;
 
-	private long lastExecutionTimeMillis;
+    private int maxId;
 
-	private int maxId;
+    private boolean pause;
 
-	private boolean pause;
+    private boolean running;
 
-	private boolean running;
+    private int runs;
 
-	private int runs;
+    private Scenario scenario;
 
-	private Scenario scenario;
+    private TiledSpace space;
 
-	private TiledSpace space;
+    private int stepsToGo;
 
-	private int stepsToGo;
+    private final AtomicInteger steps = new AtomicInteger();
 
-	private final AtomicInteger steps = new AtomicInteger();
+    private String title = "Simulation";
 
-	private String title = "Simulation";
+    public Simulation(final Scenario scenario) {
+        Preconditions.checkNotNull(scenario);
 
-	public Simulation(final Scenario scenario) {
-		Preconditions.checkNotNull(scenario);
+        this.scenario = scenario;
 
-		this.scenario = scenario;
+        initialize();
+        setSpeed(Speed.MEDIUM);
 
-		initialize();
-		setSpeed(Speed.MEDIUM);
+        if (GreyfishLogger.isTraceEnabled())
+            listenerSupport.addListener(new SimulationListener() {
 
-		if (GreyfishLogger.isTraceEnabled())
-			listenerSupport.addListener(new SimulationListener() {
+                @Override
+                public void simulationStep(Simulation source) {
+                    GreyfishLogger.trace("End of simulation step " + source.getSteps());
+                }
+            });
+    }
 
-				@Override
-				public void simulationStep(Simulation source) {
-					GreyfishLogger.trace("End of simulation step " + source.getSteps());
-				}
-			});
-	}
+    /**
+     *
+     */
+    private void initialize() {
+        this.space = new TiledSpace(scenario.getPrototypeSpace());
 
-	/**
-	 * 
-	 */
-	private void initialize() {
-		final TiledSpace pSpace = scenario.getPrototypeSpace();
-		this.space = new TiledSpace(pSpace);
+        prototypeMap.clear();
+        try {
+            objectPool.clear();
+        } catch (Exception e) {
+            GreyfishLogger.error("Error clearing prototype pool", e);
+        }
 
-		prototypeMap.clear();
-		try {
-			objectPool.clear();
-		} catch (Exception e) {
-			GreyfishLogger.error("Error clearing prototype pool", e);
-		}
+        for (DeepClonable prototype : scenario.getPrototypes()) {
+            Individual clone = (Individual) prototype.deepClone(); // TODO: unchecked cast
+            clone.finishAssembly(); // TODO: can be considered as a workaround. Prototype might get treated differently in future versions
+            prototypeMap.put(clone.getPopulation(), clone);
+        }
 
-		for (DeepClonable prototype : scenario.getPrototypes()) {
-			Individual clone = (Individual) prototype.deepClone(); // TODO: unchecked cast
-			clone.finishAssembly(); // TODO: can be considered as a workaround. Prototype might get treated differently in future versions
-			prototypeMap.put(clone.getPopulation(), clone);
-		}
+        // convert each placeholder to a concrete object
+        for (Placeholder placeholder : scenario.getPlaceholder()) {
+            Individual clone = createClone(((Individual) placeholder.getPrototype()).getPopulation());
+            prepareForIntegration(clone, getSteps());
+            addIndividual(clone, new Location2D(placeholder.getAnchorPoint()));
+        }
 
-		// convert each placeholder to a concrete object
-		for (Placeholder placeholder : scenario.getPlaceholder()) {
-			Individual clone = createClone(((Individual) placeholder.getPrototype()).getPopulation());
-			addIndividual(clone, placeholder.getAnchorPoint());
-		}
-
-		// Add a log for each population
-		//		for (Individual individual : getPrototypes()) {
-		//			populationLogs.put(individual.getPopulation(), new PopulationLog(this, individual));
-		//		}
+        // Add a log for each population
+        //		for (Individual individual : getPrototypes()) {
+        //			populationLogs.put(individual.getPopulation(), new PopulationLog(this, individual));
+        //		}
 
         space.updateTopo();
-	}
+    }
 
-	/**
-	 * @return a copy of the list of active individuals
-	 */
-	public synchronized FastList<Individual> getIndividuals() {
-		return individuals;
-	}
+    private void prepareForIntegration(Individual individual, int timeOfBirth) {
+        checkIndividual(individual);
+        individual.setId(++maxId);
+        individual.setTimeOfBirth(timeOfBirth);
+    }
 
-	/**
-	 * Add individual to this simulation, placed at a random location
-	 * @param individual
-	 */
-	public final void addIndividual(final Individual individual) {
-		addIndividual(individual, new Location2D(
-				RandomUtils.nextFloat(0, space.getWidth()),
-				RandomUtils.nextFloat(0, space.getHeight())));
-	}
+    /**
+     * @return a copy of the list of active individuals
+     */
+    public synchronized FastList<Individual> getIndividuals() {
+        return individuals;
+    }
 
-	/**
-	 * Add offspring to this scenario, placed relative to its parent
-	 * @param offspring
-	 * @param parent
-	 */
-	public final void addIndividual(final Individual offspring, final Individual parent) {
-		addIndividual(offspring, parent.getAnchorPoint());
-	}
+    /**
+     * Add offspring to this scenario, placed relative to its parent
+     * @param offspring
+     * @param parent
+     */
+    public final void addNextStep(final Individual offspring, final Individual parent) {
+        addNextStep(offspring, parent.getAnchorPoint());
+    }
 
-	/**
-	 * Add individual to this simulation, placed at given location
-	 * @param individual
-	 * @param location
-	 */
-	public final synchronized void addIndividual(final Individual individual, final Location2D location) {
-		checkIndividual(individual);
-		Preconditions.checkState(individual.getState() == Individual.State.ACTIVE_CLONE);
+    /**
+     * Add individual to this simulation, placed at given location
+     * @param individual
+     * @param location
+     */
+    public final synchronized void addNextStep(final Individual individual, final Location2D location) {
+        Preconditions.checkState(individual.getState() == Individual.State.ACTIVE_CLONE);
+        prepareForIntegration(individual, getSteps() + 1);
 
-		individual.setId(++maxId);
-		individual.setTimeOfBirth(getSteps()+1);
+        enqueAfterStepCommand(new Command() {
+            @Override
+            public void execute() {
+                addIndividual(individual, new Location2D(location));
+            }
+        });
+    }
 
-		enqueAfterStepCommand(new Command() {		
-			@Override
-			public void execute() {
-				individuals.add(individual);
-				space.add(individual, new Location2D(location));
-			}
-		});
-	}
+    private void addIndividual(Individual individual, Location2D location) {
+                individuals.add(individual);
+                space.add(individual, new Location2D(location));
+    }
 
-	private final void checkIndividual(final Individual individual) {
-		Preconditions.checkNotNull(individual);
-		Preconditions.checkArgument(prototypeMap.containsKey(individual.getPopulation()));
-	}
+    private void checkIndividual(final Individual individual) {
+        Preconditions.checkNotNull(individual);
+        Preconditions.checkArgument(prototypeMap.containsKey(individual.getPopulation()));
+    }
 
-	/**
-	 * Remove individual from this scenario
-	 * @param individual
-	 */
-	public synchronized void removeIndividual(final Individual individual) {
-		/*
-		 * TODO: removal could be implemented more efficiently.
-		 * e.g. by marking agents and removal during a single iteration over all 
-		 */
-		enqueAfterStepCommand(new Command() {		
-			@Override
-			public void execute() {
-				space.removeOccupant(individual);
-				individuals.remove(individual);
-				returnClone(individual);
-			}
-		});
-	}
+    /**
+     * Remove individual from this scenario
+     * @param individual
+     */
+    public synchronized void removeIndividual(final Individual individual) {
+        /*
+           * TODO: removal could be implemented more efficiently.
+           * e.g. by marking agents and removal during a single iteration over all
+           */
+        enqueAfterStepCommand(new Command() {
+            @Override
+            public void execute() {
+                space.removeOccupant(individual);
+                individuals.remove(individual);
+                returnClone(individual);
+            }
+        });
+    }
 
-	private void returnClone(final Individual individual) {
-		checkIndividual(individual);
-		try {
-			objectPool.returnObject(individual.getPopulation(), individual);
-		} catch (Exception e) {
-			GreyfishLogger.error("Error in prototype pool", e);
-		}
-	}
+    private void returnClone(final Individual individual) {
+        checkIndividual(individual);
+        try {
+            objectPool.returnObject(individual.getPopulation(), individual);
+        } catch (Exception e) {
+            GreyfishLogger.error("Error in prototype pool", e);
+        }
+    }
 
-	public synchronized int agentCount() {
-		return individuals.size();
-	}
+    public synchronized int agentCount() {
+        return individuals.size();
+    }
 
-	public void addSimulationListener(SimulationListener listener) {
-		listenerSupport.addListener(listener);
-	}
+    public void addSimulationListener(SimulationListener listener) {
+        listenerSupport.addListener(listener);
+    }
 
-	public void removeSimulationListener(SimulationListener listener) {
-		listenerSupport.removeListener(listener);
-	}
+    public void removeSimulationListener(SimulationListener listener) {
+        listenerSupport.removeListener(listener);
+    }
 
-	public int generateIndividualID() {
-		return ++maxId;
-	}
+    public int generateIndividualID() {
+        return ++maxId;
+    }
 
-	/**
-	 * @return a deepClone of the prototype for given population registered by the underlying scenario of this simulation
-	 * @throws Exception if the clone could not be created
-	 */
-	public Individual createClone(final Population population) {
-		Preconditions.checkNotNull(population);
-		Preconditions.checkState(prototypeMap.containsKey(population));
-		try {
-			return (Individual) objectPool.borrowObject(population);
-		} catch (Exception e) {
+    /**
+     * @return a deepClone of the prototype for given population registered by the underlying scenario of this simulation
+     * @throws Exception if the clone could not be created
+     */
+    public Individual createClone(final Population population) {
+        Preconditions.checkNotNull(population);
+        Preconditions.checkState(prototypeMap.containsKey(population));
+        try {
+            return (Individual) objectPool.borrowObject(population);
+        } catch (Exception e) {
             GreyfishLogger.fatal("Error using objectPool", e);
-			throw new AssertionError(e);
-		}
-	}
+            throw new AssertionError(e);
+        }
+    }
 
-	public Collection<Individual> getPrototypes() {
-		return prototypeMap.values();
-	}
+    public Collection<Individual> getPrototypes() {
+        return prototypeMap.values();
+    }
 
-	public TiledSpace getSpace() {
-		return space;
-	}
+    public TiledSpace getSpace() {
+        return space;
+    }
 
-	//	public Collection<PopulationLog> getPopulationLogs() {
-	//		return populationLogs.values();
-	//	}
+    //	public Collection<PopulationLog> getPopulationLogs() {
+    //		return populationLogs.values();
+    //	}
 
-	public synchronized int getStepsToGo() {
-		return stepsToGo;
-	}
+    public synchronized int getStepsToGo() {
+        return stepsToGo;
+    }
 
-	public int getSteps() {
-		return steps.get();
-	}
+    public int getSteps() {
+        return steps.get();
+    }
 
-	public synchronized void pause() {
-		if (running) {
-			pause = true;
-		}
-	}
+    public synchronized void pause() {
+        if (running) {
+            pause = true;
+        }
+    }
 
-	public synchronized void reset() {
-		stop();
+    public synchronized void reset() {
+        stop();
 
-		clearAgentList();
+        clearAgentList();
 
-		steps.set(0);
+        steps.set(0);
 
-		initialize();
-		notifyStep();
-	}
+        initialize();
+        notifyStep();
+    }
 
-	@Override
-	public void run() {
-		try {
-			do {
-				synchronized (this) {
-					running = false;
-					wait();
-					running = true;
-				}
+    @Override
+    public void run() {
+        try {
+            do {
+                synchronized (this) {
+                    running = false;
+                    wait();
+                    running = true;
+                }
 
-				while (infinite == false
-						&& runs > 0 && ! pause) {
-					stepsToGo = initTicks;
-					while (stepsToGo > 0) {
-						// do the tick
-						synchronized (this) {
-							timedStep();
-							--stepsToGo;
-						}
-					}
-					synchronized (this) {
-						if (runs > 1) {
-							reset();
-						}
-						--runs;
-					}
-				}
+                while (!infinite && runs > 0 && !pause) {
+                    stepsToGo = initTicks;
+                    while (stepsToGo > 0) {
+                        // do the tick
+                        synchronized (this) {
+                            timedStep();
+                            --stepsToGo;
+                        }
+                    }
+                    synchronized (this) {
+                        if (runs > 1) {
+                            reset();
+                        }
+                        --runs;
+                    }
+                }
 
-				while (infinite && ! pause)
-					synchronized (this) {
-						timedStep();
-					}
+                while (infinite && ! pause)
+                    synchronized (this) {
+                        timedStep();
+                    }
 
-			} while(true);
-		} catch (InterruptedException e) {
-			GreyfishLogger.debug("Tread interrupted!");
-		}
-	}
+            } while(true);
+        } catch (InterruptedException e) {
+            GreyfishLogger.debug("Tread interrupted!");
+        }
+    }
 
-	public synchronized boolean isRunning() {
-		return running;
-	}
+    public synchronized boolean isRunning() {
+        return running;
+    }
 
-	public synchronized boolean isInfinite() {
-		return infinite;
-	}
+    public synchronized boolean isInfinite() {
+        return infinite;
+    }
 
-	public synchronized void setInfinite(boolean infinite) {
-		this.infinite = infinite;
-	}
+    public synchronized void setInfinite(boolean infinite) {
+        this.infinite = infinite;
+    }
 
-	public synchronized int getRuns() {
-		return runs;
-	}
+    public synchronized int getRuns() {
+        return runs;
+    }
 
-	public synchronized void setRuns(int runs) {
-		this.runs = runs;
-	}
+    public synchronized void setRuns(int runs) {
+        this.runs = runs;
+    }
 
-	public Speed getSpeed() {
-		return currentSpeed;
-	}
+    public Speed getSpeed() {
+        return currentSpeed;
+    }
 
-	public void setSpeed(Speed speed) {
-		currentSpeed = speed;
-	}
+    public void setSpeed(Speed speed) {
+        currentSpeed = speed;
+    }
 
-	public synchronized void setStepsToGo(int ticks) {
-		this.stepsToGo = ticks;
-	}
+    public synchronized void setStepsToGo(int ticks) {
+        this.stepsToGo = ticks;
+    }
 
-	public synchronized void start() {
-		if (running == false) {
-			pause = false;
-			notify();
-		}
-	}
+    public synchronized void start() {
+        if (!running) {
+            pause = false;
+            notify();
+        }
+    }
 
-	public synchronized void stop() {
-		stepsToGo = 0;
-		runs = 0;
-		infinite = false;
-		pause = false;
-		clearAgentList();
-	}
+    public synchronized void stop() {
+        stepsToGo = 0;
+        runs = 0;
+        infinite = false;
+        pause = false;
+        clearAgentList();
+    }
 
-	private void clearAgentList() {
-		individuals.clear();
-		// TODO: recycle?
-	}
+    private void clearAgentList() {
+        individuals.clear();
+        // TODO: recycle?
+    }
 
-	private void timedStep() throws InterruptedException {
-		if (currentSpeed.getTps() > 0) {
-			do {
-				TimeUnit.MILLISECONDS.timedWait(this, 2);
-			} while (System.currentTimeMillis() - lastExecutionTimeMillis < currentSpeed.getTps());
-			lastExecutionTimeMillis = System.currentTimeMillis();
-		}
-		step();
-	}
+    private void timedStep() throws InterruptedException {
+        if (currentSpeed.getTps() > 0) {
+            do {
+                TimeUnit.MILLISECONDS.timedWait(this, 2);
+            } while (System.currentTimeMillis() - lastExecutionTimeMillis < currentSpeed.getTps());
+            lastExecutionTimeMillis = System.currentTimeMillis();
+        }
+        step();
+    }
 
-	/**
-	 * Increase the time by one and return its (increased) to
-	 * @return
-	 */
-	public synchronized void step() {
-		processAgents();
-		processAfterStepCommands();
+    /**
+     * Increase the time by one and return its (increased) to
+     * @return
+     */
+    public synchronized void step() {
+        processAgents();
+        processAfterStepCommands();
         space.updateTopo();
-		commandList.clear();
-		steps.incrementAndGet();
-		notifyStep();
-	}
+        commandList.clear();
+        steps.incrementAndGet();
+        notifyStep();
+    }
 
-	private void processAgents() {
-		FastLists.foreach(individuals, new Functor<Individual>() {
-			@Override public void update(Individual individual) {
-				individual.execute(Simulation.this);
-			}
-		});
-	}
+    private void processAgents() {
+        FastLists.foreach(individuals, new Functor<Individual>() {
+            @Override public void update(Individual individual) {
+                individual.execute(Simulation.this);
+            }
+        });
+    }
 
-	private void processAfterStepCommands() {
-		FastLists.foreach(commandList, new Functor<Command>() {
-			@Override public void update(Command c) {
-				c.execute();
-			}
-		});
-	}
+    private void processAfterStepCommands() {
+        FastLists.foreach(commandList, new Functor<Command>() {
+            @Override public void update(Command c) {
+                c.execute();
+            }
+        });
+    }
 
-	private void notifyStep() {
-		listenerSupport.notifyListeners(new Functor<SimulationListener>() {
+    private void notifyStep() {
+        listenerSupport.notifyListeners(new Functor<SimulationListener>() {
 
-			@Override
-			public void update(SimulationListener listener) {
-				listener.simulationStep(Simulation.this);
-			}
-		});
-	}
+            @Override
+            public void update(SimulationListener listener) {
+                listener.simulationStep(Simulation.this);
+            }
+        });
+    }
 
-	public Scenario getScenario() {
-		return scenario;
-	}
+    public Scenario getScenario() {
+        return scenario;
+    }
 
-	@Override
-	public String toString() {
-		return getTitle() + " (SC:" + scenario.getName() + ")";
-	}
+    @Override
+    public String toString() {
+        return getTitle() + " (SC:" + scenario.getName() + ")";
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setTitle(String name) {
-		this.title = name;
-	}
+    public void setTitle(String name) {
+        this.title = name;
+    }
 }

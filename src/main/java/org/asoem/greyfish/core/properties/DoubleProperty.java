@@ -2,10 +2,13 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.lang.Comparables;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkState;
 
 @ClassGroup(tags="property")
 public class DoubleProperty extends OrderedSetProperty<Double> {
@@ -41,7 +44,12 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoubleProperty> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public DoubleProperty build() { return new DoubleProperty(this); }
+        @Override public DoubleProperty build() {
+            checkState(lowerBound != null);
+            checkState(upperBound != null);
+            checkState(initialValue != null);
+            Comparables.areInOrder(lowerBound, initialValue, upperBound);
+            return new DoubleProperty(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Double> {

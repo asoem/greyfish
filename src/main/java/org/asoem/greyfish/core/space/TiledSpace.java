@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.core.Commit;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,12 +88,12 @@ public class TiledSpace implements Space {
 	};
 
 	@Attribute(name="height")
-	private int height;
+	private final int height;
 
 	@Attribute(name="width")
-	private int width;
+	private final int width;
 
-	private TileLocation[][] tileMatrix;
+	private final TileLocation[][] tileMatrix;
 
 	private int nOccupants;
 
@@ -107,12 +106,6 @@ public class TiledSpace implements Space {
 	};
 
     private KDTreeAdaptor<Object2DInterface> kdtree = new AsoemScalaKDTreeAdaptor<Object2DInterface>();
-
-	@SuppressWarnings("unused")
-	@Commit
-	private final void commit() {
-		initFields(width, height);
-	}
 
 	public enum Direction {
 		CENTER(0,0,0),
@@ -144,21 +137,17 @@ public class TiledSpace implements Space {
 			else
 				return Direction.values()[this.ordinal()-1];
 		}
-	};
-
-	public TiledSpace() {
-		initFields(0,0);
-	}
-
-	public TiledSpace(int width, int height) {
-		initFields(width, height);
 	}
 
 	public TiledSpace(TiledSpace pSpace) {
-		initFields(pSpace.getWidth(), pSpace.getHeight());
+		this(pSpace.getWidth(), pSpace.getHeight());
 	}
 
-	private void initFields(int width, int height) {
+    public static Space newInstance(int width, int height) {
+        return new TiledSpace(width, height);
+    }
+
+	public TiledSpace(@Attribute(name="width") int width, @Attribute(name="height") int height) {
         Preconditions.checkArgument(width >= 0);
         Preconditions.checkArgument(height >= 0);
 
@@ -210,9 +199,9 @@ public class TiledSpace implements Space {
 				}
 			}
 
-			location.adjacents = (TileLocation[]) adjacentsList
+			location.adjacents = adjacentsList
 				.toArray(new TileLocation[adjacentsList.size()]);
-			location.reachables = (TileLocation[]) reachablesList
+			location.reachables = reachablesList
 				.toArray(new TileLocation[adjacentsList.size()]);
 		}
 	}

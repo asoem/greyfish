@@ -43,7 +43,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Override
     protected ACLMessage.Builder createCFP() {
         return ACLMessage.with()
-                .performative(ACLPerformative.CFP)
+                .source(componentOwner)
                 .ontology(getOntology())
                 // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
                 .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
@@ -54,10 +54,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
         assert(message != null);
 
-        final Object messageContent = message.getReferenceContent();
-
         try {
-            final double offer = (Double) messageContent;
+            final double offer = message.getReferenceContent(Double.class);
             consumerProperty.add(offer);
 
             return message.replyFrom(componentOwner)

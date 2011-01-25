@@ -1,15 +1,15 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Predicates.in;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Iterables.all;
 
 public abstract class FSMAction extends AbstractGFAction {
 
@@ -21,16 +21,19 @@ public abstract class FSMAction extends AbstractGFAction {
         public String action();
     }
 
-    private Map<String, StateAction> states = new HashMap<String, StateAction>();
-
+    /* Immutable after freeze */
+    private ImmutableMap<String, StateAction> states = ImmutableMap.of();
     private String initialStateName;
+    private ImmutableSet<String> endStates = ImmutableSet.of();
 
-    private Set<String> endStates = new HashSet<String>();
-
+    /* Always mutable */
     private String currentStateName;
 
     @Override
     protected final void performAction(Simulation simulation) {
+        if (GreyfishLogger.isTraceEnabled())
+            GreyfishLogger.trace("FSM: " + this);
+
         if (done()) {
             currentStateName = initialStateName;
         }
@@ -39,15 +42,30 @@ public abstract class FSMAction extends AbstractGFAction {
         currentStateName = action.action();
 
         if (GreyfishLogger.isTraceEnabled())
-            GreyfishLogger.trace(this + ": t("+oldStateName+" => "+currentStateName+")");
+            GreyfishLogger.trace("FSM: " + this + ": t("+oldStateName+" => "+currentStateName+")");
+    }
+
+    @Override
+    public boolean evaluate(Simulation simulation) {
+        return super.evaluate(simulation)
+                && !states.isEmpty();
     }
 
     @Override
     public void initialize(Simulation simulation) {
         super.initialize(simulation);
-        states = ImmutableMap.copyOf(states);
-        endStates = ImmutableSet.copyOf(endStates);
         currentStateName = initialStateName;
+    }
+
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
+        super.checkIfFreezable(components);
+        if (!states.isEmpty()) {
+            checkState(states.containsKey(initialStateName));
+            checkState(all(endStates, in(states.keySet())));
+        }
+        else
+            GreyfishLogger.warn("FSMAction has no states defined: " + this);
     }
 
     @Override
@@ -55,20 +73,21 @@ public abstract class FSMAction extends AbstractGFAction {
         return endStates.contains(currentStateName);
     }
 
-    protected final void registerInitialState(final String state, final StateAction action) {
+    protected final void registerInitialFSMState(final String state, final StateAction action) {
+        checkState(isNullOrEmpty(initialStateName));
+        registerFSMState(state, action);
         initialStateName = state;
-        registerState(state, action);
     }
 
-    protected final void registerState(final String state, final StateAction action) {
-        Preconditions.checkNotNull(state);
-        Preconditions.checkNotNull(action);
-        states.put(state, action);
+    protected final void registerFSMState(final String state, final StateAction action) {
+        checkArgument(!isNullOrEmpty(state));
+        checkNotNull(action);
+        states = ImmutableMap.<String, StateAction>builder().putAll(states).put(state, action).build();
     }
 
-    protected final void registerEndState(final String state, final StateAction action) {
-        registerState(state, action);
-        endStates.add(state);
+    protected final void registerEndFSMState(final String state, final StateAction action) {
+        registerFSMState(state, action);
+        endStates = ImmutableSet.<String>builder().addAll(endStates).add(state).build();
     }
 
     @Override

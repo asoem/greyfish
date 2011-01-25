@@ -1,13 +1,17 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public abstract class ContractNetResponderAction extends FSMAction {
 
@@ -22,18 +26,15 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
     private int nExpectedProposeAnswers;
 
-    public ContractNetResponderAction(AbstractGFAction.AbstractBuilder<?> builder) {
-        super(builder);
-    }
-
     private MessageTemplate getTemplate() {
         return template;
     }
 
     private MessageTemplate template = MessageTemplate.alwaysFalse();
 
-    private void initFSM() {
-        registerInitialState(CHECK_CFP, new StateAction() {
+    public ContractNetResponderAction(AbstractGFAction.AbstractBuilder<?> builder) {
+        super(builder);
+        registerInitialFSMState(CHECK_CFP, new StateAction() {
 
             @Override
             public String action() {
@@ -66,7 +67,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
             }
         });
 
-        registerState(WAIT_FOR_ACCEPT, new StateAction() {
+        registerFSMState(WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
             public String action() {
@@ -102,7 +103,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
             }
         });
 
-        registerEndState(TIMEOUT, new StateAction() {
+        registerEndFSMState(TIMEOUT, new StateAction() {
 
             @Override
             public String action() {
@@ -112,7 +113,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
             }
         });
 
-        registerEndState(END, new StateAction() {
+        registerEndFSMState(END, new StateAction() {
             @Override
             public String action() {
                 return END;
@@ -174,5 +175,11 @@ public abstract class ContractNetResponderAction extends FSMAction {
                 MessageTemplate.ontology(ontology),
                 MessageTemplate.performative(ACLPerformative.CFP)
         );
-    };
+    }
+
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
+        super.checkIfFreezable(components);
+        checkState(!Strings.isNullOrEmpty(getOntology()));
+    }
 }

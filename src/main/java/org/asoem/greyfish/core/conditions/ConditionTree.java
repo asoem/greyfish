@@ -26,7 +26,7 @@ public class ConditionTree extends AbstractGFComponent implements Iterable<GFCon
 	}
 
     public boolean evaluate(Simulation simulation) {
-        return rootCondition.evaluate(simulation);
+        return rootCondition == null || rootCondition.evaluate(simulation);
     }
 
 	@Override
@@ -71,4 +71,9 @@ public class ConditionTree extends AbstractGFComponent implements Iterable<GFCon
         }
     }
 
+    @Override
+    public void initialize(Simulation simulation) {
+        if (rootCondition != null)
+            rootCondition.initialize(simulation);
+    }
 }

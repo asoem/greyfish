@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
@@ -96,33 +97,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public void initialize(Simulation simulation) {
         super.initialize(simulation);
-        conditionTree.getRootCondition().initialize(simulation);
+        conditionTree.initialize(simulation);
         executionCount = 0;
         timeOfLastExecution = simulation.getSteps();
-        FORMULA_EVALUATOR.setVariableResolver( new VariableResolver() {
-
-            @Override
-            public String resolveVariable(final String arg0) throws FunctionException {
-                try {
-                    ContinuosProperty<?> property = Iterables.find(componentOwner.getProperties(ContinuosProperty.class), new Predicate<ContinuosProperty>() {
-
-                        @Override
-                        public boolean apply(ContinuosProperty object) {
-                            return object.getName().equals(arg0);
-                        }
-                    });
-                    return String.valueOf(property.getAmount());
-                } catch(NoSuchElementException e) {
-                    GreyfishLogger.warn(e);
-                    return "0";
-                }
-            }
-        });
-        try{
-            FORMULA_EVALUATOR.parse(energyCostsFormula);
-        } catch (EvaluationException e) {
-            throw new IllegalStateException("formula is not valid");
-        }
     }
 
     @Override
@@ -173,8 +150,37 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public void checkIfFreezable(Iterable<? extends GFComponent> components) {
         super.checkIfFreezable(components);
-        if (! Iterables.contains(components, energySource))
-            energySource = null;
+
+        if (energySource != null) {
+            checkState(Iterables.contains(components, energySource));
+            checkState(energyCostsFormula != null);
+
+            FORMULA_EVALUATOR.setVariableResolver( new VariableResolver() {
+
+                @Override
+                public String resolveVariable(final String arg0) throws FunctionException {
+                    try {
+                        ContinuosProperty<?> property = Iterables.find(componentOwner.getProperties(ContinuosProperty.class), new Predicate<ContinuosProperty>() {
+
+                            @Override
+                            public boolean apply(ContinuosProperty object) {
+                                return object.getName().equals(arg0);
+                            }
+                        });
+                        return String.valueOf(property.getAmount());
+                    } catch(NoSuchElementException e) {
+                        GreyfishLogger.warn(e);
+                        return "0";
+                    }
+                }
+            });
+
+            try{
+                FORMULA_EVALUATOR.parse(energyCostsFormula);
+            } catch (Exception e) {
+                throw new IllegalStateException("formula is not valid: " + energyCostsFormula);
+            }
+        }
     }
 
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {

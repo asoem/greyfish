@@ -3,7 +3,9 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
@@ -12,6 +14,9 @@ import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @ClassGroup(tags="actions")
 public class ResourceProvisionAction extends ContractNetResponderAction {
@@ -43,11 +48,11 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
-        double amountRequested = 0;
+        double amountRequested;
         try {
-            amountRequested = (Double) message.getReferenceContent();
+            amountRequested = message.getReferenceContent(Double.class);
         } catch (Exception e) {
-            throw new NotUnderstoodException("Double to expected, received " + message.getReferenceContent());
+            throw new NotUnderstoodException("Double content expected, received " + message);
         }
         offer = Math.min(amountRequested, resourceProperty.getValue());
 
@@ -75,7 +80,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
                 String.class,
                 parameterMessageType) {
             @Override protected void writeThrough(String arg0) {
-                parameterMessageType = arg0;
+                parameterMessageType = checkFrozen(checkNotNull(arg0));
             }
         });
         e.addField(new ValueSelectionAdaptor<ResourceProperty>(
@@ -84,25 +89,38 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
                 resourceProperty,
                 componentOwner.getProperties(ResourceProperty.class)) {
             @Override protected void writeThrough(ResourceProperty arg0) {
-                resourceProperty = arg0;
+                resourceProperty = checkFrozen(checkNotNull(arg0));
             }
         });
     }
 
     protected ResourceProvisionAction(AbstractBuilder<?> builder) {
         super(builder);
+        this.parameterMessageType = builder.parameterMessageType;
+        this.resourceProperty = builder.resourceProperty;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
+        super.checkIfFreezable(components);
+        checkState(resourceProperty != null);
+    }
+
+    public static Builder with() { return new Builder(); }
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProvisionAction> {
         @Override protected Builder self() {  return this; }
+        public ResourceProvisionAction build() {
+            checkState(this.resourceProperty != null, "The ResourceProperty is mandatory");
+            checkState(this.parameterMessageType != null, "The messageType is mandatory");
+            return new ResourceProvisionAction(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
-        private ResourceProperty resourceProperty;
-        private String parameterMessageType;
+        protected ResourceProperty resourceProperty;
+        protected String parameterMessageType;
 
-        public T resourceProperty(ResourceProperty resourceProperty) { this.resourceProperty = resourceProperty; return self(); }
-        public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
+        public T resourceProperty(ResourceProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
+        public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
 
         protected T fromClone(ResourceProvisionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
             super.fromClone(action, mapDict).
@@ -110,7 +128,5 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
                     parameterMessageType(action.parameterMessageType);
             return self();
         }
-
-        public ResourceProvisionAction build() { return new ResourceProvisionAction(this); }
     }
 }

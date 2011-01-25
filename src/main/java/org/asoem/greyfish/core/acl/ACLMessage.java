@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static scala.actors.threadpool.Arrays.asList;
@@ -89,8 +90,10 @@ public final class ACLMessage {
 
     }
 
-    public Object getReferenceContent() {
-        return content;
+    @SuppressWarnings("unchecked")
+    public <T> T getReferenceContent(Class<T> clazz) {
+        checkArgument(checkNotNull(clazz).isInstance(content));
+        return (T) content;
     }
 
     public Collection<Individual> getAllReceiver() {
@@ -128,7 +131,7 @@ public final class ACLMessage {
     public String getStringContent() {
         switch (contentType) {
             case STRING:
-                return new String((StringBuffer)content);
+                return (String) content;
             case BYTE_ARRAY:
                 return new String((byte[])content);
             default:
@@ -243,14 +246,13 @@ public final class ACLMessage {
                 str.append(":StringContent" + " <BINARY> \n");
                 break;
             case STRING:
-                String content = getStringContent().trim();
-                str.append(":StringContent" + " \"" + content + "\" \n");
+                str.append(":StringContent" + " \"" + getStringContent().trim() + "\" \n");
                 break;
             case NULL:
                 str.append(":StringContent" + " <Not set> \n");
                 break;
             case OTHER:
-                str.append(":StringContent" + " <OBJECT> \n");
+                str.append(":StringContent" + " <"+ this.content.getClass().getSimpleName()+"> \n");
                 break;
         }
 
@@ -270,10 +272,9 @@ public final class ACLMessage {
         return str.toString();
     }
 
-    public Builder createCopy() {
-        return new Builder()
+    public ACLMessage createCopy() {
+        Builder ret = new Builder()
                 .performative(this.performative)
-                .contentType(this.contentType)
                 .reply_with(this.reply_with)
                 .contentType(this.contentType)
                 .in_reply_to(this.in_reply_to)
@@ -283,7 +284,23 @@ public final class ACLMessage {
                 .protocol(this.protocol)
                 .addDestinations(this.dests)
                 .addReplyTos(this.reply_to)
-                .source(this.source);
+                .source(this.source)
+                .conversation_id(this.conversation_id);
+        switch (contentType) {
+            case BYTE_ARRAY:
+                ret.byteSequenceContent((byte[]) content);
+                break;
+            case OTHER:
+                ret.objectContent(content);
+                break;
+            case STRING:
+                ret.stringContent((String) content);
+                break;
+            default:
+            case NULL:
+                break;
+        }
+        return ret.build();
     }
 
     public static Builder with() {
@@ -295,7 +312,7 @@ public final class ACLMessage {
         private Individual source;
         private final List<Individual> dests = new FastList<Individual>();
         private final List<Individual> reply_to = new FastList<Individual>();
-        private ContentType contentType = ContentType.BYTE_ARRAY;
+        private ContentType contentType = ContentType.NULL;
         private Object content = NULL_CONTENT;
         private String reply_with;
         private String in_reply_to;
@@ -309,10 +326,12 @@ public final class ACLMessage {
         public Builder source(Individual source) { this.source = checkNotNull(source); return this; }
         public Builder reply_with(String reply_with) { this.reply_with = reply_with; return this; }
         public Builder in_reply_to(String in_reply_to) { this.in_reply_to = in_reply_to; return this; }
-        public Builder encoding(String encoding) { this.encoding = checkNotNull(encoding); return this; }
-        public Builder language(String language) { this.language = checkNotNull(language); return this; }
-        public Builder ontology(String ontology) { this.ontology = checkNotNull(ontology); return this; }
-        public Builder protocol(String protocol) { this.protocol = checkNotNull(protocol); return this; }
+
+        public Builder encoding(String encoding) { this.encoding = encoding; return this; }
+        public Builder language(String language) { this.language = language; return this; }
+        public Builder ontology(String ontology) { this.ontology = ontology; return this; }
+        public Builder protocol(String protocol) { this.protocol = protocol; return this; }
+
         public Builder conversation_id(int conversation_id) { this.conversation_id = conversation_id; return this; }
         public Builder addDestinations(Individual ... destinations) { this.dests.addAll(asList(checkNotNull(destinations))); return this; }
         public Builder addDestinations(Iterable<Individual> destinations) { Iterables.addAll(dests, checkNotNull(destinations)); return this; }
@@ -333,7 +352,7 @@ public final class ACLMessage {
             return this;
         }
 
-        public Builder objectContent(Object content) {
+        public <T> Builder objectContent(T content) {
             this.content = content;
             this.contentType = ACLMessage.ContentType.OTHER;
             return this;
@@ -341,14 +360,15 @@ public final class ACLMessage {
 
         @Override
         public ACLMessage build() {
-            checkState(source != null);
-            checkState(!dests.isEmpty());
-            checkState(conversation_id != 0);
-            checkState(!Strings.isNullOrEmpty(reply_with));
-            checkState(performative != null);
-
+            checkState(source != null, "Messages must have a valid sender");
+            checkState(!dests.isEmpty(), "Messages must have a valid receiver");
             if (conversation_id == 0)
                 conversation_id = ++progressiveId;
+            checkState(conversation_id != 0, "Messages must have a valid conversation ID");
+            if (reply_with == null)
+                reply_with = generateReplyWith(source);
+            checkState(!Strings.isNullOrEmpty(reply_with), "Messages must have a valid reply_with string");
+            checkState(performative != null, "Messages must have a valid performative");
 
             return new ACLMessage(this);
         }

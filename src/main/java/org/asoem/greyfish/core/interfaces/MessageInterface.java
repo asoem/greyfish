@@ -65,7 +65,7 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
 	}
 	
 	public synchronized void addMessage(final ACLMessage message) {
-		inBox.add(Preconditions.checkNotNull(message).createCopy().build()); // add a copy for save object recycling
+		inBox.add(Preconditions.checkNotNull(message).createCopy()); // add a copy for save object recycling
 	}
 
 	@Override

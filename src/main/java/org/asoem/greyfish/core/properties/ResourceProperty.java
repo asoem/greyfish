@@ -44,7 +44,7 @@ public class ResourceProperty extends DoubleProperty {
 
 //    public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProperty> {
-        private Builder() {}
+        public Builder() {}
         @Override protected Builder self() { return this; }
         @Override public ResourceProperty build() { return new ResourceProperty(this); }
     }

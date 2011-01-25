@@ -90,8 +90,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 
         @Override
         public boolean apply(ACLMessage aclMessage) {
-            return clazz.isInstance(aclMessage.getReferenceContent())
-                    && predicate.apply((T) aclMessage.getReferenceContent());
+            return predicate.apply(aclMessage.getReferenceContent(clazz));
         }
     }
 
