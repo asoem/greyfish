@@ -5,9 +5,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Attribute;
 
-import java.util.Map;
-
-public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent {
+public abstract class AbstractGFComponent extends AbstractDeepCloneable<AbstractGFComponent> implements GFComponent {
 
     protected Individual componentOwner;
 
@@ -15,6 +13,11 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     protected String name = "";
 
     private boolean frozen = false;
+
+    protected AbstractGFComponent(AbstractGFComponent clonable, CloneMap map) {
+        super(clonable, map);
+        this.name = clonable.name;
+    }
 
     @Override
     public Individual getComponentOwner() {
@@ -74,10 +77,5 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
         private String name = "";
 
         public T name(String name) { this.name = name; return self(); }
-
-        protected T fromClone(AbstractGFComponent component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            name(component.name);
-            return self();
-        }
     }
 }

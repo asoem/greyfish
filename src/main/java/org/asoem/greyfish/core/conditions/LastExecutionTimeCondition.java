@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -30,7 +31,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	}
 
 	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
+	protected AbstractGFComponent deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
 		return new Builder().fromClone(this, mapDict).build();
 	}

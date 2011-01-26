@@ -90,10 +90,17 @@ public final class ACLMessage {
 
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getReferenceContent(Class<T> clazz) {
-        checkArgument(checkNotNull(clazz).isInstance(content));
-        return (T) content;
+    /**
+     *
+     * @param clazz The expected type of the content object
+     * @param <T> The class type
+     * @return The content object casted to type <code>T</code>
+     * @throws IllegalArgumentException if content has not type <code>T</code>
+     */
+    public <T> T getReferenceContent(Class<T> clazz) throws IllegalArgumentException {
+        checkArgument(checkNotNull(clazz).isInstance(content),
+                "Requesting " + clazz + " content which has type " + content.getClass());
+        return clazz.cast(content);
     }
 
     public Collection<Individual> getAllReceiver() {

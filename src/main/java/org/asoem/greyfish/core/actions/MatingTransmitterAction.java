@@ -7,12 +7,9 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -39,12 +36,6 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     private void checkValidity() {
         Preconditions.checkNotNull(ontology);
-    }
-
-    @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
     }
 
     @Override
@@ -75,6 +66,16 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
                 .performative(ACLPerformative.PROPOSE);
     }
 
+    @Override
+    protected MatingTransmitterAction deepCloneHelper(CloneMap cloneMap) {
+        return new MatingTransmitterAction(this, cloneMap);
+    }
+
+    private MatingTransmitterAction(MatingTransmitterAction cloneable, CloneMap cloneMap) {
+        super(cloneable, cloneMap);
+        this.ontology = cloneable.ontology;
+    }
+
     protected MatingTransmitterAction(AbstractBuilder<?> builder) {
         super(builder);
         this.ontology = builder.ontology;
@@ -91,12 +92,5 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
         private String ontology;
 
         public T offersSpermToMatesOfType(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
-
-        protected T fromClone(MatingTransmitterAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).offersSpermToMatesOfType(action.ontology);
-            return self();
-        }
-
-        public MatingTransmitterAction build() { return new MatingTransmitterAction(this); }
     }
 }

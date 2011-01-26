@@ -9,15 +9,13 @@ import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.ElementList;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Arrays.asList;
 
 
 /**
@@ -30,7 +28,12 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
     protected List<GFCondition> conditions = new ArrayList<GFCondition>(0);
 
-    private void integrate(Collection<? extends GFCondition> condition2) {
+    protected LogicalOperatorCondition(LogicalOperatorCondition clonable, CloneMap map) {
+        super(clonable, map);
+        addAll(deepClone(clonable.getChildConditions(), map));
+    }
+
+    private void integrate(Iterable<? extends GFCondition> condition2) {
         for (GFCondition gfCondition : condition2) {
             integrate(gfCondition);
         }
@@ -78,10 +81,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
             condition.initialize(simulation);
     }
 
-    public void addAll(Collection<GFCondition> childConditions) {
+    public void addAll(Iterable<GFCondition> childConditions) {
         checkFrozen();
         integrate(childConditions);
-        conditions.addAll(childConditions);
+        Iterables.addAll(conditions, childConditions);
     }
 
     public int indexOf(GFCondition currentCondition) {
@@ -133,6 +136,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
     protected LogicalOperatorCondition(AbstractBuilder<?> builder) {
         super(builder);
+        addAll(builder.conditions);
     }
 
     @Override
@@ -154,13 +158,12 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractCondition.AbstractBuilder<T> {
         private final List<GFCondition> conditions = new ArrayList<GFCondition>();
 
-        public T addCondition(GFCondition condition) { this.conditions.add(condition); return self(); }
-        public T addConditions(Iterable<GFCondition> conditions) { Iterables.addAll(this.conditions, conditions); return self(); }
+        protected T addConditions(GFCondition... conditions) { addConditions(asList(conditions)); return self(); }
+        protected T addConditions(Iterable<GFCondition> conditions) { Iterables.addAll(this.conditions, conditions); return self(); }
+    }
 
-        protected T fromClone(LogicalOperatorCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    addConditions(deepClone(component.conditions, mapDict));
-            return self();
-        }
+    @Override
+    public String toString() {
+        return getParentCondition() + "<-{" + this.getClass().getSimpleName() + "}<-" + conditions;
     }
 }

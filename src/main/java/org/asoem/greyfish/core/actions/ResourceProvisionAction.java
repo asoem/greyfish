@@ -7,13 +7,10 @@ import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -51,20 +48,20 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
         double amountRequested;
         try {
             amountRequested = message.getReferenceContent(Double.class);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
+
+        ACLMessage.Builder ret = message.replyFrom(componentOwner);
+
         offer = Math.min(amountRequested, resourceProperty.getValue());
 
-        return message.replyFrom(componentOwner)
-                .objectContent(offer)
-                .performative(ACLPerformative.PROPOSE);
-    }
+        if (offer > 0)
+            ret.performative(ACLPerformative.PROPOSE).objectContent(offer);
+        else
+            ret.performative(ACLPerformative.REFUSE);
 
-    @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+        return ret;
     }
 
     @Override
@@ -94,6 +91,17 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
         });
     }
 
+    @Override
+    protected ResourceProvisionAction deepCloneHelper(CloneMap cloneMap) {
+        return new ResourceProvisionAction(this, cloneMap);
+    }
+
+    private ResourceProvisionAction(ResourceProvisionAction cloneable, CloneMap cloneMap) {
+        super(cloneable, cloneMap);
+        this.resourceProperty = deepClone(cloneable.resourceProperty, cloneMap);
+        this.parameterMessageType = cloneable.parameterMessageType;
+    }
+
     protected ResourceProvisionAction(AbstractBuilder<?> builder) {
         super(builder);
         this.parameterMessageType = builder.parameterMessageType;
@@ -121,12 +129,5 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 
         public T resourceProperty(ResourceProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
         public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
-
-        protected T fromClone(ResourceProvisionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).
-                    resourceProperty(deepClone(action.resourceProperty, mapDict)).
-                    parameterMessageType(action.parameterMessageType);
-            return self();
-        }
     }
 }

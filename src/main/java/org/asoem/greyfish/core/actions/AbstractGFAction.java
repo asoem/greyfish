@@ -16,14 +16,12 @@ import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ContinuosProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -209,13 +207,12 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         private T source(DoubleProperty source) { this.source = source; return self(); }
         private T formula(String formula) { this.formula = formula; return self(); }
         public T generatesCosts(DoubleProperty source, String formula) { return source(checkNotNull(source)).formula(checkNotNull(formula)); }
+    }
 
-        protected T fromClone(AbstractGFAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).
-                    executesIf(AbstractDeepCloneable.deepClone(action.getRootCondition(), mapDict)).
-                    source(AbstractDeepCloneable.deepClone(action.energySource, mapDict)).
-                    formula(action.energyCostsFormula);
-            return self();
-        }
+    protected AbstractGFAction(AbstractGFAction cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.conditionTree = new ConditionTree(deepClone(cloneable.getRootCondition(), map));
+        this.energySource = deepClone(cloneable.energySource, map);
+        this.energyCostsFormula = cloneable.energyCostsFormula;
     }
 }

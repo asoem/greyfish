@@ -4,13 +4,10 @@ import org.asoem.greyfish.core.interfaces.Movement2DAcutator;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
-
-import java.util.Map;
 
 @ClassGroup(tags = "actions")
 public class RandomMovementAction extends AbstractGFAction {
@@ -37,12 +34,6 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
-    }
-
-    @Override
     public void initialize(Simulation simulation) {
         super.initialize(simulation);
         movementAcutator = componentOwner.getInterface(Movement2DAcutator.class);
@@ -58,6 +49,16 @@ public class RandomMovementAction extends AbstractGFAction {
                 speed = arg0;
             }
         });
+    }
+
+    @Override
+    protected RandomMovementAction deepCloneHelper(CloneMap cloneMap) {
+        return new RandomMovementAction(this, cloneMap);
+    }
+
+    private RandomMovementAction(RandomMovementAction cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.speed = cloneable.speed;
     }
 
     protected RandomMovementAction(AbstractBuilder<?> builder) {
@@ -76,10 +77,5 @@ public class RandomMovementAction extends AbstractGFAction {
         private double speed;
 
         public T speed(double speed) { this.speed = speed; return self(); }
-
-        protected T fromClone(RandomMovementAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).speed(action.speed);
-            return self();
-        }
     }
 }

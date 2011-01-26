@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.genes.DoubleGene;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.Comparables;
@@ -55,7 +56,7 @@ public final class GeneticDoubleProperty extends AbstractGFProperty implements D
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+    protected AbstractGFComponent deepCloneHelper(Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return with().build();
     }
 

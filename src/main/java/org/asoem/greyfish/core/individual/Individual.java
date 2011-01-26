@@ -24,16 +24,18 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.Iterables.filter;
-import static scala.actors.threadpool.Arrays.asList;
+import static java.util.Arrays.asList;
 
 @Root
-public class Individual extends AbstractDeepCloneable implements MovingObject2DInterface, Freezable, Initializeable {
+public class Individual extends AbstractDeepCloneable<Individual> implements MovingObject2DInterface, SimulationObject {
 
     private final ListenerSupport<IndividualCompositionListener> listenerSupport = new ListenerSupport<IndividualCompositionListener>();
 
@@ -112,16 +114,10 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         finishAssembly();
     }
 
-    /**
-     * @return the species
-     */
     public Population getPopulation() {
         return population;
     }
 
-    /**
-     * @param population
-     */
     public void setPopulation(Population population) {
         checkNotNull(population);
         this.population = population;
@@ -130,7 +126,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
     /**
      * Adds the given actions to this individual.
      * The actions's execution level is set to the highest execution level found in this individual's actions +1;
-     * @param action
+     * @param action The action to add
      * @return {@code true} if actions could be added, {@code false} otherwise.
      */
     public boolean addAction(final GFAction action) {
@@ -161,9 +157,6 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         return true;
     }
 
-    /**
-     * @param action
-     */
     public boolean removeAction(final GFAction action) {
         checkFrozen();
         if (this.actions.remove(action)) {
@@ -174,9 +167,6 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         return false;
     }
 
-    /**
-     *
-     */
     public void removeAllActions() {
         checkFrozen();
         for (GFAction a : actions) {
@@ -184,25 +174,15 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         }
     }
 
-    /**
-     * @return
-     */
     public List<GFAction> getActions() {
         return this.actions;
     }
 
-    /**
-     * @param <T>
-     * @param t
-     * @param actionName
-     * @return
-     */
-    @SuppressWarnings("unchecked")
     public <T extends GFAction> T getAction(Class<T> t, String actionName) {
         for (GFAction individualAction : actions) {
             if (individualAction.getName().equals(actionName)
                     && t.isInstance(individualAction)) {
-                return (T) individualAction;
+                return t.cast(individualAction);
             }
         }
         return null;
@@ -215,7 +195,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 
     /**
      * Add <code>property</code> to the Individuals properties if it does not contain one with the same key (i.e. property.getPropertyName() ).
-     * @param property
+     * @param property The property to add
      * @return <code>true</code> if <code>property</code> could be added, <code>false</code> otherwise.
      */
     public boolean addProperty(final GFProperty property) {
@@ -262,9 +242,6 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         return true;
     }
 
-    /**
-     * @param property
-     */
     public boolean removeProperty(final GFProperty property) {
         checkFrozen();
         if (this.properties.remove(property)) {
@@ -289,17 +266,22 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         return properties;
     }
 
-    /**
-     * @param clazz
-     * @return
-     */
-    @SuppressWarnings("unchecked")
     public <T extends GFProperty> Collection<T> getProperties(Class<T> clazz) {
         ArrayList<T> ret = new ArrayList<T>();
         for (GFProperty property : properties)
             if(clazz.isInstance(property))
-                ret.add((T) property);
+                ret.add(clazz.cast(property));
         return ret;
+    }
+
+    @Override
+    public double getRadius() {
+        return body.getRadius();
+    }
+
+    @Override
+    public Color getColor() {
+        return body.getColor();
     }
 
 //	/**
@@ -448,10 +430,6 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         // Conditions?
     }
 
-    public int getComponentCount() {
-        return properties.size() + actions.size();
-    }
-
     public Body getBody() {
         return body;
     }
@@ -459,17 +437,17 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
     /**
      * Get the instance of {@code clazz} associated with this individual.
      * If none is stored yet, the interface will be created using reflection.
-     * @param <T>
-     * @param clazz
+     * @param <T> The Type of the Interface object
+     * @param clazz The Class for type T
      * @return The instance of {@code clazz} associated with this individual
+     * @throws NoSuchElementException if no Interface of type clazz could be found
      */
-    @SuppressWarnings("unchecked")
     public <T extends GFInterface> T getInterface(Class<T> clazz) throws NoSuchElementException {
         checkNotNull(clazz);
-        T ret = (T) Iterables.find(interfaces, instanceOf(clazz), null);
+        T ret = clazz.cast(Iterables.find(interfaces, instanceOf(clazz), null));
         if (ret == null) {
             try {
-                ret = (T) clazz.getDeclaredMethod("newInstance").invoke(null);
+                ret = clazz.cast(clazz.getDeclaredMethod("newInstance").invoke(null));
                 ret.setComponentOwner(this);
                 interfaces = ImmutableList.<GFInterface>builder().addAll(interfaces).add(ret).build();
             } catch (Exception e) {
@@ -491,8 +469,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
 
     /**
      * Find the first actions in the order of priority and execute it.
-     * @param simulation
-     * @return
+     * @param simulation The simulation context
      */
     public void execute(final Simulation simulation) {
         GFAction toExecute = lastExecutedAction;
@@ -549,12 +526,12 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
+    protected Individual deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Individual(this, mapDict);
     }
 
-    private final void componentRemoved(final GFComponent component) {
+    private void componentRemoved(final GFComponent component) {
         fireComponentRemoved(component);
 
         final Iterable<? extends GFComponent> components = getComponents();
@@ -563,7 +540,7 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
         }
     }
 
-    private final void fireComponentRemoved(final GFComponent component) {
+    private void fireComponentRemoved(final GFComponent component) {
         listenerSupport.notifyListeners(new Functor<IndividualCompositionListener>() {
 
             @Override
@@ -574,9 +551,8 @@ public class Individual extends AbstractDeepCloneable implements MovingObject2DI
     }
 
     /**
-     * @param simulation
+     * @param simulation The simulation context
      * @return a deepClone of this individual fetched from the simulations pool of clones with the identical genetic constitution
-     * @throws Exception
      */
     public Individual createClone(Simulation simulation) {
         Preconditions.checkNotNull(simulation);

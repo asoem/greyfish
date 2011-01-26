@@ -3,7 +3,9 @@
  */
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.Map;
@@ -24,7 +26,7 @@ public class NandCondition extends AndCondition {
 	}
 
     @Override
-    public AbstractDeepCloneable deepCloneHelper(
+    public AbstractGFComponent deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();
     }
@@ -37,8 +39,9 @@ public class NandCondition extends AndCondition {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<NandCondition> {
         @Override protected Builder self() { return this; }
+        public NandCondition build() { return new NandCondition(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AndCondition.AbstractBuilder<T> {
@@ -46,7 +49,5 @@ public class NandCondition extends AndCondition {
             super.fromClone(component, mapDict);
             return self();
         }
-
-        public NandCondition build() { return new NandCondition(this); }
     }
 }

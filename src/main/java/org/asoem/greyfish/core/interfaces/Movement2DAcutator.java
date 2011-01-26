@@ -34,7 +34,7 @@ public final class Movement2DAcutator extends AbstractGFComponent implements GFI
     }
 
 	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
+	protected AbstractGFComponent deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
 		return new Builder().fromClone(this, mapDict).build();
 	}

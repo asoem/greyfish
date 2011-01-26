@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -15,7 +16,7 @@ public class IntProperty extends OrderedSetProperty<Integer> {
     }
 
 	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
+	protected AbstractGFComponent deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
 		return new Builder().fromClone(this, mapDict).build();
 	}

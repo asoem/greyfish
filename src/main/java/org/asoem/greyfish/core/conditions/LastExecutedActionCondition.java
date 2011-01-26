@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -39,7 +40,7 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
+    protected AbstractGFComponent deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();
     }

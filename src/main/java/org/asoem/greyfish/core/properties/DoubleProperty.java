@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.Comparables;
@@ -18,7 +19,7 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
     }
 
 	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
+	protected AbstractGFComponent deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
 		return new Builder().fromClone(this, mapDict).build();
 	}

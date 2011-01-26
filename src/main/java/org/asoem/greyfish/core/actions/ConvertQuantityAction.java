@@ -1,13 +1,11 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 @ClassGroup(tags="actions")
 public class ConvertQuantityAction extends AbstractGFAction {
@@ -39,9 +37,16 @@ public class ConvertQuantityAction extends AbstractGFAction {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
+        return new ConvertQuantityAction(this, cloneMap);
+    }
+
+    public ConvertQuantityAction(ConvertQuantityAction cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.parameterSource = deepClone(cloneable.parameterSource, map);
+        this.parameterTarget = deepClone(cloneable.parameterTarget, map);
+        this.parameterFactor = cloneable.parameterFactor;
+        this.parameterMax = cloneable.parameterMax;
     }
 
     protected ConvertQuantityAction(AbstractBuilder<?> builder) {
@@ -69,14 +74,5 @@ public class ConvertQuantityAction extends AbstractGFAction {
         public T parameterTarget(DoubleProperty parameterTarget) { this.parameterTarget = parameterTarget; return self(); }
         public T parameterFactor(double parameterFactor) { this.parameterFactor = parameterFactor; return self(); }
         public T parameterMax(double parameterMax) { this.parameterMax = parameterMax; return self(); }
-
-        protected T fromClone(ConvertQuantityAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).
-                    parameterFactor(action.parameterFactor).
-                    parameterTarget(deepClone(action.parameterTarget, mapDict)).
-                    parameterSource(deepClone(action.parameterSource, mapDict)).
-                    parameterMax(action.parameterMax);
-            return self();
-        }
     }
 }

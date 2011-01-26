@@ -23,8 +23,11 @@ public abstract class ContractNetResponderAction extends FSMAction {
     private static final int TIMEOUT_TIME = 10;
 
     private int timeoutCounter;
-
     private int nExpectedProposeAnswers;
+
+    protected ContractNetResponderAction(ContractNetResponderAction cloneable, CloneMap cloneMap) {
+        super(cloneable, cloneMap);
+    }
 
     private MessageTemplate getTemplate() {
         return template;
@@ -43,7 +46,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
                 final Collection<ACLMessage> cfpReplies = new ArrayList<ACLMessage>();
                 for (ACLMessage message : matches) {
 
-                    ACLMessage cfpReply = null;
+                    ACLMessage cfpReply;
                     try {
                         cfpReply = handleCFP(message).build();
                     } catch (NotUnderstoodException e) {

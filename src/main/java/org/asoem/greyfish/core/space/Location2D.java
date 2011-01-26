@@ -28,7 +28,7 @@ public class Location2D implements Location2DInterface {
 		set(location2d.x, location2d.y);
 	}
 
-	public void set(double x, double y) {
+	protected void set(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -81,4 +81,8 @@ public class Location2D implements Location2DInterface {
     public Point2D asPoint2D() {
 		return new Point2D.Double(x, y);
 	}
+
+    public static Location2D at(double x, double y) {
+        return new Location2D(x,y);
+    }
 }

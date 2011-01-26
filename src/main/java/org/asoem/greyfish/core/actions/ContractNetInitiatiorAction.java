@@ -33,6 +33,10 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
         initFSM();
     }
 
+    protected ContractNetInitiatiorAction(ContractNetInitiatiorAction cloneable, CloneMap cloneMap) {
+        super(cloneable, cloneMap);
+    }
+
     private MessageTemplate getTemplate() {
         return template;
     }
@@ -110,17 +114,20 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                     }
                 }
                 ++timeoutCounter;
-                if (timeoutCounter == PROPOSAL_TIMEOUT) {
+
+
+                assert nProposalsExpected >= 0;
+
+                if (nProposalsExpected == 0)
+                    return END;
+                else if (timeoutCounter == PROPOSAL_TIMEOUT) {
                     timeoutCounter = 0;
                     return WAIT_FOR_INFORM;
                 }
-
-                template = createAcceptReplyTemplate(proposeReplies);
-                assert nProposalsExpected >= 0;
-                if (nProposalsExpected == 0)
-                    return END;
-                else
+                else {
+                    template = createAcceptReplyTemplate(proposeReplies);
                     return (nReceivedProposals != nProposalsExpected) ? WAIT_FOR_POROPOSALS : WAIT_FOR_INFORM;
+                }
             }
         });
 

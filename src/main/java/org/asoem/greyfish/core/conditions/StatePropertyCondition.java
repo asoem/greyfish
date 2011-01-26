@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -36,7 +37,7 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
+    protected AbstractGFComponent deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();
     }

@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -19,7 +21,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
+    protected AbstractGFComponent deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();
     }
@@ -42,8 +44,9 @@ public class RandomCondition extends LeafCondition {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> {
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<RandomCondition> {
         @Override protected Builder self() { return this; }
+        public RandomCondition build() { return new RandomCondition(this); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
@@ -55,7 +58,5 @@ public class RandomCondition extends LeafCondition {
             super.fromClone(component, mapDict);
             return self();
         }
-
-        public AbstractDeepCloneable build() { return new RandomCondition(this); }
     }
 }

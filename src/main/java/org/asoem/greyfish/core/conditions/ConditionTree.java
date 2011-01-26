@@ -37,7 +37,7 @@ public class ConditionTree extends AbstractGFComponent implements Iterable<GFCon
 	}
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
+    protected AbstractGFComponent deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder(rootCondition).fromClone(this, mapDict).build();
     }

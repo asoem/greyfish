@@ -17,6 +17,10 @@ public abstract class FSMAction extends AbstractGFAction {
         super(builder);
     }
 
+    protected FSMAction(FSMAction cloneable, CloneMap cloneMap) {
+        super(cloneable, cloneMap);
+    }
+
     protected abstract interface StateAction {
         public String action();
     }
@@ -24,7 +28,7 @@ public abstract class FSMAction extends AbstractGFAction {
     /* Immutable after freeze */
     private ImmutableMap<String, StateAction> states = ImmutableMap.of();
     private String initialStateName;
-    private ImmutableSet<String> endStates = ImmutableSet.of();
+    private ImmutableSet<String> endStateNames = ImmutableSet.of();
 
     /* Always mutable */
     private String currentStateName;
@@ -61,8 +65,10 @@ public abstract class FSMAction extends AbstractGFAction {
     public void checkIfFreezable(Iterable<? extends GFComponent> components) {
         super.checkIfFreezable(components);
         if (!states.isEmpty()) {
-            checkState(states.containsKey(initialStateName));
-            checkState(all(endStates, in(states.keySet())));
+            checkState(initialStateName != null, "No InitialState defined");
+            checkState(states.containsKey(initialStateName), "InitialStatName `"+initialStateName+"' has no actual state in "+states);
+            checkState(!endStateNames.isEmpty(), "No EndState defined");
+            checkState(all(endStateNames, in(states.keySet())) , "Not all EndStateNames "+endStateNames+" have an actual state in "+states);
         }
         else
             GreyfishLogger.warn("FSMAction has no states defined: " + this);
@@ -70,7 +76,7 @@ public abstract class FSMAction extends AbstractGFAction {
 
     @Override
     public final boolean done() {
-        return endStates.contains(currentStateName);
+        return endStateNames.contains(currentStateName);
     }
 
     protected final void registerInitialFSMState(final String state, final StateAction action) {
@@ -87,7 +93,7 @@ public abstract class FSMAction extends AbstractGFAction {
 
     protected final void registerEndFSMState(final String state, final StateAction action) {
         registerFSMState(state, action);
-        endStates = ImmutableSet.<String>builder().addAll(endStates).add(state).build();
+        endStateNames = ImmutableSet.<String>builder().addAll(endStateNames).add(state).build();
     }
 
     @Override

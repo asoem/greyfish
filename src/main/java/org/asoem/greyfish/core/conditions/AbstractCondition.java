@@ -1,11 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.simpleframework.xml.core.Commit;
-
-import java.util.Map;
 
 /**
  * A class that implements the <code>Condition</code> interface.
@@ -16,7 +13,12 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 
 	private GFCondition parentCondition;
 
-	@Override
+    protected AbstractCondition(AbstractCondition clonable, CloneMap map) {
+        super(clonable, map);
+        this.parentCondition = deepClone(clonable.parentCondition, map);
+    }
+
+    @Override
 	public GFCondition getParentCondition() {
 		return parentCondition;
 	}
@@ -67,11 +69,10 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
         private GFCondition parentCondition;
+    }
 
-        protected T fromClone(AbstractCondition condition, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(condition, mapDict);
-            parentCondition = deepClone(condition.parentCondition, mapDict);
-            return self();
-        }
+    @Override
+    public String toString() {
+        return parentCondition + "<-" + this.getClass().getSimpleName();
     }
 }

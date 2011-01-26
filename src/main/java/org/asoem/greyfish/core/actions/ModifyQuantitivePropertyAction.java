@@ -6,18 +6,16 @@ package org.asoem.greyfish.core.actions;
 import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -55,12 +53,6 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 		}
 	}
 
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
-
     @Override
     public void export(Exporter e) {
         super.export(e);
@@ -92,6 +84,17 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
         }
     }
 
+    @Override
+    protected AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
+        return new ModifyQuantitivePropertyAction(this, cloneMap);
+    }
+
+    public ModifyQuantitivePropertyAction(ModifyQuantitivePropertyAction cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.parameterQuantitiveProperty = deepClone(cloneable.parameterQuantitiveProperty, map);
+        this.energyCostsFormula = cloneable.energyCostsFormula;
+    }
+
     protected ModifyQuantitivePropertyAction(AbstractBuilder<?> builder) {
         super(builder);
         this.energyCostsFormula = builder.energyCostsFormula;
@@ -111,13 +114,6 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
         public T change(DoubleProperty quantitiveProperty) { this.quantitiveProperty = checkNotNull(quantitiveProperty); return self(); }
         public T to(String energyCostsFormula) { this.energyCostsFormula = energyCostsFormula; return self(); } // TODO: check if string is a valid expression
-
-        protected T fromClone(ModifyQuantitivePropertyAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).
-                    change(deepClone(action.parameterQuantitiveProperty, mapDict)).
-                    to(action.energyCostsFormula);
-            return self();
-        }
 
         public ModifyQuantitivePropertyAction build() { return new ModifyQuantitivePropertyAction(this); }
     }

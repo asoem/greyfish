@@ -45,7 +45,7 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
     }
 
 	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
+	protected AbstractGFComponent deepCloneHelper(
 			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
 		return new Builder().fromClone(this, mapDict).build();
 	}

@@ -1,11 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 @ClassGroup(tags="actions")
 public class NullAction extends AbstractGFAction {
@@ -19,12 +17,6 @@ public class NullAction extends AbstractGFAction {
         /* NOP */
     }
 
-    @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
-    }
-
     protected NullAction(AbstractBuilder<?> builder) {
         super(builder);
     }
@@ -36,13 +28,12 @@ public class NullAction extends AbstractGFAction {
         @Override public NullAction build() { return new NullAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+    @Override
+    protected AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
+        return new NullAction(this, cloneMap);
+    }
 
-        protected T fromClone(NullAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict);
-            return self();
-        }
-
-        public NullAction build() { return new NullAction(this); }
+    public NullAction(NullAction cloneable, CloneMap map) {
+        super(cloneable, map);
     }
 }

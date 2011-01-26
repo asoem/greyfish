@@ -16,10 +16,11 @@ import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.*;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -91,12 +92,6 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
-    }
-
-    @Override
     public void checkIfFreezable(Iterable<? extends GFComponent> components) {
         super.checkIfFreezable(components);
         checkNotNull(spermBuffer);
@@ -145,6 +140,18 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
         return false;
     }
 
+    @Override
+    protected MatingReceiverAction deepCloneHelper(CloneMap cloneMap) {
+        return new MatingReceiverAction(this, cloneMap);
+    }
+
+    private MatingReceiverAction(MatingReceiverAction cloneable, CloneMap cloneMap) {
+        super(cloneable, cloneMap);
+        this.spermBuffer = deepClone(cloneable.spermBuffer, cloneMap);
+        this.ontology = cloneable.ontology;
+        this.sensorRange = cloneable.sensorRange;
+    }
+
     protected MatingReceiverAction(AbstractBuilder<?> builder) {
         super(builder);
         this.spermBuffer = builder.spermBuffer;
@@ -167,13 +174,5 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
         public T storesSpermIn(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = spermBuffer; return self(); }
         public T fromMatesOfType(String ontology) { this.ontology = ontology; return self(); }
         public T closerThan(double sensorRange) { this.sensorRange = sensorRange; return self(); }
-
-        protected T fromClone(MatingReceiverAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).
-                    storesSpermIn(deepClone(action.spermBuffer, mapDict)).
-                    fromMatesOfType(action.ontology).
-                    closerThan(action.sensorRange);
-            return self();
-        }
     }
 }

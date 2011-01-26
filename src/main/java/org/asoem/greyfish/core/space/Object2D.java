@@ -9,7 +9,7 @@ public class Object2D implements Object2DInterface {
 	private ListenerSupport<Object2DListener> listenerSupport = new ListenerSupport<Object2DListener>();
 	
 	@Element(name="point")
-	protected Location2D anchorPoint;
+	protected final Location2D anchorPoint;
 	
 	public Object2D() {
 		anchorPoint = new Location2D();

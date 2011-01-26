@@ -1,15 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import java.awt.*;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -29,9 +28,13 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new ChangeBodyAction(this, map);
+    }
+
+    public ChangeBodyAction(ChangeBodyAction cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.color = cloneable.color;
     }
 
     @Override
@@ -58,10 +61,5 @@ public class ChangeBodyAction extends AbstractGFAction {
         private Color color;
 
         public T color(Color color) { this.color = checkNotNull(color); return self(); }
-
-        protected T fromClone(ChangeBodyAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).color(action.color);
-            return self();
-        }
     }
 }

@@ -25,4 +25,6 @@ public interface Space {
 	 */
 	Iterable<Object2DInterface> findNeighbours(Location2DInterface p,
 			double range);
+
+    public boolean covers(Location2DInterface value);
 }

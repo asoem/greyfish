@@ -11,10 +11,11 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.*;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -72,12 +73,6 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
-    }
-
-    @Override
     public boolean evaluate(Simulation simulation) {
         if ( super.evaluate(simulation) ) {
             sensedMates = Iterables.filter(simulation.getSpace().findNeighbours(componentOwner, sensorRange), Individual.class);
@@ -124,6 +119,19 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         });
     }
 
+    @Override
+    protected ResourceConsumptionAction deepCloneHelper(CloneMap cloneMap) {
+        return new ResourceConsumptionAction(this, cloneMap);
+    }
+
+    private ResourceConsumptionAction(ResourceConsumptionAction cloneable, CloneMap cloneMap) {
+        super(cloneable, cloneMap);
+        this.consumerProperty = deepClone(cloneable.consumerProperty, cloneMap);
+        this.parameterMessageType = cloneable.parameterMessageType;
+        this.sensorRange = cloneable.sensorRange;
+        this.amountPerRequest = cloneable.amountPerRequest;
+    }
+
     protected ResourceConsumptionAction(AbstractBuilder<?> builder) {
         super(builder);
         this.consumerProperty = builder.consumerProperty;
@@ -149,14 +157,5 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         public T viaMessagesOfType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
         public T requesting(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
         public T inRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
-
-        protected T fromClone(ResourceConsumptionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).
-                    storesEnergyIn(deepClone(action.consumerProperty, mapDict)).
-                    viaMessagesOfType(action.parameterMessageType).
-                    requesting(action.amountPerRequest).
-                    inRange(action.sensorRange);
-            return self();
-        }
     }
 }

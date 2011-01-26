@@ -7,6 +7,7 @@ import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.individual.SimulationObject;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.Location2D;
@@ -14,7 +15,6 @@ import org.asoem.greyfish.core.space.Placeholder;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.utils.DeepClonable;
 import org.asoem.greyfish.utils.FastLists;
 import org.asoem.greyfish.utils.ListenerSupport;
 
@@ -54,7 +54,7 @@ public class Simulation implements Runnable {
         return commandList.add(value);
     }
 
-    private final FastList<Individual> individuals = new FastList<Individual>();
+    private final FastList<SimulationObject> individuals = new FastList<SimulationObject>();
 
     private final ListenerSupport<SimulationListener> listenerSupport = new ListenerSupport<SimulationListener>();
 
@@ -132,9 +132,6 @@ public class Simulation implements Runnable {
             });
     }
 
-    /**
-     *
-     */
     private void initialize() {
         this.space = new TiledSpace(scenario.getPrototypeSpace());
 
@@ -143,39 +140,37 @@ public class Simulation implements Runnable {
             objectPool.clear();
         } catch (Exception e) {
             GreyfishLogger.error("Error clearing prototype pool", e);
+            System.exit(1);
         }
 
-        for (DeepClonable prototype : scenario.getPrototypes()) {
-            Individual clone = (Individual) prototype.deepClone(); // TODO: unchecked cast
+        for (SimulationObject prototype : scenario.getPrototypes()) {
+            Individual clone = Individual.class.cast(prototype.deepClone());
             clone.finishAssembly(); // TODO: can be considered as a workaround. Prototype might get treated differently in future versions
+            assert (!prototypeMap.containsKey(clone.getPopulation())) : "Different Prototypes have the same Population";
             prototypeMap.put(clone.getPopulation(), clone);
         }
 
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
-            Individual clone = createClone(((Individual) placeholder.getPrototype()).getPopulation());
+            SimulationObject clone = placeholder.createReplacement();
             prepareForIntegration(clone, getSteps());
             addIndividual(clone, new Location2D(placeholder.getAnchorPoint()));
         }
 
-        // Add a log for each population
-        //		for (Individual individual : getPrototypes()) {
-        //			populationLogs.put(individual.getPopulation(), new PopulationLog(this, individual));
-        //		}
-
         space.updateTopo();
     }
 
-    private void prepareForIntegration(Individual individual, int timeOfBirth) {
+    private void prepareForIntegration(SimulationObject individual, int timeOfBirth) {
         checkIndividual(individual);
         individual.setId(++maxId);
         individual.setTimeOfBirth(timeOfBirth);
+        individual.initialize(this);
     }
 
     /**
      * @return a copy of the list of active individuals
      */
-    public synchronized FastList<Individual> getIndividuals() {
+    public synchronized FastList<SimulationObject> getIndividuals() {
         return individuals;
     }
 
@@ -205,14 +200,15 @@ public class Simulation implements Runnable {
         });
     }
 
-    private void addIndividual(Individual individual, Location2D location) {
+    private void addIndividual(SimulationObject individual, Location2D location) {
                 individuals.add(individual);
                 space.add(individual, new Location2D(location));
     }
 
-    private void checkIndividual(final Individual individual) {
+    private void checkIndividual(final SimulationObject individual) {
         Preconditions.checkNotNull(individual);
         Preconditions.checkArgument(prototypeMap.containsKey(individual.getPopulation()));
+        individual.checkFrozen();
     }
 
     /**
@@ -425,8 +421,8 @@ public class Simulation implements Runnable {
     }
 
     private void processAgents() {
-        FastLists.foreach(individuals, new Functor<Individual>() {
-            @Override public void update(Individual individual) {
+        FastLists.foreach(individuals, new Functor<SimulationObject>() {
+            @Override public void update(SimulationObject individual) {
                 individual.execute(Simulation.this);
             }
         });

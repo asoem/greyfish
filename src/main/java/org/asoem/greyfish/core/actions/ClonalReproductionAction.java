@@ -5,10 +5,7 @@ import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Attribute;
-
-import java.util.Map;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
@@ -37,11 +34,15 @@ public class ClonalReproductionAction extends AbstractGFAction {
 		}	
 	}
 
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
+    @Override
+    protected ClonalReproductionAction deepCloneHelper(CloneMap map) {
+        return new ClonalReproductionAction(this, map);
+    }
+
+    public ClonalReproductionAction(ClonalReproductionAction cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.parameterClones = cloneable.parameterClones;
+    }
 
     protected ClonalReproductionAction(AbstractBuilder<?> builder) {
         super(builder);
@@ -59,10 +60,5 @@ public class ClonalReproductionAction extends AbstractGFAction {
         private int nClones;
 
         public T clones(int parameterClones) { this.nClones = parameterClones; return self(); }
-
-        protected T fromClone(ClonalReproductionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).clones(action.parameterClones);
-            return self();
-        }
     }
 }

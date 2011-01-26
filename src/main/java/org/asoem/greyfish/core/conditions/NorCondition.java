@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -27,7 +28,7 @@ public class NorCondition extends LogicalOperatorCondition {
     public static Builder trueIf() { return new Builder(); }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+    protected AbstractGFComponent deepCloneHelper(Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return trueIf().fromClone(this, mapDict).build();
     }
 

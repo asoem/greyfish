@@ -5,11 +5,9 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND operator.
@@ -32,13 +30,16 @@ public class AndCondition extends LogicalOperatorCondition {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new AndCondition(this, map);
     }
 
     private AndCondition() {
         this(new Builder());
+    }
+    
+    private AndCondition(AndCondition cloneable, CloneMap map) {
+        super(cloneable, map);
     }
 
     protected AndCondition(AbstractBuilder<?> builder) {
@@ -53,12 +54,7 @@ public class AndCondition extends LogicalOperatorCondition {
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LogicalOperatorCondition.AbstractBuilder<T> {
-        public T and(GFCondition condition) { return addCondition(condition); }
+        public T and(GFCondition ... conditions) { return addConditions(conditions); }
         public T all(Iterable<GFCondition> conditions) { return addConditions(conditions); }
-
-        protected T fromClone(AndCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
     }
 }

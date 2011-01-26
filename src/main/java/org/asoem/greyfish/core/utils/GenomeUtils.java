@@ -6,6 +6,7 @@ import java.util.List;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.SimulationObject;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.uncommons.maths.statistics.DataSet;
 
@@ -15,7 +16,7 @@ public class GenomeUtils {
 	public static void statistics(Simulation simulation) {
 		final List<Genome> genomes = new ArrayList<Genome>();
 
-		for (Individual individual : simulation.getIndividuals()) {
+		for (SimulationObject individual : simulation.getIndividuals()) {
 			genomes.add(individual.getGenome());
 		}
 

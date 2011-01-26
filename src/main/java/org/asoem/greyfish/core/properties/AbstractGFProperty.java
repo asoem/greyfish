@@ -21,11 +21,6 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     @Override
 	public void mutate() {}
 
-	@Override
-	public final Gene<?>[] getGenes() {
-		return geneList.toArray(new Gene<?>[geneList.size()]);
-	}
-
     public ImmutableList<? extends Gene<?>> getGeneList() {
         return geneList;
     }

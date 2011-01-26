@@ -107,7 +107,12 @@ public class TiledSpace implements Space {
 
     private KDTreeAdaptor<Object2DInterface> kdtree = new AsoemScalaKDTreeAdaptor<Object2DInterface>();
 
-	public enum Direction {
+    @Override
+    public boolean covers(Location2DInterface value) {
+        return value.getX() <= width && value.getY() <= height;
+    }
+
+    public enum Direction {
 		CENTER(0,0,0),
 		NORTH(-1,0,TileLocation.BORDER_NORTH),
 		SOUTH(1,0,TileLocation.BORDER_SOUTH),
@@ -143,7 +148,7 @@ public class TiledSpace implements Space {
 		this(pSpace.getWidth(), pSpace.getHeight());
 	}
 
-    public static Space newInstance(int width, int height) {
+    public static TiledSpace newInstance(int width, int height) {
         return new TiledSpace(width, height);
     }
 
@@ -294,12 +299,6 @@ public class TiledSpace implements Space {
 		kdtree.rebuild(occupantsIterable);
 	}
 
-	private boolean hasLocation(Location2DInterface newLocation) {
-		double x = newLocation.getX();
-		double y = newLocation.getY();
-		return (x >= 0 && x < width && y >= 0 && y < height);
-	}
-
 	@Override
 	public TileLocation getLocation(Location2DInterface componentOwner) {
 		return getLocationAt((int)componentOwner.getX(), (int)componentOwner.getY());
@@ -330,7 +329,7 @@ public class TiledSpace implements Space {
 	@Override
 	public boolean canMove(Object2DInterface object2d, Location2DInterface newLocation) {
 		TileLocation loc = getLocation(object2d);
-		if (hasLocation(newLocation)) {
+		if (covers(newLocation)) {
 			TileLocation new_loc = getLocation(newLocation);
 
 			if ( ! loc.equals(new_loc) ) {

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.share.Consumer;
 import org.asoem.greyfish.core.share.ConsumerGroup;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -29,7 +30,7 @@ public class ResourceProperty extends DoubleProperty {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
+    protected AbstractGFComponent deepCloneHelper(
             Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
         return new Builder().fromClone(this, mapDict).build();
     }

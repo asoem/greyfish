@@ -3,9 +3,6 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
@@ -20,11 +17,14 @@ public class DeathAction extends AbstractGFAction {
 		simulation.removeIndividual(componentOwner);
 	}
 
-	@Override
-	protected AbstractDeepCloneable deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
+    @Override
+    protected DeathAction deepCloneHelper(CloneMap cloneMap) {
+        return new DeathAction(this, cloneMap);
+    }
+
+    private DeathAction(AbstractGFAction cloneable, CloneMap map) {
+        super(cloneable, map);
+    }
 
     protected DeathAction(AbstractBuilder<?> builder) {
         super(builder);
@@ -35,13 +35,5 @@ public class DeathAction extends AbstractGFAction {
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override public DeathAction build() { return new DeathAction(this); }
-    }
-
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
-
-        protected T fromClone(DeathAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict);
-            return self();
-        }
     }
 }

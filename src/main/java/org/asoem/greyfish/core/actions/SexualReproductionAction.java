@@ -6,14 +6,11 @@ import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -74,9 +71,14 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected AbstractDeepCloneable deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected SexualReproductionAction deepCloneHelper(CloneMap cloneMap) {
+        return new SexualReproductionAction(this, cloneMap);
+    }
+
+    private SexualReproductionAction(SexualReproductionAction cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.spermStorage = deepClone(cloneable.spermStorage, map);
+        this.nOffspring = cloneable.nOffspring;
     }
 
     protected SexualReproductionAction(AbstractBuilder<?> builder) {
@@ -98,12 +100,5 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         public T spermStorage(EvaluatedGenomeStorage spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
         public T constantOffspringNumber(int nOffspring) { this.nOffspring = nOffspring; return self(); }
-
-        protected T fromClone(SexualReproductionAction action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict).
-                    constantOffspringNumber(action.nOffspring).
-                    spermStorage(deepClone(action.spermStorage, mapDict));
-            return self();
-        }
     }
 }
