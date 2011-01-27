@@ -57,10 +57,9 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
-        protected T fromClone(AbstractGFProperty action, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(action, mapDict);
-            return self();
-        }
+    protected AbstractGFProperty(AbstractGFComponent clonable, CloneMap map) {
+        super(clonable, map);
     }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {}
 }

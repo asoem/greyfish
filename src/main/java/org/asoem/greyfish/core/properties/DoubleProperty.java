@@ -18,13 +18,16 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
         this(new Builder());
     }
 
-	@Override
-	protected AbstractGFComponent deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
-	
-	@Override
+    protected DoubleProperty(DoubleProperty property, CloneMap cloneMap) {
+        super(property, cloneMap);
+    }
+
+    @Override
+    protected DoubleProperty deepCloneHelper(CloneMap cloneMap) {
+        return new DoubleProperty(this, cloneMap);
+    }
+
+    @Override
 	public void export(Exporter e) {
 		super.export(e, Double.class);
 	}
@@ -54,13 +57,5 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Double> {
-        protected AbstractBuilder() {
-            lowerBound(0.0).upperBound(100.0).initialValue(50.0);
-        }
-
-        protected T fromClone(DoubleProperty property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(property, mapDict);
-            return self();
-        }
     }
 }

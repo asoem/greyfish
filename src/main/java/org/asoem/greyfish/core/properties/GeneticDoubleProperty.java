@@ -23,6 +23,10 @@ public final class GeneticDoubleProperty extends AbstractGFProperty implements D
         super(builder);
     }
 
+    protected GeneticDoubleProperty(GeneticDoubleProperty geneticDoubleProperty, CloneMap cloneMap) {
+        super(geneticDoubleProperty, cloneMap);
+    }
+
     @Override
     public void export(Exporter e) {
         e.addField(new ValueAdaptor<Double>("Min", Double.class, gene.getMin()) {
@@ -45,19 +49,15 @@ public final class GeneticDoubleProperty extends AbstractGFProperty implements D
             protected void writeThrough(Double arg0) {
                 gene.setRepresentation(checkFrozen(checkNotNull(arg0)));
             }
+
             @Override
             public ValidationResult validate() {
                 ValidationResult validationResult = new ValidationResult();
-                if ( !Comparables.areInOrder(gene.getMin(), gene.getMax(), gene.getRepresentation()))
+                if (!Comparables.areInOrder(gene.getMin(), gene.getMax(), gene.getRepresentation()))
                     validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
                 return validationResult;
             }
         });
-    }
-
-    @Override
-    protected AbstractGFComponent deepCloneHelper(Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return with().build();
     }
 
     @Override
@@ -76,6 +76,12 @@ public final class GeneticDoubleProperty extends AbstractGFProperty implements D
     }
 
     public static Builder with() { return new Builder(); }
+
+    @Override
+    protected GeneticDoubleProperty deepCloneHelper(CloneMap cloneMap) {
+        return new GeneticDoubleProperty(this, cloneMap);
+    }
+
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<GeneticDoubleProperty> {
         private Builder() {}
         @Override protected Builder self() { return this; }

@@ -19,13 +19,16 @@ public class BitStringProperty extends AbstractGFProperty implements DiscretePro
         this(new Builder());
 	}
 
-	@Override
-	protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
+    protected BitStringProperty(BitStringProperty property, CloneMap cloneMap) {
+        super(property, cloneMap);
+    }
 
-	@Override
+    @Override
+    protected BitStringProperty deepCloneHelper(CloneMap cloneMap) {
+        return new BitStringProperty(this, cloneMap);
+    }
+
+    @Override
 	public String getValue() {
 		return gene.toString();
 	}
@@ -40,9 +43,5 @@ public class BitStringProperty extends AbstractGFProperty implements DiscretePro
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
-        protected T fromClone(BitStringProperty property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(property, mapDict);
-            return self();
-        }
     }
 }

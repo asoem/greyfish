@@ -15,13 +15,16 @@ public class IntProperty extends OrderedSetProperty<Integer> {
         this(new Builder());
     }
 
-	@Override
-	protected AbstractGFComponent deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
-	
-	@Override
+    protected IntProperty(IntProperty intProperty, CloneMap cloneMap) {
+        super(intProperty, cloneMap);
+    }
+
+    @Override
+    protected IntProperty deepCloneHelper(CloneMap cloneMap) {
+        return new IntProperty(this, cloneMap);
+    }
+
+    @Override
 	public void export(Exporter e) {
 		super.export(e, Integer.class);
 	}
@@ -45,14 +48,5 @@ public class IntProperty extends OrderedSetProperty<Integer> {
         @Override public IntProperty build() { return new IntProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Integer> {
-        protected AbstractBuilder() {
-            lowerBound(0).upperBound(100).initialValue(50);
-        }
-
-        protected T fromClone(IntProperty property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(property, mapDict);
-            return self();
-        }
-    }
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Integer> {}
 }

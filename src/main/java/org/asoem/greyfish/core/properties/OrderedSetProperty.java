@@ -29,6 +29,13 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
 
     protected E value;
 
+    protected OrderedSetProperty(OrderedSetProperty<E> property, CloneMap cloneMap) {
+        super(property, cloneMap);
+        this.lowerBound = property.lowerBound;
+        this.upperBound = property.upperBound;
+        this.initialValue = property.initialValue;
+    }
+
     @Override
     public E getValue() {
         return value;
@@ -120,13 +127,5 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
         public T upperBound(E upperBound) { this.upperBound = checkNotNull(upperBound); return self(); }
         public T lowerBound(E lowerBound) { this.lowerBound = checkNotNull(lowerBound); return self(); }
         public T initialValue(E initialValue) { this.initialValue = checkNotNull(initialValue); return self(); }
-
-        protected T fromClone(OrderedSetProperty<E> property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(property, mapDict).
-                    lowerBound(property.lowerBound).
-                    upperBound(property.upperBound).
-                    initialValue(property.initialValue);
-            return self();
-        }
     }
 }
