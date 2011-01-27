@@ -12,7 +12,7 @@ public abstract class AbstractDeepCloneable<T extends AbstractDeepCloneable<T>> 
         map.put(clonable, this);
     }
 
-    protected class CloneMap extends FastMap<AbstractDeepCloneable, AbstractDeepCloneable> {
+    protected static class CloneMap extends FastMap<AbstractDeepCloneable, AbstractDeepCloneable> {
          private CloneMap() {}
     }
 
