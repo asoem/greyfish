@@ -8,7 +8,11 @@ public abstract class LeafCondition extends AbstractCondition {
         super(builder);
 	}
 
-	@Override
+    public LeafCondition(LeafCondition condition, CloneMap map) {
+        super(condition, map);
+    }
+
+    @Override
 	public List<GFCondition> getChildConditions() {
 		return null;
 	}

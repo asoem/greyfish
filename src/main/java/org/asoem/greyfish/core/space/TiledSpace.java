@@ -109,7 +109,8 @@ public class TiledSpace implements Space {
 
     @Override
     public boolean covers(Location2DInterface value) {
-        return value.getX() <= width && value.getY() <= height;
+        return value.getX() >= 0 && value.getX() <= width
+                && value.getY() >= 0 && value.getY() <= height;
     }
 
     public enum Direction {
@@ -328,8 +329,9 @@ public class TiledSpace implements Space {
 
 	@Override
 	public boolean canMove(Object2DInterface object2d, Location2DInterface newLocation) {
-		TileLocation loc = getLocation(object2d);
-		if (covers(newLocation)) {
+        Preconditions.checkArgument(covers(object2d), "No TileLocation for " + object2d.getAnchorPoint() + " in " + this);
+        TileLocation loc = getLocation(object2d);
+        if (covers(newLocation)) {
 			TileLocation new_loc = getLocation(newLocation);
 
 			if ( ! loc.equals(new_loc) ) {
@@ -350,9 +352,8 @@ public class TiledSpace implements Space {
 	/**
 	 * @param object2d
 	 * @param newLocation
-	 * @return the location after the move which might be the old one due to constraints in this space
 	 */
-	public Location2DInterface moveObject(Object2DInterface object2d, Location2DInterface newLocation) {
+	public void moveObject(Object2DInterface object2d, Location2DInterface newLocation) {
 		if (canMove(object2d, newLocation)) {
 			TileLocation loc = getLocation(object2d);
 			boolean result = loc.occupants.remove(object2d);
@@ -362,10 +363,7 @@ public class TiledSpace implements Space {
 			new_loc.occupants.add(object2d);
 
 			object2d.setAnchorPoint(newLocation);
-
-			return newLocation;
 		}
-		return object2d;
 	}
 
 	public void add(Object2DInterface object2d, Location2D location2d) {

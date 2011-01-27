@@ -82,7 +82,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     }
 
     public void addAll(Iterable<GFCondition> childConditions) {
-        checkFrozen();
+        checkNotFrozen();
         integrate(childConditions);
         Iterables.addAll(conditions, childConditions);
     }
@@ -92,7 +92,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     }
 
     public GFCondition set(int indexOf, GFCondition newCondition) {
-        checkFrozen();
+        checkNotFrozen();
         integrate(newCondition);
         GFCondition ret = conditions.set(indexOf, newCondition);
         disintegrate(ret);
@@ -101,7 +101,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
     public void add(int index, GFCondition condition) {
         checkNotNull(condition);
-        checkFrozen();
+        checkNotFrozen();
         integrate(condition);
         conditions.add(index, condition);
     }
@@ -109,20 +109,20 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     @Override
     public boolean add(GFCondition newChild) {
         checkNotNull(newChild);
-        checkFrozen();
+        checkNotFrozen();
         integrate(newChild);
         return conditions.add(newChild);
     }
 
     public void removeAllChildConditions() {
-        checkFrozen();
+        checkNotFrozen();
         for (GFCondition condition : conditions)
             disintegrate(condition);
         conditions.clear();
     }
 
     public GFCondition remove(int index) {
-        checkFrozen();
+        checkNotFrozen();
         GFCondition ret = conditions.remove(index);
         disintegrate(ret);
         return ret;
@@ -130,7 +130,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
     @Override
     public boolean remove(GFCondition condition) {
-        checkFrozen();
+        checkNotFrozen();
         return conditions.remove(condition);
     }
 

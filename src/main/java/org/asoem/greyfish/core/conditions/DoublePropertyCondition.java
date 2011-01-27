@@ -1,22 +1,23 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 public class DoublePropertyCondition extends DoubleCompareCondition {
 
 	@Element(name="property")
 	private DoubleProperty doubleProperty;
-	
-	@Override
+
+    protected DoublePropertyCondition(DoublePropertyCondition condition, CloneMap map) {
+        super(condition, map);
+        this.doubleProperty = deepClone(condition.doubleProperty, map);
+    }
+
+    @Override
 	public void export(Exporter e) {
 		super.export(e);
 		e.addField(new ValueSelectionAdaptor<DoubleProperty>("", DoubleProperty.class, doubleProperty, getComponentOwner().getProperties(DoubleProperty.class)) {
@@ -34,9 +35,8 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected DoublePropertyCondition deepCloneHelper(CloneMap map) {
+        return new DoublePropertyCondition(this, map);
     }
 
     private DoublePropertyCondition() {
@@ -59,11 +59,5 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
         private DoubleProperty doubleProperty;
 
         public T valueOf(DoubleProperty doubleProperty) { this.doubleProperty = doubleProperty; return self(); }
-
-        protected T fromClone(DoublePropertyCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    valueOf(deepClone(component.doubleProperty, mapDict));
-            return self();
-        }
     }
 }

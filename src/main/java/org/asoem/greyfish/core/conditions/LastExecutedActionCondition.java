@@ -2,15 +2,11 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,6 +14,11 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     @Element(name="actions", required=false)
     private GFAction action;
+
+    protected LastExecutedActionCondition(LastExecutedActionCondition condition, CloneMap map) {
+        super(condition, map);
+        this.action = deepClone(condition.action, map);
+    }
 
     @Override
     public boolean evaluate(Simulation simulation) {
@@ -40,9 +41,8 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected LastExecutedActionCondition deepCloneHelper(CloneMap map) {
+        return new LastExecutedActionCondition(this, map);
     }
 
     private LastExecutedActionCondition() {
@@ -65,11 +65,5 @@ public class LastExecutedActionCondition extends LeafCondition {
         private GFAction action;
 
         public T theLastExecutedActionWas(GFAction action) { this.action = action; return self(); }
-
-        protected T fromClone(LastExecutedActionCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    theLastExecutedActionWas(deepClone(component.action, mapDict));
-            return self();
-        }
     }
 }

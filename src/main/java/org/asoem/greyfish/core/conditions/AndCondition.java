@@ -38,7 +38,7 @@ public class AndCondition extends LogicalOperatorCondition {
         this(new Builder());
     }
     
-    private AndCondition(AndCondition cloneable, CloneMap map) {
+    protected AndCondition(AndCondition cloneable, CloneMap map) {
         super(cloneable, map);
     }
 

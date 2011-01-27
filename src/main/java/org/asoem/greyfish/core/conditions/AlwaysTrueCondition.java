@@ -3,11 +3,12 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 public final class AlwaysTrueCondition extends LeafCondition {
+
+    protected AlwaysTrueCondition(AlwaysTrueCondition condition, CloneMap map) {
+        super(condition, map);
+    }
 
     @Override
     public boolean evaluate(Simulation simulation) {
@@ -15,9 +16,8 @@ public final class AlwaysTrueCondition extends LeafCondition {
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new AlwaysTrueCondition(this, map);
     }
 
     private AlwaysTrueCondition() {
@@ -35,11 +35,5 @@ public final class AlwaysTrueCondition extends LeafCondition {
         @Override public AlwaysTrueCondition build() { return new AlwaysTrueCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
-
-        protected T fromClone(ActionExecutionCountCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
-    }
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {}
 }

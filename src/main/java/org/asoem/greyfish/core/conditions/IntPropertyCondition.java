@@ -1,15 +1,11 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.properties.IntProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -17,6 +13,11 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
     @Element(name="property")
     private IntProperty intProperty;
+
+    protected IntPropertyCondition(IntPropertyCondition condition, CloneMap map) {
+        super(condition, map);
+        this.intProperty = deepClone(condition.intProperty, map);
+    }
 
     @Override
     public void export(Exporter e) {
@@ -36,9 +37,8 @@ public final class IntPropertyCondition extends IntCompareCondition {
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected IntPropertyCondition deepCloneHelper(CloneMap map) {
+        return new IntPropertyCondition(this, map);
     }
 
     private IntPropertyCondition() {
@@ -61,11 +61,5 @@ public final class IntPropertyCondition extends IntCompareCondition {
         private IntProperty intProperty;
 
         public T valueOf(IntProperty intProperty) { this.intProperty = checkNotNull(intProperty); return self(); }
-
-        protected T fromClone(IntPropertyCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    valueOf(deepClone(component.intProperty, mapDict));
-            return self();
-        }
     }
 }

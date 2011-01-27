@@ -4,12 +4,9 @@ import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Root;
-
-import java.util.Map;
 
 @Root
 public abstract class AbstractGFProperty extends AbstractGFComponent implements GFProperty {
@@ -34,7 +31,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
 	}
 	
 	public final <R extends Gene<?>> R registerGene(final R gene) {
-        checkFrozen();
+        checkNotFrozen();
         geneList = new ImmutableList.Builder<Gene<?>>().addAll(geneList).add(gene).build();
 		return gene;
 	}

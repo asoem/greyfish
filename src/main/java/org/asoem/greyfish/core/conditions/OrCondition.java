@@ -5,12 +5,8 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical OR operator.
@@ -19,9 +15,13 @@ import java.util.Map;
  */
 public class OrCondition extends LogicalOperatorCondition {
 
-	/* (non-Javadoc)
-	 * @see org.asoem.greyfish.actions.conditions.Condition#evaluate(org.asoem.greyfish.competitors.Individual)
-	 */
+    public OrCondition(OrCondition condition, CloneMap map) {
+        super(condition, map);
+    }
+
+    /* (non-Javadoc)
+      * @see org.asoem.greyfish.actions.conditions.Condition#evaluate(org.asoem.greyfish.competitors.Individual)
+      */
 	@Override
 	public boolean evaluate(final Simulation simulation) {
 		return Iterables.any(conditions, new Predicate<GFCondition>() {
@@ -33,9 +33,8 @@ public class OrCondition extends LogicalOperatorCondition {
 	}
 
     @Override
-    public AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected OrCondition deepCloneHelper(CloneMap map) {
+        return new OrCondition(this, map);
     }
 
     private OrCondition() {
@@ -51,12 +50,6 @@ public class OrCondition extends LogicalOperatorCondition {
         private Builder() {};
         @Override protected Builder self() { return this; }
         @Override public OrCondition build() { return new OrCondition(this); }
-    }
-
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LogicalOperatorCondition.AbstractBuilder<T> {
-        protected T fromClone(OrCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
+        public Builder any(GFCondition ... conditions) { return super.addConditions(conditions); }
     }
 }

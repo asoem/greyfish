@@ -1,17 +1,13 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,19 +20,24 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	@Element(name="steps")
 	private int steps;
 
-	@Override
+    protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, CloneMap map) {
+        super(condition, map);
+        this.action = deepClone(condition.action, map);
+        this.steps = condition.steps;
+    }
+
+    @Override
 	public boolean evaluate(Simulation simulation) {
 		return action != null
 			&& action.wasNotExecutedForAtLeast(simulation, steps);
 	}
 
-	@Override
-	protected AbstractGFComponent deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
+    @Override
+    protected LastExecutionTimeCondition deepCloneHelper(CloneMap map) {
+        return new LastExecutionTimeCondition(this, map);
+    }
 
-	@Override
+    @Override
 	public void export(Exporter e) {
 		super.export(e);
 		
@@ -80,12 +81,5 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
         public T theAction(GFAction action) { this.action = checkNotNull(action); return self(); }
         public T wasNotExecutedFor(int steps) { this.steps = steps; return self(); }
-
-        protected T fromClone(LastExecutionTimeCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    theAction(deepClone(component.action, mapDict)).
-                    wasNotExecutedFor(component.steps);
-            return self();
-        }
     }
 }

@@ -4,11 +4,8 @@ import javolution.lang.MathLib;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
-import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.Command;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 public final class Movement2DAcutator extends AbstractGFComponent implements GFInterface {
 	
@@ -16,30 +13,28 @@ public final class Movement2DAcutator extends AbstractGFComponent implements GFI
         super(builder);
 	}
 
+    protected Movement2DAcutator(Movement2DAcutator acutator, CloneMap map) {
+        super(acutator, map);
+    }
+
     public static Movement2DAcutator newInstance() {
         return new Builder().build();
     }
 
-    public static class Builder extends AbstractBuilder<Builder> {
+    public static class Builder extends AbstractBuilder<Builder> implements BuilderInterface<Movement2DAcutator> {
         @Override
         protected Builder self() {
             return this;
         }
-
-        protected Builder fromClone(Movement2DAcutator component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            return super.fromClone(component, mapDict);
-        }
-
         public Movement2DAcutator build() { return new Movement2DAcutator(this); }
     }
 
-	@Override
-	protected AbstractGFComponent deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
+    @Override
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new Movement2DAcutator(this, map);
+    }
 
-	public void rotate(Simulation simulation, final double angle) {
+    public void rotate(Simulation simulation, final double angle) {
 		simulation.enqueAfterStepCommand(new Command() {		
 			@Override
 			public void execute() {
@@ -59,10 +54,10 @@ public final class Movement2DAcutator extends AbstractGFComponent implements GFI
 		simulation.enqueAfterStepCommand(new Command() {
 			@Override
 			public void execute() {
-				Location2DInterface newLocation2d = new Location2D(x_res, y_res);
-				Location2DInterface location2d = simulation.getSpace().moveObject(componentOwner, newLocation2d);
+                Location2D newLocation = Location2D.at(x_res, y_res);
+				simulation.getSpace().moveObject(componentOwner, newLocation);
 				
-				if ( ! newLocation2d.equals(location2d)) { // collision
+				if ( ! componentOwner.getAnchorPoint().equals(newLocation)) { // collision
 					componentOwner.rotate(MathLib.PI);
 				}
 			}

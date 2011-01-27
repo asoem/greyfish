@@ -4,11 +4,8 @@ import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
-import java.util.Map;
 
 @Root
 public class ConditionTree extends AbstractGFComponent implements Iterable<GFCondition> {
@@ -16,7 +13,12 @@ public class ConditionTree extends AbstractGFComponent implements Iterable<GFCon
 	@Element(name="condition", required=false)
 	private final GFCondition rootCondition;
 
-	@Override
+    public ConditionTree(ConditionTree tree, CloneMap map) {
+        super(tree, map);
+        this.rootCondition = deepClone(tree.rootCondition, map);
+    }
+
+    @Override
 	public ConditionTreeDepthFirstIterator iterator() {
 		return new ConditionTreeDepthFirstIterator(rootCondition);
 	}
@@ -37,9 +39,8 @@ public class ConditionTree extends AbstractGFComponent implements Iterable<GFCon
 	}
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder(rootCondition).fromClone(this, mapDict).build();
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new ConditionTree(this, map);
     }
 
     public ConditionTree(@Element(name="condition", required=false) GFCondition rootCondition) {
@@ -63,12 +64,6 @@ public class ConditionTree extends AbstractGFComponent implements Iterable<GFCon
         private GFCondition rootCondition;
 
         protected T rootCondition(GFCondition condition) { this.rootCondition = condition; return self(); }
-
-        protected T fromClone(ConditionTree component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    rootCondition(component.rootCondition);
-            return self();
-        }
     }
 
     @Override

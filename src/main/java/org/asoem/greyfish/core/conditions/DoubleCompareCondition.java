@@ -1,14 +1,15 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
-import java.util.Map;
-
 public abstract class DoubleCompareCondition extends CompareCondition<Double> {
-	
-	@Override
+
+    protected DoubleCompareCondition(DoublePropertyCondition condition, CloneMap map) {
+        super(condition, map);
+    }
+
+    @Override
 	public void export(Exporter e) {
 		super.export(e);
 		e.addField( new ValueAdaptor<Double>("", Double.class, value) {
@@ -24,10 +25,5 @@ public abstract class DoubleCompareCondition extends CompareCondition<Double> {
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends CompareCondition.AbstractBuilder<T, Double> {
-        protected T fromClone(IntCompareCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
-    }
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends CompareCondition.AbstractBuilder<T, Double> {}
 }

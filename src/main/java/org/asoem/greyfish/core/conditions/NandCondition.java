@@ -6,9 +6,6 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 /**
  * This class can be used to prefix one <code>Condition</code> with a logical NOT operator.
@@ -17,18 +14,21 @@ import java.util.Map;
  */
 public class NandCondition extends AndCondition {
 
-	/* (non-Javadoc)
-	 * @see org.asoem.greyfish.actions.conditions.Condition#evaluate(org.asoem.greyfish.competitors.Individual)
-	 */
+    protected NandCondition(NandCondition condition, CloneMap map) {
+        super(condition, map);
+    }
+
+    /* (non-Javadoc)
+      * @see org.asoem.greyfish.actions.conditions.Condition#evaluate(org.asoem.greyfish.competitors.Individual)
+      */
 	@Override
 	public boolean evaluate(Simulation simulation) {
 		return ! super.evaluate(simulation);
 	}
 
     @Override
-    public AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new NandCondition(this, map);
     }
 
     private NandCondition() {
@@ -42,12 +42,6 @@ public class NandCondition extends AndCondition {
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<NandCondition> {
         @Override protected Builder self() { return this; }
         public NandCondition build() { return new NandCondition(this); }
-    }
-
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AndCondition.AbstractBuilder<T> {
-        protected T fromClone(NandCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
+        public Builder notAll(GFCondition ... conditions) { return super.addConditions(conditions); }
     }
 }

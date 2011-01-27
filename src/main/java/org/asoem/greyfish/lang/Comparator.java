@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.conditions;
+package org.asoem.greyfish.lang;
 
 import org.simpleframework.xml.Root;
 
@@ -11,37 +11,37 @@ public enum Comparator {
 		
 		@Override
 		public boolean compare(Comparable a, Comparable b) {
-			return a.compareTo(b) == 0;
+			return Comparables.compare(a, b) == 0;
 		}
 	},
 	NEQ("is not equal") {
 		@Override
 		public boolean compare(Comparable a, Comparable b) {
-			return a.compareTo(b) != 0;
+			return Comparables.compare(a, b) != 0;
 		}
 	},
 	LT("is less than") {
 		@Override
 		public boolean compare(Comparable a, Comparable b) {
-			return a.compareTo(b) < 0;
+			return Comparables.compare(a, b) < 0;
 		}
 	},
 	LEQ("is less than or equal") {
 		@Override
 		public boolean compare(Comparable a, Comparable b) {
-			return a.compareTo(b) <= 0;
+			return Comparables.compare(a, b) <= 0;
 		}
 	},
 	GT("is greater than") {
 		@Override
 		public boolean compare(Comparable a, Comparable b) {
-			return a.compareTo(b) > 0;
+			return Comparables.compare(a, b) > 0;
 		}
 	},
 	GEQ("is greater than or equal") {
 		@Override
 		public boolean compare(Comparable a, Comparable b) {
-			return a.compareTo(b) >= 0;
+			return Comparables.compare(a, b) >= 0;
 		}
 	};
 

@@ -1,14 +1,15 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class IntCompareCondition extends CompareCondition<Integer> {
+
+    protected IntCompareCondition(IntCompareCondition condition, CloneMap map) {
+        super(condition, map);
+    }
 
     @Override
     public void export(Exporter e) {
@@ -22,14 +23,9 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
         });
     }
 
-    protected IntCompareCondition(AbstractBuilder<?> builder) {
+    protected IntCompareCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends CompareCondition.AbstractBuilder<T, Integer> {
-        protected T fromClone(IntCompareCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
-    }
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends CompareCondition.AbstractBuilder<T, Integer> {}
 }

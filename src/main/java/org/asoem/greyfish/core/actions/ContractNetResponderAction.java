@@ -27,6 +27,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
     protected ContractNetResponderAction(ContractNetResponderAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
+        initFSM();
     }
 
     private MessageTemplate getTemplate() {
@@ -37,6 +38,10 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
     public ContractNetResponderAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
+        initFSM();
+    }
+
+    private void initFSM() {
         registerInitialFSMState(CHECK_CFP, new StateAction() {
 
             @Override

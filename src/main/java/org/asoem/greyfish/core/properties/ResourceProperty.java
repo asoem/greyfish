@@ -1,19 +1,19 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.share.Consumer;
 import org.asoem.greyfish.core.share.ConsumerGroup;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 @ClassGroup(tags="property")
 public class ResourceProperty extends DoubleProperty {
 
     private final ConsumerGroup<DoubleProperty> consumerGroup = new ConsumerGroup<DoubleProperty>(getName());
+
+    public ResourceProperty(ResourceProperty property, CloneMap cloneMap) {
+        super(property, cloneMap);
+    }
 
     public ConsumerGroup<? extends DoubleProperty> getConsumerGroup() {
         return consumerGroup;
@@ -30,9 +30,8 @@ public class ResourceProperty extends DoubleProperty {
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected DoubleProperty deepCloneHelper(CloneMap cloneMap) {
+        return new ResourceProperty(this, cloneMap);
     }
 
     protected ResourceProperty(DoubleProperty.AbstractBuilder<? extends DoubleProperty.AbstractBuilder> builder) {
@@ -50,14 +49,5 @@ public class ResourceProperty extends DoubleProperty {
         @Override public ResourceProperty build() { return new ResourceProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DoubleProperty.AbstractBuilder<T> {
-        protected AbstractBuilder() {
-            lowerBound(0.0).upperBound(100.0).initialValue(50.0);
-        }
-
-        protected T fromClone(ResourceProperty property, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(property, mapDict);
-            return self();
-        }
-    }
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DoubleProperty.AbstractBuilder<T> {}
 }

@@ -67,7 +67,7 @@ public class Simulation implements Runnable {
                     checkArgument(key instanceof Population);
                     Individual prototype = prototypeMap.get(key);
                     Individual clone = (Individual) prototype.deepClone();
-                    clone.finishAssembly();
+                    clone.freeze();
                     return clone;
                 }
 
@@ -153,6 +153,7 @@ public class Simulation implements Runnable {
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
             SimulationObject clone = placeholder.createReplacement();
+            clone.freeze();
             prepareForIntegration(clone, getSteps());
             addIndividual(clone, new Location2D(placeholder.getAnchorPoint()));
         }
@@ -207,8 +208,8 @@ public class Simulation implements Runnable {
 
     private void checkIndividual(final SimulationObject individual) {
         Preconditions.checkNotNull(individual);
-        Preconditions.checkArgument(prototypeMap.containsKey(individual.getPopulation()));
-        individual.checkFrozen();
+        Preconditions.checkArgument(prototypeMap.containsKey(individual.getPopulation()), "Not prototype found for " + individual);
+        Preconditions.checkArgument(individual.isFrozen(), "Indivdual is not frozen");
     }
 
     /**

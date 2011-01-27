@@ -8,13 +8,12 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.CircularFifoBuffer;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 public final class MessageInterface extends AbstractGFComponent implements GFInterface, ACLMessageTransmitter, ACLMessageReceiver {
 
@@ -27,30 +26,29 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
         super(builder);
 	}
 
+    public MessageInterface(MessageInterface messageInterface, CloneMap map) {
+        super(messageInterface, map);
+    }
+
     public static MessageInterface newInstance() {
         return new Builder().build();
     }
 
-    public static class Builder extends AbstractBuilder<Builder> {
+    public static class Builder extends AbstractBuilder<Builder> implements BuilderInterface<MessageInterface> {
         @Override
         protected Builder self() {
             return this;
         }
 
-        protected Builder fromClone(MessageInterface component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            return super.fromClone(component, mapDict);
-        }
-
         public MessageInterface build() { return new MessageInterface(this); }
     }
 
-	@Override
-	protected AbstractGFComponent deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
+    @Override
+    protected MessageInterface deepCloneHelper(CloneMap map) {
+        return new MessageInterface(this, map);
+    }
 
-	public Collection<ACLMessage> pollMessages(final MessageTemplate messageTemplate) {
+    public Collection<ACLMessage> pollMessages(final MessageTemplate messageTemplate) {
 		Preconditions.checkNotNull(messageTemplate);
 		final Collection<ACLMessage> ret = new ArrayList<ACLMessage>();
 		for (Iterator<ACLMessage> iterator = inBox.iterator(); iterator.hasNext();) {

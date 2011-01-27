@@ -86,7 +86,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
 
         this.genome = new Genome();
         this.body = new Body(this);
-        finishAssembly();
+        freeze();
     }
 
     public Individual(final Population population) {
@@ -95,8 +95,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
         this.body = new Body(this);
     }
 
-    protected Individual(Individual individual,
-                         Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
+    protected Individual(Individual individual, CloneMap mapDict) {
         this.state = individual.state;
         this.population = individual.population;
         this.genome = new Genome();
@@ -111,7 +110,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
             addAction(deepClone(action, mapDict));
         }
 
-        finishAssembly();
+        freeze();
     }
 
     public Population getPopulation() {
@@ -158,7 +157,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
     }
 
     public boolean removeAction(final GFAction action) {
-        checkFrozen();
+        checkNotFrozen();
         if (this.actions.remove(action)) {
             action.setComponentOwner(null);
             componentRemoved(action);
@@ -168,7 +167,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
     }
 
     public void removeAllActions() {
-        checkFrozen();
+        checkNotFrozen();
         for (GFAction a : actions) {
             removeAction(a);
         }
@@ -229,7 +228,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
     }
 
     private boolean checkComponentAddition(final GFComponent component) {
-        checkFrozen();
+        checkNotFrozen();
         Preconditions.checkNotNull(component);
 
         if(component.getComponentOwner() != null
@@ -243,7 +242,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
     }
 
     public boolean removeProperty(final GFProperty property) {
-        checkFrozen();
+        checkNotFrozen();
         if (this.properties.remove(property)) {
             property.setComponentOwner(null);
             componentRemoved(property);
@@ -256,7 +255,7 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
      *
      */
     public void removeAllProperties() {
-        checkFrozen();
+        checkNotFrozen();
         for (GFProperty p : properties) {
             removeProperty(p);
         }
@@ -360,7 +359,6 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
 
     public void finishAssembly() {
         assembleGenome();
-        freeze();
     }
 
     @Override
@@ -526,9 +524,8 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
     }
 
     @Override
-    protected Individual deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Individual(this, mapDict);
+    protected Individual deepCloneHelper(CloneMap map) {
+        return new Individual(this, map);
     }
 
     private void componentRemoved(final GFComponent component) {
@@ -603,7 +600,9 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
         return body.getY();
     }
 
+    @Override
     public void freeze() {
+        finishAssembly();
         for (GFComponent component : getComponents()) {
             component.checkIfFreezable(getComponents());
             component.freeze();
@@ -621,14 +620,18 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Mov
 
     @Override
     public <T> T checkFrozen(T value) {
-        checkFrozen();
+        checkNotFrozen();
         return value;
     }
 
     @Override
-    public void checkFrozen() {
-        if (state != State.PROTOTYPE)
-            throw new IllegalStateException("Individual is frozen");
+    public boolean isFrozen() {
+        return state != State.PROTOTYPE;
+    }
+
+    @Override
+    public void checkNotFrozen() {
+        if (isFrozen()) throw new IllegalStateException("Individual is frozen");
     }
 
     public static Builder with() { return new Builder(); }

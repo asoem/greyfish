@@ -4,25 +4,25 @@ import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 @ClassGroup(tags="condition")
 public final class AgeCondition extends IntCompareCondition {
 
-	@Override
+    public AgeCondition(AgeCondition condition, CloneMap map) {
+        super(condition, map);
+    }
+
+    @Override
 	public boolean evaluate(Simulation simulation) {
 		return false;
 	}
 
-	@Override
-	protected AbstractGFComponent deepCloneHelper(
-			Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-		return new Builder().fromClone(this, mapDict).build();
-	}
+    @Override
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new AgeCondition(this, map);
+    }
 
-	@Override
+    @Override
 	protected Integer getCompareValue(Simulation simulation) {
 		return simulation.getSteps() - componentOwner.getTimeOfBirth();
 	}
@@ -42,10 +42,5 @@ public final class AgeCondition extends IntCompareCondition {
         @Override public AgeCondition build() { return new AgeCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends IntCompareCondition.AbstractBuilder<T> {
-        protected T fromClone(AgeCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
-    }
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends IntCompareCondition.AbstractBuilder<T> {}
 }

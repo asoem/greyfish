@@ -35,6 +35,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
     protected ContractNetInitiatiorAction(ContractNetInitiatiorAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
+        initFSM();
     }
 
     private MessageTemplate getTemplate() {
@@ -53,7 +54,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                ACLMessage cfpMessage = createCFP().performative(ACLPerformative.CFP).build();
+                ACLMessage cfpMessage = createCFP().source(componentOwner).performative(ACLPerformative.CFP).build();
                 cfpMessage.send(getTransmitter());
                 nProposalsExpected = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;

@@ -2,25 +2,30 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class ActionExecutionCountCondition extends IntCompareCondition {
 
 	@Element(name="action")
 	private GFAction action;
-	
-	@Override
+
+    public ActionExecutionCountCondition(ActionExecutionCountCondition condition, CloneMap map) {
+        super(condition, map);
+        this.action = deepClone(condition.action, map);
+    }
+
+    @Override
 	protected Integer getCompareValue(Simulation simulation) {
 		return action.getExecutionCount();
 	}
@@ -40,9 +45,8 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	}
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+        return new ActionExecutionCountCondition(this, map);
     }
 
     private ActionExecutionCountCondition() {
@@ -52,6 +56,12 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     protected ActionExecutionCountCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
         this.action = builder.action;
+    }
+
+    @Override
+    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        super.checkIfFreezable(components);
+        checkState(action != null);
     }
 
     public static Builder trueIf() { return new Builder(); }
@@ -65,11 +75,5 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
         private GFAction action;
 
         public T executionCountOf(GFAction action) { this.action = checkNotNull(action); return self(); }
-
-        protected T fromClone(ActionExecutionCountCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    executionCountOf(deepClone(component.action, mapDict));
-            return self();
-        }
     }
 }

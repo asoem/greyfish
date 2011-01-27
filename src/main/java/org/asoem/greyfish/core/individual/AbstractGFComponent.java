@@ -54,13 +54,12 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable<Abstract
     }
 
     public final <T> T checkFrozen(T value) {
-        checkFrozen();
+        checkNotFrozen();
         return value;
     }
 
-    public final void checkFrozen() {
-        if (frozen)
-            throw new IllegalStateException("Component is frozen");
+    public final void checkNotFrozen() {
+        if (isFrozen()) throw new IllegalStateException("Component is frozen");
     }
 
     @Override
@@ -77,5 +76,10 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable<Abstract
         private String name = "";
 
         public T name(String name) { this.name = name; return self(); }
+    }
+
+    @Override
+    public boolean isFrozen() {
+        return frozen;
     }
 }

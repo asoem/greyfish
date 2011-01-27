@@ -1,12 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,15 +14,19 @@ public class ActionWillExecuteCondition extends LeafCondition {
 
     private final GFAction parameterAction;
 
+    public ActionWillExecuteCondition(ActionWillExecuteCondition condition, CloneMap map) {
+        super(condition, map);
+        this.parameterAction = deepClone(condition.parameterAction, map);
+    }
+
     @Override
     public boolean evaluate(Simulation simulation) {
         return parameterAction.evaluate(simulation);
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected ActionWillExecuteCondition deepCloneHelper(CloneMap map) {
+        return new ActionWillExecuteCondition(this, map);
     }
 
     protected ActionWillExecuteCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
@@ -45,11 +45,5 @@ public class ActionWillExecuteCondition extends LeafCondition {
         private GFAction parameterAction;
 
         public T followingActionWillExecute(GFAction action) { this.parameterAction = checkNotNull(action); return self(); }
-
-        protected T fromClone(ActionWillExecuteCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    followingActionWillExecute(deepClone(component.parameterAction, mapDict));
-            return self();
-        }
     }
 }

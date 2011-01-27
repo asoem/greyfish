@@ -2,14 +2,14 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-
-import java.util.Map;
 
 public class NorCondition extends LogicalOperatorCondition {
+
+    public NorCondition(NorCondition condition, CloneMap map) {
+        super(condition, map);
+    }
 
     @Override
     public boolean evaluate(final Simulation simulation) {
@@ -28,8 +28,8 @@ public class NorCondition extends LogicalOperatorCondition {
     public static Builder trueIf() { return new Builder(); }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return trueIf().fromClone(this, mapDict).build();
+    protected NorCondition deepCloneHelper(CloneMap map) {
+        return new NorCondition(this, map);
     }
 
     private NorCondition() {
@@ -40,12 +40,6 @@ public class NorCondition extends LogicalOperatorCondition {
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override public NorCondition build() { return new NorCondition(this); }
-    }
-
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LogicalOperatorCondition.AbstractBuilder<T> {
-        protected T fromClone(NorCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
+        public Builder none(GFCondition ... conditions) { return super.addConditions(conditions); }
     }
 }

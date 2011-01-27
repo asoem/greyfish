@@ -3,17 +3,13 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,6 +20,12 @@ public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="state",required=false)
     private Object state;
+
+    public StatePropertyCondition(StatePropertyCondition condition, CloneMap map) {
+        super(condition, map);
+        this.stateProperty = deepClone(condition.stateProperty, map);
+        this.state = condition.state;
+    }
 
     @Override
     public boolean evaluate(Simulation simulation) {
@@ -37,9 +39,8 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    protected StatePropertyCondition deepCloneHelper(CloneMap map) {
+        return new StatePropertyCondition(this, map);
     }
 
     @Override
@@ -87,12 +88,5 @@ public class StatePropertyCondition extends LeafCondition {
 
         public T property(FiniteSetProperty<?> property) { this.property = checkNotNull(property); return self(); }
         public T hasState(Object state) { this.state = checkNotNull(state); return self(); }
-
-        protected T fromClone(StatePropertyCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict).
-                    hasState(component.state).
-                    property(deepClone(component.stateProperty, mapDict));
-            return self();
-        }
     }
 }

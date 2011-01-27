@@ -1,37 +1,39 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import java.util.Map;
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class RandomCondition extends LeafCondition {
 
-    @Element(name="propability")
-    private double parameterTruePropability;
+    @Element(name="probability")
+    private double probability;
 
-    @Override
-    public boolean evaluate(Simulation simulation) {
-        return Math.random() < parameterTruePropability;
+    public RandomCondition(RandomCondition condition, CloneMap map) {
+        super(condition, map);
+        this.probability = condition.probability;
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(
-            Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-        return new Builder().fromClone(this, mapDict).build();
+    public boolean evaluate(Simulation simulation) {
+        return Math.random() < probability;
+    }
+
+    @Override
+    protected RandomCondition deepCloneHelper(CloneMap map) {
+        return new RandomCondition(this, map);
     }
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueAdaptor<Double>("", Double.class, parameterTruePropability) {
+        e.addField( new ValueAdaptor<Double>("", Double.class, probability) {
             @Override
             protected void writeThrough(Double arg0) {
-                parameterTruePropability = arg0;
+                probability = arg0;
             }
         });
     }
@@ -50,13 +52,8 @@ public class RandomCondition extends LeafCondition {
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
-        private double parameterTruePropability;
+        private double probability;
 
-        public T parameterTruePropability(double parameterTruePropability) { this.parameterTruePropability = parameterTruePropability; return self(); }
-
-        protected T fromClone(RandomCondition component, Map<AbstractDeepCloneable, AbstractDeepCloneable> mapDict) {
-            super.fromClone(component, mapDict);
-            return self();
-        }
+        public T probability(double probability) { checkArgument(probability >= 0 && probability <= 1); this.probability = probability; return self(); }
     }
 }
