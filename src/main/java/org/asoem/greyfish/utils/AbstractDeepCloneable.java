@@ -4,11 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import javolution.util.FastMap;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 
 public abstract class AbstractDeepCloneable<T extends AbstractDeepCloneable<T>> implements DeepClonable {
 
-    protected AbstractDeepCloneable(AbstractGFComponent clonable, CloneMap map) {
+    protected AbstractDeepCloneable(T clonable, CloneMap map) {
         map.put(clonable, this);
     }
 
@@ -44,7 +43,10 @@ public abstract class AbstractDeepCloneable<T extends AbstractDeepCloneable<T>> 
         return (component != null) ? (E) ((AbstractDeepCloneable)component).deepClone(map) : null;
     }
 
-    protected static <E extends DeepClonable> Iterable<E> deepClone(Iterable<E> components, final CloneMap map) {
-        return Iterables.transform(components, new Function<E, E>() { public E apply(E e) {return deepClone(e, map);}});
+    @SuppressWarnings("unchecked")
+    protected static <E extends DeepClonable> Iterable<E> deepCloneAll(Iterable<E> components, final CloneMap map) {
+        return Iterables.transform(components, new Function<E, E>() { public E apply(E e) {
+            return (e != null) ? (E) ((AbstractDeepCloneable)e).deepClone(map) : null;
+        }});
     }
 }
