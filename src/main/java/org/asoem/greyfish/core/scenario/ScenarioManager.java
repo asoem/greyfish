@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.scenario;
 
+import com.google.common.base.Preconditions;
+import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.PrototypeManager;
+import org.asoem.greyfish.core.individual.SimulationObject;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.ListenerSupport;
+
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Vector;
-
-import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.individual.PrototypeManager;
-import org.asoem.greyfish.core.io.GreyfishLogger;
-import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.utils.DeepClonable;
-import org.asoem.greyfish.utils.ListenerSupport;
-
-import com.google.common.base.Preconditions;
 
 
 public class ScenarioManager extends AbstractCollection<Scenario> {
@@ -29,7 +28,7 @@ public class ScenarioManager extends AbstractCollection<Scenario> {
 	@Override
 	public boolean add(final Scenario scenario) {
 		if ( scenarios.add(scenario) ) {
-			for (DeepClonable individual : scenario.getPrototypes()) {
+			for (SimulationObject individual : scenario.getPrototypes()) {
 				if (individual instanceof Individual)
 					prototypeManager.add((Individual)individual);
 			}

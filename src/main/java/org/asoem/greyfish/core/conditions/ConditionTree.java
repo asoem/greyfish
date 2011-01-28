@@ -1,14 +1,17 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import java.util.Iterator;
+
 @Root
-public class ConditionTree extends AbstractGFComponent implements Iterable<GFCondition> {
+public class ConditionTree extends AbstractGFComponent {
 	
 	@Element(name="condition", required=false)
 	private final GFCondition rootCondition;
@@ -18,24 +21,28 @@ public class ConditionTree extends AbstractGFComponent implements Iterable<GFCon
         this.rootCondition = deepClone(tree.rootCondition, map);
     }
 
-    @Override
-	public ConditionTreeDepthFirstIterator iterator() {
-		return new ConditionTreeDepthFirstIterator(rootCondition);
-	}
-
 	public GFCondition getRootCondition() {
 		return rootCondition;
 	}
+
+    @Override
+    public Iterator<GFComponent> iterator() {
+        return rootCondition == null ? super.iterator() : rootCondition.iterator();
+    }
+
+    public ConditionTreeDepthFirstIterator treeIterator() {
+        return ConditionTreeDepthFirstIterator.forRoot(rootCondition);
+    }
 
     public boolean evaluate(Simulation simulation) {
         return rootCondition == null || rootCondition.evaluate(simulation);
     }
 
 	@Override
-	public void setComponentOwner(Individual individual) {
-		super.setComponentOwner(individual);
+	public void setComponentRoot(Individual individual) {
+		super.setComponentRoot(individual);
         if (rootCondition != null)
-            rootCondition.setComponentOwner(individual);
+            rootCondition.setComponentRoot(individual);
 	}
 
     @Override

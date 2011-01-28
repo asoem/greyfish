@@ -12,6 +12,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.simpleframework.xml.ElementList;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,7 +31,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
     protected LogicalOperatorCondition(LogicalOperatorCondition clonable, CloneMap map) {
         super(clonable, map);
-        addAll(deepClone(clonable.getChildConditions(), map));
+        addAll(deepCloneAll(clonable.getChildConditions(), map));
     }
 
     private void integrate(Iterable<? extends GFCondition> condition2) {
@@ -41,14 +42,14 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
     private void integrate(GFCondition ... conditions) {
         for (GFCondition condition : conditions) {
-            condition.setComponentOwner(getComponentOwner());
+            condition.setComponentRoot(getComponentOwner());
             condition.setParent(this);
         }
     }
 
     private void disintegrate(GFCondition condition) {
         condition.setParent(null);
-        condition.setComponentOwner(null);
+        condition.setComponentRoot(null);
     }
 
     public GFCondition[] getConditions() {
@@ -57,10 +58,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
 
     @Override
-    public void setComponentOwner(Individual individual) {
-        super.setComponentOwner(individual);
+    public void setComponentRoot(Individual individual) {
+        super.setComponentRoot(individual);
         for (GFCondition condition : this.conditions) {
-            condition.setComponentOwner(individual);
+            condition.setComponentRoot(individual);
         }
     }
 
@@ -148,10 +149,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        super.checkConsistency(components);
         for (GFCondition condition : conditions) {
-            condition.checkIfFreezable(components);
+            condition.checkConsistency(components);
         }
     }
 
@@ -165,5 +166,11 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     @Override
     public String toString() {
         return getParentCondition() + "<-{" + this.getClass().getSimpleName() + "}<-" + conditions;
+    }
+
+
+    @Override
+    public Iterator<GFComponent> iterator() {
+        return Iterables.<GFComponent>concat(conditions).iterator();
     }
 }

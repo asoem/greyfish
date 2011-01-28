@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.conditions;
 
 
-import java.util.List;
-
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurableValueProvider;
 import org.simpleframework.xml.Root;
+
+import java.util.List;
 
 @Root
 public interface GFCondition extends GFComponent, ConfigurableValueProvider {

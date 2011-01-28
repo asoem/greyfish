@@ -1,10 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
-import java.util.Stack;
+import java.util.*;
 
 public class ConditionTreeDepthFirstIterator implements Iterator<GFCondition> {
 
@@ -13,7 +9,7 @@ public class ConditionTreeDepthFirstIterator implements Iterator<GFCondition> {
 
 	private int currentDepth = -1;
 
-	public ConditionTreeDepthFirstIterator(GFCondition condition) {
+	private ConditionTreeDepthFirstIterator(GFCondition condition) {
 		if (condition != null) {
 			stack.push(condition);
 			depthStack.push(0);
@@ -51,4 +47,8 @@ public class ConditionTreeDepthFirstIterator implements Iterator<GFCondition> {
 	public int getDepth() {
 		return currentDepth;
 	}
+
+    public static ConditionTreeDepthFirstIterator forRoot(final GFCondition root) {
+        return new ConditionTreeDepthFirstIterator(root);
+    }
 }

@@ -1,16 +1,15 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.Comparables;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import java.util.Map;
+import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -43,7 +42,7 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
 
     public void setValue(E amount) {
         checkNotNull(amount);
-        if (Comparables.areInOrder(lowerBound, amount, upperBound)) {
+        if (Ordering.natural().isOrdered(Arrays.asList(lowerBound, amount, upperBound))) {
             this.value = amount;
             firePropertyChanged();
         }
@@ -96,7 +95,7 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
             @Override
             public ValidationResult validate() {
                 ValidationResult validationResult = new ValidationResult();
-                if (!Comparables.areInOrder(lowerBound, initialValue, upperBound))
+                if (!Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)))
                     validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
                 return validationResult;
             }
@@ -104,12 +103,12 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        super.checkConsistency(components);
         checkState(lowerBound != null);
         checkState(upperBound != null);
         checkState(initialValue != null);
-        checkState(Comparables.areInOrder(lowerBound, initialValue, upperBound));
+        checkState(Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)));
     }
 
     protected OrderedSetProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {

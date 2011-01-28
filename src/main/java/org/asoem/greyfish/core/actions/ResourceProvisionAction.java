@@ -109,8 +109,8 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) {
+        super.checkConsistency(components);
         checkState(resourceProperty != null);
     }
 

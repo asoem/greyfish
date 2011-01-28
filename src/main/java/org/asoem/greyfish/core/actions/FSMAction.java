@@ -62,8 +62,8 @@ public abstract class FSMAction extends AbstractGFAction {
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) {
+        super.checkConsistency(components);
         if (!states.isEmpty()) {
             checkState(initialStateName != null, "No InitialState defined");
             checkState(states.containsKey(initialStateName), "InitialStatName `"+initialStateName+"' has no actual state in "+states);

@@ -47,10 +47,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public boolean evaluate(Simulation simulation) {
 
-        if (energySource != null) {
-            if (energySource.getValue().compareTo(evaluateFormula()) < 0 )
+        if (energySource != null &&
+                energySource.getValue().compareTo(evaluateFormula()) < 0 )
                 return false;
-        }
 
         return conditionTree.evaluate(simulation);
     }
@@ -87,9 +86,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     protected abstract void performAction(Simulation simulation);
 
     @Override
-    public void setComponentOwner(Individual individual) {
-        super.setComponentOwner(individual);
-        conditionTree.setComponentOwner(componentOwner);
+    public void setComponentRoot(Individual individual) {
+        super.setComponentRoot(individual);
+        conditionTree.setComponentRoot(componentOwner);
     }
 
     @Override
@@ -146,8 +145,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) {
+        super.checkConsistency(components);
 
         if (energySource != null) {
             checkState(Iterables.contains(components, energySource));

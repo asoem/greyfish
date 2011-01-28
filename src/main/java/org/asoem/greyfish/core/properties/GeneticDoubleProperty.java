@@ -1,18 +1,15 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.genes.DoubleGene;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.lang.Comparables;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
-import java.util.Map;
-
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.primitives.Doubles.asList;
 
 @ClassGroup(tags="property")
 public final class GeneticDoubleProperty extends AbstractGFProperty implements DiscreteProperty<Double>, OrderedSet<Double> {
@@ -53,7 +50,7 @@ public final class GeneticDoubleProperty extends AbstractGFProperty implements D
             @Override
             public ValidationResult validate() {
                 ValidationResult validationResult = new ValidationResult();
-                if (!Comparables.areInOrder(gene.getMin(), gene.getMax(), gene.getRepresentation()))
+                if (!Ordering.natural().isOrdered(asList(gene.getMin(), gene.getMax(), gene.getRepresentation())))
                     validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
                 return validationResult;
             }

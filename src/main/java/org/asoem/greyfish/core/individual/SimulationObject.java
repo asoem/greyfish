@@ -9,14 +9,13 @@ import org.asoem.greyfish.utils.DeepClonable;
 
 import java.awt.*;
 
-public interface SimulationObject extends Initializeable, Object2DInterface, DeepClonable, Freezable {
-    @Override SimulationObject deepClone();
+public interface SimulationObject extends DeepClonable, Initializeable, Object2DInterface {
     Population getPopulation();
-    void setId(int i);
     void setTimeOfBirth(int timeOfBirth);
     void execute(Simulation simulation);
     Genome getGenome();
     <T extends GFProperty> Iterable<T> getProperties(Class<T> doublePropertyClass);
     double getRadius();
     Color getColor();
+    int getId();
 }

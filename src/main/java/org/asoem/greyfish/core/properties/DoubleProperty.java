@@ -1,15 +1,12 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import com.google.common.collect.Ordering;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.lang.Comparables;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 
-import java.util.Map;
-
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.primitives.Doubles.asList;
 
 @ClassGroup(tags="property")
 public class DoubleProperty extends OrderedSetProperty<Double> {
@@ -52,7 +49,7 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
             checkState(lowerBound != null);
             checkState(upperBound != null);
             checkState(initialValue != null);
-            Comparables.areInOrder(lowerBound, initialValue, upperBound);
+            checkState(Ordering.<Comparable>natural().isOrdered(asList(lowerBound, initialValue, upperBound)));
             return new DoubleProperty(this); }
     }
 

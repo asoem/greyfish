@@ -59,8 +59,8 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        super.checkConsistency(components);
         checkState(action != null);
     }
 

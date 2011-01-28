@@ -5,9 +5,8 @@ import javolution.util.FastList;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
-import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.individual.SimulationObject;
+import org.asoem.greyfish.core.individual.*;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.Location2D;
@@ -29,7 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Simulation implements Runnable {
 
-    private final Map<Population, Individual> prototypeMap = new HashMap<Population, Individual>();
+    private final Map<Population, Agent> prototypeMap = new HashMap<Population, Agent>();
 
     public enum Speed {
         SLOW(20),
@@ -65,23 +64,16 @@ public class Simulation implements Runnable {
                 public Object makeObject(Object key) throws Exception {
                     checkNotNull(key);
                     checkArgument(key instanceof Population);
-                    Individual prototype = prototypeMap.get(key);
-                    Individual clone = (Individual) prototype.deepClone();
+                    Agent prototype = prototypeMap.get(key);
+                    Agent clone = Agent.newInstance(prototype.deepClone(), ++maxId);
                     clone.freeze();
                     return clone;
                 }
 
                 @Override
                 public void activateObject(Object key, Object obj) throws Exception {
-                    Individual individual = (Individual)obj;
+                    Agent individual = (Agent)obj;
                     individual.initialize(Simulation.this);
-                }
-
-                @Override
-                public void passivateObject(Object key, Object obj) throws Exception {
-                    Individual individual = (Individual)obj;
-                    individual.passivate();
-                    //			individual.setLocation(null); // TODO: move this to somewhere else (as part of death()?)
                 }
             },
             10000, 100);
@@ -144,8 +136,8 @@ public class Simulation implements Runnable {
         }
 
         for (SimulationObject prototype : scenario.getPrototypes()) {
-            Individual clone = Individual.class.cast(prototype.deepClone());
-            clone.finishAssembly(); // TODO: can be considered as a workaround. Prototype might get treated differently in future versions
+            Agent clone = Agent.class.cast(prototype.deepClone());
+            clone.freeze();
             assert (!prototypeMap.containsKey(clone.getPopulation())) : "Different Prototypes have the same Population";
             prototypeMap.put(clone.getPopulation(), clone);
         }
@@ -153,25 +145,23 @@ public class Simulation implements Runnable {
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
             SimulationObject clone = placeholder.createReplacement();
-            clone.freeze();
+            Agent.newInstance((Individual) clone, ++maxId);
             prepareForIntegration(clone, getSteps());
-            addIndividual(clone, new Location2D(placeholder.getAnchorPoint()));
+            addAgent(clone, new Location2D(placeholder.getAnchorPoint()));
         }
 
         space.updateTopo();
     }
 
     private void prepareForIntegration(SimulationObject individual, int timeOfBirth) {
-        checkIndividual(individual);
-        individual.setId(++maxId);
+        checkAgent(individual);
         individual.setTimeOfBirth(timeOfBirth);
-        individual.initialize(this);
     }
 
     /**
      * @return a copy of the list of active individuals
      */
-    public synchronized FastList<SimulationObject> getIndividuals() {
+    public synchronized FastList<SimulationObject> getAgents() {
         return individuals;
     }
 
@@ -180,7 +170,7 @@ public class Simulation implements Runnable {
      * @param offspring
      * @param parent
      */
-    public final void addNextStep(final Individual offspring, final Individual parent) {
+    public final void addNextStep(final Agent offspring, final Agent parent) {
         addNextStep(offspring, parent.getAnchorPoint());
     }
 
@@ -189,34 +179,32 @@ public class Simulation implements Runnable {
      * @param individual
      * @param location
      */
-    public final synchronized void addNextStep(final Individual individual, final Location2D location) {
-        Preconditions.checkState(individual.getState() == Individual.State.ACTIVE_CLONE);
+    public final synchronized void addNextStep(final Agent individual, final Location2D location) {
         prepareForIntegration(individual, getSteps() + 1);
 
         enqueAfterStepCommand(new Command() {
             @Override
             public void execute() {
-                addIndividual(individual, new Location2D(location));
+                addAgent(individual, new Location2D(location));
             }
         });
     }
 
-    private void addIndividual(SimulationObject individual, Location2D location) {
+    private void addAgent(SimulationObject individual, Location2D location) {
                 individuals.add(individual);
                 space.add(individual, new Location2D(location));
     }
 
-    private void checkIndividual(final SimulationObject individual) {
+    private void checkAgent(final SimulationObject individual) {
         Preconditions.checkNotNull(individual);
         Preconditions.checkArgument(prototypeMap.containsKey(individual.getPopulation()), "Not prototype found for " + individual);
-        Preconditions.checkArgument(individual.isFrozen(), "Indivdual is not frozen");
     }
 
     /**
      * Remove individual from this scenario
      * @param individual
      */
-    public synchronized void removeIndividual(final Individual individual) {
+    public synchronized void removeAgent(final Agent individual) {
         /*
            * TODO: removal could be implemented more efficiently.
            * e.g. by marking agents and removal during a single iteration over all
@@ -231,8 +219,8 @@ public class Simulation implements Runnable {
         });
     }
 
-    private void returnClone(final Individual individual) {
-        checkIndividual(individual);
+    private void returnClone(final Agent individual) {
+        checkAgent(individual);
         try {
             objectPool.returnObject(individual.getPopulation(), individual);
         } catch (Exception e) {
@@ -252,7 +240,7 @@ public class Simulation implements Runnable {
         listenerSupport.removeListener(listener);
     }
 
-    public int generateIndividualID() {
+    public int generateAgentID() {
         return ++maxId;
     }
 
@@ -260,18 +248,18 @@ public class Simulation implements Runnable {
      * @return a deepClone of the prototype for given population registered by the underlying scenario of this simulation
      * @throws Exception if the clone could not be created
      */
-    public Individual createClone(final Population population) {
+    public Agent createClone(final Population population) {
         Preconditions.checkNotNull(population);
         Preconditions.checkState(prototypeMap.containsKey(population));
         try {
-            return (Individual) objectPool.borrowObject(population);
+            return (Agent) objectPool.borrowObject(population);
         } catch (Exception e) {
             GreyfishLogger.fatal("Error using objectPool", e);
             throw new AssertionError(e);
         }
     }
 
-    public Collection<Individual> getPrototypes() {
+    public Collection<Agent> getPrototypes() {
         return prototypeMap.values();
     }
 

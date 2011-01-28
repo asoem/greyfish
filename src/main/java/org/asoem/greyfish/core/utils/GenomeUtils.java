@@ -16,7 +16,7 @@ public class GenomeUtils {
 	public static void statistics(Simulation simulation) {
 		final List<Genome> genomes = new ArrayList<Genome>();
 
-		for (SimulationObject individual : simulation.getIndividuals()) {
+		for (SimulationObject individual : simulation.getAgents()) {
 			genomes.add(individual.getGenome());
 		}
 

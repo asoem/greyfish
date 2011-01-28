@@ -2,11 +2,12 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurableValueProvider;
 
-public interface GFAction extends NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
+public interface GFAction extends GFComponent, NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
 
 	public boolean evaluate(final Simulation simulation);
 	

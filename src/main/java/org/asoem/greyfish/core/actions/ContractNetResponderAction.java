@@ -186,8 +186,8 @@ public abstract class ContractNetResponderAction extends FSMAction {
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) {
+        super.checkConsistency(components);
         checkState(!Strings.isNullOrEmpty(getOntology()));
     }
 }

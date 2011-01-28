@@ -92,8 +92,8 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) {
-        super.checkIfFreezable(components);
+    public void checkConsistency(Iterable<? extends GFComponent> components) {
+        super.checkConsistency(components);
         checkNotNull(spermBuffer);
         checkNotNull(ontology);
     }

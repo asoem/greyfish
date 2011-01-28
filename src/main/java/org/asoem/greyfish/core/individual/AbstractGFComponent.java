@@ -1,9 +1,12 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.simpleframework.xml.Attribute;
+
+import java.util.Iterator;
 
 public abstract class AbstractGFComponent extends AbstractDeepCloneable<AbstractGFComponent> implements GFComponent {
 
@@ -25,7 +28,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable<Abstract
     }
 
     @Override
-    public void setComponentOwner(Individual individual) {
+    public void setComponentRoot(Individual individual) {
         componentOwner = checkFrozen(individual);
     }
 
@@ -63,7 +66,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable<Abstract
     }
 
     @Override
-    public void checkIfFreezable(Iterable<? extends GFComponent> components) throws IllegalStateException {
+    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
         if (componentOwner == null)
             throw new IllegalStateException(name + " (" + this.getClass().getSimpleName() + "): Components must have an owner");
     }
@@ -81,5 +84,10 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable<Abstract
     @Override
     public boolean isFrozen() {
         return frozen;
+    }
+
+    @Override
+    public Iterator<GFComponent> iterator() {
+        return Iterators.emptyIterator();
     }
 }

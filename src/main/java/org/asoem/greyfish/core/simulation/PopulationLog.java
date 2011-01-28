@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.Table;
@@ -10,10 +10,10 @@ import com.google.common.base.Preconditions;
 
 public class PopulationLog extends Table {
 
-	private Individual prototype;
+	private Agent prototype;
 	private Simulation simulation;
 
-	public PopulationLog(Simulation simulation, Individual prototype) {
+	public PopulationLog(Simulation simulation, Agent prototype) {
 		Preconditions.checkNotNull(simulation);
 		Preconditions.checkNotNull(prototype);
 
@@ -30,7 +30,7 @@ public class PopulationLog extends Table {
 		}
 	}
 
-	public void addLogEntry(Individual individual) {
+	public void addLogEntry(Agent individual) {
 		if ( ! individual.getPopulation().equals(prototype.getPopulation()))
 			throw new IllegalArgumentException();
 		Object[] row = new Object[getColumnCount()];
