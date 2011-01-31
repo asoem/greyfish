@@ -1,52 +1,39 @@
 package org.asoem.greyfish.utils;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import javolution.util.FastMap;
+public abstract class AbstractDeepCloneable implements DeepClonable {
 
-public abstract class AbstractDeepCloneable<T extends AbstractDeepCloneable<T>> implements DeepClonable {
-
-    protected AbstractDeepCloneable(T clonable, CloneMap map) {
+    protected AbstractDeepCloneable(AbstractDeepCloneable clonable, CloneMap map) {
         map.put(clonable, this);
-    }
-
-    protected static class CloneMap extends FastMap<AbstractDeepCloneable, AbstractDeepCloneable> {
-         private CloneMap() {}
     }
 
     protected AbstractDeepCloneable() { }
 
-    final public T deepClone() {
-        return deepClone(new CloneMap());
+    @Override
+    final public <E extends DeepClonable> E deepClone(Class<E> clazz) {
+        return CloneMap.newInstance().clone(clazz.cast(this), clazz);
     }
+//
+//    public <E extends DeepClonable> E deepClone(CloneMap map, Class<E> clazz) {
+//        assert map != null : "map must not be null";
+//
+//        if (map.containsKey(this))
+//            return clazz.cast(map.get(this));
+//        else {
+//            return clazz.cast(deepCloneHelper(map));
+//        }
+//    }
 
-    @SuppressWarnings("unchecked")
-    protected T deepClone(CloneMap map) {
-        Preconditions.checkNotNull(map);
-
-        if (map.containsKey(this))
-            return (T) map.get(this);
-        else {
-            return deepCloneHelper(map);
-        }
-    }
-
-    ///Classes should override this method
-    ///with the following code:
-    /// return new NameOfMyClass(this, mapDict);
-    protected abstract T deepCloneHelper(CloneMap map);
-
-    @SuppressWarnings("unchecked")
-    protected static <E extends DeepClonable> E deepClone(E component, CloneMap map) {
-        // There must not exist any implementation of DeepClonable which doesn't extend DeepCloneable
-        return (component != null) ? (E) ((AbstractDeepCloneable)component).deepClone(map) : null;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static <E extends DeepClonable> Iterable<E> deepCloneAll(Iterable<E> components, final CloneMap map) {
-        return Iterables.transform(components, new Function<E, E>() { public E apply(E e) {
-            return (e != null) ? (E) ((AbstractDeepCloneable)e).deepClone(map) : null;
-        }});
-    }
+//    public static <E extends DeepClonable> E deepClone(E component, Class<E> clazz) {
+//        return clazz.cast(component.deepCloneHelper(CloneMap.newInstance()));
+//    }
+//
+//    protected static <E extends DeepClonable> E deepClone(E component, CloneMap map, Class<E> clazz) {
+//        return (component != null) ? component.deepClone(map, clazz) : null;
+//    }
+//
+//    protected static <E extends DeepClonable> Iterable<E> deepCloneAll(Iterable<E> components, final CloneMap map, final Class<E> clazz) {
+//        return Iterables.transform(components, new Function<E, E>() { public E apply(E e) {
+//            return (e != null) ? e.deepClone(map, clazz) : null;
+//        }});
+//    }
 }

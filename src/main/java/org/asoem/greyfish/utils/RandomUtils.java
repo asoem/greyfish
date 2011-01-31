@@ -1,9 +1,9 @@
 package org.asoem.greyfish.utils;
 
-import java.util.Random;
-
 import org.uncommons.maths.random.ContinuousUniformGenerator;
 import org.uncommons.maths.random.MersenneTwisterRNG;
+
+import java.util.Random;
 
 public class RandomUtils {
 

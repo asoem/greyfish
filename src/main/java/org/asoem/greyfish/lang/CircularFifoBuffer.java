@@ -1,11 +1,10 @@
 package org.asoem.greyfish.lang;
 
-import java.util.Collection;
-
-import javolution.util.FastList;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ForwardingCollection;
+import javolution.util.FastList;
+
+import java.util.Collection;
 
 public class CircularFifoBuffer<E> extends ForwardingCollection<E> {
 
@@ -39,9 +38,9 @@ public class CircularFifoBuffer<E> extends ForwardingCollection<E> {
 		}
 		delegate.addLast(element);
 		return true;
-	};
-	
-	@Override
+	}
+
+    @Override
 	public boolean addAll(Collection<? extends E> collection) {
 		for (E e : collection) {
 			add(e);

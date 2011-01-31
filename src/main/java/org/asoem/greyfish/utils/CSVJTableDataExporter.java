@@ -1,10 +1,9 @@
 package org.asoem.greyfish.utils;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import javax.swing.JTable;
 
 public class CSVJTableDataExporter extends JTableDataExporter {
 

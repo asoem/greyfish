@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils;
 
-import java.awt.Color;
+import java.awt.*;
+import java.util.Arrays;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -17,9 +18,7 @@ public class ColorMap {
 	public ColorMap(Color color1, Color color2, Color ... colors) {
 		this.colors.add(color1);
 		this.colors.add(color2);
-		for (Color color : colors) {
-			this.colors.add(color);
-		}
+        this.colors.addAll(Arrays.asList(colors));
 		colorsInterval = (double) 1 / (this.colors.size() - 1);
 	}
 
@@ -35,8 +34,8 @@ public class ColorMap {
 		 */
 		if(ratio == 0)
 			return colors.get(0);
-		Color c1 = null;
-		Color c2 = null;
+		Color c1 = Color.black;
+		Color c2 = Color.black;
 
 		for (int i = 1; i < colors.size(); i++) {
 			double ratioAtColor_i = colorsInterval*i;

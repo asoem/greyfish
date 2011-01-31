@@ -1,12 +1,12 @@
 package org.asoem.greyfish.utils;
 
+import org.asoem.greyfish.lang.Functor;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.asoem.greyfish.lang.Functor;
 
 public class ListenerSupport<T> {
 
@@ -36,4 +36,8 @@ public class ListenerSupport<T> {
 			}
 		}
 	}
+
+    public static <T> ListenerSupport<T> newInstance() {
+        return new ListenerSupport<T>();
+    }
 }

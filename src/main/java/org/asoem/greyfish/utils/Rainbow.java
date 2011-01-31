@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils;
 
-import java.awt.Color;
+import java.awt.*;
 
 //==============================================================================
 //Rainbow Color SCALE Class

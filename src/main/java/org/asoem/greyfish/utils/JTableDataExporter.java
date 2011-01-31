@@ -1,15 +1,7 @@
 package org.asoem.greyfish.utils;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-
-import javax.swing.JTable;
+import javax.swing.*;
+import java.io.*;
 
 public abstract class JTableDataExporter implements Closeable {
 

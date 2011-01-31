@@ -1,8 +1,7 @@
 package org.asoem.greyfish.utils;
 
-import org.asoem.greyfish.lang.Property;
-
 import com.google.common.base.Predicates;
+import org.asoem.greyfish.lang.Property;
 
 
 

@@ -1,8 +1,9 @@
 package org.asoem.greyfish.utils;
-import java.util.List;
 
 import com.google.common.collect.Iterables;
 import com.jgoodies.binding.list.SelectionInList;
+
+import java.util.List;
 
 
 public abstract class ValueSelectionAdaptor<T> extends ValueAdaptor<T> {

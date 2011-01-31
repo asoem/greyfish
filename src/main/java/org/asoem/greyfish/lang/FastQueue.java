@@ -1,9 +1,9 @@
 package org.asoem.greyfish.lang;
 
+import javolution.util.FastList;
+
 import java.util.AbstractQueue;
 import java.util.Iterator;
-
-import javolution.util.FastList;
 
 public class FastQueue<E> extends AbstractQueue<E> {
 

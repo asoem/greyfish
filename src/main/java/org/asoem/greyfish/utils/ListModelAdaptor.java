@@ -1,11 +1,10 @@
 package org.asoem.greyfish.utils;
 
+import javax.swing.*;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
-import javax.swing.AbstractListModel;
 
 public class ListModelAdaptor<T> extends AbstractListModel {
 
@@ -128,7 +127,7 @@ public class ListModelAdaptor<T> extends AbstractListModel {
 		return collection.toArray();
 	}
 
-	public <T> T[] toArray(T[] a) {
+	public T[] toArray(T[] a) {
 		return collection.toArray(a);
 	}
 }

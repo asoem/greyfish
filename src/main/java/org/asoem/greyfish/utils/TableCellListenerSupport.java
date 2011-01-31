@@ -1,13 +1,11 @@
 package org.asoem.greyfish.utils;
 
+import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.logging.Logger;
-
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 
 /*
  *  This class listens for changes made to the data in the table via the

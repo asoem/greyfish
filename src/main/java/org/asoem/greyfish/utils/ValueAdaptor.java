@@ -1,11 +1,12 @@
 package org.asoem.greyfish.utils;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 
 import com.google.common.base.Preconditions;
 import com.jgoodies.binding.value.ValueModel;
 import com.jgoodies.validation.Validatable;
 import com.jgoodies.validation.ValidationResult;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 
 public abstract class ValueAdaptor<T> implements ValueModel, Validatable {

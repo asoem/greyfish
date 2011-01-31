@@ -1,11 +1,10 @@
 package org.asoem.greyfish.utils;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.collect.ForwardingCollection;
 import javolution.util.FastList;
 
-import com.google.common.collect.ForwardingCollection;
+import java.util.Collection;
+import java.util.List;
 
 public class BufferedModificationCollection<T> extends ForwardingCollection<T> {
 
@@ -26,9 +25,9 @@ public class BufferedModificationCollection<T> extends ForwardingCollection<T> {
 	@Override
 	public boolean add(T e) {
 		return incomingObjects.add(e);
-	};
+	}
 
-	@Override
+    @Override
 	public boolean addAll(Collection<? extends T> c) {
 		return incomingObjects.addAll(c);
 	}
@@ -36,7 +35,7 @@ public class BufferedModificationCollection<T> extends ForwardingCollection<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean remove(Object o) {
-		return contains(o) ? outgoingObjects.add((T) o) : false;
+		return contains(o) && outgoingObjects.add((T) o);
 	}
 
 	@SuppressWarnings("unchecked")

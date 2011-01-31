@@ -1,10 +1,8 @@
 package org.asoem.greyfish.utils;
 
-import org.asoem.greyfish.lang.Functor;
-
 import com.google.common.base.Preconditions;
-
 import javolution.util.FastList;
+import org.asoem.greyfish.lang.Functor;
 
 public class FastLists {
 

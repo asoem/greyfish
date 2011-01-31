@@ -1,13 +1,12 @@
 package org.asoem.greyfish.utils;
 
+import com.google.common.base.Preconditions;
+import org.asoem.greyfish.lang.Functor;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import org.asoem.greyfish.lang.Functor;
-
-import com.google.common.base.Preconditions;
 
 public class Table {
 	private final List<ArrayList<Object>> table = new ArrayList<ArrayList<Object>>();

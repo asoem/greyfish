@@ -1,8 +1,8 @@
 package org.asoem.greyfish.utils;
 
-import java.util.AbstractList;
-
 import com.google.common.base.Preconditions;
+
+import java.util.AbstractList;
 
 public class SingleElementListDecorator<E> extends AbstractList<E> {
 
@@ -28,5 +28,5 @@ public class SingleElementListDecorator<E> extends AbstractList<E> {
 		E ret = this.element;
 		this.element = element;
 		return ret;
-	};
+	}
 }
