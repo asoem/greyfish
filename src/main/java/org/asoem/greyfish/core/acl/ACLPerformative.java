@@ -23,5 +23,5 @@ public enum ACLPerformative {
 	SUBSCRIBE,
 	PROXY,
 	PROPAGATE,
-	UNKNOWN;
+	UNKNOWN
 }

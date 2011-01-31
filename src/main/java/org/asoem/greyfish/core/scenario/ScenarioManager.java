@@ -1,23 +1,20 @@
 package org.asoem.greyfish.core.scenario;
 
 import com.google.common.base.Preconditions;
-import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.individual.PrototypeManager;
-import org.asoem.greyfish.core.individual.SimulationObject;
+import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
 
-import java.util.AbstractCollection;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 
 public class ScenarioManager extends AbstractCollection<Scenario> {
 
-	private final Vector<Scenario> scenarios = new Vector<Scenario>();
+	private final List<Scenario> scenarios = Collections.synchronizedList(Lists.<Scenario>newArrayList());
 	private Scenario activeScenario = null;
-	private final ListenerSupport<ScenarioChoiceListener> listenerSupport = new ListenerSupport<ScenarioChoiceListener>();
+	private final ListenerSupport<ScenarioChoiceListener> listenerSupport = ListenerSupport.newInstance();
 	private final PrototypeManager prototypeManager;
 
 	public ScenarioManager(final PrototypeManager prototypeManager) {
@@ -28,9 +25,9 @@ public class ScenarioManager extends AbstractCollection<Scenario> {
 	@Override
 	public boolean add(final Scenario scenario) {
 		if ( scenarios.add(scenario) ) {
-			for (SimulationObject individual : scenario.getPrototypes()) {
-				if (individual instanceof Individual)
-					prototypeManager.add((Individual)individual);
+			for (IndividualInterface individual : scenario.getPrototypes()) {
+				if (individual instanceof Prototype)
+					prototypeManager.add(Prototype.class.cast(individual));
 			}
 			
 			listenerSupport.notifyListeners( new Functor<ScenarioChoiceListener>() {

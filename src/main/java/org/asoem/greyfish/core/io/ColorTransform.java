@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.io;
 
-import java.awt.Color;
-
 import org.simpleframework.xml.transform.Transform;
+
+import java.awt.*;
 
 public class ColorTransform implements Transform<Color> {
 

@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,7 +56,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
                     try {
                         cfpReply = handleCFP(message).build();
                     } catch (NotUnderstoodException e) {
-                        cfpReply = message.replyFrom(componentOwner)
+                        cfpReply = message.replyFrom(componentOwner.getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
                         if (GreyfishLogger.isDebugEnabled())

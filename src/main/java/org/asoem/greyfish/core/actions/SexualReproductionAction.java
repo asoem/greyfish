@@ -1,11 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
@@ -31,7 +34,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     public boolean evaluate(Simulation simulation) {
         return super.evaluate(simulation)
                 && nOffspring > 0
-                && spermStorage.isEmpty() == false;
+                && !spermStorage.isEmpty();
     }
 
     @Override
@@ -39,7 +42,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         assert(!spermStorage.isEmpty());
 
         for (int i = 0; i < nOffspring; i++) {
-            final Individual offspring = componentOwner.createClone(simulation);
+            final Agent offspring = componentOwner.deepClone(Agent.class);
 
             final Genome sperm = spermStorage.getRWS();
             Genome egg = new Genome(componentOwner.getGenome());
@@ -71,13 +74,13 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected SexualReproductionAction deepCloneHelper(CloneMap cloneMap) {
+    public SexualReproductionAction deepCloneHelper(CloneMap cloneMap) {
         return new SexualReproductionAction(this, cloneMap);
     }
 
     private SexualReproductionAction(SexualReproductionAction cloneable, CloneMap map) {
         super(cloneable, map);
-        this.spermStorage = deepClone(cloneable.spermStorage, map);
+        this.spermStorage = map.clone(cloneable.spermStorage, EvaluatedGenomeStorage.class);
         this.nOffspring = cloneable.nOffspring;
     }
 
@@ -87,7 +90,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         this.nOffspring = builder.nOffspring;
     }
 
-    public static final Builder with() { return new Builder(); }
+    public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<SexualReproductionAction> {
         private Builder() {}
         @Override protected Builder self() { return this; }

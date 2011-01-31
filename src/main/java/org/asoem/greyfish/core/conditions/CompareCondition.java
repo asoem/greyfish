@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.Comparator;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Attribute;

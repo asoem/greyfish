@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 

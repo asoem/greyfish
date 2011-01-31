@@ -6,17 +6,24 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.core.space.Object2DListener;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -25,7 +32,7 @@ import static com.google.common.collect.Iterables.filter;
 import static java.util.Arrays.asList;
 
 @Root
-public class Individual extends AbstractDeepCloneable<Individual> implements IndividualInterface {
+public class Individual extends AbstractDeepCloneable implements IndividualInterface {
 
 //    private final ListenerSupport<IndividualCompositionListener> listenerSupport = new ListenerSupport<IndividualCompositionListener>();
 
@@ -39,6 +46,71 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Ind
     private List<GFAction> actions = new ArrayList<GFAction>();
 
     private Collection<GFInterface> interfaces = new ArrayList<GFInterface>();
+
+    private Genome genome;
+
+    @Override
+    public double getRadius() {
+        return body.getRadius();
+    }
+
+    @Override
+    public Genome getGenome() {
+        return genome;
+    }
+
+    @Override
+    public void setGenome(Genome genome) {
+        this.genome = genome;
+    }
+
+    @Override
+    public GFAction getLastExecutedAction() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Color getColor() {
+        return body.getColor();
+    }
+
+    @Override
+    public void setColor(Color color) {
+        body.setColor(color);
+    }
+
+    @Override
+    public double getOrientation() {
+        return body.getOrientation();
+    }
+
+    @Override
+    public double getSpeed() {
+        return body.getSpeed();
+    }
+
+    public void setSpeed(float speed) {
+        body.setSpeed(speed);
+    }
+
+    @Override
+    public void rotate(double alpha) {
+        body.rotate(alpha);
+    }
+
+    @Override
+    public double getX() {
+        return body.getX();
+    }
+
+    @Override
+    public double getY() {
+        return body.getY();
+    }
+
+    private Body body;
+
+    private int id;
 
     @Override
     public Iterator<GFComponent> iterator() {
@@ -64,14 +136,14 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Ind
         this.population = population;
     }
 
-    protected Individual(Individual individual, CloneMap mapDict) {
+    protected Individual(Individual individual, CloneMap map) {
         this.population = individual.population;
 
         for (GFProperty property : individual.properties)
-            addProperty(deepClone(property, mapDict));
+            addProperty(map.clone(property, GFProperty.class));
 
         for (GFAction action : individual.actions) {
-            addAction(deepClone(action, mapDict));
+            addAction(map.clone(action, GFAction.class));
         }
     }
 
@@ -364,7 +436,22 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Ind
     }
 
     @Override
-    protected Individual deepCloneHelper(CloneMap map) {
+    public int getId() {
+        return this.id;
+    }
+
+    @Override
+    public void setTimeOfBirth(int timeOfBirth) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getTimeOfBirth() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Individual deepCloneHelper(CloneMap map) {
         return new Individual(this, map);
     }
 
@@ -417,6 +504,27 @@ public class Individual extends AbstractDeepCloneable<Individual> implements Ind
     }
 
     public static Builder with() { return new Builder(); }
+
+    @Override
+    public Location2D getAnchorPoint() {
+        return body.getAnchorPoint();
+    }
+
+    @Override
+    public void addListener(Object2DListener listener) {
+        body.addListener(listener);
+    }
+
+    @Override
+    public void removeListener(Object2DListener listener) {
+        body.removeListener(listener);
+    }
+
+    @Override
+    public void setAnchorPoint(Location2DInterface location2d) {
+        body.setAnchorPoint(location2d);
+    }
+
     public static class Builder implements BuilderInterface<Individual> {
         private ImmutableList.Builder<GFAction> actions = ImmutableList.builder();
         private ImmutableList.Builder<GFProperty> properties =  ImmutableList.builder();

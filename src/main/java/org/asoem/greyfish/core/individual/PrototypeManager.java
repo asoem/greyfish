@@ -1,25 +1,24 @@
 package org.asoem.greyfish.core.individual;
 
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.ListenerSupport;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.common.base.Preconditions;
+public class PrototypeManager extends AbstractCollection<Prototype> { // TODO: replace inheritance with delegation
 
-public class PrototypeManager extends AbstractCollection<Individual> {
-
-	private final List<PrototypeRegistryListener> listeners = new Vector<PrototypeRegistryListener>();
-	private final List<Individual> prototypes = new ArrayList<Individual>();
+	private final ListenerSupport<PrototypeRegistryListener> listenerSupport = ListenerSupport.newInstance();
+    private final List<Prototype> prototypes = Lists.newArrayList();
 
 	public PrototypeManager() {
 	}
 
 	@Override
-	public synchronized boolean add(Individual individual) {
+	public synchronized boolean add(Prototype individual) {
 		if ( ! hasCloneOf(individual)
 				&& prototypes.add(individual)) {
 			firePrototypeAdded(individual, indexOf(individual));
@@ -30,8 +29,8 @@ public class PrototypeManager extends AbstractCollection<Individual> {
 
 	@Override
 	public synchronized boolean remove(Object individual) {
-		Preconditions.checkArgument(individual instanceof Individual);
-		final Individual individual2 = (Individual) individual;
+		Preconditions.checkArgument(individual instanceof Prototype);
+		final Prototype individual2 = (Prototype) individual;
 		final int index = indexOf(individual2);
 		if (index != -1
 				&& prototypes.remove(individual2)) {
@@ -42,13 +41,13 @@ public class PrototypeManager extends AbstractCollection<Individual> {
 	}
 
 	public void unregisterAllPrototypes() {
-		for (int index = 0; index < prototypes.size(); index++) {
-			remove(prototypes.get(index));
-		}
+        for (Prototype prototype : prototypes) {
+            remove(prototype);
+        }
 	}
 
-	public synchronized Individual[] getProptotypes() {
-		return prototypes.toArray( new Individual[prototypes.size()] );
+	public synchronized Prototype[] getProptotypes() {
+		return prototypes.toArray( new Prototype[prototypes.size()] );
 	}
 
 	/**
@@ -60,50 +59,40 @@ public class PrototypeManager extends AbstractCollection<Individual> {
 	}
 
 	public void addPrototypeRegistryListener(PrototypeRegistryListener listener) {
-		listeners.add(listener);
+		listenerSupport.addListener(listener);
 	}
 
 	public void removePrototypeRegistryListener(PrototypeRegistryListener listener) {
-		listeners.remove(listener);
+		listenerSupport.removeListener(listener);
 	}
 
-	private void firePrototypeAdded(Individual individual, Integer index) {
-		for (Iterator<PrototypeRegistryListener> i=listeners.iterator(); i.hasNext(); ) {
-			PrototypeRegistryListener l = i.next();
-			try {
-				l.prototypeAdded(this, individual, index);
-			}
-			catch (RuntimeException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Unexpected exception in listener", e);
-				i.remove();
-			}
-		}
+	private void firePrototypeAdded(final Prototype individual, final Integer index) {
+        listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
+            @Override
+            public void update(PrototypeRegistryListener l) {
+                l.prototypeAdded(PrototypeManager.this, individual, index);
+        }});
 	}
 
-	private void firePrototypeRemoved(Individual individual, Integer index) {
-		for (Iterator<PrototypeRegistryListener> i=listeners.iterator(); i.hasNext(); ) {
-			PrototypeRegistryListener l = i.next();
-			try {
-				l.prototypeRemoved(this, individual, index);
-			}
-			catch (RuntimeException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Unexpected exception in listener", e);
-				i.remove();
-			}
-		}
+	private void firePrototypeRemoved(final Prototype individual, final Integer index) {
+		listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
+            @Override
+            public void update(PrototypeRegistryListener l) {
+                l.prototypeRemoved(PrototypeManager.this, individual, index);
+        }});
 	}
 
-	public Individual get(Population population) {
-		for (Individual individual : getProptotypes()) {
+	public Prototype get(Population population) {
+		for (Prototype individual : getProptotypes()) {
 			if (individual.getPopulation().equals(population))
 				return individual;
 		}
 		return null;
 	}
 
-	public boolean hasCloneOf(Individual clone) {
+	public boolean hasCloneOf(Prototype clone) {
 		boolean ret = false;
-		for (Individual individual : prototypes) {
+		for (Prototype individual : prototypes) {
 			if (clone.isCloneOf(individual)) {
 				ret = true;
 				break;
@@ -112,16 +101,16 @@ public class PrototypeManager extends AbstractCollection<Individual> {
 		return ret;
 	}
 
-	public int indexOf(Individual individual) {
+	public int indexOf(Prototype individual) {
 		return prototypes.indexOf(individual);
 	}
 
-	public Individual get(int index) {
+	public Prototype get(int index) {
 		return prototypes.get(index);
 	}
 
 	@Override
-	public Iterator<Individual> iterator() {
+	public Iterator<Prototype> iterator() {
 		return prototypes.iterator();
 	}
 }

@@ -5,6 +5,7 @@ import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.genes.DoubleGene;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
@@ -75,7 +76,7 @@ public final class GeneticDoubleProperty extends AbstractGFProperty implements D
     public static Builder with() { return new Builder(); }
 
     @Override
-    protected GeneticDoubleProperty deepCloneHelper(CloneMap cloneMap) {
+    public GeneticDoubleProperty deepCloneHelper(CloneMap cloneMap) {
         return new GeneticDoubleProperty(this, cloneMap);
     }
 

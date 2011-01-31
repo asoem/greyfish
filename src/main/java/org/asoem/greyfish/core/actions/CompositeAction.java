@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 
 
 

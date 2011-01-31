@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +55,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                ACLMessage cfpMessage = createCFP().source(componentOwner).performative(ACLPerformative.CFP).build();
+                ACLMessage cfpMessage = createCFP().source(componentOwner.getId()).performative(ACLPerformative.CFP).build();
                 cfpMessage.send(getTransmitter());
                 nProposalsExpected = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
@@ -83,7 +84,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                                 proposeReplies.add(proposeReply);
                                 ++nReceivedProposals;
                             } catch (NotUnderstoodException e) {
-                                proposeReply = receivedMessage.replyFrom(componentOwner)
+                                proposeReply = receivedMessage.replyFrom(componentOwner.getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
                                 if (GreyfishLogger.isDebugEnabled())

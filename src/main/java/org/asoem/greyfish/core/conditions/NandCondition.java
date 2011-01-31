@@ -6,6 +6,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 
 /**
  * This class can be used to prefix one <code>Condition</code> with a logical NOT operator.
@@ -27,7 +28,7 @@ public class NandCondition extends AndCondition {
 	}
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+    public AbstractGFComponent deepCloneHelper(CloneMap map) {
         return new NandCondition(this, map);
     }
 

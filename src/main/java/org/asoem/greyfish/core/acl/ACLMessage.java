@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import javolution.util.FastList;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -11,13 +12,12 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static scala.actors.threadpool.Arrays.asList;
 
 public final class ACLMessage {
@@ -54,9 +54,9 @@ public final class ACLMessage {
     }
 
     private final ACLPerformative performative;
-    private final Individual source;
-    private final List<Individual> dests;
-    private final List<Individual> reply_to;
+    private final Integer source;
+    private final List<Integer> dests;
+    private final List<Integer> reply_to;
     private final ContentType contentType;
     private final Object content;
     private final String reply_with;
@@ -75,8 +75,7 @@ public final class ACLMessage {
             if (data == null)
                 return null;
             ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(data));
-            java.io.Serializable s = (java.io.Serializable)oin.readObject();
-            return s;
+            return Serializable.class.cast(oin.readObject());
         }
         catch (java.lang.Error e) {
             throw new UnreadableException(e.getMessage());
@@ -103,11 +102,11 @@ public final class ACLMessage {
         return clazz.cast(content);
     }
 
-    public Collection<Individual> getAllReceiver() {
+    public Collection<Integer> getAllReceiver() {
         return dests;
     }
 
-    public Iterator<Individual> getAllReplyTo() {
+    public Iterator<Integer> getAllReplyTo() {
         if (reply_to == null) {
             return Iterators.emptyIterator();
         }
@@ -116,7 +115,7 @@ public final class ACLMessage {
         }
     }
 
-    public Individual getSender() {
+    public Integer getSender() {
         return source;
     }
 
@@ -186,9 +185,6 @@ public final class ACLMessage {
     }
 
     public void send(final ACLMessageTransmitter transmitter) {
-        if (Strings.isNullOrEmpty(reply_with))
-            new IllegalStateException("reply_with hasn't been set! Builder should check this.");
-
         transmitter.deliverMessage(this);
     }
 
@@ -201,7 +197,7 @@ public final class ACLMessage {
      * Of course, if he wishes to do that, he can reset any of the fields.
      * @return the ACLMessage to send as a reply
      */
-    public Builder replyFrom(Individual individual) {
+    public Builder replyFrom(Integer individual) {
         return new Builder()
                 .performative(this.performative)
                 .addDestinations(this.reply_to)
@@ -216,9 +212,9 @@ public final class ACLMessage {
                 .conversation_id(this.conversation_id);
     }
 
-    private static String generateReplyWith(final Individual source) {
+    private static String generateReplyWith(final Integer source) {
         if (source != null)
-            return source.getName() + java.lang.System.currentTimeMillis();
+            return source.toString() + java.lang.System.currentTimeMillis();
         else
             return "X" + java.lang.System.currentTimeMillis();
     }
@@ -229,23 +225,23 @@ public final class ACLMessage {
 
     public String toString(){
         StringBuffer str = new StringBuffer("(");
-        str.append(getPerformative() + "\n");
+        str.append(getPerformative()).append("\n");
 
-        Individual sender = getSender();
+        Integer sender = getSender();
         if (sender != null)
-            str.append(":sender" + " "+ sender.toString()+"\n");
-        Iterator<Individual> it = getAllReceiver().iterator();
+            str.append(":sender" + " ").append(sender.toString()).append("\n");
+        Iterator<Integer> it = getAllReceiver().iterator();
         if (it.hasNext()) {
             str.append(":receiver" + " (set ");
             while(it.hasNext())
-                str.append(it.next().toString()+" ");
+                str.append(it.next().toString()).append(" ");
             str.append(")\n");
         }
         it = getAllReplyTo();
         if (it.hasNext()) {
             str.append(":reply-to" + " (set \n");
             while(it.hasNext())
-                str.append(it.next().toString()+" ");
+                str.append(it.next().toString()).append(" ");
             str.append(")\n");
         }
         switch (contentType) {
@@ -253,26 +249,26 @@ public final class ACLMessage {
                 str.append(":StringContent" + " <BINARY> \n");
                 break;
             case STRING:
-                str.append(":StringContent" + " \"" + getStringContent().trim() + "\" \n");
+                str.append(":StringContent" + " \"").append(getStringContent().trim()).append("\" \n");
                 break;
             case NULL:
                 str.append(":StringContent" + " <Not set> \n");
                 break;
             case OTHER:
-                str.append(":StringContent" + " <"+ this.content.getClass().getSimpleName()+"> \n");
+                str.append(":StringContent" + " <").append(this.content.getClass().getSimpleName()).append("> \n");
                 break;
         }
 
         // Description of Content
-        str.append(":encoding " + getEncoding() + "\n");
-        str.append(":language " + getLanguage() + "\n");
-        str.append(":ontology " + getOntology() + "\n");
+        str.append(":encoding ").append(getEncoding()).append("\n");
+        str.append(":language ").append(getLanguage()).append("\n");
+        str.append(":ontology ").append(getOntology()).append("\n");
 
         // Control of Conversation
-        str.append(":protocol " + getProtocol() + "\n");
-        str.append(":conversation-id " + getConversationId() + "\n");
-        str.append(":reply-with " + getReplyWith() + "\n");
-        str.append(":in-reply-to " + getInReplyTo() + "\n");
+        str.append(":protocol ").append(getProtocol()).append("\n");
+        str.append(":conversation-id ").append(getConversationId()).append("\n");
+        str.append(":reply-with ").append(getReplyWith()).append("\n");
+        str.append(":in-reply-to ").append(getInReplyTo()).append("\n");
 
         str.append(")");
 
@@ -316,9 +312,9 @@ public final class ACLMessage {
 
     public static class Builder implements BuilderInterface<ACLMessage> {
         private ACLPerformative performative;
-        private Individual source;
-        private final List<Individual> dests = new FastList<Individual>();
-        private final List<Individual> reply_to = new FastList<Individual>();
+        private Integer source;
+        private final List<Integer> dests = new FastList<Integer>();
+        private final List<Integer> reply_to = new FastList<Integer>();
         private ContentType contentType = ContentType.NULL;
         private Object content = NULL_CONTENT;
         private String reply_with;
@@ -330,7 +326,7 @@ public final class ACLMessage {
         private int conversation_id = 0;
 
         public Builder performative(ACLPerformative performative) { this.performative = checkNotNull(performative); return this; }
-        public Builder source(Individual source) { this.source = checkNotNull(source); return this; }
+        public Builder source(Integer source) { this.source = checkNotNull(source); return this; }
         public Builder reply_with(String reply_with) { this.reply_with = reply_with; return this; }
         public Builder in_reply_to(String in_reply_to) { this.in_reply_to = in_reply_to; return this; }
 
@@ -340,10 +336,10 @@ public final class ACLMessage {
         public Builder protocol(String protocol) { this.protocol = protocol; return this; }
 
         public Builder conversation_id(int conversation_id) { this.conversation_id = conversation_id; return this; }
-        public Builder addDestinations(Individual ... destinations) { this.dests.addAll(asList(checkNotNull(destinations))); return this; }
-        public Builder addDestinations(Iterable<Individual> destinations) { Iterables.addAll(dests, checkNotNull(destinations)); return this; }
-        public Builder addReplyTos(Individual ... destinations) { this.reply_to.addAll(asList(checkNotNull(destinations))); return this; }
-        public Builder addReplyTos(Iterable<Individual> destinations) { Iterables.addAll(reply_to, checkNotNull(destinations)); return this; }
+        public Builder addDestinations(Integer ... destinations) { this.dests.addAll(Lists.newArrayList(checkNotNull(destinations))); return this; }
+        public Builder addDestinations(Iterable<Integer> destinations) { Iterables.addAll(dests, checkNotNull(destinations)); return this; }
+        public Builder addReplyTos(Integer ... destinations) { this.reply_to.addAll(Lists.newArrayList(checkNotNull(destinations))); return this; }
+        public Builder addReplyTos(Iterable<Integer> destinations) { Iterables.addAll(reply_to, checkNotNull(destinations)); return this; }
 
         private Builder contentType(ContentType type) { this.contentType = checkNotNull(type); return this; }
 

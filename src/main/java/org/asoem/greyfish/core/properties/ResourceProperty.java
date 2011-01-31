@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.share.ConsumerGroup;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 
 @ClassGroup(tags="property")
 public class ResourceProperty extends DoubleProperty {
@@ -30,7 +31,7 @@ public class ResourceProperty extends DoubleProperty {
     }
 
     @Override
-    protected DoubleProperty deepCloneHelper(CloneMap cloneMap) {
+    public DoubleProperty deepCloneHelper(CloneMap cloneMap) {
         return new ResourceProperty(this, cloneMap);
     }
 

@@ -264,7 +264,7 @@ public class TiledSpace implements Space {
 	}
 
 	public TileLocation[] getAdjacentLocations(TileLocation location) {
-		return ((TileLocation)location).adjacents;
+		return location.adjacents;
 	}
 
 	public TileLocation[] getReachableLocations(TileLocation location) {
@@ -401,10 +401,7 @@ public class TiledSpace implements Space {
 
 		if (direction == Direction.CENTER)
 			return true;
-		if (source.hasBorder(direction.borderCheck))
-			return false;
-		else
-			return true;
+        return !source.hasBorder(direction.borderCheck);
 	}
 
 	/* (non-Javadoc)

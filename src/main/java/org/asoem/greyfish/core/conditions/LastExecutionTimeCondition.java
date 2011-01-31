@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
@@ -22,7 +23,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
     protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, CloneMap map) {
         super(condition, map);
-        this.action = deepClone(condition.action, map);
+        this.action = map.clone(condition.action, GFAction.class);
         this.steps = condition.steps;
     }
 
@@ -33,7 +34,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	}
 
     @Override
-    protected LastExecutionTimeCondition deepCloneHelper(CloneMap map) {
+    public LastExecutionTimeCondition deepCloneHelper(CloneMap map) {
         return new LastExecutionTimeCondition(this, map);
     }
 
@@ -70,7 +71,8 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
     public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<LastExecutionTimeCondition> {
-        private Builder() {};
+        private Builder() {}
+
         @Override protected Builder self() { return this; }
         @Override public LastExecutionTimeCondition build() { return new LastExecutionTimeCondition(this); }
     }

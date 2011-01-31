@@ -11,10 +11,7 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.RandomUtils;
-import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,10 +41,10 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Override
     protected ACLMessage.Builder createCFP() {
         return ACLMessage.with()
-                .source(componentOwner)
+                .source(componentOwner.getId())
                 .ontology(getOntology())
                 // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
-                .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
+                .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
                 .objectContent(amountPerRequest);
     }
 
@@ -59,7 +56,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
             final double offer = message.getReferenceContent(Double.class);
             consumerProperty.add(offer);
 
-            return message.replyFrom(componentOwner)
+            return message.replyFrom(componentOwner.getId())
                     .performative(ACLPerformative.ACCEPT_PROPOSAL);
         } catch (Exception e) {
             throw new NotUnderstoodException();
@@ -120,13 +117,13 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    protected ResourceConsumptionAction deepCloneHelper(CloneMap cloneMap) {
+    public ResourceConsumptionAction deepCloneHelper(CloneMap cloneMap) {
         return new ResourceConsumptionAction(this, cloneMap);
     }
 
     private ResourceConsumptionAction(ResourceConsumptionAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
-        this.consumerProperty = deepClone(cloneable.consumerProperty, cloneMap);
+        this.consumerProperty = cloneMap.clone(cloneable.consumerProperty, DoubleProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
         this.sensorRange = cloneable.sensorRange;
         this.amountPerRequest = cloneable.amountPerRequest;

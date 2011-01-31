@@ -55,9 +55,9 @@ public abstract class AbstractTrait<T> implements Trait<T> {
 	}
 
 	@Override
-	public void setValue(T value) {};
-	
-	public <R extends Gene<?>> R registerGene(final R gene) {
+	public void setValue(T value) {}
+
+    public <R extends Gene<?>> R registerGene(final R gene) {
 		if (genes == NULL_GENES)
 			genes = new Gene<?>[] {gene};
 		else

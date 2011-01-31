@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.simulation;
 
-import java.util.EventListener;
-
 import org.asoem.greyfish.core.actions.GFAction;
+
+import java.util.EventListener;
 
 public interface ActionGotExecutedListener extends EventListener {
 

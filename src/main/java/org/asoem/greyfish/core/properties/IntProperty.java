@@ -1,12 +1,9 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-
-import java.util.Map;
 
 @ClassGroup(tags="property")
 public class IntProperty extends OrderedSetProperty<Integer> {
@@ -20,7 +17,7 @@ public class IntProperty extends OrderedSetProperty<Integer> {
     }
 
     @Override
-    protected IntProperty deepCloneHelper(CloneMap cloneMap) {
+    public IntProperty deepCloneHelper(CloneMap cloneMap) {
         return new IntProperty(this, cloneMap);
     }
 
@@ -43,7 +40,7 @@ public class IntProperty extends OrderedSetProperty<Integer> {
 
     public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<IntProperty> {
-        private Builder() {}
+        private Builder() {lowerBound(0).upperBound(0).initialValue(0);}
         @Override protected Builder self() { return this; }
         @Override public IntProperty build() { return new IntProperty(this); }
     }

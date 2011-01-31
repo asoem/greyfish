@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.individual;
 
-import java.awt.Color;
-import java.io.Serializable;
-import java.util.Collection;
-
 import org.asoem.greyfish.utils.Rainbow;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Element;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.util.Collection;
 
 
 public class Population implements Serializable {
@@ -54,12 +54,24 @@ public class Population implements Serializable {
 		return getName();
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return super.equals(obj) || ((Population) obj).getName().equals(getName());
-	}
-	
-	public static Population[] fromIndiviuduals(Collection<Individual> individuals) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Population that = (Population) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+
+    public static Population[] fromIndiviuduals(Collection<Individual> individuals) {
 		return fromIndiviuduals((Individual[]) individuals.toArray(new Individual[individuals.size()]));
 	}
 

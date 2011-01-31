@@ -16,10 +16,7 @@ import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.RandomUtils;
-import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -105,13 +102,13 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
         return ACLMessage.with()
         .performative(ACLPerformative.CFP)
                 // Choose only one. Adding all possible candidates as receivers will decrease the performance in high density populations!
-        .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
+        .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
         .ontology(ontology);
     }
 
     @Override
     protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.replyFrom(this.componentOwner);
+        ACLMessage.Builder builder = message.replyFrom(this.componentOwner.getId());
         try {
             EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
             receiveGenome(evaluatedGenome);
@@ -141,13 +138,13 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    protected MatingReceiverAction deepCloneHelper(CloneMap cloneMap) {
+    public MatingReceiverAction deepCloneHelper(CloneMap cloneMap) {
         return new MatingReceiverAction(this, cloneMap);
     }
 
     private MatingReceiverAction(MatingReceiverAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
-        this.spermBuffer = deepClone(cloneable.spermBuffer, cloneMap);
+        this.spermBuffer = cloneMap.clone(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
     }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Root;

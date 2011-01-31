@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.simpleframework.xml.core.Commit;
 
@@ -15,7 +16,7 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 
     protected AbstractCondition(AbstractCondition clonable, CloneMap map) {
         super(clonable, map);
-        this.parentCondition = deepClone(clonable.parentCondition, map);
+        this.parentCondition = map.clone(clonable.parentCondition, GFCondition.class);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical OR operator.
@@ -33,7 +34,7 @@ public class OrCondition extends LogicalOperatorCondition {
 	}
 
     @Override
-    protected OrCondition deepCloneHelper(CloneMap map) {
+    public OrCondition deepCloneHelper(CloneMap map) {
         return new OrCondition(this, map);
     }
 
@@ -47,7 +48,8 @@ public class OrCondition extends LogicalOperatorCondition {
 
     public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<OrCondition> {
-        private Builder() {};
+        private Builder() {}
+
         @Override protected Builder self() { return this; }
         @Override public OrCondition build() { return new OrCondition(this); }
         public Builder any(GFCondition ... conditions) { return super.addConditions(conditions); }

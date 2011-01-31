@@ -1,17 +1,15 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import javolution.util.FastList;
+import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.utils.RandomUtils;
+
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import javolution.util.FastList;
-
-import org.asoem.greyfish.core.io.GreyfishLogger;
-import org.asoem.greyfish.utils.RandomUtils;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 
 public class Genome extends AbstractList<Gene<?>> {
 

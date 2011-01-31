@@ -1,12 +1,11 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.Table;
-
-import com.google.common.base.Preconditions;
 
 public class PopulationLog extends Table {
 

@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Attribute;
 
 @ClassGroup(tags="actions")
@@ -26,7 +28,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
 	private void cloneIndividual(Simulation simulation) {
 		try {
-			Individual offspring = componentOwner.createClone(simulation);
+			Agent offspring = Agent.newInstance(componentOwner.deepClone(Individual.class));
 			offspring.mutate();
 			simulation.addNextStep(offspring, componentOwner);
 		} catch (Exception e) {
@@ -35,7 +37,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 	}
 
     @Override
-    protected ClonalReproductionAction deepCloneHelper(CloneMap map) {
+    public ClonalReproductionAction deepCloneHelper(CloneMap map) {
         return new ClonalReproductionAction(this, map);
     }
 
@@ -49,7 +51,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
         this.parameterClones = builder.nClones;
     }
 
-    public static final Builder with() { return new Builder(); }
+    public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ClonalReproductionAction> {
         private Builder() {}
         @Override protected Builder self() { return this; }

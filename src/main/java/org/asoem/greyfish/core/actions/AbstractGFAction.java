@@ -12,10 +12,12 @@ import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ContinuosProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
@@ -47,11 +49,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public boolean evaluate(Simulation simulation) {
 
-        if (energySource != null &&
-                energySource.getValue().compareTo(evaluateFormula()) < 0 )
-                return false;
+        return !(energySource != null && energySource.getValue().compareTo(evaluateFormula()) < 0) && conditionTree.evaluate(simulation);
 
-        return conditionTree.evaluate(simulation);
     }
 
     /**
@@ -86,7 +85,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     protected abstract void performAction(Simulation simulation);
 
     @Override
-    public void setComponentRoot(Individual individual) {
+    public void setComponentRoot(IndividualInterface individual) {
         super.setComponentRoot(individual);
         conditionTree.setComponentRoot(componentOwner);
     }
@@ -210,8 +209,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected AbstractGFAction(AbstractGFAction cloneable, CloneMap map) {
         super(cloneable, map);
-        this.conditionTree = new ConditionTree(deepClone(cloneable.getRootCondition(), map));
-        this.energySource = deepClone(cloneable.energySource, map);
+        this.conditionTree = new ConditionTree(map.clone(cloneable.getRootCondition(), GFCondition.class));
+        this.energySource = map.clone(cloneable.energySource, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
 }

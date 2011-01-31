@@ -4,13 +4,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Attribute;
 
 import java.util.Iterator;
 
-public abstract class AbstractGFComponent extends AbstractDeepCloneable<AbstractGFComponent> implements GFComponent {
+public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent {
 
-    protected Individual componentOwner;
+    protected IndividualInterface componentOwner;
 
     @Attribute(name="name", required = false)
     protected String name = "";
@@ -23,12 +24,12 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable<Abstract
     }
 
     @Override
-    public Individual getComponentOwner() {
+    public IndividualInterface getComponentOwner() {
         return componentOwner;
     }
 
     @Override
-    public void setComponentRoot(Individual individual) {
+    public void setComponentRoot(IndividualInterface individual) {
         componentOwner = checkFrozen(individual);
     }
 

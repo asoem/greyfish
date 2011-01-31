@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -24,7 +25,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    protected RandomCondition deepCloneHelper(CloneMap map) {
+    public RandomCondition deepCloneHelper(CloneMap map) {
         return new RandomCondition(this, map);
     }
 

@@ -3,13 +3,10 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.genes.AbstractGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.RandomUtils;
-
-import java.util.Map;
 
 @ClassGroup(tags="property")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<String> {
@@ -56,7 +53,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 	}
 
     @Override
-    protected GonoGenderStateProperty deepCloneHelper(CloneMap cloneMap) {
+    public GonoGenderStateProperty deepCloneHelper(CloneMap cloneMap) {
         return new GonoGenderStateProperty(this, cloneMap);
     }
 

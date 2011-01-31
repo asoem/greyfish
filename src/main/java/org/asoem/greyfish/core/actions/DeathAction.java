@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
@@ -14,11 +15,11 @@ public class DeathAction extends AbstractGFAction {
 	@Override
 	protected void performAction(Simulation simulation) {
 		//individual.death();
-		simulation.removeIndividual(componentOwner);
+		simulation.removeAgent(componentOwner);
 	}
 
     @Override
-    protected DeathAction deepCloneHelper(CloneMap cloneMap) {
+    public DeathAction deepCloneHelper(CloneMap cloneMap) {
         return new DeathAction(this, cloneMap);
     }
 

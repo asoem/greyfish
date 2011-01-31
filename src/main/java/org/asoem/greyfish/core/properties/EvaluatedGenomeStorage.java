@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.uncommons.watchmaker.framework.EvaluatedCandidate;
 import org.uncommons.watchmaker.framework.selection.RouletteWheelSelection;
@@ -29,7 +30,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     public void addGenome(Genome genome, double d) {
-        if (!value.contains(genome))
+//        if (!value.contains(genome)) // TODO: check for duplicates
             value.add(new EvaluatedCandidate<Genome>(genome, d));
     }
 
@@ -61,7 +62,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     @Override
-    protected EvaluatedGenomeStorage deepCloneHelper(CloneMap cloneMap) {
+    public EvaluatedGenomeStorage deepCloneHelper(CloneMap cloneMap) {
         return new EvaluatedGenomeStorage(this, cloneMap);
     }
 

@@ -41,7 +41,7 @@ public class ResourceProvisionConsumptionSpec extends Specification<ContractNetI
                 simulation.step();
             }
 
-            specify(Iterables.get(simulation.getIndividuals().get(1).getProperties(DoubleProperty.class), 0).getValue(), should.equal(1.0));
+            specify(Iterables.get(simulation.getAgents().get(1).getProperties(DoubleProperty.class), 0).getValue(), should.equal(1.0));
         }
 
     }

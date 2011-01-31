@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.io;
 
-import java.awt.Color;
-
 import org.simpleframework.xml.transform.Matcher;
 import org.simpleframework.xml.transform.Transform;
+
+import java.awt.*;
 
 public class GreyfishMatcher implements Matcher {
 

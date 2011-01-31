@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.simulation;
 
+import org.asoem.greyfish.core.individual.Individual;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-
-import org.asoem.greyfish.core.individual.Individual;
 
 /**
  * This class acts as an object pool for the Individual class to increase performance by object reuse.
@@ -34,11 +34,11 @@ public class PrototypePool {
 
 		final int index = indexOfPrototype(prototype);
 		if (index == -1) {
-			addPrototype((Individual) prototype.deepClone());
+			addPrototype(prototype.deepClone(Individual.class));
 			return createClone(prototype);
 		}
 		else if (clonePool.get(index).isEmpty()) {
-			return (Individual) prototype.deepClone();
+			return prototype.deepClone(Individual.class);
 		}
 		else {
 			--cloneCount;
@@ -86,7 +86,7 @@ public class PrototypePool {
 	private void addPrototype(Individual individual) {
 		prototypeIndexMap.add(individual);
 		clonePool.add(new ArrayDeque<Individual>());
-		lastAccess.add(new Long(0));
+		lastAccess.add((long) 0);
 	}
 
 	/**

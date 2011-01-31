@@ -7,10 +7,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.individual.PrototypeManager;
-import org.asoem.greyfish.core.individual.PrototypeRegistryListener;
-import org.asoem.greyfish.core.individual.SimulationObject;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.space.*;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepClonable;
@@ -58,7 +55,7 @@ public class Scenario implements PrototypeRegistryListener {
     private Scenario(Builder builder) {
         this.name = builder.name;
         this.prototypeSpace = builder.space;
-        for (Map.Entry<SimulationObject, Location2D> entry : builder.map.entries()) {
+        for (Map.Entry<IndividualInterface, Location2D> entry : builder.map.entries()) {
             addPlaceholder(new Placeholder(entry.getKey(), entry.getValue()));
         }
     }
@@ -73,11 +70,12 @@ public class Scenario implements PrototypeRegistryListener {
     }
 
     @ElementList(name="prototypes", entry="individual")
-    public Collection<SimulationObject> getPrototypes() {
-        return Sets.newHashSet(Iterables.transform(prototypeSpace.getOccupants(), new Function<Object2DInterface, SimulationObject>() {
+    public Collection<Prototype> getPrototypes() {
+        return Sets.newHashSet(Iterables.transform(prototypeSpace.getOccupants(), new Function<Object2DInterface, Prototype>() {
             @Override
-            public SimulationObject apply(Object2DInterface input) {
-                return ((Placeholder)input).getPrototype();
+            public Prototype apply(Object2DInterface input) {
+                Preconditions.checkArgument(input instanceof Placeholder);
+                return Placeholder.class.cast(input).asPrototype();
             }
         }));
     }
@@ -116,13 +114,13 @@ public class Scenario implements PrototypeRegistryListener {
 
     @Override
     public void prototypeAdded(PrototypeManager source,
-                               Individual prototype, int index) {
+                               Prototype prototype, int index) {
         /* IGNORE */
     }
 
     @Override
     public void prototypeRemoved(PrototypeManager source,
-                                 Individual prototype, int index) {
+                                 Prototype prototype, int index) {
         throw new UnsupportedOperationException("Not Implemented yet");
         // TODO: implement
     }
@@ -138,17 +136,17 @@ public class Scenario implements PrototypeRegistryListener {
     public static Builder with() {return new Builder(); }
     public static class Builder implements BuilderInterface<Scenario> {
         private TiledSpace space;
-        private Multimap<SimulationObject, Location2D> map = ArrayListMultimap.create();
+        private Multimap<IndividualInterface, Location2D> map = ArrayListMultimap.create();
         private String name;
 
         public Builder name(String name) { this.name = name; return this; }
         public Builder space(TiledSpace space) { this.space = checkNotNull(space); return this; }
-        public Builder add(final SimulationObject clonable, Location2D location2d) {
+        public Builder add(final IndividualInterface clonable, Location2D location2d) {
             checkNotNull(clonable);
             checkNotNull(location2d);
-            checkState(!Iterables.any(map.keySet(), new Predicate<SimulationObject>() {
+            checkState(!Iterables.any(map.keySet(), new Predicate<IndividualInterface>() {
                 @Override
-                public boolean apply(SimulationObject simulationObject) {
+                public boolean apply(IndividualInterface simulationObject) {
                     return simulationObject.getPopulation().equals(clonable.getPopulation());
                 }
             }));
@@ -157,9 +155,9 @@ public class Scenario implements PrototypeRegistryListener {
         @Override
         public Scenario build() {
             checkState(space != null);
-            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<SimulationObject, Location2D>>() {
+            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<IndividualInterface, Location2D>>() {
                 @Override
-                public boolean apply(Map.Entry<SimulationObject, Location2D> simulationObjectLocation2DEntry) {
+                public boolean apply(Map.Entry<IndividualInterface, Location2D> simulationObjectLocation2DEntry) {
                     return space.covers(simulationObjectLocation2DEntry.getValue());
                 }
             }));

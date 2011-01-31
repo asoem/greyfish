@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
@@ -17,7 +18,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     protected LastExecutedActionCondition(LastExecutedActionCondition condition, CloneMap map) {
         super(condition, map);
-        this.action = deepClone(condition.action, map);
+        this.action = map.clone(condition.action, GFAction.class);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    protected LastExecutedActionCondition deepCloneHelper(CloneMap map) {
+    public LastExecutedActionCondition deepCloneHelper(CloneMap map) {
         return new LastExecutedActionCondition(this, map);
     }
 
@@ -56,7 +57,8 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<LastExecutedActionCondition> {
-        private Builder() {};
+        private Builder() {}
+
         @Override protected Builder self() { return this; }
         @Override public LastExecutedActionCondition build() { return new LastExecutedActionCondition(this); }
     }

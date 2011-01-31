@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.share;
 
+import org.asoem.greyfish.core.properties.DoubleProperty;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import org.asoem.greyfish.core.properties.DoubleProperty;
 
 public class ConsumerGroup<T extends DoubleProperty> implements Iterable<Consumer<T>>, Serializable {
 

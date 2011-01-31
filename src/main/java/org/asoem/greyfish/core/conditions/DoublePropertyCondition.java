@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
@@ -14,7 +15,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
     protected DoublePropertyCondition(DoublePropertyCondition condition, CloneMap map) {
         super(condition, map);
-        this.doubleProperty = deepClone(condition.doubleProperty, map);
+        this.doubleProperty = map.clone(condition.doubleProperty, DoubleProperty.class);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
     @Override
-    protected DoublePropertyCondition deepCloneHelper(CloneMap map) {
+    public DoublePropertyCondition deepCloneHelper(CloneMap map) {
         return new DoublePropertyCondition(this, map);
     }
 
@@ -50,7 +51,8 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
     public static Builder isTrueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoublePropertyCondition> {
-        private Builder() {};
+        private Builder() {}
+
         @Override protected Builder self() { return this; }
         @Override public DoublePropertyCondition build() { return new DoublePropertyCondition(this); }
     }

@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -24,11 +25,11 @@ public class ChangeBodyAction extends AbstractGFAction {
 
     @Override
     protected void performAction(Simulation simulation) {
-        getComponentOwner().getBody().setColor(color);
+        getComponentOwner().setColor(color);
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+    public AbstractGFComponent deepCloneHelper(CloneMap map) {
         return new ChangeBodyAction(this, map);
     }
 

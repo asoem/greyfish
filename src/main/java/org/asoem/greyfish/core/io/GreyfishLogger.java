@@ -1,16 +1,11 @@
 package org.asoem.greyfish.core.io;
 
-import java.util.Enumeration;
-import java.util.ResourceBundle;
-
-import org.apache.log4j.Appender;
-import org.apache.log4j.Category;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.log4j.spi.LoggingEvent;
+
+import java.util.Enumeration;
+import java.util.ResourceBundle;
 
 public enum GreyfishLogger {
 	INSTANCE;
@@ -73,7 +68,7 @@ public enum GreyfishLogger {
 		return INSTANCE.logger.getEffectiveLevel();
 	}
 
-	public static final Level getLevel() {
+	public static Level getLevel() {
 		return INSTANCE.logger.getLevel();
 	}
 
@@ -81,11 +76,11 @@ public enum GreyfishLogger {
 		return INSTANCE.logger.getLoggerRepository();
 	}
 
-	public static final String getName() {
+	public static String getName() {
 		return INSTANCE.logger.getName();
 	}
 
-	public static final Category getParent() {
+	public static Category getParent() {
 		return INSTANCE.logger.getParent();
 	}
 

@@ -13,22 +13,19 @@ import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.MovingObject2DInterface;
 import org.asoem.greyfish.core.space.Object2DListener;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepClonable;
 
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class Agent implements IndividualInterface, MovingObject2DInterface, SimulationObject {
+public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, SimulationObject {
 
-    @Override
-    public Iterator<GFComponent> iterator() {
-        return Iterators.unmodifiableIterator(individual.iterator());
-    }
-
-    @Override
-    public Population getPopulation() {
-        return individual.getPopulation();
+    private Agent(Agent individual, CloneMap map) {
+        super(map.clone(individual.getDelegate(), IndividualInterface.class));
     }
 
     @Override
@@ -52,33 +49,8 @@ public class Agent implements IndividualInterface, MovingObject2DInterface, Simu
     }
 
     @Override
-    public List<GFAction> getActions() {
-        return individual.getActions();
-    }
-
-    @Override
-    public <T extends GFAction> T getAction(Class<T> t, String actionName) {
-        return individual.getAction(t, actionName);
-    }
-
-    @Override
-    public <T extends GFAction> Iterable<GFAction> getActions(Class<T> class1) {
-        return individual.getActions(class1);
-    }
-
-    @Override
     public boolean addProperty(GFProperty property) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean hasProperty(String name) {
-        return individual.hasProperty(name);
-    }
-
-    @Override
-    public boolean hasAction(String name) {
-        return individual.hasAction(name);
     }
 
     @Override
@@ -92,61 +64,15 @@ public class Agent implements IndividualInterface, MovingObject2DInterface, Simu
     }
 
     @Override
-    public List<GFProperty> getProperties() {
-        return individual.getProperties();
-    }
-
-    @Override
-    public <T extends GFProperty> Iterable<T> getProperties(Class<T> clazz) {
-        return individual.getProperties(clazz);
-    }
-
-    @Override
-    public String toString() {
-        return individual.toString();
-    }
-
-    @Override
-    public boolean isCloneOf(Object object) {
-        return individual.isCloneOf(object);
-    }
-
-    @Override
-    public String getName() {
-        return individual.getName();
-    }
-
-    @Override
-    public Iterable<? extends GFComponent> getComponents() {
-        return individual.getComponents();
-    }
-
-    @Override
-    public <T extends GFInterface> T getInterface(Class<T> clazz) throws NoSuchElementException {
-        return individual.getInterface(clazz);
-    }
-
-    @Override
     public void changeActionExecutionOrder(GFAction object, GFAction object2) {
         throw new UnsupportedOperationException();
     }
-
-    public void componentRemoved(GFComponent component) {
-        individual.componentRemoved(component);
-    }
-
-    @Override
-    public void freeze() {
-        individual.freeze();
-    }
-
-    private final Individual individual;
 
     private Genome genome;
 
     private Body body;
 
-    private final int id;
+    private int id;
 
     public int getTimeOfBirth() {
         return timeOfBirth;
@@ -156,14 +82,13 @@ public class Agent implements IndividualInterface, MovingObject2DInterface, Simu
 
     private GFAction lastExecutedAction;
 
-    private Agent(Individual individual, int id) {
-        this.individual = individual;
-        this.id = id;
+    private Agent(IndividualInterface individual) {
+        super(individual);
         freeze();
     }
 
-    public static Agent newInstance(Individual individual, int id) {
-        return new Agent(individual, id);
+    public static Agent newInstance(IndividualInterface individual) {
+        return new Agent(individual);
     }
 
     private void finishAssembly() {
@@ -323,22 +248,11 @@ public class Agent implements IndividualInterface, MovingObject2DInterface, Simu
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        individual.checkConsistency(components);
+    public DeepClonable deepCloneHelper(CloneMap map) {
+        return new Agent(this, map);
     }
 
-    @Override
-    public <T> T checkFrozen(T value) {
-        return individual.checkFrozen(value);
-    }
-
-    @Override
-    public void checkNotFrozen() {
-        individual.checkNotFrozen();
-    }
-
-    @Override
-    public Individual deepClone() {
-        return individual.deepClone();
+    public void setId(int id) {
+        this.id = id;
     }
 }

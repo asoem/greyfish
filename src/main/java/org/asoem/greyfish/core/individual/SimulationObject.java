@@ -18,4 +18,7 @@ public interface SimulationObject extends DeepClonable, Initializeable, Object2D
     double getRadius();
     Color getColor();
     int getId();
+
+    double getOrientation();
+    void rotate(double angle);
 }

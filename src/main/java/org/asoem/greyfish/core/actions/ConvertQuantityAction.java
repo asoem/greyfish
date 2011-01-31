@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="actions")
@@ -37,14 +38,14 @@ public class ConvertQuantityAction extends AbstractGFAction {
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
+    public AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
         return new ConvertQuantityAction(this, cloneMap);
     }
 
     public ConvertQuantityAction(ConvertQuantityAction cloneable, CloneMap map) {
         super(cloneable, map);
-        this.parameterSource = deepClone(cloneable.parameterSource, map);
-        this.parameterTarget = deepClone(cloneable.parameterTarget, map);
+        this.parameterSource = map.clone(cloneable.parameterSource, DoubleProperty.class);
+        this.parameterTarget = map.clone(cloneable.parameterTarget, DoubleProperty.class);
         this.parameterFactor = cloneable.parameterFactor;
         this.parameterMax = cloneable.parameterMax;
     }
@@ -57,7 +58,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
         this.parameterMax = builder.parameterMax;
     }
 
-    public static final Builder with() { return new Builder(); }
+    public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ConvertQuantityAction> {
         private Builder() {}
         @Override protected Builder self() { return this; }

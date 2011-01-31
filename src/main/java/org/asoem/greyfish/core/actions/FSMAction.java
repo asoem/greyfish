@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.CloneMap;
 
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Predicates.in;

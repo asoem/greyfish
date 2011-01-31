@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.collect.Ordering;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -20,7 +21,7 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
     }
 
     @Override
-    protected DoubleProperty deepCloneHelper(CloneMap cloneMap) {
+    public DoubleProperty deepCloneHelper(CloneMap cloneMap) {
         return new DoubleProperty(this, cloneMap);
     }
 
@@ -43,7 +44,7 @@ public class DoubleProperty extends OrderedSetProperty<Double> {
 
     public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoubleProperty> {
-        private Builder() {}
+        private Builder() {lowerBound(0.0).upperBound(0.0).initialValue(0.0);}
         @Override protected Builder self() { return this; }
         @Override public DoubleProperty build() {
             checkState(lowerBound != null);

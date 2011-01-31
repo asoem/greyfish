@@ -7,10 +7,12 @@ import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
+import scala.collection.script.Reset;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -39,7 +41,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
     protected ACLMessage.Builder handleAccept(ACLMessage message) {
         resourceProperty.subtract(offer);
 
-        return message.replyFrom(componentOwner)
+        return message.replyFrom(componentOwner.getId())
                 .performative(ACLPerformative.INFORM);
     }
 
@@ -52,7 +54,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
 
-        ACLMessage.Builder ret = message.replyFrom(componentOwner);
+        ACLMessage.Builder ret = message.replyFrom(componentOwner.getId());
 
         offer = Math.min(amountRequested, resourceProperty.getValue());
 
@@ -92,13 +94,13 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
     }
 
     @Override
-    protected ResourceProvisionAction deepCloneHelper(CloneMap cloneMap) {
+    public ResourceProvisionAction deepCloneHelper(CloneMap cloneMap) {
         return new ResourceProvisionAction(this, cloneMap);
     }
 
     private ResourceProvisionAction(ResourceProvisionAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
-        this.resourceProperty = deepClone(cloneable.resourceProperty, cloneMap);
+        this.resourceProperty = cloneMap.clone(cloneable.resourceProperty, ResourceProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
     }
 

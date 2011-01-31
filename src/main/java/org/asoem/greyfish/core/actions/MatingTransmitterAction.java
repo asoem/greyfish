@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -52,7 +53,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     @Override
     protected ACLMessage.Builder handleAccept(ACLMessage message) {
-        return message.replyFrom(componentOwner)
+        return message.replyFrom(componentOwner.getId())
                 .performative(ACLPerformative.INFORM);
     }
 
@@ -61,13 +62,13 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
         final Genome sperm = new Genome(componentOwner.getGenome());
         sperm.mutate();
 
-        return message.replyFrom(componentOwner)
+        return message.replyFrom(componentOwner.getId())
                 .objectContent(new EvaluatedGenome(sperm, evaluateFormula()))
                 .performative(ACLPerformative.PROPOSE);
     }
 
     @Override
-    protected MatingTransmitterAction deepCloneHelper(CloneMap cloneMap) {
+    public MatingTransmitterAction deepCloneHelper(CloneMap cloneMap) {
         return new MatingTransmitterAction(this, cloneMap);
     }
 

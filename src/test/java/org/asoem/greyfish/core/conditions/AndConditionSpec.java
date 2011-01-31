@@ -23,7 +23,7 @@ public class AndConditionSpec extends Specification<LogicalOperatorCondition> {
                         AlwaysTrueCondition.trueIf().build()
                         , AlwaysTrueCondition.trueIf().build()
                 ).build();
-        AndCondition clone = AndCondition.class.cast(condition.deepClone());
+        AndCondition clone = condition.deepClone(AndCondition.class);
 
         public void shouldHaveTheSameNumberOfChildren() {
             specify(clone.getChildConditions().size(), must.equal(condition.getChildConditions().size()));

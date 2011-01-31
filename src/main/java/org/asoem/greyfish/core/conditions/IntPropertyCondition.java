@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.properties.IntProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
@@ -16,7 +17,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
     protected IntPropertyCondition(IntPropertyCondition condition, CloneMap map) {
         super(condition, map);
-        this.intProperty = deepClone(condition.intProperty, map);
+        this.intProperty = map.clone(condition.intProperty, IntProperty.class);
     }
 
     @Override
@@ -37,7 +38,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
     }
 
     @Override
-    protected IntPropertyCondition deepCloneHelper(CloneMap map) {
+    public IntPropertyCondition deepCloneHelper(CloneMap map) {
         return new IntPropertyCondition(this, map);
     }
 
@@ -52,7 +53,8 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
     public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<IntPropertyCondition> {
-        private Builder() {};
+        private Builder() {}
+
         @Override protected Builder self() { return this; }
         @Override public IntPropertyCondition build() { return new IntPropertyCondition(this); }
     }

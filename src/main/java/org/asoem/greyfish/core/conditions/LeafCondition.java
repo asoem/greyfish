@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.utils.CloneMap;
+
 import java.util.List;
 
 public abstract class LeafCondition extends AbstractCondition {

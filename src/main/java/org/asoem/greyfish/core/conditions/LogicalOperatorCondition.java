@@ -7,8 +7,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.ElementList;
 
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
     protected LogicalOperatorCondition(LogicalOperatorCondition clonable, CloneMap map) {
         super(clonable, map);
-        addAll(deepCloneAll(clonable.getChildConditions(), map));
+        addAll(map.cloneAll(clonable.getChildConditions(), GFCondition.class));
     }
 
     private void integrate(Iterable<? extends GFCondition> condition2) {
@@ -58,7 +60,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
 
     @Override
-    public void setComponentRoot(Individual individual) {
+    public void setComponentRoot(IndividualInterface individual) {
         super.setComponentRoot(individual);
         for (GFCondition condition : this.conditions) {
             condition.setComponentRoot(individual);

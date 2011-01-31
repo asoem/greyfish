@@ -1,14 +1,13 @@
 package org.asoem.greyfish.core.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.SimulationObject;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.uncommons.maths.statistics.DataSet;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GenomeUtils {
 
@@ -24,7 +23,7 @@ public class GenomeUtils {
 
 			double[][] m = new double[genomes.get(0).size()][genomes.size()];
 
-			int i = 0, j = 0;
+			int i, j = 0;
 
 			for (Genome genome : genomes) {
 				i = 0;
@@ -35,9 +34,9 @@ public class GenomeUtils {
 				++j;
 			}
 
-			for (int j2 = 0; j2 < m.length; j2++) {
-				System.out.println(String.valueOf(new DataSet(m[j2]).getArithmeticMean()));
-			}
+            for (double[] aM : m) {
+                System.out.println(String.valueOf(new DataSet(aM).getArithmeticMean()));
+            }
 		}
 	}
 }

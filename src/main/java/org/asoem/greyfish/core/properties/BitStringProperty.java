@@ -2,13 +2,10 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.BitStringGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
 import org.uncommons.maths.binary.BitString;
-
-import java.util.Map;
 
 @ClassGroup(tags="property")
 public class BitStringProperty extends AbstractGFProperty implements DiscreteProperty<String> {
@@ -24,7 +21,7 @@ public class BitStringProperty extends AbstractGFProperty implements DiscretePro
     }
 
     @Override
-    protected BitStringProperty deepCloneHelper(CloneMap cloneMap) {
+    public BitStringProperty deepCloneHelper(CloneMap cloneMap) {
         return new BitStringProperty(this, cloneMap);
     }
 

@@ -1,13 +1,13 @@
 package org.asoem.greyfish.core.simulation;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.Executors;
-
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.Executors;
 
 
 public class SimulationManager implements Iterable<Simulation> {
@@ -18,8 +18,8 @@ public class SimulationManager implements Iterable<Simulation> {
 		@Override
 		public void uncaughtException(Thread t, Throwable e) {
 			GreyfishLogger.debug("Exception in simulation thread.", e);
-		};
-	};
+		}
+    };
 
 	private final ListenerSupport<SimulationManagerListener> listenerSupport = new ListenerSupport<SimulationManagerListener>();
 

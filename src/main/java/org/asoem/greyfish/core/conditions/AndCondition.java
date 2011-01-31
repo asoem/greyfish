@@ -8,6 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND operator.
@@ -30,7 +31,7 @@ public class AndCondition extends LogicalOperatorCondition {
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+    public AbstractGFComponent deepCloneHelper(CloneMap map) {
         return new AndCondition(this, map);
     }
 

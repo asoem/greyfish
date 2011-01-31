@@ -62,9 +62,8 @@ public class Location2D implements Location2DInterface {
         Location2D that = (Location2D) o;
 
         if (Double.compare(that.x, x) != 0) return false;
-        if (Double.compare(that.y, y) != 0) return false;
+        return Double.compare(that.y, y) == 0;
 
-        return true;
     }
 
     @Override

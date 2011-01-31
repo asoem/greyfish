@@ -63,9 +63,10 @@ public class TileLocation {
 		TileLocation other = (TileLocation) obj;
 		if (x != other.x)
 			return false;
-		if (y != other.y)
+		else if (y != other.y)
 			return false;
-		return true;
+		else
+            return true;
 	}
 
 	@Override

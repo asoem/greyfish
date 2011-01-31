@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.interfaces.Movement2DAcutator;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -30,7 +31,7 @@ public class RandomMovementAction extends AbstractGFAction {
         }
 
         // translate
-        movementAcutator.translate(simulation, componentOwner.getBody().getSpeed());
+        movementAcutator.translate(simulation, componentOwner.getSpeed());
     }
 
     @Override
@@ -52,7 +53,7 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected RandomMovementAction deepCloneHelper(CloneMap cloneMap) {
+    public RandomMovementAction deepCloneHelper(CloneMap cloneMap) {
         return new RandomMovementAction(this, cloneMap);
     }
 

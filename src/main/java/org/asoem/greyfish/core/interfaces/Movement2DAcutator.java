@@ -2,10 +2,13 @@ package org.asoem.greyfish.core.interfaces;
 
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.individual.SimulationObject;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.Command;
+import org.asoem.greyfish.utils.CloneMap;
 
 public final class Movement2DAcutator extends AbstractGFComponent implements GFInterface {
 	
@@ -30,7 +33,7 @@ public final class Movement2DAcutator extends AbstractGFComponent implements GFI
     }
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+    public AbstractGFComponent deepCloneHelper(CloneMap map) {
         return new Movement2DAcutator(this, map);
     }
 
@@ -38,27 +41,31 @@ public final class Movement2DAcutator extends AbstractGFComponent implements GFI
 		simulation.enqueAfterStepCommand(new Command() {		
 			@Override
 			public void execute() {
-				componentOwner.rotate(angle);
+				getSimulationObject().rotate(angle);
 			}
 		});
 	}
 
+    private IndividualInterface getSimulationObject() {
+        return componentOwner;
+    }
+
 	public void translate(final Simulation simulation, double distance) {
 
-		final double x_add = distance * Math.cos(componentOwner.getOrientation());
-		final double y_add = distance * Math.sin(componentOwner.getOrientation());
+		final double x_add = distance * Math.cos(getSimulationObject().getOrientation());
+		final double y_add = distance * Math.sin(getSimulationObject().getOrientation());
 
-		final double x_res = componentOwner.getAnchorPoint().getX() + x_add;
-		final double y_res = componentOwner.getAnchorPoint().getY() + y_add;
+		final double x_res = getSimulationObject().getAnchorPoint().getX() + x_add;
+		final double y_res = getSimulationObject().getAnchorPoint().getY() + y_add;
 
 		simulation.enqueAfterStepCommand(new Command() {
 			@Override
 			public void execute() {
                 Location2D newLocation = Location2D.at(x_res, y_res);
-				simulation.getSpace().moveObject(componentOwner, newLocation);
+				simulation.getSpace().moveObject(getSimulationObject(), newLocation);
 				
-				if ( ! componentOwner.getAnchorPoint().equals(newLocation)) { // collision
-					componentOwner.rotate(MathLib.PI);
+				if ( ! getSimulationObject().getAnchorPoint().equals(newLocation)) { // collision
+					getSimulationObject().rotate(MathLib.PI);
 				}
 			}
 		});

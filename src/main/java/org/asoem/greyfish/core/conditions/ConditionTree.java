@@ -3,8 +3,10 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -18,7 +20,7 @@ public class ConditionTree extends AbstractGFComponent {
 
     public ConditionTree(ConditionTree tree, CloneMap map) {
         super(tree, map);
-        this.rootCondition = deepClone(tree.rootCondition, map);
+        this.rootCondition = map.clone(tree.rootCondition, GFCondition.class);
     }
 
 	public GFCondition getRootCondition() {
@@ -39,14 +41,14 @@ public class ConditionTree extends AbstractGFComponent {
     }
 
 	@Override
-	public void setComponentRoot(Individual individual) {
+	public void setComponentRoot(IndividualInterface individual) {
 		super.setComponentRoot(individual);
         if (rootCondition != null)
             rootCondition.setComponentRoot(individual);
 	}
 
     @Override
-    protected AbstractGFComponent deepCloneHelper(CloneMap map) {
+    public AbstractGFComponent deepCloneHelper(CloneMap map) {
         return new ConditionTree(this, map);
     }
 
