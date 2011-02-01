@@ -4,16 +4,14 @@ import com.google.common.base.Function;
 import com.google.common.collect.ForwardingMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.asoem.greyfish.core.conditions.GFCondition;
 
-import java.util.List;
 import java.util.Map;
 
-public class CloneMap extends ForwardingMap<DeepClonable, DeepClonable> {
+public class CloneMap extends ForwardingMap<DeepCloneable, DeepCloneable> {
 
-    private Map<DeepClonable, DeepClonable> map = Maps.newHashMap();
+    private Map<DeepCloneable, DeepCloneable> map = Maps.newHashMap();
 
-    public <T extends DeepClonable> T clone(T clonable, Class<T> clazz) {
+    public <T extends DeepCloneable> T clone(T clonable, Class<T> clazz) {
         if (clonable == null)
             return null;
         else if (map.containsKey(clonable))
@@ -25,26 +23,26 @@ public class CloneMap extends ForwardingMap<DeepClonable, DeepClonable> {
     public static CloneMap newInstance() { return new CloneMap(); }
 
     @Override
-    protected Map<DeepClonable, DeepClonable> delegate() {
+    protected Map<DeepCloneable, DeepCloneable> delegate() {
         return map;
     }
 
     @Override
-    public DeepClonable remove(Object object) {
+    public DeepCloneable remove(Object object) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public DeepClonable put(DeepClonable key, DeepClonable value) {
+    public DeepCloneable put(DeepCloneable key, DeepCloneable value) {
         return super.put(key, value);
     }
 
     @Override
-    public void putAll(Map<? extends DeepClonable, ? extends DeepClonable> map) {
+    public void putAll(Map<? extends DeepCloneable, ? extends DeepCloneable> map) {
         super.putAll(map);
     }
 
-    public <T extends DeepClonable> Iterable<T> cloneAll(Iterable<T> conditions, final Class<T> clazz) {
+    public <T extends DeepCloneable> Iterable<T> cloneAll(Iterable<T> conditions, final Class<T> clazz) {
         return Iterables.transform(conditions, new Function<T, T>() {
             @Override
             public T apply(T clonable) {

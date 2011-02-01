@@ -57,4 +57,8 @@ public class CircularFifoBuffer<E> extends ForwardingCollection<E> {
 	}
 	
 	public void elementReplaced(E element) {}
+
+    public static <T> CircularFifoBuffer<T> newInstance() {
+        return new CircularFifoBuffer<T>();
+    }
 }
