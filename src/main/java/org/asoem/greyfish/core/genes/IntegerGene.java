@@ -1,18 +1,14 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.uncommons.maths.random.GaussianGenerator;
 
 public class IntegerGene extends AbstractGene<Integer> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8444774563094338923L;
+	private int max;
 
-	private Integer max;
-
-	private Integer min;
+	private int min;
 	
 	private static final GaussianGenerator GUSSIAN_GENERATOR = new GaussianGenerator(0, 3, RandomUtils.RNG);
 
@@ -28,12 +24,13 @@ public class IntegerGene extends AbstractGene<Integer> {
 		this.max = integerGene.max;
 	}
 
-	@Override
-	public IntegerGene clone() {
-		return new IntegerGene(this);
-	}
+    public IntegerGene(IntegerGene integerGene, CloneMap map) {
+        super(integerGene, map);
+        this.max = integerGene.max;
+        this.min = integerGene.min;
+    }
 
-	public Integer getMax() {
+    public Integer getMax() {
 		return max;
 	}
 
@@ -59,4 +56,9 @@ public class IntegerGene extends AbstractGene<Integer> {
 	public void initialize() {
 		representation = RandomUtils.nextInt(min, max+1);
 	}
+
+    @Override
+    public IntegerGene deepCloneHelper(CloneMap map) {
+        return new IntegerGene(this, map);
+    }
 }

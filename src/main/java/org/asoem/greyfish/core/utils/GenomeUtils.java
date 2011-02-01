@@ -1,21 +1,21 @@
 package org.asoem.greyfish.core.utils;
 
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.individual.SimulationObject;
+import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.uncommons.maths.statistics.DataSet;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GenomeUtils {
 
 
 	public static void statistics(Simulation simulation) {
-		final List<Genome> genomes = new ArrayList<Genome>();
+		final List<Genome> genomes = Lists.newArrayList();
 
-		for (SimulationObject individual : simulation.getAgents()) {
+		for (IndividualInterface individual : simulation.getAgents()) {
 			genomes.add(individual.getGenome());
 		}
 

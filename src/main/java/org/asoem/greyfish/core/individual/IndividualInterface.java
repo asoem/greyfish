@@ -2,16 +2,18 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.MovingObject2DInterface;
-import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public interface IndividualInterface extends DeepClonable, Freezable, Iterable<GFComponent>, MovingObject2DInterface {
+public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2DInterface {
     Population getPopulation();
 
     void setPopulation(Population population);
@@ -43,18 +45,22 @@ public interface IndividualInterface extends DeepClonable, Freezable, Iterable<G
     void changeActionExecutionOrder(GFAction object, GFAction object2);
 
     int getId();
-
-    void setTimeOfBirth(int timeOfBirth);
+    void setId(int i);
 
     int getTimeOfBirth();
+    void setTimeOfBirth(int timeOfBirth);
     
     Color getColor();
     void setColor(Color color);
     
+    GenomeInterface getGenome();
+    void setGenome(Genome genome);
+
     double getRadius();
     
-    Genome getGenome();
-    void setGenome(Genome genome);
-    
     GFAction getLastExecutedAction();
+
+    void execute(Simulation simulation);
+
+
 }

@@ -1,17 +1,11 @@
 package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ListenerSupport;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
@@ -122,7 +116,7 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     }
 
     @Override
-    public DeepClonable deepCloneHelper(CloneMap map) {
+    public DeepCloneable deepCloneHelper(CloneMap map) {
         return new Prototype(this, map);
     }
 

@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.individual;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Element;
@@ -12,55 +11,48 @@ import java.awt.*;
 
 public class Body extends MovingObject2D implements Initializeable {
 
-	public Body(Individual individual) {
-		this.individual = individual;
-		rotate(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-		setSpeed(0.1f);
-	}
+    private Body() {
+        rotate(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        setSpeed(0.1f);
+    }
 
-	public Body(Individual individual, Location2D location2d) {
-		this.individual = individual;
-		anchorPoint.set(location2d);
-		rotate(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-		setSpeed(0.1f);
-	}
+    private Body(Body body) {
+        anchorPoint.set(body.getAnchorPoint());
+        rotate(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        color = body.color;
+        setSpeed(0.1f);
+    }
 
-	public Body(Individual individual, Body body) {
-		this.individual = individual;
-		anchorPoint.set(body.getAnchorPoint());
-		rotate(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-		color = body.color;
-		setSpeed(0.1f);
-	}
+    // size of the body
+    private final static float radius = 0.1f;
 
-	// size of the body
-	private final static float radius = 0.1f;
-	
-	private static final Color DEFAULT_COLOR = Color.BLACK;
-	
-	@Element(name="color")
-	private Color color = DEFAULT_COLOR;
-	
-	private final Individual individual;
+    private static final Color DEFAULT_COLOR = Color.BLACK;
 
-	public float getRadius() {
-		return radius;
-	}
-	
-	public Individual getIndividual() {
-		return individual;
-	}
-	
-	public Color getColor() {
-		return color;
-	}
-	
-	public void setColor(Color color) {
-		this.color = color;
-	}
+    @Element(name="color")
+    private Color color = DEFAULT_COLOR;
 
-	@Override
-	public void initialize(Simulation simulation) {
-		this.color = DEFAULT_COLOR;
-	}
+    public float getRadius() {
+        return radius;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    @Override
+    public void initialize(Simulation simulation) {
+        this.color = DEFAULT_COLOR;
+    }
+
+    public static Body newInstance() {
+        return new Body();
+    }
+
+    public static Body copyOf(Body body) {
+        return new Body(body);
+    }
 }

@@ -1,29 +1,27 @@
 package org.asoem.greyfish.core.interfaces;
 
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLMessageReceiver;
 import org.asoem.greyfish.core.acl.ACLMessageTransmitter;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.io.GreyfishLogger;
-import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.CircularFifoBuffer;
 import org.asoem.greyfish.utils.CloneMap;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class MessageInterface extends AbstractGFComponent implements GFInterface, ACLMessageTransmitter, ACLMessageReceiver {
 
 	/**
 	 * max 32 messages
 	 */
-	private final Collection<ACLMessage> inBox = new CircularFifoBuffer<ACLMessage>();
+	private final Collection<ACLMessage> inBox = CircularFifoBuffer.newInstance();
 
     private Simulation simulation;
 	
@@ -54,10 +52,11 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
     }
 
     public Collection<ACLMessage> pollMessages(final MessageTemplate messageTemplate) {
-		Preconditions.checkNotNull(messageTemplate);
-		this.inBox.addAll(simulation.getPostOffice().getMessages(componentOwner.getId()));
+		checkNotNull(messageTemplate);
+        for (ACLMessage message : simulation.getPostOffice().getMessages(componentOwner.getId()))
+            addMessage(message);
 
-        final Collection<ACLMessage> ret = new ArrayList<ACLMessage>();
+        final Collection<ACLMessage> ret = Lists.newArrayList();
 		for (Iterator<ACLMessage> iterator = inBox.iterator(); iterator.hasNext();) {
 			final ACLMessage aclMessage = iterator.next();
 			if (messageTemplate.apply(aclMessage)) {
@@ -69,13 +68,13 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
 		return ret;
 	}
 	
-	public synchronized void addMessage(final ACLMessage message) {
-		inBox.add(Preconditions.checkNotNull(message).createCopy()); // add a copy for save object recycling
+	private synchronized void addMessage(final ACLMessage message) {
+		inBox.add(checkNotNull(message).createCopy()); // add a copy for save object recycling
 	}
 
 	@Override
 	public void deliverMessage(ACLMessage message) {
-		Preconditions.checkNotNull(message);
+		checkNotNull(message);
 //		for (Integer individual : message.getAllReceiver()) {
 //			individual.getInterface(MessageInterface.class).addMessage(message);
 //			if (GreyfishLogger.isTraceEnabled())

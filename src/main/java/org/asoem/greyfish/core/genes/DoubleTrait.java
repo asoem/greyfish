@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.genes;
 
 public class DoubleTrait extends AbstractTrait<Double> {
 
-	private DoubleGene gene = new DoubleGene();
+	private final DoubleGene gene = new DoubleGene();
 
 	public DoubleTrait() {
 	}
@@ -11,7 +11,7 @@ public class DoubleTrait extends AbstractTrait<Double> {
 		super(name);
 		gene.setMin(min);
 		gene.setMax(max);
-		gene.setRepresentation(d);
+        setValue(d);
 	}
 
 	@Override
@@ -42,6 +42,6 @@ public class DoubleTrait extends AbstractTrait<Double> {
 
 	@Override
 	public void setValue(Double value) {
-		gene.setRepresentation(value);
+		gene.setRepresentation(value, null);
 	}
 }

@@ -1,14 +1,11 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.uncommons.maths.random.GaussianGenerator;
 
 public class DoubleGene extends AbstractGene<Double> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7694823132081940077L;
 
 	private double min;
 	
@@ -16,7 +13,13 @@ public class DoubleGene extends AbstractGene<Double> {
 	
 	private static final GaussianGenerator GUSSIAN_GENERATOR = new GaussianGenerator(0, 3, RandomUtils.RNG);
 
-	public Double getMin() {
+    private DoubleGene(DoubleGene doubleGene, CloneMap map) {
+        super(doubleGene, map);
+        min = doubleGene.min;
+        max = doubleGene.max;
+    }
+
+    public Double getMin() {
 		return min;
 	}
 
@@ -36,11 +39,13 @@ public class DoubleGene extends AbstractGene<Double> {
 		super(0.0);
 	}
 
-	public DoubleGene(Double d, Double min, Double max) {
-		super(d);
+	public DoubleGene(Double init, Double min, Double max) {
+		super(init);
+        this.max = max;
+        this.min = min;
 	}
 
-	public DoubleGene(DoubleGene gene) {
+	private DoubleGene(DoubleGene gene) {
 		this(gene.representation, gene.min, gene.max);
 	}
 
@@ -51,12 +56,12 @@ public class DoubleGene extends AbstractGene<Double> {
 	}
 
 	@Override
-	public DoubleGene clone() {
-		return new DoubleGene(this);
-	}
-
-	@Override
 	public void initialize() {
 		representation = RandomUtils.nextDouble(min, max); // TODO max is exclusive in func. but inclusive as field
 	}
+
+    @Override
+    public DeepCloneable deepCloneHelper(CloneMap map) {
+        return new DoubleGene(this, map);
+    }
 }

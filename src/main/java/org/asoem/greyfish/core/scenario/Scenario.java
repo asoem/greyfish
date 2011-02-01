@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.space.*;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.*;
 
@@ -37,7 +37,7 @@ public class Scenario implements PrototypeRegistryListener {
     @SuppressWarnings("unused") // for deserialization using Simple API
     private Scenario(
             @Attribute(name="name") String name,
-            @ElementList(name="prototypes", entry="individual") Collection<DeepClonable> prototypes,
+            @ElementList(name="prototypes", entry="individual") Collection<DeepCloneable> prototypes,
             @Element(name="space") TiledSpace space,
             @ElementArray(name="placeholder-list", entry="placeholder") Placeholder[] placeholders) {
         assert name != null;
@@ -55,8 +55,8 @@ public class Scenario implements PrototypeRegistryListener {
     private Scenario(Builder builder) {
         this.name = builder.name;
         this.prototypeSpace = builder.space;
-        for (Map.Entry<IndividualInterface, Location2D> entry : builder.map.entries()) {
-            addPlaceholder(new Placeholder(entry.getKey(), entry.getValue()));
+        for (Map.Entry<IndividualInterface, Location2DInterface> entry : builder.map.entries()) {
+            addPlaceholder(Placeholder.newInstance(entry.getKey(), entry.getValue()));
         }
     }
 
@@ -136,12 +136,12 @@ public class Scenario implements PrototypeRegistryListener {
     public static Builder with() {return new Builder(); }
     public static class Builder implements BuilderInterface<Scenario> {
         private TiledSpace space;
-        private Multimap<IndividualInterface, Location2D> map = ArrayListMultimap.create();
+        private Multimap<IndividualInterface, Location2DInterface> map = ArrayListMultimap.create();
         private String name;
 
         public Builder name(String name) { this.name = name; return this; }
         public Builder space(TiledSpace space) { this.space = checkNotNull(space); return this; }
-        public Builder add(final IndividualInterface clonable, Location2D location2d) {
+        public Builder add(final IndividualInterface clonable, Location2DInterface location2d) {
             checkNotNull(clonable);
             checkNotNull(location2d);
             checkState(!Iterables.any(map.keySet(), new Predicate<IndividualInterface>() {
@@ -155,9 +155,9 @@ public class Scenario implements PrototypeRegistryListener {
         @Override
         public Scenario build() {
             checkState(space != null);
-            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<IndividualInterface, Location2D>>() {
+            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<IndividualInterface, Location2DInterface>>() {
                 @Override
-                public boolean apply(Map.Entry<IndividualInterface, Location2D> simulationObjectLocation2DEntry) {
+                public boolean apply(Map.Entry<IndividualInterface, Location2DInterface> simulationObjectLocation2DEntry) {
                     return space.covers(simulationObjectLocation2DEntry.getValue());
                 }
             }));

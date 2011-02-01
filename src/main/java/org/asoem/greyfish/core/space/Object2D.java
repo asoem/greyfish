@@ -19,7 +19,7 @@ public class Object2D implements Object2DInterface {
 		this.anchorPoint = anchorPoint;
 	}
 	
-	public Location2D getAnchorPoint() {
+	public Location2DInterface getAnchorPoint() {
 		return new Location2D(anchorPoint);
 	}
 

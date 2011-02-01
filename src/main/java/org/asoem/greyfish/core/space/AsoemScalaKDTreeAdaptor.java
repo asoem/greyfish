@@ -30,7 +30,7 @@ public class AsoemScalaKDTreeAdaptor<T extends Object2DInterface> implements KDT
     public void rebuild(Iterable<T> elements) {
         List<Tuple2<HyperPoint, T>> pointList = new ArrayList<Tuple2<HyperPoint, T>>();
         for (T element : elements) {
-            final Location2D b = element.getAnchorPoint();
+            final Location2DInterface b = element.getAnchorPoint();
             final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
             pointList.add(new Tuple2<HyperPoint, T>(hp, element));
         }

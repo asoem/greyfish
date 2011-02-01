@@ -1,8 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Function;
-import org.asoem.greyfish.core.genes.AbstractGene;
-import org.asoem.greyfish.core.genes.Gene;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.genes.IntegerGene;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -11,32 +13,45 @@ import org.asoem.greyfish.utils.RandomUtils;
 @ClassGroup(tags="property")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<String> {
 
-	private static final String MALE = "Male";
-	private static final String FEMALE = "Female";
-	private static final String ASEX = "Asex";
-	
-	private static final String[] GENDER = new String[] {MALE, FEMALE, ASEX};
-	private static final Function<Gene<Byte>, String> GENE_EXPRESSION_FUNCTION = new Function<Gene<Byte>, String>() {
+    private enum GENDER {
+        MALE("Male"),
+        FEMALE("Female"),
+        ASEX("Asex");
+
+        private String name;
+
+        GENDER(String name) {
+            this.name = name;
+        }
+
+        public static String[] names() {
+            ImmutableList.Builder<String> builder = ImmutableList.builder();
+            for (GENDER g : values())
+                builder.add(g.name());
+            return Iterables.toArray(builder.build(), String.class);
+        }
+    }
+
+	private static final Function<Integer, String> GENE_EXPRESSION_FUNCTION = new Function<Integer, String>() {
 		@Override
-		public String apply(Gene<Byte> input) {
+		public String apply(Integer input) {
             assert input != null;
-            assert input.getRepresentation() != null;
-            return GENDER[input.getRepresentation()];
+            return GENDER.values()[input].name();
 		}
 	};
 
-	private final Gene<Byte> gene = registerGene(new AbstractGene<Byte>((byte) 0) {
+	private final Supplier<Integer> gene = registerGene(new IntegerGene(0, 0, 2) {
 		@Override
 		public void mutate() {
 			if (RandomUtils.nextDouble() < 0.001)
-				setRepresentation((byte)2); // ASEX
+				setRepresentation(2, null); // ASEX
 		}
 
 		@Override
 		public void initialize() {
-            setRepresentation((byte)(RandomUtils.nextBoolean() ? 0 : 1)); // Male or Female
+            setRepresentation((RandomUtils.nextBoolean() ? 0 : 1), null); // Male or Female
 		}
-	});
+	}, Integer.class);
 
     public GonoGenderStateProperty(GonoGenderStateProperty gonoGenderStateProperty, CloneMap cloneMap) {
         super(gonoGenderStateProperty, cloneMap);
@@ -44,12 +59,12 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     @Override
 	public String getValue() {
-		return GENE_EXPRESSION_FUNCTION.apply(gene);
+		return GENE_EXPRESSION_FUNCTION.apply(gene.get());
 	}
 
 	@Override
 	public String[] getSet() {
-		return GENDER;
+		return GENDER.names();
 	}
 
     @Override

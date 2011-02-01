@@ -84,4 +84,13 @@ public class Location2D implements Location2DInterface {
     public static Location2D at(double x, double y) {
         return new Location2D(x,y);
     }
+
+    public static Location2D at(Location2DInterface location) {
+        return at(location.getX(), location.getY());
+    }
+
+    public void set(Location2DInterface location2d) {
+        setX(location2d.getX());
+        setY(location2d.getY());
+    }
 }

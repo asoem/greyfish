@@ -1,26 +1,21 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.ForwardingGenome;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.interfaces.GFInterface;
+import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.MovingObject2DInterface;
 import org.asoem.greyfish.core.space.Object2DListener;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, SimulationObject {
 
@@ -68,9 +63,9 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         throw new UnsupportedOperationException();
     }
 
-    private Genome genome;
+    private final ForwardingGenome genome = ForwardingGenome.newInstance(Genome.newInstance());
 
-    private Body body;
+    private final Body body = Body.newInstance();
 
     private int id;
 
@@ -116,7 +111,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         for (Initializeable component : getComponents()) {
             component.initialize(simulation);
         }
-        for (Initializeable component : getComponents()) { // new sensors and actuators might have got instantiated after the first round //TODO Make this dirty hack unnecessary
+        for (Initializeable component : getComponents()) { // new sensors and actuators might have got instantiated after the first round // TODO Make this dirty hack unnecessary
             component.initialize(simulation);
         }
     }
@@ -126,12 +121,14 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
      * This means, that the genome is not updated automatically.
      */
     private void assembleGenome() {
-        assert genome != null;
         assert getProperties() != null;
-        genome.clear();
+
+        Genome.Builder builder = Genome.builder();
         for (GFProperty property : getProperties()) {
-            genome.addAll(property.getGeneList());
+            builder.addAll(property.getGeneList());
         }
+
+        this.genome.setGenome(builder.build());
     }
 
     @Override
@@ -181,19 +178,8 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         }
     }
 
-    /**
-     * @param simulation The simulation context
-     * @return a deepClone of this individual fetched from the simulations pool of clones with the identical genetic constitution
-     */
-    public Agent createClone(Simulation simulation) {
-        Preconditions.checkNotNull(simulation);
-        final Agent ret = simulation.createClone(getPopulation());
-        ret.setGenome(new Genome(genome));
-        return ret;
-    }
-
     @Override
-    public Genome getGenome() {
+    public GenomeInterface getGenome() {
         return genome;
     }
 
@@ -213,7 +199,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public Location2D getAnchorPoint() {
+    public Location2DInterface getAnchorPoint() {
         return body.getAnchorPoint();
     }
 
@@ -248,7 +234,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public DeepClonable deepCloneHelper(CloneMap map) {
+    public DeepCloneable deepCloneHelper(CloneMap map) {
         return new Agent(this, map);
     }
 

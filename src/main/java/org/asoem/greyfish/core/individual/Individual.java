@@ -5,12 +5,14 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.Object2DListener;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -40,14 +42,14 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     private Population population = new Population();
 
     @ElementList(inline=true, entry="property", required=false)
-    private List<GFProperty> properties = new ArrayList<GFProperty>();
+    private List<GFProperty> properties = Lists.newArrayList();
 
     @ElementList(inline=true, entry="action", required=false)
-    private List<GFAction> actions = new ArrayList<GFAction>();
+    private List<GFAction> actions = Lists.newArrayList();
 
-    private Collection<GFInterface> interfaces = new ArrayList<GFInterface>();
+    private Collection<GFInterface> interfaces = Lists.newArrayList();
 
-    private Genome genome;
+    private Genome genome = Genome.newInstance();
 
     @Override
     public double getRadius() {
@@ -55,7 +57,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public Genome getGenome() {
+    public GenomeInterface getGenome() {
         return genome;
     }
 
@@ -67,6 +69,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public GFAction getLastExecutedAction() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void execute(Simulation simulation) {
+        throw new UnsupportedOperationException("Only Agents should get executed");
     }
 
     @Override
@@ -108,7 +115,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
         return body.getY();
     }
 
-    private Body body;
+    private final Body body = Body.newInstance();
 
     private int id;
 
@@ -441,6 +448,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
     public void setTimeOfBirth(int timeOfBirth) {
         throw new UnsupportedOperationException();
     }
@@ -506,7 +518,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     public static Builder with() { return new Builder(); }
 
     @Override
-    public Location2D getAnchorPoint() {
+    public Location2DInterface getAnchorPoint() {
         return body.getAnchorPoint();
     }
 

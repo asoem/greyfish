@@ -9,13 +9,13 @@ public abstract class AbstractTrait<T> implements Trait<T> {
 	private final String name;
 
 	private static final Gene<?>[] NULL_GENES = new Gene[0];
-	protected Gene<?>[] genes = NULL_GENES;
+	private Gene<?>[] genes = NULL_GENES;
 
-	public AbstractTrait() {
+	AbstractTrait() {
 		this("AbstractTrait");
 	}
 
-	public AbstractTrait(String string) {
+	AbstractTrait(String string) {
 		name = string;
 	}
 

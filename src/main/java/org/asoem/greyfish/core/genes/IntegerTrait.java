@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.genes;
 
 public class IntegerTrait extends AbstractTrait<Integer> {
 
-	private IntegerGene gene;
+	private final IntegerGene gene;
 
 	public IntegerTrait(String name, Integer d, Integer min, Integer max) {
 		super(name);
@@ -37,6 +37,6 @@ public class IntegerTrait extends AbstractTrait<Integer> {
 
 	@Override
 	public void setValue(Integer value) {
-		gene.setRepresentation(value);
+		gene.setRepresentation(value, null);
 	}
 }

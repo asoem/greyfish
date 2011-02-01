@@ -1,25 +1,30 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Preconditions;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
 
-public abstract class AbstractGene<T> implements Gene<T> {
+public abstract class AbstractGene<T> extends AbstractDeepCloneable implements Gene<T> {
 
-	protected  T representation;
+	T representation;
 	private String name = "";
 	
 	public AbstractGene(T element) {
 		this.representation = element;
 	}
 
-	@Override
+    AbstractGene(AbstractGene<T> doubleGene, CloneMap map) {
+        super(doubleGene, map);
+    }
+
+    @Override
 	public T getRepresentation() {
 		return representation;
 	}
 
-    @SuppressWarnings("unchecked")
 	@Override
-	public void setRepresentation(Object value) {
-		this.representation = (T) value;
+	public void setRepresentation(Object value, Class<T> clazz) {
+		this.representation = clazz.cast(value);
 	}
 
 	@Override
@@ -30,16 +35,6 @@ public abstract class AbstractGene<T> implements Gene<T> {
 	@Override
 	public String getName() {
 		return name;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Gene<T> clone() {
-		try {
-			return (Gene<T>) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new AssertionError();
-		}
 	}
 	
 	@Override

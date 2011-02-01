@@ -1,18 +1,25 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.utils.BitStringUtils;
+import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloneable;
 import org.uncommons.maths.binary.BitString;
 
 public class BitStringGene extends AbstractGene<BitString> {
 	
-	private double mutationProbability;
+	private final double mutationProbability;
 
 	public BitStringGene(final int length, final double mutationProbability) {
 		super(new BitString(length));
 		this.mutationProbability = mutationProbability;
 	}
-	
-	@Override
+
+    private BitStringGene(BitStringGene gene, CloneMap map) {
+        super(gene, map);
+        this.mutationProbability = gene.mutationProbability;
+    }
+
+    @Override
 	public void mutate() {
 		representation = BitStringUtils.mutate(representation, mutationProbability);
 	}
@@ -22,10 +29,9 @@ public class BitStringGene extends AbstractGene<BitString> {
 		representation = BitStringUtils.mutate(representation, 1);
 	}
 
-	@Override
-	public BitStringGene clone() {
-		BitStringGene ret = (BitStringGene) super.clone();
-		ret.representation = representation.clone();
-		return ret;
-	}
+
+    @Override
+    public DeepCloneable deepCloneHelper(CloneMap map) {
+        return new BitStringGene(this, map);
+    }
 }
