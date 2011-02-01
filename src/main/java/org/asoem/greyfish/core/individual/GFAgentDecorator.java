@@ -1,36 +1,31 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.Object2DListener;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepClonable;
 
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public abstract class GFAgentDecorator extends AbstractDeepCloneable implements IndividualInterface {
+public abstract class GFAgentDecorator implements IndividualInterface {
 
     private final IndividualInterface delegate;
 
-    protected GFAgentDecorator(IndividualInterface delegate, CloneMap map) {
-        super(delegate, map);
-        this.delegate = map.clone(delegate, IndividualInterface.class);
+    protected GFAgentDecorator(IndividualInterface delegate) {
+        this.delegate = delegate;
     }
 
     protected IndividualInterface getDelegate() {
         return delegate;
-    }
-
-    protected GFAgentDecorator(IndividualInterface individualInterface) {
-        this.delegate = individualInterface;
     }
 
     @Override
@@ -134,53 +129,13 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public int getId() {
-        return delegate.getId();
+    public <T extends DeepClonable> T deepClone(Class<T> clazz) {
+        return delegate.deepClone(clazz);
     }
 
     @Override
-    public void setId(int i) {
-        delegate.setId(i);
-    }
-
-    @Override
-    public void setTimeOfBirth(int timeOfBirth) {
-        delegate.setTimeOfBirth(timeOfBirth);
-    }
-
-    @Override
-    public int getTimeOfBirth() {
-        return delegate.getTimeOfBirth();
-    }
-
-    @Override
-    public Color getColor() {
-        return delegate.getColor();
-    }
-
-    @Override
-    public void setColor(Color color) {
-        delegate.setColor(color);
-    }
-
-    @Override
-    public double getRadius() {
-        return delegate.getRadius();
-    }
-
-    @Override
-    public GenomeInterface getGenome() {
-        return delegate.getGenome();
-    }
-
-    @Override
-    public void setGenome(Genome genome) {
-        delegate.setGenome(genome);
-    }
-
-    @Override
-    public GFAction getLastExecutedAction() {
-        return delegate.getLastExecutedAction();
+    public DeepClonable deepCloneHelper(CloneMap map) {
+        return delegate.deepCloneHelper(map);
     }
 
     @Override
@@ -214,6 +169,26 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
+    public double getY() {
+        return delegate.getY();
+    }
+
+    @Override
+    public double getX() {
+        return delegate.getX();
+    }
+
+    @Override
+    public void setAnchorPoint(Location2DInterface location2d) {
+        delegate.setAnchorPoint(location2d);
+    }
+
+    @Override
+    public Location2D getAnchorPoint() {
+        return delegate.getAnchorPoint();
+    }
+
+    @Override
     public double getOrientation() {
         return delegate.getOrientation();
     }
@@ -229,13 +204,8 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public Location2DInterface getAnchorPoint() {
-        return delegate.getAnchorPoint();
-    }
-
-    @Override
-    public void setAnchorPoint(Location2DInterface location2d) {
-        delegate.setAnchorPoint(location2d);
+    public void removeListener(Object2DListener listener) {
+        delegate.removeListener(listener);
     }
 
     @Override
@@ -244,22 +214,47 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public void removeListener(Object2DListener listener) {
-        delegate.removeListener(listener);
+    public int getId() {
+        return delegate.getId();
     }
 
     @Override
-    public double getX() {
-        return delegate.getX();
+    public int getTimeOfBirth() {
+        return delegate.getTimeOfBirth();
     }
 
     @Override
-    public double getY() {
-        return delegate.getY();
+    public void setTimeOfBirth(int timeOfBirth) {
+        delegate.setTimeOfBirth(timeOfBirth);
     }
 
     @Override
-    public void execute(Simulation simulation) {
-        delegate.execute(simulation);
+    public Color getColor() {
+        return delegate.getColor();
+    }
+
+    @Override
+    public void setColor(Color color) {
+        delegate.setColor(color);
+    }
+
+    @Override
+    public double getRadius() {
+        return delegate.getRadius();
+    }
+
+    @Override
+    public Genome getGenome() {
+        return delegate.getGenome();
+    }
+
+    @Override
+    public void setGenome(Genome genome) {
+        delegate.setGenome(genome);
+    }
+
+    @Override
+    public GFAction getLastExecutedAction() {
+        return delegate.getLastExecutedAction();
     }
 }
