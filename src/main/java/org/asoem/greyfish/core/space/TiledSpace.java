@@ -321,7 +321,7 @@ public class TiledSpace implements Space {
 
 	public void addOccupant(Object2DInterface object2d) {
 		Preconditions.checkNotNull(object2d);
-		TileLocation loc = getLocation(object2d.getAnchorPoint());
+		TileLocation loc = getLocation(object2d);
 		loc.occupants.add(object2d);
 		++nOccupants;
 		object2d.addListener(listener);

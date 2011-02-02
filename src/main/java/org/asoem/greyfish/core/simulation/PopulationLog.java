@@ -24,7 +24,7 @@ public class PopulationLog extends Table {
 		addColumn("death_time", Integer.class, 0);
 		for (GFProperty property : prototype.getProperties()) {
 			for (Gene<?> product : property.getGeneList()) {
-				addColumn(product.toString(), product.getRepresentation().getClass(), null);
+				addColumn(product.toString(), product.get().getClass(), null);
 			}
 		}
 	}
@@ -39,7 +39,7 @@ public class PopulationLog extends Table {
 		int i = 3;
 		for (GFProperty property : individual.getProperties()) {
 			for (Gene<?> product : property.getGeneList()) {
-				row[i++] = product.getRepresentation();
+				row[i++] = product.get();
 			}
 		}
 		addRow(row);

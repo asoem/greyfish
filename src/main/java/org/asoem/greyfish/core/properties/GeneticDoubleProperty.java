@@ -1,11 +1,14 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.genes.DoubleGene;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.RandomUtils;
+import org.uncommons.maths.random.GaussianGenerator;
 
 @ClassGroup(tags="property")
 public final class GeneticDoubleProperty extends PropertyDecorator implements DiscreteProperty<Double>, OrderedSet<Double> {
@@ -41,7 +44,12 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
     public void initialize(Simulation simulation) {
         delegate.initialize(simulation);
         doubleSupplier = delegate.registerGene(
-                new DoubleGene(delegate.getInitialValue(), getLowerBound(), getUpperBound()), Double.class);
+                new DoubleGene(delegate.getInitialValue(), new Function<Double, Double>() {
+                    @Override
+                    public Double apply(Double aDouble) {
+                        return new GaussianGenerator(getLowerBound(), getUpperBound(), RandomUtils.RNG).nextValue();
+                    }
+                }), Double.class);
     }
 
     public static Builder with() { return new Builder(); }

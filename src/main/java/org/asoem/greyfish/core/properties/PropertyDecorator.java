@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
@@ -9,6 +8,7 @@ import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.Exporter;
 
 import java.util.Iterator;
+import java.util.List;
 
 public abstract class PropertyDecorator extends AbstractDeepCloneable implements GFProperty {
 
@@ -20,7 +20,7 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public ImmutableList<? extends Gene<?>> getGeneList() {
+    public List<? extends Gene<?>> getGeneList() {
         return getDelegate().getGeneList();
     }
 
@@ -82,5 +82,10 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     @Override
     public void export(Exporter e) {
         getDelegate().export(e);
+    }
+
+    @Override
+    public void setGenes(Iterator<Gene<?>> geneIterator) {
+        getDelegate().setGenes(geneIterator);
     }
 }

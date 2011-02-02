@@ -59,8 +59,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = new Genome(componentOwner.getGenome());
-        sperm.mutate();
+        final Genome sperm = new Genome(componentOwner.getGenome()).mutated();
 
         return message.replyFrom(componentOwner.getId())
                 .objectContent(new EvaluatedGenome(sperm, evaluateFormula()))

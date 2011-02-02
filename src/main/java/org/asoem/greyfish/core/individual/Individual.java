@@ -8,7 +8,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -49,21 +48,19 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     private Collection<GFInterface> interfaces = Lists.newArrayList();
 
-    private Genome genome = Genome.newInstance();
-
     @Override
     public double getRadius() {
         return body.getRadius();
     }
 
     @Override
-    public GenomeInterface getGenome() {
-        return genome;
+    public Genome getGenome() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setGenome(Genome genome) {
-        this.genome = genome;
+        throw new UnsupportedOperationException();
     }
 
     @Override

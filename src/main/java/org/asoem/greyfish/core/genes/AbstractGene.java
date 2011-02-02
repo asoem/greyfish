@@ -1,44 +1,75 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Function;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractGene<T> extends AbstractDeepCloneable implements Gene<T> {
 
-	T representation;
-	private String name = "";
-	
-	public AbstractGene(T element) {
-		this.representation = element;
+	private final T representation;
+    private final Class<T> clazz;
+	private final String name = "";
+    private final Function<T, T> mutationFunction;
+
+    /**
+     * Constructor
+     * @param element the initial value this gene will return using {@code get()}
+     * @param clazz the Class of the supplied value
+     * @param mutationFunction
+     */
+	public AbstractGene(T element, Class<T> clazz, Function<T, T> mutationFunction) {
+        this.mutationFunction = mutationFunction;
+        this.representation = checkNotNull(element);
+        this.clazz = checkNotNull(clazz);
 	}
 
-    AbstractGene(AbstractGene<T> doubleGene, CloneMap map) {
-        super(doubleGene, map);
+    /**
+     * DeepClone Constructor
+     * @param gene the gene to clone
+     * @param map a Map of originals to their clones
+     */
+    protected AbstractGene(AbstractGene<T> gene, CloneMap map) {
+        super(gene, map);
+        this.mutationFunction = gene.mutationFunction;
+        this.clazz = gene.clazz;
+        this.representation = gene.representation;
+    }
+
+    /**
+     * Copy Constructor
+     * @param gene the original to get copied
+     * @param mutationFunction
+     */
+    protected AbstractGene(Gene<T> gene, Function<T, T> mutationFunction) {
+        this.mutationFunction = mutationFunction;
+        this.representation = gene.get();
+        this.clazz = gene.getSupplierClass();
     }
 
     @Override
-	public T getRepresentation() {
+	public T get() {
 		return representation;
 	}
 
 	@Override
-	public void setRepresentation(Object value, Class<T> clazz) {
-		this.representation = clazz.cast(value);
-	}
-
-	@Override
 	public String toString() {
-		return "Gene[" + getName() + "]=" + String.valueOf(representation);
+		return "Gene[" + getSupplierClass().getSimpleName() + "]=" + String.valueOf(representation);
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public void setName(String name) {
-		this.name = Preconditions.checkNotNull(name);
-	}
+    @Override
+    public Class<T> getSupplierClass() {
+        return clazz;
+    }
+
+    public Function<T, T> getMutationFunction() {
+        return mutationFunction;
+    }
+
+    @Override
+    public boolean isMutatedVersionOf(Gene<?> gene) {
+        return this.getSupplierClass().equals(gene.getSupplierClass())
+                && this.getMutationFunction().equals(gene.getMutationFunction());
+    }
 }

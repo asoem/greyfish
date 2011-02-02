@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -53,7 +52,7 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     Color getColor();
     void setColor(Color color);
     
-    GenomeInterface getGenome();
+    Genome getGenome();
     void setGenome(Genome genome);
 
     double getRadius();

@@ -29,7 +29,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 	private void cloneIndividual(Simulation simulation) {
 		try {
 			Agent offspring = Agent.newInstance(componentOwner.deepClone(Individual.class));
-			offspring.mutate();
+            offspring.setGenome(componentOwner.getGenome().mutated());
 			simulation.addNextStep(offspring, componentOwner);
 		} catch (Exception e) {
 			GreyfishLogger.error("Error creating a clone", e);

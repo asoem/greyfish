@@ -1,22 +1,21 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.Object2DListener;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.DeepClonable;
+import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public abstract class GFAgentDecorator implements IndividualInterface {
+public abstract class GFAgentDecorator extends AbstractDeepCloneable implements IndividualInterface {
 
     private final IndividualInterface delegate;
 
@@ -129,12 +128,7 @@ public abstract class GFAgentDecorator implements IndividualInterface {
     }
 
     @Override
-    public <T extends DeepClonable> T deepClone(Class<T> clazz) {
-        return delegate.deepClone(clazz);
-    }
-
-    @Override
-    public DeepClonable deepCloneHelper(CloneMap map) {
+    public DeepCloneable deepCloneHelper(CloneMap map) {
         return delegate.deepCloneHelper(map);
     }
 
@@ -184,7 +178,7 @@ public abstract class GFAgentDecorator implements IndividualInterface {
     }
 
     @Override
-    public Location2D getAnchorPoint() {
+    public Location2DInterface getAnchorPoint() {
         return delegate.getAnchorPoint();
     }
 

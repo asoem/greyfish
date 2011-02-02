@@ -13,59 +13,48 @@ import org.asoem.greyfish.utils.RandomUtils;
 @ClassGroup(tags="property")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<String> {
 
-    private enum GENDER {
+    private enum Gender {
         MALE("Male"),
         FEMALE("Female"),
         ASEX("Asex");
 
         private String name;
 
-        GENDER(String name) {
+        Gender(String name) {
             this.name = name;
         }
 
         public static String[] names() {
             ImmutableList.Builder<String> builder = ImmutableList.builder();
-            for (GENDER g : values())
+            for (Gender g : values())
                 builder.add(g.name());
             return Iterables.toArray(builder.build(), String.class);
         }
     }
 
-	private static final Function<Integer, String> GENE_EXPRESSION_FUNCTION = new Function<Integer, String>() {
-		@Override
-		public String apply(Integer input) {
-            assert input != null;
-            return GENDER.values()[input].name();
-		}
-	};
-
-	private final Supplier<Integer> gene = registerGene(new IntegerGene(0, 0, 2) {
-		@Override
-		public void mutate() {
-			if (RandomUtils.nextDouble() < 0.001)
-				setRepresentation(2, null); // ASEX
-		}
-
-		@Override
-		public void initialize() {
-            setRepresentation((RandomUtils.nextBoolean() ? 0 : 1), null); // Male or Female
-		}
-	}, Integer.class);
+    private final Supplier<Integer> gene = registerGene(
+            new IntegerGene(0, new Function<Integer, Integer>() {
+                @Override
+                public Integer apply(Integer integer) {
+                    return RandomUtils.nextDouble() < 0.001 ? 2 : RandomUtils.nextBoolean() ? 0 : 1;
+                }
+            }),
+            Integer.class
+    );
 
     public GonoGenderStateProperty(GonoGenderStateProperty gonoGenderStateProperty, CloneMap cloneMap) {
         super(gonoGenderStateProperty, cloneMap);
     }
 
     @Override
-	public String getValue() {
-		return GENE_EXPRESSION_FUNCTION.apply(gene.get());
-	}
+    public String getValue() {
+        return Gender.values()[gene.get()].name;
+    }
 
-	@Override
-	public String[] getSet() {
-		return GENDER.names();
-	}
+    @Override
+    public String[] getSet() {
+        return Gender.names();
+    }
 
     @Override
     public GonoGenderStateProperty deepCloneHelper(CloneMap cloneMap) {

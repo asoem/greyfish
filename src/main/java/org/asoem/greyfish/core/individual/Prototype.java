@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
@@ -26,7 +27,7 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
         return false;
     }
 
-    private final ListenerSupport<IndividualCompositionListener> listenerSupport = new ListenerSupport<IndividualCompositionListener>();
+    private final ListenerSupport<IndividualCompositionListener> listenerSupport = ListenerSupport.newInstance();
 
     public Prototype(Individual delegate) {
         super(delegate);
@@ -73,6 +74,16 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
                 listener.componentChanged(getDelegate(), object);
             }
         });
+    }
+
+    @Override
+    public void setId(int i) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void execute(Simulation simulation) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

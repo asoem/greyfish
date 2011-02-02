@@ -8,7 +8,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.individual.*;
-import org.asoem.greyfish.core.space.*;
+import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.core.space.TileLocation;
+import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ListenerSupport;
@@ -61,8 +64,7 @@ public class Scenario implements PrototypeRegistryListener {
     }
 
     public void addPlaceholder(Placeholder placeholder) {
-        Preconditions.checkNotNull(placeholder);
-        prototypeSpace.addOccupant(placeholder);
+        prototypeSpace.addOccupant(checkNotNull(placeholder));
     }
 
     public boolean removePlaceholder(Placeholder ph) {

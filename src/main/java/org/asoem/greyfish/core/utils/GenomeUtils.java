@@ -28,7 +28,7 @@ public class GenomeUtils {
 			for (Genome genome : genomes) {
 				i = 0;
 				for (Gene<?> gene : genome.getGenes()) {
-					m[i][j] = ((Number) gene.getRepresentation()).doubleValue();
+					m[i][j] = ((Number) gene.get()).doubleValue();
 					++i;
 				}
 				++j;

@@ -2,9 +2,8 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.ForwardingGenome;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;
@@ -16,8 +15,9 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
+import java.util.Iterator;
 
-public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, SimulationObject {
+public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, Initializeable {
 
     private Agent(Agent individual, CloneMap map) {
         super(map.clone(individual.getDelegate(), IndividualInterface.class));
@@ -63,8 +63,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         throw new UnsupportedOperationException();
     }
 
-    private final ForwardingGenome genome = ForwardingGenome.newInstance(Genome.newInstance());
-
     private final Body body = Body.newInstance();
 
     private int id;
@@ -86,18 +84,12 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         return new Agent(individual);
     }
 
-    private void finishAssembly() {
-        assembleGenome();
-    }
-
-    public void mutate() {
-        genome.mutate();
-    }
-
     public void setGenome(final Genome genome) {
-        assert this.genome != null;
         Preconditions.checkNotNull(genome);
-        this.genome.initGenome(genome);
+        Iterator<Gene<?>> geneIterator = genome.iterator();
+
+        for (GFProperty property : getProperties())
+            property.setGenes(geneIterator);
     }
 
     @Override
@@ -105,7 +97,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         Preconditions.checkNotNull(simulation);
 
         body.initialize(simulation);
-        genome.initialize();
+        getGenome().initialize();
 
         // call initializers
         for (Initializeable component : getComponents()) {
@@ -114,21 +106,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         for (Initializeable component : getComponents()) { // new sensors and actuators might have got instantiated after the first round // TODO Make this dirty hack unnecessary
             component.initialize(simulation);
         }
-    }
-
-    /**
-     * Assemble the genome from the current set of the individual's properties.
-     * This means, that the genome is not updated automatically.
-     */
-    private void assembleGenome() {
-        assert getProperties() != null;
-
-        Genome.Builder builder = Genome.builder();
-        for (GFProperty property : getProperties()) {
-            builder.addAll(property.getGeneList());
-        }
-
-        this.genome.setGenome(builder.build());
     }
 
     @Override
@@ -179,8 +156,12 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public GenomeInterface getGenome() {
-        return genome;
+    public Genome getGenome() {
+        Genome.Builder builder = Genome.builder();
+        for (GFProperty property : getProperties()) {
+            builder.addAll(property.getGeneList());
+        }
+        return builder.build();
     }
 
     @Override

@@ -1,26 +1,35 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ForwardingSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
 
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
-public class PrototypeManager extends AbstractCollection<Prototype> { // TODO: replace inheritance with delegation
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class PrototypeManager extends ForwardingSet<Prototype> {
 
 	private final ListenerSupport<PrototypeRegistryListener> listenerSupport = ListenerSupport.newInstance();
-    private final List<Prototype> prototypes = Lists.newArrayList();
+    private final Set<Prototype> prototypes = Sets.newHashSet();
 
 	public PrototypeManager() {
 	}
 
-	@Override
+    @Override
+    protected Set<Prototype> delegate() {
+        return prototypes;
+    }
+
+    @Override
 	public synchronized boolean add(Prototype individual) {
 		if ( ! hasCloneOf(individual)
-				&& prototypes.add(individual)) {
+				&& delegate().add(individual)) {
 			firePrototypeAdded(individual, indexOf(individual));
 			return true;
 		}
@@ -28,31 +37,35 @@ public class PrototypeManager extends AbstractCollection<Prototype> { // TODO: r
 	}
 
 	@Override
-	public synchronized boolean remove(Object individual) {
-		Preconditions.checkArgument(individual instanceof Prototype);
-		final Prototype individual2 = (Prototype) individual;
-		final int index = indexOf(individual2);
-		if (index != -1
-				&& prototypes.remove(individual2)) {
-			firePrototypeRemoved(individual2, index);
+	public synchronized boolean remove(Object object) {
+		final Prototype prototype = Prototype.class.cast(checkNotNull(object));
+
+		final int index = indexOf(prototype);
+		if (index != -1 && delegate().remove(prototype)) {
+			firePrototypeRemoved(prototype, index);
 			return true;
 		}
 		return false;
 	}
 
-	public void unregisterAllPrototypes() {
+    @Override
+    public boolean removeAll(Collection<?> collection) {
+        for (Object o : collection) {
+            remove(o);
+        }
+        return true;
+    }
+
+    public void unregisterAllPrototypes() {
         for (Prototype prototype : prototypes) {
             remove(prototype);
         }
 	}
 
 	public synchronized Prototype[] getProptotypes() {
-		return prototypes.toArray( new Prototype[prototypes.size()] );
+		return Iterables.toArray(prototypes, Prototype.class);
 	}
 
-	/**
-	 * @return
-	 */
 	@Override
 	public synchronized int size() {
 		return prototypes.size();
@@ -92,7 +105,7 @@ public class PrototypeManager extends AbstractCollection<Prototype> { // TODO: r
 
 	public boolean hasCloneOf(Prototype clone) {
 		boolean ret = false;
-		for (Prototype individual : prototypes) {
+		for (Prototype individual : delegate()) {
 			if (clone.isCloneOf(individual)) {
 				ret = true;
 				break;
@@ -101,16 +114,16 @@ public class PrototypeManager extends AbstractCollection<Prototype> { // TODO: r
 		return ret;
 	}
 
-	public int indexOf(Prototype individual) {
-		return prototypes.indexOf(individual);
+	public int indexOf(IndividualInterface individual) {
+		return Iterables.indexOf(delegate(), Predicates.equalTo(individual));
 	}
 
-	public Prototype get(int index) {
-		return prototypes.get(index);
+	public IndividualInterface get(int index) {
+		return Iterables.get(delegate(), index);
 	}
 
 	@Override
 	public Iterator<Prototype> iterator() {
-		return prototypes.iterator();
+		return delegate().iterator();
 	}
 }

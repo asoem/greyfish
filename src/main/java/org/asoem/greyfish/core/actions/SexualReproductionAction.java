@@ -2,8 +2,6 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Individual;
-import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -45,9 +43,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             final Agent offspring = componentOwner.deepClone(Agent.class);
 
             final Genome sperm = spermStorage.getRWS();
-            Genome egg = new Genome(componentOwner.getGenome());
-            egg.mutate();
-            egg = egg.recombine(sperm);
+            final Genome egg = componentOwner.getGenome().mutated().recombined(sperm);
 
             offspring.setGenome(egg);
 
