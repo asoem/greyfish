@@ -2,12 +2,13 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ListenerSupport;
+import org.simpleframework.xml.Root;
 
+@Root
 public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
     private Prototype(Prototype prototype, CloneMap map) {
@@ -82,7 +83,7 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     }
 
     @Override
-    public void execute(Simulation simulation) {
+    public void execute() {
         throw new UnsupportedOperationException();
     }
 

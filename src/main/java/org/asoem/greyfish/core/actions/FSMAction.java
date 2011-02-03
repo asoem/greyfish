@@ -11,6 +11,8 @@ import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.all;
+import static org.asoem.greyfish.core.io.GreyfishLogger.isTraceEnabled;
+import static org.asoem.greyfish.core.io.GreyfishLogger.trace;
 
 public abstract class FSMAction extends AbstractGFAction {
 
@@ -36,24 +38,22 @@ public abstract class FSMAction extends AbstractGFAction {
 
     @Override
     protected final void performAction(Simulation simulation) {
-        if (GreyfishLogger.isTraceEnabled())
-            GreyfishLogger.trace("FSM: " + this);
+        if (isTraceEnabled()) trace("FSM: " + this);
 
-        if (done()) {
-            currentStateName = initialStateName;
-        }
+        if (done()) currentStateName = initialStateName;
+
+        assert currentStateName != null;
         StateAction action = states.get(currentStateName);
+        assert action != null;
         String oldStateName = currentStateName;
         currentStateName = action.action();
 
-        if (GreyfishLogger.isTraceEnabled())
-            GreyfishLogger.trace("FSM: " + this + ": t("+oldStateName+" => "+currentStateName+")");
+        if (isTraceEnabled()) trace("FSM: " + this + ": t(" + oldStateName + " => " + currentStateName + ")");
     }
 
     @Override
     public boolean evaluate(Simulation simulation) {
-        return super.evaluate(simulation)
-                && !states.isEmpty();
+        return super.evaluate(simulation) && ! states.isEmpty();
     }
 
     @Override
@@ -66,10 +66,14 @@ public abstract class FSMAction extends AbstractGFAction {
     public void checkConsistency(Iterable<? extends GFComponent> components) {
         super.checkConsistency(components);
         if (!states.isEmpty()) {
-            checkState(initialStateName != null, "No InitialState defined");
-            checkState(states.containsKey(initialStateName), "InitialStatName `"+initialStateName+"' has no actual state in "+states);
-            checkState(!endStateNames.isEmpty(), "No EndState defined");
-            checkState(all(endStateNames, in(states.keySet())) , "Not all EndStateNames "+endStateNames+" have an actual state in "+states);
+            checkState(initialStateName != null,
+                    "No InitialState defined");
+            checkState(states.containsKey(initialStateName),
+                    "InitialStatName `"+initialStateName+"' has no actual state in "+states);
+            checkState(!endStateNames.isEmpty(),
+                    "No EndState defined");
+            checkState(all(endStateNames, in(states.keySet())) ,
+                    "Not all EndStateNames "+endStateNames+" have an actual state in "+states);
         }
         else
             GreyfishLogger.warn("FSMAction has no states defined: " + this);
@@ -88,7 +92,7 @@ public abstract class FSMAction extends AbstractGFAction {
 
     protected final void registerFSMState(final String state, final StateAction action) {
         checkArgument(!isNullOrEmpty(state));
-        checkNotNull(action);
+        checkNotNull(action); // Redundant: ImmutableMap doesn't allow null keys or values
         states = ImmutableMap.<String, StateAction>builder().putAll(states).put(state, action).build();
     }
 

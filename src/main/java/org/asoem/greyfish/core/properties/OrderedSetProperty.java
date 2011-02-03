@@ -18,10 +18,10 @@ import static com.google.common.base.Preconditions.checkState;
 
 public abstract class OrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements DiscreteProperty<E>, OrderedSet<E> {
 
-    @Element(name="min")
+    @Element(name="max")
     protected E upperBound;
 
-    @Element(name="max")
+    @Element(name="min")
     protected E lowerBound;
 
     @Element(name="init")

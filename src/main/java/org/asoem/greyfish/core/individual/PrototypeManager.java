@@ -114,11 +114,11 @@ public class PrototypeManager extends ForwardingSet<Prototype> {
 		return ret;
 	}
 
-	public int indexOf(IndividualInterface individual) {
+	public int indexOf(Prototype individual) {
 		return Iterables.indexOf(delegate(), Predicates.equalTo(individual));
 	}
 
-	public IndividualInterface get(int index) {
+	public Prototype get(int index) {
 		return Iterables.get(delegate(), index);
 	}
 

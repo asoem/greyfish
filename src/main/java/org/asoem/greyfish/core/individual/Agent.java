@@ -17,10 +17,17 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import java.awt.*;
 import java.util.Iterator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, Initializeable {
+
+    private final Simulation simulation;
 
     private Agent(Agent individual, CloneMap map) {
         super(map.clone(individual.getDelegate(), IndividualInterface.class));
+
+        this.simulation = checkNotNull(individual.simulation);
+        initialize(simulation);
     }
 
     @Override
@@ -75,13 +82,15 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     private GFAction lastExecutedAction;
 
-    private Agent(IndividualInterface individual) {
+    private Agent(IndividualInterface individual, Simulation simulation) {
         super(individual);
+        this.simulation = checkNotNull(simulation);
+        initialize(simulation);
         freeze();
     }
 
-    public static Agent newInstance(IndividualInterface individual) {
-        return new Agent(individual);
+    public static Agent newInstance(IndividualInterface individual, Simulation simulation) {
+        return new Agent(individual, simulation);
     }
 
     public void setGenome(final Genome genome) {
@@ -94,16 +103,14 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public void initialize(Simulation simulation) {
-        Preconditions.checkNotNull(simulation);
 
         body.initialize(simulation);
-        getGenome().initialize();
 
-        // call initializers
-        for (Initializeable component : getComponents()) {
+        // call initialize for all components
+        for (GFComponent component : this) {
             component.initialize(simulation);
         }
-        for (Initializeable component : getComponents()) { // new sensors and actuators might have got instantiated after the first round // TODO Make this dirty hack unnecessary
+        for (GFComponent component : this) { // new sensors and actuators might have got instantiated after the first round // TODO Make this dirty hack unnecessary
             component.initialize(simulation);
         }
     }
@@ -129,7 +136,8 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public void execute(Simulation simulation) {
+    public void execute() {
+
         GFAction toExecute = lastExecutedAction;
 
         if (toExecute == null

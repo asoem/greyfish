@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
@@ -9,6 +8,10 @@ import org.simpleframework.xml.strategy.CycleStrategy;
 import org.simpleframework.xml.strategy.Strategy;
 
 import java.io.*;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
 public class GreyfishSerialization {
 
@@ -32,8 +35,7 @@ public class GreyfishSerialization {
 	}
 
 	public static <T> T deserializeFile(File file, Class<T> clazz) throws Exception {
-		if (GreyfishLogger.isDebugEnabled())
-			GreyfishLogger.debug("Reading from: " + file.getAbsolutePath());
+		if (isDebugEnabled()) debug("Reading from: " + file.getAbsolutePath());
 		return deserializeFile(new FileInputStream(file), clazz);
 	}
 	
@@ -41,7 +43,7 @@ public class GreyfishSerialization {
 		try {
 			return serializer.read(clazz, iStream);
 		} catch (Exception e1) {
-			GreyfishLogger.error("Deserialization failed", e1);
+			error("Deserialization failed", e1);
 			throw e1;
 		}
 	}
@@ -50,39 +52,32 @@ public class GreyfishSerialization {
 		try {
 			return serializer.validate(clazz, file);
 		} catch (Exception e) {
-			if (GreyfishLogger.isDebugEnabled())
-				GreyfishLogger.debug(file + "is cannot be deserialized to class " + clazz, e);
+			if (isDebugEnabled()) debug(file + "is cannot be deserialized to class " + clazz, e);
 		}
 		return false;
 	}
 
-	public static <T> void serializeObject(File file, Object object) throws Exception {
-		Preconditions.checkNotNull(file);
-		if (file.exists())
-			Preconditions.checkArgument( file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
+	public static void serializeObject(File file, Object object) throws Exception {
+		if (checkNotNull(file).exists())
+			checkArgument(file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
 		serializeObject(new FileOutputStream(file), object);
-		if (GreyfishLogger.isDebugEnabled())
-			GreyfishLogger.debug("Object written to: " + file.getAbsolutePath());
+		if (isDebugEnabled()) debug("Object written to: " + file.getAbsolutePath());
 	}
 
-	public static <T> void serializeObject(OutputStream oStream, Object object) throws Exception {
-		Preconditions.checkNotNull(oStream);
-		Preconditions.checkNotNull(object);
+	public static void serializeObject(OutputStream oStream, Object object) throws Exception {
+		checkNotNull(oStream);
+		checkNotNull(object);
+
+        if (isDebugEnabled()) debug("Serializing object of type " + object.getClass().getName());
 
 		try {
 			final File tempFile = File.createTempFile("Greyfish", "xml");
 			serializer.write(object, tempFile);
-		} catch (Exception e) {
-			GreyfishLogger.error("Serialization failed", e);
-			throw new RuntimeException("Object not serializable", e);
-		}
-
-		try {
 			serializer.write(object, oStream);
 		} catch (Exception e) {
-			GreyfishLogger.error("Serialization failed", e);
-			throw e;
+			error("Serialization failed", e);
+			throw new RuntimeException("Object not serializable", e);
 		}
 	}
 }

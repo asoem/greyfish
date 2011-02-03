@@ -1,10 +1,7 @@
 package org.asoem.greyfish.core.interfaces;
 
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.ACLMessageReceiver;
-import org.asoem.greyfish.core.acl.ACLMessageTransmitter;
-import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -23,7 +20,7 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
 	 */
 	private final Collection<ACLMessage> inBox = CircularFifoBuffer.newInstance();
 
-    private Simulation simulation;
+    private PostOffice postOffice;
 	
 	private MessageInterface(Builder builder) {
         super(builder);
@@ -53,7 +50,8 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
 
     public Collection<ACLMessage> pollMessages(final MessageTemplate messageTemplate) {
 		checkNotNull(messageTemplate);
-        for (ACLMessage message : simulation.getPostOffice().getMessages(componentOwner.getId()))
+        assert postOffice != null;
+        for (ACLMessage message : postOffice.getMessages(componentOwner.getId()))
             addMessage(message);
 
         final Collection<ACLMessage> ret = Lists.newArrayList();
@@ -80,12 +78,12 @@ public final class MessageInterface extends AbstractGFComponent implements GFInt
 //			if (GreyfishLogger.isTraceEnabled())
 //				GreyfishLogger.trace("Sending message:"+message);
 //		}
-        simulation.getPostOffice().addMessage(message);
+        postOffice.addMessage(message);
 	}
 
     @Override
     public void initialize(Simulation simulation) {
         super.initialize(simulation);
-        this.simulation = simulation;
+        this.postOffice = simulation.getPostOffice();
     }
 }

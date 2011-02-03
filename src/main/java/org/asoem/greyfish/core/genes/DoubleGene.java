@@ -14,11 +14,6 @@ public class DoubleGene extends AbstractGene<Double> {
 		super(init, Double.class, mutationFunction);
 	}
 
-	@Override
-	public void initialize() {
-//		representation = RandomUtils.nextDouble(min, max); // TODO max is exclusive in func. but inclusive as field
-	}
-
     @Override
     public DeepCloneable deepCloneHelper(CloneMap map) {
         return new DoubleGene(this, map);

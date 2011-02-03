@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -28,7 +27,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
 	private void cloneIndividual(Simulation simulation) {
 		try {
-			Agent offspring = Agent.newInstance(componentOwner.deepClone(Individual.class));
+			Agent offspring = componentOwner.deepClone(Agent.class);
             offspring.setGenome(componentOwner.getGenome().mutated());
 			simulation.addNextStep(offspring, componentOwner);
 		} catch (Exception e) {

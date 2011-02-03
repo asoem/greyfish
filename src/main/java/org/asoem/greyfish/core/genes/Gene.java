@@ -9,8 +9,6 @@ public interface Gene<T> extends DeepCloneable, Supplier<T> {
     public Class<T> getSupplierClass();
     public Function<T, T> getMutationFunction();
 
-	public void initialize();
-
     public Gene<T> mutatedCopy();
 
     boolean isMutatedVersionOf(Gene<?> gene);

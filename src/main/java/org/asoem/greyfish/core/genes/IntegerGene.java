@@ -2,12 +2,8 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Function;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.RandomUtils;
-import org.uncommons.maths.random.GaussianGenerator;
 
 public class IntegerGene extends AbstractGene<Integer> {
-
-    private static final GaussianGenerator GUSSIAN_GENERATOR = new GaussianGenerator(0, 3, RandomUtils.RNG);
 
 	public IntegerGene(Integer init, Function<Integer, Integer> mutationFunction) {
 		super(init, Integer.class, mutationFunction);
@@ -15,11 +11,6 @@ public class IntegerGene extends AbstractGene<Integer> {
 
     public IntegerGene(IntegerGene integerGene, CloneMap map) {
         super(integerGene, map);
-    }
-
-    @Override
-    public void initialize() {
-//		representation = RandomUtils.nextInt(min, max+1);
     }
 
     @Override

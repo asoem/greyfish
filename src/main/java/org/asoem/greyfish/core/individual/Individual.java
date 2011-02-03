@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.Object2DListener;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -38,7 +37,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 //    private final ListenerSupport<IndividualCompositionListener> listenerSupport = new ListenerSupport<IndividualCompositionListener>();
 
     @Element(name="population")
-    private Population population = new Population();
+    private Population population = Population.newPopulation("Default", Color.black);
 
     @ElementList(inline=true, entry="property", required=false)
     private List<GFProperty> properties = Lists.newArrayList();
@@ -69,7 +68,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public void execute(Simulation simulation) {
+    public void execute() {
         throw new UnsupportedOperationException("Only Agents should get executed");
     }
 
@@ -365,8 +364,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @Override
     public boolean isCloneOf(Object object) {
-        return object instanceof Individual
-                && population.equals(((Individual)object).population);
+        return IndividualInterface.class.isInstance(object)
+                && population.equals(IndividualInterface.class.cast(object).getPopulation());
     }
 
     @Override

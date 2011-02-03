@@ -9,6 +9,8 @@ public interface GFComponent extends Initializeable, Freezable, HasName, Iterabl
 	public IndividualInterface getComponentOwner();
 	public void setComponentRoot(IndividualInterface individual);
 
+    public void setName(String name);
+
     @Override
 	public void checkConsistency(Iterable<? extends GFComponent> components);
 

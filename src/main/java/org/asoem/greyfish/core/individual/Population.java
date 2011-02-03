@@ -1,42 +1,38 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.utils.Rainbow;
-import org.asoem.greyfish.utils.RandomUtils;
+import com.google.common.base.Strings;
+import org.asoem.greyfish.lang.HasName;
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
 import java.awt.*;
-import java.io.Serializable;
-import java.util.Collection;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 
-public class Population implements Serializable {
+public final class Population implements HasName {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4989452649218269512L;
-
-	@Element(name="name", required = false)
-	private String name;
+	@Attribute(name="name")
+	private final String name;
 
 	@Element(name="color")
-	private Color color;
+	private final Color color;
 
-	public Population(String name) {
-		this.name = name;
-		setColor(Rainbow.getInstance().createRainbow(256)[RandomUtils.nextInt(256)]);
-	}
+    public static Population newPopulation(String name, Color color) {
+        return new Population(name, color);
+    }
 
-	public Population() {
-		this("");
-	}
+    private Population(
+            @Attribute(name="name") String name,
+            @Element(name="color") Color color) {
+        checkArgument(!Strings.isNullOrEmpty(name));
+        this.name = name;
+        this.color = checkNotNull(color);
+    }
 
-	public Color getColor() {
+    public Color getColor() {
 		return color;
-	}
-
-	public void setColor(Color color) {
-		this.color = color;
 	}
 
 	/**
@@ -70,16 +66,4 @@ public class Population implements Serializable {
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
-
-    public static Population[] fromIndiviuduals(Collection<Individual> individuals) {
-		return fromIndiviuduals((Individual[]) individuals.toArray(new Individual[individuals.size()]));
-	}
-
-	public static Population[] fromIndiviuduals(Individual ...individuals) {
-		final Population[] ret = new Population[individuals.length];
-		for (int i = 0; i < individuals.length; i++) {
-			ret[i] = individuals[i].getPopulation();
-		}
-		return ret;
-	}
 }

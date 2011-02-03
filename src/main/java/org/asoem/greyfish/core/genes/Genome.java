@@ -20,7 +20,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class Genome implements DeepCloneable, Iterable<Gene<?>> {
+public class Genome implements GenomeInterface {
 
     private final List<Gene<?>> genes = FastList.newInstance();
 
@@ -83,11 +83,6 @@ public class Genome implements DeepCloneable, Iterable<Gene<?>> {
 
     public int size() {
         return genes.size();
-    }
-
-    public void initialize() {
-        for (Gene<?> gene : this)
-            gene.initialize();
     }
 
     private boolean isCompatibleGenome(Genome genome) {

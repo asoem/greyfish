@@ -65,11 +65,6 @@ public class GeneProxy<T> implements Gene<T> {
     }
 
     @Override
-    public void initialize() {
-        gene.initialize();
-    }
-
-    @Override
     public Gene<T> mutatedCopy() {
         return new GeneProxy<T>(gene.mutatedCopy());
     }

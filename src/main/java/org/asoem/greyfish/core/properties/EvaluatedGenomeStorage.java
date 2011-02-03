@@ -87,6 +87,6 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
         @Override public EvaluatedGenomeStorage build() { return new EvaluatedGenomeStorage(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
     }
 }

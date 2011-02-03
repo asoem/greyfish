@@ -9,6 +9,8 @@ import org.simpleframework.xml.Attribute;
 
 import java.util.Iterator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent {
 
     protected IndividualInterface componentOwner;
@@ -50,6 +52,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void initialize(Simulation simulation) {
+        checkNotNull(simulation);
     }
 
     @Override

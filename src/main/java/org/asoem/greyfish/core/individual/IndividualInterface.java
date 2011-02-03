@@ -59,7 +59,7 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     
     GFAction getLastExecutedAction();
 
-    void execute(Simulation simulation);
+    void execute();
 
 
 }

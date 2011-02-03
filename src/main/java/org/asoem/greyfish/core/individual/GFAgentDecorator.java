@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.space.Object2DListener;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.simpleframework.xml.Element;
 
 import java.awt.*;
 import java.util.Iterator;
@@ -17,13 +18,14 @@ import java.util.NoSuchElementException;
 
 public abstract class GFAgentDecorator extends AbstractDeepCloneable implements IndividualInterface {
 
+    @Element(name="delegate")
     private final IndividualInterface delegate;
 
     protected GFAgentDecorator(IndividualInterface delegate) {
         this.delegate = delegate;
     }
 
-    protected IndividualInterface getDelegate() {
+    public IndividualInterface getDelegate() {
         return delegate;
     }
 
