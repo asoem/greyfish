@@ -15,11 +15,6 @@ public class Placeholder extends GFAgentDecorator {
     }
 
     @Override
-    public void setId(int i) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void execute() {
         throw new UnsupportedOperationException();
     }

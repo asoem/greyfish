@@ -44,11 +44,9 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     void changeActionExecutionOrder(GFAction object, GFAction object2);
 
     int getId();
-    void setId(int i);
 
     int getTimeOfBirth();
-    void setTimeOfBirth(int timeOfBirth);
-    
+
     Color getColor();
     void setColor(Color color);
     

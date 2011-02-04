@@ -220,11 +220,6 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public void setTimeOfBirth(int timeOfBirth) {
-        delegate.setTimeOfBirth(timeOfBirth);
-    }
-
-    @Override
     public Color getColor() {
         return delegate.getColor();
     }

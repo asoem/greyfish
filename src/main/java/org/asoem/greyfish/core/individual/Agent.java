@@ -27,6 +27,9 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         super(map.clone(individual.getDelegate(), IndividualInterface.class));
 
         this.simulation = checkNotNull(individual.simulation);
+        this.id = simulation.generateAgentID();
+        this.timeOfBirth = simulation.getSteps();
+
         initialize(simulation);
     }
 
@@ -72,19 +75,21 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     private final Body body = Body.newInstance();
 
-    private int id;
+    private final int id;
 
     public int getTimeOfBirth() {
         return timeOfBirth;
     }
 
-    private int timeOfBirth;
+    private final int timeOfBirth;
 
     private GFAction lastExecutedAction;
 
     private Agent(IndividualInterface individual, Simulation simulation) {
         super(individual);
         this.simulation = checkNotNull(simulation);
+        this.id = simulation.generateAgentID();
+        this.timeOfBirth = simulation.getSteps();
         initialize(simulation);
         freeze();
     }
@@ -128,11 +133,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     @Override
     public void rotate(double alpha) {
         body.rotate(alpha);
-    }
-
-    @Override
-    public void setTimeOfBirth(int timeOfBirth) {
-        this.timeOfBirth = timeOfBirth;
     }
 
     @Override
@@ -225,9 +225,5 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     @Override
     public DeepCloneable deepCloneHelper(CloneMap map) {
         return new Agent(this, map);
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 }

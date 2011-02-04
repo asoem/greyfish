@@ -78,11 +78,6 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     }
 
     @Override
-    public void setId(int i) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void execute() {
         throw new UnsupportedOperationException();
     }

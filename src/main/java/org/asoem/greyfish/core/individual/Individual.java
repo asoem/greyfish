@@ -444,16 +444,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public void setTimeOfBirth(int timeOfBirth) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public int getTimeOfBirth() {
         throw new UnsupportedOperationException();
     }

@@ -167,9 +167,6 @@ public class Simulation implements Runnable {
 
     private void prepareForIntegration(Agent individual, int timeOfBirth) {
         checkAgent(individual);
-        individual.setTimeOfBirth(timeOfBirth);
-        individual.setId(++maxId);
-        individual.initialize(this);
     }
 
     /**
