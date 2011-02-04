@@ -2,33 +2,36 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import javolution.lang.MathLib;
 import javolution.util.FastList;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
-import org.asoem.greyfish.core.acl.PostOffice;
+import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.scenario.Scenario;
+import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.core.space.Object2DInterface;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.utils.FastLists;
 import org.asoem.greyfish.utils.ListenerSupport;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.space.Location2D.at;
 
-public class Simulation implements Runnable {
+public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageReceiver {
 
     private final Map<Population, Prototype> prototypeMap = Maps.newHashMap();
     private final PostOffice postOffice = PostOffice.newInstance();
@@ -47,6 +50,10 @@ public class Simulation implements Runnable {
 
     public int getPrototypesCount() {
         return this.prototypeMap.size();
+    }
+
+    public Iterable<Object2DInterface> findObjects(Location2DInterface location, double radius) {
+        return space.findNeighbours(location, radius);
     }
 
     public enum Speed {
@@ -72,7 +79,7 @@ public class Simulation implements Runnable {
         return commandList.add(value);
     }
 
-    private final FastList<IndividualInterface> individuals = FastList.newInstance();
+    private final FastList<Agent> individuals = FastList.newInstance();
 
     private final ListenerSupport<SimulationListener> listenerSupport = ListenerSupport.newInstance();
 
@@ -172,17 +179,8 @@ public class Simulation implements Runnable {
     /**
      * @return a copy of the list of active individuals
      */
-    public synchronized FastList<IndividualInterface> getAgents() {
+    public synchronized FastList<Agent> getAgents() {
         return individuals; // TODO: return an unmodifiable view of this FastList
-    }
-
-    /**
-     * Add offspring to this scenario, placed relative to its parent
-     * @param offspring
-     * @param parent
-     */
-    public final void addNextStep(final Agent offspring, final Agent parent) {
-        addNextStep(offspring, parent.getAnchorPoint());
     }
 
     /**
@@ -190,7 +188,7 @@ public class Simulation implements Runnable {
      * @param individual
      * @param location
      */
-    public final synchronized void addNextStep(final Agent individual, final Location2DInterface location) {
+    private synchronized void addNextStep(final Agent individual, final Location2DInterface location) {
         prepareForIntegration(individual, getSteps() + 1);
 
         enqueAfterStepCommand(new Command() {
@@ -258,18 +256,31 @@ public class Simulation implements Runnable {
     }
 
     /**
-     * @return a deepClone of the prototype for given population registered by the underlying scenario of this simulation
-     * @throws Exception if the clone could not be created
+     * Creates a new {@code Agent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
+     * The {@code Agent} will get inserted and executed at the next step at given {@code location}.
+     * @param population The {@code Population} of the {@code Prototype} the Agent will be cloned from.
+     * @param location The location where the {@Agent} will be inserted in the {@Space}.
+     * @param genome The {@code Genome} for the new {@code Agent}.
      */
-    public IndividualInterface createClone(final Population population) {
-        Preconditions.checkNotNull(population);
-        Preconditions.checkState(prototypeMap.containsKey(population));
+    public void createAgent(final Population population, final Location2DInterface location, final Genome genome) {
+        checkNotNull(population);
+        checkState(prototypeMap.containsKey(population));
+
+        Agent agent = newAgentFromPool(population);
+        agent.setGenome(genome);
+        addNextStep(agent, location);
+    }
+
+    private Agent newAgentFromPool(final Population population) {
+        assert population != null;
+        assert prototypeMap.containsKey(population);
         try {
             return Agent.newInstance(IndividualInterface.class.cast(objectPool.borrowObject(population)), this);
         } catch (Exception e) {
             GreyfishLogger.fatal("Error using objectPool", e);
-            throw new AssertionError(e);
+            System.exit(1);
         }
+        return null;
     }
 
     public Iterable<Prototype> getPrototypes() {
@@ -423,19 +434,15 @@ public class Simulation implements Runnable {
     }
 
     private void processAgents() {
-        FastLists.foreach(individuals, new Functor<IndividualInterface>() {
-            @Override public void update(IndividualInterface individual) {
-                individual.execute();
-            }
-        });
+        for (FastList.Node<Agent> n = individuals.head(), end = individuals.tail(); (n = n.getNext()) != end;) {
+            n.getValue().execute();
+        }
     }
 
     private void processAfterStepCommands() {
-        FastLists.foreach(commandList, new Functor<Command>() {
-            @Override public void update(Command c) {
-                c.execute();
-            }
-        });
+        for (FastList.Node<Command> n = commandList.head(), end = commandList.tail(); (n = n.getNext()) != end;) {
+            n.getValue().execute();
+        }
     }
 
     private void notifyStep() {
@@ -465,5 +472,42 @@ public class Simulation implements Runnable {
         this.title = name;
     }
 
+    @Override
+    public void deliverMessage(ACLMessage message) {
+        postOffice.addMessage(message);
+    }
 
+    @Override
+    public List<ACLMessage> pollMessages(MessageTemplate messageTemplate) {
+        return postOffice.getMessages(messageTemplate);
+    }
+
+    public List<ACLMessage> pollMessages(int receiverId, MessageTemplate messageTemplate) {
+        return postOffice.getMessages(receiverId, messageTemplate);
+    }
+
+    public void translate(final Agent agent, double distance) {
+
+        final double x_add = distance * Math.cos(agent.getOrientation());
+        final double y_add = distance * Math.sin(agent.getOrientation());
+
+        final double x_res = agent.getX() + x_add;
+        final double y_res = agent.getY() + y_add;
+
+        enqueAfterStepCommand(new Command() {
+            @Override
+            public void execute() {
+                Location2D newLocation = Location2D.at(x_res, y_res);
+                getSpace().moveObject(agent, newLocation);
+
+                if (!agent.getAnchorPoint().equals(newLocation)) { // collision
+                    rotate(agent, MathLib.PI);
+                }
+            }
+        });
+    }
+
+    public void rotate(final Agent agent, double alpha) {
+        agent.setOrientation(alpha);
+    }
 }

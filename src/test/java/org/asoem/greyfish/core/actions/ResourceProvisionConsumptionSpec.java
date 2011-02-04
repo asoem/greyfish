@@ -1,8 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
@@ -42,7 +44,15 @@ public class ResourceProvisionConsumptionSpec extends Specification<ContractNetI
                 simulation.step();
             }
 
-            specify(Iterables.get(simulation.getAgents().get(1).getProperties(DoubleProperty.class), 0).getValue(), should.equal(1.0));
+            Agent consumerClone = Iterables.find(simulation.getAgents(), new Predicate<Agent>() {
+                @Override
+                public boolean apply(Agent agent) {
+                    return agent.getPopulation().equals(consumer.getPopulation());
+                }
+            }, null);
+            assert consumerClone != null;
+
+            specify(Iterables.get(consumerClone.getProperties(DoubleProperty.class), 0).getValue(), should.equal(1.0));
         }
 
     }

@@ -44,6 +44,11 @@ public enum GreyfishLogger {
 		INSTANCE.logger.error(message);
 	}
 
+    /**
+     * This method delegates to {@link org.apache.log4j.Category#fatal(Object, Throwable)}
+     * @param message the message object to log.
+     * @param t the exception to log, including its stack trace.
+     */
 	public static void fatal(Object message, Throwable t) {
 		INSTANCE.logger.fatal(message, t);
 	}

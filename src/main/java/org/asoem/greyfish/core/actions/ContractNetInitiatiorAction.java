@@ -5,7 +5,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.interfaces.MessageInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.CloneMap;
 
@@ -212,11 +211,11 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     }
 
     protected ACLMessageReceiver getReceiver() {
-        return componentOwner.getInterface(MessageInterface.class);
+        return getSimulation();
     }
 
     protected ACLMessageTransmitter getTransmitter() {
-        return componentOwner.getInterface(MessageInterface.class);
+        return getSimulation();
     }
 
     protected abstract ACLMessage.Builder createCFP();

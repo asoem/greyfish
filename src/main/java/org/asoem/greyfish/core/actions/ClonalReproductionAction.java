@@ -1,7 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -12,28 +10,22 @@ import org.simpleframework.xml.Attribute;
 public class ClonalReproductionAction extends AbstractGFAction {
 
     @Attribute(name = "nClones")
-	private int parameterClones = 1;
+    private int parameterClones = 1;
 
-	private ClonalReproductionAction() {
+    @SuppressWarnings("unused") // used in deserialization process
+    private ClonalReproductionAction() {
         this(new Builder());
-	}
+    }
 
-	@Override
-	protected void performAction(Simulation simulation) {
-		for (int i = 0; i < parameterClones; i++) {
-			cloneIndividual(simulation);
-		}
-	}
-
-	private void cloneIndividual(Simulation simulation) {
-		try {
-			Agent offspring = componentOwner.deepClone(Agent.class);
-            offspring.setGenome(componentOwner.getGenome().mutated());
-			simulation.addNextStep(offspring, componentOwner);
-		} catch (Exception e) {
-			GreyfishLogger.error("Error creating a clone", e);
-		}	
-	}
+    @Override
+    protected void performAction(Simulation simulation) {
+        for (int i = 0; i < parameterClones; i++) {
+            simulation.createAgent(
+                    componentOwner.getPopulation(),
+                    componentOwner.getAnchorPoint(),
+                    componentOwner.getGenome().mutated());
+        }
+    }
 
     @Override
     public ClonalReproductionAction deepCloneHelper(CloneMap map) {

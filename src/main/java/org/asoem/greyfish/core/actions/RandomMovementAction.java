@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.interfaces.Movement2DAcutator;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -16,28 +16,18 @@ public class RandomMovementAction extends AbstractGFAction {
     @Attribute(required=false)
     private double speed;
 
-    private Movement2DAcutator movementAcutator;
-
     private RandomMovementAction() {
         this(new Builder());
     }
 
     @Override
     protected void performAction(Simulation simulation) {
-        // rotate
         if (RandomUtils.nextBoolean()) {
             float phi = RandomUtils.nextFloat(0f, 0.1f);
-            movementAcutator.rotate(simulation, phi);
+            simulation.rotate(Agent.class.cast(componentOwner), phi);
         }
 
-        // translate
-        movementAcutator.translate(simulation, componentOwner.getSpeed());
-    }
-
-    @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
-        movementAcutator = componentOwner.getInterface(Movement2DAcutator.class);
+        simulation.translate(Agent.class.cast(componentOwner), componentOwner.getSpeed());
     }
 
     @Override

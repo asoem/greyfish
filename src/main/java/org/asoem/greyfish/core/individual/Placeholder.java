@@ -37,4 +37,9 @@ public class Placeholder extends GFAgentDecorator {
     public Location2DInterface getAnchorPoint() {
         return location;
     }
+
+    @Override
+    public void setOrientation(double alpha) {
+        throw new UnsupportedOperationException();
+    }
 }

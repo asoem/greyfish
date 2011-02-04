@@ -148,12 +148,6 @@ public class Scenario implements PrototypeRegistryListener {
         public Builder add(final Prototype clonable, Location2DInterface location2d) {
             checkNotNull(clonable);
             checkNotNull(location2d);
-            checkState(!Iterables.any(map.keySet(), new Predicate<IndividualInterface>() {
-                @Override
-                public boolean apply(IndividualInterface simulationObject) {
-                    return simulationObject.getPopulation().equals(clonable.getPopulation());
-                }
-            }));
             map.put(clonable, checkNotNull(location2d)); return this;
         }
         @Override

@@ -130,4 +130,9 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     public static Prototype newInstance(IndividualInterface individual) {
         return new Prototype(individual);
     }
+
+    @Override
+    public void setOrientation(double alpha) {
+        throw new UnsupportedOperationException();
+    }
 }

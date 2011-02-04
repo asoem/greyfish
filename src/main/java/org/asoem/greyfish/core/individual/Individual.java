@@ -4,11 +4,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2DInterface;
@@ -22,7 +20,8 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,8 +43,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @ElementList(inline=true, entry="action", required=false)
     private List<GFAction> actions = Lists.newArrayList();
-
-    private Collection<GFInterface> interfaces = Lists.newArrayList();
 
     @Override
     public double getRadius() {
@@ -88,17 +85,13 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public double getSpeed() {
-        return body.getSpeed();
-    }
-
-    public void setSpeed(float speed) {
-        body.setSpeed(speed);
+    public void setOrientation(double alpha) {
+        body.setOrientation(alpha);
     }
 
     @Override
-    public void rotate(double alpha) {
-        body.rotate(alpha);
+    public double getSpeed() {
+        return body.getSpeed();
     }
 
     @Override
@@ -117,10 +110,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @Override
     public Iterator<GFComponent> iterator() {
-        return Iterators.concat(
-                properties.iterator(),
-                actions.iterator(),
-                interfaces.iterator());
+        return Iterables.<GFComponent>concat(properties, actions).iterator();
     }
 
     public Individual() {
@@ -379,35 +369,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
         return Iterables.concat(
                 properties,
-                actions,
-                interfaces);
+                actions);
         // Conditions?
-    }
-
-    /**
-     * Get the instance of {@code clazz} associated with this individual.
-     * If none is stored yet, the interface will be created using reflection.
-     * @param <T> The Type of the Interface object
-     * @param clazz The Class for type T
-     * @return The instance of {@code clazz} associated with this individual
-     * @throws NoSuchElementException if no Interface of type clazz could be found
-     */
-    @Override
-    public <T extends GFInterface> T getInterface(Class<T> clazz) throws NoSuchElementException {
-        checkNotNull(clazz);
-        T ret = clazz.cast(Iterables.find(interfaces, instanceOf(clazz), null));
-        if (ret == null) {
-            try {
-                ret = clazz.cast(clazz.getDeclaredMethod("newInstance").invoke(null));
-                ret.setComponentRoot(this);
-                interfaces = ImmutableList.<GFInterface>builder().addAll(interfaces).add(ret).build();
-            } catch (Exception e) {
-                NoSuchElementException nsee = new NoSuchElementException(clazz.getName());
-                nsee.initCause(e);
-                throw nsee;
-            }
-        }
-        return ret;
     }
 
 //    public void addCompositionListener(

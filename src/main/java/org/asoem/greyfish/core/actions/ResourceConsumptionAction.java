@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -15,6 +13,10 @@ import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.isEmpty;
 
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
@@ -31,7 +33,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Element(name="sensorRange")
     private double sensorRange = 0;
 
-    private Iterable<Individual> sensedMates;
+    private Iterable<Agent> sensedMates;
 
     private ResourceConsumptionAction() {
         this(new Builder());
@@ -72,9 +74,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Override
     public boolean evaluate(Simulation simulation) {
         if ( super.evaluate(simulation) ) {
-            sensedMates = Iterables.filter(simulation.getSpace().findNeighbours(componentOwner, sensorRange), Individual.class);
-            sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(componentOwner)));
-            return ! Iterables.isEmpty(sensedMates);
+            sensedMates = filter(simulation.findObjects(componentOwner, sensorRange), Agent.class);
+            sensedMates = filter(sensedMates, not(equalTo(componentOwner)));
+            return ! isEmpty(sensedMates);
         }
         return false;
     }
@@ -86,8 +88,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     }
 
     private void checkValidity() {
-        Preconditions.checkNotNull(consumerProperty);
-        Preconditions.checkNotNull(parameterMessageType);
+        checkNotNull(consumerProperty);
+        checkNotNull(parameterMessageType);
     }
 
     @Override

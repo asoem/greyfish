@@ -24,7 +24,7 @@ public class MovingObject2D extends Object2D implements MovingObject2DInterface 
 	}
 	
 	@Override
-	public void rotate(double alpha) {
+	public void setOrientation(double alpha) {
 		polarPoint.addToPhi(alpha);
 	}
 }

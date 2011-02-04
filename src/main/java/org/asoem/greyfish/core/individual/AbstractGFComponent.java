@@ -20,6 +20,12 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     private boolean frozen = false;
 
+    protected Simulation getSimulation() {
+        return simulation;
+    }
+
+    private Simulation simulation;
+
     protected AbstractGFComponent(AbstractGFComponent clonable, CloneMap map) {
         super(clonable, map);
         this.name = clonable.name;
@@ -53,6 +59,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     @Override
     public void initialize(Simulation simulation) {
         checkNotNull(simulation);
+        this.simulation = simulation;
     }
 
     @Override

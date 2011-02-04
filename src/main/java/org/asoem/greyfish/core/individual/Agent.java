@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -18,6 +17,7 @@ import java.awt.*;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
 public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, Initializeable {
 
@@ -113,9 +113,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
         // call initialize for all components
         for (GFComponent component : this) {
-            component.initialize(simulation);
-        }
-        for (GFComponent component : this) { // new sensors and actuators might have got instantiated after the first round // TODO Make this dirty hack unnecessary
+            component.setComponentRoot(this);
             component.initialize(simulation);
         }
     }
@@ -128,11 +126,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     @Override
     public double getSpeed() {
         return body.getSpeed();
-    }
-
-    @Override
-    public void rotate(double alpha) {
-        body.rotate(alpha);
     }
 
     @Override
@@ -155,11 +148,10 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
                 toExecute.executeUnevaluated(simulation);
                 lastExecutedAction = toExecute;
 
-                if (GreyfishLogger.isDebugEnabled())
-                    GreyfishLogger.debug("Executed " + toExecute + "@" + this.getId());
+                if (isDebugEnabled()) debug("Executed " + toExecute + "@" + this.getId());
             }
         } catch (RuntimeException e) {
-            GreyfishLogger.error("Error during execution of " + toExecute.getName(), e);
+            error("Error during execution of " + toExecute.getName(), e);
         }
     }
 
@@ -225,5 +217,10 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     @Override
     public DeepCloneable deepCloneHelper(CloneMap map) {
         return new Agent(this, map);
+    }
+
+    @Override
+    public void setOrientation(double alpha) {
+        body.setOrientation(alpha);
     }
 }

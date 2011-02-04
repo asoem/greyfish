@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.interfaces.GFInterface;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.Object2DListener;
@@ -14,7 +13,6 @@ import org.simpleframework.xml.Element;
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public abstract class GFAgentDecorator extends AbstractDeepCloneable implements IndividualInterface {
 
@@ -120,11 +118,6 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public <T extends GFInterface> T getInterface(Class<T> clazz) throws NoSuchElementException {
-        return delegate.getInterface(clazz);
-    }
-
-    @Override
     public void changeActionExecutionOrder(GFAction object, GFAction object2) {
         delegate.changeActionExecutionOrder(object, object2);
     }
@@ -192,11 +185,6 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public double getSpeed() {
         return delegate.getSpeed();
-    }
-
-    @Override
-    public void rotate(double alpha) {
-        delegate.rotate(alpha);
     }
 
     @Override

@@ -12,13 +12,13 @@ import java.awt.*;
 public class Body extends MovingObject2D implements Initializeable {
 
     private Body() {
-        rotate(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
         setSpeed(0.1f);
     }
 
     private Body(Body body) {
         anchorPoint.set(body.getAnchorPoint());
-        rotate(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
         color = body.color;
         setSpeed(0.1f);
     }
