@@ -1,39 +1,36 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ListenerSupport;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+
+import java.util.List;
 
 @Root
 public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
-    private Prototype(Prototype prototype, CloneMap map) {
-        super(map.clone(prototype.getDelegate(), IndividualInterface.class));
-    }
-
-    public Prototype(IndividualInterface individual) {
-        super(individual);
-    }
-
-    @Override
-    public boolean addAction(GFAction action) {
-        if (getDelegate().addAction(action)) {
-            fireComponentAdded(action);
-            return true;
-        }
-        return false;
-    }
-
     private final ListenerSupport<IndividualCompositionListener> listenerSupport = ListenerSupport.newInstance();
 
-    public Prototype(Individual delegate) {
-        super(delegate);
+    private Prototype(Prototype prototype, CloneMap map) {
+        super(map.clone(prototype.getDelegate(), IndividualInterface.class));
+        for (GFComponent component : getComponents())
+            component.setComponentRoot(this);
     }
 
+    private Prototype(@Element(name="delegate") IndividualInterface delegate) {
+        super(delegate);
+        for (GFComponent component : getComponents())
+            component.setComponentRoot(this);
+    }
 
     public void addCompositionListener(
             IndividualCompositionListener individualCompositionListener) {
@@ -83,8 +80,14 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     }
 
     @Override
-    public boolean removeAction(GFAction action) {
+    public boolean addAction(GFAction action) {
+        return addComponent(getDelegate().getActions(), action);
+    }
+
+    @Override
+    public boolean removeAction(final GFAction action) {
         if (getDelegate().removeAction(action)) {
+            action.setComponentRoot(null);
             fireComponentRemoved(action);
             return true;
         }
@@ -94,21 +97,18 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     @Override
     public void removeAllActions() {
         for (GFAction action : getActions())
-        removeAction(action);
+            removeAction(action);
     }
 
     @Override
     public boolean addProperty(GFProperty property) {
-        if (getDelegate().addProperty(property)) {
-            fireComponentAdded(property);
-            return true;
-        }
-        return false;
+        return addComponent(getDelegate().getProperties(), property);
     }
 
     @Override
-    public boolean removeProperty(GFProperty property) {
+    public boolean removeProperty(final GFProperty property) {
         if (getDelegate().removeProperty(property)) {
+            property.setComponentRoot(null);
             fireComponentRemoved(property);
             return true;
         }
@@ -127,12 +127,58 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
         return new Prototype(this, map);
     }
 
-    public static Prototype newInstance(IndividualInterface individual) {
+    public static Prototype newInstance(Individual individual) {
         return new Prototype(individual);
     }
 
     @Override
     public void setOrientation(double alpha) {
         throw new UnsupportedOperationException();
+    }
+
+    private <T extends NamedIndividualComponent> boolean addComponent(final List<T> collection, final T component) {
+        checkComponentAddition(component);
+
+        // duplicate check
+        if (Iterables.find(collection, new Predicate<NamedIndividualComponent>() {
+
+            @Override
+            public boolean apply(NamedIndividualComponent object) {
+                return object.getName().equals(component.getName());
+            }
+        }, null) != null)
+            return false;
+
+        collection.add(component);
+        component.setComponentRoot(this);
+
+        fireComponentAdded(component);
+
+        if (GreyfishLogger.isTraceEnabled())
+            GreyfishLogger.trace("Component " + component.getName() + " added to " + this);
+
+        return true;
+    }
+
+    private boolean checkComponentAddition(final GFComponent component) {
+        Preconditions.checkNotNull(component);
+
+        if(component.getComponentOwner() != null
+                && component.getComponentOwner() != this) {
+            if (GreyfishLogger.isDebugEnabled())
+                GreyfishLogger.debug("Component already part of another individual");
+            return false;
+        }
+
+        return true;
+    }
+
+    public Individual getIndividual() {
+        return Individual.class.cast(getDelegate());
+    }
+
+    @Override
+    public String toString() {
+        return "Prototype[" + getPopulation() + "]";
     }
 }

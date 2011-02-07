@@ -33,7 +33,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     private final Supplier<Integer> gene = registerGene(
-            new IntegerGene(0, new Function<Integer, Integer>() {
+            new IntegerGene(RandomUtils.nextBoolean() ? 0 : 1, new Function<Integer, Integer>() {
                 @Override
                 public Integer apply(Integer integer) {
                     return RandomUtils.nextDouble() < 0.001 ? 2 : RandomUtils.nextBoolean() ? 0 : 1;

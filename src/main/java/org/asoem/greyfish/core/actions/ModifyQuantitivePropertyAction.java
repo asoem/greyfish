@@ -3,6 +3,7 @@
  */
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.collect.Iterables;
 import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
@@ -61,7 +62,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
                 "Property",
                 DoubleProperty.class,
                 parameterQuantitiveProperty,
-                componentOwner.getProperties(DoubleProperty.class)) {
+                Iterables.filter(componentOwner.getProperties(), DoubleProperty.class)) {
             @Override
             protected void writeThrough(DoubleProperty arg0) {
                 parameterQuantitiveProperty = checkFrozen(checkNotNull(arg0));

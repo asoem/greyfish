@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.IntProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -23,7 +24,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueSelectionAdaptor<IntProperty>("", IntProperty.class, intProperty, getComponentOwner().getProperties(IntProperty.class)) {
+        e.addField(new ValueSelectionAdaptor<IntProperty>("", IntProperty.class, intProperty, Iterables.filter(getComponentOwner().getProperties(), IntProperty.class)) {
 
             @Override
             protected void writeThrough(IntProperty arg0) {

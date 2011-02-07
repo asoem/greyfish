@@ -45,11 +45,13 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
         checkNotNull(amount);
         if (Ordering.natural().isOrdered(Arrays.asList(lowerBound, amount, upperBound))) {
             this.value = amount;
-            firePropertyChanged();
         }
-        else
-        if (GreyfishLogger.isDebugEnabled())
-            GreyfishLogger.debug(this.getClass().getSimpleName() + "#setValue("+amount+"): Out of range ("+lowerBound+","+upperBound+")");
+        else {
+            this.value = lowerBound;
+            if (GreyfishLogger.isDebugEnabled())
+                GreyfishLogger.debug(this.getClass().getSimpleName() + "#setValue("+amount+"): Out of range ("+lowerBound+","+upperBound+")");
+        }
+        firePropertyChanged();
     }
 
     @Override

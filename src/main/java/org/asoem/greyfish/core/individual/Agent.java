@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
@@ -9,28 +10,47 @@ import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.MovingObject2DInterface;
-import org.asoem.greyfish.core.space.Object2DListener;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
 public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, Initializeable {
 
+    // static during each activation
     private final Simulation simulation;
+    private final int timeOfBirth;
+    private final int id;
+
+    // dynamic during each activation
+    private GFAction lastExecutedAction;
 
     private Agent(Agent individual, CloneMap map) {
-        super(map.clone(individual.getDelegate(), IndividualInterface.class));
+        super(individual.getDelegate());
 
         this.simulation = checkNotNull(individual.simulation);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
 
         initialize(simulation);
+        freeze();
+    }
+
+    private Agent(IndividualInterface individual, Simulation simulation) {
+        super(individual);
+
+        this.simulation = checkNotNull(simulation);
+        this.id = simulation.generateAgentID();
+        this.timeOfBirth = simulation.getSteps();
+
+        initialize(simulation);
+        freeze();
     }
 
     @Override
@@ -54,6 +74,11 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
+    public List<GFAction> getActions() {
+        return Collections.unmodifiableList(getDelegate().getActions());
+    }
+
+    @Override
     public boolean addProperty(GFProperty property) {
         throw new UnsupportedOperationException();
     }
@@ -69,32 +94,30 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
+    public List<GFProperty> getProperties() {
+        return Collections.unmodifiableList(getDelegate().getProperties());
+    }
+
+    @Override
+    public boolean isCloneOf(Object object) {
+        return Agent.class.isInstance(object) && Agent.class.cast(object).getPopulation().equals(getPopulation());
+    }
+
+    @Override
+    public Iterable<GFComponent> getComponents() {
+        return Iterables.<GFComponent>concat(getActions(), getProperties());
+    }
+
+    @Override
     public void changeActionExecutionOrder(GFAction object, GFAction object2) {
         throw new UnsupportedOperationException();
     }
-
-    private final Body body = Body.newInstance();
-
-    private final int id;
 
     public int getTimeOfBirth() {
         return timeOfBirth;
     }
 
-    private final int timeOfBirth;
-
-    private GFAction lastExecutedAction;
-
-    private Agent(IndividualInterface individual, Simulation simulation) {
-        super(individual);
-        this.simulation = checkNotNull(simulation);
-        this.id = simulation.generateAgentID();
-        this.timeOfBirth = simulation.getSteps();
-        initialize(simulation);
-        freeze();
-    }
-
-    public static Agent newInstance(IndividualInterface individual, Simulation simulation) {
+    public static Agent newInstance(Individual individual, Simulation simulation) {
         return new Agent(individual, simulation);
     }
 
@@ -109,7 +132,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     @Override
     public void initialize(Simulation simulation) {
 
-        body.initialize(simulation);
+        getBody().initialize(simulation);
 
         // call initialize for all components
         for (GFComponent component : this) {
@@ -120,12 +143,12 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public double getOrientation() {
-        return body.getOrientation();
+        return getBody().getOrientation();
     }
 
     @Override
     public double getSpeed() {
-        return body.getSpeed();
+        return getBody().getSpeed();
     }
 
     @Override
@@ -148,10 +171,10 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
                 toExecute.executeUnevaluated(simulation);
                 lastExecutedAction = toExecute;
 
-                if (isDebugEnabled()) debug("Executed " + toExecute + "@" + this.getId());
+                if (isTraceEnabled()) trace("Executed " + toExecute + " for " + this);
             }
         } catch (RuntimeException e) {
-            error("Error during execution of " + toExecute.getName(), e);
+            error("Error during execution of " + toExecute + " for " + this, e);
         }
     }
 
@@ -166,12 +189,22 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public double getRadius() {
-        return body.getRadius();
+        return getBody().getRadius();
+    }
+
+    @Override
+    public GFAction getLastExecutedAction() {
+        return lastExecutedAction;
     }
 
     @Override
     public Color getColor() {
-        return body.getColor();
+        return getBody().getColor();
+    }
+
+    @Override
+    public void setColor(Color color) {
+        getBody().setColor(color);
     }
 
     @Override
@@ -181,37 +214,49 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public Location2DInterface getAnchorPoint() {
-        return body.getAnchorPoint();
-    }
-
-    @Override
-    public void addListener(Object2DListener listener) {
-        body.addListener(listener);
-    }
-
-    @Override
-    public void removeListener(Object2DListener listener) {
-        body.addListener(listener);
+        return getBody().getAnchorPoint();
     }
 
     @Override
     public void setAnchorPoint(Location2DInterface location2d) {
-        body.setAnchorPoint(location2d);
+        getBody().setAnchorPoint(location2d);
     }
 
     @Override
     public double getX() {
-        return body.getX();
+        return getBody().getX();
     }
 
     @Override
     public double getY() {
-        return body.getY();
+        return getBody().getY();
+    }
+
+    @Override
+    public void freeze() {
+        for (GFComponent component : getComponents())
+            component.freeze();
     }
 
     @Override
     public boolean isFrozen() {
         return true;
+    }
+
+    @Override
+    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
+        for (GFComponent component : getComponents())
+            component.checkConsistency(getComponents());
+    }
+
+    @Override
+    public <T> T checkFrozen(T value) throws IllegalStateException {
+        return value;
+    }
+
+    @Override
+    public void checkNotFrozen() throws IllegalStateException {
+        return;
     }
 
     @Override
@@ -221,6 +266,20 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public void setOrientation(double alpha) {
-        body.setOrientation(alpha);
+        getBody().setOrientation(alpha);
+    }
+
+    @Override
+    public Iterator<GFComponent> iterator() {
+        return getComponents().iterator();
+    }
+
+    @Override
+    public String toString() {
+        return "Agent[" + getPopulation() + "]#" +id;
+    }
+
+    public Individual getIndividual() {
+        return Individual.class.cast(getDelegate());
     }
 }

@@ -9,10 +9,7 @@ import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
-import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.individual.Prototype;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.Location2D;
@@ -91,8 +88,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
                     checkNotNull(key);
                     checkArgument(key instanceof Population);
                     final Prototype prototype = prototypeMap.get(Population.class.cast(key));
-                    final IndividualInterface clone = prototype.deepClone(IndividualInterface.class);
-                    clone.freeze();
+                    final Individual clone = prototype.getIndividual().deepClone(Individual.class);
                     return clone;
                 }
             },
@@ -157,14 +153,13 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
 
         for (Prototype prototype : scenario.getPrototypes()) {
             Prototype clone = prototype.deepClone(Prototype.class);
-            clone.freeze();
             assert (!prototypeMap.containsKey(clone.getPopulation())) : "Different Prototypes have the same Population";
             prototypeMap.put(clone.getPopulation(), clone);
         }
 
         // convert each placeholder to a concrete object
-        for (IndividualInterface placeholder : scenario.getPlaceholder()) {
-            final Agent clone = Agent.newInstance(placeholder, Simulation.this);
+        for (Placeholder placeholder : scenario.getPlaceholder()) {
+            final Agent clone = newAgentFromPool(placeholder.getPopulation());
             prepareForIntegration(clone, getSteps());
             addAgent(clone, at(placeholder));
         }
@@ -233,7 +228,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
     private void returnClone(final Agent individual) {
         checkAgent(individual);
         try {
-            objectPool.returnObject(individual.getPopulation(), individual.getDelegate());
+            objectPool.returnObject(individual.getPopulation(), individual.getIndividual());
         } catch (Exception e) {
             GreyfishLogger.error("Error in prototype pool", e);
         }
@@ -275,7 +270,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
         assert population != null;
         assert prototypeMap.containsKey(population);
         try {
-            return Agent.newInstance(IndividualInterface.class.cast(objectPool.borrowObject(population)), this);
+            return Agent.newInstance(Individual.class.cast(objectPool.borrowObject(population)), this);
         } catch (Exception e) {
             GreyfishLogger.fatal("Error using objectPool", e);
             System.exit(1);

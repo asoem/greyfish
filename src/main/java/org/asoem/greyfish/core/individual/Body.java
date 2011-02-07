@@ -11,6 +11,13 @@ import java.awt.*;
 
 public class Body extends MovingObject2D implements Initializeable {
 
+    private final static float RADIUS = 0.1f;
+
+    private static final Color DEFAULT_COLOR = Color.BLACK;
+
+    @Element(name="color")
+    private Color color = DEFAULT_COLOR;
+
     private Body() {
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
         setSpeed(0.1f);
@@ -23,16 +30,8 @@ public class Body extends MovingObject2D implements Initializeable {
         setSpeed(0.1f);
     }
 
-    // size of the body
-    private final static float radius = 0.1f;
-
-    private static final Color DEFAULT_COLOR = Color.BLACK;
-
-    @Element(name="color")
-    private Color color = DEFAULT_COLOR;
-
     public float getRadius() {
-        return radius;
+        return RADIUS;
     }
 
     public Color getColor() {

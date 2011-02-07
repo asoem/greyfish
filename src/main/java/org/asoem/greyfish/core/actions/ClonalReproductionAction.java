@@ -4,13 +4,15 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
 
     @Attribute(name = "nClones")
-    private int parameterClones = 1;
+    private int parameterClones;
 
     @SuppressWarnings("unused") // used in deserialization process
     private ClonalReproductionAction() {
@@ -42,6 +44,16 @@ public class ClonalReproductionAction extends AbstractGFAction {
         this.parameterClones = builder.nClones;
     }
 
+    @Override
+    public void export(Exporter e) {
+        e.addField( new ValueAdaptor<Integer>("#clones", Integer.class, parameterClones) {
+            @Override
+            protected void writeThrough(Integer arg0) {
+                parameterClones = checkFrozen(arg0);
+            }
+        });
+    }
+
     public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ClonalReproductionAction> {
         private Builder() {}
@@ -50,7 +62,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
-        private int nClones;
+        private int nClones = 1;
 
         public T clones(int parameterClones) { this.nClones = parameterClones; return self(); }
     }

@@ -19,7 +19,7 @@ public class Placeholder extends GFAgentDecorator {
         throw new UnsupportedOperationException();
     }
 
-    public static Placeholder newInstance(IndividualInterface prototype, Location2DInterface location2D) {
+    public static Placeholder newInstance(Prototype prototype, Location2DInterface location2D) {
         return new Placeholder(prototype, location2D);
     }
 
@@ -41,5 +41,10 @@ public class Placeholder extends GFAgentDecorator {
     @Override
     public void setOrientation(double alpha) {
         throw new UnsupportedOperationException();
+    }
+
+
+    public Prototype getPrototype() {
+        return Prototype.class.cast(getDelegate());
     }
 }

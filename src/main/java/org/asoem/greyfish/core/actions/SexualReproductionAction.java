@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -56,7 +57,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.addField( new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class, spermStorage, getComponentOwner().getProperties(EvaluatedGenomeStorage.class)) {
+        e.addField( new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class, spermStorage, Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class)) {
             @Override
             protected void writeThrough(EvaluatedGenomeStorage arg0) {
                 spermStorage = checkFrozen(checkNotNull(arg0));

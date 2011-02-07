@@ -105,7 +105,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 amountPerRequest = checkFrozen(checkNotNull(arg0));
             }
         });
-        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, componentOwner.getProperties(DoubleProperty.class)) {
+        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, Iterables.filter(componentOwner.getProperties(), DoubleProperty.class)) {
             @Override protected void writeThrough(DoubleProperty arg0) {
                 consumerProperty = checkFrozen(checkNotNull(arg0));
             }

@@ -10,13 +10,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class GeneProxy<T> implements Gene<T> {
 
     private Gene<T> gene;
+    private final Class<T> clazz;
 
     /**
      * Copy Constructor
      * @param gene the gene to forward methods to
      */
     public GeneProxy(Gene<T> gene) {
-        setGene(gene);
+        this.gene = checkNotNull(gene);
+        clazz = gene.getSupplierClass();
     }
 
     @SuppressWarnings("unchecked")
@@ -30,6 +32,7 @@ public class GeneProxy<T> implements Gene<T> {
     public GeneProxy(GeneProxy<T> geneProxy, CloneMap map) {
         checkClassesMatch(geneProxy.getSupplierClass());
         this.gene = (Gene<T>) map.clone(geneProxy.gene, Gene.class);
+        this.clazz = geneProxy.getSupplierClass();
     }
 
     private void checkClassesMatch(Class<?> clazz) {
@@ -56,7 +59,7 @@ public class GeneProxy<T> implements Gene<T> {
 
     @Override
     public Class<T> getSupplierClass() {
-        return gene.getSupplierClass();
+        return clazz;
     }
 
     @Override

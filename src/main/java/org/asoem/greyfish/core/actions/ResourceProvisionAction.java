@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
@@ -12,7 +13,6 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
-import scala.collection.script.Reset;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -86,7 +86,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
                 "ResourceProperty",
                 ResourceProperty.class,
                 resourceProperty,
-                componentOwner.getProperties(ResourceProperty.class)) {
+                Iterables.filter(componentOwner.getProperties(), ResourceProperty.class)) {
             @Override protected void writeThrough(ResourceProperty arg0) {
                 resourceProperty = checkFrozen(checkNotNull(arg0));
             }

@@ -46,7 +46,7 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class, spermBuffer, getComponentOwner().getProperties(EvaluatedGenomeStorage.class)) {
+        e.addField(new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class, spermBuffer, Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class)) {
             @Override
             protected void writeThrough(EvaluatedGenomeStorage arg0) {
                 spermBuffer = checkFrozen(checkNotNull(arg0));

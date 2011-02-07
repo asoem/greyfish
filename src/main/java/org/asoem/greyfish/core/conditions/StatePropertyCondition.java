@@ -46,7 +46,7 @@ public class StatePropertyCondition extends LeafCondition {
 
     @Override
     public void export(Exporter e) {
-        e.addField(new ValueSelectionAdaptor<FiniteSetProperty>("", FiniteSetProperty.class, stateProperty, getComponentOwner().getProperties(FiniteSetProperty.class)) {
+        e.addField(new ValueSelectionAdaptor<FiniteSetProperty>("", FiniteSetProperty.class, stateProperty, Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class)) {
             @Override
             protected void writeThrough(FiniteSetProperty arg0) {
                 stateProperty = checkFrozen(checkNotNull(arg0));

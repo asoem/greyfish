@@ -6,7 +6,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -163,11 +162,6 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
         protected T addConditions(GFCondition... conditions) { addConditions(asList(conditions)); return self(); }
         protected T addConditions(Iterable<GFCondition> conditions) { Iterables.addAll(this.conditions, conditions); return self(); }
-    }
-
-    @Override
-    public String toString() {
-        return getParentCondition() + "<-{" + this.getClass().getSimpleName() + "}<-" + conditions;
     }
 
 

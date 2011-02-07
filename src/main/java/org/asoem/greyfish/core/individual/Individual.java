@@ -1,16 +1,13 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2DInterface;
-import org.asoem.greyfish.core.space.Object2DListener;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
@@ -20,14 +17,11 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
 import java.awt.*;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.instanceOf;
-import static com.google.common.collect.Iterables.filter;
 import static java.util.Arrays.asList;
 
 @Root
@@ -43,6 +37,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @ElementList(inline=true, entry="action", required=false)
     private List<GFAction> actions = Lists.newArrayList();
+
+    private final Body body = Body.newInstance();
 
     @Override
     public double getRadius() {
@@ -104,10 +100,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
         return body.getY();
     }
 
-    private final Body body = Body.newInstance();
-
-    private int id;
-
     @Override
     public Iterator<GFComponent> iterator() {
         return Iterables.<GFComponent>concat(properties, actions).iterator();
@@ -131,13 +123,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     protected Individual(Individual individual, CloneMap map) {
         this.population = individual.population;
-
-        for (GFProperty property : individual.properties)
-            addProperty(map.clone(property, GFProperty.class));
-
-        for (GFAction action : individual.actions) {
-            addAction(map.clone(action, GFAction.class));
-        }
+        Iterables.addAll(actions, map.cloneAll(individual.actions, GFAction.class));
+        Iterables.addAll(properties, map.cloneAll(individual.properties, GFProperty.class));
     }
 
     @Override
@@ -151,6 +138,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
         this.population = population;
     }
 
+    @Override
+    public Body getBody() {
+        return body;
+    }
+
     /**
      * Adds the given actions to this individual.
      * The actions's execution level is set to the highest execution level found in this individual's actions +1;
@@ -159,72 +151,22 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
      */
     @Override
     public boolean addAction(final GFAction action) {
-        return addComponent(actions, action);
-    }
-
-    protected <T extends NamedIndividualComponent> boolean addComponent(final List<T> collection, final T component) {
-        checkComponentAddition(component);
-
-        // duplicate check
-        if (Iterables.find(collection, new Predicate<NamedIndividualComponent>() {
-
-            @Override
-            public boolean apply(NamedIndividualComponent object) {
-                return object.getName().equals(component.getName());
-            }
-        }, null) != null)
-            return false;
-
-        collection.add(component);
-        component.setComponentRoot(this);
-
-//        fireComponentAdded(component);
-
-        if (GreyfishLogger.isTraceEnabled())
-            GreyfishLogger.trace("Component " + component.getName() + " added to " + this);
-
-        return true;
+        return actions.add(action);
     }
 
     @Override
     public boolean removeAction(final GFAction action) {
-        checkNotFrozen();
-        if (this.actions.remove(action)) {
-            action.setComponentRoot(null);
-            componentRemoved(action);
-            return true;
-        }
-        return false;
+        return actions.remove(action);
     }
 
     @Override
     public void removeAllActions() {
-        checkNotFrozen();
-        for (GFAction a : actions) {
-            removeAction(a);
-        }
+        actions.clear();
     }
 
     @Override
     public List<GFAction> getActions() {
-        return Collections.unmodifiableList(actions);
-    }
-
-    @Override
-    public <T extends GFAction> T getAction(Class<T> t, String actionName) {
-        for (GFAction individualAction : actions) {
-            if (individualAction.getName().equals(actionName)
-                    && t.isInstance(individualAction)) {
-                return t.cast(individualAction);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public <T extends GFAction> Iterable<GFAction> getActions(
-            final Class<T> class1) {
-        return filter(actions, instanceOf(class1));
+        return actions;
     }
 
     /**
@@ -234,114 +176,27 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
      */
     @Override
     public boolean addProperty(final GFProperty property) {
-        return addComponent(properties, property);
-    }
-
-    @Override
-    public boolean hasProperty(final String name) {
-        for (GFProperty p : properties) {
-            if (p.getName().equals(name))
-                return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean hasAction(final String name) {
-        for (GFAction a : actions) {
-            if (a.getName().equals(name))
-                return false;
-        }
-        return true;
-    }
-
-//    private void fireComponentAdded(final GFComponent component) {
-//        listenerSupport.notifyListeners(new Functor<IndividualCompositionListener>() {
-//
-//            @Override
-//            public void update(IndividualCompositionListener listener) {
-//                listener.componentAdded(Individual.this, component);
-//            }
-//        });
-//    }
-
-    private boolean checkComponentAddition(final GFComponent component) {
-        checkNotFrozen();
-        Preconditions.checkNotNull(component);
-
-        if(component.getComponentOwner() != null
-                && component.getComponentOwner() != this) {
-            if (GreyfishLogger.isDebugEnabled())
-                GreyfishLogger.debug("Component already part of another individual");
-            return false;
-        }
-
-        return true;
+        return properties.add(property);
     }
 
     @Override
     public boolean removeProperty(final GFProperty property) {
-        checkNotFrozen();
-        if (this.properties.remove(property)) {
-            property.setComponentRoot(null);
-            componentRemoved(property);
-            return true;
-        }
-        return false;
+        return properties.remove(property);
     }
 
-    /**
-     *
-     */
     @Override
     public void removeAllProperties() {
-        checkNotFrozen();
-        for (GFProperty p : properties) {
-            removeProperty(p);
-        }
+        properties.clear();
     }
 
     @Override
     public List<GFProperty> getProperties() {
-        return Collections.unmodifiableList(properties);
+        return properties;
     }
-
-    @Override
-    public <T extends GFProperty> Iterable<T> getProperties(Class<T> clazz) {
-        return Iterables.filter(properties, clazz);
-    }
-
-//	/**
-//	 * @return the location
-//	 */
-//	public AbstractLocation getLocation() {
-//		return null;;
-//	}
-
-//	/**
-//	 * @return
-//	 */
-//	public AbstractLocation[] getAdjacentLocations() {
-//		Preconditions.checkState(getLocation() != null);
-//		return getLocation().getAdjacentLocations();
-//	}
-
-//	/**
-//	 * @param location the location to set
-//	 */
-//	public void setLocation(AbstractLocation location) {
-//		if ( ! Objects.equal(this.getLocation(), location)) {
-//			if(this.getLocation() != null)
-//				this.getLocation().removeOwner(this);
-//			this.location = location;
-//			if(this.getLocation() != null)
-//				this.getLocation().addOwner(this);
-//		}
-//	}
 
     @Override
     public String toString() {
-        return population.toString();
+        return "Individual[" + population + "]";
     }
 
     @SuppressWarnings("unused")
@@ -359,29 +214,9 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public String getName() {
-        return population.getName();
-    }
-
-    // TODO: Should better return a Component Graph
-    @Override
     public Iterable<? extends GFComponent> getComponents() {
-
-        return Iterables.concat(
-                properties,
-                actions);
-        // Conditions?
+        return Iterables.concat( properties, actions);
     }
-
-//    public void addCompositionListener(
-//            IndividualCompositionListener individualCompositionListener) {
-//        listenerSupport.addListener(individualCompositionListener);
-//    }
-//
-//    public void removeCompositionListener(
-//            IndividualCompositionListener individualCompositionListener) {
-//        listenerSupport.removeListener(individualCompositionListener);
-//    }
 
     @Override
     public void changeActionExecutionOrder(final GFAction object, final GFAction object2) {
@@ -392,18 +227,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
         int index1 = actions.indexOf(object);
         int index2 = actions.indexOf(object2);
         actions.add(index2, actions.remove(index1));
-//        listenerSupport.notifyListeners(new Functor<IndividualCompositionListener>() {
-//
-//            @Override
-//            public void update(IndividualCompositionListener listener) {
-//                listener.componentChanged(Individual.this, object);
-//            }
-//        });
     }
 
     @Override
     public int getId() {
-        return this.id;
+        return -1;
     }
 
     @Override
@@ -415,25 +243,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     public Individual deepCloneHelper(CloneMap map) {
         return new Individual(this, map);
     }
-
-    protected void componentRemoved(final GFComponent component) {
-//        fireComponentRemoved(component);
-
-        final Iterable<? extends GFComponent> components = getComponents();
-        for (GFComponent individualComponent : components) {
-            individualComponent.checkConsistency(components);
-        }
-    }
-
-//    private void fireComponentRemoved(final GFComponent component) {
-//        listenerSupport.notifyListeners(new Functor<IndividualCompositionListener>() {
-//
-//            @Override
-//            public void update(IndividualCompositionListener listener) {
-//                listener.componentRemoved(Individual.this, component);
-//            }
-//        });
-//    }
 
     @Override
     public void freeze() {
@@ -469,16 +278,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public Location2DInterface getAnchorPoint() {
         return body.getAnchorPoint();
-    }
-
-    @Override
-    public void addListener(Object2DListener listener) {
-        body.addListener(listener);
-    }
-
-    @Override
-    public void removeListener(Object2DListener listener) {
-        body.removeListener(listener);
     }
 
     @Override

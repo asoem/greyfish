@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
-public class GreyfishSerialization {
+public class  GreyfishSerialization {
 
 	private final static Strategy strategy = new CycleStrategy("id", "ref");
 	private final static Serializer serializer = new Persister(strategy, GreyfishMatcher.getInstance());
@@ -52,7 +52,7 @@ public class GreyfishSerialization {
 		try {
 			return serializer.validate(clazz, file);
 		} catch (Exception e) {
-			if (isDebugEnabled()) debug(file + "is cannot be deserialized to class " + clazz, e);
+			if (isDebugEnabled()) debug("Unable to deserialize file to " + clazz + ": " + file, e);
 		}
 		return false;
 	}

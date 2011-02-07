@@ -6,7 +6,10 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Attribute;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -61,14 +64,6 @@ public class TiledSpace implements Space {
     private final TileLocation[][] tileMatrix;
 
     private int nOccupants;
-
-    private final Object2DListener listener = new Object2DListener() {
-
-        @Override
-        public void hasMoved(Object2D object2d, Location2D oldLocation) {
-
-        }
-    };
 
     private final KDTreeAdaptor<Object2DInterface> kdtree = new AsoemScalaKDTreeAdaptor<Object2DInterface>();
 
@@ -251,7 +246,6 @@ public class TiledSpace implements Space {
         TileLocation loc = getLocation(object2d);
         loc.occupants.add(object2d);
         ++nOccupants;
-        object2d.addListener(listener);
     }
 
     @Override

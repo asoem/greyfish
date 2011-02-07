@@ -4,7 +4,6 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2DInterface;
-import org.asoem.greyfish.core.space.Object2DListener;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
@@ -23,7 +22,7 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
         this.delegate = delegate;
     }
 
-    public IndividualInterface getDelegate() {
+    protected IndividualInterface getDelegate() {
         return delegate;
     }
 
@@ -43,11 +42,6 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public boolean hasAction(String name) {
-        return delegate.hasAction(name);
-    }
-
-    @Override
     public boolean removeAction(GFAction action) {
         return delegate.removeAction(action);
     }
@@ -63,23 +57,8 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public <T extends GFAction> T getAction(Class<T> t, String actionName) {
-        return delegate.getAction(t, actionName);
-    }
-
-    @Override
-    public <T extends GFAction> Iterable<GFAction> getActions(Class<T> class1) {
-        return delegate.getActions(class1);
-    }
-
-    @Override
     public boolean addProperty(GFProperty property) {
         return delegate.addProperty(property);
-    }
-
-    @Override
-    public boolean hasProperty(String name) {
-        return delegate.hasProperty(name);
     }
 
     @Override
@@ -98,18 +77,8 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public <T extends GFProperty> Iterable<T> getProperties(Class<T> clazz) {
-        return delegate.getProperties(clazz);
-    }
-
-    @Override
     public boolean isCloneOf(Object object) {
         return delegate.isCloneOf(object);
-    }
-
-    @Override
-    public String getName() {
-        return delegate.getName();
     }
 
     @Override
@@ -188,16 +157,6 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public void removeListener(Object2DListener listener) {
-        delegate.removeListener(listener);
-    }
-
-    @Override
-    public void addListener(Object2DListener listener) {
-        delegate.addListener(listener);
-    }
-
-    @Override
     public int getId() {
         return delegate.getId();
     }
@@ -235,5 +194,10 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public GFAction getLastExecutedAction() {
         return delegate.getLastExecutedAction();
+    }
+
+    @Override
+    public Body getBody() {
+        return delegate.getBody();
     }
 }

@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ContinuosProperty;
@@ -36,7 +35,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     private ConditionTree conditionTree;
 
-    @Element(name="costs_formula")
+    @Element(name="costs_formula", required = false)
     private String energyCostsFormula = "0";
 
     @Element(name="energy_source", required=false)
@@ -96,6 +95,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         conditionTree.initialize(simulation);
         executionCount = 0;
         timeOfLastExecution = simulation.getSteps();
+        parseFormula();
     }
 
     @Override
@@ -109,7 +109,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
         catch (EvaluationException e) {
-            GreyfishLogger.warn("CostsFormula is not a valid expression", e);
+            GreyfishLogger.warn("CostsFormula is not a valid expression: '" + energyCostsFormula + "'", e);
             return 0;
         }
     }
@@ -123,6 +123,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public void setRootCondition(GFCondition rootCondition) {
         conditionTree = new ConditionTree(checkFrozen(rootCondition));
+        conditionTree.setComponentRoot(this.componentOwner);
     }
 
     @Override
@@ -138,7 +139,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         //		e.addField( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
         //				{ @Override protected void writeThrough(Boolean arg0) { parameterLast = arg0; }});
         e.addField(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class,
-                energySource, componentOwner.getProperties(DoubleProperty.class)) {
+                energySource, Iterables.filter(componentOwner.getProperties(), DoubleProperty.class)) {
             @Override protected void writeThrough(DoubleProperty arg0) { energySource = checkFrozen(arg0); }
         });
     }
@@ -146,9 +147,11 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public void checkConsistency(Iterable<? extends GFComponent> components) {
         super.checkConsistency(components);
+        checkState(Iterables.contains(components, energySource));
+    }
 
+    private void parseFormula() {
         if (energySource != null) {
-            checkState(Iterables.contains(components, energySource));
             checkState(energyCostsFormula != null);
 
             FORMULA_EVALUATOR.setVariableResolver( new VariableResolver() {
@@ -156,7 +159,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                 @Override
                 public String resolveVariable(final String arg0) throws FunctionException {
                     try {
-                        ContinuosProperty<?> property = Iterables.find(componentOwner.getProperties(ContinuosProperty.class), new Predicate<ContinuosProperty>() {
+                        ContinuosProperty<?> property = Iterables.find(Iterables.filter(componentOwner.getProperties(), ContinuosProperty.class), new Predicate<ContinuosProperty>() {
 
                             @Override
                             public boolean apply(ContinuosProperty object) {
@@ -174,7 +177,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             try{
                 FORMULA_EVALUATOR.parse(energyCostsFormula);
             } catch (Exception e) {
-                throw new IllegalStateException("formula is not valid: " + energyCostsFormula);
+                energyCostsFormula = "0";
+                GreyfishLogger.error("formula is not valid has been reset to 0: " + energyCostsFormula);
             }
         }
     }
@@ -213,4 +217,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         this.energySource = map.clone(cloneable.energySource, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
+
+
 }
