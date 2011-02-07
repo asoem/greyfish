@@ -32,7 +32,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     private GFAction lastExecutedAction;
 
     private Agent(Agent individual, CloneMap map) {
-        super(individual.getDelegate());
+        super(map.clone(individual.getDelegate(), IndividualInterface.class));
 
         this.simulation = checkNotNull(individual.simulation);
         this.id = simulation.generateAgentID();
@@ -256,7 +256,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public void checkNotFrozen() throws IllegalStateException {
-        return;
+        throw new IllegalStateException("Agents are always in frozen state");
     }
 
     @Override

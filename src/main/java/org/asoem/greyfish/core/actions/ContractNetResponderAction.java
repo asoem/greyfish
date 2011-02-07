@@ -46,7 +46,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
             @Override
             public String action() {
-                final Iterable<ACLMessage> matches = getReceiver().pollMessages(createCFPTemplate(getOntology()));
+                final Iterable<ACLMessage> matches = getReceiver().pollMessages(getComponentOwner().getId(), createCFPTemplate(getOntology()));
 
                 final Collection<ACLMessage> cfpReplies = new ArrayList<ACLMessage>();
                 for (ACLMessage message : matches) {
@@ -79,7 +79,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getTemplate());
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {

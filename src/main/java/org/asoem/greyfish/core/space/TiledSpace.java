@@ -349,9 +349,7 @@ public class TiledSpace implements Space {
         assert (source != null);
         assert (direction != null);
 
-        if (direction == Direction.CENTER)
-            return true;
-        return !source.hasBorder(direction.borderCheck);
+        return direction == Direction.CENTER || !source.hasBorder(direction.borderCheck);
     }
 
     /* (non-Javadoc)

@@ -58,28 +58,6 @@ public class ScenarioManager extends AbstractCollection<Scenario> {
 		return false;
 	}
 
-	public void setActiveScenario(Scenario scenario) {
-		if (scenario != null && ! scenarios.contains(scenario)) {
-			GreyfishLogger.debug("Scenario not jet managed by this Manager.");
-			return;
-		}
-		if (activeScenario != scenario) {
-			GreyfishLogger.debug("Active scenario changed.");
-			activeScenario = scenario;
-			notifyScenarioChanged(scenario, activeScenario);
-		}
-	}
-
-	private void notifyScenarioChanged(final Scenario scenario, final Scenario newScenario) {
-		listenerSupport.notifyListeners(new Functor<ScenarioChoiceListener>() {
-
-			@Override
-			public void update(ScenarioChoiceListener listener) {
-				listener.scenarioChosen(ScenarioManager.this, scenario, newScenario);
-			}
-		});
-	}
-
 	public Scenario getActiveScenario() {
 		return activeScenario;
 	}

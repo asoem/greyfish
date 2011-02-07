@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
+import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
 
 public abstract class ContractNetInitiatiorAction extends FSMAction {
 
@@ -69,7 +71,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getTemplate());
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
 
                 Collection<ACLMessage> proposeReplies = new ArrayList<ACLMessage>();
                 for (ACLMessage receivedMessage : receivedMessages) {
@@ -86,8 +88,8 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                                 proposeReply = receivedMessage.replyFrom(componentOwner.getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
-                                if (GreyfishLogger.isDebugEnabled())
-                                    GreyfishLogger.debug("Message not understood", e);
+                                if (isDebugEnabled())
+                                    debug("Message not understood", e);
                             } finally {
                                 assert proposeReply != null;
                             }
@@ -96,19 +98,19 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                             break;
 
                         case REFUSE:
-                            if (GreyfishLogger.isDebugEnabled())
-                                GreyfishLogger.debug("CFP was refused: " + receivedMessage);
+                            if (isDebugEnabled())
+                                debug("CFP was refused: " + receivedMessage);
                             handleRefuse(receivedMessage);
                             --nProposalsExpected;
                             break;
                         case NOT_UNDERSTOOD:
-                            if (GreyfishLogger.isDebugEnabled())
-                                GreyfishLogger.debug("Communication Error: NOT_UNDERSTOOD received");
+                            if (isDebugEnabled())
+                                debug("Communication Error: NOT_UNDERSTOOD received");
                             --nProposalsExpected;
                             break;
                         default:
-                            if (GreyfishLogger.isDebugEnabled())
-                                GreyfishLogger.debug("Protocol Error: Expected PROPOSE, REFUSE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
+                            if (isDebugEnabled())
+                                debug("Protocol Error: Expected PROPOSE, REFUSE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
                             --nProposalsExpected;
                             break;
 
@@ -123,6 +125,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                     return END;
                 else if (timeoutCounter == PROPOSAL_TIMEOUT) {
                     timeoutCounter = 0;
+                    template = createAcceptReplyTemplate(proposeReplies);
                     return WAIT_FOR_INFORM;
                 }
                 else {
@@ -136,7 +139,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getTemplate());
+                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     switch (receivedMessage.getPerformative()) {
                         case INFORM:
@@ -146,12 +149,12 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                             handleFailure(receivedMessage);
                             break;
                         case NOT_UNDERSTOOD:
-                            if (GreyfishLogger.isDebugEnabled())
-                                GreyfishLogger.debug("Communication Error: NOT_UNDERSTOOD received");
+                            if (isDebugEnabled())
+                                debug("Communication Error: NOT_UNDERSTOOD received");
                             break;
                         default:
-                            if (GreyfishLogger.isDebugEnabled())
-                                GreyfishLogger.debug("Protocol Error: Expected INFORM, FAILURE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
+                            if (isDebugEnabled())
+                                debug("Protocol Error: Expected INFORM, FAILURE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
                             break;
                     }
 
@@ -171,8 +174,8 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                if (GreyfishLogger.isDebugEnabled())
-                    GreyfishLogger.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": Timeout");
+                if (isDebugEnabled())
+                    debug(ContractNetInitiatiorAction.class.getSimpleName() + ": Timeout");
                 return TIMEOUT;
             }
         });
@@ -187,15 +190,18 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     }
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
-        return MessageTemplate.any( // is a reply
-                Iterables.toArray(
-                        Iterables.transform(acceptMessages, new Function<ACLMessage, MessageTemplate>() {
-                            @Override
-                            public MessageTemplate apply(ACLMessage aclMessage) {
-                                return MessageTemplate.isReplyTo(aclMessage);
-                            }
-                        }),
-                        MessageTemplate.class));
+        if (Iterables.isEmpty(acceptMessages))
+            return MessageTemplate.alwaysFalse();
+        else
+            return MessageTemplate.any( // is a reply
+                    Iterables.toArray(
+                            Iterables.transform(acceptMessages, new Function<ACLMessage, MessageTemplate>() {
+                                @Override
+                                public MessageTemplate apply(ACLMessage aclMessage) {
+                                    return MessageTemplate.isReplyTo(aclMessage);
+                                }
+                            }),
+                            MessageTemplate.class));
     }
 
     private static MessageTemplate createCFPReplyTemplate(final ACLMessage cfp) {

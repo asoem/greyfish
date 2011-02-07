@@ -65,7 +65,7 @@ public class  GreyfishSerialization {
 		if (isDebugEnabled()) debug("Object written to: " + file.getAbsolutePath());
 	}
 
-	public static void serializeObject(OutputStream oStream, Object object) throws Exception {
+	public static void serializeObject(OutputStream oStream, Object object) throws RuntimeException {
 		checkNotNull(oStream);
 		checkNotNull(object);
 

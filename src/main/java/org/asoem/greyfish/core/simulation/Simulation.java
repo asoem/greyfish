@@ -160,14 +160,14 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
             final Agent clone = newAgentFromPool(placeholder.getPopulation());
-            prepareForIntegration(clone, getSteps());
+            prepareForIntegration(clone);
             addAgent(clone, at(placeholder));
         }
 
         space.updateTopo();
     }
 
-    private void prepareForIntegration(Agent individual, int timeOfBirth) {
+    private void prepareForIntegration(Agent individual) {
         checkAgent(individual);
     }
 
@@ -184,7 +184,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
      * @param location
      */
     private synchronized void addNextStep(final Agent individual, final Location2DInterface location) {
-        prepareForIntegration(individual, getSteps() + 1);
+        prepareForIntegration(individual);
 
         enqueAfterStepCommand(new Command() {
             @Override
@@ -219,7 +219,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
             @Override
             public void execute() {
                 space.removeOccupant(individual);
-                individuals.remove(individual);
+                individuals.remove(Agent.class.cast(individual));
                 returnClone(Agent.class.cast(individual));
             }
         });
@@ -478,7 +478,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
     }
 
     public List<ACLMessage> pollMessages(int receiverId, MessageTemplate messageTemplate) {
-        return postOffice.getMessages(receiverId, messageTemplate);
+        return postOffice.pollMessages(receiverId, messageTemplate);
     }
 
     public void translate(final Agent agent, double distance) {

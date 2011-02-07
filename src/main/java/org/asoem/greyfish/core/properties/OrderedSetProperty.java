@@ -14,6 +14,8 @@ import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
+import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
 
 
 public abstract class OrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements DiscreteProperty<E>, OrderedSet<E> {
@@ -48,8 +50,8 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
         }
         else {
             this.value = lowerBound;
-            if (GreyfishLogger.isDebugEnabled())
-                GreyfishLogger.debug(this.getClass().getSimpleName() + "#setValue("+amount+"): Out of range ("+lowerBound+","+upperBound+")");
+            if (isDebugEnabled())
+                debug(this.getClass().getSimpleName() + "#setValue(" + amount + "): Out of range [" + lowerBound + ", " + upperBound + "]");
         }
         firePropertyChanged();
     }

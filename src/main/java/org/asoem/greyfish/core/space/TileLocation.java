@@ -61,12 +61,7 @@ public class TileLocation {
 		if (getClass() != obj.getClass())
 			return false;
 		TileLocation other = (TileLocation) obj;
-		if (x != other.x)
-			return false;
-		else if (y != other.y)
-			return false;
-		else
-            return true;
+        return x == other.x && y == other.y;
 	}
 
 	@Override

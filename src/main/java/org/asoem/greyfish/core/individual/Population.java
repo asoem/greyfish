@@ -57,9 +57,8 @@ public final class Population implements HasName {
 
         Population that = (Population) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
 
-        return true;
     }
 
     @Override

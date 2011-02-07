@@ -14,9 +14,9 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 
 	private GFCondition parentCondition;
 
-    protected AbstractCondition(AbstractCondition clonable, CloneMap map) {
-        super(clonable, map);
-        this.parentCondition = map.clone(clonable.parentCondition, GFCondition.class);
+    protected AbstractCondition(AbstractCondition cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.parentCondition = map.clone(cloneable.parentCondition, GFCondition.class);
     }
 
     @Override

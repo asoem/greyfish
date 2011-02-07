@@ -35,11 +35,6 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
-    }
-
-    @Override
     public StatePropertyCondition deepCloneHelper(CloneMap map) {
         return new StatePropertyCondition(this, map);
     }
