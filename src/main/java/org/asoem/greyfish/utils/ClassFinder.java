@@ -39,8 +39,8 @@ public class ClassFinder {
 			}
 		}
 
-        String[] jarFiles = (String[]) jar.toArray(new String[jar.size()]);
-		binDirs = (String[]) bin.toArray(new String[bin.size()]);
+        String[] jarFiles = jar.toArray(new String[jar.size()]);
+		binDirs = bin.toArray(new String[bin.size()]);
 	}
 	
 	public static synchronized ClassFinder getInstance() {
@@ -67,7 +67,7 @@ public class ClassFinder {
             classes.addAll(extractClasses(packageName, dir));
         }
 		
-		return (Class<?>[]) classes.toArray(new Class<?>[classes.size()]);
+		return classes.toArray(new Class<?>[classes.size()]);
 	}
 	
 	/**
@@ -134,6 +134,6 @@ public class ClassFinder {
             }
         }
 		
-		return (Class<?>[]) classes.toArray(new Class<?>[classes.size()]);
+		return classes.toArray(new Class<?>[classes.size()]);
 	}
 }
