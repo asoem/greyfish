@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.space;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.kdtree.HyperPoint;
-import org.asoem.kdtree.KDTree;
 import org.asoem.kdtree.NNResult;
 import scala.Tuple2;
 
@@ -11,19 +10,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by IntelliJ IDEA.
- * User: christoph
- * Date: 12.01.11
- * Time: 10:17
- * To change this template use File | Settings | File Templates.
- */
-public class AsoemScalaKDTreeAdaptor<T extends Object2DInterface> implements KDTreeAdaptor<T> {
+public final class AsoemScalaKDTree<T extends Object2DInterface> implements KDTree<T> {
 
-    private KDTree<T> kdtree;
+    private org.asoem.kdtree.KDTree kdtree;
 
-    public AsoemScalaKDTreeAdaptor() {
+    private AsoemScalaKDTree() {
+    }
 
+    public static <T extends Object2DInterface> AsoemScalaKDTree<T> newInstance() {
+        return new AsoemScalaKDTree<T>();
     }
 
     @Override
@@ -34,7 +29,7 @@ public class AsoemScalaKDTreeAdaptor<T extends Object2DInterface> implements KDT
             final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
             pointList.add(new Tuple2<HyperPoint, T>(hp, element));
         }
-        kdtree = new KDTree<T>(pointList);
+        kdtree = new org.asoem.kdtree.KDTree(pointList);
     }
 
     @SuppressWarnings("unchecked")
@@ -44,7 +39,7 @@ public class AsoemScalaKDTreeAdaptor<T extends Object2DInterface> implements KDT
 
 			long start = 0;
 			if (GreyfishLogger.isTraceEnabled())
-				start  = System.currentTimeMillis();
+				start = System.nanoTime();
 
             HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
             scala.collection.immutable.List<NNResult<T>> l
@@ -55,8 +50,9 @@ public class AsoemScalaKDTreeAdaptor<T extends Object2DInterface> implements KDT
             }
 
 			if (GreyfishLogger.isTraceEnabled()) {
-				long end = System.currentTimeMillis();
-				GreyfishLogger.trace(TiledSpace.class.getSimpleName() + "#findNeighbours: Found " + Iterables.size(found) + " Neighbours in " + (end - start) + "ms");
+				long end = System.nanoTime();
+				GreyfishLogger.trace(AsoemScalaKDTree.class.getSimpleName() +"#findNeighbours(): " +
+                        "Found " + Iterables.size(found) + " Neighbours in " + (end - start) / 1000 + "us");
 			}
 
 		return found;

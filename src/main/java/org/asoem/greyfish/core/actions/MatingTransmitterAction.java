@@ -20,6 +20,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
     @Element(name="messageType", required=false)
     private String ontology;
 
+    @SuppressWarnings("unused") // used by reflection in Simple Framework
     private MatingTransmitterAction() {
         this(new Builder());
     }
@@ -53,16 +54,16 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     @Override
     protected ACLMessage.Builder handleAccept(ACLMessage message) {
-        return message.replyFrom(componentOwner.getId())
+        return message.replyFrom(getComponentOwner().getId())
                 .performative(ACLPerformative.INFORM);
     }
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = new Genome(componentOwner.getGenome()).mutated();
+        final Genome sperm = getComponentOwner().getGenome().mutated();
 
-        return message.replyFrom(componentOwner.getId())
-                .objectContent(new EvaluatedGenome(sperm, evaluateFormula()))
+        return message.replyFrom(getComponentOwner().getId())
+                .objectContent(new EvaluatedGenome(sperm, 0)) // costs for mating define quality of the genome
                 .performative(ACLPerformative.PROPOSE);
     }
 

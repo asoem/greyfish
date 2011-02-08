@@ -62,7 +62,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
                 "Property",
                 DoubleProperty.class,
                 parameterQuantitiveProperty,
-                Iterables.filter(componentOwner.getProperties(), DoubleProperty.class)) {
+                Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
             @Override
             protected void writeThrough(DoubleProperty arg0) {
                 parameterQuantitiveProperty = checkFrozen(checkNotNull(arg0));

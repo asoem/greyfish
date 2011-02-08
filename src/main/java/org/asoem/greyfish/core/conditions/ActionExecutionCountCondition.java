@@ -35,7 +35,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	public void export(Exporter e) {
 		super.export(e);
 		
-		final List<GFAction> list = (componentOwner != null) ? getComponentOwner().getActions() : new ArrayList<GFAction>();
+		final List<GFAction> list = (getComponentOwner() != null) ? getComponentOwner().getActions() : new ArrayList<GFAction>();
 		e.addField( new ValueSelectionAdaptor<GFAction>("", GFAction.class, action, list) {
 
 			@Override

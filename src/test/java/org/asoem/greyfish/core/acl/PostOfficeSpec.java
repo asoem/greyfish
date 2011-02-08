@@ -18,4 +18,20 @@ public class PostOfficeSpec extends Specification<PostOffice> {
             specify(returnedMessageCount, must.equal(1));
         }
     }
+
+    public class AFilledPostOffice {
+        private PostOffice postOffice = PostOffice.newInstance();
+
+
+        public void shouldBeEmptyAfterPollingAllMessages() {
+
+            for (int i = 0; i < 100; i++) {
+                  postOffice.addMessage(ACLMessage.with().performative(ACLPerformative.CFP).source(0).addDestinations(i).build());
+            }
+
+            postOffice.pollMessages(MessageTemplate.alwaysTrue()).size();
+
+            specify(postOffice.size(), must.equal(0));
+        }
+    }
 }

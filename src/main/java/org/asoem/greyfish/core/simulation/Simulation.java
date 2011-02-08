@@ -474,7 +474,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
 
     @Override
     public List<ACLMessage> pollMessages(MessageTemplate messageTemplate) {
-        return postOffice.getMessages(messageTemplate);
+        return postOffice.pollMessages(messageTemplate);
     }
 
     public List<ACLMessage> pollMessages(int receiverId, MessageTemplate messageTemplate) {

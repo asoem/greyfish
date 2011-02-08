@@ -3,15 +3,17 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.CloneMap;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
+import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
 
 public abstract class ContractNetResponderAction extends FSMAction {
 
@@ -20,10 +22,11 @@ public abstract class ContractNetResponderAction extends FSMAction {
     private static final String END = "End";
     private static final String TIMEOUT = "Timeout";
 
-    private static final int TIMEOUT_TIME = 10;
+    private static final int TIMEOUT_TIME = 1;
 
     private int timeoutCounter;
     private int nExpectedProposeAnswers;
+    private MessageTemplate template = MessageTemplate.alwaysFalse();
 
     protected ContractNetResponderAction(ContractNetResponderAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
@@ -33,8 +36,6 @@ public abstract class ContractNetResponderAction extends FSMAction {
     private MessageTemplate getTemplate() {
         return template;
     }
-
-    private MessageTemplate template = MessageTemplate.alwaysFalse();
 
     public ContractNetResponderAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
@@ -46,20 +47,20 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
             @Override
             public String action() {
-                final Iterable<ACLMessage> matches = getReceiver().pollMessages(getComponentOwner().getId(), createCFPTemplate(getOntology()));
+                template = createCFPTemplate(getOntology());
 
-                final Collection<ACLMessage> cfpReplies = new ArrayList<ACLMessage>();
-                for (ACLMessage message : matches) {
+                final List<ACLMessage> cfpReplies = Lists.newArrayList();
+                for (ACLMessage message : receiveMessages()) {
 
                     ACLMessage cfpReply;
                     try {
                         cfpReply = handleCFP(message).build();
                     } catch (NotUnderstoodException e) {
-                        cfpReply = message.replyFrom(componentOwner.getId())
+                        cfpReply = message.replyFrom(getComponentOwner().getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
-                        if (GreyfishLogger.isDebugEnabled())
-                            GreyfishLogger.debug("Message not understood", e);
+                        if (isDebugEnabled())
+                            debug("Message not understood", e);
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
@@ -79,7 +80,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
+                Iterable<ACLMessage> receivedMessages = receiveMessages();
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
@@ -92,12 +93,13 @@ public abstract class ContractNetResponderAction extends FSMAction {
                             handleReject(receivedMessage);
                             break;
                         case NOT_UNDERSTOOD:
-                            if (GreyfishLogger.isDebugEnabled())
-                                GreyfishLogger.debug("Communication Error: Message not understood");
+                            if (isDebugEnabled())
+                                debug("Communication Error: Message not understood");
                             break;
                         default:
-                            if (GreyfishLogger.isDebugEnabled())
-                                GreyfishLogger.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD. Received " + receivedMessage.getPerformative());
+                            if (isDebugEnabled())
+                                debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD." +
+                                        "Received " + receivedMessage.getPerformative());
                             break;
                     }
 
@@ -115,8 +117,8 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
             @Override
             public String action() {
-                if (GreyfishLogger.isDebugEnabled())
-                    GreyfishLogger.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": Timeout");
+                if (isDebugEnabled())
+                    debug(ContractNetInitiatiorAction.class.getSimpleName() + ": TIMEOUT");
                 return TIMEOUT;
             }
         });
@@ -127,6 +129,10 @@ public abstract class ContractNetResponderAction extends FSMAction {
                 return END;
             }
         });
+    }
+
+    private Iterable<ACLMessage> receiveMessages() {
+        return getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
     }
 
     private void send(final ACLMessage message) {

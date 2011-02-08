@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;

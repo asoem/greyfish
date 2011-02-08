@@ -43,7 +43,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Override
     protected ACLMessage.Builder createCFP() {
         return ACLMessage.with()
-                .source(componentOwner.getId())
+                .source(getComponentOwner().getId())
                 .ontology(getOntology())
                 // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
                 .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
@@ -58,12 +58,17 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
             final double offer = message.getReferenceContent(Double.class);
             consumerProperty.add(offer);
 
-            return message.replyFrom(componentOwner.getId())
+            return message.replyFrom(getComponentOwner().getId())
                     .performative(ACLPerformative.ACCEPT_PROPOSAL);
         } catch (Exception e) {
             throw new NotUnderstoodException();
         }
 
+    }
+
+    @Override
+    protected void handleRefuse(ACLMessage message) {
+        super.handleRefuse(message);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
     @Override
@@ -74,8 +79,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Override
     public boolean evaluate(Simulation simulation) {
         if ( super.evaluate(simulation) ) {
-            sensedMates = filter(simulation.findObjects(componentOwner, sensorRange), Agent.class);
-            sensedMates = filter(sensedMates, not(equalTo(componentOwner)));
+            sensedMates = filter(simulation.findObjects(getComponentOwner(), sensorRange), Agent.class);
+            sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
             return ! isEmpty(sensedMates);
         }
         return false;
@@ -105,7 +110,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 amountPerRequest = checkFrozen(checkNotNull(arg0));
             }
         });
-        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, Iterables.filter(componentOwner.getProperties(), DoubleProperty.class)) {
+        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
             @Override protected void writeThrough(DoubleProperty arg0) {
                 consumerProperty = checkFrozen(checkNotNull(arg0));
             }

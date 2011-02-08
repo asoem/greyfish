@@ -41,27 +41,27 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
     protected ACLMessage.Builder handleAccept(ACLMessage message) {
         resourceProperty.subtract(offer);
 
-        return message.replyFrom(componentOwner.getId())
+        return message.replyFrom(getComponentOwner().getId())
                 .performative(ACLPerformative.INFORM);
     }
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
-        double amountRequested;
+        double requested;
         try {
-            amountRequested = message.getReferenceContent(Double.class);
+            requested = message.getReferenceContent(Double.class);
         } catch (IllegalArgumentException e) {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
 
-        ACLMessage.Builder ret = message.replyFrom(componentOwner.getId());
+        ACLMessage.Builder ret = message.replyFrom(getComponentOwner().getId());
 
-        offer = Math.min(amountRequested, resourceProperty.getValue());
+        offer = Math.min(requested, resourceProperty.getValue());
 
         if (offer > 0)
             ret.performative(ACLPerformative.PROPOSE).objectContent(offer);
         else
-            ret.performative(ACLPerformative.REFUSE);
+            ret.performative(ACLPerformative.REFUSE).stringContent("Nothing to offer");
 
         return ret;
     }
@@ -86,7 +86,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
                 "ResourceProperty",
                 ResourceProperty.class,
                 resourceProperty,
-                Iterables.filter(componentOwner.getProperties(), ResourceProperty.class)) {
+                Iterables.filter(getComponentOwner().getProperties(), ResourceProperty.class)) {
             @Override protected void writeThrough(ResourceProperty arg0) {
                 resourceProperty = checkFrozen(checkNotNull(arg0));
             }

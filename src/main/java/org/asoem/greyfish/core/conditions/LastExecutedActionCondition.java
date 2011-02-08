@@ -33,7 +33,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueSelectionAdaptor<GFAction>("Action", GFAction.class, action, componentOwner.getActions()) {
+        e.addField( new ValueSelectionAdaptor<GFAction>("Action", GFAction.class, action, getComponentOwner().getActions()) {
             @Override
             protected void writeThrough(GFAction arg0) {
                 action = checkFrozen(checkNotNull(arg0));

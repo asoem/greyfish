@@ -24,10 +24,10 @@ public class RandomMovementAction extends AbstractGFAction {
     protected void performAction(Simulation simulation) {
         if (RandomUtils.nextBoolean()) {
             float phi = RandomUtils.nextFloat(0f, 0.1f);
-            simulation.rotate(Agent.class.cast(componentOwner), phi);
+            simulation.rotate(Agent.class.cast(getComponentOwner()), phi);
         }
 
-        simulation.translate(Agent.class.cast(componentOwner), componentOwner.getSpeed());
+        simulation.translate(Agent.class.cast(getComponentOwner()), getComponentOwner().getSpeed());
     }
 
     @Override

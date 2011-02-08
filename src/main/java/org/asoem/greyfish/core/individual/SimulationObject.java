@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;

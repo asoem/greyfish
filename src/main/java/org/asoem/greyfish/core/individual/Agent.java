@@ -99,11 +99,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public boolean isCloneOf(Object object) {
-        return Agent.class.isInstance(object) && Agent.class.cast(object).getPopulation().equals(getPopulation());
-    }
-
-    @Override
     public Iterable<GFComponent> getComponents() {
         return Iterables.<GFComponent>concat(getActions(), getProperties());
     }
@@ -131,7 +126,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public void initialize(Simulation simulation) {
-
         getBody().initialize(simulation);
 
         // call initialize for all components
@@ -168,10 +162,9 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         }
         try {
             if (toExecute != null) {
+                if (isDebugEnabled()) debug("Executing " + toExecute);
                 toExecute.executeUnevaluated(simulation);
                 lastExecutedAction = toExecute;
-
-                if (isTraceEnabled()) trace("Executed " + toExecute + " for " + this);
             }
         } catch (RuntimeException e) {
             error("Error during execution of " + toExecute + " for " + this, e);
@@ -276,7 +269,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public String toString() {
-        return "Agent[" + getPopulation() + "]#" +id;
+        return "Agent#" + id + "[" + getPopulation() + "]";
     }
 
     public Individual getIndividual() {

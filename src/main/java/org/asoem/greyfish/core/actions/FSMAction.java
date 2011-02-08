@@ -38,17 +38,19 @@ public abstract class FSMAction extends AbstractGFAction {
 
     @Override
     protected final void performAction(Simulation simulation) {
-        if (isTraceEnabled()) trace("FSM: " + this);
+        StateAction stateActionToExecute = states.get(currentStateName);        assert stateActionToExecute != null;
+        String nextStateName = stateActionToExecute.action();                   assert nextStateName != null;
 
-        if (done()) currentStateName = initialStateName;
+        if (isTraceEnabled())
+            trace(this + ": Transition to " + nextStateName);
 
-        assert currentStateName != null;
-        StateAction action = states.get(currentStateName);
-        assert action != null;
-        String oldStateName = currentStateName;
-        currentStateName = action.action();
+        currentStateName = nextStateName;
 
-        if (isTraceEnabled()) trace("FSM: " + this + ": t(" + oldStateName + " => " + currentStateName + ")");
+        if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
+            if (isTraceEnabled())
+                trace(this + ": EndTransition to " + initialStateName);
+            currentStateName = initialStateName;                                assert currentStateName != null;
+        }
     }
 
     @Override
@@ -81,7 +83,7 @@ public abstract class FSMAction extends AbstractGFAction {
 
     @Override
     public final boolean done() {
-        return endStateNames.contains(currentStateName);
+        return currentStateName.equals(initialStateName);
     }
 
     protected final void registerInitialFSMState(final String state, final StateAction action) {
@@ -103,9 +105,6 @@ public abstract class FSMAction extends AbstractGFAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "{" +
-                "name='" + name + "\', " +
-                "state='" + currentStateName + '\'' +
-                '}';
+        return this.getClass().getSimpleName() + "[" + name + "]" + "{state='" + currentStateName + '}' + "@" + getComponentOwner();
     }
 }

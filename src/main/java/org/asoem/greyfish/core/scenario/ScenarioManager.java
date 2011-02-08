@@ -2,12 +2,16 @@ package org.asoem.greyfish.core.scenario;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.individual.*;
-import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.individual.Prototype;
+import org.asoem.greyfish.core.individual.PrototypeManager;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class ScenarioManager extends AbstractCollection<Scenario> {

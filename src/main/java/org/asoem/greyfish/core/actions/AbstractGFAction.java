@@ -86,7 +86,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public void setComponentRoot(IndividualInterface individual) {
         super.setComponentRoot(individual);
-        conditionTree.setComponentRoot(componentOwner);
+        conditionTree.setComponentRoot(getComponentOwner());
     }
 
     @Override
@@ -109,7 +109,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
         catch (EvaluationException e) {
-            GreyfishLogger.warn("CostsFormula is not a valid expression: '" + energyCostsFormula + "'", e);
+            GreyfishLogger.error(AbstractGFAction.class.getSimpleName() + ": CostsFormula could not be evaluated. Returning 0", e);
             return 0;
         }
     }
@@ -123,7 +123,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public void setRootCondition(GFCondition rootCondition) {
         conditionTree = new ConditionTree(checkFrozen(rootCondition));
-        conditionTree.setComponentRoot(this.componentOwner);
+        conditionTree.setComponentRoot(this.getComponentOwner());
     }
 
     @Override
@@ -139,7 +139,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         //		e.addField( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
         //				{ @Override protected void writeThrough(Boolean arg0) { parameterLast = arg0; }});
         e.addField(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class,
-                energySource, Iterables.filter(componentOwner.getProperties(), DoubleProperty.class)) {
+                energySource, Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
             @Override protected void writeThrough(DoubleProperty arg0) { energySource = checkFrozen(arg0); }
         });
     }
@@ -159,7 +159,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                 @Override
                 public String resolveVariable(final String arg0) throws FunctionException {
                     try {
-                        ContinuosProperty<?> property = Iterables.find(Iterables.filter(componentOwner.getProperties(), ContinuosProperty.class), new Predicate<ContinuosProperty>() {
+                        ContinuosProperty<?> property = Iterables.find(Iterables.filter(getComponentOwner().getProperties(), ContinuosProperty.class), new Predicate<ContinuosProperty>() {
 
                             @Override
                             public boolean apply(ContinuosProperty object) {
@@ -178,7 +178,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                 FORMULA_EVALUATOR.parse(energyCostsFormula);
             } catch (Exception e) {
                 energyCostsFormula = "0";
-                GreyfishLogger.error("formula is not valid has been reset to 0: " + energyCostsFormula);
+                GreyfishLogger.error(AbstractGFAction.class.getSimpleName() + ": CostsFormula is not valid has been reset to 0: " + energyCostsFormula);
             }
         }
     }
@@ -203,12 +203,12 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
         private GFCondition condition;
         private DoubleProperty source;
-        private String formula;
+        private String formula = "0";
 
         public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
         private T source(DoubleProperty source) { this.source = source; return self(); }
         private T formula(String formula) { this.formula = formula; return self(); }
-        public T generatesCosts(DoubleProperty source, String formula) { return source(checkNotNull(source)).formula(checkNotNull(formula)); }
+        public T generatesCosts(DoubleProperty source, String formula) { return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
     }
 
     protected AbstractGFAction(AbstractGFAction cloneable, CloneMap map) {
@@ -217,6 +217,5 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         this.energySource = map.clone(cloneable.energySource, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
-
 
 }

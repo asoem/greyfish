@@ -23,22 +23,16 @@ public class GeneProxy<T> implements Gene<T> {
 
     @SuppressWarnings("unchecked")
     public void setGene(Gene<?> gene) {
-        checkNotNull(gene);
-        checkClassesMatch(gene.getSupplierClass());
-        this.gene = this.gene.getClass().cast(gene);
+        checkArgument(clazz.equals(gene.getSupplierClass()),
+                "type of the given gene's supplier class do not match this gene's supplier class: "
+                        + clazz + " != " + getSupplierClass());
+        this.gene = Gene.class.cast(gene);
     }
 
     @SuppressWarnings("unchecked")
     public GeneProxy(GeneProxy<T> geneProxy, CloneMap map) {
-        checkClassesMatch(geneProxy.getSupplierClass());
         this.gene = (Gene<T>) map.clone(geneProxy.gene, Gene.class);
         this.clazz = geneProxy.getSupplierClass();
-    }
-
-    private void checkClassesMatch(Class<?> clazz) {
-        checkArgument(getSupplierClass().equals(clazz),
-                "type of the given gene's supplier class do not match this gene's supplier class: "
-                        + clazz + " != " + getSupplierClass());
     }
 
     @Override

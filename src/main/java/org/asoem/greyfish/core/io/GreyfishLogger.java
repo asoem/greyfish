@@ -13,7 +13,7 @@ public enum GreyfishLogger {
 	public final Logger logger = Logger.getLogger("org.asoem.greyfish");
 
 	private GreyfishLogger() {
-		PropertyConfigurator.configureAndWatch("log4j.properties", 60*1000);
+//		PropertyConfigurator.configureAndWatch("log4j.xml", 60*1000);
 	}
 
 	public static void addAppender(Appender newAppender) {

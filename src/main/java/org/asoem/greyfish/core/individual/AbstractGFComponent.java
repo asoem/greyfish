@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent {
 
-    protected IndividualInterface componentOwner;
+    private IndividualInterface componentOwner;
 
     @Attribute(name="name", required = false)
     protected String name = "";
@@ -26,9 +26,9 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     private Simulation simulation;
 
-    protected AbstractGFComponent(AbstractGFComponent clonable, CloneMap map) {
-        super(clonable, map);
-        this.name = clonable.name;
+    protected AbstractGFComponent(AbstractGFComponent cloneable, CloneMap map) {
+        super(cloneable, map);
+        this.name = cloneable.name;
     }
 
     @Override
@@ -38,7 +38,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void setComponentRoot(IndividualInterface individual) {
-        componentOwner = checkFrozen(individual);
+        componentOwner = individual;
     }
 
     public void setName(String name) {
@@ -53,7 +53,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public String toString() {
-        return getName();
+        return this.getClass().getSimpleName() + "[" + name + ']' + "@" + componentOwner;
     }
 
     @Override
@@ -78,8 +78,9 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        if (componentOwner == null)
-            throw new IllegalStateException(name + " (" + this.getClass().getSimpleName() + "): Components must have an owner");
+        if (getComponentOwner() == null)
+            throw new IllegalStateException(
+                    AbstractGFComponent.class.getSimpleName() + "[" + name + "]: Components must have an owner");
     }
 
     protected AbstractGFComponent(AbstractBuilder<?> builder) {

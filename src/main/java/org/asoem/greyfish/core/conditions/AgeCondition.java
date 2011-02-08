@@ -25,7 +25,7 @@ public final class AgeCondition extends IntCompareCondition {
 
     @Override
 	protected Integer getCompareValue(Simulation simulation) {
-		return simulation.getSteps() - componentOwner.getTimeOfBirth();
+		return simulation.getSteps() - getComponentOwner().getTimeOfBirth();
 	}
 
     private AgeCondition() {

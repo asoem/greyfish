@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;

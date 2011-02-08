@@ -23,9 +23,9 @@ public class ClonalReproductionAction extends AbstractGFAction {
     protected void performAction(Simulation simulation) {
         for (int i = 0; i < parameterClones; i++) {
             simulation.createAgent(
-                    componentOwner.getPopulation(),
-                    componentOwner.getAnchorPoint(),
-                    componentOwner.getGenome().mutated());
+                    getComponentOwner().getPopulation(),
+                    getComponentOwner().getAnchorPoint(),
+                    getComponentOwner().getGenome().mutated());
         }
     }
 

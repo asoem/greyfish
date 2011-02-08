@@ -65,7 +65,7 @@ public class TiledSpace implements Space {
 
     private int nOccupants;
 
-    private final KDTreeAdaptor<Object2DInterface> kdtree = new AsoemScalaKDTreeAdaptor<Object2DInterface>();
+    private final KDTree<Object2DInterface> kdtree = AsoemScalaKDTree.newInstance();
 
     @Override
     public boolean covers(Location2DInterface value) {

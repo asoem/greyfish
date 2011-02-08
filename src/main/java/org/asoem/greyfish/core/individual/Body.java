@@ -11,27 +11,27 @@ import java.awt.*;
 
 public class Body extends MovingObject2D implements Initializeable {
 
-    private final static float RADIUS = 0.1f;
-
-    private static final Color DEFAULT_COLOR = Color.BLACK;
+    private final static float DEFAULT_SPEED = 0.05f;
+    private final static float DEFAULT_RADIUS = 0.1f;
+    private final static Color DEFAULT_COLOR = Color.BLACK;
 
     @Element(name="color")
     private Color color = DEFAULT_COLOR;
 
     private Body() {
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-        setSpeed(0.1f);
+        setSpeed(DEFAULT_SPEED);
     }
 
     private Body(Body body) {
         anchorPoint.set(body.getAnchorPoint());
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
         color = body.color;
-        setSpeed(0.1f);
+        setSpeed(DEFAULT_SPEED);
     }
 
     public float getRadius() {
-        return RADIUS;
+        return DEFAULT_RADIUS;
     }
 
     public Color getColor() {

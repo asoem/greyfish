@@ -1,33 +1,24 @@
 package org.asoem.greyfish.lang;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ForwardingCollection;
+import com.google.common.collect.ForwardingList;
 import javolution.util.FastList;
 
 import java.util.Collection;
+import java.util.List;
 
-public class CircularFifoBuffer<E> extends ForwardingCollection<E> {
+public final class CircularFifoBuffer<E> extends ForwardingList<E> {
 
 	private final FastList<E> delegate;
 	
 	private final int maxSize;
-	
-	public CircularFifoBuffer() {
-		this.maxSize = 32;
-		delegate = new FastList<E>(maxSize);
-	}
 	
 	public CircularFifoBuffer(final int size) {
 		Preconditions.checkArgument(size > 0);
 		this.maxSize = size;
 		delegate = new FastList<E>(maxSize);
 	}
-	
-	@Override
-	protected Collection<E> delegate() {
-		return delegate;
-	}
-	
+
 	/* 
 	 * If the buffer is full, the least recently added element is discarded so that a new element can be inserted.
 	 */
@@ -58,7 +49,12 @@ public class CircularFifoBuffer<E> extends ForwardingCollection<E> {
 	
 	public void elementReplaced(E element) {}
 
-    public static <T> CircularFifoBuffer<T> newInstance() {
-        return new CircularFifoBuffer<T>();
+    public static <T> CircularFifoBuffer<T> newInstance(int size) {
+        return new CircularFifoBuffer<T>(size);
+    }
+
+    @Override
+    protected List<E> delegate() {
+        return delegate;
     }
 }

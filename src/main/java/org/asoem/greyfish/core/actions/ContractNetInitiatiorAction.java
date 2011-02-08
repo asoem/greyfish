@@ -3,17 +3,15 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.utils.CloneMap;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
-import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
+import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
 public abstract class ContractNetInitiatiorAction extends FSMAction {
 
@@ -23,8 +21,8 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
     private static final String END = "End";
     private static final String TIMEOUT = "Timeout";
 
-    private static final int PROPOSAL_TIMEOUT = 10;
-    private static final int INFORM_TIMEOUT = 10;
+    private static final int PROPOSAL_TIMEOUT = 2;
+    private static final int INFORM_TIMEOUT = 1;
 
     private int timeoutCounter;
     private int nReceivedProposals;
@@ -56,7 +54,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                ACLMessage cfpMessage = createCFP().source(componentOwner.getId()).performative(ACLPerformative.CFP).build();
+                ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
                 cfpMessage.send(getTransmitter());
                 nProposalsExpected = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
@@ -71,10 +69,9 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
 
-                Collection<ACLMessage> proposeReplies = new ArrayList<ACLMessage>();
-                for (ACLMessage receivedMessage : receivedMessages) {
+                Collection<ACLMessage> proposeReplies = Lists.newArrayList();
+                for (ACLMessage receivedMessage : receiveMessages()) {
 
                     ACLMessage proposeReply = null;
                     switch (receivedMessage.getPerformative()) {
@@ -85,7 +82,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                                 proposeReplies.add(proposeReply);
                                 ++nReceivedProposals;
                             } catch (NotUnderstoodException e) {
-                                proposeReply = receivedMessage.replyFrom(componentOwner.getId())
+                                proposeReply = receivedMessage.replyFrom(getComponentOwner().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
                                 if (isDebugEnabled())
@@ -110,7 +107,8 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                             break;
                         default:
                             if (isDebugEnabled())
-                                debug("Protocol Error: Expected PROPOSE, REFUSE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
+                                debug("Protocol Error: Expected PROPOSE, REFUSE or NOT_UNDERSTOOD," +
+                                        "received " + receivedMessage.getPerformative());
                             --nProposalsExpected;
                             break;
 
@@ -123,14 +121,15 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
                 if (nProposalsExpected == 0)
                     return END;
-                else if (timeoutCounter == PROPOSAL_TIMEOUT) {
+                else if (timeoutCounter == PROPOSAL_TIMEOUT || nReceivedProposals == nProposalsExpected) {
+                    if (isTraceEnabled() && timeoutCounter == PROPOSAL_TIMEOUT)
+                        trace(ContractNetInitiatiorAction.class.getSimpleName() + ": TIMEOUT for proposals");
                     timeoutCounter = 0;
                     template = createAcceptReplyTemplate(proposeReplies);
                     return WAIT_FOR_INFORM;
                 }
                 else {
-                    template = createAcceptReplyTemplate(proposeReplies);
-                    return (nReceivedProposals != nProposalsExpected) ? WAIT_FOR_POROPOSALS : WAIT_FOR_INFORM;
+                    return WAIT_FOR_POROPOSALS;
                 }
             }
         });
@@ -139,8 +138,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
-                for (ACLMessage receivedMessage : receivedMessages) {
+                for (ACLMessage receivedMessage : receiveMessages()) {
                     switch (receivedMessage.getPerformative()) {
                         case INFORM:
                             handleInform(receivedMessage);
@@ -154,7 +152,8 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                             break;
                         default:
                             if (isDebugEnabled())
-                                debug("Protocol Error: Expected INFORM, FAILURE or NOT_UNDERSTOOD, received " + receivedMessage.getPerformative());
+                                debug("Protocol Error: Expected INFORM, FAILURE or NOT_UNDERSTOOD," +
+                                        "received " + receivedMessage.getPerformative());
                             break;
                     }
 
@@ -187,6 +186,10 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                 return END;
             }
         });
+    }
+
+    private Iterable<ACLMessage> receiveMessages() {
+        return getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
     }
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {

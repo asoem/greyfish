@@ -40,9 +40,9 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         for (int i = 0; i < nOffspring; i++) {
             simulation.createAgent(
-                    componentOwner.getPopulation(),
-                    componentOwner.getAnchorPoint(),
-                    componentOwner.getGenome().mutated().recombined(spermStorage.getRWS())
+                    getComponentOwner().getPopulation(),
+                    getComponentOwner().getAnchorPoint(),
+                    getComponentOwner().getGenome().mutated().recombined(spermStorage.getRWS())
             );
         }
     }

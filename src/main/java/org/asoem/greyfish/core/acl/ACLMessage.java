@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import javolution.util.FastList;
-import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.lang.BuilderInterface;
 
 import java.io.ByteArrayInputStream;
@@ -18,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
-import static scala.actors.threadpool.Arrays.asList;
 
 public final class ACLMessage {
 

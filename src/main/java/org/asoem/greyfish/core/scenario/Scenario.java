@@ -2,8 +2,14 @@ package org.asoem.greyfish.core.scenario;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-import org.asoem.greyfish.core.individual.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+import org.asoem.greyfish.core.individual.Placeholder;
+import org.asoem.greyfish.core.individual.Prototype;
+import org.asoem.greyfish.core.individual.PrototypeManager;
+import org.asoem.greyfish.core.individual.PrototypeRegistryListener;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.Object2DInterface;
 import org.asoem.greyfish.core.space.TileLocation;

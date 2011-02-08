@@ -15,7 +15,7 @@ public class DeathAction extends AbstractGFAction {
 	@Override
 	protected void performAction(Simulation simulation) {
 		//individual.death();
-		simulation.removeAgent(componentOwner);
+		simulation.removeAgent(getComponentOwner());
 	}
 
     @Override
