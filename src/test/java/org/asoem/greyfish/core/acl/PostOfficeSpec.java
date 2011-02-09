@@ -13,7 +13,7 @@ public class PostOfficeSpec extends Specification<PostOffice> {
 
         public void shouldReturnAnAddedMessage() {
             postOffice.addMessage(ACLMessage.with().performative(ACLPerformative.CFP).source(0).addDestinations(1).build());
-            int returnedMessageCount = postOffice.pollMessages(1, MessageTemplate.alwaysTrue()).size();
+            int returnedMessageCount = postOffice.pollMessages(1).size();
 
             specify(returnedMessageCount, must.equal(1));
         }

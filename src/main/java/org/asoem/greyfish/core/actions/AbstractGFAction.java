@@ -7,6 +7,8 @@ import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.VariableResolver;
 import net.sourceforge.jeval.function.FunctionException;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
@@ -218,4 +220,10 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
 
+    protected void sendMessage(ACLMessage message) {
+        getSimulation().deliverMessage(message);
+    }
+    protected Iterable<ACLMessage> receiveMessages(MessageTemplate template) {
+        return getComponentOwner().pollMessages(template);
+    }
 }

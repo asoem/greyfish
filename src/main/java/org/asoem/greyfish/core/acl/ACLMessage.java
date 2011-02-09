@@ -1,10 +1,7 @@
 package org.asoem.greyfish.core.acl;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import javolution.util.FastList;
 import org.asoem.greyfish.lang.BuilderInterface;
 
@@ -15,6 +12,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -311,7 +309,7 @@ public final class ACLMessage {
     public static class Builder implements BuilderInterface<ACLMessage> {
         private ACLPerformative performative;
         private Integer source;
-        private final List<Integer> dests = new FastList<Integer>();
+        private final Set<Integer> dests = Sets.newHashSet();
         private final List<Integer> reply_to = new FastList<Integer>();
         private ContentType contentType = ContentType.NULL;
         private Object content = NULL_CONTENT;

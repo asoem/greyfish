@@ -7,7 +7,8 @@ import javolution.util.FastList;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
-import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.PostOffice;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.io.GreyfishLogger;
@@ -20,15 +21,13 @@ import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.space.Location2D.at;
 
-public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageReceiver {
+public class Simulation implements Runnable {
 
     private final Map<Population, Prototype> prototypeMap = Maps.newHashMap();
     private final PostOffice postOffice = PostOffice.newInstance();
@@ -53,6 +52,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
         return space.findNeighbours(location, radius);
     }
 
+    @SuppressWarnings("unused")
     public enum Speed {
         SLOW(20),
         MEDIUM(10),
@@ -88,8 +88,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
                     checkNotNull(key);
                     checkArgument(key instanceof Population);
                     final Prototype prototype = prototypeMap.get(Population.class.cast(key));
-                    final Individual clone = prototype.getIndividual().deepClone(Individual.class);
-                    return clone;
+                    return prototype.getIndividual().deepClone(Individual.class);
                 }
             },
             10000, 100);
@@ -118,7 +117,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
 
     private int stepsToGo;
 
-    private final AtomicInteger steps = new AtomicInteger();
+    private int steps = 0;
 
     private String title = "Simulation";
 
@@ -221,6 +220,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
                 space.removeOccupant(individual);
                 individuals.remove(Agent.class.cast(individual));
                 returnClone(Agent.class.cast(individual));
+                postOffice.removeAll(individual.getId());
             }
         });
     }
@@ -295,7 +295,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
     }
 
     public int getSteps() {
-        return steps.get();
+        return steps;
     }
 
     public synchronized void pause() {
@@ -309,7 +309,7 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
 
         clearAgentList();
 
-        steps.set(0);
+        steps = 0;
 
         initialize();
         notifyStep();
@@ -415,22 +415,20 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
         step();
     }
 
-    /**
-     * Increase the time by one and return its (increased) to
-     * @return
-     */
     public synchronized void step() {
         processAgents();
         processAfterStepCommands();
         space.updateTopo();
         commandList.clear();
-        steps.incrementAndGet();
+        ++steps;
         notifyStep();
     }
 
     private void processAgents() {
         for (FastList.Node<Agent> n = individuals.head(), end = individuals.tail(); (n = n.getNext()) != end;) {
-            n.getValue().execute();
+            Agent agent = n.getValue();
+            agent.addMessages(postOffice.pollMessages(agent.getId()));
+            agent.execute();
         }
     }
 
@@ -467,18 +465,13 @@ public class Simulation implements Runnable, ACLMessageTransmitter, ACLMessageRe
         this.title = name;
     }
 
-    @Override
-    public void deliverMessage(ACLMessage message) {
-        postOffice.addMessage(message);
-    }
-
-    @Override
-    public List<ACLMessage> pollMessages(MessageTemplate messageTemplate) {
-        return postOffice.pollMessages(messageTemplate);
-    }
-
-    public List<ACLMessage> pollMessages(int receiverId, MessageTemplate messageTemplate) {
-        return postOffice.pollMessages(receiverId, messageTemplate);
+    public void deliverMessage(final ACLMessage message) {
+        enqueAfterStepCommand(new Command() {
+            @Override
+            public void execute() {
+               postOffice.addMessage(message);
+            }
+        });
     }
 
     public void translate(final Agent agent, double distance) {

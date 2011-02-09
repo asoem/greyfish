@@ -4,7 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.utils.CloneMap;
 
@@ -50,7 +53,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
                 template = createCFPTemplate(getOntology());
 
                 final List<ACLMessage> cfpReplies = Lists.newArrayList();
-                for (ACLMessage message : receiveMessages()) {
+                for (ACLMessage message : receiveMessages(getTemplate())) {
 
                     ACLMessage cfpReply;
                     try {
@@ -64,7 +67,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
-                    send(cfpReply);
+                    sendMessage(cfpReply);
 
                     if (cfpReply.matches(MessageTemplate.performative(ACLPerformative.PROPOSE)))
                         ++nExpectedProposeAnswers;
@@ -80,14 +83,14 @@ public abstract class ContractNetResponderAction extends FSMAction {
 
             @Override
             public String action() {
-                Iterable<ACLMessage> receivedMessages = receiveMessages();
+                Iterable<ACLMessage> receivedMessages = receiveMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
                         case ACCEPT_PROPOSAL:
                             ACLMessage response = handleAccept(receivedMessage).build();
                             checkAcceptReply(response);
-                            send(response);
+                            sendMessage(response);
                             break;
                         case REJECT_PROPOSAL:
                             handleReject(receivedMessage);
@@ -131,23 +134,7 @@ public abstract class ContractNetResponderAction extends FSMAction {
         });
     }
 
-    private Iterable<ACLMessage> receiveMessages() {
-        return getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
-    }
-
-    private void send(final ACLMessage message) {
-        message.send(getTransmitter());
-    }
-
     protected abstract String getOntology();
-
-    protected ACLMessageReceiver getReceiver() {
-        return getSimulation();
-    }
-
-    protected ACLMessageTransmitter getTransmitter() {
-        return getSimulation();
-    }
 
     private static MessageTemplate createProposalReplyTemplate(Collection<ACLMessage> cfpReplies) {
         return MessageTemplate.any(

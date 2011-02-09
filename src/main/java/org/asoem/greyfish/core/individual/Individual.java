@@ -4,11 +4,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.lang.CircularFifoBuffer;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Element;
@@ -22,6 +25,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.unmodifiableIterable;
 import static java.util.Arrays.asList;
 
 @Root
@@ -39,6 +43,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     private List<GFAction> actions = Lists.newArrayList();
 
     private final Body body = Body.newInstance();
+
+    private final CircularFifoBuffer<ACLMessage> inBox = CircularFifoBuffer.newInstance(64);
 
     @Override
     public double getRadius() {
@@ -63,6 +69,24 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public void execute() {
         throw new UnsupportedOperationException("Only Agents should get executed");
+    }
+
+    @Override
+    public void addMessages(Iterable<? extends ACLMessage> messages) {
+        Iterables.addAll(inBox, messages);
+    }
+
+    @Override
+    public List pollMessages(MessageTemplate template) {
+        List<ACLMessage> ret = Lists.newArrayList();
+        Iterator<ACLMessage> iterator = inBox.listIterator();
+        while (iterator.hasNext()) {
+            ACLMessage message = iterator.next();
+            if (template.apply(message))
+                ret.add(message);
+            iterator.remove();
+        }
+        return ret;
     }
 
     @Override
@@ -165,8 +189,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public List<GFAction> getActions() {
-        return actions;
+    public Iterable<GFAction> getActions() {
+        return unmodifiableIterable(actions);
     }
 
     /**
@@ -190,8 +214,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public List<GFProperty> getProperties() {
-        return properties;
+    public Iterable<GFProperty> getProperties() {
+        return unmodifiableIterable(properties);
     }
 
     @Override

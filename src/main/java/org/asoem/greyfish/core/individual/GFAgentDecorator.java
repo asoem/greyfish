@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -52,7 +54,7 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public List<GFAction> getActions() {
+    public Iterable<GFAction> getActions() {
         return delegate.getActions();
     }
 
@@ -72,7 +74,7 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public List<GFProperty> getProperties() {
+    public Iterable<GFProperty> getProperties() {
         return delegate.getProperties();
     }
 
@@ -199,5 +201,15 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public Body getBody() {
         return delegate.getBody();
+    }
+
+    @Override
+    public List pollMessages(MessageTemplate template) {
+        return delegate.pollMessages(template);
+    }
+
+    @Override
+    public void addMessages(Iterable<? extends ACLMessage> messages) {
+        delegate.addMessages(messages);
     }
 }

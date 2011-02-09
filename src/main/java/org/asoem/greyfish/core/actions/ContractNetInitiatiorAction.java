@@ -4,7 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.utils.CloneMap;
 
@@ -55,7 +58,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
             @Override
             public String action() {
                 ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
-                cfpMessage.send(getTransmitter());
+                sendMessage(cfpMessage);
                 nProposalsExpected = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
                 nReceivedProposals = 0;
@@ -71,7 +74,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
             public String action() {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage receivedMessage : receiveMessages()) {
+                for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
 
                     ACLMessage proposeReply = null;
                     switch (receivedMessage.getPerformative()) {
@@ -91,7 +94,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                                 assert proposeReply != null;
                             }
                             checkProposeReply(proposeReply);
-                            proposeReply.send(getTransmitter());
+                            sendMessage(proposeReply);
                             break;
 
                         case REFUSE:
@@ -138,7 +141,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
             @Override
             public String action() {
-                for (ACLMessage receivedMessage : receiveMessages()) {
+                for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
                     switch (receivedMessage.getPerformative()) {
                         case INFORM:
                             handleInform(receivedMessage);
@@ -188,10 +191,6 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
         });
     }
 
-    private Iterable<ACLMessage> receiveMessages() {
-        return getReceiver().pollMessages(getComponentOwner().getId(), getTemplate());
-    }
-
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))
             return MessageTemplate.alwaysFalse();
@@ -217,14 +216,6 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                 MessageTemplate.performative(ACLPerformative.ACCEPT_PROPOSAL),
                 MessageTemplate.performative(ACLPerformative.REJECT_PROPOSAL),
                 MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
-    }
-
-    protected ACLMessageReceiver getReceiver() {
-        return getSimulation();
-    }
-
-    protected ACLMessageTransmitter getTransmitter() {
-        return getSimulation();
     }
 
     protected abstract ACLMessage.Builder createCFP();

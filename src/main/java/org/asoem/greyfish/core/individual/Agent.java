@@ -14,9 +14,7 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.*;
@@ -74,8 +72,8 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public List<GFAction> getActions() {
-        return Collections.unmodifiableList(getDelegate().getActions());
+    public Iterable<GFAction> getActions() {
+        return getDelegate().getActions();
     }
 
     @Override
@@ -94,8 +92,8 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public List<GFProperty> getProperties() {
-        return Collections.unmodifiableList(getDelegate().getProperties());
+    public Iterable<GFProperty> getProperties() {
+        return getDelegate().getProperties();
     }
 
     @Override
@@ -175,7 +173,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     public Genome getGenome() {
         Genome.Builder builder = Genome.builder();
         for (GFProperty property : getProperties()) {
-            builder.addAll(property.getGeneList());
+            builder.addAll(property.getGenes());
         }
         return builder.build();
     }

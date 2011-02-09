@@ -1,7 +1,9 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneProxy;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
@@ -24,8 +26,13 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     @Override
     public void mutate() {}
 
-    public List<? extends Gene<?>> getGeneList() {
-        return geneList;
+    public Iterable<Gene<?>> getGenes() {
+        return Iterables.transform(geneList, new Function<GeneProxy<?>, Gene<?>>() {
+            @Override
+            public Gene<?> apply(GeneProxy o) {
+                return o.getGene();
+            }
+        });
     }
 
     public void setGenes(Iterator<Gene<?>> geneIterator) {

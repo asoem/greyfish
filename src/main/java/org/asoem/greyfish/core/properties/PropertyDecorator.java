@@ -9,7 +9,6 @@ import org.asoem.greyfish.utils.Exporter;
 import org.simpleframework.xml.Element;
 
 import java.util.Iterator;
-import java.util.List;
 
 public abstract class PropertyDecorator extends AbstractDeepCloneable implements GFProperty {
 
@@ -22,8 +21,8 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public List<? extends Gene<?>> getGeneList() {
-        return getDelegate().getGeneList();
+    public Iterable<Gene<?>> getGenes() {
+        return getDelegate().getGenes();
     }
 
     @Override

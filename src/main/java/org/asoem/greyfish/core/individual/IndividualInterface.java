@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -17,12 +19,12 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     boolean addAction(GFAction action);
     boolean removeAction(GFAction action);
     void removeAllActions();
-    List<GFAction> getActions();
+    Iterable<GFAction> getActions();
 
     boolean addProperty(GFProperty property);
     boolean removeProperty(GFProperty property);
     void removeAllProperties();
-    List<GFProperty> getProperties();
+    Iterable<GFProperty> getProperties();
 
     boolean isCloneOf(Object object);
 
@@ -41,4 +43,7 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     GFAction getLastExecutedAction();
 
     void execute();
+
+    void addMessages(Iterable<? extends ACLMessage> messages);
+    List pollMessages(MessageTemplate template);
 }

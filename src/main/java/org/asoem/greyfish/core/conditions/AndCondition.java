@@ -3,8 +3,6 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -22,12 +20,11 @@ public class AndCondition extends LogicalOperatorCondition {
       */
     @Override
     public boolean evaluate(final Simulation simulation) {
-        return Iterables.all(conditions, new Predicate<GFCondition>() {
-            @Override
-            public boolean apply(GFCondition gfCondition) {
-                return gfCondition.evaluate(simulation);
-            }
-        });
+        for (GFCondition condition : conditions) {
+            if (!condition.evaluate(simulation))
+                return false;
+        }
+        return true;
     }
 
     @Override

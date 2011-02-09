@@ -10,9 +10,6 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -34,9 +31,8 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	@Override
 	public void export(Exporter e) {
 		super.export(e);
-		
-		final List<GFAction> list = (getComponentOwner() != null) ? getComponentOwner().getActions() : new ArrayList<GFAction>();
-		e.addField( new ValueSelectionAdaptor<GFAction>("", GFAction.class, action, list) {
+
+		e.addField( new ValueSelectionAdaptor<GFAction>("", GFAction.class, action, getComponentOwner().getActions()) {
 
 			@Override
 			protected void writeThrough(GFAction arg0) {

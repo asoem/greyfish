@@ -75,5 +75,7 @@ public class GeneProxy<T> implements Gene<T> {
         return new GeneProxy<T>(gene);
     }
 
-
+    public Gene<T> getGene() {
+        return gene;
+    }
 }

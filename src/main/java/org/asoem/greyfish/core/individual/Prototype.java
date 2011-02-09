@@ -13,8 +13,6 @@ import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import java.util.List;
-
 @Root
 public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
@@ -81,7 +79,13 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
     @Override
     public boolean addAction(GFAction action) {
-        return addComponent(getDelegate().getActions(), action);
+        if (componentCanBeAdded(action, getActions())
+                && getDelegate().addAction(action)) {
+            action.setComponentRoot(this);
+            fireComponentAdded(action);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -102,7 +106,13 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
     @Override
     public boolean addProperty(GFProperty property) {
-        return addComponent(getDelegate().getProperties(), property);
+        if (componentCanBeAdded(property, getProperties())
+                && getDelegate().addProperty(property)) {
+            property.setComponentRoot(this);
+            fireComponentAdded(property);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -136,31 +146,7 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
         throw new UnsupportedOperationException();
     }
 
-    private <T extends NamedIndividualComponent> boolean addComponent(final List<T> collection, final T component) {
-        checkComponentAddition(component);
-
-        // duplicate check
-        if (Iterables.find(collection, new Predicate<NamedIndividualComponent>() {
-
-            @Override
-            public boolean apply(NamedIndividualComponent object) {
-                return object.getName().equals(component.getName());
-            }
-        }, null) != null)
-            return false;
-
-        collection.add(component);
-        component.setComponentRoot(this);
-
-        fireComponentAdded(component);
-
-        if (GreyfishLogger.isTraceEnabled())
-            GreyfishLogger.trace("Component " + component.getName() + " added to " + this);
-
-        return true;
-    }
-
-    private boolean checkComponentAddition(final GFComponent component) {
+    private <T extends GFComponent> boolean componentCanBeAdded(final T component, Iterable<T> target) {
         Preconditions.checkNotNull(component);
 
         if(component.getComponentOwner() != null
@@ -169,6 +155,16 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
                 GreyfishLogger.debug("Component already part of another individual");
             return false;
         }
+
+        // duplicate check
+        if (Iterables.find(target, new Predicate<T>() {
+
+            @Override
+            public boolean apply(T object) {
+                return object.getName().equals(component.getName());
+            }
+        }, null) != null)
+            return false;
 
         return true;
     }
