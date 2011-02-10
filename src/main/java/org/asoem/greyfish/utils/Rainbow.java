@@ -13,9 +13,9 @@ import java.awt.*;
 //==============================================================================
 public class Rainbow
 {
-	private static int size = 256;  // 256 defined RGB Colors
+	private static final int size = 256;  // 256 defined RGB Colors
 
-	private static Color[] rgb;
+	private static final Color[] rgb;
 
 	private static Rainbow instance;
 

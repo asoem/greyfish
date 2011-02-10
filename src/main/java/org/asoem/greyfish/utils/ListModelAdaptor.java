@@ -10,7 +10,7 @@ public class ListModelAdaptor<T> extends AbstractListModel {
 
 	private static final long serialVersionUID = -8856005640394691336L;
 
-	private List<T> collection;
+	private final List<T> collection;
 
 	public ListModelAdaptor(List<T> collection) {
 		this.collection = collection;

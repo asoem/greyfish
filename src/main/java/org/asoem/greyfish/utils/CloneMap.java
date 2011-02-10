@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class CloneMap extends ForwardingMap<DeepCloneable, DeepCloneable> {
 
-    private Map<DeepCloneable, DeepCloneable> map = Maps.newHashMap();
+    private final Map<DeepCloneable, DeepCloneable> map = Maps.newHashMap();
 
     public <T extends DeepCloneable> T clone(T clonable, Class<T> clazz) {
         if (clonable == null)

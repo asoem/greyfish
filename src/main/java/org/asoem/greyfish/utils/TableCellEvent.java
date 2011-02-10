@@ -2,10 +2,10 @@ package org.asoem.greyfish.utils;
 
 public class TableCellEvent {
 
-	private int row;
-	private int column;
-	private Object oldValue;
-	private Object newValue;
+	private final int row;
+	private final int column;
+	private final Object oldValue;
+	private final Object newValue;
 
 	public TableCellEvent(int row, int column, Object oldValue, Object newValue) {
 		super();

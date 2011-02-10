@@ -17,14 +17,14 @@ import java.util.logging.Logger;
  */
 public class TableCellListenerSupport implements PropertyChangeListener, Runnable
 {
-	private JTable table;
+	private final JTable table;
 
 	private int row;
 	private int column;
 	private Object oldValue;
 	private Object newValue;
 
-	private Vector<TableCellListener> list = new Vector<TableCellListener>();
+	private final Vector<TableCellListener> list = new Vector<TableCellListener>();
 
 	public void addTableCellListener(TableCellListener l) {
 		list.add(l);

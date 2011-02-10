@@ -12,8 +12,8 @@ public class ColorMap {
 	public final static ColorMap temperature = new ColorMap(Color.BLUE, Color.GREEN, Color.YELLOW, Color.RED);
 
 
-	private Vector<Color> colors = new Vector<Color>();
-	private double colorsInterval;
+	private final Vector<Color> colors = new Vector<Color>();
+	private final double colorsInterval;
 
 	public ColorMap(Color color1, Color color2, Color ... colors) {
 		this.colors.add(color1);
