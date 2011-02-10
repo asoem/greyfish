@@ -52,7 +52,7 @@ public class ResourceProvisionConsumptionSpec extends Specification<ContractNetI
             }, null);
             assert consumerClone != null;
 
-            specify(Iterables.get(Iterables.filter(consumerClone.getProperties(), DoubleProperty.class), 0).getValue(), should.equal(1.0));
+            specify(Iterables.get(Iterables.filter(consumerClone.getProperties(), DoubleProperty.class), 0).get(), should.equal(1.0));
         }
 
     }

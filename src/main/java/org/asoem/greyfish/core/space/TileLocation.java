@@ -20,7 +20,7 @@ public class TileLocation {
 	final public static int BORDER_EAST = 8;
 	int borderFlags = 0;
 	
-	final List<Object2DInterface> occupants = new FastList<Object2DInterface>();
+	final List<Object2DInterface> occupants = FastList.newInstance();
 	TileLocation[] adjacents;
 	TileLocation[] reachables;
 	

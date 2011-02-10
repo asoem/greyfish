@@ -16,7 +16,7 @@ import java.util.Collection;
 import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
-public abstract class ContractNetInitiatiorAction extends FSMAction {
+public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
 
     private static final String SEND_CFP = "Send-cfp";
     private static final String WAIT_FOR_POROPOSALS = "Wait-for-proposals";
@@ -78,8 +78,8 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
                     ACLMessage proposeReply = null;
                     switch (receivedMessage.getPerformative()) {
-                        case PROPOSE:
 
+                        case PROPOSE:
                             try {
                                 proposeReply = handlePropose(receivedMessage).build();
                                 proposeReplies.add(proposeReply);
@@ -88,8 +88,7 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                                 proposeReply = receivedMessage.replyFrom(getComponentOwner().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
-                                if (isDebugEnabled())
-                                    debug("Message not understood", e);
+                                if (isDebugEnabled()) debug("ContractNetInit '" + this + "' Message not understood", e);
                             } finally {
                                 assert proposeReply != null;
                             }
@@ -98,20 +97,20 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
                             break;
 
                         case REFUSE:
-                            if (isDebugEnabled())
-                                debug("CFP was refused: " + receivedMessage);
+                            if (isDebugEnabled()) debug("ContractNetInit '" + this + "' CFP was refused: " + receivedMessage);
                             handleRefuse(receivedMessage);
                             --nProposalsExpected;
                             break;
+
                         case NOT_UNDERSTOOD:
-                            if (isDebugEnabled())
-                                debug("Communication Error: NOT_UNDERSTOOD received");
+                            if (isDebugEnabled()) debug("ContractNetInit '" + this + "' Communication Error: NOT_UNDERSTOOD received");
                             --nProposalsExpected;
                             break;
+
                         default:
-                            if (isDebugEnabled())
-                                debug("Protocol Error: Expected PROPOSE, REFUSE or NOT_UNDERSTOOD," +
-                                        "received " + receivedMessage.getPerformative());
+                            if (isDebugEnabled()) debug("Protocol Error: " +
+                                    "Expected PROPOSE, REFUSE or NOT_UNDERSTOOD," +
+                                    "received " + receivedMessage.getPerformative());
                             --nProposalsExpected;
                             break;
 
@@ -122,11 +121,14 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
 
                 assert nProposalsExpected >= 0;
 
-                if (nProposalsExpected == 0)
+                if (nProposalsExpected == 0) {
+                    if (isDebugEnabled())
+                        debug("ContractNetInit '" + this + "' received 0 proposals for " + nProposalsExpected + "CFP messages");
                     return END;
+                }
                 else if (timeoutCounter == PROPOSAL_TIMEOUT || nReceivedProposals == nProposalsExpected) {
                     if (isTraceEnabled() && timeoutCounter == PROPOSAL_TIMEOUT)
-                        trace(ContractNetInitiatiorAction.class.getSimpleName() + ": TIMEOUT for proposals");
+                        trace("ContractNetInit '" + this + "' entered TIMEOUT for proposals");
                     timeoutCounter = 0;
                     template = createAcceptReplyTemplate(proposeReplies);
                     return WAIT_FOR_INFORM;
@@ -143,20 +145,25 @@ public abstract class ContractNetInitiatiorAction extends FSMAction {
             public String action() {
                 for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
                     switch (receivedMessage.getPerformative()) {
+
                         case INFORM:
                             handleInform(receivedMessage);
                             break;
+
                         case FAILURE:
+                            if (isDebugEnabled())
+                                debug("ContractNetInit '" + this + "' received FAILURE: " + receivedMessage);
                             handleFailure(receivedMessage);
                             break;
+
                         case NOT_UNDERSTOOD:
                             if (isDebugEnabled())
-                                debug("Communication Error: NOT_UNDERSTOOD received");
+                                debug("ContractNetInit '" + this + "' received NOT_UNDERSTOOD: " + receivedMessage);
                             break;
+
                         default:
                             if (isDebugEnabled())
-                                debug("Protocol Error: Expected INFORM, FAILURE or NOT_UNDERSTOOD," +
-                                        "received " + receivedMessage.getPerformative());
+                                debug("ContractNetInit '" + this + "' expected none of INFORM, FAILURE or NOT_UNDERSTOOD:" + receivedMessage);
                             break;
                     }
 

@@ -35,7 +35,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
     @Override
     protected Integer getCompareValue(Simulation simulation) {
-        return intProperty.getValue();
+        return intProperty.get();
     }
 
     @Override

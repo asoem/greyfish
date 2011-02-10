@@ -77,7 +77,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     public static Builder with() { return new Builder(); }
 
     @Override
-    public List<EvaluatedCandidate<Genome>> getValue() {
+    public List<EvaluatedCandidate<Genome>> get() {
         return value;
     }
 

@@ -36,10 +36,10 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     }
 
     public void setGenes(Iterator<Gene<?>> geneIterator) {
-        for (GeneProxy<?> gene : geneList) {
+        for (GeneProxy<?> proxy : geneList) {
             if (!geneIterator.hasNext())
                 throw new AssertionError("geneIterator cannot provide elements as needed");
-            gene.setGene(geneIterator.next());
+            proxy.setGene(geneIterator.next());
         }
     }
 
@@ -51,7 +51,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         listenerSupport.addListener(listener);
     }
 
-    protected final <S> Supplier<S> registerGene(final Gene<S> gene, final Class<S> clazz) {
+    protected final <S> Supplier<S> registerGene(final Gene<S> gene) {
         checkNotFrozen();
 
         final GeneProxy<S> ret = GeneProxy.newInstance(gene);

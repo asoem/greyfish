@@ -1,12 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import net.sourceforge.jeval.EvaluationConstants;
-import net.sourceforge.jeval.EvaluationException;
-import net.sourceforge.jeval.Evaluator;
-import net.sourceforge.jeval.VariableResolver;
-import net.sourceforge.jeval.function.FunctionException;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.conditions.ConditionTree;
@@ -14,10 +8,9 @@ import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
-import org.asoem.greyfish.core.io.GreyfishLogger;
-import org.asoem.greyfish.core.properties.ContinuosProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.GreyfishMathExpression;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -25,15 +18,15 @@ import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import java.util.NoSuchElementException;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
+import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
 
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
-
-    private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
     private ConditionTree conditionTree;
 
@@ -49,9 +42,19 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public boolean evaluate(Simulation simulation) {
+        if (!conditionTree.evaluate(simulation))
+            return false;
 
-        return !(energySource != null && energySource.getValue().compareTo(evaluateFormula()) < 0) && conditionTree.evaluate(simulation);
+        // test for energy
+        double needed = evaluateFormula();
+        if (energySource != null && energySource.get().compareTo(needed) < 0) {
+            if (isDebugEnabled())
+                debug("Evaluation of " + this + " evaluated to false for energy reasons. " +
+                        "Needed=" + needed + "; available=" + energySource.get());
+            return false;
+        }
 
+        return true;
     }
 
     /**
@@ -97,7 +100,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         conditionTree.initialize(simulation);
         executionCount = 0;
         timeOfLastExecution = simulation.getSteps();
-        parseFormula();
     }
 
     @Override
@@ -107,13 +109,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public double evaluateFormula() {
-        try {
-            return Double.valueOf(FORMULA_EVALUATOR.evaluate());
-        }
-        catch (EvaluationException e) {
-            GreyfishLogger.error(AbstractGFAction.class.getSimpleName() + ": CostsFormula could not be evaluated. Returning 0", e);
-            return 0;
-        }
+        return GreyfishMathExpression.evaluate(energyCostsFormula, getComponentOwner());
     }
 
     @Element(name="condition", required=false)
@@ -152,39 +148,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         checkState(Iterables.contains(components, energySource));
     }
 
-    private void parseFormula() {
-        if (energySource != null) {
-            checkState(energyCostsFormula != null);
-
-            FORMULA_EVALUATOR.setVariableResolver( new VariableResolver() {
-
-                @Override
-                public String resolveVariable(final String arg0) throws FunctionException {
-                    try {
-                        ContinuosProperty<?> property = Iterables.find(Iterables.filter(getComponentOwner().getProperties(), ContinuosProperty.class), new Predicate<ContinuosProperty>() {
-
-                            @Override
-                            public boolean apply(ContinuosProperty object) {
-                                return object.getName().equals(arg0);
-                            }
-                        });
-                        return String.valueOf(property.getAmount());
-                    } catch(NoSuchElementException e) {
-                        GreyfishLogger.warn(e);
-                        return "0";
-                    }
-                }
-            });
-
-            try{
-                FORMULA_EVALUATOR.parse(energyCostsFormula);
-            } catch (Exception e) {
-                energyCostsFormula = "0";
-                GreyfishLogger.error(AbstractGFAction.class.getSimpleName() + ": CostsFormula is not valid has been reset to 0: " + energyCostsFormula);
-            }
-        }
-    }
-
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
         // TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
         return simulation.getSteps() - timeOfLastExecution >= steps;
@@ -210,7 +173,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
         private T source(DoubleProperty source) { this.source = source; return self(); }
         private T formula(String formula) { this.formula = formula; return self(); }
-        public T generatesCosts(DoubleProperty source, String formula) { return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
+        public T generatesCosts(DoubleProperty source, String formula) {
+            return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
     }
 
     protected AbstractGFAction(AbstractGFAction cloneable, CloneMap map) {
@@ -223,7 +187,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     protected void sendMessage(ACLMessage message) {
         getSimulation().deliverMessage(message);
     }
-    protected Iterable<ACLMessage> receiveMessages(MessageTemplate template) {
+
+    protected List receiveMessages(MessageTemplate template) {
         return getComponentOwner().pollMessages(template);
     }
 }

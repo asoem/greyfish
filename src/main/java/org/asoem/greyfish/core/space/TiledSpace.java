@@ -298,6 +298,7 @@ public class TiledSpace implements Space {
                     return false;
                 else if (loc.getX() > new_loc.getX() && loc.hasBorder(Direction.WEST))
                     return false;
+
                 if (loc.getY() < new_loc.getY() && loc.hasBorder(Direction.SOUTH))
                     return false;
                 else if (loc.getY() > new_loc.getY() && loc.hasBorder(Direction.NORTH))

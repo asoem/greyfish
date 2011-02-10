@@ -168,4 +168,9 @@ public class Scenario implements PrototypeRegistryListener {
             return new Scenario(this);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Scenario[" + name + ']';
+    }
 }

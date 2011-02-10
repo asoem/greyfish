@@ -38,7 +38,7 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
     }
 
     @Override
-    public E getValue() {
+    public E get() {
         return value;
     }
 

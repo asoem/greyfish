@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.*;
+import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
+import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
 import static org.asoem.greyfish.core.space.Location2D.at;
 
 public class Simulation implements Runnable {
@@ -119,7 +121,7 @@ public class Simulation implements Runnable {
 
     private int steps = 0;
 
-    private String title = "Simulation";
+    private String title = "untitled";
 
     private Simulation(final Scenario scenario) {
         Preconditions.checkNotNull(scenario);
@@ -194,6 +196,7 @@ public class Simulation implements Runnable {
     }
 
     private void addAgent(Agent individual, Location2DInterface location) {
+        if (isDebugEnabled()) debug("Adding Agent to " + this + ": " + individual);
         individuals.add(individual);
         individual.setAnchorPoint(location);
         space.addOccupant(individual);
@@ -425,6 +428,7 @@ public class Simulation implements Runnable {
     }
 
     private void processAgents() {
+        if (isDebugEnabled()) debug("==== " + this + ": processing " + individuals.size() + " Agents");
         for (FastList.Node<Agent> n = individuals.head(), end = individuals.tail(); (n = n.getNext()) != end;) {
             Agent agent = n.getValue();
             agent.addMessages(postOffice.pollMessages(agent.getId()));
@@ -433,6 +437,7 @@ public class Simulation implements Runnable {
     }
 
     private void processAfterStepCommands() {
+        if (isDebugEnabled()) debug("==== " + this + ": processing " + commandList.size() + " post-step-commands");
         for (FastList.Node<Command> n = commandList.head(), end = commandList.tail(); (n = n.getNext()) != end;) {
             n.getValue().execute();
         }
@@ -454,7 +459,7 @@ public class Simulation implements Runnable {
 
     @Override
     public String toString() {
-        return getTitle() + " (SC:" + scenario.getName() + ")";
+        return "Sim[" + getTitle() + "] running '" + scenario + "'";
     }
 
     public String getTitle() {

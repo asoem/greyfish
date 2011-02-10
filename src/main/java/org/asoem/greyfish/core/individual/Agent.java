@@ -160,7 +160,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         }
         try {
             if (toExecute != null) {
-                if (isDebugEnabled()) debug("Executing " + toExecute);
+                if (isTraceEnabled()) trace("Executing " + toExecute);
                 toExecute.executeUnevaluated(simulation);
                 lastExecutedAction = toExecute;
             }
@@ -267,7 +267,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public String toString() {
-        return "Agent#" + id + "[" + getPopulation() + "]";
+        return "Agent#" + id + "(" + getPopulation() + ")[" + getGenome() + "]";
     }
 
     public Individual getIndividual() {

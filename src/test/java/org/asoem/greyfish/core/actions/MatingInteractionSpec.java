@@ -49,7 +49,7 @@ public class MatingInteractionSpec extends Specification<ContractNetInitiatiorAc
             }, null);
             assert consumerClone != null;
 
-            specify(Iterables.get(Iterables.filter(consumerClone.getProperties(), EvaluatedGenomeStorage.class), 0).getValue().size(), should.equal(1));
+            specify(Iterables.get(Iterables.filter(consumerClone.getProperties(), EvaluatedGenomeStorage.class), 0).get().size(), should.equal(1));
         }
 
     }

@@ -14,13 +14,13 @@ import static com.google.common.collect.Iterables.all;
 import static org.asoem.greyfish.core.io.GreyfishLogger.isTraceEnabled;
 import static org.asoem.greyfish.core.io.GreyfishLogger.trace;
 
-public abstract class FSMAction extends AbstractGFAction {
+public abstract class FiniteStateAction extends AbstractGFAction {
 
-    protected FSMAction(AbstractGFAction.AbstractBuilder<?> builder) {
+    protected FiniteStateAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
     }
 
-    protected FSMAction(FSMAction cloneable, CloneMap cloneMap) {
+    protected FiniteStateAction(FiniteStateAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
     }
 
@@ -38,6 +38,12 @@ public abstract class FSMAction extends AbstractGFAction {
 
     @Override
     protected final void performAction(Simulation simulation) {
+                if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
+            if (isTraceEnabled())
+                trace(this + ": EndTransition to " + initialStateName);
+            currentStateName = initialStateName;                                assert currentStateName != null;
+        }
+
         StateAction stateActionToExecute = states.get(currentStateName);        assert stateActionToExecute != null;
         String nextStateName = stateActionToExecute.action();                   assert nextStateName != null;
 
@@ -45,12 +51,6 @@ public abstract class FSMAction extends AbstractGFAction {
             trace(this + ": Transition to " + nextStateName);
 
         currentStateName = nextStateName;
-
-        if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
-            if (isTraceEnabled())
-                trace(this + ": EndTransition to " + initialStateName);
-            currentStateName = initialStateName;                                assert currentStateName != null;
-        }
     }
 
     @Override
@@ -78,12 +78,12 @@ public abstract class FSMAction extends AbstractGFAction {
                     "Not all EndStateNames "+endStateNames+" have an actual state in "+states);
         }
         else
-            GreyfishLogger.warn("FSMAction has no states defined: " + this);
+            GreyfishLogger.warn("FiniteStateAction has no states defined: " + this);
     }
 
     @Override
     public final boolean done() {
-        return currentStateName.equals(initialStateName);
+        return endStateNames.contains(currentStateName);
     }
 
     protected final void registerInitialFSMState(final String state, final StateAction action) {

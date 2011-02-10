@@ -26,14 +26,14 @@ public class ConvertQuantityAction extends AbstractGFAction {
     @Override
     protected void performAction(Simulation simulation) {
         if (parameterSource != null && parameterTarget != null) {
-            double add_amount = Math.min(parameterSource.getValue(), parameterMax) * parameterFactor;
+            double add_amount = Math.min(parameterSource.get(), parameterMax) * parameterFactor;
 
-            if (parameterTarget.getValue() + add_amount > parameterTarget.getUpperBound()) {
-                add_amount = parameterTarget.getUpperBound() - parameterTarget.getValue();
+            if (parameterTarget.get() + add_amount > parameterTarget.getUpperBound()) {
+                add_amount = parameterTarget.getUpperBound() - parameterTarget.get();
             }
 
-            parameterTarget.setValue(parameterTarget.getValue() + add_amount);
-            parameterSource.setValue(parameterSource.getValue() - add_amount / parameterFactor );
+            parameterTarget.setValue(parameterTarget.get() + add_amount);
+            parameterSource.setValue(parameterSource.get() - add_amount / parameterFactor );
         }
     }
 

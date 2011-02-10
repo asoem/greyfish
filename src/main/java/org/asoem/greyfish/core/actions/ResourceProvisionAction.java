@@ -56,7 +56,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
 
         ACLMessage.Builder ret = message.replyFrom(getComponentOwner().getId());
 
-        offer = Math.min(requested, resourceProperty.getValue());
+        offer = Math.min(requested, resourceProperty.get());
 
         if (offer > 0)
             ret.performative(ACLPerformative.PROPOSE).objectContent(offer);

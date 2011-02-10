@@ -18,7 +18,7 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
     private Supplier<Double> doubleSupplier = new Supplier<Double>() {
         @Override
         public Double get() {
-            return delegate.getValue();
+            return delegate.get();
         }
     };
 
@@ -31,7 +31,7 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
     }
 
     @Override
-    public Double getValue() {
+    public Double get() {
         return doubleSupplier.get();
     }
 
@@ -49,7 +49,7 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
                     public Double apply(Double aDouble) {
                         return new GaussianGenerator(getLowerBound(), getUpperBound(), RandomUtils.RNG).nextValue();
                     }
-                }), Double.class);
+                }));
     }
 
     public static Builder with() { return new Builder(); }

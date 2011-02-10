@@ -19,6 +19,11 @@ public class DeathAction extends AbstractGFAction {
 	}
 
     @Override
+    public boolean evaluate(Simulation simulation) {
+        return super.evaluate(simulation);
+    }
+
+    @Override
     public DeathAction deepCloneHelper(CloneMap cloneMap) {
         return new DeathAction(this, cloneMap);
     }

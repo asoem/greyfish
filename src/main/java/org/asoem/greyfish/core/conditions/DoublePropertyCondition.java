@@ -33,7 +33,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
 	@Override
 	protected Double getCompareValue(Simulation simulation) {
-		return doubleProperty.getValue();
+		return doubleProperty.get();
 	}
 
     @Override

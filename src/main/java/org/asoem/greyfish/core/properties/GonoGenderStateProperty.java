@@ -11,9 +11,9 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.RandomUtils;
 
 @ClassGroup(tags="property")
-public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<String> {
+public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<GonoGenderStateProperty.Gender> {
 
-    private enum Gender {
+    public enum Gender {
         MALE("Male"),
         FEMALE("Female"),
         ASEX("Asex");
@@ -30,6 +30,11 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
                 builder.add(g.name());
             return Iterables.toArray(builder.build(), String.class);
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     private final Supplier<Integer> gene = registerGene(
@@ -38,8 +43,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
                 public Integer apply(Integer integer) {
                     return RandomUtils.nextDouble() < 0.001 ? 2 : RandomUtils.nextBoolean() ? 0 : 1;
                 }
-            }),
-            Integer.class
+            })
     );
 
     public GonoGenderStateProperty(GonoGenderStateProperty gonoGenderStateProperty, CloneMap cloneMap) {
@@ -47,13 +51,13 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     @Override
-    public String getValue() {
-        return Gender.values()[gene.get()].name;
+    public Gender get() {
+        return Gender.values()[gene.get()];
     }
 
     @Override
-    public String[] getSet() {
-        return Gender.names();
+    public Gender[] getSet() {
+        return Gender.values();
     }
 
     @Override

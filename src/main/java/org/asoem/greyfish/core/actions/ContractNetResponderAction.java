@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
 import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
 
-public abstract class ContractNetResponderAction extends FSMAction {
+public abstract class ContractNetResponderAction extends FiniteStateAction {
 
     private static final String CHECK_CFP = "Check-cfp";
     private static final String WAIT_FOR_ACCEPT = "Wait-for-accept";
