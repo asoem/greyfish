@@ -91,9 +91,9 @@ public class TiledSpace implements Space {
         SOUTHEAST(1,1,TileLocation.BORDER_SOUTH | TileLocation.BORDER_EAST);
         // CAVE! Order matters for the reverse() function
 
-        private int xTranslation;
-        private int yTranslation;
-        int borderCheck;
+        private final int xTranslation;
+        private final int yTranslation;
+        final int borderCheck;
 
         private Direction(int yTranslation, int xTranslation, int borderCheck) {
             this.xTranslation = xTranslation;

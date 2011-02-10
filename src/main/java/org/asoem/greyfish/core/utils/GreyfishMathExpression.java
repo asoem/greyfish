@@ -23,7 +23,7 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
 public enum GreyfishMathExpression {
     INSTANCE;
 
-    private Map<String, Object> parserCache = Maps.newHashMap();
+    private final Map<String, Object> parserCache = Maps.newHashMap();
 
     private double getResult(String expression, IndividualInterface individualInterface) {
         double ret = 0;

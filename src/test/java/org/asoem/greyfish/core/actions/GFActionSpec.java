@@ -1,11 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
 /**
- * Created by IntelliJ IDEA.
  * User: christoph
  * Date: 20.01.11
  * Time: 15:33
- * To change this template use File | Settings | File Templates.
  */
 public class GFActionSpec {
 

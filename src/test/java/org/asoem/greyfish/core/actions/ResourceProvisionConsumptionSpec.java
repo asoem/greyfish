@@ -22,21 +22,21 @@ import static org.asoem.greyfish.core.space.Location2D.at;
 public class ResourceProvisionConsumptionSpec extends Specification<ContractNetInitiatiorAction> {
     public class NormalInteraction {
 
-        DoubleProperty energyStorage = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.0).build();
-        ResourceConsumptionAction consumptionAction =
+        final DoubleProperty energyStorage = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.0).build();
+        final ResourceConsumptionAction consumptionAction =
                 ResourceConsumptionAction.with().viaMessagesOfType("test").requesting(1).storesEnergyIn(energyStorage).build();
-        Prototype consumer = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop1", Color.black)).addProperties(energyStorage).addActions(consumptionAction).build());
+        final Prototype consumer = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop1", Color.black)).addProperties(energyStorage).addActions(consumptionAction).build());
 
-        ResourceProperty resourceProperty = new ResourceProperty.Builder().lowerBound(0.0).upperBound(1.0).initialValue(1.0).build();
-        ResourceProvisionAction provisionAction = ResourceProvisionAction.with().parameterMessageType("test").resourceProperty(resourceProperty).build();
-        Prototype provider = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop2", Color.black)).addProperties(resourceProperty).addActions(provisionAction).build());
+        final ResourceProperty resourceProperty = new ResourceProperty.Builder().lowerBound(0.0).upperBound(1.0).initialValue(1.0).build();
+        final ResourceProvisionAction provisionAction = ResourceProvisionAction.with().parameterMessageType("test").resourceProperty(resourceProperty).build();
+        final Prototype provider = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop2", Color.black)).addProperties(resourceProperty).addActions(provisionAction).build());
 
-        Scenario scenario = Scenario.with().space(1,1)
+        final Scenario scenario = Scenario.with().space(1,1)
                 .add(consumer, at(0,0))
                 .add(provider, at(0,0))
                 .build();
 
-        Simulation simulation = Simulation.newSimulation(scenario);
+        final Simulation simulation = Simulation.newSimulation(scenario);
 
         public void shouldTransferTheCorrectAmount() {
             int stepRequired = 3;

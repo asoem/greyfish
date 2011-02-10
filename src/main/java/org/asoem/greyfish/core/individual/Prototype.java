@@ -157,16 +157,14 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
         }
 
         // duplicate check
-        if (Iterables.find(target, new Predicate<T>() {
+        return Iterables.find(target, new Predicate<T>() {
 
             @Override
             public boolean apply(T object) {
                 return object.getName().equals(component.getName());
             }
-        }, null) != null)
-            return false;
+        }, null) == null;
 
-        return true;
     }
 
     public Individual getIndividual() {

@@ -18,7 +18,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
         FEMALE("Female"),
         ASEX("Asex");
 
-        private String name;
+        private final String name;
 
         Gender(String name) {
             this.name = name;

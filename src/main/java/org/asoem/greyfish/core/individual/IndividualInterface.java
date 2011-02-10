@@ -45,5 +45,5 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     void execute();
 
     void addMessages(Iterable<? extends ACLMessage> messages);
-    List pollMessages(MessageTemplate template);
+    List<ACLMessage> pollMessages(MessageTemplate template);
 }

@@ -61,7 +61,7 @@ public class Simulation implements Runnable {
         FAST(5),
         FASTEST(0);
 
-        private double sleepMillies;
+        private final double sleepMillies;
 
         private Speed(double sleepMillies) {
             this.sleepMillies = sleepMillies;
@@ -113,7 +113,7 @@ public class Simulation implements Runnable {
 
     private int runs;
 
-    private Scenario scenario;
+    private final Scenario scenario;
 
     private TiledSpace space;
 

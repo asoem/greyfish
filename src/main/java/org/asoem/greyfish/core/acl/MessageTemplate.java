@@ -77,7 +77,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
     }
 
     private static class ConversationIDPredicate implements Predicate<ACLMessage> {
-        private int conversationID;
+        private final int conversationID;
 
         private ConversationIDPredicate(int conversationID) {
             this.conversationID = conversationID;
@@ -91,8 +91,8 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 
 
     private static class ReferenceContentPredicate<T> implements Predicate<ACLMessage> {
-        private Class<T> clazz;
-        private Predicate<T> predicate;
+        private final Class<T> clazz;
+        private final Predicate<T> predicate;
 
         private ReferenceContentPredicate(Class<T> clazz, Predicate<T> predicate) {
             this.clazz = clazz;
@@ -106,7 +106,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
     }
 
     private static class IsReplyPredicate implements Predicate<ACLMessage> {
-        private ACLMessage messages;
+        private final ACLMessage messages;
 
         public IsReplyPredicate(ACLMessage messages) {
             this.messages = checkNotNull(messages);

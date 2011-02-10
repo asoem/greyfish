@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(JDaveRunner.class)
 public class AndConditionSpec extends Specification<LogicalOperatorCondition> {
-    AndCondition condition = AndCondition.trueIf().and(
+    final AndCondition condition = AndCondition.trueIf().and(
                         AlwaysTrueCondition.trueIf().build()
                         , AlwaysTrueCondition.trueIf().build()
                 ).build();
@@ -18,12 +18,12 @@ public class AndConditionSpec extends Specification<LogicalOperatorCondition> {
     }
 
     public class ClonedCondition {
-        AndCondition condition = AndCondition.trueIf()
+        final AndCondition condition = AndCondition.trueIf()
                 .addConditions(
                         AlwaysTrueCondition.trueIf().build()
                         , AlwaysTrueCondition.trueIf().build()
                 ).build();
-        AndCondition clone = condition.deepClone(AndCondition.class);
+        final AndCondition clone = condition.deepClone(AndCondition.class);
 
         public void shouldHaveTheSameNumberOfChildren() {
             specify(clone.getChildConditions().size(), must.equal(condition.getChildConditions().size()));

@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 public class PostOfficeSpec extends Specification<PostOffice> {
 
     public class AnEmptyPostOffice {
-        private PostOffice postOffice = PostOffice.newInstance();
+        private final PostOffice postOffice = PostOffice.newInstance();
 
 
         public void shouldReturnAnAddedMessage() {
@@ -20,7 +20,7 @@ public class PostOfficeSpec extends Specification<PostOffice> {
     }
 
     public class AFilledPostOffice {
-        private PostOffice postOffice = PostOffice.newInstance();
+        private final PostOffice postOffice = PostOffice.newInstance();
 
 
         public void shouldBeEmptyAfterPollingAllMessages() {

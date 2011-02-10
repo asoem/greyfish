@@ -9,8 +9,8 @@ import org.asoem.greyfish.utils.Table;
 
 public class PopulationLog extends Table {
 
-	private Agent prototype;
-	private Simulation simulation;
+	private final Agent prototype;
+	private final Simulation simulation;
 
 	public PopulationLog(Simulation simulation, Agent prototype) {
 		Preconditions.checkNotNull(simulation);

@@ -16,12 +16,12 @@ import static org.asoem.greyfish.core.space.Location2D.at;
 public class SimulationSpec extends Specification<Simulation> {
 
     public class SimulationBuildFromScenarioWithNPlaceholders {
-        Prototype prototype = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop", Color.black)).build());
-        Scenario scenario = Scenario.with().space(1, 1)
+        final Prototype prototype = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop", Color.black)).build());
+        final Scenario scenario = Scenario.with().space(1, 1)
                 .add(prototype, at(0,0))
                 .add(prototype, at(0,0))
                 .build();
-        Simulation simulation = Simulation.newSimulation(scenario);
+        final Simulation simulation = Simulation.newSimulation(scenario);
 
         public void shouldHaveNAgentsAtStep0() {
              specify(simulation.getAgents().size(), should.equal(2));

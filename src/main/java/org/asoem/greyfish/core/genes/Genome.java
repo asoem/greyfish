@@ -127,7 +127,7 @@ public class Genome implements GenomeInterface {
     }
 
     public static class Builder implements BuilderInterface<Genome> {
-        private List<Gene<?>> genes = Lists.newArrayList();
+        private final List<Gene<?>> genes = Lists.newArrayList();
 
         public <T extends Gene<?>> Builder add(T ... genes) { this.genes.addAll(ImmutableList.copyOf(genes)); return this; }
         public <T extends Gene<?>> Builder addAll(Iterable<T> genes) { Iterables.addAll(this.genes, genes); return this; }

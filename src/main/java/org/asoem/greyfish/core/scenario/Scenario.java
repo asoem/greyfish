@@ -146,7 +146,7 @@ public class Scenario implements PrototypeRegistryListener {
     public static Builder with() {return new Builder(); }
     public static class Builder implements BuilderInterface<Scenario> {
         private TiledSpace space;
-        private Multimap<Prototype, Location2DInterface> map = ArrayListMultimap.create();
+        private final Multimap<Prototype, Location2DInterface> map = ArrayListMultimap.create();
         private String name;
 
         public Builder name(String name) { this.name = name; return this; }

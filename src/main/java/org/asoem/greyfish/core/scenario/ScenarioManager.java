@@ -17,7 +17,7 @@ import java.util.List;
 public class ScenarioManager extends AbstractCollection<Scenario> {
 
 	private final List<Scenario> scenarios = Collections.synchronizedList(Lists.<Scenario>newArrayList());
-	private Scenario activeScenario = null;
+	private final Scenario activeScenario = null;
 	private final ListenerSupport<ScenarioChoiceListener> listenerSupport = ListenerSupport.newInstance();
 	private final PrototypeManager prototypeManager;
 

@@ -271,37 +271,6 @@ public final class ACLMessage {
         return str.toString();
     }
 
-    public ACLMessage createCopy() {
-        Builder ret = new Builder()
-                .performative(this.performative)
-                .reply_with(this.reply_with)
-                .contentType(this.contentType)
-                .in_reply_to(this.in_reply_to)
-                .encoding(this.encoding)
-                .language(this.language)
-                .ontology(this.ontology)
-                .protocol(this.protocol)
-                .addDestinations(this.dests)
-                .addReplyTos(this.reply_to)
-                .source(this.source)
-                .conversation_id(this.conversation_id);
-        switch (contentType) {
-            case BYTE_ARRAY:
-                ret.byteSequenceContent((byte[]) content);
-                break;
-            case OTHER:
-                ret.objectContent(content);
-                break;
-            case STRING:
-                ret.stringContent((String) content);
-                break;
-            default:
-            case NULL:
-                break;
-        }
-        return ret.build();
-    }
-
     public static Builder with() {
         return new Builder();
     }

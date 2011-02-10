@@ -21,19 +21,19 @@ import static org.asoem.greyfish.core.space.Location2D.at;
 public class MatingInteractionSpec extends Specification<ContractNetInitiatiorAction> {
     public class NormalInteraction {
 
-        EvaluatedGenomeStorage genomeStorage = EvaluatedGenomeStorage.with().build();
-        MatingReceiverAction receiverAction = MatingReceiverAction.with().fromMatesOfType("mate").closerThan(1.0).storesSpermIn(genomeStorage).build();
-        Prototype female = Prototype.newInstance(Individual.with().population(Population.newPopulation("Female", Color.black)).addProperties(genomeStorage).addActions(receiverAction).build());
+        final EvaluatedGenomeStorage genomeStorage = EvaluatedGenomeStorage.with().build();
+        final MatingReceiverAction receiverAction = MatingReceiverAction.with().fromMatesOfType("mate").closerThan(1.0).storesSpermIn(genomeStorage).build();
+        final Prototype female = Prototype.newInstance(Individual.with().population(Population.newPopulation("Female", Color.black)).addProperties(genomeStorage).addActions(receiverAction).build());
 
-        MatingTransmitterAction transmitterAction = MatingTransmitterAction.with().offersSpermToMatesOfType("mate").build();
-        Prototype male = Prototype.newInstance(Individual.with().population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build());
+        final MatingTransmitterAction transmitterAction = MatingTransmitterAction.with().offersSpermToMatesOfType("mate").build();
+        final Prototype male = Prototype.newInstance(Individual.with().population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build());
 
-        Scenario scenario = Scenario.with().space(1,1)
+        final Scenario scenario = Scenario.with().space(1,1)
                 .add(female, at(0,0))
                 .add(male, at(0,0))
                 .build();
 
-        Simulation simulation = Simulation.newSimulation(scenario);
+        final Simulation simulation = Simulation.newSimulation(scenario);
 
         public void shouldTransferTheCorrectAmount() {
             int stepRequired = 3;

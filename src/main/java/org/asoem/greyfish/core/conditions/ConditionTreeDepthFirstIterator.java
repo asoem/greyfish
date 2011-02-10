@@ -4,8 +4,8 @@ import java.util.*;
 
 public class ConditionTreeDepthFirstIterator implements Iterator<GFCondition> {
 
-	private Stack<GFCondition> stack = new Stack<GFCondition>();
-	private Stack<Integer> depthStack = new Stack<Integer>();
+	private final Stack<GFCondition> stack = new Stack<GFCondition>();
+	private final Stack<Integer> depthStack = new Stack<Integer>();
 
 	private int currentDepth = -1;
 

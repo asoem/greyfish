@@ -188,7 +188,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         getSimulation().deliverMessage(message);
     }
 
-    protected List receiveMessages(MessageTemplate template) {
+    protected List<ACLMessage> receiveMessages(MessageTemplate template) {
         return getComponentOwner().pollMessages(template);
     }
 }

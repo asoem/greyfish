@@ -37,10 +37,10 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     private Population population = Population.newPopulation("Default", Color.black);
 
     @ElementList(inline=true, entry="property", required=false)
-    private List<GFProperty> properties = Lists.newArrayList();
+    private final List<GFProperty> properties = Lists.newArrayList();
 
     @ElementList(inline=true, entry="action", required=false)
-    private List<GFAction> actions = Lists.newArrayList();
+    private final List<GFAction> actions = Lists.newArrayList();
 
     private final Body body = Body.newInstance();
 
@@ -310,8 +310,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     public static class Builder implements BuilderInterface<Individual> {
-        private ImmutableList.Builder<GFAction> actions = ImmutableList.builder();
-        private ImmutableList.Builder<GFProperty> properties =  ImmutableList.builder();
+        private final ImmutableList.Builder<GFAction> actions = ImmutableList.builder();
+        private final ImmutableList.Builder<GFProperty> properties =  ImmutableList.builder();
         private Population population;
 
         public Builder population(Population population) { this.population = checkNotNull(population); return this; }
