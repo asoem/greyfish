@@ -42,7 +42,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @ElementList(inline=true, entry="action", required=false)
     private final List<GFAction> actions = Lists.newArrayList();
 
-    private final Body body = Body.newInstance();
+    @Element(name = "body", required = false)
+    private Body body = Body.newInstance(this);
 
     private final CircularFifoBuffer<ACLMessage> inBox = CircularFifoBuffer.newInstance(64);
 
@@ -110,11 +111,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public double getSpeed() {
-        return body.getSpeed();
-    }
-
-    @Override
     public double getX() {
         return body.getX();
     }
@@ -129,7 +125,10 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
         return Iterables.<GFComponent>concat(properties, actions).iterator();
     }
 
-    public Individual() {
+    private Individual(@ElementList(inline=true, entry="property", required=false) final List<GFProperty> properties,
+              @ElementList(inline=true, entry="action", required=false) final List<GFAction> actions) {
+        this.properties.addAll(properties);
+        this.actions.addAll(actions);
     }
 
     public Individual(Builder builder) {
@@ -147,6 +146,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     protected Individual(Individual individual, CloneMap map) {
         this.population = individual.population;
+        this.body = map.clone(individual.body, Body.class);
         Iterables.addAll(actions, map.cloneAll(individual.actions, GFAction.class));
         Iterables.addAll(properties, map.cloneAll(individual.properties, GFProperty.class));
     }

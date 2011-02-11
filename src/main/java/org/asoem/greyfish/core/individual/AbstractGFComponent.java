@@ -26,6 +26,8 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     private Simulation simulation;
 
+    protected AbstractGFComponent() { }
+
     protected AbstractGFComponent(AbstractGFComponent cloneable, CloneMap map) {
         super(cloneable, map);
         this.name = cloneable.name;

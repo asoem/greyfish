@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2DInterface;
-import org.asoem.greyfish.core.space.MovingObject2DInterface;
+import org.asoem.greyfish.core.space.Object2DInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
@@ -19,7 +19,7 @@ import java.util.Iterator;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
-public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2DInterface, Initializeable {
+public class Agent extends GFAgentDecorator implements IndividualInterface, Object2DInterface, Initializeable {
 
     // static during each activation
     private final Simulation simulation;
@@ -139,12 +139,9 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public double getSpeed() {
-        return getBody().getSpeed();
-    }
-
-    @Override
     public void execute() {
+
+        getBody().update();
 
         GFAction toExecute = lastExecutedAction;
 

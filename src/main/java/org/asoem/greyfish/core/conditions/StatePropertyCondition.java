@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
@@ -12,12 +14,15 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
+import java.beans.PropertyChangeEvent;
+import java.util.Arrays;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
-    private FiniteSetProperty<?> stateProperty;
+    private FiniteSetProperty stateProperty;
 
     @Element(name="state",required=false)
     private Object state;
@@ -41,18 +46,32 @@ public class StatePropertyCondition extends LeafCondition {
 
     @Override
     public void export(Exporter e) {
-        e.addField(new ValueSelectionAdaptor<FiniteSetProperty>("", FiniteSetProperty.class, stateProperty, Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class)) {
+        final ValueSelectionAdaptor<FiniteSetProperty> statesAdaptor = new ValueSelectionAdaptor<FiniteSetProperty>(
+                "Property", FiniteSetProperty.class, stateProperty, Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class) ) {
             @Override
             protected void writeThrough(FiniteSetProperty arg0) {
                 stateProperty = checkFrozen(checkNotNull(arg0));
             }
-        });
-        e.addField(new ValueSelectionAdaptor<Object>("has state", Object.class, state, (stateProperty == null) ? new Object[0] : stateProperty.getSet()) {
+        };
+        e.addField(statesAdaptor);
+
+        final ValueSelectionAdaptor<Object> stateAdaptor = new ValueSelectionAdaptor<Object>(
+                "has state",
+                Object.class,
+                Suppliers.ofInstance(state),
+                new Supplier<Iterable<Object>>() {
+                    @Override
+                    public Iterable<Object> get() {
+                        return Arrays.asList((stateProperty == null) ? new Object[0] : stateProperty.getSet());
+                    }
+                }) {
             @Override
             protected void writeThrough(Object arg0) {
                 state = checkFrozen(checkNotNull(arg0));
             }
-        });
+        };
+        statesAdaptor.addValueChangeListener(stateAdaptor);
+        e.addField(stateAdaptor);
     }
 
     @Override

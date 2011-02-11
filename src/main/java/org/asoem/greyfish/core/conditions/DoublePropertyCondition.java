@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -22,7 +23,8 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
     @Override
 	public void export(Exporter e) {
 		super.export(e);
-		e.addField(new ValueSelectionAdaptor<DoubleProperty>("", DoubleProperty.class, doubleProperty, Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
+		e.addField(new ValueSelectionAdaptor<DoubleProperty>("", DoubleProperty.class, doubleProperty,
+                 Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
 
 			@Override
 			protected void writeThrough(DoubleProperty arg0) {

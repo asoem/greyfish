@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Suppliers;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -10,6 +11,7 @@ import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Suppliers.ofInstance;
 
 public class LastExecutedActionCondition extends LeafCondition {
 
@@ -33,7 +35,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueSelectionAdaptor<GFAction>("Action", GFAction.class, action, getComponentOwner().getActions()) {
+        e.addField( new ValueSelectionAdaptor<GFAction>("Action", GFAction.class,  action,  getComponentOwner().getActions()) {
             @Override
             protected void writeThrough(GFAction arg0) {
                 action = checkFrozen(checkNotNull(arg0));

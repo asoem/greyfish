@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -22,8 +23,8 @@ public class  GreyfishSerialization {
 		serializeObject(dest, scenario);
 	}
 
-	public static Individual readPrototype(File source) throws Exception {
-		return deserializeFile(source, Individual.class);
+	public static Prototype readPrototype(File source) throws Exception {
+		return deserializeFile(source, Prototype.class);
 	}
 
 	public static Scenario readScenario(File source) throws Exception {

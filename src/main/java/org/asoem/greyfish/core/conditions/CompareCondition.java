@@ -8,6 +8,9 @@ import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
+import java.sql.Array;
+import java.util.Arrays;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class CompareCondition<T extends Comparable<T>> extends LeafCondition {
@@ -33,7 +36,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueSelectionAdaptor<Comparator>("", Comparator.class, comparator, Comparator.values()) {
+        e.addField( new ValueSelectionAdaptor<Comparator>("", Comparator.class, comparator, Arrays.asList(Comparator.values())) {
             @Override protected void writeThrough(Comparator arg0) { comparator = checkFrozen(checkNotNull(arg0)); }
         });
     }

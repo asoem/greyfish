@@ -154,11 +154,6 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public double getSpeed() {
-        return delegate.getSpeed();
-    }
-
-    @Override
     public int getId() {
         return delegate.getId();
     }

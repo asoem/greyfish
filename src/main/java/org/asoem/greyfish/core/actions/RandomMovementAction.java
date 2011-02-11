@@ -27,7 +27,7 @@ public class RandomMovementAction extends AbstractGFAction {
             simulation.rotate(Agent.class.cast(getComponentOwner()), phi);
         }
 
-        simulation.translate(Agent.class.cast(getComponentOwner()), getComponentOwner().getSpeed());
+        simulation.translate(Agent.class.cast(getComponentOwner()), speed);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
-        private double speed;
+        private double speed = 0.1;
 
         public T speed(double speed) { this.speed = speed; return self(); }
     }
