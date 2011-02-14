@@ -15,11 +15,16 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField( new ValueAdaptor<Integer>("Value", Integer.class, value) {
+        e.add(new ValueAdaptor<Integer>("Value", Integer.class) {
 
             @Override
-            protected void writeThrough(Integer arg0) {
+            protected void set(Integer arg0) {
                 value = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public Integer get() {
+                return value;
             }
         });
     }

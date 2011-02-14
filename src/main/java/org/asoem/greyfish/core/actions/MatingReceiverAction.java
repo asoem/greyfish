@@ -49,24 +49,42 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class, spermBuffer, Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class)) {
+        e.add(new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class) {
             @Override
-            protected void writeThrough(EvaluatedGenomeStorage arg0) {
+            protected void set(EvaluatedGenomeStorage arg0) {
                 spermBuffer = checkFrozen(checkNotNull(arg0));
             }
-        });
-        e.addField(new ValueAdaptor<String>("Message Type", String.class, ontology) {
 
             @Override
-            protected void writeThrough(String arg0) {
-                ontology = checkFrozen(checkNotNull(arg0));
+            public EvaluatedGenomeStorage get() {
+                return spermBuffer;
+            }
+
+            @Override
+            public Iterable<EvaluatedGenomeStorage> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
-        e.addField(new ValueAdaptor<Double>("Sensor Range", Double.class, sensorRange) {
+        e.add(new ValueAdaptor<String>("Message Type", String.class) {
+            @Override
+            protected void set(String arg0) {
+                ontology = checkFrozen(checkNotNull(arg0));
+            }
 
             @Override
-            protected void writeThrough(Double arg0) {
+            public String get() {
+                return ontology;
+            }
+        });
+        e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
+            @Override
+            protected void set(Double arg0) {
                 sensorRange = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public Double get() {
+                return sensorRange;
             }
         });
     }

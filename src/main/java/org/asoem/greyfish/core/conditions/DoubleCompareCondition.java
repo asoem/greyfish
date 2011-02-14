@@ -13,13 +13,17 @@ public abstract class DoubleCompareCondition extends CompareCondition<Double> {
     @Override
 	public void export(Exporter e) {
 		super.export(e);
-		e.addField( new ValueAdaptor<Double>("", Double.class, value) {
+		e.add(new ValueAdaptor<Double>("", Double.class) {
+            @Override
+            protected void set(Double arg0) {
+                value = arg0;
+            }
 
-			@Override
-			protected void writeThrough(Double arg0) {
-				DoubleCompareCondition.this.value = arg0;
-			}
-		});
+            @Override
+            public Double get() {
+                return value;
+            }
+        });
 	}
 
     protected DoubleCompareCondition(AbstractBuilder<?> builder) {

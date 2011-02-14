@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
@@ -32,13 +33,22 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	public void export(Exporter e) {
 		super.export(e);
 
-		e.addField( new ValueSelectionAdaptor<GFAction>("", GFAction.class, action, getComponentOwner().getActions()) {
+		e.add(new ValueSelectionAdaptor<GFAction>("", GFAction.class) {
+            @Override
+            protected void set(GFAction arg0) {
+                action = checkFrozen(checkNotNull(arg0));
+            }
 
-			@Override
-			protected void writeThrough(GFAction arg0) {
-				action = checkFrozen(checkNotNull(arg0));
-			}
-		});
+            @Override
+            public GFAction get() {
+                return action;
+            }
+
+            @Override
+            public Iterable<GFAction> values() {
+                return Iterables.filter(getComponentOwner().getActions(), GFAction.class);
+            }
+        });
 	}
 
     @Override

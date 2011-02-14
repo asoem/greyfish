@@ -47,10 +47,15 @@ public class ClonalReproductionAction extends AbstractGFAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField( new ValueAdaptor<Integer>("#clones", Integer.class, parameterClones) {
+        e.add(new ValueAdaptor<Integer>("#clones", Integer.class) {
             @Override
-            protected void writeThrough(Integer arg0) {
+            protected void set(Integer arg0) {
                 parameterClones = checkFrozen(arg0);
+            }
+
+            @Override
+            public Integer get() {
+                return parameterClones;
             }
         });
     }

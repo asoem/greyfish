@@ -41,8 +41,16 @@ public class ChangeBodyAction extends AbstractGFAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField( new ValueAdaptor<Color>("Color", Color.class, color) {
-            @Override protected void writeThrough(Color arg0) { color = checkFrozen(checkNotNull(arg0)); }
+        e.add(new ValueAdaptor<Color>("Color", Color.class) {
+            @Override
+            public Color get() {
+                return color;
+            }
+
+            @Override
+            protected void set(Color arg0) {
+                color = checkFrozen(checkNotNull(arg0));
+            }
         });
     }
 

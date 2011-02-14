@@ -100,25 +100,53 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueAdaptor<String>("Ontology", String.class, parameterMessageType) {
-            @Override protected void writeThrough(String arg0) {
+        e.add(new ValueAdaptor<String>("Ontology", String.class) {
+            @Override
+            protected void set(String arg0) {
                 parameterMessageType = checkFrozen(checkNotNull(arg0));
             }
+
+            @Override
+            public String get() {
+                return parameterMessageType;
+            }
         });
-        e.addField(new ValueAdaptor<Double>("Amount", Double.class, amountPerRequest) {
-            @Override protected void writeThrough(Double arg0) {
+        e.add(new ValueAdaptor<Double>("Amount", Double.class) {
+            @Override
+            protected void set(Double arg0) {
                 amountPerRequest = checkFrozen(checkNotNull(arg0));
             }
-        });
-        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class, consumerProperty, Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
-            @Override protected void writeThrough(DoubleProperty arg0) {
-                consumerProperty = checkFrozen(checkNotNull(arg0));
+
+            @Override
+            public Double get() {
+                return amountPerRequest;
             }
         });
-        e.addField(new ValueAdaptor<Double>("Sensor Range", Double.class, sensorRange) {
+        e.add(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class) {
             @Override
-            protected void writeThrough(Double arg0) {
+            protected void set(DoubleProperty arg0) {
+                consumerProperty = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public DoubleProperty get() {
+                return consumerProperty;
+            }
+
+            @Override
+            public Iterable<DoubleProperty> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+            }
+        });
+        e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
+            @Override
+            protected void set(Double arg0) {
                 sensorRange = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public Double get() {
+                return sensorRange;
             }
         });
     }

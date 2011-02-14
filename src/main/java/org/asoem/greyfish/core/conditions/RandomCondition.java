@@ -31,10 +31,15 @@ public class RandomCondition extends LeafCondition {
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueAdaptor<Double>("", Double.class, probability) {
+        e.add(new ValueAdaptor<Double>("", Double.class) {
             @Override
-            protected void writeThrough(Double arg0) {
+            protected void set(Double arg0) {
                 probability = arg0;
+            }
+
+            @Override
+            public Double get() {
+                return probability;
             }
         });
     }

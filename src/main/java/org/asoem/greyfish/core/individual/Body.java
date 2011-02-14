@@ -2,21 +2,21 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Initializeable;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.*;
+import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.core.space.Object2D;
+import org.asoem.greyfish.core.space.Object2DInterface;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Version;
 
 import java.awt.*;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Body extends AbstractGFComponent implements Object2DInterface, ConfigurableValueProvider {
@@ -30,7 +30,7 @@ public class Body extends AbstractGFComponent implements Object2DInterface, Conf
     @Element(name="colorStateProperty", required = false)
     private FiniteSetProperty<?> states = null;
     @Element(name="colorStateMap", required = false)
-    private Map<Object, Color> stateColorMap = null;
+    private Map<Object, Color> stateColorMap = ImmutableMap.of();
 
     private Supplier<Color> colorSupplier = Suppliers.ofInstance(DEFAULT_COLOR);
 
@@ -122,17 +122,27 @@ public class Body extends AbstractGFComponent implements Object2DInterface, Conf
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueSelectionAdaptor<FiniteSetProperty>(
-                "StateProperty",
-                FiniteSetProperty.class,
-                states,
-                Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class)) {
-            @Override
-            protected void writeThrough(FiniteSetProperty arg0) {
-                states = checkNotNull(arg0);
-                update();
+        ValueSelectionAdaptor<FiniteSetProperty> b = new ValueSelectionAdaptor<FiniteSetProperty>("StateProperty", FiniteSetProperty.class) {
+            @Override protected void set(FiniteSetProperty arg0) { states = checkNotNull(arg0); update(); }
+            @Override public FiniteSetProperty get() { return states; }
+            @Override public Iterable<FiniteSetProperty> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class);
             }
-        });
+        };
+        e.add(b);
+
+        MultiValueAdaptor<Color> colorMultiValueAdaptor = new MultiValueAdaptor<Color>("State Colors", Color.class) {
+            @Override public Object[] keys() { return Iterables.toArray(stateColorMap.keySet(), Object.class); }
+            @Override public Color[] get() { return Iterables.toArray(stateColorMap.values(), Color.class); }
+            @Override public void set(Color[] list) {
+                checkArgument(list.length == stateColorMap.size());
+                int i = 0;
+                for (Object key : stateColorMap.keySet()) stateColorMap.put(key, list[i++]);
+            }
+        };
+        e.add(colorMultiValueAdaptor);
+        b.addValueChangeListener(colorMultiValueAdaptor);
+//        e.add(ValueAdaptor.forField("The color of the Body", Color.class, this, "color"));
     }
 
     private Color[] generateColors(int n) {

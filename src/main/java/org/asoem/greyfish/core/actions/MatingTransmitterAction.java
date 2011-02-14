@@ -43,11 +43,16 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueAdaptor<String>("Message Type", String.class, ontology) {
+        e.add(new ValueAdaptor<String>("Message Type", String.class) {
 
             @Override
-            protected void writeThrough(String arg0) {
+            protected void set(String arg0) {
                 ontology = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public String get() {
+                return ontology;
             }
         });
     }

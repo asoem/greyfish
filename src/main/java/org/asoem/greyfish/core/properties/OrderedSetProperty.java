@@ -76,28 +76,14 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
     }
 
     public void export(Exporter e, Class<E> clazz) {
-        e.addField(new ValueAdaptor<E>("Min", clazz, lowerBound) {
+        e.add(ValueAdaptor.forField("Minimal Value", clazz, this, "lowerBound"));
+        e.add(ValueAdaptor.forField("Maximal Value", clazz, this, "upperBound"));
 
-            @Override
-            protected void writeThrough(E arg0) {
-                lowerBound = checkFrozen(checkNotNull(arg0));
-            }
-        });
-        e.addField(new ValueAdaptor<E>("Max", clazz, upperBound) {
+        e.add(new ValueAdaptor<E>("Initial", clazz) {
 
-            @Override
-            protected void writeThrough(E arg0) {
-                upperBound = checkFrozen(checkNotNull(arg0));
-            }
-        });
-        e.addField(new ValueAdaptor<E>("Initial", clazz, initialValue) {
-
-            @Override
-            protected void writeThrough(E arg0) {
-                initialValue = checkFrozen(checkNotNull(arg0));
-            }
-            @Override
-            public ValidationResult validate() {
+            @Override protected void set(E arg0) { initialValue = checkFrozen(checkNotNull(arg0)); }
+            @Override public E get() { return initialValue; }
+            @Override public ValidationResult validate() {
                 ValidationResult validationResult = new ValidationResult();
                 if (!Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)))
                     validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");

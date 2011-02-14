@@ -50,17 +50,32 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField( new ValueAdaptor<Integer>("Offsprings per actions", Integer.class, nOffspring) {
+        e.add(new ValueAdaptor<Integer>("Number of offspring", Integer.class) {
             @Override
-            protected void writeThrough(Integer arg0) {
+            protected void set(Integer arg0) {
                 nOffspring = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public Integer get() {
+                return nOffspring;
             }
         });
 
-        e.addField( new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class, spermStorage, Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class)) {
+        e.add(new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class) {
             @Override
-            protected void writeThrough(EvaluatedGenomeStorage arg0) {
+            protected void set(EvaluatedGenomeStorage arg0) {
                 spermStorage = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public EvaluatedGenomeStorage get() {
+                return spermStorage;
+            }
+
+            @Override
+            public Iterable<EvaluatedGenomeStorage> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
     }

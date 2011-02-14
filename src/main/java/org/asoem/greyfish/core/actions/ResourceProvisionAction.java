@@ -74,21 +74,34 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueAdaptor<String>(
+        e.add(new ValueAdaptor<String>(
                 "Ontology",
-                String.class,
-                parameterMessageType) {
-            @Override protected void writeThrough(String arg0) {
+                String.class
+        ) {
+            @Override
+            protected void set(String arg0) {
                 parameterMessageType = checkFrozen(checkNotNull(arg0));
             }
+
+            @Override
+            public String get() {
+                return parameterMessageType;
+            }
         });
-        e.addField(new ValueSelectionAdaptor<ResourceProperty>(
-                "ResourceProperty",
-                ResourceProperty.class,
-                resourceProperty,
-                Iterables.filter(getComponentOwner().getProperties(), ResourceProperty.class)) {
-            @Override protected void writeThrough(ResourceProperty arg0) {
+        e.add(new ValueSelectionAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
+            @Override
+            protected void set(ResourceProperty arg0) {
                 resourceProperty = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public ResourceProperty get() {
+                return resourceProperty;
+            }
+
+            @Override
+            public Iterable<ResourceProperty> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), ResourceProperty.class);
             }
         });
     }

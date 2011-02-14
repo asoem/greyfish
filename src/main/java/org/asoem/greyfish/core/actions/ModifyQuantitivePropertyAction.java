@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.asoem.greyfish.core.actions;
 
@@ -23,55 +23,66 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author christoph
- * 
+ *
  */
 @ClassGroup(tags="actions")
 public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
     private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
-	@Element(name = "property")
-	private DoubleProperty parameterQuantitiveProperty;
+    @Element(name = "property")
+    private DoubleProperty parameterQuantitiveProperty;
 
     @Element(name = "energyRenewalFormula")
-	private String energyCostsFormula = "0";
+    private String energyCostsFormula = "0";
 
-	private ModifyQuantitivePropertyAction() {
+    private ModifyQuantitivePropertyAction() {
         this(new Builder());
-	}
+    }
 
-	@Override
-	protected void performAction(Simulation simulation) {
-		parameterQuantitiveProperty.setValue(evaluateFormula());
-	}
+    @Override
+    protected void performAction(Simulation simulation) {
+        parameterQuantitiveProperty.setValue(evaluateFormula());
+    }
 
     public double evaluateFormula() {
-		try {
-			return Double.valueOf(FORMULA_EVALUATOR.evaluate());
-		}
-		catch (EvaluationException e) {
-			GreyfishLogger.warn("CostsFormula is not a valid expression", e);
-			return 0;
-		}
-	}
+        try {
+            return Double.valueOf(FORMULA_EVALUATOR.evaluate());
+        }
+        catch (EvaluationException e) {
+            GreyfishLogger.warn("CostsFormula is not a valid expression", e);
+            return 0;
+        }
+    }
 
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField( new ValueSelectionAdaptor<DoubleProperty>(
-                "Property",
-                DoubleProperty.class,
-                parameterQuantitiveProperty,
-                Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
+        e.add(new ValueSelectionAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
-            protected void writeThrough(DoubleProperty arg0) {
+            protected void set(DoubleProperty arg0) {
                 parameterQuantitiveProperty = checkFrozen(checkNotNull(arg0));
             }
-        });
-        e.addField( new ValueAdaptor<String>("Formula", String.class, energyCostsFormula) {
+
             @Override
-            protected void writeThrough(String arg0) {
-                energyCostsFormula = checkFrozen(checkNotNull(arg0)); // TODO: check if string is a valid expression
+            public DoubleProperty get() {
+                return parameterQuantitiveProperty;
+            }
+
+            @Override
+            public Iterable<DoubleProperty> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+            }
+        });
+        e.add(new ValueAdaptor<String>("Formula", String.class) {
+            @Override
+            protected void set(String arg0) {
+                energyCostsFormula = checkFrozen(checkNotNull(arg0));
+            } // TODO: check if string is a valid expression
+
+            @Override
+            public String get() {
+                return energyCostsFormula;
             }
         });
     }

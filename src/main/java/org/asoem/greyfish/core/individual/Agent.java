@@ -270,4 +270,8 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
     public Individual getIndividual() {
         return Individual.class.cast(getDelegate());
     }
+
+    public Simulation getSimulation() {
+        return simulation;
+    }
 }

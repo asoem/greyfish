@@ -131,14 +131,35 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public void export(Exporter e) {
-        e.addField( new ValueAdaptor<String>("Energy Costs", String.class, energyCostsFormula) {
-            @Override protected void writeThrough(String arg0) { energyCostsFormula = checkFrozen(arg0); }
+        e.add(new ValueAdaptor<String>("Energy Costs", String.class) {
+            @Override
+            public String get() {
+                return energyCostsFormula;
+            }
+
+            @Override
+            protected void set(String arg0) {
+                energyCostsFormula = checkFrozen(arg0);
+            }
         });
-        //		e.addField( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
-        //				{ @Override protected void writeThrough(Boolean arg0) { parameterLast = arg0; }});
-        e.addField(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class,
-                energySource, Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class)) {
-            @Override protected void writeThrough(DoubleProperty arg0) { energySource = checkFrozen(arg0); }
+        //		e.add( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
+        //				{ @Override protected void set(Boolean arg0) { parameterLast = arg0; }});
+        e.add(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
+        ) {
+            @Override
+            protected void set(DoubleProperty arg0) {
+                energySource = checkFrozen(arg0);
+            }
+
+            @Override
+            public DoubleProperty get() {
+                return energySource;
+            }
+
+            @Override
+            public Iterable<DoubleProperty> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+            }
         });
     }
 

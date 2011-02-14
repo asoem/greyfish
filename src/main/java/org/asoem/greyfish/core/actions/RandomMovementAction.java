@@ -6,7 +6,6 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.RandomUtils;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
@@ -16,30 +15,38 @@ public class RandomMovementAction extends AbstractGFAction {
     @Attribute(required=false)
     private double speed;
 
+    private MovementPattern pattern = MovementPatterns.noMovement();
+
     private RandomMovementAction() {
         this(new Builder());
     }
 
     @Override
     protected void performAction(Simulation simulation) {
-        if (RandomUtils.nextBoolean()) {
-            float phi = RandomUtils.nextFloat(0f, 0.1f);
-            simulation.rotate(Agent.class.cast(getComponentOwner()), phi);
-        }
-
-        simulation.translate(Agent.class.cast(getComponentOwner()), speed);
+        pattern.apply(Agent.class.cast(getComponentOwner()));
     }
 
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.addField(new ValueAdaptor<Double>("", Double.class, speed) {
+        e.add(new ValueAdaptor<Double>("", Double.class) {
 
             @Override
-            protected void writeThrough(Double arg0) {
+            protected void set(Double arg0) {
                 speed = arg0;
             }
+
+            @Override
+            public Double get() {
+                return speed;
+            }
         });
+    }
+
+    @Override
+    public void initialize(Simulation simulation) {
+        super.initialize(simulation);
+        pattern = MovementPatterns.randomMovement(speed);
     }
 
     @Override

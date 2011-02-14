@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -42,21 +43,36 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	public void export(Exporter e) {
 		super.export(e);
 		
-		e.addField(new ValueAdaptor<Integer>("Steps", Integer.class, steps) {
+		e.add(new ValueAdaptor<Integer>("Steps", Integer.class) {
 
-			@Override
-			protected void writeThrough(Integer arg0) {
-				steps = checkFrozen(checkNotNull(arg0));
-			}
-		});
+            @Override
+            protected void set(Integer arg0) {
+                steps = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public Integer get() {
+                return steps;
+            }
+        });
 		
-		e.addField(new ValueSelectionAdaptor<GFAction>("Action", GFAction.class, action, getComponentOwner().getActions()) {
+		e.add(new ValueSelectionAdaptor<GFAction>("Action", GFAction.class) {
 
-			@Override
-			protected void writeThrough(GFAction arg0) {
-				action = checkFrozen(checkNotNull(arg0));
-			}
-		});
+            @Override
+            protected void set(GFAction arg0) {
+                action = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public GFAction get() {
+                return action;
+            }
+
+            @Override
+            public Iterable<GFAction> values() {
+                return Iterables.filter(getComponentOwner().getActions(), GFAction.class);
+            }
+        });
 	}
 
     private LastExecutionTimeCondition() {
