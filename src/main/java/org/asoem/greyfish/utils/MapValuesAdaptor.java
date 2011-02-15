@@ -9,14 +9,14 @@ import java.beans.PropertyChangeSupport;
  * Date: 14.02.11
  * Time: 10:32
  */
-public abstract class MultiValueAdaptor<E> implements PropertyChangeListener {
+public abstract class MapValuesAdaptor<E> implements PropertyChangeListener {
 
     private final String name;
     private final Class<E> clazz;
 //    private final IndirectListModel<E> listModel = new IndirectListModel<E>();
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
-    public MultiValueAdaptor(String name, Class<E> clazz) {
+    public MapValuesAdaptor(String name, Class<E> clazz) {
         this.name = name;
         this.clazz = clazz;
         refresh();
@@ -45,14 +45,14 @@ public abstract class MultiValueAdaptor<E> implements PropertyChangeListener {
     }
 
     public void addValueChangeListener(PropertyChangeListener arg0) {
-        propertyChangeSupport.addPropertyChangeListener(arg0);
+        propertyChangeSupport.addPropertyChangeListener("value", arg0);
     }
 
     public void removeValueChangeListener(PropertyChangeListener arg0) {
-        propertyChangeSupport.removePropertyChangeListener(arg0);
+        propertyChangeSupport.removePropertyChangeListener("value", arg0);
     }
 
     private void fireValueChanged(Object oldValue, Object newValue) {
-        propertyChangeSupport.firePropertyChange("to", oldValue, newValue);
+        propertyChangeSupport.firePropertyChange("value", oldValue, newValue);
     }
 }

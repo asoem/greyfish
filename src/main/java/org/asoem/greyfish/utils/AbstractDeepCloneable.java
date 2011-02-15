@@ -9,7 +9,7 @@ public abstract class AbstractDeepCloneable implements DeepCloneable {
     protected AbstractDeepCloneable() { }
 
     @Override
-    final public <E extends DeepCloneable> E deepClone(Class<E> clazz) {
+    public final <E extends DeepCloneable> E deepClone(Class<E> clazz) {
         return CloneMap.newInstance().clone(clazz.cast(this), clazz);
     }
 //
