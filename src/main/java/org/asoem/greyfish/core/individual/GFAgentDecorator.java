@@ -84,7 +84,7 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public Iterable<? extends GFComponent> getComponents() {
+    public Iterable<GFComponent> getComponents() {
         return delegate.getComponents();
     }
 
@@ -206,5 +206,10 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public void addMessages(Iterable<? extends ACLMessage> messages) {
         delegate.addMessages(messages);
+    }
+
+    @Override
+    public float getAge() {
+        return delegate.getAge();
     }
 }

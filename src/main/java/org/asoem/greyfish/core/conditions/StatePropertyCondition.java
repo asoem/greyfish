@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import java.util.Arrays;
@@ -43,7 +43,7 @@ public class StatePropertyCondition extends LeafCondition {
 
     @Override
     public void export(Exporter e) {
-        final ValueSelectionAdaptor<FiniteSetProperty> statesAdaptor = new ValueSelectionAdaptor<FiniteSetProperty>(
+        final FiniteSetValueAdaptor<FiniteSetProperty> statesAdaptor = new FiniteSetValueAdaptor<FiniteSetProperty>(
                 "Property", FiniteSetProperty.class) {
             @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkFrozen(checkNotNull(arg0)); }
             @Override public FiniteSetProperty get() { return stateProperty; }
@@ -55,7 +55,7 @@ public class StatePropertyCondition extends LeafCondition {
         };
         e.add(statesAdaptor);
 
-        final ValueSelectionAdaptor<Object> stateAdaptor = new ValueSelectionAdaptor<Object>( "has state", Object.class) {
+        final FiniteSetValueAdaptor<Object> stateAdaptor = new FiniteSetValueAdaptor<Object>( "has state", Object.class) {
             @Override protected void set(Object arg0) { state = checkFrozen(checkNotNull(arg0)); }
             @Override public Iterable<Object> get() { return Arrays.asList((stateProperty == null) ? new Object[0] : stateProperty.getSet()); }
             @Override public Iterable<Object> values() {

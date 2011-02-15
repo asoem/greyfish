@@ -28,12 +28,13 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
 
     boolean isCloneOf(Object object);
 
-    Iterable<? extends GFComponent> getComponents();
+    Iterable<GFComponent> getComponents();
 
     void changeActionExecutionOrder(GFAction object, GFAction object2);
 
     int getId();
     int getTimeOfBirth();
+    float getAge();
     Genome getGenome();
     void setGenome(Genome genome);
 

@@ -161,15 +161,10 @@ public class Simulation implements Runnable {
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
             final Agent clone = newAgentFromPool(placeholder.getPopulation());
-            prepareForIntegration(clone);
             addAgent(clone, at(placeholder));
         }
 
         space.updateTopo();
-    }
-
-    private void prepareForIntegration(Agent individual) {
-        checkAgent(individual);
     }
 
     /**
@@ -185,8 +180,6 @@ public class Simulation implements Runnable {
      * @param location
      */
     private synchronized void addNextStep(final Agent individual, final Location2DInterface location) {
-        prepareForIntegration(individual);
-
         enqueAfterStepCommand(new Command() {
             @Override
             public void execute() {
@@ -196,7 +189,9 @@ public class Simulation implements Runnable {
     }
 
     private void addAgent(Agent individual, Location2DInterface location) {
+        checkAgent(individual);
         if (isDebugEnabled()) debug("Adding Agent to " + this + ": " + individual);
+        individual.initialize(this);
         individuals.add(individual);
         individual.setAnchorPoint(location);
         space.addOccupant(individual);

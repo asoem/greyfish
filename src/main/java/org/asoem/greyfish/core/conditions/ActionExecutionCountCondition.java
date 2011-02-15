@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -33,7 +33,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	public void export(Exporter e) {
 		super.export(e);
 
-		e.add(new ValueSelectionAdaptor<GFAction>("", GFAction.class) {
+		e.add(new FiniteSetValueAdaptor<GFAction>("", GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
                 action = checkFrozen(checkNotNull(arg0));

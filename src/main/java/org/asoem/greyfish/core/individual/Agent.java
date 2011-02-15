@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
@@ -72,11 +71,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
     }
 
     @Override
-    public Iterable<GFAction> getActions() {
-        return getDelegate().getActions();
-    }
-
-    @Override
     public boolean addProperty(GFProperty property) {
         throw new UnsupportedOperationException();
     }
@@ -89,16 +83,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
     @Override
     public void removeAllProperties() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Iterable<GFProperty> getProperties() {
-        return getDelegate().getProperties();
-    }
-
-    @Override
-    public Iterable<GFComponent> getComponents() {
-        return Iterables.<GFComponent>concat(getActions(), getProperties());
     }
 
     @Override
@@ -124,8 +108,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     @Override
     public void initialize(Simulation simulation) {
-        getBody().initialize(simulation);
-
         // call initialize for all components
         for (GFComponent component : this) {
             component.setComponentRoot(this);
@@ -140,9 +122,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     @Override
     public void execute() {
-
-        getBody().update();
-
         GFAction toExecute = lastExecutedAction;
 
         if (toExecute == null
@@ -258,11 +237,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
     }
 
     @Override
-    public Iterator<GFComponent> iterator() {
-        return getComponents().iterator();
-    }
-
-    @Override
     public String toString() {
         return "Agent#" + id + "(" + getPopulation() + ")[" + getGenome() + "]";
     }
@@ -273,5 +247,10 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     public Simulation getSimulation() {
         return simulation;
+    }
+
+    @Override
+    public float getAge() {
+        return simulation.getSteps() - getTimeOfBirth();
     }
 }

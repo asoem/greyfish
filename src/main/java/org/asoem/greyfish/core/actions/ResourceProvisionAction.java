@@ -10,8 +10,8 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -88,7 +88,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
                 return parameterMessageType;
             }
         });
-        e.add(new ValueSelectionAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
+        e.add(new FiniteSetValueAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
             @Override
             protected void set(ResourceProperty arg0) {
                 resourceProperty = checkFrozen(checkNotNull(arg0));

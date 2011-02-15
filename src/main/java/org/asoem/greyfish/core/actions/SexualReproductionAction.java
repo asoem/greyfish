@@ -7,8 +7,8 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
@@ -62,7 +62,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.add(new ValueSelectionAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class) {
+        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermStorage = checkFrozen(checkNotNull(arg0));

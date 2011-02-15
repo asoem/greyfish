@@ -7,8 +7,8 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -56,7 +56,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
             }
         });
 		
-		e.add(new ValueSelectionAdaptor<GFAction>("Action", GFAction.class) {
+		e.add(new FiniteSetValueAdaptor<GFAction>("Action", GFAction.class) {
 
             @Override
             protected void set(GFAction arg0) {

@@ -122,7 +122,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 return amountPerRequest;
             }
         });
-        e.add(new ValueSelectionAdaptor<DoubleProperty>("Destination", DoubleProperty.class) {
+        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Destination", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 consumerProperty = checkFrozen(checkNotNull(arg0));

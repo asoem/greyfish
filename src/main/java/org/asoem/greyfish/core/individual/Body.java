@@ -1,87 +1,94 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.space.Location2DInterface;
 import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.lang.FiniteSetSupplier;
+import org.asoem.greyfish.lang.FiniteSetSuppliers;
 import org.asoem.greyfish.utils.*;
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementMap;
+import org.simpleframework.xml.core.Commit;
 
 import java.awt.*;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.*;
 
 public class Body extends AbstractGFComponent implements Object2DInterface, ConfigurableValueProvider {
 
-    private final static float DEFAULT_RADIUS = 0.1f;
     private final Object2D movingObject2D = new Object2D();
-    private final static Color DEFAULT_COLOR = Color.BLACK;
 
-    @Element(name="color", required = false)
-    private Color color = DEFAULT_COLOR;
+    @Attribute(name="radius", required = false)
+    private float radius = 0.1f;
+
+    private static final FiniteSetSupplier DEFAULT_SUPPLIER = FiniteSetSuppliers.of("Default");
+
     @Element(name="colorStateProperty", required = false)
-    private FiniteSetProperty<?> states = null;
-    @Element(name="colorStateMap", required = false)
-    private Map<Object, Color> stateColorMap = ImmutableMap.of();
+    private FiniteSetProperty property;
 
-    private Supplier<Color> colorSupplier = Suppliers.ofInstance(DEFAULT_COLOR);
+    @ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false)
+    private final Map<Object, Color> stateColorMap;
+
+    private FiniteSetSupplier<?> states = DEFAULT_SUPPLIER;
 
     private Body(IndividualInterface owner) {
         setComponentRoot(owner);
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        stateColorMap = Maps.newHashMap();
+        generateColors();
     }
 
     private Body(Body body, CloneMap map) {
         super(body, map);
-        this.states = map.clone(body.states, FiniteSetProperty.class);
+        this.property = map.clone(body.property, FiniteSetProperty.class);
+        if (property != null)
+            states = property;
         stateColorMap = body.stateColorMap;
-        update();
+    }
+
+    @SuppressWarnings("unused") // used by the deserialization process
+    private Body(@ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false) Map<Object, Color> stateColorMap) {
+        this.stateColorMap = stateColorMap;
+    }
+
+    @SuppressWarnings("unused") // used by the deserialization process
+    @Commit
+    private void commit() {
+        if (property != null)
+            states = property;
     }
 
     public float getRadius() {
-        return DEFAULT_RADIUS;
+        return (float) (radius + 0.01 * getComponentOwner().getAge());
     }
 
     public Color getColor() {
-        return colorSupplier.get();
+        return stateColorMap.get(states.get());
     }
 
     public void setColor(Color color) {
-        this.color = color;
-        update();
+//        this.color = color;
+        generateColors();
     }
 
     public static Body newInstance(IndividualInterface owner) {
         return new Body(owner);
     }
 
-    public void update() {
-        // color
-        if (states != null) {
-            stateColorMap = Maps.newHashMap();
-            Color[] colors = generateColors(states.getSet().length);
-            int i = 0;
-            for (Object o : states.getSet()) {
-                stateColorMap.put(o, colors[i++]);
-            }
-
-            colorSupplier = new Supplier<Color>() {
-                @Override
-                public Color get() {
-                    return stateColorMap.get(states.get());
-                }
-            };
-        }
-        else {
-            colorSupplier = Suppliers.ofInstance(color);
+    private void generateColors() {
+        stateColorMap.clear();
+        Color[] colors = generateColors(states.getSet().size());
+        int i = 0;
+        for (Object o : states.getSet()) {
+            stateColorMap.put(o, colors[i++]);
         }
     }
 
@@ -122,18 +129,21 @@ public class Body extends AbstractGFComponent implements Object2DInterface, Conf
 
     @Override
     public void export(Exporter e) {
-        ValueSelectionAdaptor<FiniteSetProperty> b = new ValueSelectionAdaptor<FiniteSetProperty>("StateProperty", FiniteSetProperty.class) {
-            @Override protected void set(FiniteSetProperty arg0) { states = checkNotNull(arg0); update(); }
-            @Override public FiniteSetProperty get() { return states; }
-            @Override public Iterable<FiniteSetProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class);
+        e.add(ValueAdaptor.forField("Radius of the Circle", Float.class, this, "radius"));
+        FiniteSetValueAdaptor<FiniteSetSupplier> b = new FiniteSetValueAdaptor<FiniteSetSupplier>("StateProperty", FiniteSetSupplier.class) {
+            @Override protected void set(FiniteSetSupplier arg0) { states = checkNotNull(arg0);
+                if (!states.equals(DEFAULT_SUPPLIER)) property = FiniteSetProperty.class.cast(states);
+                generateColors(); }
+            @Override public FiniteSetSupplier get() { return states; }
+            @Override public Iterable<FiniteSetSupplier> values() {
+                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(getComponentOwner().getProperties(), FiniteSetProperty.class));
             }
         };
         e.add(b);
 
-        MultiValueAdaptor<Color> colorMultiValueAdaptor = new MultiValueAdaptor<Color>("State Colors", Color.class) {
-            @Override public Object[] keys() { return Iterables.toArray(stateColorMap.keySet(), Object.class); }
-            @Override public Color[] get() { return Iterables.toArray(stateColorMap.values(), Color.class); }
+        MapValuesAdaptor<Color> colorMultiValueAdaptor = new MapValuesAdaptor<Color>("State Colors", Color.class) {
+            @Override public Object[] keys() { return toArray(stateColorMap.keySet(), Object.class); }
+            @Override public Color[] get() { return toArray(stateColorMap.values(), Color.class); }
             @Override public void set(Color[] list) {
                 checkArgument(list.length == stateColorMap.size());
                 int i = 0;

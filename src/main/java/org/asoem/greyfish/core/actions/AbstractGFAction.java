@@ -13,8 +13,8 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.GreyfishMathExpression;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -144,7 +144,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         });
         //		e.add( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
         //				{ @Override protected void set(Boolean arg0) { parameterLast = arg0; }});
-        e.add(new ValueSelectionAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
+        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
         ) {
             @Override
             protected void set(DoubleProperty arg0) {

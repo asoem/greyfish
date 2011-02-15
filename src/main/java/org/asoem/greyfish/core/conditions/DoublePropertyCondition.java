@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
 public class DoublePropertyCondition extends DoubleCompareCondition {
@@ -22,7 +22,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
     @Override
 	public void export(Exporter e) {
 		super.export(e);
-		e.add(new ValueSelectionAdaptor<DoubleProperty>("", DoubleProperty.class
+		e.add(new FiniteSetValueAdaptor<DoubleProperty>("", DoubleProperty.class
         ) {
 
             @Override

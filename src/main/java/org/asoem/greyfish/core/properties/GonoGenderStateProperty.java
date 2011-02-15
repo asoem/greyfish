@@ -4,14 +4,19 @@ import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.genes.IntegerGene;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.RandomUtils;
 
+import java.util.Set;
+
 @ClassGroup(tags="property")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<GonoGenderStateProperty.Gender> {
+
+    // TODO: Add configurable matrix for state transition values. Alternative: A configurable "state" gene field
 
     public enum Gender {
         MALE("Male"),
@@ -56,8 +61,8 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     @Override
-    public Gender[] getSet() {
-        return Gender.values();
+    public Set<Gender> getSet() {
+        return Sets.newHashSet(Gender.values());
     }
 
     @Override

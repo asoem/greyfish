@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.Comparator;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
@@ -35,7 +35,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
 
     @Override
     public void export(Exporter e) {
-        e.add(new ValueSelectionAdaptor<Comparator>("", Comparator.class) {
+        e.add(new FiniteSetValueAdaptor<Comparator>("", Comparator.class) {
             @Override
             protected void set(Comparator arg0) {
                 comparator = checkFrozen(checkNotNull(arg0));

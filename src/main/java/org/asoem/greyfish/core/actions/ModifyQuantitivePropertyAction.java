@@ -15,8 +15,8 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -58,7 +58,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.add(new ValueSelectionAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
+        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 parameterQuantitiveProperty = checkFrozen(checkNotNull(arg0));

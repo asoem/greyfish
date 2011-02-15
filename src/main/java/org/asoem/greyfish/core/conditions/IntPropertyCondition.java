@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.ValueSelectionAdaptor;
+import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,7 +24,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
     @Override
     public void export(Exporter e) {
         super.export(e);
-        e.add(new ValueSelectionAdaptor<IntProperty>("", IntProperty.class
+        e.add(new FiniteSetValueAdaptor<IntProperty>("", IntProperty.class
         ) {
 
             @Override

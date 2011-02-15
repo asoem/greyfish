@@ -36,16 +36,43 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Element(name="population")
     private Population population = Population.newPopulation("Default", Color.black);
 
-    @ElementList(inline=true, entry="property", required=false)
+    @ElementList(name="properties", entry="property", required=false)
     private final List<GFProperty> properties = Lists.newArrayList();
 
-    @ElementList(inline=true, entry="action", required=false)
+    @ElementList(name="actions", entry="action", required=false)
     private final List<GFAction> actions = Lists.newArrayList();
 
     @Element(name = "body", required = false)
-    private Body body = Body.newInstance(this);
+    private final Body body;
 
     private final CircularFifoBuffer<ACLMessage> inBox = CircularFifoBuffer.newInstance(64);
+
+    @SuppressWarnings("unused") // used by the deserialization process
+    private Individual(
+            @ElementList(name="properties", entry="property", required=false) final List<GFProperty> properties,
+            @ElementList(name="actions", entry="action", required=false) final List<GFAction> actions,
+            @Element(name = "body", required = false) Body body) {
+        if (properties != null) this.properties.addAll(properties);
+        if (actions != null) this.actions.addAll(actions);
+        this.body = (body != null) ? body : Body.newInstance(this);
+        for (GFComponent component : getComponents())
+            component.setComponentRoot(this);
+    }
+
+    public Individual(Builder builder) {
+        this.population = builder.population;
+        this.body = Body.newInstance(this);
+
+        for (GFProperty property : builder.properties.build())
+            addProperty(property);
+        for (GFAction property : builder.actions.build())
+            addAction(property);
+    }
+
+    public Individual(final Population population) {
+        this.population = population;
+        this.body = Body.newInstance(this);
+    }
 
     @Override
     public double getRadius() {
@@ -122,26 +149,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @Override
     public Iterator<GFComponent> iterator() {
-        return Iterables.<GFComponent>concat(properties, actions).iterator();
-    }
-
-    private Individual(@ElementList(inline=true, entry="property", required=false) final List<GFProperty> properties,
-              @ElementList(inline=true, entry="action", required=false) final List<GFAction> actions) {
-        this.properties.addAll(properties);
-        this.actions.addAll(actions);
-    }
-
-    public Individual(Builder builder) {
-        this.population = builder.population;
-
-        for (GFProperty property : builder.properties.build())
-            addProperty(property);
-        for (GFAction property : builder.actions.build())
-            addAction(property);
-    }
-
-    public Individual(final Population population) {
-        this.population = population;
+        return getComponents().iterator();
     }
 
     protected Individual(Individual individual, CloneMap map) {
@@ -238,8 +246,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public Iterable<? extends GFComponent> getComponents() {
-        return Iterables.concat( properties, actions);
+    public Iterable<GFComponent> getComponents() {
+        return Iterables.<GFComponent>concat( ImmutableList.of(body), properties, actions);
     }
 
     @Override
@@ -261,6 +269,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public int getTimeOfBirth() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public float getAge() {
+        return 0;
     }
 
     @Override

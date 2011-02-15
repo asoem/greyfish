@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
-public interface FiniteSetProperty<T> extends DiscreteProperty<T> {
+import org.asoem.greyfish.lang.FiniteSetSupplier;
 
-	public T[] getSet();
+public interface FiniteSetProperty<T> extends DiscreteProperty<T>, FiniteSetSupplier<T> {
 	
 }
