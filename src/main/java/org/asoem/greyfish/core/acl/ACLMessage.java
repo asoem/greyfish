@@ -1,20 +1,23 @@
 package org.asoem.greyfish.core.acl;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
-import javolution.util.FastList;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
+import javolution.util.FastSet;
 import org.asoem.greyfish.lang.BuilderInterface;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ACLMessage {
 
@@ -50,7 +53,7 @@ public final class ACLMessage {
     }
 
     private final ACLPerformative performative;
-    private final Integer source;
+    private final int source;
     private final List<Integer> dests;
     private final List<Integer> reply_to;
     private final ContentType contentType;
@@ -98,17 +101,12 @@ public final class ACLMessage {
         return clazz.cast(content);
     }
 
-    public Collection<Integer> getAllReceiver() {
+    public List<Integer> getAllReceiver() {
         return dests;
     }
 
-    public Iterator<Integer> getAllReplyTo() {
-        if (reply_to == null) {
-            return Iterators.emptyIterator();
-        }
-        else {
-            return reply_to.iterator();
-        }
+    public List<Integer> getAllReplyTo() {
+        return reply_to;
     }
 
     public Integer getSender() {
@@ -196,7 +194,7 @@ public final class ACLMessage {
     public Builder replyFrom(Integer individual) {
         return new Builder()
                 .performative(this.performative)
-                .addDestinations(this.reply_to)
+                .addReplyTos(this.reply_to)
                 .addDestinations(this.source)
                 .language(this.language)
                 .ontology(this.ontology)
@@ -221,25 +219,13 @@ public final class ACLMessage {
 
     public String toString(){
         StringBuffer str = new StringBuffer("(");
-        str.append(getPerformative()).append("\n");
 
-        Integer sender = getSender();
-        if (sender != null)
-            str.append(":sender" + " ").append(sender.toString()).append("\n");
-        Iterator<Integer> it = getAllReceiver().iterator();
-        if (it.hasNext()) {
-            str.append(":receiver" + " (set ");
-            while(it.hasNext())
-                str.append(it.next().toString()).append(" ");
-            str.append(")\n");
-        }
-        it = getAllReplyTo();
-        if (it.hasNext()) {
-            str.append(":reply-to" + " (set \n");
-            while(it.hasNext())
-                str.append(it.next().toString()).append(" ");
-            str.append(")\n");
-        }
+        str.append(getPerformative()).append("\n");
+        str.append(":sender" + " ").append(source).append("\n");
+
+        str.append(":receiver [" + Joiner.on(" ").join(dests) + "]\n");
+        str.append(":reply-to [" + Joiner.on(" ").join(reply_to) + "]\n");
+
         switch (contentType) {
             case BYTE_ARRAY:
                 str.append(":StringContent" + " <BINARY> \n");
@@ -277,9 +263,9 @@ public final class ACLMessage {
 
     public static class Builder implements BuilderInterface<ACLMessage> {
         private ACLPerformative performative;
-        private Integer source;
+        private int source = -1;
         private final Set<Integer> dests = Sets.newHashSet();
-        private final List<Integer> reply_to = new FastList<Integer>();
+        private final Set<Integer> reply_to = FastSet.newInstance();
         private ContentType contentType = ContentType.NULL;
         private Object content = NULL_CONTENT;
         private String reply_with;
@@ -291,7 +277,7 @@ public final class ACLMessage {
         private int conversation_id = 0;
 
         public Builder performative(ACLPerformative performative) { this.performative = checkNotNull(performative); return this; }
-        public Builder source(Integer source) { this.source = checkNotNull(source); return this; }
+        public Builder source(int source) { this.source = source; return this; }
         public Builder reply_with(String reply_with) { this.reply_with = reply_with; return this; }
         public Builder in_reply_to(String in_reply_to) { this.in_reply_to = in_reply_to; return this; }
 
@@ -301,9 +287,13 @@ public final class ACLMessage {
         public Builder protocol(String protocol) { this.protocol = protocol; return this; }
 
         public Builder conversation_id(int conversation_id) { this.conversation_id = conversation_id; return this; }
-        public Builder addDestinations(Integer ... destinations) { this.dests.addAll(Lists.newArrayList(checkNotNull(destinations))); return this; }
+
+        public Builder addDestinations(int destinations) { this.dests.add(checkNotNull(destinations)); return this; }
+        public Builder addDestinations(int ... destinations) { this.dests.addAll(Ints.asList(checkNotNull(destinations))); return this; }
         public Builder addDestinations(Iterable<Integer> destinations) { Iterables.addAll(dests, checkNotNull(destinations)); return this; }
-        public Builder addReplyTos(Integer ... destinations) { this.reply_to.addAll(Lists.newArrayList(checkNotNull(destinations))); return this; }
+
+        public Builder addReplyTos(int destinations) { this.reply_to.add(checkNotNull(destinations)); return this; }
+        public Builder addReplyTos(int ... destinations) { this.reply_to.addAll(Ints.asList(checkNotNull(destinations))); return this; }
         public Builder addReplyTos(Iterable<Integer> destinations) { Iterables.addAll(reply_to, checkNotNull(destinations)); return this; }
 
         private Builder contentType(ContentType type) { this.contentType = checkNotNull(type); return this; }
@@ -328,15 +318,13 @@ public final class ACLMessage {
 
         @Override
         public ACLMessage build() {
-            checkState(source != null, "Messages must have a valid sender");
-            checkState(!dests.isEmpty(), "Messages must have a valid receiver");
-            if (conversation_id == 0)
-                conversation_id = ++progressiveId;
-            checkState(conversation_id != 0, "Messages must have a valid conversation ID");
-            if (reply_with == null)
-                reply_with = generateReplyWith(source);
-            checkState(!Strings.isNullOrEmpty(reply_with), "Messages must have a valid reply_with string");
-            checkState(performative != null, "Messages must have a valid performative");
+            if (source <= -1)           throw new IllegalStateException("Invalid source id: " + source);
+            if (dests.isEmpty())        throw new  IllegalStateException("No receiver defined");
+            if (conversation_id < 0)   throw new IllegalStateException("Invalid conversation ID: " + conversation_id);
+            if (conversation_id == 0)   conversation_id = ++progressiveId;
+            if (reply_with == null)     reply_with = generateReplyWith(source);
+            if (Strings.isNullOrEmpty(reply_with)) throw new IllegalStateException("Invalid reply_with string: '" + reply_with + "'");
+            if (performative == null)   throw new IllegalStateException("No performative defined");
 
             return new ACLMessage(this);
         }

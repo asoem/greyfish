@@ -1,12 +1,15 @@
 package org.asoem.greyfish.core.space;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.kdtree.HyperPoint;
 import org.asoem.kdtree.NNResult;
+import org.perf4j.LoggingStopWatch;
+import org.perf4j.StopWatch;
 import scala.Tuple2;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,7 +26,7 @@ public final class AsoemScalaKDTree<T extends Object2DInterface> implements KDTr
 
     @Override
     public void rebuild(Iterable<T> elements) {
-        List<Tuple2<HyperPoint, T>> pointList = new ArrayList<Tuple2<HyperPoint, T>>();
+        List<Tuple2<HyperPoint, T>> pointList = Lists.newArrayList();
         for (T element : elements) {
             final Location2DInterface b = element.getAnchorPoint();
             final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
@@ -35,26 +38,26 @@ public final class AsoemScalaKDTree<T extends Object2DInterface> implements KDTr
     @SuppressWarnings("unchecked")
     @Override
     public Iterable<T> findNeighbours(Location2DInterface p, double range) {
-        ArrayList<T> found = new ArrayList<T>();
 
-			long start = 0;
-			if (GreyfishLogger.isTraceEnabled())
-				start = System.nanoTime();
+        HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
 
-            HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
-            scala.collection.immutable.List<NNResult<T>> l
-                    = (scala.collection.immutable.List<NNResult<T>>) kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
-            Iterable<NNResult<T>> resultList = scala.collection.JavaConversions.asJavaIterable(l);
-            for (NNResult<T> result : resultList) {
-                found.add((T)result.value());
+        StopWatch stopWatch = null;
+        if (GreyfishLogger.LOG4J_LOGGER.logger.isInfoEnabled())
+            stopWatch = new LoggingStopWatch("AsoemScalaKDTree:findNeighbours");
+
+        scala.collection.immutable.List<NNResult<T>> nnResultList
+                = (scala.collection.immutable.List<NNResult<T>>) kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
+
+        if (GreyfishLogger.LOG4J_LOGGER.logger.isInfoEnabled()) {
+            assert stopWatch != null;
+            stopWatch.stop();
+        }
+
+        return Iterables.transform(scala.collection.JavaConversions.asJavaIterable(nnResultList), new Function<NNResult<T>, T>() {
+            @Override
+            public T apply(NNResult<T> o) {
+                return (T) o.value();
             }
-
-			if (GreyfishLogger.isTraceEnabled()) {
-				long end = System.nanoTime();
-				GreyfishLogger.trace(AsoemScalaKDTree.class.getSimpleName() +"#findNeighbours(): " +
-                        "Found " + Iterables.size(found) + " Neighbours in " + (end - start) / 1000 + "us");
-			}
-
-		return found;
+        });
     }
 }

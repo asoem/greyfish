@@ -108,10 +108,11 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluate(Simulation)
 
         return ACLMessage.with()
-        .performative(ACLPerformative.CFP)
-                // Choose only one. Adding all possible candidates as receivers will decrease the performance in high density populations!
-        .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
-        .ontology(ontology);
+                .source(getComponentOwner().getId())
+                .performative(ACLPerformative.CFP)
+                .ontology(ontology)
+                // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+                .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId());
     }
 
     @Override

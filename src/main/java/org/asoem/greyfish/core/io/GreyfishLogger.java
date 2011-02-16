@@ -8,40 +8,42 @@ import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 public enum GreyfishLogger {
-	INSTANCE;
+	ROOT_LOGGER(Logger.getLogger("org.asoem.greyfish")),
+	LOG4J_LOGGER(Logger.getLogger("org.perf4j.TimingLogger"));
 	
-	public final Logger logger = Logger.getLogger("org.asoem.greyfish");
+	public final Logger logger;
 
-	private GreyfishLogger() {
+	private GreyfishLogger(final Logger logger) {
+        this.logger = logger;
 //		PropertyConfigurator.configureAndWatch("log4j.xml", 60*1000);
 	}
 
 	public static void addAppender(Appender newAppender) {
-		INSTANCE.logger.addAppender(newAppender);
+		ROOT_LOGGER.logger.addAppender(newAppender);
 	}
 
 	public static void assertLog(boolean assertion, String msg) {
-		INSTANCE.logger.assertLog(assertion, msg);
+		ROOT_LOGGER.logger.assertLog(assertion, msg);
 	}
 
 	public static void callAppenders(LoggingEvent arg0) {
-		INSTANCE.logger.callAppenders(arg0);
+		ROOT_LOGGER.logger.callAppenders(arg0);
 	}
 
 	public static void debug(Object message, Throwable t) {
-		INSTANCE.logger.debug(message, t);
+		ROOT_LOGGER.logger.debug(message, t);
 	}
 
 	public static void debug(Object message) {
-		INSTANCE.logger.debug(message);
+		ROOT_LOGGER.logger.debug(message);
 	}
 
 	public static void error(Object message, Throwable t) {
-		INSTANCE.logger.error(message, t);
+		ROOT_LOGGER.logger.error(message, t);
 	}
 
 	public static void error(Object message) {
-		INSTANCE.logger.error(message);
+		ROOT_LOGGER.logger.error(message);
 	}
 
     /**
@@ -50,135 +52,135 @@ public enum GreyfishLogger {
      * @param t the exception to log, including its stack trace.
      */
 	public static void fatal(Object message, Throwable t) {
-		INSTANCE.logger.fatal(message, t);
+		ROOT_LOGGER.logger.fatal(message, t);
 	}
 
 	public static void fatal(Object message) {
-		INSTANCE.logger.fatal(message);
+		ROOT_LOGGER.logger.fatal(message);
 	}
 
 	public static boolean getAdditivity() {
-		return INSTANCE.logger.getAdditivity();
+		return ROOT_LOGGER.logger.getAdditivity();
 	}
 
 	public static Enumeration getAllAppenders() {
-		return INSTANCE.logger.getAllAppenders();
+		return ROOT_LOGGER.logger.getAllAppenders();
 	}
 
 	public static Appender getAppender(String name) {
-		return INSTANCE.logger.getAppender(name);
+		return ROOT_LOGGER.logger.getAppender(name);
 	}
 
 	public static Level getEffectiveLevel() {
-		return INSTANCE.logger.getEffectiveLevel();
+		return ROOT_LOGGER.logger.getEffectiveLevel();
 	}
 
 	public static Level getLevel() {
-		return INSTANCE.logger.getLevel();
+		return ROOT_LOGGER.logger.getLevel();
 	}
 
 	public static LoggerRepository getLoggerRepository() {
-		return INSTANCE.logger.getLoggerRepository();
+		return ROOT_LOGGER.logger.getLoggerRepository();
 	}
 
 	public static String getName() {
-		return INSTANCE.logger.getName();
+		return ROOT_LOGGER.logger.getName();
 	}
 
 	public static Category getParent() {
-		return INSTANCE.logger.getParent();
+		return ROOT_LOGGER.logger.getParent();
 	}
 
 	public static ResourceBundle getResourceBundle() {
-		return INSTANCE.logger.getResourceBundle();
+		return ROOT_LOGGER.logger.getResourceBundle();
 	}
 
 	public static void info(Object message, Throwable t) {
-		INSTANCE.logger.info(message, t);
+		ROOT_LOGGER.logger.info(message, t);
 	}
 
 	public static void info(Object message) {
-		INSTANCE.logger.info(message);
+		ROOT_LOGGER.logger.info(message);
 	}
 
 	public static boolean isAttached(Appender appender) {
-		return INSTANCE.logger.isAttached(appender);
+		return ROOT_LOGGER.logger.isAttached(appender);
 	}
 
 	public static boolean isDebugEnabled() {
-		return INSTANCE.logger.isDebugEnabled();
+		return ROOT_LOGGER.logger.isDebugEnabled();
 	}
 
 	public static boolean isEnabledFor(Priority level) {
-		return INSTANCE.logger.isEnabledFor(level);
+		return ROOT_LOGGER.logger.isEnabledFor(level);
 	}
 
 	public static boolean isInfoEnabled() {
-		return INSTANCE.logger.isInfoEnabled();
+		return ROOT_LOGGER.logger.isInfoEnabled();
 	}
 
 	public static boolean isTraceEnabled() {
-		return INSTANCE.logger.isTraceEnabled();
+		return ROOT_LOGGER.logger.isTraceEnabled();
 	}
 
 	public static void l7dlog(Priority arg0, String arg1, Object[] arg2, Throwable arg3) {
-		INSTANCE.logger.l7dlog(arg0, arg1, arg2, arg3);
+		ROOT_LOGGER.logger.l7dlog(arg0, arg1, arg2, arg3);
 	}
 
 	public static void l7dlog(Priority arg0, String arg1, Throwable arg2) {
-		INSTANCE.logger.l7dlog(arg0, arg1, arg2);
+		ROOT_LOGGER.logger.l7dlog(arg0, arg1, arg2);
 	}
 
 	public static void log(Priority priority, Object message, Throwable t) {
-		INSTANCE.logger.log(priority, message, t);
+		ROOT_LOGGER.logger.log(priority, message, t);
 	}
 
 	public static void log(Priority priority, Object message) {
-		INSTANCE.logger.log(priority, message);
+		ROOT_LOGGER.logger.log(priority, message);
 	}
 
 	public static void log(String callerFQCN, Priority level, Object message,
 			Throwable t) {
-		INSTANCE.logger.log(callerFQCN, level, message, t);
+		ROOT_LOGGER.logger.log(callerFQCN, level, message, t);
 	}
 
 	public static void removeAllAppenders() {
-		INSTANCE.logger.removeAllAppenders();
+		ROOT_LOGGER.logger.removeAllAppenders();
 	}
 
 	public static void removeAppender(Appender appender) {
-		INSTANCE.logger.removeAppender(appender);
+		ROOT_LOGGER.logger.removeAppender(appender);
 	}
 
 	public static void removeAppender(String name) {
-		INSTANCE.logger.removeAppender(name);
+		ROOT_LOGGER.logger.removeAppender(name);
 	}
 
 	public static void setAdditivity(boolean additive) {
-		INSTANCE.logger.setAdditivity(additive);
+		ROOT_LOGGER.logger.setAdditivity(additive);
 	}
 
 	public static void setLevel(Level level) {
-		INSTANCE.logger.setLevel(level);
+		ROOT_LOGGER.logger.setLevel(level);
 	}
 
 	public static void setResourceBundle(ResourceBundle bundle) {
-		INSTANCE.logger.setResourceBundle(bundle);
+		ROOT_LOGGER.logger.setResourceBundle(bundle);
 	}
 
 	public static void trace(Object message, Throwable t) {
-		INSTANCE.logger.trace(message, t);
+		ROOT_LOGGER.logger.trace(message, t);
 	}
 
 	public static void trace(Object message) {
-		INSTANCE.logger.trace(message);
+		ROOT_LOGGER.logger.trace(message);
 	}
 
 	public static void warn(Object message, Throwable t) {
-		INSTANCE.logger.warn(message, t);
+		ROOT_LOGGER.logger.warn(message, t);
 	}
 
 	public static void warn(Object message) {
-		INSTANCE.logger.warn(message);
+		ROOT_LOGGER.logger.warn(message);
 	}
 }

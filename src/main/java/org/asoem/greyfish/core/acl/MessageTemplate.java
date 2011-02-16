@@ -4,6 +4,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import java.util.Arrays;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MessageTemplate implements Predicate<ACLMessage> {
@@ -37,7 +39,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 
         @Override
         public boolean apply(ACLMessage aclMessage) {
-            return checkNotNull(aclMessage).getAllReceiver().contains(id);
+            return Arrays.asList(checkNotNull(aclMessage).getAllReceiver()).contains(id);
         }
     }
 

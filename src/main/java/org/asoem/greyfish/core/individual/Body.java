@@ -67,7 +67,7 @@ public class Body extends AbstractGFComponent implements Object2DInterface, Conf
     }
 
     public float getRadius() {
-        return (float) (radius + 0.01 * getComponentOwner().getAge());
+        return radius; //(float) (radius + 0.01 * getComponentOwner().getAge());
     }
 
     public Color getColor() {

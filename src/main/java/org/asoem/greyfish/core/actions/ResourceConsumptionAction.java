@@ -44,6 +44,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     protected ACLMessage.Builder createCFP() {
         return ACLMessage.with()
                 .source(getComponentOwner().getId())
+                .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                 // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
                 .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
