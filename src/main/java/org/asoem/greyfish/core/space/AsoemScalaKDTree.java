@@ -3,11 +3,8 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.kdtree.HyperPoint;
 import org.asoem.kdtree.NNResult;
-import org.perf4j.LoggingStopWatch;
-import org.perf4j.StopWatch;
 import scala.Tuple2;
 
 import java.util.Arrays;
@@ -41,17 +38,8 @@ public final class AsoemScalaKDTree<T extends Object2DInterface> implements KDTr
 
         HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
 
-        StopWatch stopWatch = null;
-        if (GreyfishLogger.LOG4J_LOGGER.logger.isInfoEnabled())
-            stopWatch = new LoggingStopWatch("AsoemScalaKDTree:findNeighbours");
-
         scala.collection.immutable.List<NNResult<T>> nnResultList
                 = (scala.collection.immutable.List<NNResult<T>>) kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
-
-        if (GreyfishLogger.LOG4J_LOGGER.logger.isInfoEnabled()) {
-            assert stopWatch != null;
-            stopWatch.stop();
-        }
 
         return Iterables.transform(scala.collection.JavaConversions.asJavaIterable(nnResultList), new Function<NNResult<T>, T>() {
             @Override

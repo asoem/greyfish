@@ -16,7 +16,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ACLMessage {
@@ -96,8 +95,8 @@ public final class ACLMessage {
      * @throws IllegalArgumentException if content has not type <code>T</code>
      */
     public <T> T getReferenceContent(Class<T> clazz) throws IllegalArgumentException {
-        checkArgument(checkNotNull(clazz).isInstance(content),
-                "Requesting " + clazz + " content which has type " + content.getClass());
+        if(!checkNotNull(clazz).isInstance(content))
+            throw new IllegalArgumentException("Requesting " + clazz + " content which has type " + content.getClass());
         return clazz.cast(content);
     }
 
@@ -218,7 +217,7 @@ public final class ACLMessage {
     }
 
     public String toString(){
-        StringBuffer str = new StringBuffer("(");
+        final StringBuffer str = new StringBuffer("(");
 
         str.append(getPerformative()).append("\n");
         str.append(":sender" + " ").append(source).append("\n");
