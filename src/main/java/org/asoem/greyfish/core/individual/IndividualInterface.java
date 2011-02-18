@@ -11,7 +11,7 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import java.awt.*;
 import java.util.List;
 
-public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<GFComponent>, Object2DInterface {
+public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<GFComponent>, Object2DInterface, MessageReceiver {
     Population getPopulation();
     void setPopulation(Population population);
     Body getBody();
@@ -44,7 +44,5 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     GFAction getLastExecutedAction();
 
     void execute();
-
-    void addMessages(Iterable<? extends ACLMessage> messages);
     List<ACLMessage> pollMessages(MessageTemplate template);
 }

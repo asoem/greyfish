@@ -105,6 +105,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
+    public void addMessage(ACLMessage message) {
+        inBox.add(message);
+    }
+
+    @Override
     public List pollMessages(MessageTemplate template) {
         List<ACLMessage> ret = Lists.newArrayList();
         Iterator<ACLMessage> iterator = inBox.listIterator();

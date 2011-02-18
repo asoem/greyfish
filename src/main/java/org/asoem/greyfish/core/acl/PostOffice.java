@@ -1,15 +1,50 @@
 package org.asoem.greyfish.core.acl;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import javolution.util.FastList;
+import org.asoem.greyfish.core.individual.MessageReceiver;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class PostOffice {
 
     private static final int BINS = 64;
+
+    public synchronized void clear() {
+        for (List<MessageWrapper> messageWrappers : receiverLists) {
+            messageWrappers.clear();
+        }
+    }
+
+    public void deliverOrDiscard(Collection<? extends MessageReceiver> agents) {
+        final Map<Integer, MessageReceiver> agentMap = Maps.newHashMap();
+        for (int i = 0; i < BINS; i++) {
+            for(final MessageWrapper message : receiverLists.get(i)) {
+                if (!agentMap.containsKey(message.receiverId)) {
+                    MessageReceiver agent = Iterables.find(agents, new Predicate<MessageReceiver>() {
+                        @Override
+                        public boolean apply(MessageReceiver agent) {
+                            return agent.getId() == message.receiverId;
+                        }
+                    }, null);
+                    agentMap.put(message.receiverId, agent);
+                }
+
+                MessageReceiver agent = agentMap.get(message.receiverId);
+                if (agent != null)
+                    agent.addMessage(message.message);
+            }
+            agentMap.clear();
+            receiverLists.get(i).clear();
+        }
+    }
 
     private final class MessageWrapper {
         private final int receiverId;
@@ -49,6 +84,9 @@ public class PostOffice {
     }
 
     private List<ACLMessage> pollMessagesInBin(int bin, int receiverId) {
+        if (receiverLists.get(bin).isEmpty())
+            return ImmutableList.of();
+
         final List<ACLMessage> ret = Lists.newArrayList();
         final List<MessageWrapper> messages = receiverLists.get(bin);
         Iterator<MessageWrapper> iterator = messages.listIterator();
@@ -101,7 +139,7 @@ public class PostOffice {
         return messageCounter;
     }
 
-    public void removeAll(int id) {
+    public synchronized void removeAll(int id) {
         final Iterator<MessageWrapper> iterator = receiverLists.get(id2bin(id)).listIterator();
         while (iterator.hasNext()) {
             MessageWrapper messageWrapper = iterator.next();

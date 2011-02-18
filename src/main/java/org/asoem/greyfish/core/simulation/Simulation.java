@@ -1,8 +1,10 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
-import javolution.lang.MathLib;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import javolution.util.FastList;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
@@ -21,12 +23,19 @@ import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
 import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
+import static org.asoem.greyfish.core.simulation.Simulation.COMMAND_TYPES.*;
 import static org.asoem.greyfish.core.space.Location2D.at;
 
 public class Simulation implements Runnable {
@@ -36,14 +45,6 @@ public class Simulation implements Runnable {
 
     public static Simulation newSimulation(final Scenario scenario) {
         return new Simulation(scenario);
-    }
-
-    /**
-     *
-     * @return the PostOffice instance for this Simulation. Guarantied to be not {@code null}
-     */
-    public PostOffice getPostOffice() {
-        return postOffice;
     }
 
     public int getPrototypesCount() {
@@ -72,13 +73,18 @@ public class Simulation implements Runnable {
         }
     }
 
-    private final FastList<Command> commandList	= FastList.newInstance();
-
-    public final boolean enqueAfterStepCommand(Command value) {
-        return commandList.add(value);
+    public enum COMMAND_TYPES {
+        MESSAGE,
+        MOVEMENT,
+        AGENT_REMOVE,
+        AGENT_ADD
     }
 
+    private final Multimap<COMMAND_TYPES, Command> commanListMap =
+            Multimaps.synchronizedMultimap(HashMultimap.<COMMAND_TYPES, Command>create());
+
     private final FastList<Agent> individuals = FastList.newInstance();
+    private final Collection<Agent> concurrentAgentsView = individuals.shared();
 
     private final ListenerSupport<SimulationListener> listenerSupport = ListenerSupport.newInstance();
 
@@ -105,7 +111,7 @@ public class Simulation implements Runnable {
 
     private long lastExecutionTimeMillis;
 
-    private int maxId;
+    private AtomicInteger maxId = new AtomicInteger();
 
     private boolean pause;
 
@@ -170,29 +176,15 @@ public class Simulation implements Runnable {
     /**
      * @return a copy of the list of active individuals
      */
-    public synchronized FastList<Agent> getAgents() {
-        return individuals; // TODO: return an unmodifiable view of this FastList
-    }
-
-    /**
-     * Add individual to this simulation, placed at given location
-     * @param individual
-     * @param location
-     */
-    private synchronized void addNextStep(final Agent individual, final Location2DInterface location) {
-        enqueAfterStepCommand(new Command() {
-            @Override
-            public void execute() {
-                addAgent(individual, at(location));
-            }
-        });
+    public Collection<Agent> getAgents() {
+        return Collections.unmodifiableCollection(concurrentAgentsView);
     }
 
     private void addAgent(Agent individual, Location2DInterface location) {
         checkAgent(individual);
         if (isDebugEnabled()) debug("Adding Agent to " + this + ": " + individual);
         individual.initialize(this);
-        individuals.add(individual);
+        concurrentAgentsView.add(individual);
         individual.setAnchorPoint(location);
         space.addOccupant(individual);
     }
@@ -206,21 +198,21 @@ public class Simulation implements Runnable {
      * Remove individual from this scenario
      * @param individual
      */
-    public synchronized void removeAgent(final IndividualInterface individual) {
+    public void removeAgent(final IndividualInterface individual) {
         checkArgument(Agent.class.isInstance(individual));
         /*
            * TODO: removal could be implemented more efficiently.
            * e.g. by marking agents and removal during a single iteration over all
            */
-        enqueAfterStepCommand(new Command() {
-            @Override
-            public void execute() {
-                space.removeOccupant(individual);
-                individuals.remove(Agent.class.cast(individual));
-                returnClone(Agent.class.cast(individual));
-                postOffice.removeAll(individual.getId());
-            }
-        });
+        commanListMap.put(AGENT_REMOVE,
+                new Command() {
+                    @Override
+                    public void execute() {
+                        space.removeOccupant(individual);
+                        concurrentAgentsView.remove(Agent.class.cast(individual));
+                        returnClone(Agent.class.cast(individual));
+                    }
+                });
     }
 
     private void returnClone(final Agent individual) {
@@ -232,8 +224,8 @@ public class Simulation implements Runnable {
         }
     }
 
-    public synchronized int agentCount() {
-        return individuals.size();
+    public int agentCount() {
+        return getAgents().size();
     }
 
     public void addSimulationListener(SimulationListener listener) {
@@ -245,7 +237,7 @@ public class Simulation implements Runnable {
     }
 
     public int generateAgentID() {
-        return ++maxId;
+        return maxId.incrementAndGet();
     }
 
     /**
@@ -259,9 +251,16 @@ public class Simulation implements Runnable {
         checkNotNull(population);
         checkState(prototypeMap.containsKey(population));
 
-        Agent agent = newAgentFromPool(population);
+        final Agent agent = newAgentFromPool(population);
         agent.setGenome(genome);
-        addNextStep(agent, location);
+
+        commanListMap.put(AGENT_ADD,
+                new Command() {
+                    @Override
+                    public void execute() {
+                        addAgent(agent, at(location));
+                    }
+                });
     }
 
     private Agent newAgentFromPool(final Population population) {
@@ -399,7 +398,7 @@ public class Simulation implements Runnable {
     }
 
     private void clearAgentList() {
-        individuals.clear();
+        concurrentAgentsView.clear();
         // TODO: recycle?
     }
 
@@ -414,28 +413,114 @@ public class Simulation implements Runnable {
     }
 
     public synchronized void step() {
+        updateEnvironment();
         processAgents();
-        processAfterStepCommands();
-        space.updateTopo();
-        commandList.clear();
+
         ++steps;
         notifyStep();
     }
 
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+
     private void processAgents() {
         if (isDebugEnabled()) debug("==== " + this + ": processing " + individuals.size() + " Agents");
-        for (FastList.Node<Agent> n = individuals.head(), end = individuals.tail(); (n = n.getNext()) != end;) {
-            Agent agent = n.getValue();
-            agent.addMessages(postOffice.pollMessages(agent.getId()));
-            agent.execute();
+
+        if ((individuals.size() < 100) || (Runtime.getRuntime().availableProcessors() == 1)) {
+            processAgents(individuals.head(), individuals.tail());
+        }
+        else {
+            if (isDebugEnabled()) debug("Splitting execution in two threads");
+            FastList.Node<Agent> node = individuals.head();
+            int middleIndex = individuals.size() >> 1;
+            do node = node.getNext(); while (--middleIndex != 0);
+            final FastList.Node<Agent> middleNode = node;
+            final CountDownLatch doneSignal = new CountDownLatch(2);
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (isDebugEnabled()) debug("Thread1 starts");
+                    processAgents(individuals.head(), middleNode);
+                    doneSignal.countDown();
+                    if (isDebugEnabled()) debug("Thread1 done");
+                }
+            });
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (isDebugEnabled()) debug("Thread2 starts");
+                    processAgents(middleNode.getPrevious(), individuals.tail());
+                    doneSignal.countDown();
+                    if (isDebugEnabled()) debug("Thread2 done");
+                }
+            });
+            try {
+                doneSignal.await(); // wait for all to finish
+                if (isDebugEnabled()) debug("All threads done");
+            } catch (InterruptedException ie) {
+                GreyfishLogger.error("Error awaiting the the threads to finish their task in Simulation#processAgents", ie);
+            }
         }
     }
 
-    private void processAfterStepCommands() {
-        if (isDebugEnabled()) debug("==== " + this + ": processing " + commandList.size() + " post-step-commands");
-        for (FastList.Node<Command> n = commandList.head(), end = commandList.tail(); (n = n.getNext()) != end;) {
-            n.getValue().execute();
+    private void processAgents(FastList.Node<Agent> node, FastList.Node<Agent> endNode) {
+        for (;(node = node.getNext()) != endNode;) {
+            node.getValue().execute();
         }
+    }
+
+    private void updateEnvironment() {
+        if (isDebugEnabled()) debug("==== " + this + ": processing " + commanListMap.size() + " update-commands");
+
+        final CountDownLatch doneSignal = new CountDownLatch(2);
+
+        // distribute messages
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (isDebugEnabled()) debug("Thread1 starts");
+                for (Command command : commanListMap.get(MESSAGE)) {
+                    command.execute();
+                }
+
+                postOffice.deliverOrDiscard(getAgents());
+
+                doneSignal.countDown();
+                if (isDebugEnabled()) debug("Thread1 done");
+            }
+        });
+
+        // update kdtree
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (isDebugEnabled()) debug("Thread2 starts");
+
+                for (Command command : commanListMap.get(AGENT_REMOVE)) {
+                    command.execute();
+                }
+
+                for (Command command : commanListMap.get(AGENT_ADD)) {
+                    command.execute();
+                }
+
+                for (Command command : commanListMap.get(MOVEMENT)) {
+                    command.execute();
+                }
+
+                space.updateTopo();
+
+                doneSignal.countDown();
+                if (isDebugEnabled()) debug("Thread2 done");
+            }
+        });
+        try {
+            doneSignal.await(); // wait for all to finish
+            if (isDebugEnabled()) debug("All threads done");
+        } catch (InterruptedException ie) {
+            GreyfishLogger.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
+        }
+
+        commanListMap.clear();
     }
 
     private void notifyStep() {
@@ -466,36 +551,38 @@ public class Simulation implements Runnable {
     }
 
     public void deliverMessage(final ACLMessage message) {
-        enqueAfterStepCommand(new Command() {
-            @Override
-            public void execute() {
-               postOffice.addMessage(message);
-            }
-        });
+        commanListMap.put(MESSAGE,
+                new Command() {
+                    @Override
+                    public void execute() {
+                        postOffice.addMessage(message);
+                    }
+                });
     }
 
-    public void translate(final Agent agent, double distance) {
+    public void translate(final Agent agent, final double distance) {
+        commanListMap.put(MOVEMENT,
+                new Command() {
+                    @Override
+                    public void execute() {
+                        final double x_add = distance * Math.cos(agent.getOrientation());
+                        final double y_add = distance * Math.sin(agent.getOrientation());
 
-        final double x_add = distance * Math.cos(agent.getOrientation());
-        final double y_add = distance * Math.sin(agent.getOrientation());
-
-        final double x_res = agent.getX() + x_add;
-        final double y_res = agent.getY() + y_add;
-
-        enqueAfterStepCommand(new Command() {
-            @Override
-            public void execute() {
-                Location2D newLocation = Location2D.at(x_res, y_res);
-                getSpace().moveObject(agent, newLocation);
-
-                if (!agent.getAnchorPoint().equals(newLocation)) { // collision
-                    rotate(agent, MathLib.PI);
-                }
-            }
-        });
+                        final double x_res = agent.getX() + x_add;
+                        final double y_res = agent.getY() + y_add;
+                        Location2D newLocation = Location2D.at(x_res, y_res);
+                        getSpace().moveObject(agent, newLocation);
+                    }
+                });
     }
 
-    public void rotate(final Agent agent, double alpha) {
-        agent.setOrientation(alpha);
+    public void rotate(final Agent agent, final double alpha) {
+        commanListMap.put(MOVEMENT,
+                new Command() {
+                    @Override
+                    public void execute() {
+                        agent.setOrientation(alpha);
+                    }
+                });
     }
 }
