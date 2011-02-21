@@ -89,7 +89,7 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
                     try {
                         field.set(o, checkNotNull(arg0));
                     } catch (IllegalAccessException e) {
-                        GreyfishLogger.error("Cannot set value of field " + fieldName + "for Object " + o, e);
+                        GreyfishLogger.error("Cannot set value of field " + fieldName + " for object " + o, e);
                     }
                 }
 
@@ -98,13 +98,13 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
                     try {
                         return clazz.cast(field.get(o));
                     } catch (IllegalAccessException e) {
-                        GreyfishLogger.error("Cannot get value of field " + fieldName + "for Object " + o, e);
+                        GreyfishLogger.error("Cannot get value of field " + fieldName + " for object " + o, e);
                     }
                     return null;
                 }
             };
         } catch (NoSuchFieldException e) {
-            GreyfishLogger.error("Could not find field " + fieldName + "for Object " + o, e);
+            GreyfishLogger.error("Could not find field " + fieldName + " for object " + o, e);
         }
         return null;
     }
