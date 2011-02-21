@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.properties.DoubleProperty;
@@ -109,7 +110,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public double evaluateFormula() {
-        return GreyfishMathExpression.evaluate(energyCostsFormula, getComponentOwner());
+        return GreyfishMathExpression.evaluate(energyCostsFormula, Agent.class.cast(getComponentOwner()));
     }
 
     @Element(name="condition", required=false)

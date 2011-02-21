@@ -139,6 +139,8 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
                 if (isTraceEnabled()) trace("Executing " + toExecute);
                 toExecute.executeUnevaluated(simulation);
                 lastExecutedAction = toExecute;
+            } else {
+                if (isTraceEnabled()) trace("Found no Action to execute.");
             }
         } catch (RuntimeException e) {
             error("Error during execution of " + toExecute + " for " + this, e);

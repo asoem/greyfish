@@ -61,7 +61,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
         this.doubleProperty = builder.doubleProperty;
     }
 
-    public static Builder isTrueIf() { return new Builder(); }
+    public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoublePropertyCondition> {
         private Builder() {}
 

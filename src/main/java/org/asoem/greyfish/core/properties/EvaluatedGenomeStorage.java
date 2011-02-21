@@ -23,27 +23,27 @@ import java.util.List;
 public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedCandidate<Genome>>> {
 
     final private static RouletteWheelSelection SELECTOR = new RouletteWheelSelection();
-    final private List<EvaluatedCandidate<Genome>> value = new ArrayList<EvaluatedCandidate<Genome>>();
+    final private List<EvaluatedCandidate<Genome>> spermList = new ArrayList<EvaluatedCandidate<Genome>>();
 
     public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, CloneMap cloneMap) {
         super(storage, cloneMap);
     }
 
     public void addGenome(Genome genome, double d) {
-//        if (!value.contains(genome)) // TODO: check for duplicates
-            value.add(new EvaluatedCandidate<Genome>(genome, d));
+//        if (!spermList.contains(genome)) // TODO: check for duplicates
+            spermList.add(new EvaluatedCandidate<Genome>(genome, d));
     }
 
     public Genome getRandom() {
-        if (!value.isEmpty())
-            return value.get(RandomUtils.nextInt(value.size())).getCandidate();
+        if (!spermList.isEmpty())
+            return spermList.get(RandomUtils.nextInt(spermList.size())).getCandidate();
         else
             return null;
     }
 
     public Genome getRWS() {
-        if (!value.isEmpty()) {
-            final List<Genome> selection = SELECTOR.select(value, true, 1, RandomUtils.randomInstance());
+        if (!spermList.isEmpty()) {
+            final List<Genome> selection = SELECTOR.select(spermList, true, 1, RandomUtils.randomInstance());
             return selection.get(0);
         }
         else
@@ -52,13 +52,13 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
 
 
     public boolean isEmpty() {
-        return value.isEmpty();
+        return spermList.isEmpty();
     }
 
     @Override
     public void initialize(Simulation simulation) {
         super.initialize(simulation);
-        value.clear();
+        spermList.clear();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
 
     @Override
     public List<EvaluatedCandidate<Genome>> get() {
-        return value;
+        return spermList;
     }
 
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<EvaluatedGenomeStorage> {

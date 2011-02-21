@@ -38,7 +38,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     protected final void performAction(Simulation simulation) {
-                if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
+        if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
             if (isTraceEnabled())
                 trace(this + ": EndTransition to " + initialStateName);
             currentStateName = initialStateName;                                assert currentStateName != null;

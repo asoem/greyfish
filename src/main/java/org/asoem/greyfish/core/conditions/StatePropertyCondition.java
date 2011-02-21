@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
@@ -11,8 +12,6 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
-
-import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -57,9 +56,9 @@ public class StatePropertyCondition extends LeafCondition {
 
         final FiniteSetValueAdaptor<Object> stateAdaptor = new FiniteSetValueAdaptor<Object>( "has state", Object.class) {
             @Override protected void set(Object arg0) { state = checkFrozen(checkNotNull(arg0)); }
-            @Override public Iterable<Object> get() { return Arrays.asList((stateProperty == null) ? new Object[0] : stateProperty.getSet()); }
+            @Override public Object get() { return state; }
             @Override public Iterable<Object> values() {
-                return Arrays.asList((stateProperty == null) ? new Object[0] : stateProperty.getSet());
+                return (stateProperty == null) ? ImmutableList.of() : stateProperty.getSet();
             }
         };
         statesAdaptor.addValueChangeListener(stateAdaptor);

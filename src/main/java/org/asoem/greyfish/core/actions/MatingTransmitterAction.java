@@ -65,7 +65,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = getComponentOwner().getGenome().mutated();
+        final Genome sperm = getComponentOwner().getGenome();
 
         return message.replyFrom(getComponentOwner().getId())
                 .objectContent(new EvaluatedGenome(sperm, 0)) // costs for mating define quality of the genome

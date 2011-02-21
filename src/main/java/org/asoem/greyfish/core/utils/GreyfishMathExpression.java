@@ -8,13 +8,17 @@ import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.VariableResolver;
 import net.sourceforge.jeval.function.FunctionException;
-import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ContinuosProperty;
+import org.asoem.greyfish.core.properties.FiniteSetProperty;
+import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
@@ -25,21 +29,21 @@ public enum GreyfishMathExpression {
 
     private final Map<String, Object> parserCache = Maps.newHashMap();
 
-    private double getResult(String expression, IndividualInterface individualInterface) {
+    private double getResult(String expression, Agent individualInterface) {
         double ret = 0;
 
         Evaluator evaluator;
         if (parserCache.containsKey(expression)) {
-            Object object = parserCache.get(expression);
+            final Object object = parserCache.get(expression);
             if (object instanceof Double)
                 return Double.class.cast(object);
             else
                 evaluator = Evaluator.class.cast(object);
         }
         else {
-            Scanner scanner = new Scanner(expression);
-            if (scanner.hasNextDouble()) {
-                double d = scanner.nextDouble();
+
+            if (Pattern.matches("^\\d+(\\.\\d+)?$", expression)) {
+                final double d = Double.valueOf(expression);
                 parserCache.put(expression, d);
                 return d;
             }
@@ -71,30 +75,89 @@ public enum GreyfishMathExpression {
         return ret;
     }
 
-    private VariableResolver getVariableResolver(final IndividualInterface individualInterface) {
+    private VariableResolver getVariableResolver(final Agent individualInterface) {
 
         return new VariableResolver() {
-
             @Override
             public String resolveVariable(final String arg0) throws FunctionException {
-                try {
-                    ContinuosProperty<?> property = Iterables.find(Iterables.filter(individualInterface.getProperties(), ContinuosProperty.class), new Predicate<ContinuosProperty>() {
 
-                        @Override
-                        public boolean apply(ContinuosProperty object) {
-                            return object.getName().equals(arg0);
-                        }
-                    });
-                    return String.valueOf(property.getAmount());
-                } catch(NoSuchElementException e) {
-                    GreyfishLogger.warn(e);
+                final Scanner scanner = new Scanner(arg0).useDelimiter(Pattern.compile("\\."));
+                if (!scanner.hasNext()) {
+                    GreyfishLogger.warn("Scanner was unable to scan input using delimiter '.':" + arg0);
                     return "0";
                 }
+                final String token1 = scanner.next();
+                if ("property".equals(token1)) {
+                    if (!scanner.hasNext()) {
+                        GreyfishLogger.warn("Scanner found nothing after token 'property':" + arg0);
+                        return "0";
+                    }
+                    final String token2 = scanner.next();
+
+                    try {
+                        final ContinuosProperty<?> property =
+                                Iterables.find(
+                                        Iterables.filter(individualInterface.getProperties(), ContinuosProperty.class),
+                                        new Predicate<ContinuosProperty>() {
+
+                                            @Override
+                                            public boolean apply(ContinuosProperty object) {
+                                                return object.getName().equals(token2);
+                                            }
+                                        });
+                        return String.valueOf(property.getAmount());
+                    } catch(NoSuchElementException e) {
+                        GreyfishLogger.warn(e);
+                        return "0";
+                    }
+                }
+                else if ("env".equals(token1)) { // TODO: implement a search cache for 'env' to speed up variable resolution
+                    assert individualInterface.getSimulation() != null;
+                    final Simulation simulation = individualInterface.getSimulation();
+
+                    if (!scanner.hasNext()) {
+                        GreyfishLogger.warn("Scanner found nothing after token 'env':" + arg0);
+                        return "0";
+                    }
+                    final String token2 = scanner.next();
+                    if (token2.startsWith("agentcount")) {
+
+                        final Pattern conditionPattern = Pattern.compile(".+\\[.+=.+\\]");
+
+                        if (conditionPattern.matcher(token2).matches()) {
+
+
+                            final String[] keyValue = token2.substring(token2.indexOf('[')+1, token2.length()-1).split("=");
+                            final String ret =  String.valueOf(Iterables.size(Iterables.filter(
+                                    simulation.getAgents(),
+                                    new Predicate<Agent>() {
+
+                                        @Override
+                                        public boolean apply(Agent object) {
+                                            return Iterables.find(object.getProperties(), new Predicate<GFProperty>() {
+                                                @Override
+                                                public boolean apply(GFProperty gfProperty) {
+                                                    return FiniteSetProperty.class.isInstance(gfProperty)
+                                                            && gfProperty.hasName(keyValue[0])
+                                                            && FiniteSetProperty.class.cast(gfProperty).get().toString().equals(keyValue[1]);
+                                                }
+                                            }, null) != null;
+                                        }
+                                    })));
+                            return ret;
+                        }
+                        else
+                            return String.valueOf(individualInterface.getSimulation().agentCount());
+                    }
+                }
+
+                GreyfishLogger.warn("No match for variable: " + arg0);
+                return "0";
             }
         };
     }
 
-    public static double evaluate(String expression, IndividualInterface individualInterface) {
+    public static double evaluate(String expression, Agent individualInterface) {
         return INSTANCE.getResult(checkNotNull(expression), checkNotNull(individualInterface));
     }
 }

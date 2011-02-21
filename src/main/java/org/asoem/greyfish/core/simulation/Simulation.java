@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
 import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
-import static org.asoem.greyfish.core.simulation.Simulation.COMMAND_TYPES.*;
+import static org.asoem.greyfish.core.simulation.Simulation.CommandType.*;
 import static org.asoem.greyfish.core.space.Location2D.at;
 
 public class Simulation implements Runnable {
@@ -73,15 +73,15 @@ public class Simulation implements Runnable {
         }
     }
 
-    public enum COMMAND_TYPES {
+    public enum CommandType {
         MESSAGE,
         MOVEMENT,
         AGENT_REMOVE,
         AGENT_ADD
     }
 
-    private final Multimap<COMMAND_TYPES, Command> commanListMap =
-            Multimaps.synchronizedMultimap(HashMultimap.<COMMAND_TYPES, Command>create());
+    private final Multimap<CommandType, Command> commanListMap =
+            Multimaps.synchronizedMultimap(HashMultimap.<CommandType, Command>create());
 
     private final FastList<Agent> individuals = FastList.newInstance();
     private final Collection<Agent> concurrentAgentsView = individuals.shared();
@@ -304,7 +304,7 @@ public class Simulation implements Runnable {
     public synchronized void reset() {
         stop();
 
-        clearAgentList();
+        clearExecutionLists();
 
         steps = 0;
 
@@ -394,12 +394,15 @@ public class Simulation implements Runnable {
         runs = 0;
         infinite = false;
         pause = false;
-        clearAgentList();
+        clearExecutionLists();
     }
 
-    private void clearAgentList() {
+    /**
+     * Clears all lists which hold either agents or commands
+     */
+    private void clearExecutionLists() {
         concurrentAgentsView.clear();
-        // TODO: recycle?
+        commanListMap.clear();
     }
 
     private void timedStep() throws InterruptedException {
@@ -412,6 +415,9 @@ public class Simulation implements Runnable {
         step();
     }
 
+    /**
+     * Proceed on step cycle and execute all agents & commands
+     */
     public synchronized void step() {
         updateEnvironment();
         processAgents();

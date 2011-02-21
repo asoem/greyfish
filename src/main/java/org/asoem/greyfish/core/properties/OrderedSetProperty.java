@@ -76,9 +76,14 @@ public abstract class OrderedSetProperty<E extends Comparable<E>> extends Abstra
     }
 
     public void export(Exporter e, Class<E> clazz) {
-        e.add(ValueAdaptor.forField("Minimal Value", clazz, this, "lowerBound"));
-        e.add(ValueAdaptor.forField("Maximal Value", clazz, this, "upperBound"));
-
+        e.add(new ValueAdaptor<E>("lowerBound", clazz) {
+            @Override protected void set(E arg0) { lowerBound = checkFrozen(checkNotNull(arg0)); }
+            @Override public E get() { return lowerBound; }
+        });
+        e.add(new ValueAdaptor<E>("upperBound", clazz) {
+            @Override protected void set(E arg0) { upperBound = checkFrozen(checkNotNull(arg0)); }
+            @Override public E get() { return upperBound; }
+        });
         e.add(new ValueAdaptor<E>("Initial", clazz) {
 
             @Override protected void set(E arg0) { initialValue = checkFrozen(checkNotNull(arg0)); }

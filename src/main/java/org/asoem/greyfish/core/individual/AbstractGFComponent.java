@@ -54,6 +54,11 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     @Override
+    public boolean hasName(String s) {
+        return name.equals(s);
+    }
+
+    @Override
     public String toString() {
         return this.getClass().getSimpleName() + "[" + name + ']' + "@" + componentOwner;
     }
