@@ -1,13 +1,12 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Function;
 import org.asoem.greyfish.utils.CloneMap;
 
 public class IntegerGene extends AbstractGene<Integer> {
 
-	public IntegerGene(Integer init, Function<Integer, Integer> mutationFunction) {
-		super(init, Integer.class, mutationFunction);
-	}
+    public IntegerGene(Integer init, MutationOperator<Integer> mutationFunction) {
+        super(init, Integer.class, mutationFunction);
+    }
 
     public IntegerGene(IntegerGene integerGene, CloneMap map) {
         super(integerGene, map);
@@ -20,6 +19,6 @@ public class IntegerGene extends AbstractGene<Integer> {
 
     @Override
     public Gene<Integer> mutatedCopy() {
-        return new IntegerGene(getMutationFunction().apply(get()), getMutationFunction());
+        return new IntegerGene(getMutationFunction().mutate(get()), getMutationFunction());
     }
 }

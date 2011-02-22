@@ -1,11 +1,11 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.genes.IntegerGene;
+import org.asoem.greyfish.core.genes.MutationOperator;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -43,13 +43,28 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     private final Supplier<Integer> gene = registerGene(
-            new IntegerGene(RandomUtils.nextBoolean() ? 0 : 1, new Function<Integer, Integer>() {
+            new IntegerGene(RandomUtils.nextBoolean() ? 0 : 1, new MutationOperator<Integer>() {
+                private final static double SEX_ASEX_TRANSITION_PROBABILITY = 0.001;
+
                 @Override
-                public Integer apply(Integer integer) {
-                    return RandomUtils.nextDouble() < 0.001 ? 2 : RandomUtils.nextBoolean() ? 0 : 1;
+                public Integer mutate(Integer original) {
+                    return RandomUtils.nextDouble() < SEX_ASEX_TRANSITION_PROBABILITY ?
+                            Gender.ASEX.ordinal() :
+                            RandomUtils.nextBoolean() ?
+                                    Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
                 }
-            })
-    );
+
+                @Override
+                public double normalizedDistance(Integer orig, Integer copy) {
+                    return 1;
+                }
+
+                @Override
+                public double normalizedWeightedDistance(Integer orig, Integer copy) {
+                    return normalizedDistance(orig, copy) * 0.1;
+                }
+            }
+    ));
 
     public GonoGenderStateProperty(GonoGenderStateProperty gonoGenderStateProperty, CloneMap cloneMap) {
         super(gonoGenderStateProperty, cloneMap);

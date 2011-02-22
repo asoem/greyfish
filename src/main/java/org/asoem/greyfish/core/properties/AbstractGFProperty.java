@@ -13,8 +13,8 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Root;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 @Root
 public abstract class AbstractGFProperty extends AbstractGFComponent implements GFProperty {
@@ -26,6 +26,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     @Override
     public void mutate() {}
 
+    @Override
     public Iterable<Gene<?>> getGenes() {
         return Iterables.transform(geneList, new Function<GeneProxy<?>, Gene<?>>() {
             @Override
@@ -35,10 +36,12 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         });
     }
 
-    public void setGenes(Iterator<Gene<?>> geneIterator) {
+    @Override
+    public void setGenes(ListIterator<Gene<?>> geneIterator) {
         for (GeneProxy<?> proxy : geneList) {
             if (!geneIterator.hasNext())
                 throw new AssertionError("geneIterator cannot provide elements as needed");
+            proxy.setIndex(geneIterator.nextIndex());
             proxy.setGene(geneIterator.next());
         }
     }

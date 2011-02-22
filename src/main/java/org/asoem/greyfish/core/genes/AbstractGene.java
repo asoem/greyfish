@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Function;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractGene<T> extends AbstractDeepCloneable implements Gene<T> {
@@ -11,7 +11,7 @@ public abstract class AbstractGene<T> extends AbstractDeepCloneable implements G
 	private final T representation;
     private final Class<T> clazz;
 	private final String name = "";
-    private final Function<T, T> mutationFunction;
+    private final MutationOperator<T> mutationFunction;
 
     /**
      * Constructor
@@ -19,7 +19,7 @@ public abstract class AbstractGene<T> extends AbstractDeepCloneable implements G
      * @param clazz the Class of the supplied value
      * @param mutationFunction
      */
-	public AbstractGene(T element, Class<T> clazz, Function<T, T> mutationFunction) {
+	public AbstractGene(T element, Class<T> clazz, MutationOperator<T> mutationFunction) {
         this.mutationFunction = mutationFunction;
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
@@ -42,7 +42,7 @@ public abstract class AbstractGene<T> extends AbstractDeepCloneable implements G
      * @param gene the original to get copied
      * @param mutationFunction
      */
-    protected AbstractGene(Gene<T> gene, Function<T, T> mutationFunction) {
+    protected AbstractGene(Gene<T> gene, MutationOperator<T> mutationFunction) {
         this.mutationFunction = mutationFunction;
         this.representation = gene.get();
         this.clazz = gene.getSupplierClass();
@@ -63,7 +63,7 @@ public abstract class AbstractGene<T> extends AbstractDeepCloneable implements G
         return clazz;
     }
 
-    public Function<T, T> getMutationFunction() {
+    public MutationOperator<T> getMutationFunction() {
         return mutationFunction;
     }
 
@@ -71,5 +71,11 @@ public abstract class AbstractGene<T> extends AbstractDeepCloneable implements G
     public boolean isMutatedVersionOf(Gene<?> gene) {
         return this.getSupplierClass().equals(gene.getSupplierClass())
                 && this.getMutationFunction().equals(gene.getMutationFunction());
+    }
+
+    @Override
+    public final double distance(Gene<?> thatGene) {
+        checkArgument(this.isMutatedVersionOf(thatGene));
+        return mutationFunction.normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
     }
 }

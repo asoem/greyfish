@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Function;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
@@ -10,7 +9,7 @@ public class DoubleGene extends AbstractGene<Double> {
         super(doubleGene, map);
     }
 
-	public DoubleGene(Double init, Function<Double, Double> mutationFunction) {
+	public DoubleGene(Double init, MutationOperator<Double> mutationFunction) {
 		super(init, Double.class, mutationFunction);
 	}
 
@@ -21,6 +20,6 @@ public class DoubleGene extends AbstractGene<Double> {
 
     @Override
     public Gene<Double> mutatedCopy() {
-        return new DoubleGene(getMutationFunction().apply(get()), getMutationFunction());
+        return new DoubleGene(getMutationFunction().mutate(get()), getMutationFunction());
     }
 }

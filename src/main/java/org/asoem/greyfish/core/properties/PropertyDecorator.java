@@ -89,4 +89,9 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     public void setGenes(Iterator<Gene<?>> geneIterator) {
         getDelegate().setGenes(geneIterator);
     }
+
+    @Override
+    public boolean hasName(String s) {
+        return getDelegate().hasName(s);
+    }
 }

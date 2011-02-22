@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Function;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
@@ -11,6 +10,7 @@ public class GeneProxy<T> implements Gene<T> {
 
     private Gene<T> gene;
     private final Class<T> clazz;
+    private int index = -1;
 
     /**
      * Copy Constructor
@@ -57,7 +57,7 @@ public class GeneProxy<T> implements Gene<T> {
     }
 
     @Override
-    public Function<T, T> getMutationFunction() {
+    public MutationOperator<T> getMutationFunction() {
         return gene.getMutationFunction();
     }
 
@@ -77,5 +77,26 @@ public class GeneProxy<T> implements Gene<T> {
 
     public Gene<T> getGene() {
         return gene;
+    }
+
+    /**
+     * Set the index of the delegate in the genome which manages it.
+     * @param index The index to set
+     */
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    /**
+     *
+     * @return The index of the delegate gene in it's managing genome
+     */
+    public int getIndex() {
+        return index;
+    }
+
+    @Override
+    public double distance(Gene<?> thatGene) {
+        return gene.distance(thatGene);
     }
 }

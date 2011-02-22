@@ -22,7 +22,7 @@ public class MatingInteractionSpec extends Specification<ContractNetInitiatiorAc
     public class NormalInteraction {
 
         final EvaluatedGenomeStorage genomeStorage = EvaluatedGenomeStorage.with().build();
-        final MatingReceiverAction receiverAction = MatingReceiverAction.with().fromMatesOfType("mate").closerThan(1.0).storesSpermIn(genomeStorage).build();
+        final CompatibilityAwareMatingReceiverAction receiverAction = CompatibilityAwareMatingReceiverAction.with().fromMatesOfType("mate").closerThan(1.0).storesSpermIn(genomeStorage).build();
         final Prototype female = Prototype.newInstance(Individual.with().population(Population.newPopulation("Female", Color.black)).addProperties(genomeStorage).addActions(receiverAction).build());
 
         final MatingTransmitterAction transmitterAction = MatingTransmitterAction.with().offersSpermToMatesOfType("mate").build();

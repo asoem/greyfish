@@ -3,7 +3,7 @@
  */
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -20,30 +20,30 @@ import java.util.List;
  *
  */
 @ClassGroup(tags="property")
-public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedCandidate<Genome>>> {
+public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedCandidate<GenomeInterface>>> {
 
     final private static RouletteWheelSelection SELECTOR = new RouletteWheelSelection();
-    final private List<EvaluatedCandidate<Genome>> spermList = new ArrayList<EvaluatedCandidate<Genome>>();
+    final private List<EvaluatedCandidate<GenomeInterface>> spermList = new ArrayList<EvaluatedCandidate<GenomeInterface>>();
 
     public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, CloneMap cloneMap) {
         super(storage, cloneMap);
     }
 
-    public void addGenome(Genome genome, double d) {
+    public void addGenome(GenomeInterface genome, double d) {
 //        if (!spermList.contains(genome)) // TODO: check for duplicates
-            spermList.add(new EvaluatedCandidate<Genome>(genome, d));
+            spermList.add(new EvaluatedCandidate<GenomeInterface>(genome, d));
     }
 
-    public Genome getRandom() {
+    public GenomeInterface getRandom() {
         if (!spermList.isEmpty())
             return spermList.get(RandomUtils.nextInt(spermList.size())).getCandidate();
         else
             return null;
     }
 
-    public Genome getRWS() {
+    public GenomeInterface getRWS() {
         if (!spermList.isEmpty()) {
-            final List<Genome> selection = SELECTOR.select(spermList, true, 1, RandomUtils.randomInstance());
+            final List<GenomeInterface> selection = SELECTOR.select(spermList, true, 1, RandomUtils.randomInstance());
             return selection.get(0);
         }
         else
@@ -77,7 +77,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     public static Builder with() { return new Builder(); }
 
     @Override
-    public List<EvaluatedCandidate<Genome>> get() {
+    public List<EvaluatedCandidate<GenomeInterface>> get() {
         return spermList;
     }
 
