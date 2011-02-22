@@ -16,7 +16,11 @@ public class RandomUtils {
 	public static int nextInt(final int n) {
 		return RNG.nextInt(n);
 	}
-	
+
+    /**
+     * @see java.util.Random#nextDouble()
+     * @return the next pseudorandom, uniformly distributed double value between 0.0 and 1.0 from this random number generator's sequence
+     */
 	public static double nextDouble() {
 		return RNG.nextDouble();
 	}
