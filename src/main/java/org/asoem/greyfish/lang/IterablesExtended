@@ -1,0 +1,58 @@
+package org.asoem.greyfish.lang;
+
+import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.Iterables;
+
+import java.util.Iterator;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class IterablesExtended {
+
+    public static <T> Iterable<T> filter(final Iterable<T> iterable, final Iterable<Integer> positions) {
+        checkNotNull(iterable);
+        checkNotNull(positions);
+
+        final Iterator<Integer> positionsIterator = positions.iterator();
+
+        if (List.class.isInstance(iterable)) {
+            return new Iterable<T>() {
+
+                @SuppressWarnings("unchecked")
+                final List<T> list = List.class.cast(iterable);
+
+                @Override
+                public Iterator<T> iterator() {
+                    return new AbstractIterator<T>() {
+                        @Override
+                        protected T computeNext() {
+                            if (positionsIterator.hasNext()) {
+                                return list.get(positionsIterator.next());
+                            }
+
+                            return endOfData();
+                        }
+                    };
+                }
+            };
+        }
+        else {
+            return new Iterable<T>() {
+                @Override
+                public Iterator<T> iterator() {
+                    return new AbstractIterator<T>() {
+                        @Override
+                        protected T computeNext() {
+                            if (positionsIterator.hasNext()) {
+                                return Iterables.get(iterable, positionsIterator.next());
+                            }
+
+                            return endOfData();
+                        }
+                    };
+                }
+            };
+        }
+    }
+}
