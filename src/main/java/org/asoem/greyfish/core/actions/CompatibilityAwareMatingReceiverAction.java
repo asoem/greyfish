@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -18,12 +19,10 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.lang.IterablesExtended;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
 /**
@@ -36,6 +35,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
 
     @Element(name="property")
     private EvaluatedGenomeStorage spermBuffer;
+
+    @Element(name="compatibilityDefiningProperty")
+    private GFProperty compatibilityDefiningProperty;
 
     @Element(name="messageType", required=false)
     private String ontology;
@@ -91,13 +93,32 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
                 return sensorRange;
             }
         });
+        e.add(new FiniteSetValueAdaptor<GFProperty>("Compatibility Defining Property", GFProperty.class) {
+            @Override
+            protected void set(GFProperty arg0) {
+                compatibilityDefiningProperty = checkFrozen(checkNotNull(arg0));
+            }
+
+            @Override
+            public GFProperty get() {
+                return compatibilityDefiningProperty;
+            }
+
+            @Override
+            public Iterable<GFProperty> values() {
+                return getComponentOwner().getProperties();
+            }
+        });
     }
 
     public boolean receiveGenome(EvaluatedGenome genome) {
-        spermBuffer.addGenome(genome, genome.getFitness());
-        if (GreyfishLogger.isTraceEnabled())
-            GreyfishLogger.trace(getComponentOwner() + " received sperm: " + genome);
-        return true;
+        if (spermBuffer != null) {
+            spermBuffer.addGenome(genome, genome.getFitness());
+            if (GreyfishLogger.isTraceEnabled())
+                GreyfishLogger.trace(getComponentOwner() + " received sperm: " + genome);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -115,7 +136,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
                 .source(getComponentOwner().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
-                // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+                        // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
                 .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId());
     }
 
@@ -124,23 +145,40 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         ACLMessage.Builder builder = message.replyFrom(this.getComponentOwner().getId());
         try {
             final EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
-            receiveGenome(evaluatedGenome);
 
-            final Iterable<IndexedGene<?>> thisGenes = ((GFProperty)null).getGenes();
+            double matingProbability = 0;
+            if (compatibilityDefiningProperty != null) {
+                final Iterable<IndexedGene<?>> thisGenes = compatibilityDefiningProperty.getGenes();
+//
+//                final Iterable<Gene<?>> thatGenes = Iterables.transform(thisGenes, new Function<IndexedGene<?>, Gene<?>>() {
+//                    @Override
+//                    public Gene<?> apply(IndexedGene<?> indexedGene) {
+//                        return evaluatedGenome.get(indexedGene.getIndex());
+//                    }
+//                });
 
-            Iterable<Gene<?>> geneIterable = IterablesExtended.filter(evaluatedGenome, Iterables.transform(thisGenes, new Function<IndexedGene<?>, Integer>() {
-                @Override
-                public Integer apply(IndexedGene<?> geneProxy) {
-                    return geneProxy.getIndex();
-                }
-            }));
+                final Iterable<Gene<?>> thatGenes = Iterables.transform(thisGenes, new Function<Gene<?>, Gene<?>>() {
+                    @Override
+                    public Gene<?> apply(final Gene<?> indexedGene) {
+                        return Iterables.find(evaluatedGenome, new Predicate<Gene<?>>() {
+                            @Override
+                            public boolean apply(Gene<?> gene) {
+                                return gene.isMutatedVersionOf(indexedGene);
+                            }
+                        });
+                    }
+                });
 
-            double matingProbability = Genes.normalizedDistance(thisGenes, geneIterable);
+                matingProbability = Genes.normalizedDistance(thisGenes, thatGenes);
+            }
 
-            if (RandomUtils.nextDouble() > matingProbability)
+            if (RandomUtils.nextDouble() <= matingProbability) {
+                receiveGenome(evaluatedGenome);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
+            }
             else
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
+
         } catch (IllegalArgumentException e) {
             throw new NotUnderstoodException("MessageContent is not a genome");
         }
@@ -176,6 +214,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         this.spermBuffer = cloneMap.clone(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
+        this.compatibilityDefiningProperty = cloneMap.clone(cloneable.compatibilityDefiningProperty, GFProperty.class);
     }
 
     protected CompatibilityAwareMatingReceiverAction(AbstractBuilder<?> builder) {
@@ -183,6 +222,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         this.spermBuffer = builder.spermBuffer;
         this.ontology = builder.ontology;
         this.sensorRange = builder.sensorRange;
+        this.compatibilityDefiningProperty = builder.compatibilityDefiningProperty;
     }
 
     public static Builder with() { return new Builder(); }
@@ -190,7 +230,6 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override public CompatibilityAwareMatingReceiverAction build() {
-            checkState(spermBuffer != null, "Builder must define a valid spermBuffer.");
             if (sensorRange <= 0)
                 warn(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))
@@ -202,7 +241,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         protected EvaluatedGenomeStorage spermBuffer = null;
         protected String ontology = "";
         protected double sensorRange = 1.0;
+        protected GFProperty compatibilityDefiningProperty;
 
+        public T compatibilityDefiningProperty(GFProperty property) { this.compatibilityDefiningProperty = checkNotNull(property); return self(); }
         public T storesSpermIn(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
         public T fromMatesOfType(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
         public T closerThan(double sensorRange) { this.sensorRange = sensorRange; return self(); }

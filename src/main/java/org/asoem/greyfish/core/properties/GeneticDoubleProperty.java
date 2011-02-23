@@ -22,10 +22,6 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
         }
     };
 
-    protected GeneticDoubleProperty(Builder builder) {
-        delegate = new DoubleProperty(builder);
-    }
-
     protected GeneticDoubleProperty(GeneticDoubleProperty geneticDoubleProperty, CloneMap cloneMap) {
         delegate = cloneMap.clone(geneticDoubleProperty.delegate, DoubleProperty.class);
     }
@@ -62,8 +58,6 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
                 }));
     }
 
-    public static Builder with() { return new Builder(); }
-
     @Override
     public GeneticDoubleProperty deepCloneHelper(CloneMap cloneMap) {
         return new GeneticDoubleProperty(this, cloneMap);
@@ -78,6 +72,12 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
     public Double getLowerBound() {
         return delegate.getLowerBound();
     }
+
+    protected GeneticDoubleProperty(Builder builder) {
+        delegate = new DoubleProperty(builder);
+    }
+
+    public static Builder with() { return new Builder(); }
 
     public static final class Builder extends DoubleProperty.AbstractBuilder<Builder> implements BuilderInterface<GeneticDoubleProperty> {
         private Builder() {}

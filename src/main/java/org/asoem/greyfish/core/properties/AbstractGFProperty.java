@@ -49,6 +49,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         checkNotFrozen();
 
         final IndexedGene<S> ret = IndexedGene.newInstance(gene);
+        ret.setIndex(geneList.size()-1);
         geneList = ImmutableList.<IndexedGene<?>>builder().addAll(geneList).add( ret ).build();
         return ret;
     }

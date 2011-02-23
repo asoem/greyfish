@@ -167,6 +167,7 @@ public class Simulation implements Runnable {
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
             final Agent clone = newAgentFromPool(placeholder.getPopulation());
+            clone.setGenome(placeholder.getGenome().mutated());
             addAgent(clone, at(placeholder));
         }
 

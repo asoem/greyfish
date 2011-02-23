@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.io;
 
-import org.asoem.greyfish.core.individual.Individual;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.CycleStrategy;
-import org.simpleframework.xml.strategy.Strategy;
 
 import java.io.*;
 
@@ -16,8 +14,7 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.*;
 
 public class  GreyfishSerialization {
 
-	private final static Strategy strategy = new CycleStrategy("id", "ref");
-	private final static Serializer serializer = new Persister(strategy, GreyfishMatcher.getInstance());
+	private final static Serializer serializer = new Persister(new CycleStrategy("id", "ref"), GreyfishMatcher.getInstance());
 
 	public static void writeScenario(Scenario scenario, File dest) throws Exception {
 		serializeObject(dest, scenario);
