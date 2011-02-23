@@ -8,8 +8,8 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneProxy;
 import org.asoem.greyfish.core.genes.Genes;
+import org.asoem.greyfish.core.genes.IndexedGene;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
@@ -21,8 +21,6 @@ import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.IterablesExtended;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
-
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -128,11 +126,11 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
             final EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
             receiveGenome(evaluatedGenome);
 
-            final List<GeneProxy<?>> thisGenes = ((GFProperty)referencedProprty).getGenes();
+            final Iterable<IndexedGene<?>> thisGenes = ((GFProperty)null).getGenes();
 
-            Iterable<Gene<?>> geneIterable = IterablesExtended.filter(evaluatedGenome, Iterables.transform(thisGenes, new Function<GeneProxy<?>, Integer>() {
+            Iterable<Gene<?>> geneIterable = IterablesExtended.filter(evaluatedGenome, Iterables.transform(thisGenes, new Function<IndexedGene<?>, Integer>() {
                 @Override
-                public Integer apply(GeneProxy<?> geneProxy) {
+                public Integer apply(IndexedGene<?> geneProxy) {
                     return geneProxy.getIndex();
                 }
             }));

@@ -1,11 +1,9 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneProxy;
+import org.asoem.greyfish.core.genes.IndexedGene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
@@ -21,24 +19,16 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
 
     private final ListenerSupport<GFPropertyChangeListener> listenerSupport = ListenerSupport.newInstance();
 
-    private List<GeneProxy<?>> geneList = ImmutableList.of();
+    private List<IndexedGene<?>> geneList = ImmutableList.of();
 
     @Override
-    public void mutate() {}
-
-    @Override
-    public Iterable<Gene<?>> getGenes() {
-        return Iterables.transform(geneList, new Function<GeneProxy<?>, Gene<?>>() {
-            @Override
-            public Gene<?> apply(GeneProxy o) {
-                return o.getGene();
-            }
-        });
+    public Iterable<IndexedGene<?>> getGenes() {
+        return geneList;
     }
 
     @Override
-    public void setGenes(ListIterator<Gene<?>> geneIterator) {
-        for (GeneProxy<?> proxy : geneList) {
+    public void setGenes(ListIterator<? extends Gene<?>> geneIterator) {
+        for (IndexedGene<?> proxy : geneList) {
             if (!geneIterator.hasNext())
                 throw new AssertionError("geneIterator cannot provide elements as needed");
             proxy.setIndex(geneIterator.nextIndex());
@@ -54,11 +44,12 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         listenerSupport.addListener(listener);
     }
 
-    protected final <S> Supplier<S> registerGene(final Gene<S> gene) {
+    @Override
+    public final <S> Supplier<S> registerGene(final Gene<S> gene) {
         checkNotFrozen();
 
-        final GeneProxy<S> ret = GeneProxy.newInstance(gene);
-        geneList = ImmutableList.<GeneProxy<?>>builder().addAll(geneList).add( ret ).build();
+        final IndexedGene<S> ret = IndexedGene.newInstance(gene);
+        geneList = ImmutableList.<IndexedGene<?>>builder().addAll(geneList).add( ret ).build();
         return ret;
     }
 

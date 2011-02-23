@@ -1,16 +1,12 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-import org.asoem.greyfish.utils.CloneMap;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractGene<T> extends AbstractDeepCloneable implements Gene<T> {
+public class DefaultGene<T> implements Gene<T> {
 
 	private final T representation;
     private final Class<T> clazz;
-	private final String name = "";
     private final MutationOperator<T> mutationFunction;
 
     /**
@@ -19,31 +15,14 @@ public abstract class AbstractGene<T> extends AbstractDeepCloneable implements G
      * @param clazz the Class of the supplied value
      * @param mutationFunction
      */
-	public AbstractGene(T element, Class<T> clazz, MutationOperator<T> mutationFunction) {
+	public DefaultGene(T element, Class<T> clazz, MutationOperator<T> mutationFunction) {
         this.mutationFunction = mutationFunction;
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
 	}
 
-    /**
-     * DeepClone Constructor
-     * @param gene the gene to clone
-     * @param map a Map of originals to their clones
-     */
-    protected AbstractGene(AbstractGene<T> gene, CloneMap map) {
-        super(gene, map);
-        this.mutationFunction = gene.mutationFunction;
-        this.clazz = gene.clazz;
-        this.representation = gene.representation;
-    }
-
-    /**
-     * Copy Constructor
-     * @param gene the original to get copied
-     * @param mutationFunction
-     */
-    protected AbstractGene(Gene<T> gene, MutationOperator<T> mutationFunction) {
-        this.mutationFunction = mutationFunction;
+    public DefaultGene(Gene<T> gene) {
+        this.mutationFunction = gene.getMutationFunction();
         this.representation = gene.get();
         this.clazz = gene.getSupplierClass();
     }
@@ -65,6 +44,10 @@ public abstract class AbstractGene<T> extends AbstractDeepCloneable implements G
 
     public MutationOperator<T> getMutationFunction() {
         return mutationFunction;
+    }
+
+    public static <T> Gene<T> newMutatedCopy(Gene<T> gene) {
+        return new DefaultGene<T>(gene.getMutationFunction().mutate(gene.get()), gene.getSupplierClass(), gene.getMutationFunction());
     }
 
     @Override

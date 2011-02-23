@@ -13,7 +13,7 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
-import java.util.Iterator;
+import java.util.ListIterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.*;
@@ -100,7 +100,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     public void setGenome(final Genome genome) {
         Preconditions.checkNotNull(genome);
-        Iterator<Gene<?>> geneIterator = genome.iterator();
+        ListIterator<Gene<?>> geneIterator = genome.listIterator();
 
         for (GFProperty property : getProperties())
             property.setGenes(geneIterator);

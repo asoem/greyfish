@@ -35,5 +35,7 @@ public class Genes {
         return ret;
     }
 
-
+    public static <T> Gene<T> newMutatedCopy(final Gene<T> gene) {
+        return new DefaultGene<T>(gene);
+    }
 }

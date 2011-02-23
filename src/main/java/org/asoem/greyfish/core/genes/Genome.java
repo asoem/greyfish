@@ -8,25 +8,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 public class Genome implements GenomeInterface {
 
     private final List<Gene<?>> genes;
-
-    private Genome(Genome genome, CloneMap map) {
-        ImmutableList.Builder<Gene<?>> geneListBuilder = ImmutableList.builder();
-        for (Gene gene : genome) {
-            geneListBuilder.add(map.clone(gene, Gene.class));
-        }
-        genes = geneListBuilder.build();
-    }
 
     private Genome(Builder builder) {
         this.genes = ImmutableList.copyOf(builder.genes);
@@ -58,6 +49,10 @@ public class Genome implements GenomeInterface {
         return genes.iterator();
     }
 
+    public ListIterator<Gene<?>> listIterator() {
+        return genes.listIterator();
+    }
+
     @Override
     public int size() {
         return genes.size();
@@ -79,16 +74,6 @@ public class Genome implements GenomeInterface {
     @Override
     public String toString() {
         return "[" + Joiner.on(',').join(genes) + "]";
-    }
-
-    @Override
-    public <T extends DeepCloneable> T deepClone(Class<T> clazz) {
-        return clazz.cast(deepCloneHelper(CloneMap.newInstance()));
-    }
-
-    @Override
-    public Genome deepCloneHelper(CloneMap map) {
-        return new Genome(this, map);
     }
 
     public static Builder builder() {
@@ -116,7 +101,7 @@ public class Genome implements GenomeInterface {
         return builder().addAll(Iterables.transform(this, new Function<Gene<?>, Gene<?>>() {
             @Override
             public Gene<?> apply(Gene<?> gene) {
-                return gene.mutatedCopy();
+                return DefaultGene.newMutatedCopy(gene);
             }
         })).build();
     }
@@ -124,5 +109,10 @@ public class Genome implements GenomeInterface {
     @Override
     public double distance(GenomeInterface that) {
         return Genes.normalizedDistance(this, that);
+    }
+
+    @Override
+    public Gene<?> get(int index) {
+        return genes.get(index);
     }
 }

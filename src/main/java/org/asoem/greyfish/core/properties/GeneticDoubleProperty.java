@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.core.genes.DoubleGene;
+import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.MutationOperator;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -44,10 +44,20 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements Di
     public void initialize(Simulation simulation) {
         delegate.initialize(simulation);
         doubleSupplier = delegate.registerGene(
-                new DoubleGene(delegate.getInitialValue(), new Function<Double, Double>() {
+                new DefaultGene<Double>(delegate.getInitialValue(), Double.class, new MutationOperator<Double>() {
                     @Override
-                    public Double apply(Double aDouble) {
+                    public Double mutate(Double original) {
                         return new GaussianGenerator(getLowerBound(), getUpperBound(), RandomUtils.RNG).nextValue();
+                    }
+
+                    @Override
+                    public double normalizedDistance(Double orig, Double copy) {
+                        return Math.abs(orig - copy) / (getUpperBound() - getLowerBound());
+                    }
+
+                    @Override
+                    public double normalizedWeightedDistance(Double orig, Double copy) {
+                        return normalizedDistance(orig, copy);
                     }
                 }));
     }

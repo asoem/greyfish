@@ -4,7 +4,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.asoem.greyfish.core.genes.IntegerGene;
+import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.MutationOperator;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -43,7 +43,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     private final Supplier<Integer> gene = registerGene(
-            new IntegerGene(RandomUtils.nextBoolean() ? 0 : 1, new MutationOperator<Integer>() {
+            new DefaultGene<Integer>(RandomUtils.nextBoolean() ? 0 : 1, Integer.class, new MutationOperator<Integer>() {
                 private final static double SEX_ASEX_TRANSITION_PROBABILITY = 0.001;
 
                 @Override

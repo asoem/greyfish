@@ -2,12 +2,10 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GenomeInterface;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Iterator;
 
-public class EvaluatedGenome extends AbstractDeepCloneable implements GenomeInterface {
+public class EvaluatedGenome implements GenomeInterface {
 
 	private final double fitness;
     private final GenomeInterface delegate;
@@ -37,8 +35,8 @@ public class EvaluatedGenome extends AbstractDeepCloneable implements GenomeInte
     }
 
     @Override
-    public EvaluatedGenome deepCloneHelper(CloneMap map) {
-        return new EvaluatedGenome(delegate.deepCloneHelper(map), fitness);
+    public Gene<?> get(int index) {
+        return delegate.get(index);
     }
 
     @Override
