@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Supplier;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.IndexedGene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
@@ -12,27 +14,35 @@ import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Root;
 
 import java.util.List;
-import java.util.ListIterator;
 
 @Root
 public abstract class AbstractGFProperty extends AbstractGFComponent implements GFProperty {
 
     private final ListenerSupport<GFPropertyChangeListener> listenerSupport = ListenerSupport.newInstance();
 
-    private List<IndexedGene<?>> geneList = ImmutableList.of();
+    private List<ForwardingGene<?>> geneList = ImmutableList.of();
 
     @Override
-    public Iterable<IndexedGene<?>> getGenes() {
+    public Iterable<ForwardingGene<?>> getGenes() {
         return geneList;
     }
 
     @Override
-    public void setGenes(ListIterator<? extends Gene<?>> geneIterator) {
-        for (IndexedGene<?> proxy : geneList) {
-            if (!geneIterator.hasNext())
-                throw new AssertionError("geneIterator cannot provide elements as needed");
-            proxy.setIndex(geneIterator.nextIndex());
-            proxy.setGene(geneIterator.next());
+    public void setGenes(final Iterable<? extends Gene<?>> genes) {
+        for (final ForwardingGene<?> gene : geneList) {
+            Gene<?> copy = Iterables.find(genes, new Predicate<Gene<?>>() {
+                @Override
+                public boolean apply(Gene<?> o) {
+                    return gene.isMutatedCopyOf(o);
+                }
+            }, null);
+
+            if (copy != null) {
+                gene.setDelegate(copy);
+            }
+            else {
+                GreyfishLogger.error("No mutated copy for " + gene + " in " + genes);
+            }
         }
     }
 
@@ -45,12 +55,11 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     }
 
     @Override
-    public final <S> Supplier<S> registerGene(final Gene<S> gene) {
+    public final <S> Gene<S> registerGene(final Gene<S> gene) {
         checkNotFrozen();
 
-        final IndexedGene<S> ret = IndexedGene.newInstance(gene);
-        ret.setIndex(geneList.size()-1);
-        geneList = ImmutableList.<IndexedGene<?>>builder().addAll(geneList).add( ret ).build();
+        final ForwardingGene<S> ret = ForwardingGene.newInstance(gene);
+        geneList = ImmutableList.<ForwardingGene<?>>builder().addAll(geneList).add( ret ).build();
         return ret;
     }
 

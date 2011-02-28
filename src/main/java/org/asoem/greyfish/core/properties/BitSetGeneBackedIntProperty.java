@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutationOperator;
 import org.asoem.greyfish.core.utils.BitStringUtils;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -21,7 +21,8 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements D
 
     private final static int BITSTRINGLENGTH = 10;
 
-    private Supplier<BitString> bitStringGene = registerGene( new DefaultGene<BitString>(new BitString(BITSTRINGLENGTH, RandomUtils.RNG), BitString.class, new MutationOperator<BitString>() {
+    // CAVE! The final modifier requires that getUpperBound() and getLowerBound() return the same value in all deepClones!
+    private final MutationOperator<BitString> mutationOperator = new MutationOperator<BitString>() {
         @Override
         public BitString mutate(BitString original) {
             return BitStringUtils.mutate(original.clone(), 0.001);
@@ -36,7 +37,15 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements D
         public double normalizedWeightedDistance(BitString orig, BitString copy) {
             return normalizedDistance(orig, copy);
         }
-    }));
+    };
+
+    private final Gene<BitString> bitStringGene = registerGene(
+            new DefaultGene<BitString>(new BitString(BITSTRINGLENGTH, RandomUtils.RNG), BitString.class, mutationOperator));
+
+    @SuppressWarnings("unused") // used in the deserialization process
+    private BitSetGeneBackedIntProperty() {
+        this(new Builder());
+    }
 
     protected BitSetGeneBackedIntProperty(BitSetGeneBackedIntProperty doubleOrderedSetProperty, CloneMap cloneMap) {
         super(doubleOrderedSetProperty, cloneMap);
@@ -50,7 +59,7 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements D
 
     @Override
     public Double get() {
-        return null;
+        return bitStringGene.get().toNumber().doubleValue();
     }
 
     @Override

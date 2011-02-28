@@ -5,6 +5,5 @@ public interface GenomeInterface extends Iterable<Gene<?>> {
 //    boolean addAll(Collection<? extends Gene<?>> c);
     int size();
     double distance(GenomeInterface genome);
-
-    public Gene<?> get(int index);
+    public Iterable<Gene<?>> findCopiesFor(final Iterable<ForwardingGene<?>> thisGenes);
 }

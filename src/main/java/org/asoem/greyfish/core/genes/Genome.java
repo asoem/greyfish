@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.RandomUtils;
 
@@ -66,7 +67,7 @@ public class Genome implements GenomeInterface {
         return(Iterables.all(this, new Predicate<Gene<?>>() {
             @Override
             public boolean apply(Gene<?> gene) {
-                return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedVersionOf(gene);
+                return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedCopyOf(gene);
             }
         }));
     }
@@ -111,8 +112,25 @@ public class Genome implements GenomeInterface {
         return Genes.normalizedDistance(this, that);
     }
 
-    @Override
-    public Gene<?> get(int index) {
-        return genes.get(index);
+    public Iterable<Gene<?>> findCopiesFor(final Iterable<ForwardingGene<?>> thisGenes) {
+
+        return Iterables.transform(thisGenes, new Function<Gene<?>, Gene<?>>() {
+            @Override
+            public Gene<?> apply(final Gene<?> indexedGene) {
+                try {
+                    return Iterables.find(getGenes(), new Predicate<Gene<?>>() {
+                        @Override
+                        public boolean apply(Gene<?> gene) {
+                            return gene.isMutatedCopyOf(indexedGene);
+                        }
+                    });
+                } catch (Exception e) {
+                    final String message = "Could not find a match for all genes defined by " + thisGenes +
+                            " in the genome '" + this + "'";
+                    GreyfishLogger.error(message, e);
+                    throw new IllegalArgumentException(message, e);
+                }
+            }
+        });
     }
 }

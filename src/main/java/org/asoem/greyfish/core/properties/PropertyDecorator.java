@@ -1,8 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Supplier;
+import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.IndexedGene;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -11,7 +10,6 @@ import org.asoem.greyfish.utils.Exporter;
 import org.simpleframework.xml.Element;
 
 import java.util.Iterator;
-import java.util.ListIterator;
 
 public abstract class PropertyDecorator extends AbstractDeepCloneable implements GFProperty {
 
@@ -19,7 +17,7 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     protected abstract GFProperty getDelegate();
 
     @Override
-    public Iterable<IndexedGene<?>> getGenes() {
+    public Iterable<ForwardingGene<?>> getGenes() {
         return getDelegate().getGenes();
     }
 
@@ -84,7 +82,7 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public void setGenes(ListIterator<? extends Gene<?>> geneIterator) {
+    public void setGenes(Iterable<? extends Gene<?>> geneIterator) {
         getDelegate().setGenes(geneIterator);
     }
 
@@ -94,7 +92,7 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public <S> Supplier<S> registerGene(Gene<S> gene) {
+    public <S> Gene<S> registerGene(Gene<S> gene) {
         return getDelegate().registerGene(gene);
     }
 }

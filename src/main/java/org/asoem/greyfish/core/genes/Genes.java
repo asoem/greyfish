@@ -26,7 +26,7 @@ public class Genes {
             Gene<?> thisGene = this_genome_iter.next();
             Gene<?> thatGene = other_genome_iter.next();
 
-            if (!thisGene.isMutatedVersionOf(thatGene))
+            if (!thisGene.isMutatedCopyOf(thatGene))
                 throw new IllegalArgumentException("GeneLists don't match: this=" + thisGenes + "; that=" + thatGenes);
 
             ret += thisGene.distance(thatGene);

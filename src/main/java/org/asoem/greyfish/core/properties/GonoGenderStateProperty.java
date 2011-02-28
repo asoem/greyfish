@@ -85,6 +85,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
         return new GonoGenderStateProperty(this, cloneMap);
     }
 
+    @SuppressWarnings("unused") // used in the deserialization process
     private GonoGenderStateProperty() {
         this(new Builder());
     }

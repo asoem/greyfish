@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GenomeInterface;
 
@@ -7,22 +8,22 @@ import java.util.Iterator;
 
 public class EvaluatedGenome implements GenomeInterface {
 
-	private final double fitness;
+    private final double fitness;
     private final GenomeInterface delegate;
 
-	public EvaluatedGenome(GenomeInterface sperm, double fitness) {
-		delegate = sperm;
-		this.fitness = fitness;
-	}
+    public EvaluatedGenome(GenomeInterface sperm, double fitness) {
+        delegate = sperm;
+        this.fitness = fitness;
+    }
 
-	public double getFitness() {
-		return fitness;
-	}
+    public double getFitness() {
+        return fitness;
+    }
 
-	@Override
-	public String toString() {
-		return super.toString() + " (" + fitness + ")";
-	}
+    @Override
+    public String toString() {
+        return super.toString() + " (" + fitness + ")";
+    }
 
     @Override
     public int size() {
@@ -35,8 +36,8 @@ public class EvaluatedGenome implements GenomeInterface {
     }
 
     @Override
-    public Gene<?> get(int index) {
-        return delegate.get(index);
+    public Iterable<Gene<?>> findCopiesFor(Iterable<ForwardingGene<?>> thisGenes) {
+        return delegate.findCopiesFor(thisGenes);
     }
 
     @Override

@@ -1,16 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
-import org.asoem.greyfish.core.genes.IndexedGene;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.GreyfishLogger;
@@ -148,27 +146,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
 
             double matingProbability = 0;
             if (compatibilityDefiningProperty != null) {
-                final Iterable<IndexedGene<?>> thisGenes = compatibilityDefiningProperty.getGenes();
-//
-//                final Iterable<Gene<?>> thatGenes = Iterables.transform(thisGenes, new Function<IndexedGene<?>, Gene<?>>() {
-//                    @Override
-//                    public Gene<?> apply(IndexedGene<?> indexedGene) {
-//                        return evaluatedGenome.get(indexedGene.getIndex());
-//                    }
-//                });
-
-                final Iterable<Gene<?>> thatGenes = Iterables.transform(thisGenes, new Function<Gene<?>, Gene<?>>() {
-                    @Override
-                    public Gene<?> apply(final Gene<?> indexedGene) {
-                        return Iterables.find(evaluatedGenome, new Predicate<Gene<?>>() {
-                            @Override
-                            public boolean apply(Gene<?> gene) {
-                                return gene.isMutatedVersionOf(indexedGene);
-                            }
-                        });
-                    }
-                });
-
+                final Iterable<ForwardingGene<?>> thisGenes = compatibilityDefiningProperty.getGenes();
+                final Iterable<Gene<?>> thatGenes = evaluatedGenome.findCopiesFor(thisGenes);
                 matingProbability = Genes.normalizedDistance(thisGenes, thatGenes);
             }
 

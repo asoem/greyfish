@@ -51,14 +51,13 @@ public class DefaultGene<T> implements Gene<T> {
     }
 
     @Override
-    public boolean isMutatedVersionOf(Gene<?> gene) {
-        return this.getSupplierClass().equals(gene.getSupplierClass())
-                && this.getMutationFunction().equals(gene.getMutationFunction());
+    public boolean isMutatedCopyOf(Gene<?> gene) {
+        return this.getMutationFunction().equals(gene.getMutationFunction());
     }
 
     @Override
     public final double distance(Gene<?> thatGene) {
-        checkArgument(this.isMutatedVersionOf(thatGene));
+        checkArgument(this.isMutatedCopyOf(thatGene));
         return mutationFunction.normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
     }
 }
