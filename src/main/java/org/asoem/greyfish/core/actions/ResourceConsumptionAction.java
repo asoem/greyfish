@@ -180,7 +180,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         @Override public ResourceConsumptionAction build() { return new ResourceConsumptionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
         private DoubleProperty consumerProperty = null;
         private String parameterMessageType = "";
         private double amountPerRequest = 0;

@@ -11,7 +11,7 @@ import org.asoem.greyfish.utils.RandomUtils;
 import org.uncommons.maths.random.GaussianGenerator;
 
 @ClassGroup(tags="property")
-public final class GeneticDoubleProperty extends PropertyDecorator implements DiscreteProperty<Double>, OrderedSet<Double> {
+public final class GeneticDoubleProperty extends PropertyDecorator implements OrderedSetProperty<Double> {
 
     private final DoubleProperty delegate;
 

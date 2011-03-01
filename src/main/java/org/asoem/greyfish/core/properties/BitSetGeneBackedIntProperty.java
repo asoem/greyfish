@@ -17,7 +17,7 @@ import org.uncommons.maths.binary.BitString;
  * Time: 14:20
  */
 @ClassGroup(tags = {"property"})
-public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements DiscreteProperty, OrderedSet<Double> {
+public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements OrderedSetProperty<Double> {
 
     private final static int BITSTRINGLENGTH = 10;
 
@@ -25,7 +25,7 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements D
     private final MutationOperator<BitString> mutationOperator = new MutationOperator<BitString>() {
         @Override
         public BitString mutate(BitString original) {
-            return BitStringUtils.mutate(original.clone(), 0.001);
+            return BitStringUtils.mutate(original.clone(), 0.1);
         }
 
         @Override
@@ -39,8 +39,7 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements D
         }
     };
 
-    private final Gene<BitString> bitStringGene = registerGene(
-            new DefaultGene<BitString>(new BitString(BITSTRINGLENGTH, RandomUtils.RNG), BitString.class, mutationOperator));
+    private final Gene<BitString> bitStringGene;
 
     @SuppressWarnings("unused") // used in the deserialization process
     private BitSetGeneBackedIntProperty() {
@@ -49,6 +48,7 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements D
 
     protected BitSetGeneBackedIntProperty(BitSetGeneBackedIntProperty doubleOrderedSetProperty, CloneMap cloneMap) {
         super(doubleOrderedSetProperty, cloneMap);
+        bitStringGene = registerGene(DefaultGene.newMutatedCopy(doubleOrderedSetProperty.bitStringGene));
     }
 
     @Override
@@ -74,11 +74,13 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements D
 
     protected BitSetGeneBackedIntProperty(Builder builder) {
         super(builder);
+        bitStringGene = registerGene(
+            new DefaultGene<BitString>(new BitString(BITSTRINGLENGTH, RandomUtils.RNG), BitString.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }
 
-    public static final class Builder extends OrderedSetProperty.AbstractBuilder<Builder, Double> implements BuilderInterface<BitSetGeneBackedIntProperty> {
+    public static final class Builder extends AbstractOrderedSetProperty.AbstractBuilder<Builder, Double> implements BuilderInterface<BitSetGeneBackedIntProperty> {
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override public BitSetGeneBackedIntProperty build() { return new BitSetGeneBackedIntProperty(this); }

@@ -15,7 +15,7 @@ import org.simpleframework.xml.Element;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @ClassGroup(tags="actions")
-public class MatingTransmitterAction extends ContractNetResponderAction {
+public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Element(name="messageType", required=false)
     private String ontology;
@@ -65,6 +65,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) {
+
         final Genome sperm = getComponentOwner().getGenome();
 
         return message.replyFrom(getComponentOwner().getId())
@@ -94,7 +95,7 @@ public class MatingTransmitterAction extends ContractNetResponderAction {
         @Override public MatingTransmitterAction build() { return new MatingTransmitterAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
         private String ontology;
 
         public T offersSpermToMatesOfType(String ontology) { this.ontology = checkNotNull(ontology); return self(); }

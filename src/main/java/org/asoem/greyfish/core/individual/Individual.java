@@ -123,6 +123,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
+    public boolean hasMessages(MessageTemplate template) {
+        return Iterables.any(inBox, template);
+    }
+
+    @Override
     public Color getColor() {
         return body.getColor();
     }

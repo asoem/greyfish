@@ -204,6 +204,11 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
+    public boolean hasMessages(MessageTemplate template) {
+        return delegate.hasMessages(template);
+    }
+
+    @Override
     public void addMessages(Iterable<? extends ACLMessage> messages) {
         delegate.addMessages(messages);
     }
@@ -212,8 +217,6 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     public void addMessage(ACLMessage messages) {
         delegate.addMessage(messages);
     }
-
-
 
     @Override
     public float getAge() {

@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -21,7 +20,8 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.*;
+import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 /**
  * @author christoph
@@ -91,8 +91,8 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 
     public boolean receiveGenome(EvaluatedGenome genome) {
         spermBuffer.addGenome(genome, genome.getFitness());
-        if (GreyfishLogger.isTraceEnabled())
-            GreyfishLogger.trace(getComponentOwner() + " received sperm: " + genome);
+        if (GFACTIONS_LOGGER.hasTraceEnabled())
+            GFACTIONS_LOGGER.trace(getComponentOwner() + " received sperm: " + genome);
         return true;
     }
 
@@ -140,8 +140,8 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
             final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
             sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
             sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-            if (isDebugEnabled())
-                debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
+            if (GFACTIONS_LOGGER.hasDebugEnabled())
+                GFACTIONS_LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
             return ! Iterables.isEmpty(sensedMates);
         }
         return false;
@@ -173,13 +173,13 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
         @Override public MatingReceiverAction build() {
             checkState(spermBuffer != null, "Builder must define a valid spermBuffer.");
             if (sensorRange <= 0)
-                warn(MatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
+                CORE_LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))
-                warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
+                CORE_LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
             return new MatingReceiverAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
         protected EvaluatedGenomeStorage spermBuffer = null;
         protected String ontology = "";
         protected double sensorRange = 1.0;

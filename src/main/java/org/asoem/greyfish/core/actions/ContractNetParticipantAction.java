@@ -9,16 +9,16 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
-import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
-public abstract class ContractNetResponderAction extends FiniteStateAction {
+public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
     private static final String CHECK_CFP = "Check-cfp";
     private static final String WAIT_FOR_ACCEPT = "Wait-for-accept";
@@ -31,7 +31,7 @@ public abstract class ContractNetResponderAction extends FiniteStateAction {
     private int nExpectedProposeAnswers;
     private MessageTemplate template = MessageTemplate.alwaysFalse();
 
-    protected ContractNetResponderAction(ContractNetResponderAction cloneable, CloneMap cloneMap) {
+    protected ContractNetParticipantAction(ContractNetParticipantAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
         initFSM();
     }
@@ -40,7 +40,7 @@ public abstract class ContractNetResponderAction extends FiniteStateAction {
         return template;
     }
 
-    public ContractNetResponderAction(AbstractGFAction.AbstractBuilder<?> builder) {
+    public ContractNetParticipantAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
         initFSM();
     }
@@ -62,8 +62,8 @@ public abstract class ContractNetResponderAction extends FiniteStateAction {
                         cfpReply = message.replyFrom(getComponentOwner().getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
-                        if (isDebugEnabled())
-                            debug("Message not understood", e);
+                        if (GFACTIONS_LOGGER.hasDebugEnabled())
+                            GFACTIONS_LOGGER.debug("Message not understood", e);
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
@@ -96,12 +96,12 @@ public abstract class ContractNetResponderAction extends FiniteStateAction {
                             handleReject(receivedMessage);
                             break;
                         case NOT_UNDERSTOOD:
-                            if (isDebugEnabled())
-                                debug("Communication Error: Message not understood");
+                            if (GFACTIONS_LOGGER.hasDebugEnabled())
+                                GFACTIONS_LOGGER.debug("Communication Error: Message not understood");
                             break;
                         default:
-                            if (isDebugEnabled())
-                                debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD." +
+                            if (GFACTIONS_LOGGER.hasDebugEnabled())
+                                GFACTIONS_LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD." +
                                         "Received " + receivedMessage.getPerformative());
                             break;
                     }
@@ -120,8 +120,8 @@ public abstract class ContractNetResponderAction extends FiniteStateAction {
 
             @Override
             public String action() {
-                if (isDebugEnabled())
-                    debug(ContractNetInitiatiorAction.class.getSimpleName() + ": TIMEOUT");
+                if (GFACTIONS_LOGGER.hasDebugEnabled())
+                    GFACTIONS_LOGGER.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": TIMEOUT");
                 return TIMEOUT;
             }
         });
@@ -132,6 +132,11 @@ public abstract class ContractNetResponderAction extends FiniteStateAction {
                 return END;
             }
         });
+    }
+
+    @Override
+    public boolean evaluate(Simulation simulation) {
+        return hasMessages(createCFPTemplate(getOntology())) && super.evaluate(simulation);
     }
 
     protected abstract String getOntology();

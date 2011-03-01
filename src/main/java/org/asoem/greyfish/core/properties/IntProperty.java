@@ -6,7 +6,7 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 
 @ClassGroup(tags="property")
-public class IntProperty extends OrderedSetProperty<Integer> {
+public class IntProperty extends AbstractOrderedSetProperty<Integer> {
 
     private IntProperty() {
         this(new Builder());
@@ -45,5 +45,5 @@ public class IntProperty extends OrderedSetProperty<Integer> {
         @Override public IntProperty build() { return new IntProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends OrderedSetProperty.AbstractBuilder<T, Integer> {}
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractOrderedSetProperty.AbstractBuilder<T, Integer> {}
 }

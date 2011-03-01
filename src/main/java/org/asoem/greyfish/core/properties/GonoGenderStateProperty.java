@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutationOperator;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -42,32 +42,32 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
         }
     }
 
-    private final Supplier<Integer> gene = registerGene(
-            new DefaultGene<Integer>(RandomUtils.nextBoolean() ? 0 : 1, Integer.class, new MutationOperator<Integer>() {
-                private final static double SEX_ASEX_TRANSITION_PROBABILITY = 0.001;
+    private final MutationOperator<Integer> mutationOperator = new MutationOperator<Integer>() {
+        private final static double SEX_ASEX_TRANSITION_PROBABILITY = 0.001;
 
-                @Override
-                public Integer mutate(Integer original) {
-                    return RandomUtils.nextDouble() < SEX_ASEX_TRANSITION_PROBABILITY ?
-                            Gender.ASEX.ordinal() :
-                            RandomUtils.nextBoolean() ?
-                                    Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
-                }
+        @Override
+        public Integer mutate(Integer original) {
+            return RandomUtils.nextDouble() < SEX_ASEX_TRANSITION_PROBABILITY ?
+                    Gender.ASEX.ordinal() :
+                    RandomUtils.nextBoolean() ?
+                            Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
+        }
 
-                @Override
-                public double normalizedDistance(Integer orig, Integer copy) {
-                    return 1;
-                }
+        @Override
+        public double normalizedDistance(Integer orig, Integer copy) {
+            return 1;
+        }
 
-                @Override
-                public double normalizedWeightedDistance(Integer orig, Integer copy) {
-                    return normalizedDistance(orig, copy) * 0.1;
-                }
-            }
-    ));
+        @Override
+        public double normalizedWeightedDistance(Integer orig, Integer copy) {
+            return normalizedDistance(orig, copy) * 0.1;
+        }
+    };
+    private final Gene<Integer> gene;
 
     public GonoGenderStateProperty(GonoGenderStateProperty gonoGenderStateProperty, CloneMap cloneMap) {
         super(gonoGenderStateProperty, cloneMap);
+        gene = DefaultGene.newMutatedCopy(gonoGenderStateProperty.gene);
     }
 
     @Override
@@ -92,6 +92,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     protected GonoGenderStateProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
+        gene = registerGene(new DefaultGene<Integer>(RandomUtils.nextBoolean() ? 0 : 1, Integer.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }

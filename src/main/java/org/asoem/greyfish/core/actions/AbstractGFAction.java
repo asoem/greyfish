@@ -23,8 +23,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
-import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
@@ -49,8 +48,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         // test for energy
         double needed = evaluateFormula();
         if (energySource != null && energySource.get().compareTo(needed) < 0) {
-            if (isDebugEnabled())
-                debug("Evaluation of " + this + " evaluated to false for energy reasons. " +
+            if (GFACTIONS_LOGGER.hasDebugEnabled())
+                GFACTIONS_LOGGER.debug("Evaluation of " + this + " evaluated to false for energy reasons. " +
                         "Needed=" + needed + "; available=" + energySource.get());
             return false;
         }
@@ -212,5 +211,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected List<ACLMessage> receiveMessages(MessageTemplate template) {
         return getComponentOwner().pollMessages(template);
+    }
+
+    protected boolean hasMessages(MessageTemplate template) {
+        return getComponentOwner().hasMessages(template);
     }
 }

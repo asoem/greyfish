@@ -8,7 +8,6 @@ import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -20,6 +19,7 @@ import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 /**
  * @author christoph
@@ -50,7 +50,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
         catch (EvaluationException e) {
-            GreyfishLogger.warn("CostsFormula is not a valid expression", e);
+            CORE_LOGGER.warn("CostsFormula is not a valid expression", e);
             return 0;
         }
     }

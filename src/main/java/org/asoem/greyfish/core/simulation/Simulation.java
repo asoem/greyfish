@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.PostOffice;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.*;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Location2DInterface;
@@ -33,8 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
-import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
-import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
+import static org.asoem.greyfish.core.io.GreyfishLogger.SIMULATION_LOGGER;
 import static org.asoem.greyfish.core.simulation.Simulation.CommandType.*;
 import static org.asoem.greyfish.core.space.Location2D.at;
 
@@ -137,12 +135,12 @@ public class Simulation implements Runnable {
         initialize();
         setSpeed(Speed.MEDIUM);
 
-        if (GreyfishLogger.isTraceEnabled())
+        if (SIMULATION_LOGGER.hasTraceEnabled())
             listenerSupport.addListener(new SimulationListener() {
 
                 @Override
                 public void simulationStep(Simulation source) {
-                    GreyfishLogger.trace("End of simulation step " + source.getSteps());
+                    SIMULATION_LOGGER.trace("End of simulation step " + source.getSteps());
                 }
             });
     }
@@ -154,7 +152,7 @@ public class Simulation implements Runnable {
         try {
             objectPool.clear();
         } catch (Exception e) {
-            GreyfishLogger.error("Error clearing prototype pool", e);
+            SIMULATION_LOGGER.error("Error clearing prototype pool", e);
             System.exit(1);
         }
 
@@ -182,7 +180,8 @@ public class Simulation implements Runnable {
 
     private void addAgent(Agent individual, Location2DInterface location) {
         checkAgent(individual);
-        if (isDebugEnabled()) debug("Adding Agent to " + this + ": " + individual);
+        if (SIMULATION_LOGGER.hasDebugEnabled())
+            SIMULATION_LOGGER.debug("Adding Agent to " + this + ": " + individual);
         individual.initialize(this);
         concurrentAgentsView.add(individual);
         individual.setAnchorPoint(location);
@@ -220,7 +219,7 @@ public class Simulation implements Runnable {
         try {
             objectPool.returnObject(individual.getPopulation(), individual.getIndividual());
         } catch (Exception e) {
-            GreyfishLogger.error("Error in prototype pool", e);
+            SIMULATION_LOGGER.error("Error in prototype pool", e);
         }
     }
 
@@ -269,7 +268,7 @@ public class Simulation implements Runnable {
         try {
             return Agent.newInstance(Individual.class.cast(objectPool.borrowObject(population)), this);
         } catch (Exception e) {
-            GreyfishLogger.fatal("Error using objectPool", e);
+            SIMULATION_LOGGER.fatal("Error using objectPool", e);
             System.exit(1);
         }
         return null;
@@ -346,7 +345,7 @@ public class Simulation implements Runnable {
 
             } while(true);
         } catch (InterruptedException e) {
-            GreyfishLogger.debug("Tread interrupted!");
+            SIMULATION_LOGGER.warn("Tread interrupted!");
         }
     }
 
@@ -429,41 +428,55 @@ public class Simulation implements Runnable {
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     private void processAgents() {
-        if (isDebugEnabled()) debug("==== " + this + ": processing " + individuals.size() + " Agents");
+        if (SIMULATION_LOGGER.hasDebugEnabled())
+            SIMULATION_LOGGER.debug(this + ": processing " + individuals.size() + " Agents");
 
         if ((individuals.size() < 100) || (Runtime.getRuntime().availableProcessors() == 1)) {
             processAgents(individuals.head(), individuals.tail());
         }
         else {
-            if (isDebugEnabled()) debug("Splitting execution in two threads");
+            if (SIMULATION_LOGGER.hasTraceEnabled())
+                SIMULATION_LOGGER.trace("Splitting execution in two threads");
+
             FastList.Node<Agent> node = individuals.head();
             int middleIndex = individuals.size() >> 1;
             do node = node.getNext(); while (--middleIndex != 0);
             final FastList.Node<Agent> middleNode = node;
+
             final CountDownLatch doneSignal = new CountDownLatch(2);
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (isDebugEnabled()) debug("Thread1 starts");
+                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                        SIMULATION_LOGGER.trace("Thread1 starts");
+
                     processAgents(individuals.head(), middleNode);
                     doneSignal.countDown();
-                    if (isDebugEnabled()) debug("Thread1 done");
+
+                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                        SIMULATION_LOGGER.trace("Thread1 done");
                 }
             });
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (isDebugEnabled()) debug("Thread2 starts");
+                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                        SIMULATION_LOGGER.trace("Thread2 starts");
+
                     processAgents(middleNode.getPrevious(), individuals.tail());
                     doneSignal.countDown();
-                    if (isDebugEnabled()) debug("Thread2 done");
+
+                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                        SIMULATION_LOGGER.trace("Thread2 done");
                 }
             });
             try {
                 doneSignal.await(); // wait for all to finish
-                if (isDebugEnabled()) debug("All threads done");
+                if (SIMULATION_LOGGER.hasTraceEnabled())
+                    SIMULATION_LOGGER.trace("All threads done");
+
             } catch (InterruptedException ie) {
-                GreyfishLogger.error("Error awaiting the the threads to finish their task in Simulation#processAgents", ie);
+                SIMULATION_LOGGER.error("Error awaiting the the threads to finish their task in Simulation#processAgents", ie);
             }
         }
     }
@@ -475,7 +488,8 @@ public class Simulation implements Runnable {
     }
 
     private void updateEnvironment() {
-        if (isDebugEnabled()) debug("==== " + this + ": processing " + commanListMap.size() + " update-commands");
+        if (SIMULATION_LOGGER.hasDebugEnabled())
+            SIMULATION_LOGGER.debug(this + ": processing " + commanListMap.size() + " Update-Commands");
 
         final CountDownLatch doneSignal = new CountDownLatch(2);
 
@@ -483,7 +497,9 @@ public class Simulation implements Runnable {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                if (isDebugEnabled()) debug("Thread1 starts");
+                if (SIMULATION_LOGGER.hasTraceEnabled())
+                    SIMULATION_LOGGER.trace("Thread1 starts");
+
                 for (Command command : commanListMap.get(MESSAGE)) {
                     command.execute();
                 }
@@ -491,7 +507,9 @@ public class Simulation implements Runnable {
                 postOffice.deliverOrDiscard(getAgents());
 
                 doneSignal.countDown();
-                if (isDebugEnabled()) debug("Thread1 done");
+
+                if (SIMULATION_LOGGER.hasTraceEnabled())
+                    SIMULATION_LOGGER.trace("Thread1 done");
             }
         });
 
@@ -499,7 +517,8 @@ public class Simulation implements Runnable {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                if (isDebugEnabled()) debug("Thread2 starts");
+                if (SIMULATION_LOGGER.hasTraceEnabled())
+                    SIMULATION_LOGGER.trace("Thread2 starts");
 
                 for (Command command : commanListMap.get(AGENT_REMOVE)) {
                     command.execute();
@@ -516,14 +535,18 @@ public class Simulation implements Runnable {
                 space.updateTopo();
 
                 doneSignal.countDown();
-                if (isDebugEnabled()) debug("Thread2 done");
+
+                if (SIMULATION_LOGGER.hasTraceEnabled())
+                    SIMULATION_LOGGER.trace("Thread2 done");
             }
         });
         try {
             doneSignal.await(); // wait for all to finish
-            if (isDebugEnabled()) debug("All threads done");
+            if (SIMULATION_LOGGER.hasDebugEnabled())
+                SIMULATION_LOGGER.debug("All threads done");
+
         } catch (InterruptedException ie) {
-            GreyfishLogger.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
+            SIMULATION_LOGGER.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
         }
 
         commanListMap.clear();
@@ -545,7 +568,7 @@ public class Simulation implements Runnable {
 
     @Override
     public String toString() {
-        return "Sim[" + getTitle() + "] running '" + scenario + "'";
+        return "Simulation['" + getTitle() + "'] for " + scenario;
     }
 
     public String getTitle() {

@@ -14,7 +14,7 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import java.awt.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.*;
+import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 public class Agent extends GFAgentDecorator implements IndividualInterface, Object2DInterface, Initializeable {
 
@@ -133,14 +133,14 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
         }
         try {
             if (toExecute != null) {
-                if (isTraceEnabled()) trace("Executing " + toExecute);
+                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Executing " + toExecute);
                 toExecute.executeUnevaluated(simulation);
                 lastExecutedAction = toExecute;
             } else {
-                if (isTraceEnabled()) trace("Found no Action to execute.");
+                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Found no Action to execute.");
             }
         } catch (RuntimeException e) {
-            error("Error during execution of " + toExecute + " for " + this, e);
+            CORE_LOGGER.error("Error during execution of " + toExecute + " for " + this, e);
         }
     }
 
@@ -237,7 +237,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     @Override
     public String toString() {
-        return "Agent#" + id + "(" + getPopulation() + ")[" + getGenome() + "]";
+        return "Agent#" + id + "('" + getPopulation() + "'@" + getGenome() + ")";
     }
 
     public Individual getIndividual() {

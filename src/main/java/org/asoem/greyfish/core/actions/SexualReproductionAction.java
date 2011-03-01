@@ -13,6 +13,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 @ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
@@ -37,6 +38,9 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     protected void performAction(Simulation simulation) {
         assert(!spermStorage.isEmpty());
+
+        if (GFACTIONS_LOGGER.hasDebugEnabled())
+            GFACTIONS_LOGGER.debug("Producing " + nOffspring + " offspring");
 
         for (int i = 0; i < nOffspring; i++) {
             simulation.createAgent(

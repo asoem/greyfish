@@ -17,6 +17,8 @@ public class ForwardingGene<T> implements Gene<T> {
 
     @SuppressWarnings("unchecked")
     public void setDelegate(Gene<?> newDelegate) {
+        if (checkNotNull(newDelegate) == this)
+            throw new IllegalArgumentException("Delegation to 'this' is not allowed");
         checkArgument(getSupplierClass().equals(newDelegate.getSupplierClass()),
                 "type of the given newDelegate's supplier class do not match this newDelegate's supplier class: "
                         + delegate.getSupplierClass() + " != " + newDelegate.getSupplierClass());
@@ -55,5 +57,10 @@ public class ForwardingGene<T> implements Gene<T> {
     @Override
     public double distance(Gene<?> thatGene) {
         return delegate.distance(thatGene);
+    }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
     }
 }

@@ -44,5 +44,7 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     GFAction getLastExecutedAction();
 
     void execute();
+
     List<ACLMessage> pollMessages(MessageTemplate template);
+    boolean hasMessages(MessageTemplate template);
 }

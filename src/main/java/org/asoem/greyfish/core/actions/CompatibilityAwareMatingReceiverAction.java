@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -21,7 +20,7 @@ import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.*;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 /**
  * User: christoph
@@ -109,11 +108,11 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         });
     }
 
-    public boolean receiveGenome(EvaluatedGenome genome) {
+    private boolean receiveGenome(EvaluatedGenome genome) {
         if (spermBuffer != null) {
             spermBuffer.addGenome(genome, genome.getFitness());
-            if (GreyfishLogger.isTraceEnabled())
-                GreyfishLogger.trace(getComponentOwner() + " received sperm: " + genome);
+            if (GFACTIONS_LOGGER.hasTraceEnabled())
+                GFACTIONS_LOGGER.trace(getComponentOwner() + " received sperm: " + genome);
             return true;
         }
         return false;
@@ -148,16 +147,20 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
             if (compatibilityDefiningProperty != null) {
                 final Iterable<ForwardingGene<?>> thisGenes = compatibilityDefiningProperty.getGenes();
                 final Iterable<Gene<?>> thatGenes = evaluatedGenome.findCopiesFor(thisGenes);
-                matingProbability = Genes.normalizedDistance(thisGenes, thatGenes);
+                matingProbability = 1 - Genes.normalizedDistance(thisGenes, thatGenes);
             }
 
             if (RandomUtils.nextDouble() <= matingProbability) {
+                if (GFACTIONS_LOGGER.hasDebugEnabled())
+                    GFACTIONS_LOGGER.debug("Accepting mating proposal with p=" + matingProbability);
                 receiveGenome(evaluatedGenome);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             }
-            else
+            else {
+                if (GFACTIONS_LOGGER.hasDebugEnabled())
+                    GFACTIONS_LOGGER.debug("Refusing mating proposal with p=" + matingProbability);
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
-
+            }
         } catch (IllegalArgumentException e) {
             throw new NotUnderstoodException("MessageContent is not a genome");
         }
@@ -176,8 +179,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
             final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
             sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
             sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-            if (isDebugEnabled())
-                debug(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
+            if (GFACTIONS_LOGGER.hasDebugEnabled())
+                GFACTIONS_LOGGER.debug(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
             return ! Iterables.isEmpty(sensedMates);
         }
         return false;
@@ -210,13 +213,13 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         @Override protected Builder self() { return this; }
         @Override public CompatibilityAwareMatingReceiverAction build() {
             if (sensorRange <= 0)
-                warn(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
+                GFACTIONS_LOGGER.warn(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))
-                warn(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
+                GFACTIONS_LOGGER.warn(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
             return new CompatibilityAwareMatingReceiverAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
         protected EvaluatedGenomeStorage spermBuffer = null;
         protected String ontology = "";
         protected double sensorRange = 1.0;

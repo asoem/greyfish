@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
-import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GUI_LOGGER;
 
 /**
  * @author christoph
@@ -284,8 +283,8 @@ public class TiledSpace implements Space {
     @Override
     public boolean canMove(Object2DInterface object2d, Location2DInterface newLocation) {
         if (!covers(object2d)) {
-            if (isDebugEnabled())
-                debug("No TileLocation for " + object2d.getAnchorPoint() + " in " + this);
+            if (GUI_LOGGER.hasDebugEnabled())
+                GUI_LOGGER.debug("No TileLocation for " + object2d.getAnchorPoint() + " in " + this);
             return false;
         }
 

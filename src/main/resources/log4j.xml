@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
-    <log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
     <!--
       This default ConsoleAppender is used to log all NON perf4j messages
       to System.out
     -->
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="greyfishFileAppender" class="org.apache.log4j.FileAppender">
+        <param name="File" value="logs/Greyfish.log"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>
         </layout>
@@ -46,9 +53,31 @@
       that timing statements will only be sent to this logger and NOT to
       upstream loggers.
     -->
-    <logger name="org.perf4j.TimingLogger" additivity="false">
+    <logger name="org.perf4j.TimingLogger" additivity="true">
         <level value="INFO"/>
         <appender-ref ref="CoalescingStatistics"/>
+    </logger>
+
+
+    <logger name="org.asoem.greyfish" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="greyfishFileAppender"/>
+    </logger>
+
+    <logger name="org.asoem.greyfish.core" additivity="true">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="org.asoem.greyfish.core.simulation" additivity="true">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="org.asoem.greyfish.core.actions" additivity="false">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="org.asoem.greyfish.gui" additivity="true">
+        <level value="INFO"/>
     </logger>
 
     <!--

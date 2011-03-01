@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
@@ -12,6 +11,8 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+
+import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 @Root
 public class Prototype extends GFAgentDecorator implements IndividualInterface {
@@ -151,8 +152,8 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
         if(component.getComponentOwner() != null
                 && component.getComponentOwner() != this) {
-            if (GreyfishLogger.isDebugEnabled())
-                GreyfishLogger.debug("Component already part of another individual");
+            if (CORE_LOGGER.hasDebugEnabled())
+                CORE_LOGGER.debug("Component already part of another individual");
             return false;
         }
 

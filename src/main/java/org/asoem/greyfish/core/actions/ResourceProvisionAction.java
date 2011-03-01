@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @ClassGroup(tags="actions")
-public class ResourceProvisionAction extends ContractNetResponderAction {
+public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     @Element(name="resource")
     private ResourceProperty resourceProperty;
@@ -138,7 +138,7 @@ public class ResourceProvisionAction extends ContractNetResponderAction {
             return new ResourceProvisionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetResponderAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
         protected ResourceProperty resourceProperty;
         protected String parameterMessageType;
 

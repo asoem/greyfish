@@ -9,7 +9,6 @@ import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.VariableResolver;
 import net.sourceforge.jeval.function.FunctionException;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.ContinuosProperty;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -21,8 +20,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.debug;
-import static org.asoem.greyfish.core.io.GreyfishLogger.isDebugEnabled;
+import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 public enum GreyfishMathExpression {
     INSTANCE;
@@ -53,7 +51,7 @@ public enum GreyfishMathExpression {
                     evaluator.parse(expression);
                     parserCache.put(expression, evaluator);
                 } catch (EvaluationException e) {
-                    if (isDebugEnabled()) debug("Failed to parse expression", e);
+                    if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to parse expression", e);
                     parserCache.put(expression, 0); // future calls will also fail
                     return 0;
                 }
@@ -67,9 +65,9 @@ public enum GreyfishMathExpression {
                 ret = Double.valueOf(evaluator.evaluate());
             }
         } catch (EvaluationException e) {
-            if (isDebugEnabled()) debug("Failed to evaluate expression", e);
+            if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to evaluate expression", e);
         } catch (NumberFormatException e) {
-            if (isDebugEnabled()) debug("Failed to convert to Double", e);
+            if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to convert to Double", e);
         }
 
         return ret;
@@ -83,13 +81,13 @@ public enum GreyfishMathExpression {
 
                 final Scanner scanner = new Scanner(arg0).useDelimiter(Pattern.compile("\\."));
                 if (!scanner.hasNext()) {
-                    GreyfishLogger.warn("Scanner was unable to scan input using delimiter '.':" + arg0);
+                    CORE_LOGGER.warn("Scanner was unable to scan input using delimiter '.':" + arg0);
                     return "0";
                 }
                 final String token1 = scanner.next();
                 if ("property".equals(token1)) {
                     if (!scanner.hasNext()) {
-                        GreyfishLogger.warn("Scanner found nothing after token 'property':" + arg0);
+                        CORE_LOGGER.warn("Scanner found nothing after token 'property':" + arg0);
                         return "0";
                     }
                     final String token2 = scanner.next();
@@ -107,7 +105,7 @@ public enum GreyfishMathExpression {
                                         });
                         return String.valueOf(property.getAmount());
                     } catch(NoSuchElementException e) {
-                        GreyfishLogger.warn(e);
+                        CORE_LOGGER.warn(e);
                         return "0";
                     }
                 }
@@ -116,7 +114,7 @@ public enum GreyfishMathExpression {
                     final Simulation simulation = individualInterface.getSimulation();
 
                     if (!scanner.hasNext()) {
-                        GreyfishLogger.warn("Scanner found nothing after token 'env':" + arg0);
+                        CORE_LOGGER.warn("Scanner found nothing after token 'env':" + arg0);
                         return "0";
                     }
                     final String token2 = scanner.next();
@@ -151,7 +149,7 @@ public enum GreyfishMathExpression {
                     }
                 }
 
-                GreyfishLogger.warn("No match for variable: " + arg0);
+                CORE_LOGGER.warn("No match for variable: " + arg0);
                 return "0";
             }
         };

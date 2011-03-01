@@ -3,9 +3,10 @@ package org.asoem.greyfish.core.utils;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
+
+import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 public class GFComponents {
 
@@ -25,7 +26,7 @@ public class GFComponents {
             }
         }
         catch (Exception e) {
-            GreyfishLogger.fatal("Could not instantiate class", e);
+            CORE_LOGGER.fatal("Could not instantiate class", e);
             System.exit(1);
         }
         return null;

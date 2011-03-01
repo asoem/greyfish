@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
@@ -11,8 +10,7 @@ import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.all;
-import static org.asoem.greyfish.core.io.GreyfishLogger.isTraceEnabled;
-import static org.asoem.greyfish.core.io.GreyfishLogger.trace;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 public abstract class FiniteStateAction extends AbstractGFAction {
 
@@ -38,24 +36,24 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     protected final void performAction(Simulation simulation) {
+        if (states.isEmpty()) {
+            GFACTIONS_LOGGER.warn(this + " has no states defined; Execution stopped.");
+            return;
+        }
+
         if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
-            if (isTraceEnabled())
-                trace(this + ": EndTransition to " + initialStateName);
+            if (GFACTIONS_LOGGER.hasTraceEnabled())
+                GFACTIONS_LOGGER.trace(this + ": EndTransition to " + initialStateName);
             currentStateName = initialStateName;                                assert currentStateName != null;
         }
 
         StateAction stateActionToExecute = states.get(currentStateName);        assert stateActionToExecute != null;
         String nextStateName = stateActionToExecute.action();                   assert nextStateName != null;
 
-        if (isTraceEnabled())
-            trace(this + ": Transition to " + nextStateName);
+        if (GFACTIONS_LOGGER.hasTraceEnabled())
+            GFACTIONS_LOGGER.trace(this + ": Transition to " + nextStateName);
 
         currentStateName = nextStateName;
-    }
-
-    @Override
-    public boolean evaluate(Simulation simulation) {
-        return super.evaluate(simulation) && ! states.isEmpty();
     }
 
     @Override
@@ -78,7 +76,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
                     "Not all EndStateNames "+endStateNames+" have an actual state in "+states);
         }
         else
-            GreyfishLogger.warn("FiniteStateAction has no states defined: " + this);
+            GFACTIONS_LOGGER.warn("FiniteStateAction has no states defined: " + this);
     }
 
     @Override
@@ -105,6 +103,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + "]" + "{state='" + currentStateName + '}' + "@" + getComponentOwner();
+        return this.getClass().getSimpleName() + "('" + name + "'@" + currentStateName + ")";
     }
 }
