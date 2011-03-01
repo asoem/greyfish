@@ -5,7 +5,6 @@ import com.google.common.base.Supplier;
 import com.jgoodies.binding.value.ValueModel;
 import com.jgoodies.validation.Validatable;
 import com.jgoodies.validation.ValidationResult;
-import org.asoem.greyfish.core.io.GreyfishLogger;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,6 +12,7 @@ import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Field;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GUI_LOGGER;
 
 
 public abstract class ValueAdaptor<T> implements ValueModel, Validatable, PropertyChangeListener, Supplier<T> {
@@ -89,7 +89,7 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
                     try {
                         field.set(o, checkNotNull(arg0));
                     } catch (IllegalAccessException e) {
-                        GreyfishLogger.error("Cannot set value of field " + fieldName + " for object " + o, e);
+                        GUI_LOGGER.error("Cannot set value of field " + fieldName + " for object " + o, e);
                     }
                 }
 
@@ -98,13 +98,13 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
                     try {
                         return clazz.cast(field.get(o));
                     } catch (IllegalAccessException e) {
-                        GreyfishLogger.error("Cannot get value of field " + fieldName + " for object " + o, e);
+                        GUI_LOGGER.error("Cannot get value of field " + fieldName + " for object " + o, e);
                     }
                     return null;
                 }
             };
         } catch (NoSuchFieldException e) {
-            GreyfishLogger.error("Could not find field " + fieldName + " for object " + o, e);
+            GUI_LOGGER.error("Could not find field " + fieldName + " for object " + o, e);
         }
         return null;
     }

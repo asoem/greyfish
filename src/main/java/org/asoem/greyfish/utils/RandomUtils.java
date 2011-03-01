@@ -52,4 +52,8 @@ public class RandomUtils {
 	public static float nextFloat() {
 		return RNG.nextFloat();
 	}
+
+    public static boolean trueWithProbability(double probability) {
+        return nextDouble() < probability;
+    }
 }
