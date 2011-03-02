@@ -150,7 +150,11 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                     switch (receivedMessage.getPerformative()) {
 
                         case INFORM:
-                            handleInform(receivedMessage);
+                            try {
+                                handleInform(receivedMessage);
+                            } catch (NotUnderstoodException e) {
+                                GFACTIONS_LOGGER.error("ContractNetInit '" + this + "' handleInform failed: ", e);
+                            }
                             break;
 
                         case FAILURE:
@@ -238,7 +242,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
     protected void handleFailure(ACLMessage message) {
     }
 
-    protected void handleInform(ACLMessage message) {
+    protected void handleInform(ACLMessage message) throws NotUnderstoodException {
     }
 
     protected abstract String getOntology();

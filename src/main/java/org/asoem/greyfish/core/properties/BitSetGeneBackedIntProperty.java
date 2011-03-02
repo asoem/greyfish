@@ -21,24 +21,6 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements O
 
     private final static int BITSTRINGLENGTH = 10;
 
-    // CAVE! The final modifier requires that getUpperBound() and getLowerBound() return the same value in all deepClones!
-    private final MutationOperator<BitString> mutationOperator = new MutationOperator<BitString>() {
-        @Override
-        public BitString mutate(BitString original) {
-            return BitStringUtils.mutate(original.clone(), 0.1);
-        }
-
-        @Override
-        public double normalizedDistance(BitString orig, BitString copy) {
-            return orig.toNumber().subtract(copy.toNumber()).doubleValue() / (getUpperBound() - getLowerBound());
-        }
-
-        @Override
-        public double normalizedWeightedDistance(BitString orig, BitString copy) {
-            return normalizedDistance(orig, copy);
-        }
-    };
-
     private final Gene<BitString> bitStringGene;
 
     @SuppressWarnings("unused") // used in the deserialization process
@@ -74,6 +56,22 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements O
 
     protected BitSetGeneBackedIntProperty(Builder builder) {
         super(builder);
+        MutationOperator<BitString> mutationOperator = new MutationOperator<BitString>() {
+            @Override
+            public BitString mutate(BitString original) {
+                return BitStringUtils.mutate(original, 0.1);
+            }
+
+            @Override
+            public double normalizedDistance(BitString orig, BitString copy) {
+                return orig.toNumber().subtract(copy.toNumber()).doubleValue() / (getUpperBound() - getLowerBound());
+            }
+
+            @Override
+            public double normalizedWeightedDistance(BitString orig, BitString copy) {
+                return normalizedDistance(orig, copy);
+            }
+        };
         bitStringGene = registerGene(
             new DefaultGene<BitString>(new BitString(BITSTRINGLENGTH, RandomUtils.RNG), BitString.class, mutationOperator));
     }

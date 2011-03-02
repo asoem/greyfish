@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
+import javolution.util.FastList;
+import org.asoem.greyfish.core.actions.AbstractGFAction;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -12,8 +14,10 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
+import java.util.ListIterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.actions.AbstractGFAction.ExecutionResult.EXECUTED_BLOCKING;
 import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 public class Agent extends GFAgentDecorator implements IndividualInterface, Object2DInterface, Initializeable {
@@ -25,6 +29,8 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     // dynamic during each activation
     private GFAction lastExecutedAction;
+
+    private FastList<GFAction> resumeQueue = FastList.newInstance();
 
     private Agent(Agent individual, CloneMap map) {
         super(map.clone(individual.getDelegate(), IndividualInterface.class));
@@ -119,28 +125,64 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     @Override
     public void execute() {
-        GFAction toExecute = lastExecutedAction;
+//        GFAction toExecute = lastExecutedAction;
+//
+//        if (toExecute == null
+//                || lastExecutedAction.done()) {
+//            toExecute = null;
+//            for (GFAction action : getActions()) {
+//                if (action.evaluateConditions(simulation)) {
+//                    toExecute = action;
+//                    break;
+//                }
+//            }
+//        }
+//        try {
+//            if (toExecute != null) {
+//                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Executing " + toExecute);
+//                toExecute.executeUnevaluated(simulation);
+//                lastExecutedAction = toExecute;
+//            } else {
+//                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Found no Action to execute.");
+//            }
+//        } catch (RuntimeException e) {
+//            CORE_LOGGER.error("Error during execution of " + toExecute + " for " + this, e);
+//        }
 
-        if (toExecute == null
-                || lastExecutedAction.done()) {
-            toExecute = null;
-            for (GFAction action : getActions()) {
-                if (action.evaluate(simulation)) {
-                    toExecute = action;
-                    break;
-                }
+        ListIterator<GFAction> iterator = resumeQueue.listIterator();
+        while (iterator.hasNext()) {
+            GFAction action = iterator.next();
+            AbstractGFAction.ExecutionResult result = action.execute(simulation);
+
+            if (action.done())      // TODO: Actions which are done here will get executed also in the loop below
+                iterator.remove();
+
+            switch (result) {
+                case EXECUTED_BLOCKING:
+                    return;
+                default: break;
             }
         }
-        try {
-            if (toExecute != null) {
-                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Executing " + toExecute);
-                toExecute.executeUnevaluated(simulation);
-                lastExecutedAction = toExecute;
-            } else {
-                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Found no Action to execute.");
-            }
-        } catch (RuntimeException e) {
-            CORE_LOGGER.error("Error during execution of " + toExecute + " for " + this, e);
+
+        for (GFAction action : getActions()) {
+
+            // exclude resuming actions
+            if (!action.done())
+                break;
+
+            if (CORE_LOGGER.hasDebugEnabled())
+                CORE_LOGGER.debug("Executing " + action);
+
+            AbstractGFAction.ExecutionResult result = action.execute(simulation);
+
+            if (CORE_LOGGER.hasDebugEnabled())
+                CORE_LOGGER.debug(action + " returned " + result);
+
+            if (!action.done())
+                resumeQueue.add(action);
+
+            if (result == EXECUTED_BLOCKING)
+                return;
         }
     }
 

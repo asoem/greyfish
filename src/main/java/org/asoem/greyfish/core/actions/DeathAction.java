@@ -14,14 +14,8 @@ public class DeathAction extends AbstractGFAction {
 
 	@Override
 	protected void performAction(Simulation simulation) {
-		//individual.death();
 		simulation.removeAgent(getComponentOwner());
 	}
-
-    @Override
-    public boolean evaluate(Simulation simulation) {
-        return super.evaluate(simulation);
-    }
 
     @Override
     public DeathAction deepCloneHelper(CloneMap cloneMap) {

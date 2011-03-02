@@ -127,7 +127,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
 
     @Override
     protected ACLMessage.Builder createCFP() {
-        assert(!Iterables.isEmpty(sensedMates)); // see #evaluate(Simulation)
+        assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
         return ACLMessage.with()
                 .source(getComponentOwner().getId())
@@ -174,16 +174,13 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        if ( super.evaluate(simulation) ) {
-            final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
-            sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
-            sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                GFACTIONS_LOGGER.debug(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
-            return ! Iterables.isEmpty(sensedMates);
-        }
-        return false;
+    public boolean evaluateInternalState(Simulation simulation) {
+        final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
+        sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
+        sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
+        if (GFACTIONS_LOGGER.hasDebugEnabled())
+            GFACTIONS_LOGGER.debug(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
+        return ! Iterables.isEmpty(sensedMates);
     }
 
     @Override

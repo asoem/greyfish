@@ -23,6 +23,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 @Root
@@ -39,12 +40,23 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     private int executionCount;
 
     private int timeOfLastExecution;
+    private boolean blocking = true;
+
+    public enum ExecutionResult {
+        CONDITIONS_FAILED,
+        INSUFFICIENT_ENERGY,
+        INVALID_INTERNAL_STATE,
+        EXECUTED_BLOCKING,
+        ERROR,
+        EXECUTED_NOT_BLOCKING
+    }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        if (!conditionTree.evaluate(simulation))
-            return false;
+    public final boolean evaluateConditions(Simulation simulation) {
+        return conditionTree.evaluate(simulation);
+    }
 
+    protected final boolean evaluateCosts() {
         // test for energy
         double needed = evaluateFormula();
         if (energySource != null && energySource.get().compareTo(needed) < 0) {
@@ -57,29 +69,47 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         return true;
     }
 
+    protected boolean evaluateInternalState(final Simulation simulation) {
+        return true;
+    }
+
     /**
-     * Called by the individual to evaluate the condition if set and trigger the actions
+     * Called by the individual to evaluateConditions the condition if set and trigger the actions
      * @param simulation
      */
     @Override
-    public final boolean execute(final Simulation simulation) {
-        if( evaluate(simulation) ) {
-            executeUnevaluated(simulation);
-            return true;
+    public final ExecutionResult execute(final Simulation simulation) {
+        try {
+            if (!evaluateConditions(simulation))
+                return ExecutionResult.CONDITIONS_FAILED;
+
+            if (!evaluateCosts())
+                return ExecutionResult.INSUFFICIENT_ENERGY;
+
+
+            if (!evaluateInternalState(simulation))
+                return ExecutionResult.INVALID_INTERNAL_STATE;
+
+            return executeUnevaluated(simulation);
         }
-        else {
-            return false;
+        catch (Exception e) {
+            CORE_LOGGER.error("Error during execution of " + this, e);
+            return AbstractGFAction.ExecutionResult.ERROR;
         }
     }
 
-    public void executeUnevaluated(final Simulation simulation) {
+    private ExecutionResult executeUnevaluated(final Simulation simulation) {
         performAction(simulation);
+
+
         ++executionCount;
         timeOfLastExecution = simulation.getSteps();
 
         if (energySource != null && done()) {
             energySource.subtract(evaluateFormula());
         }
+
+        return ExecutionResult.EXECUTED_BLOCKING;
     }
 
     /**
@@ -215,5 +245,14 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected boolean hasMessages(MessageTemplate template) {
         return getComponentOwner().hasMessages(template);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return blocking;
+    }
+
+    public void setBlocking(boolean blocking) {
+        this.blocking = blocking;
     }
 }

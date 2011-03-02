@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -24,15 +25,14 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Attribute(name = "reproductive_value")
     private int nOffspring = 1;
 
+    @SimpleXMLConstructor
     public SexualReproductionAction() {
         this(new Builder());
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        return super.evaluate(simulation)
-                && nOffspring > 0
-                && !spermStorage.isEmpty();
+    public boolean evaluateInternalState(Simulation simulation) {
+        return nOffspring > 0 && !spermStorage.isEmpty();
     }
 
     @Override

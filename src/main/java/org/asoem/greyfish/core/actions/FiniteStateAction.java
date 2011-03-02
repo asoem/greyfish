@@ -36,11 +36,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     protected final void performAction(Simulation simulation) {
-        if (states.isEmpty()) {
-            GFACTIONS_LOGGER.warn(this + " has no states defined; Execution stopped.");
-            return;
-        }
-
         if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
             if (GFACTIONS_LOGGER.hasTraceEnabled())
                 GFACTIONS_LOGGER.trace(this + ": EndTransition to " + initialStateName);
@@ -54,6 +49,16 @@ public abstract class FiniteStateAction extends AbstractGFAction {
             GFACTIONS_LOGGER.trace(this + ": Transition to " + nextStateName);
 
         currentStateName = nextStateName;
+    }
+
+    @Override
+    protected boolean evaluateInternalState(Simulation simulation) {
+        if (states.isEmpty()) {
+            GFACTIONS_LOGGER.warn(this + " has no states defined; Execution stopped.");
+            return false;
+        }
+
+        return true;
     }
 
     @Override

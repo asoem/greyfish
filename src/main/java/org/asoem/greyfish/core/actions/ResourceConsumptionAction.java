@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
@@ -17,6 +18,7 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.isEmpty;
+import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
@@ -35,10 +37,10 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     private Iterable<Agent> sensedMates;
 
+    @SimpleXMLConstructor
     private ResourceConsumptionAction() {
         this(new Builder());
     }
-
 
     @Override
     protected ACLMessage.Builder createCFP() {
@@ -46,7 +48,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 .source(getComponentOwner().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
-                // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+                        // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
                 .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
                 .objectContent(amountPerRequest);
     }
@@ -57,10 +59,12 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
         try {
             final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(offer);
-
-            return message.replyFrom(getComponentOwner().getId())
-                    .performative(ACLPerformative.ACCEPT_PROPOSAL);
+            if (offer == 0)
+                GFACTIONS_LOGGER.info(ResourceConsumptionAction.class + ": Got (double) offer = 0. Should be refused on the provider side");
+            return message
+                    .replyFrom(getComponentOwner().getId())
+                    .performative(ACLPerformative.ACCEPT_PROPOSAL)
+                    .objectContent(offer);
         } catch (Exception e) {
             throw new NotUnderstoodException();
         }
@@ -68,8 +72,14 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    protected void handleRefuse(ACLMessage message) {
-        super.handleRefuse(message);    //To change body of overridden methods use File | Settings | File Templates.
+    protected void handleInform(ACLMessage message) throws NotUnderstoodException {
+        try {
+            final double offer = message.getReferenceContent(Double.class);
+            consumerProperty.add(offer);
+        }
+        catch (Exception e) {
+            throw new NotUnderstoodException();
+        }
     }
 
     @Override
@@ -78,13 +88,10 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        if ( super.evaluate(simulation) ) {
-            sensedMates = filter(simulation.findObjects(getComponentOwner(), sensorRange), Agent.class);
-            sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
-            return ! isEmpty(sensedMates);
-        }
-        return false;
+    public boolean evaluateInternalState(Simulation simulation) {
+        sensedMates = filter(simulation.findObjects(getComponentOwner(), sensorRange), Agent.class);
+        sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
+        return ! isEmpty(sensedMates);
     }
 
     @Override

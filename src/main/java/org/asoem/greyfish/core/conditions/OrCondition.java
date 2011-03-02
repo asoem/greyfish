@@ -21,7 +21,7 @@ public class OrCondition extends LogicalOperatorCondition {
     }
 
     /* (non-Javadoc)
-      * @see org.asoem.greyfish.actions.conditions.Condition#evaluate(org.asoem.greyfish.competitors.Individual)
+      * @see org.asoem.greyfish.actions.conditions.Condition#evaluateConditions(org.asoem.greyfish.competitors.Individual)
       */
 	@Override
 	public boolean evaluate(final Simulation simulation) {

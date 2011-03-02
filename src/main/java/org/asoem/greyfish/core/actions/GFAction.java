@@ -9,11 +9,9 @@ import org.asoem.greyfish.utils.ConfigurableValueProvider;
 
 public interface GFAction extends GFComponent, NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
 
-	public boolean evaluate(final Simulation simulation);
+	public boolean evaluateConditions(final Simulation simulation);
 	
-	public boolean execute(final Simulation simulation);
-	
-	public void executeUnevaluated(final Simulation simulation);
+	public AbstractGFAction.ExecutionResult execute(final Simulation simulation);
 
 	public ConditionTree getConditionTree();
 	
@@ -32,4 +30,6 @@ public interface GFAction extends GFComponent, NamedDeepCloneableIndividualCompo
 	 * Check if the Action has completed its task.
 	 */
 	public boolean done();
+
+    public boolean isBlocking();
 }

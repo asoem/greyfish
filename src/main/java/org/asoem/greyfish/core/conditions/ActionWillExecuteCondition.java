@@ -22,7 +22,7 @@ public class ActionWillExecuteCondition extends LeafCondition {
 
     @Override
     public boolean evaluate(Simulation simulation) {
-        return parameterAction.evaluate(simulation);
+        return parameterAction.evaluateConditions(simulation);
     }
 
     @Override

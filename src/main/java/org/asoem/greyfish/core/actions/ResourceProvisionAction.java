@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -26,8 +27,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     @Element(name="messageType", required=false)
     private String parameterMessageType;
 
-    private double offer;
-
+    @SimpleXMLConstructor
     public ResourceProvisionAction() {
         this(new Builder());
     }
@@ -35,14 +35,6 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     @Override
     protected String getOntology() {
         return parameterMessageType;
-    }
-
-    @Override
-    protected ACLMessage.Builder handleAccept(ACLMessage message) {
-        resourceProperty.subtract(offer);
-
-        return message.replyFrom(getComponentOwner().getId())
-                .performative(ACLPerformative.INFORM);
     }
 
     @Override
@@ -56,7 +48,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
         ACLMessage.Builder ret = message.replyFrom(getComponentOwner().getId());
 
-        offer = Math.min(requested, resourceProperty.get());
+        double offer = Math.min(requested, resourceProperty.get());
 
         if (offer > 0)
             ret.performative(ACLPerformative.PROPOSE).objectContent(offer);
@@ -67,8 +59,20 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected void handleReject(ACLMessage message) {
-        resourceProperty.add(offer);
+    protected ACLMessage.Builder handleAccept(ACLMessage message) throws NotUnderstoodException {
+        try {
+            double offer = message.getReferenceContent(Double.class);
+
+            assert resourceProperty.get() >= offer : "Values have changed unexpectedly";
+
+            resourceProperty.subtract(offer);
+            return message
+                    .replyFrom(getComponentOwner().getId())
+                    .performative(ACLPerformative.INFORM)
+                    .objectContent(offer);
+        } catch (IllegalArgumentException e) {
+            throw new NotUnderstoodException("Double content expected, received " + message);
+        }
     }
 
     @Override

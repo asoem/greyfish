@@ -65,7 +65,7 @@ public enum GreyfishMathExpression {
                 ret = Double.valueOf(evaluator.evaluate());
             }
         } catch (EvaluationException e) {
-            if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to evaluate expression", e);
+            if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to evaluateConditions expression", e);
         } catch (NumberFormatException e) {
             if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to convert to Double", e);
         }

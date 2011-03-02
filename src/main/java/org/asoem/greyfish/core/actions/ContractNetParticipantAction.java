@@ -9,7 +9,6 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
@@ -88,7 +87,16 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
                         case ACCEPT_PROPOSAL:
-                            ACLMessage response = handleAccept(receivedMessage).build();
+                            ACLMessage response = null;
+                            try {
+                                response = handleAccept(receivedMessage).build();
+                            } catch (NotUnderstoodException e) {
+                                response = receivedMessage.replyFrom(getComponentOwner().getId())
+                                        .performative(ACLPerformative.NOT_UNDERSTOOD)
+                                        .stringContent(e.getMessage()).build();
+                                if (GFACTIONS_LOGGER.hasDebugEnabled())
+                                    GFACTIONS_LOGGER.debug("Message not understood", e);
+                            }
                             checkAcceptReply(response);
                             sendMessage(response);
                             break;
@@ -134,11 +142,6 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         });
     }
 
-    @Override
-    public boolean evaluate(Simulation simulation) {
-        return hasMessages(createCFPTemplate(getOntology())) && super.evaluate(simulation);
-    }
-
     protected abstract String getOntology();
 
     private static MessageTemplate createProposalReplyTemplate(Collection<ACLMessage> cfpReplies) {
@@ -169,7 +172,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ACLMessage.Builder handleAccept(ACLMessage message);
+    protected abstract ACLMessage.Builder handleAccept(ACLMessage message) throws NotUnderstoodException;
 
     protected void handleReject(ACLMessage message) {
     }

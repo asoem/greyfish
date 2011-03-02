@@ -105,13 +105,13 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 
     @Override
     protected ACLMessage.Builder createCFP() {
-        assert(!Iterables.isEmpty(sensedMates)); // see #evaluate(Simulation)
+        assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
         return ACLMessage.with()
                 .source(getComponentOwner().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
-                // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+                        // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
                 .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId());
     }
 
@@ -135,16 +135,13 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        if ( super.evaluate(simulation) ) {
-            final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
-            sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
-            sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                GFACTIONS_LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
-            return ! Iterables.isEmpty(sensedMates);
-        }
-        return false;
+    public boolean evaluateInternalState(Simulation simulation) {
+        final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
+        sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
+        sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
+        if (GFACTIONS_LOGGER.hasDebugEnabled())
+            GFACTIONS_LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
+        return ! Iterables.isEmpty(sensedMates);
     }
 
     @Override
