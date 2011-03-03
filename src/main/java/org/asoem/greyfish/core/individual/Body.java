@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.space.Location2DInterface;
-import org.asoem.greyfish.core.space.Object2D;
-import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.core.space.DefaultMovingObject2D;
+import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.lang.FiniteSetSupplier;
 import org.asoem.greyfish.lang.FiniteSetSuppliers;
 import org.asoem.greyfish.utils.*;
@@ -22,9 +22,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.*;
 
-public class Body extends AbstractGFComponent implements Object2DInterface, ConfigurableValueProvider {
+public class Body extends AbstractGFComponent implements MovingObject2D, ConfigurableValueProvider {
 
-    private final Object2D movingObject2D = new Object2D();
+    private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
 
     @Attribute(name="radius", required = false)
     private float radius = 0.1f;
@@ -108,12 +108,32 @@ public class Body extends AbstractGFComponent implements Object2DInterface, Conf
     }
 
     @Override
-    public Location2DInterface getAnchorPoint() {
+    public PolarPoint getMotionVector() {
+        return movingObject2D.getMotionVector();
+    }
+
+    @Override
+    public void setMotionVector(PolarPoint polarPoint) {
+        movingObject2D.setMotionVector(polarPoint);
+    }
+
+    @Override
+    public void changeMotion(double angle, double velocity) {
+        movingObject2D.changeMotion(angle, velocity);
+    }
+
+    @Override
+    public void setMotion(double angle, double velocity) {
+        movingObject2D.setMotion(angle, velocity);
+    }
+
+    @Override
+    public Location2D getAnchorPoint() {
         return movingObject2D.getAnchorPoint();
     }
 
     @Override
-    public void setAnchorPoint(Location2DInterface location2d) {
+    public void setAnchorPoint(Location2D location2d) {
         movingObject2D.setAnchorPoint(location2d);
     }
 

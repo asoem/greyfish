@@ -17,7 +17,7 @@ public abstract class AbstractLocation {
 //		return space;
 //	}
 //
-//	public Collection<Object2DInterface> getOccupants() {
+//	public Collection<MovingObject2D> getOccupants() {
 //		return space.getOccupants(this);
 //	}
 }

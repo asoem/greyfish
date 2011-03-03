@@ -23,7 +23,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
     @Override
     protected void performAction(Simulation simulation) {
-        pattern.apply(Agent.class.cast(getComponentOwner()));
+        pattern.apply(Agent.class.cast(getComponentOwner()), simulation);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     public void initialize(Simulation simulation) {
         super.initialize(simulation);
-        pattern = MovementPatterns.randomMovement(speed);
+        pattern = MovementPatterns.borderAvoidanceMovement(speed, 0.3);
     }
 
     @Override

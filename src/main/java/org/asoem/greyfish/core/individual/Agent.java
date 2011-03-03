@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import javolution.util.FastList;
 import org.asoem.greyfish.core.actions.AbstractGFAction;
 import org.asoem.greyfish.core.actions.GFAction;
@@ -8,19 +9,17 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Location2DInterface;
-import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
-import java.util.ListIterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.actions.AbstractGFAction.ExecutionResult.EXECUTED_BLOCKING;
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
+import static org.asoem.greyfish.core.io.GreyfishLogger.AGENT_LOGGER;
 
-public class Agent extends GFAgentDecorator implements IndividualInterface, Object2DInterface, Initializeable {
+public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2D, Initializeable {
 
     // static during each activation
     private final Simulation simulation;
@@ -125,64 +124,63 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
 
     @Override
     public void execute() {
-//        GFAction toExecute = lastExecutedAction;
-//
-//        if (toExecute == null
-//                || lastExecutedAction.done()) {
-//            toExecute = null;
-//            for (GFAction action : getActions()) {
-//                if (action.evaluateConditions(simulation)) {
-//                    toExecute = action;
-//                    break;
-//                }
-//            }
-//        }
-//        try {
-//            if (toExecute != null) {
-//                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Executing " + toExecute);
-//                toExecute.executeUnevaluated(simulation);
-//                lastExecutedAction = toExecute;
-//            } else {
-//                if (CORE_LOGGER.hasTraceEnabled()) CORE_LOGGER.trace("Found no Action to execute.");
-//            }
-//        } catch (RuntimeException e) {
-//            CORE_LOGGER.error("Error during execution of " + toExecute + " for " + this, e);
-//        }
+        if (lastExecutedAction != null &&
+                lastExecutedAction.isResuming()) {
+            if (AGENT_LOGGER.hasDebugEnabled())
+                AGENT_LOGGER.debug(id + ": Resuming " + lastExecutedAction);
+            executeAction(lastExecutedAction);
+        }
+        else {
+            if (AGENT_LOGGER.hasDebugEnabled())
+                AGENT_LOGGER.debug(id + ": Processing " + Iterables.size(getActions()) + " actions in order");
+            for (GFAction action : getActions()) {
+                assert !action.isResuming();
 
-        ListIterator<GFAction> iterator = resumeQueue.listIterator();
-        while (iterator.hasNext()) {
-            GFAction action = iterator.next();
-            AbstractGFAction.ExecutionResult result = action.execute(simulation);
-
-            if (action.done())      // TODO: Actions which are done here will get executed also in the loop below
-                iterator.remove();
-
-            switch (result) {
-                case EXECUTED_BLOCKING:
+                if (executeAction(action)) {
+                    lastExecutedAction = action;
                     return;
-                default: break;
+                }
             }
         }
 
-        for (GFAction action : getActions()) {
+        if (AGENT_LOGGER.hasDebugEnabled())
+                AGENT_LOGGER.debug("Nothing to execute");
+    }
 
-            // exclude resuming actions
-            if (!action.done())
-                break;
+    private boolean executeAction(GFAction action) {
+        StringBuffer debugString = null;
 
-            if (CORE_LOGGER.hasDebugEnabled())
-                CORE_LOGGER.debug("Executing " + action);
+        if (AGENT_LOGGER.hasDebugEnabled()) {
+            debugString = new StringBuffer();
+            debugString.append(id).append(": Trying to execute ").append(action).append(": ");
+        }
 
-            AbstractGFAction.ExecutionResult result = action.execute(simulation);
+        final AbstractGFAction.ExecutionResult result = action.execute(simulation);
 
-            if (CORE_LOGGER.hasDebugEnabled())
-                CORE_LOGGER.debug(action + " returned " + result);
-
-            if (!action.done())
-                resumeQueue.add(action);
-
-            if (result == EXECUTED_BLOCKING)
-                return;
+        switch (result) {
+            case CONDITIONS_FAILED:
+                if (AGENT_LOGGER.hasDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Attached conditions evaluated to false."));
+                return false;
+            case INVALID_INTERNAL_STATE:
+                if (AGENT_LOGGER.hasDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal preconditions evaluated to false."));
+                return false;
+            case INSUFFICIENT_ENERGY:
+                if (AGENT_LOGGER.hasDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Not enough energy."));
+                return false;
+            case ERROR:
+                if (AGENT_LOGGER.hasDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal error."));
+                return false;
+            case EXECUTED:
+                if (AGENT_LOGGER.hasDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("SUCCESS"));
+                return true;
+            default: // should never be reached
+                AGENT_LOGGER.debug(debugString.append("ERROR: action returned unhandled state ").append(result).append('.'));
+                return false;
         }
     }
 
@@ -221,12 +219,12 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Obje
     }
 
     @Override
-    public Location2DInterface getAnchorPoint() {
+    public Location2D getAnchorPoint() {
         return getBody().getAnchorPoint();
     }
 
     @Override
-    public void setAnchorPoint(Location2DInterface location2d) {
+    public void setAnchorPoint(Location2D location2d) {
         getBody().setAnchorPoint(location2d);
     }
 

@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.genes;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ForwardingGene<T> implements Gene<T> {
@@ -12,16 +11,13 @@ public class ForwardingGene<T> implements Gene<T> {
      * @param gene the delegate to forward methods to
      */
     public ForwardingGene(Gene<T> gene) {
-        this.delegate = checkNotNull(gene);
+        setDelegate(gene);
     }
 
     @SuppressWarnings("unchecked")
     public void setDelegate(Gene<?> newDelegate) {
         if (checkNotNull(newDelegate) == this)
             throw new IllegalArgumentException("Delegation to 'this' is not allowed");
-        checkArgument(getSupplierClass().equals(newDelegate.getSupplierClass()),
-                "type of the given newDelegate's supplier class do not match this newDelegate's supplier class: "
-                        + delegate.getSupplierClass() + " != " + newDelegate.getSupplierClass());
         this.delegate = Gene.class.cast(newDelegate);
     }
 
@@ -61,6 +57,6 @@ public class ForwardingGene<T> implements Gene<T> {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return "Gene@[" + get() + "]";
     }
 }

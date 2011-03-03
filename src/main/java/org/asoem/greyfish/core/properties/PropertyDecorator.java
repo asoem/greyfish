@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
@@ -17,7 +16,7 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     protected abstract GFProperty getDelegate();
 
     @Override
-    public Iterable<ForwardingGene<?>> getGenes() {
+    public Iterable<Gene<?>> getGenes() {
         return getDelegate().getGenes();
     }
 

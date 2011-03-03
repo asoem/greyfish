@@ -15,12 +15,13 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.Location2D;
-import org.asoem.greyfish.core.space.Location2DInterface;
-import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.core.space.MutableLocation2D;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
+import org.asoem.greyfish.utils.PolarPoint;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.SIMULATION_LOGGER;
 import static org.asoem.greyfish.core.simulation.Simulation.CommandType.*;
-import static org.asoem.greyfish.core.space.Location2D.at;
+import static org.asoem.greyfish.core.space.MutableLocation2D.at;
 
 public class Simulation implements Runnable {
 
@@ -49,7 +50,7 @@ public class Simulation implements Runnable {
         return this.prototypeMap.size();
     }
 
-    public Iterable<Object2DInterface> findObjects(Location2DInterface location, double radius) {
+    public Iterable<MovingObject2D> findObjects(Location2D location, double radius) {
         return space.findNeighbours(location, radius);
     }
 
@@ -73,7 +74,6 @@ public class Simulation implements Runnable {
 
     public enum CommandType {
         MESSAGE,
-        MOVEMENT,
         AGENT_REMOVE,
         AGENT_ADD
     }
@@ -178,7 +178,7 @@ public class Simulation implements Runnable {
         return Collections.unmodifiableCollection(concurrentAgentsView);
     }
 
-    private void addAgent(Agent individual, Location2DInterface location) {
+    private void addAgent(Agent individual, Location2D location) {
         checkAgent(individual);
         if (SIMULATION_LOGGER.hasDebugEnabled())
             SIMULATION_LOGGER.debug("Adding Agent to " + this + ": " + individual);
@@ -246,7 +246,7 @@ public class Simulation implements Runnable {
      * @param location The location where the {@Agent} will be inserted in the {@Space}.
      * @param genome The {@code Genome} for the new {@code Agent}.
      */
-    public void createAgent(final Population population, final Location2DInterface location, final Genome genome) {
+    public void createAgent(final Population population, final Location2D location, final Genome genome) {
         checkNotNull(population);
         checkState(prototypeMap.containsKey(population));
 
@@ -524,11 +524,12 @@ public class Simulation implements Runnable {
                     command.execute();
                 }
 
-                for (Command command : commanListMap.get(AGENT_ADD)) {
-                    command.execute();
+                for (Agent agent : getAgents()) {
+                    final PolarPoint motion = agent.getMotionVector();
+                    getSpace().moveObject(agent, MutableLocation2D.add(agent, motion.toCartesian()));
                 }
 
-                for (Command command : commanListMap.get(MOVEMENT)) {
+                for (Command command : commanListMap.get(AGENT_ADD)) {
                     command.execute();
                 }
 
@@ -585,32 +586,6 @@ public class Simulation implements Runnable {
                     @Override
                     public void execute() {
                         postOffice.addMessage(message);
-                    }
-                });
-    }
-
-    public void translate(final Agent agent, final double distance) {
-        commanListMap.put(MOVEMENT,
-                new Command() {
-                    @Override
-                    public void execute() {
-                        final double x_add = distance * Math.cos(agent.getOrientation());
-                        final double y_add = distance * Math.sin(agent.getOrientation());
-
-                        final double x_res = agent.getX() + x_add;
-                        final double y_res = agent.getY() + y_add;
-                        Location2D newLocation = Location2D.at(x_res, y_res);
-                        getSpace().moveObject(agent, newLocation);
-                    }
-                });
-    }
-
-    public void rotate(final Agent agent, final double alpha) {
-        commanListMap.put(MOVEMENT,
-                new Command() {
-                    @Override
-                    public void execute() {
-                        agent.setOrientation(alpha);
                     }
                 });
     }

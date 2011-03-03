@@ -10,14 +10,14 @@ import scala.Tuple2;
 import java.util.Arrays;
 import java.util.List;
 
-public final class AsoemScalaKDTree<T extends Object2DInterface> implements KDTree<T> {
+public final class AsoemScalaKDTree<T extends MovingObject2D> implements KDTree<T> {
 
     private org.asoem.kdtree.KDTree kdtree;
 
     private AsoemScalaKDTree() {
     }
 
-    public static <T extends Object2DInterface> AsoemScalaKDTree<T> newInstance() {
+    public static <T extends MovingObject2D> AsoemScalaKDTree<T> newInstance() {
         return new AsoemScalaKDTree<T>();
     }
 
@@ -25,7 +25,7 @@ public final class AsoemScalaKDTree<T extends Object2DInterface> implements KDTr
     public void rebuild(Iterable<T> elements) {
         List<Tuple2<HyperPoint, T>> pointList = Lists.newArrayList();
         for (T element : elements) {
-            final Location2DInterface b = element.getAnchorPoint();
+            final Location2D b = element.getAnchorPoint();
             final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
             pointList.add(new Tuple2<HyperPoint, T>(hp, element));
         }
@@ -34,7 +34,7 @@ public final class AsoemScalaKDTree<T extends Object2DInterface> implements KDTr
 
     @SuppressWarnings("unchecked")
     @Override
-    public Iterable<T> findNeighbours(Location2DInterface p, double range) {
+    public Iterable<T> findNeighbours(Location2D p, double range) {
 
         HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
 

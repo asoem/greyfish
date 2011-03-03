@@ -29,7 +29,5 @@ public interface GFAction extends GFComponent, NamedDeepCloneableIndividualCompo
 	/*
 	 * Check if the Action has completed its task.
 	 */
-	public boolean done();
-
-    public boolean isBlocking();
+	public boolean isResuming();
 }

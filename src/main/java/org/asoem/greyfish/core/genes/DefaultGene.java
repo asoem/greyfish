@@ -16,15 +16,15 @@ public class DefaultGene<T> implements Gene<T> {
      * @param mutationFunction
      */
 	public DefaultGene(T element, Class<T> clazz, MutationOperator<T> mutationFunction) {
-        this.mutationFunction = mutationFunction;
+        this.mutationFunction = checkNotNull(mutationFunction);
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
 	}
 
     public DefaultGene(Gene<T> gene) {
-        this.mutationFunction = gene.getMutationFunction();
-        this.representation = gene.get();
-        this.clazz = gene.getSupplierClass();
+        this.mutationFunction = checkNotNull(gene.getMutationFunction());
+        this.representation = checkNotNull(gene.get());
+        this.clazz = checkNotNull(gene.getSupplierClass());
     }
 
     @Override

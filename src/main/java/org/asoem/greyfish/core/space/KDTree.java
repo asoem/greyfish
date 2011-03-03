@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.space;
 
-public interface KDTree<T extends Object2DInterface> {
+public interface KDTree<T extends MovingObject2D> {
     void rebuild(final Iterable<T> elements);
-    Iterable<T> findNeighbours(Location2DInterface p, final double range);
+    Iterable<T> findNeighbours(Location2D p, final double range);
 }

@@ -113,7 +113,7 @@ public class Genome implements GenomeInterface {
         return Genes.normalizedDistance(this, that);
     }
 
-    public Iterable<Gene<?>> findCopiesFor(final Iterable<ForwardingGene<?>> thisGenes) {
+    public Iterable<Gene<?>> findCopiesFor(final Iterable<Gene<?>> thisGenes) {
 
         return Iterables.transform(thisGenes, new Function<Gene<?>, Gene<?>>() {
             @Override

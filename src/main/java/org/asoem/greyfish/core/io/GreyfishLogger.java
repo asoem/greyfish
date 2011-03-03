@@ -6,6 +6,7 @@ public enum GreyfishLogger {
     ROOT_LOGGER(Logger.getLogger("org.asoem.greyfish")),
     CORE_LOGGER(Logger.getLogger("org.asoem.greyfish.core")),
     GFACTIONS_LOGGER(Logger.getLogger("org.asoem.greyfish.core.actions")),
+    AGENT_LOGGER(Logger.getLogger("org.asoem.greyfish.core.individual")),
     SIMULATION_LOGGER(Logger.getLogger("org.asoem.greyfish.core.simulation")),
     GUI_LOGGER(Logger.getLogger("org.asoem.greyfish.gui")),
     LOG4J_LOGGER(Logger.getLogger("org.perf4j.TimingLogger"));

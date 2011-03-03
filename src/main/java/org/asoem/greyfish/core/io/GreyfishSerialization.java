@@ -90,7 +90,7 @@ public class  GreyfishSerialization {
         try {
             return serializer.validate(clazz, file);
         } catch (Exception e) {
-            if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Unable to deserialize file to " + clazz + ": " + file, e);
+            CORE_LOGGER.error("Unable to deserialize file to " + clazz + ": " + file, e);
         }
         return false;
     }
@@ -100,14 +100,16 @@ public class  GreyfishSerialization {
             checkArgument(file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
         serializeObject(new FileOutputStream(file), object);
-        if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Object written to: " + file.getAbsolutePath());
+        if (CORE_LOGGER.hasDebugEnabled())
+            CORE_LOGGER.debug("Object written to: " + file.getAbsolutePath());
     }
 
     public static void serializeObject(OutputStream oStream, Object object) throws RuntimeException {
         checkNotNull(oStream);
         checkNotNull(object);
 
-        if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Serializing object of type " + object.getClass().getName());
+        if (CORE_LOGGER.hasDebugEnabled())
+            CORE_LOGGER.debug("Serializing object of type " + object.getClass().getName());
 
         try {
             final File tempFile = File.createTempFile("Greyfish", "xml");

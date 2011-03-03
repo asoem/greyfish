@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GenomeInterface;
 
@@ -36,7 +35,7 @@ public class EvaluatedGenome implements GenomeInterface {
     }
 
     @Override
-    public Iterable<Gene<?>> findCopiesFor(Iterable<ForwardingGene<?>> thisGenes) {
+    public Iterable<Gene<?>> findCopiesFor(Iterable<Gene<?>> thisGenes) {
         return delegate.findCopiesFor(thisGenes);
     }
 

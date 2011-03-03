@@ -10,14 +10,14 @@ import org.junit.runner.RunWith;
 
 import java.awt.*;
 
-import static org.asoem.greyfish.core.space.Location2D.at;
+import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 @RunWith(JDaveRunner.class)
 public class ScenarioSpec extends Specification<Scenario> {
 
     public class ScenarioBuildWith1Prototypes {
         final Prototype prototype = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop", Color.black)).build());
-        final Scenario scenario = Scenario.with().space(1, 1).add(prototype, at(0,0)).build();
+        final Scenario scenario = Scenario.with().space(1, 1).add(prototype, at()).build();
 
         public void shouldReturn1Prototypes() {
             specify(Iterables.size(scenario.getPrototypes()), should.equal(1));
@@ -26,7 +26,7 @@ public class ScenarioSpec extends Specification<Scenario> {
 
     public class ScenarioBuildWith2IdenticalPrototypes {
         final Prototype prototype = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop", Color.black)).build());
-        final Scenario scenario = Scenario.with().space(1, 1).add(prototype, at(0,0)).add(prototype, at(0,0)).build();
+        final Scenario scenario = Scenario.with().space(1, 1).add(prototype, at()).add(prototype, at()).build();
 
         public void shouldReturn1Prototypes() {
             specify(Iterables.size(scenario.getPrototypes()), should.equal(1));

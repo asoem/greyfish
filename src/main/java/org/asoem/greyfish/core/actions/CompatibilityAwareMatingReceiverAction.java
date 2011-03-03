@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.individual.GFComponent;
@@ -145,7 +144,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
 
             double matingProbability = 0;
             if (compatibilityDefiningProperty != null) {
-                final Iterable<ForwardingGene<?>> thisGenes = compatibilityDefiningProperty.getGenes();
+                final Iterable<Gene<?>> thisGenes = compatibilityDefiningProperty.getGenes();
                 final Iterable<Gene<?>> thatGenes = evaluatedGenome.findCopiesFor(thisGenes);
                 matingProbability = 1 - Genes.normalizedDistance(thisGenes, thatGenes);
             }

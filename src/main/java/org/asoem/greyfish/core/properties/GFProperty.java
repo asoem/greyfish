@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
@@ -23,7 +22,7 @@ public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualCom
      * @return All registered genes wrapped in an {@code IndexedGene}
      * @see #registerGene(org.asoem.greyfish.core.genes.Gene)
      */
-    public Iterable<ForwardingGene<?>> getGenes();
+    public Iterable<Gene<?>> getGenes();
 
     /**
      * Set the delegates of the contained {@code IndexedGene}s and their index to the values provided by the given {@code geneIterator}

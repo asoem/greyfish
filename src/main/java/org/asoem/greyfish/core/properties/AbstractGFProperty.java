@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -24,8 +25,13 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     private List<ForwardingGene<?>> geneList = ImmutableList.of();
 
     @Override
-    public Iterable<ForwardingGene<?>> getGenes() {
-        return geneList;
+    public Iterable<Gene<?>> getGenes() {
+        return Iterables.transform(geneList, new Function<ForwardingGene<?>, Gene<?>>() {
+            @Override
+            public Gene<?> apply(ForwardingGene<?> forwardingGene) {
+                return forwardingGene.getDelegate();
+            }
+        });
     }
 
     @Override

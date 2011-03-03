@@ -3,14 +3,17 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.asoem.greyfish.utils.PolarPoint;
 import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Attribute;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GUI_LOGGER;
 
@@ -66,10 +69,10 @@ public class TiledSpace implements Space {
 
     private int nOccupants;
 
-    private final KDTree<Object2DInterface> kdtree = AsoemScalaKDTree.newInstance();
+    private final KDTree<MovingObject2D> kdtree = AsoemScalaKDTree.newInstance();
 
     @Override
-    public boolean covers(Location2DInterface value) {
+    public boolean covers(Location2D value) {
         return value.getX() >= 0 && value.getX() <= width
                 && value.getY() >= 0 && value.getY() <= height;
     }
@@ -156,24 +159,24 @@ public class TiledSpace implements Space {
 
         for (TileLocation location : tilesIterable) {
 
-            final ArrayList<TileLocation> adjacentsList = new ArrayList<TileLocation>();
-            final ArrayList<TileLocation> reachablesList = new ArrayList<TileLocation>();
+            final Map<Direction, TileLocation> adjacentsMap = Maps.newHashMap();
+            final Map<Direction, TileLocation> reachablesList = Maps.newHashMap();
 
             for (Direction direction : Direction.values()) {
-                TileLocation adjacentLocation = getAdjacentLocation(location, direction);
+                final TileLocation adjacentLocation = getAdjacentLocation(location, direction);
+
                 if (adjacentLocation != null) {
-                    adjacentsList.add(adjacentLocation);
+                    adjacentsMap.put(direction, adjacentLocation);
+
                     if (borderCheck(location, direction)
                             && borderCheck(adjacentLocation, direction.reverse())) {
-                        reachablesList.add(adjacentLocation);
+                        reachablesList.put(direction, adjacentLocation);
                     }
                 }
             }
 
-            location.adjacents = adjacentsList
-                    .toArray(new TileLocation[adjacentsList.size()]);
-            location.reachables = reachablesList
-                    .toArray(new TileLocation[adjacentsList.size()]);
+            location.setAdjacents(adjacentsMap);
+            location.setReachables(adjacentsMap);
         }
     }
 
@@ -222,7 +225,7 @@ public class TiledSpace implements Space {
         return width;
     }
 
-    public TileLocation getLocationAt(final int x, final int y) {
+    public TileLocation getLocationAt(final int x, final int y) throws IndexOutOfBoundsException, IllegalArgumentException {
         Preconditions.checkPositionIndex(x, width);
         Preconditions.checkPositionIndex(y, height);
         return tileMatrix[x][y];
@@ -241,7 +244,7 @@ public class TiledSpace implements Space {
     }
 
     @Override
-    public void addOccupant(Object2DInterface object2d) {
+    public void addOccupant(MovingObject2D object2d) {
         checkNotNull(object2d);
 
         TileLocation loc = getLocation(object2d);
@@ -250,7 +253,7 @@ public class TiledSpace implements Space {
     }
 
     @Override
-    public boolean removeOccupant(Object2DInterface individual) {
+    public boolean removeOccupant(MovingObject2D individual) {
         if (getLocation(individual).occupants.remove(individual)) {
             --nOccupants;
             return true;
@@ -259,15 +262,15 @@ public class TiledSpace implements Space {
     }
 
     @Override
-    public Iterable<Object2DInterface> getOccupants() {
-        List<Iterable<Object2DInterface>> iterables = Lists.newArrayList();
+    public Iterable<MovingObject2D> getOccupants() {
+        List<Iterable<MovingObject2D>> iterables = Lists.newArrayList();
         for (TileLocation location : tilesIterable) {
             iterables.add(location.getOccupants());
         }
         return Iterables.concat(iterables);
     }
 
-    public Iterable<Object2DInterface> getOccupants(TileLocation abstractLocation) {
+    public Iterable<MovingObject2D> getOccupants(TileLocation abstractLocation) {
         return abstractLocation.occupants;
     }
 
@@ -276,12 +279,12 @@ public class TiledSpace implements Space {
     }
 
     @Override
-    public TileLocation getLocation(Location2DInterface componentOwner) {
+    public TileLocation getLocation(Location2D componentOwner) throws IndexOutOfBoundsException, IllegalArgumentException {
         return getLocationAt((int)componentOwner.getX(), (int)componentOwner.getY());
     }
 
     @Override
-    public boolean canMove(Object2DInterface object2d, Location2DInterface newLocation) {
+    public boolean canMove(MovingObject2D object2d, Location2D newLocation) {
         if (!covers(object2d)) {
             if (GUI_LOGGER.hasDebugEnabled())
                 GUI_LOGGER.debug("No TileLocation for " + object2d.getAnchorPoint() + " in " + this);
@@ -312,7 +315,7 @@ public class TiledSpace implements Space {
      * @param object2d
      * @param newLocation
      */
-    public void moveObject(Object2DInterface object2d, Location2DInterface newLocation) {
+    public void moveObject(MovingObject2D object2d, Location2D newLocation) {
         if (canMove(object2d, newLocation)) {
             TileLocation loc = getLocation(object2d);
             boolean result = loc.occupants.remove(object2d);
@@ -357,11 +360,22 @@ public class TiledSpace implements Space {
         return direction == Direction.CENTER || !source.hasBorder(direction.borderCheck);
     }
 
+    public boolean checkForBorderCollision(Location2D l2d, PolarPoint motionVector) {
+        checkArgument(this.covers(checkNotNull(l2d)));
+        checkNotNull(motionVector);
+
+        final Location2D locationAfterMove = ImmutableLocation2D.at(l2d, motionVector.toCartesian());
+        if (covers(locationAfterMove))
+            return getLocation(l2d).hasReachableNeighbour(getLocation(locationAfterMove));
+
+        return true;
+    }
+
     /* (non-Javadoc)
-      * @see org.asoem.greyfish.core.space.Space#findNeighbours(org.asoem.greyfish.core.space.Location2D, double, java.lang.Class)
+      * @see org.asoem.greyfish.core.space.Space#findNeighbours(org.asoem.greyfish.core.space.MutableLocation2D, double, java.lang.Class)
       */
     @Override
-    public Iterable<Object2DInterface> findNeighbours(Location2DInterface p, double range) {
+    public Iterable<MovingObject2D> findNeighbours(Location2D p, double range) {
         return kdtree.findNeighbours(p, range);
     }
 }

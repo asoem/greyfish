@@ -40,15 +40,13 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     private int executionCount;
 
     private int timeOfLastExecution;
-    private boolean blocking = true;
 
     public enum ExecutionResult {
         CONDITIONS_FAILED,
         INSUFFICIENT_ENERGY,
         INVALID_INTERNAL_STATE,
-        EXECUTED_BLOCKING,
+        EXECUTED,
         ERROR,
-        EXECUTED_NOT_BLOCKING
     }
 
     @Override
@@ -80,15 +78,17 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public final ExecutionResult execute(final Simulation simulation) {
         try {
-            if (!evaluateConditions(simulation))
-                return ExecutionResult.CONDITIONS_FAILED;
 
-            if (!evaluateCosts())
-                return ExecutionResult.INSUFFICIENT_ENERGY;
+            if (!isResuming()) {
+                if (!evaluateConditions(simulation))
+                    return ExecutionResult.CONDITIONS_FAILED;
 
+                if (!evaluateCosts())
+                    return ExecutionResult.INSUFFICIENT_ENERGY;
 
-            if (!evaluateInternalState(simulation))
-                return ExecutionResult.INVALID_INTERNAL_STATE;
+                if (!evaluateInternalState(simulation))
+                    return ExecutionResult.INVALID_INTERNAL_STATE;
+            }
 
             return executeUnevaluated(simulation);
         }
@@ -101,15 +101,14 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     private ExecutionResult executeUnevaluated(final Simulation simulation) {
         performAction(simulation);
 
-
         ++executionCount;
         timeOfLastExecution = simulation.getSteps();
 
-        if (energySource != null && done()) {
+        if (energySource != null && !isResuming()) {
             energySource.subtract(evaluateFormula());
         }
 
-        return ExecutionResult.EXECUTED_BLOCKING;
+        return ExecutionResult.EXECUTED;
     }
 
     /**
@@ -205,8 +204,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public boolean done() {
-        return true;
+    public boolean isResuming() {
+        return false;
     }
 
     protected AbstractGFAction(AbstractBuilder<? extends AbstractBuilder> builder) {
@@ -245,14 +244,5 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected boolean hasMessages(MessageTemplate template) {
         return getComponentOwner().hasMessages(template);
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return blocking;
-    }
-
-    public void setBlocking(boolean blocking) {
-        this.blocking = blocking;
     }
 }

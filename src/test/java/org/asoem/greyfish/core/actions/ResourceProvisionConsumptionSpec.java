@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 
 import java.awt.*;
 
-import static org.asoem.greyfish.core.space.Location2D.at;
+import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 @RunWith(JDaveRunner.class)
 public class ResourceProvisionConsumptionSpec extends Specification<ContractNetInitiatiorAction> {
@@ -32,8 +32,8 @@ public class ResourceProvisionConsumptionSpec extends Specification<ContractNetI
         final Prototype provider = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop2", Color.black)).addProperties(resourceProperty).addActions(provisionAction).build());
 
         final Scenario scenario = Scenario.with().space(1,1)
-                .add(consumer, at(0,0))
-                .add(provider, at(0,0))
+                .add(consumer, at())
+                .add(provider, at())
                 .build();
 
         final Simulation simulation = Simulation.newSimulation(scenario);

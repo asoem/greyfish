@@ -7,15 +7,15 @@ public interface Space {
 
 	public void removeAllOccupants();
 
-	public Iterable<Object2DInterface> getOccupants();
+	public Iterable<MovingObject2D> getOccupants();
 
-	public void addOccupant(Object2DInterface object2d);
+	public void addOccupant(MovingObject2D object2d);
 
-	public boolean removeOccupant(Object2DInterface object2d);
+	public boolean removeOccupant(MovingObject2D object2d);
 
-	public boolean canMove(Object2DInterface object2d, Location2DInterface newLocation);
+	public boolean canMove(MovingObject2D object2d, Location2D newLocation);
 
-	public TileLocation getLocation(Location2DInterface componentOwner);
+	public TileLocation getLocation(Location2D componentOwner);
 	
 	/**
 	 * @param <T>
@@ -23,8 +23,8 @@ public interface Space {
 	 * @param range
 	 * @return all found objects in the given range around {@code point} in this space
 	 */
-	Iterable<Object2DInterface> findNeighbours(Location2DInterface p,
+	Iterable<MovingObject2D> findNeighbours(Location2D p,
 			double range);
 
-    public boolean covers(Location2DInterface value);
+    public boolean covers(Location2D value);
 }

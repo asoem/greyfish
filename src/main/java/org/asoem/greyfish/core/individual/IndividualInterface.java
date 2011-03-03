@@ -5,13 +5,13 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
 import java.util.List;
 
-public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<GFComponent>, Object2DInterface, MessageReceiver {
+public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2D, MessageReceiver {
     Population getPopulation();
     void setPopulation(Population population);
     Body getBody();

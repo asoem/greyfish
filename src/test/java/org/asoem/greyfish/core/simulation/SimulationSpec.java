@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 
 import java.awt.*;
 
-import static org.asoem.greyfish.core.space.Location2D.at;
+import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 @RunWith(JDaveRunner.class)
 public class SimulationSpec extends Specification<Simulation> {
@@ -18,8 +18,8 @@ public class SimulationSpec extends Specification<Simulation> {
     public class SimulationBuildFromScenarioWithNPlaceholders {
         final Prototype prototype = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop", Color.black)).build());
         final Scenario scenario = Scenario.with().space(1, 1)
-                .add(prototype, at(0,0))
-                .add(prototype, at(0,0))
+                .add(prototype, at())
+                .add(prototype, at())
                 .build();
         final Simulation simulation = Simulation.newSimulation(scenario);
 

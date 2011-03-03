@@ -5,10 +5,11 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
 
 import java.awt.*;
@@ -139,12 +140,12 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public void setAnchorPoint(Location2DInterface location2d) {
+    public void setAnchorPoint(Location2D location2d) {
         delegate.setAnchorPoint(location2d);
     }
 
     @Override
-    public Location2DInterface getAnchorPoint() {
+    public Location2D getAnchorPoint() {
         return delegate.getAnchorPoint();
     }
 
@@ -221,5 +222,25 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public float getAge() {
         return delegate.getAge();
+    }
+
+    @Override
+    public PolarPoint getMotionVector() {
+        return delegate.getMotionVector();
+    }
+
+    @Override
+    public void setMotionVector(PolarPoint polarPoint) {
+        delegate.setMotionVector(polarPoint);
+    }
+
+    @Override
+    public void changeMotion(double angle, double velocity) {
+        delegate.changeMotion(angle, velocity);
+    }
+
+    @Override
+    public void setMotion(double angle, double velocity) {
+        delegate.setMotion(angle, velocity);
     }
 }

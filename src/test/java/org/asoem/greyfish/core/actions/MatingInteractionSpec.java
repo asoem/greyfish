@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 
 import java.awt.*;
 
-import static org.asoem.greyfish.core.space.Location2D.at;
+import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 @RunWith(JDaveRunner.class)
 public class MatingInteractionSpec extends Specification<ContractNetInitiatiorAction> {
@@ -29,8 +29,8 @@ public class MatingInteractionSpec extends Specification<ContractNetInitiatiorAc
         final Prototype male = Prototype.newInstance(Individual.with().population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build());
 
         final Scenario scenario = Scenario.with().space(1,1)
-                .add(female, at(0,0))
-                .add(male, at(0,0))
+                .add(female, at())
+                .add(male, at())
                 .build();
 
         final Simulation simulation = Simulation.newSimulation(scenario);

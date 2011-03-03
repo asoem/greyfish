@@ -85,8 +85,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     }
 
     @Override
-    public final boolean done() {
-        return endStateNames.contains(currentStateName);
+    public final boolean isResuming() {
+        return currentStateName != initialStateName && !endStateNames.contains(currentStateName);
     }
 
     protected final void registerInitialFSMState(final String state, final StateAction action) {

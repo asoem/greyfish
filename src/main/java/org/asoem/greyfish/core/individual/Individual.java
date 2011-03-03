@@ -9,11 +9,12 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.space.Location2DInterface;
+import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.CircularFifoBuffer;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -323,12 +324,12 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     public static Builder with() { return new Builder(); }
 
     @Override
-    public Location2DInterface getAnchorPoint() {
+    public Location2D getAnchorPoint() {
         return body.getAnchorPoint();
     }
 
     @Override
-    public void setAnchorPoint(Location2DInterface location2d) {
+    public void setAnchorPoint(Location2D location2d) {
         body.setAnchorPoint(location2d);
     }
 
@@ -346,5 +347,25 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
             checkState(population != null);
             return new Individual(this);
         }
+    }
+
+    @Override
+    public PolarPoint getMotionVector() {
+        return body.getMotionVector();
+    }
+
+    @Override
+    public void setMotionVector(PolarPoint polarPoint) {
+        body.setMotionVector(polarPoint);
+    }
+
+    @Override
+    public void changeMotion(double angle, double velocity) {
+        body.changeMotion(angle, velocity);
+    }
+
+    @Override
+    public void setMotion(double angle, double velocity) {
+        body.setMotion(angle, velocity);
     }
 }

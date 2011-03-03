@@ -10,8 +10,8 @@ import org.asoem.greyfish.core.individual.Placeholder;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.individual.PrototypeManager;
 import org.asoem.greyfish.core.individual.PrototypeRegistryListener;
-import org.asoem.greyfish.core.space.Location2DInterface;
-import org.asoem.greyfish.core.space.Object2DInterface;
+import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -66,12 +66,12 @@ public class Scenario implements PrototypeRegistryListener {
     private Scenario(Builder builder) {
         this.name = builder.name;
         this.prototypeSpace = TiledSpace.copyOf(builder.space);
-        for (Map.Entry<Prototype, Location2DInterface> entry : builder.map.entries()) {
+        for (Map.Entry<Prototype, Object2D> entry : builder.map.entries()) {
             addPlaceholder(entry.getKey(), entry.getValue());
         }
     }
 
-    public void addPlaceholder(Prototype prototype, Location2DInterface location) {
+    public void addPlaceholder(Prototype prototype, Object2D location) {
         prototypes.add(prototype);
         prototypeSpace.addOccupant( Placeholder.newInstance(checkNotNull(prototype), checkNotNull(location)) );
     }
@@ -96,21 +96,23 @@ public class Scenario implements PrototypeRegistryListener {
     }
 
     public Iterable<Placeholder> getPlaceholder() {
-        return Iterables.unmodifiableIterable(Iterables.transform(prototypeSpace.getOccupants(), new Function<Object2DInterface, Placeholder>() {
-            @Override
-            public Placeholder apply(Object2DInterface input) {
-                return Placeholder.class.cast(input);
-            }
-        }));
+        return Iterables.unmodifiableIterable(Iterables.transform(prototypeSpace.getOccupants(),
+                new Function<MovingObject2D, Placeholder>() {
+                    @Override
+                    public Placeholder apply(MovingObject2D input) {
+                        return Placeholder.class.cast(input);
+                    }
+                }));
     }
 
     public Iterable<Placeholder> getPlaceholder(TileLocation location) {
-        return Iterables.unmodifiableIterable(Iterables.transform(prototypeSpace.getOccupants(location), new Function<Object2DInterface, Placeholder>() {
-            @Override
-            public Placeholder apply(Object2DInterface input) {
-                return Placeholder.class.cast(input);
-            }
-        }));
+        return Iterables.unmodifiableIterable(Iterables.transform(prototypeSpace.getOccupants(location),
+                new Function<MovingObject2D, Placeholder>() {
+                    @Override
+                    public Placeholder apply(MovingObject2D input) {
+                        return Placeholder.class.cast(input);
+                    }
+                }));
     }
 
     public void addScenarioListener(ScenarioListener listener) {
@@ -146,12 +148,12 @@ public class Scenario implements PrototypeRegistryListener {
     public static Builder with() {return new Builder(); }
     public static class Builder implements BuilderInterface<Scenario> {
         private TiledSpace space;
-        private final Multimap<Prototype, Location2DInterface> map = ArrayListMultimap.create();
+        private final Multimap<Prototype, Object2D> map = ArrayListMultimap.create();
         private String name;
 
         public Builder name(String name) { this.name = name; return this; }
         public Builder space(int dimX, int dimY) { this.space = TiledSpace.newInstance(dimX, dimY); return this; }
-        public Builder add(final Prototype clonable, Location2DInterface location2d) {
+        public Builder add(final Prototype clonable, Object2D location2d) {
             checkNotNull(clonable);
             checkNotNull(location2d);
             map.put(clonable, checkNotNull(location2d)); return this;
@@ -159,9 +161,9 @@ public class Scenario implements PrototypeRegistryListener {
         @Override
         public Scenario build() {
             checkState(space != null);
-            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<Prototype, Location2DInterface>>() {
+            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<Prototype, Object2D>>() {
                 @Override
-                public boolean apply(Map.Entry<Prototype, Location2DInterface> simulationObjectLocation2DEntry) {
+                public boolean apply(Map.Entry<Prototype, Object2D> simulationObjectLocation2DEntry) {
                     return space.covers(simulationObjectLocation2DEntry.getValue());
                 }
             }));

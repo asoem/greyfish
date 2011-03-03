@@ -1,8 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
+import javolution.lang.MathLib;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.RandomUtils;
+
+import static org.asoem.greyfish.utils.RandomUtils.*;
 
 /**
  * User: christoph
@@ -13,7 +15,7 @@ public class MovementPatterns {
 
     private static MovementPattern NO_MOVEMENT = new MovementPattern() {
         @Override
-        public void apply(Agent agent) { /* DO NOTHING*/ }
+        public void apply(Agent agent, Simulation simulation) { /* DO NOTHING*/ }
     };
 
     public static MovementPattern noMovement() {
@@ -21,17 +23,37 @@ public class MovementPatterns {
     }
 
 
-    public static MovementPattern randomMovement(final double speed) {
+    public static MovementPattern randomMovement(final double speed, final double rotationProbability) {
         return new MovementPattern() {
             @Override
-            public void apply(Agent agent) {
-                Simulation simulation = agent.getSimulation();
-                if (RandomUtils.nextBoolean()) {
-                    float phi = RandomUtils.nextFloat(0f, 0.1f);
-                    simulation.rotate(agent, phi);
+            public void apply(Agent agent, Simulation simulation) {
+                double angle = agent.getMotionVector().getAngle();
+
+                if (trueWithProbability(rotationProbability)) {
+                    angle = nextDouble(0, 10);
                 }
 
-                simulation.translate(agent, speed);
+                agent.setMotion(angle, speed);
+            }
+        };
+    }
+
+    public static MovementPattern borderAvoidanceMovement(final double speed, final double rotationProbability) {
+        return new MovementPattern() {
+            @Override
+            public void apply(Agent agent, Simulation simulation) {
+                double angle = agent.getMotionVector().getAngle();
+
+                if (trueWithProbability(rotationProbability)) {
+                    angle += (nextBoolean()) ?  0.3 : -0.3;
+                }
+
+                agent.setMotion(angle, speed);
+
+                // check Border
+                if (simulation.getSpace().checkForBorderCollision(agent, agent.getMotionVector())) {
+                    agent.setMotion(angle + MathLib.PI / 4, speed);
+                }
             }
         };
     }
