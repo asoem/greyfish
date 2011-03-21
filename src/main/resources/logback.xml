@@ -1,0 +1,42 @@
+<configuration scan="true" scanPeriod="3 seconds">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level %logger{10} - %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/Greyfish.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%-5level %logger{10} - %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.asoem.greyfish" additivity="false" level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="org.asoem.greyfish.core" additivity="true">
+    </logger>
+
+    <logger name="org.asoem.greyfish.core.individual" additivity="true">
+    </logger>
+
+    <logger name="org.asoem.greyfish.core.simulation" additivity="true">
+    </logger>
+
+    <logger name="org.asoem.greyfish.core.actions" additivity="true">
+    </logger>
+
+    <logger name="org.asoem.greyfish.core.actions.CompatibilityAwareMatingReceiverAction" additivity="true" level="DEBUG">
+    </logger>
+
+    <logger name="org.asoem.greyfish.gui" additivity="true">
+    </logger>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
