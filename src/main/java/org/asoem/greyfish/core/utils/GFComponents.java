@@ -26,7 +26,7 @@ public class GFComponents {
             }
         }
         catch (Exception e) {
-            CORE_LOGGER.fatal("Could not instantiate class", e);
+            CORE_LOGGER.error("Could not instantiate class", e);
             System.exit(1);
         }
         return null;

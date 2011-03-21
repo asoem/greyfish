@@ -51,7 +51,7 @@ public enum GreyfishMathExpression {
                     evaluator.parse(expression);
                     parserCache.put(expression, evaluator);
                 } catch (EvaluationException e) {
-                    if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to parse expression", e);
+                    if (CORE_LOGGER.isDebugEnabled()) CORE_LOGGER.debug("Failed to parse expression", e);
                     parserCache.put(expression, 0); // future calls will also fail
                     return 0;
                 }
@@ -65,9 +65,9 @@ public enum GreyfishMathExpression {
                 ret = Double.valueOf(evaluator.evaluate());
             }
         } catch (EvaluationException e) {
-            if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to evaluateConditions expression", e);
+            if (CORE_LOGGER.isDebugEnabled()) CORE_LOGGER.debug("Failed to evaluateConditions expression", e);
         } catch (NumberFormatException e) {
-            if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Failed to convert to Double", e);
+            if (CORE_LOGGER.isDebugEnabled()) CORE_LOGGER.debug("Failed to convert to Double", e);
         }
 
         return ret;
@@ -105,7 +105,7 @@ public enum GreyfishMathExpression {
                                         });
                         return String.valueOf(property.getAmount());
                     } catch(NoSuchElementException e) {
-                        CORE_LOGGER.warn(e);
+                        CORE_LOGGER.warn("Property variable not found", e);
                         return "0";
                     }
                 }

@@ -91,7 +91,7 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 
     public boolean receiveGenome(EvaluatedGenome genome) {
         spermBuffer.addGenome(genome, genome.getFitness());
-        if (GFACTIONS_LOGGER.hasTraceEnabled())
+        if (GFACTIONS_LOGGER.isTraceEnabled())
             GFACTIONS_LOGGER.trace(getComponentOwner() + " received sperm: " + genome);
         return true;
     }
@@ -139,7 +139,7 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
         final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
         sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
         sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-        if (GFACTIONS_LOGGER.hasDebugEnabled())
+        if (GFACTIONS_LOGGER.isDebugEnabled())
             GFACTIONS_LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
         return ! Iterables.isEmpty(sensedMates);
     }

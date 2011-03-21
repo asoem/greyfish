@@ -82,14 +82,15 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                         case PROPOSE:
                             try {
                                 proposeReply = handlePropose(receivedMessage).build();
+                                assert (proposeReply != null);
                                 proposeReplies.add(proposeReply);
                                 ++nReceivedProposals;
+                                GFACTIONS_LOGGER.trace("{}: Received proposal", this);
                             } catch (NotUnderstoodException e) {
                                 proposeReply = receivedMessage.replyFrom(getComponentOwner().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
-                                if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                    GFACTIONS_LOGGER.debug("ContractNetInit '" + this + "' Message not understood", e);
+                                GFACTIONS_LOGGER.debug("{}: Message not understood", this, e);
                             } finally {
                                 assert proposeReply != null;
                             }
@@ -98,22 +99,18 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                             break;
 
                         case REFUSE:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                GFACTIONS_LOGGER.debug("ContractNetInit '" + this + "' CFP was refused: " + receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: CFP was refused: ", this, receivedMessage);
                             handleRefuse(receivedMessage);
                             --nProposalsExpected;
                             break;
 
                         case NOT_UNDERSTOOD:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                GFACTIONS_LOGGER.debug("ContractNetInit '" + this + "' Communication Error: NOT_UNDERSTOOD received");
+                            GFACTIONS_LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", this);
                             --nProposalsExpected;
                             break;
 
                         default:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled()) GFACTIONS_LOGGER.debug("Protocol Error: " +
-                                    "Expected PROPOSE, REFUSE or NOT_UNDERSTOOD," +
-                                    "received " + receivedMessage.getPerformative());
+                            GFACTIONS_LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", this, receivedMessage.getPerformative());
                             --nProposalsExpected;
                             break;
 
@@ -125,16 +122,21 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                 assert nProposalsExpected >= 0;
 
                 if (nProposalsExpected == 0) {
-                    if (GFACTIONS_LOGGER.hasDebugEnabled())
-                        GFACTIONS_LOGGER.debug("ContractNetInit '" + this + "' received 0 proposals for " + nProposalsExpected + "CFP messages");
+                    GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsExpected);
                     return END;
                 }
                 else if (timeoutCounter == PROPOSAL_TIMEOUT || nReceivedProposals == nProposalsExpected) {
-                    if (GFACTIONS_LOGGER.hasTraceEnabled() && timeoutCounter == PROPOSAL_TIMEOUT)
-                        GFACTIONS_LOGGER.trace("ContractNetInit '" + this + "' entered TIMEOUT for proposals");
+                    if (timeoutCounter == PROPOSAL_TIMEOUT)
+                        GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", this, nReceivedProposals);
+
                     timeoutCounter = 0;
-                    template = createAcceptReplyTemplate(proposeReplies);
-                    return WAIT_FOR_INFORM;
+
+                    if (nReceivedProposals > 0) {
+                        template = createAcceptReplyTemplate(proposeReplies);
+                        return WAIT_FOR_INFORM;
+                    }
+                    else
+                        return TIMEOUT;
                 }
                 else {
                     return WAIT_FOR_POROPOSALS;
@@ -153,24 +155,21 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                             try {
                                 handleInform(receivedMessage);
                             } catch (NotUnderstoodException e) {
-                                GFACTIONS_LOGGER.error("ContractNetInit '" + this + "' handleInform failed: ", e);
+                                GFACTIONS_LOGGER.error("{}: HandleInform failed: ", e);
                             }
                             break;
 
                         case FAILURE:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                GFACTIONS_LOGGER.debug("ContractNetInit '" + this + "' received FAILURE: " + receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: Received FAILURE: {}", this, receivedMessage);
                             handleFailure(receivedMessage);
                             break;
 
                         case NOT_UNDERSTOOD:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                GFACTIONS_LOGGER.debug("ContractNetInit '" + this + "' received NOT_UNDERSTOOD: " + receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", this, receivedMessage);
                             break;
 
                         default:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                GFACTIONS_LOGGER.debug("ContractNetInit '" + this + "' expected none of INFORM, FAILURE or NOT_UNDERSTOOD:" + receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", this, receivedMessage);
                             break;
                     }
 
@@ -190,7 +189,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
 
             @Override
             public String action() {
-                if (GFACTIONS_LOGGER.hasDebugEnabled())
+                if (GFACTIONS_LOGGER.isDebugEnabled())
                     GFACTIONS_LOGGER.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": Timeout");
                 return TIMEOUT;
             }

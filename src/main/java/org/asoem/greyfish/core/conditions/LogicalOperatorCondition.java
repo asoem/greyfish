@@ -145,7 +145,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     public void freeze() {
         super.freeze();
         conditions = ImmutableList.copyOf(conditions);
-        if (conditions.isEmpty() && CORE_LOGGER.hasDebugEnabled())
+        if (conditions.isEmpty() && CORE_LOGGER.isDebugEnabled())
             CORE_LOGGER.debug("LogicalOperatorCondition '" + name + "' has no Subconditions");
     }
 

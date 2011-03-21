@@ -6,6 +6,7 @@ import javolution.util.FastList;
 import org.asoem.greyfish.core.actions.AbstractGFAction;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.io.GreyfishLogger;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -126,13 +127,17 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     public void execute() {
         if (lastExecutedAction != null &&
                 lastExecutedAction.isResuming()) {
-            if (AGENT_LOGGER.hasDebugEnabled())
+            if (AGENT_LOGGER.isDebugEnabled())
                 AGENT_LOGGER.debug(id + ": Resuming " + lastExecutedAction);
-            executeAction(lastExecutedAction);
+            if (executeAction(lastExecutedAction)) {
+                return;
+            } else {
+                GreyfishLogger.AGENT_LOGGER.error("Resume failed");
+            }
         }
         else {
-            if (AGENT_LOGGER.hasDebugEnabled())
-                AGENT_LOGGER.debug(id + ": Processing " + Iterables.size(getActions()) + " actions in order");
+            if (AGENT_LOGGER.isDebugEnabled())
+                AGENT_LOGGER.trace(id + ": Processing " + Iterables.size(getActions()) + " actions in order");
             for (GFAction action : getActions()) {
                 assert !action.isResuming();
 
@@ -143,15 +148,15 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
             }
         }
 
-        if (AGENT_LOGGER.hasDebugEnabled())
-                AGENT_LOGGER.debug("Nothing to execute");
+        if (AGENT_LOGGER.isDebugEnabled())
+            AGENT_LOGGER.debug("Nothing to execute");
     }
 
     private boolean executeAction(GFAction action) {
         StringBuffer debugString = null;
 
-        if (AGENT_LOGGER.hasDebugEnabled()) {
-            debugString = new StringBuffer();
+        if (AGENT_LOGGER.isDebugEnabled()) {
+            debugString = new StringBuffer("Agent#");
             debugString.append(id).append(": Trying to execute ").append(action).append(": ");
         }
 
@@ -159,27 +164,27 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
         switch (result) {
             case CONDITIONS_FAILED:
-                if (AGENT_LOGGER.hasDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Attached conditions evaluated to false."));
+                if (AGENT_LOGGER.isDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Attached conditions evaluated to false.").toString());
                 return false;
             case INVALID_INTERNAL_STATE:
-                if (AGENT_LOGGER.hasDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal preconditions evaluated to false."));
+                if (AGENT_LOGGER.isDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal preconditions evaluated to false.").toString());
                 return false;
             case INSUFFICIENT_ENERGY:
-                if (AGENT_LOGGER.hasDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Not enough energy."));
+                if (AGENT_LOGGER.isDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Not enough energy.").toString());
                 return false;
             case ERROR:
-                if (AGENT_LOGGER.hasDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal error."));
+                if (AGENT_LOGGER.isDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal error.").toString());
                 return false;
             case EXECUTED:
-                if (AGENT_LOGGER.hasDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("SUCCESS"));
+                if (AGENT_LOGGER.isDebugEnabled())
+                    AGENT_LOGGER.debug(debugString.append("SUCCESS").toString());
                 return true;
             default: // should never be reached
-                AGENT_LOGGER.debug(debugString.append("ERROR: action returned unhandled state ").append(result).append('.'));
+                AGENT_LOGGER.debug(debugString.append("ERROR: action returned unhandled state ").append(result).append('.').toString());
                 return false;
         }
     }

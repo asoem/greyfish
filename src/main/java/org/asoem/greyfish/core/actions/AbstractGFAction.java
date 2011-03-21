@@ -23,7 +23,6 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 @Root
@@ -55,16 +54,10 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     protected final boolean evaluateCosts() {
-        // test for energy
-        double needed = evaluateFormula();
-        if (energySource != null && energySource.get().compareTo(needed) < 0) {
-            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                GFACTIONS_LOGGER.debug("Evaluation of " + this + " evaluated to false for energy reasons. " +
-                        "Needed=" + needed + "; available=" + energySource.get());
-            return false;
-        }
+        final double needed = evaluateFormula();
+        GFACTIONS_LOGGER.trace("{}: Evaluated energy costs formula to {}.", this, needed);
+        return !(energySource != null && energySource.get().compareTo(needed) < 0);
 
-        return true;
     }
 
     protected boolean evaluateInternalState(final Simulation simulation) {
@@ -78,7 +71,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public final ExecutionResult execute(final Simulation simulation) {
         try {
-
             if (!isResuming()) {
                 if (!evaluateConditions(simulation))
                     return ExecutionResult.CONDITIONS_FAILED;
@@ -93,7 +85,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             return executeUnevaluated(simulation);
         }
         catch (Exception e) {
-            CORE_LOGGER.error("Error during execution of " + this, e);
+            GFACTIONS_LOGGER.error("{}: Error during execution.", this, e);
             return AbstractGFAction.ExecutionResult.ERROR;
         }
     }

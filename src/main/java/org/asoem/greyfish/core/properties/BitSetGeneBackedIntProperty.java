@@ -64,7 +64,7 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements O
 
             @Override
             public double normalizedDistance(BitString orig, BitString copy) {
-                return orig.toNumber().subtract(copy.toNumber()).doubleValue() / (getUpperBound() - getLowerBound());
+                return Math.abs(orig.toNumber().subtract(copy.toNumber()).doubleValue()) / (getUpperBound() - getLowerBound());
             }
 
             @Override

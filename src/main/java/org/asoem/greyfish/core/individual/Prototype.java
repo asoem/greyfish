@@ -152,7 +152,7 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
         if(component.getComponentOwner() != null
                 && component.getComponentOwner() != this) {
-            if (CORE_LOGGER.hasDebugEnabled())
+            if (CORE_LOGGER.isDebugEnabled())
                 CORE_LOGGER.debug("Component already part of another individual");
             return false;
         }

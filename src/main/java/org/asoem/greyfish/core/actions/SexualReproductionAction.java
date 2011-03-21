@@ -39,7 +39,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     protected void performAction(Simulation simulation) {
         assert(!spermStorage.isEmpty());
 
-        if (GFACTIONS_LOGGER.hasDebugEnabled())
+        if (GFACTIONS_LOGGER.isDebugEnabled())
             GFACTIONS_LOGGER.debug("Producing " + nOffspring + " offspring");
 
         for (int i = 0; i < nOffspring; i++) {

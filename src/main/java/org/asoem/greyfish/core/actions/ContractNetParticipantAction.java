@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
@@ -44,6 +45,12 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         initFSM();
     }
 
+    @Override
+    protected boolean evaluateInternalState(Simulation simulation) {
+        return !isResuming() && hasMessages(createCFPTemplate(getOntology()))
+                && super.evaluateInternalState(simulation);
+    }
+
     private void initFSM() {
         registerInitialFSMState(CHECK_CFP, new StateAction() {
 
@@ -61,8 +68,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                         cfpReply = message.replyFrom(getComponentOwner().getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
-                        if (GFACTIONS_LOGGER.hasDebugEnabled())
-                            GFACTIONS_LOGGER.debug("Message not understood", e);
+                        GFACTIONS_LOGGER.debug("Message not understood", e);
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
@@ -94,8 +100,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                                 response = receivedMessage.replyFrom(getComponentOwner().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
-                                if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                    GFACTIONS_LOGGER.debug("Message not understood", e);
+
+                                GFACTIONS_LOGGER.debug("Message not understood", e);
                             }
                             checkAcceptReply(response);
                             sendMessage(response);
@@ -104,13 +110,10 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                             handleReject(receivedMessage);
                             break;
                         case NOT_UNDERSTOOD:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                GFACTIONS_LOGGER.debug("Communication Error: Message not understood");
+                            GFACTIONS_LOGGER.debug("Communication Error: Message not understood");
                             break;
                         default:
-                            if (GFACTIONS_LOGGER.hasDebugEnabled())
-                                GFACTIONS_LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD." +
-                                        "Received " + receivedMessage.getPerformative());
+                            GFACTIONS_LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD. Received {}", receivedMessage.getPerformative());
                             break;
                     }
 
@@ -128,8 +131,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
             @Override
             public String action() {
-                if (GFACTIONS_LOGGER.hasDebugEnabled())
-                    GFACTIONS_LOGGER.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": TIMEOUT");
+                GFACTIONS_LOGGER.debug("{}: TIMEOUT", ContractNetInitiatiorAction.class.getSimpleName());
                 return TIMEOUT;
             }
         });

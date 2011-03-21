@@ -17,6 +17,8 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
@@ -28,6 +30,8 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
  */
 @ClassGroup(tags="actions")
 public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatiorAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompatibilityAwareMatingReceiverAction.class);
 
     @Element(name="property")
     private EvaluatedGenomeStorage spermBuffer;
@@ -110,8 +114,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
     private boolean receiveGenome(EvaluatedGenome genome) {
         if (spermBuffer != null) {
             spermBuffer.addGenome(genome, genome.getFitness());
-            if (GFACTIONS_LOGGER.hasTraceEnabled())
-                GFACTIONS_LOGGER.trace(getComponentOwner() + " received sperm: " + genome);
+            GFACTIONS_LOGGER.trace("{} received sperm: {}", getComponentOwner(), genome);
             return true;
         }
         return false;
@@ -150,14 +153,12 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
             }
 
             if (RandomUtils.nextDouble() <= matingProbability) {
-                if (GFACTIONS_LOGGER.hasDebugEnabled())
-                    GFACTIONS_LOGGER.debug("Accepting mating proposal with p=" + matingProbability);
+                LOGGER.debug("Accepting mating proposal with p={}", matingProbability);
                 receiveGenome(evaluatedGenome);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             }
             else {
-                if (GFACTIONS_LOGGER.hasDebugEnabled())
-                    GFACTIONS_LOGGER.debug("Refusing mating proposal with p=" + matingProbability);
+                LOGGER.debug("Refusing mating proposal with p={}", matingProbability);
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
             }
         } catch (IllegalArgumentException e) {
@@ -177,7 +178,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
         sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
         sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-        if (GFACTIONS_LOGGER.hasDebugEnabled())
+        if (GFACTIONS_LOGGER.isDebugEnabled())
             GFACTIONS_LOGGER.debug(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
         return ! Iterables.isEmpty(sensedMates);
     }
@@ -209,9 +210,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         @Override protected Builder self() { return this; }
         @Override public CompatibilityAwareMatingReceiverAction build() {
             if (sensorRange <= 0)
-                GFACTIONS_LOGGER.warn(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
+                GFACTIONS_LOGGER.warn("{}: sensorRange '{}' is <= 0.", this, sensorRange);
             if (Strings.isNullOrEmpty(ontology))
-                GFACTIONS_LOGGER.warn(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
+                GFACTIONS_LOGGER.warn("{}: ontology '{}' is invalid ", this, ontology);
             return new CompatibilityAwareMatingReceiverAction(this); }
     }
 

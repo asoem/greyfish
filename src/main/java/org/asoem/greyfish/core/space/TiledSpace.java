@@ -286,7 +286,7 @@ public class TiledSpace implements Space {
     @Override
     public boolean canMove(MovingObject2D object2d, Location2D newLocation) {
         if (!covers(object2d)) {
-            if (GUI_LOGGER.hasDebugEnabled())
+            if (GUI_LOGGER.isDebugEnabled())
                 GUI_LOGGER.debug("No TileLocation for " + object2d.getAnchorPoint() + " in " + this);
             return false;
         }

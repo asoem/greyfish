@@ -135,7 +135,7 @@ public class Simulation implements Runnable {
         initialize();
         setSpeed(Speed.MEDIUM);
 
-        if (SIMULATION_LOGGER.hasTraceEnabled())
+        if (SIMULATION_LOGGER.isTraceEnabled())
             listenerSupport.addListener(new SimulationListener() {
 
                 @Override
@@ -180,7 +180,7 @@ public class Simulation implements Runnable {
 
     private void addAgent(Agent individual, Location2D location) {
         checkAgent(individual);
-        if (SIMULATION_LOGGER.hasDebugEnabled())
+        if (SIMULATION_LOGGER.isDebugEnabled())
             SIMULATION_LOGGER.debug("Adding Agent to " + this + ": " + individual);
         individual.initialize(this);
         concurrentAgentsView.add(individual);
@@ -268,7 +268,7 @@ public class Simulation implements Runnable {
         try {
             return Agent.newInstance(Individual.class.cast(objectPool.borrowObject(population)), this);
         } catch (Exception e) {
-            SIMULATION_LOGGER.fatal("Error using objectPool", e);
+            SIMULATION_LOGGER.error("Error using objectPool", e);
             System.exit(1);
         }
         return null;
@@ -418,6 +418,7 @@ public class Simulation implements Runnable {
      * Proceed on step cycle and execute all agents & commands
      */
     public synchronized void step() {
+        SIMULATION_LOGGER.debug("%s: Step #%d", this, steps);
         updateEnvironment();
         processAgents();
 
@@ -428,14 +429,14 @@ public class Simulation implements Runnable {
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     private void processAgents() {
-        if (SIMULATION_LOGGER.hasDebugEnabled())
-            SIMULATION_LOGGER.debug(this + ": processing " + individuals.size() + " Agents");
+
+        SIMULATION_LOGGER.debug(this + ": processing " + individuals.size() + " Agents");
 
         if ((individuals.size() < 100) || (Runtime.getRuntime().availableProcessors() == 1)) {
             processAgents(individuals.head(), individuals.tail());
         }
         else {
-            if (SIMULATION_LOGGER.hasTraceEnabled())
+            if (SIMULATION_LOGGER.isTraceEnabled())
                 SIMULATION_LOGGER.trace("Splitting execution in two threads");
 
             FastList.Node<Agent> node = individuals.head();
@@ -447,32 +448,32 @@ public class Simulation implements Runnable {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                    if (SIMULATION_LOGGER.isTraceEnabled())
                         SIMULATION_LOGGER.trace("Thread1 starts");
 
                     processAgents(individuals.head(), middleNode);
                     doneSignal.countDown();
 
-                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                    if (SIMULATION_LOGGER.isTraceEnabled())
                         SIMULATION_LOGGER.trace("Thread1 done");
                 }
             });
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                    if (SIMULATION_LOGGER.isTraceEnabled())
                         SIMULATION_LOGGER.trace("Thread2 starts");
 
                     processAgents(middleNode.getPrevious(), individuals.tail());
                     doneSignal.countDown();
 
-                    if (SIMULATION_LOGGER.hasTraceEnabled())
+                    if (SIMULATION_LOGGER.isTraceEnabled())
                         SIMULATION_LOGGER.trace("Thread2 done");
                 }
             });
             try {
                 doneSignal.await(); // wait for all to finish
-                if (SIMULATION_LOGGER.hasTraceEnabled())
+                if (SIMULATION_LOGGER.isTraceEnabled())
                     SIMULATION_LOGGER.trace("All threads done");
 
             } catch (InterruptedException ie) {
@@ -488,7 +489,7 @@ public class Simulation implements Runnable {
     }
 
     private void updateEnvironment() {
-        if (SIMULATION_LOGGER.hasDebugEnabled())
+        if (SIMULATION_LOGGER.isDebugEnabled())
             SIMULATION_LOGGER.debug(this + ": processing " + commanListMap.size() + " Update-Commands");
 
         final CountDownLatch doneSignal = new CountDownLatch(2);
@@ -497,8 +498,7 @@ public class Simulation implements Runnable {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                if (SIMULATION_LOGGER.hasTraceEnabled())
-                    SIMULATION_LOGGER.trace("Thread1 starts");
+                SIMULATION_LOGGER.trace("Thread1 starts");
 
                 for (Command command : commanListMap.get(MESSAGE)) {
                     command.execute();
@@ -508,8 +508,7 @@ public class Simulation implements Runnable {
 
                 doneSignal.countDown();
 
-                if (SIMULATION_LOGGER.hasTraceEnabled())
-                    SIMULATION_LOGGER.trace("Thread1 done");
+                SIMULATION_LOGGER.trace("Thread1 done");
             }
         });
 
@@ -517,8 +516,7 @@ public class Simulation implements Runnable {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                if (SIMULATION_LOGGER.hasTraceEnabled())
-                    SIMULATION_LOGGER.trace("Thread2 starts");
+                SIMULATION_LOGGER.trace("Thread2 starts");
 
                 for (Command command : commanListMap.get(AGENT_REMOVE)) {
                     command.execute();
@@ -537,14 +535,12 @@ public class Simulation implements Runnable {
 
                 doneSignal.countDown();
 
-                if (SIMULATION_LOGGER.hasTraceEnabled())
-                    SIMULATION_LOGGER.trace("Thread2 done");
+                SIMULATION_LOGGER.trace("Thread2 done");
             }
         });
         try {
             doneSignal.await(); // wait for all to finish
-            if (SIMULATION_LOGGER.hasDebugEnabled())
-                SIMULATION_LOGGER.debug("All threads done");
+            SIMULATION_LOGGER.trace("All threads done");
 
         } catch (InterruptedException ie) {
             SIMULATION_LOGGER.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);

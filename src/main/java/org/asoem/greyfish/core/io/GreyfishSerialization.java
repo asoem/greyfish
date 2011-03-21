@@ -73,7 +73,7 @@ public class  GreyfishSerialization {
     }
 
     public static <T> T deserializeFile(File file, Class<T> clazz) throws Exception {
-        if (CORE_LOGGER.hasDebugEnabled()) CORE_LOGGER.debug("Reading from: " + file.getAbsolutePath());
+        if (CORE_LOGGER.isDebugEnabled()) CORE_LOGGER.debug("Reading from: " + file.getAbsolutePath());
         return deserializeFile(new FileInputStream(file), clazz);
     }
 
@@ -100,7 +100,7 @@ public class  GreyfishSerialization {
             checkArgument(file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
         serializeObject(new FileOutputStream(file), object);
-        if (CORE_LOGGER.hasDebugEnabled())
+        if (CORE_LOGGER.isDebugEnabled())
             CORE_LOGGER.debug("Object written to: " + file.getAbsolutePath());
     }
 
@@ -108,7 +108,7 @@ public class  GreyfishSerialization {
         checkNotNull(oStream);
         checkNotNull(object);
 
-        if (CORE_LOGGER.hasDebugEnabled())
+        if (CORE_LOGGER.isDebugEnabled())
             CORE_LOGGER.debug("Serializing object of type " + object.getClass().getName());
 
         try {

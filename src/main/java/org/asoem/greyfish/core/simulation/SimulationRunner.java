@@ -141,7 +141,7 @@ public class SimulationRunner implements Runnable {
 		try {
 			wait();
 		} catch (InterruptedException e) {
-            if (CORE_LOGGER.hasDebugEnabled())
+            if (CORE_LOGGER.isDebugEnabled())
                 CORE_LOGGER.debug("", e);
 		}
 		running = true;

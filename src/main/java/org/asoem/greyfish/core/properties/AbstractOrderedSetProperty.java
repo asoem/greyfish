@@ -48,7 +48,7 @@ public abstract class AbstractOrderedSetProperty<E extends Comparable<E>> extend
         }
         else {
             this.value = lowerBound;
-            if (CORE_LOGGER.hasDebugEnabled())
+            if (CORE_LOGGER.isDebugEnabled())
                 CORE_LOGGER.debug(this.getClass().getSimpleName() + "#setValue(" + amount + "): Out of range [" + lowerBound + ", " + upperBound + "]");
         }
         firePropertyChanged();
