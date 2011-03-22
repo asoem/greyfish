@@ -98,6 +98,12 @@
         </dependency>
 
         <dependency>
+            <groupId>jsr166</groupId>
+            <artifactId>jsr166y</artifactId>
+            <version>20110321</version>
+        </dependency>
+
+        <dependency>
             <groupId>net.sourceforge.jeval</groupId>
             <artifactId>jeval</artifactId>
             <version>0.9.4</version>
