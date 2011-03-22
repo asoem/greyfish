@@ -163,7 +163,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                 energyCostsFormula = checkFrozen(arg0);
             }
         });
-        //		e.add( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
+        //		e.sum( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
         //				{ @Override protected void set(Boolean arg0) { parameterLast = arg0; }});
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
         ) {

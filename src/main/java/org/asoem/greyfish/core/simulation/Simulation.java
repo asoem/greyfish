@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import javolution.util.FastList;
+import jsr166y.ForkJoinPool;
+import jsr166y.RecursiveAction;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
@@ -41,6 +43,9 @@ public class Simulation implements Runnable {
 
     private final Map<Population, Prototype> prototypeMap = Maps.newHashMap();
     private final PostOffice postOffice = PostOffice.newInstance();
+    private final static int FORK_JOIN_THRESHOLD = 500;
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     public static Simulation newSimulation(final Scenario scenario) {
         return new Simulation(scenario);
@@ -426,71 +431,54 @@ public class Simulation implements Runnable {
         notifyStep();
     }
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
-
     private void processAgents() {
+        SIMULATION_LOGGER.debug("{}: processing {} Agents", this, individuals.size());
+        forkJoinPool.invoke(new ProcessAgentsForked(individuals.head(), individuals.size()));
+    }
 
-        SIMULATION_LOGGER.debug(this + ": processing " + individuals.size() + " Agents");
+    private class ProcessAgentsForked extends RecursiveAction {
 
-        if ((individuals.size() < 100) || (Runtime.getRuntime().availableProcessors() == 1)) {
-            processAgents(individuals.head(), individuals.tail());
+        final FastList.Node<Agent> node;
+        final int nNodes;
+
+        private ProcessAgentsForked(FastList.Node<Agent> node, int nNodes) {
+            assert node != null;
+            assert nNodes > 0;
+
+            this.node = node;
+            this.nNodes = nNodes;
         }
-        else {
-            if (SIMULATION_LOGGER.isTraceEnabled())
-                SIMULATION_LOGGER.trace("Splitting execution in two threads");
 
-            FastList.Node<Agent> node = individuals.head();
-            int middleIndex = individuals.size() >> 1;
-            do node = node.getNext(); while (--middleIndex != 0);
-            final FastList.Node<Agent> middleNode = node;
+        @Override
+        protected void compute() {
+            if (nNodes > FORK_JOIN_THRESHOLD) {
+                // split list
+                final int splitAtIndex = nNodes / 2;
+                FastList.Node<Agent> iterNode = node;
 
-            final CountDownLatch doneSignal = new CountDownLatch(2);
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (SIMULATION_LOGGER.isTraceEnabled())
-                        SIMULATION_LOGGER.trace("Thread1 starts");
-
-                    processAgents(individuals.head(), middleNode);
-                    doneSignal.countDown();
-
-                    if (SIMULATION_LOGGER.isTraceEnabled())
-                        SIMULATION_LOGGER.trace("Thread1 done");
+                for (int i = splitAtIndex; i-- >= 0;) {
+                    iterNode = iterNode.getNext();
                 }
-            });
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (SIMULATION_LOGGER.isTraceEnabled())
-                        SIMULATION_LOGGER.trace("Thread2 starts");
 
-                    processAgents(middleNode.getPrevious(), individuals.tail());
-                    doneSignal.countDown();
+                final FastList.Node<Agent> splitNode = node;
 
-                    if (SIMULATION_LOGGER.isTraceEnabled())
-                        SIMULATION_LOGGER.trace("Thread2 done");
+                // fork
+                final ProcessAgentsForked left = new ProcessAgentsForked(node, splitAtIndex);
+                final ProcessAgentsForked right = new ProcessAgentsForked(splitNode.getPrevious(), nNodes - splitAtIndex);
+                invokeAll(left, right);
+            }
+            else {
+                FastList.Node<Agent> currentNode = node;
+                for (int i = nNodes; i > 0; --i) {
+                    currentNode = currentNode.getNext();
+                    currentNode.getValue().execute();
                 }
-            });
-            try {
-                doneSignal.await(); // wait for all to finish
-                if (SIMULATION_LOGGER.isTraceEnabled())
-                    SIMULATION_LOGGER.trace("All threads done");
-
-            } catch (InterruptedException ie) {
-                SIMULATION_LOGGER.error("Error awaiting the the threads to finish their task in Simulation#processAgents", ie);
             }
         }
     }
 
-    private void processAgents(FastList.Node<Agent> node, FastList.Node<Agent> endNode) {
-        for (;(node = node.getNext()) != endNode;) {
-            node.getValue().execute();
-        }
-    }
-
     private void updateEnvironment() {
-        if (SIMULATION_LOGGER.isDebugEnabled())
-            SIMULATION_LOGGER.debug(this + ": processing " + commanListMap.size() + " Update-Commands");
+        SIMULATION_LOGGER.debug("{}: processing {} Update-Commands.", this, commanListMap.size());
 
         final CountDownLatch doneSignal = new CountDownLatch(2);
 
@@ -498,7 +486,6 @@ public class Simulation implements Runnable {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                SIMULATION_LOGGER.trace("Thread1 starts");
 
                 for (Command command : commanListMap.get(MESSAGE)) {
                     command.execute();
@@ -507,8 +494,6 @@ public class Simulation implements Runnable {
                 postOffice.deliverOrDiscard(getAgents());
 
                 doneSignal.countDown();
-
-                SIMULATION_LOGGER.trace("Thread1 done");
             }
         });
 
@@ -516,15 +501,13 @@ public class Simulation implements Runnable {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                SIMULATION_LOGGER.trace("Thread2 starts");
-
                 for (Command command : commanListMap.get(AGENT_REMOVE)) {
                     command.execute();
                 }
 
                 for (Agent agent : getAgents()) {
                     final PolarPoint motion = agent.getMotionVector();
-                    getSpace().moveObject(agent, MutableLocation2D.add(agent, motion.toCartesian()));
+                    getSpace().moveObject(agent, MutableLocation2D.sum(agent, motion.toCartesian()));
                 }
 
                 for (Command command : commanListMap.get(AGENT_ADD)) {
@@ -534,14 +517,10 @@ public class Simulation implements Runnable {
                 space.updateTopo();
 
                 doneSignal.countDown();
-
-                SIMULATION_LOGGER.trace("Thread2 done");
             }
         });
         try {
-            doneSignal.await(); // wait for all to finish
-            SIMULATION_LOGGER.trace("All threads done");
-
+            doneSignal.await();
         } catch (InterruptedException ie) {
             SIMULATION_LOGGER.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
         }

@@ -77,10 +77,10 @@ public class MutableLocation2D implements Location2D {
     }
 
     public Location2D add(Location2D l2d) {
-        return add(this, l2d);
+        return sum(this, l2d);
     }
 
-    public static Location2D add(Location2D a, Location2D b) {
+    public static Location2D sum(Location2D a, Location2D b) {
         return at(a.getX() + b.getX(), a.getY() + b.getY());
     }
 

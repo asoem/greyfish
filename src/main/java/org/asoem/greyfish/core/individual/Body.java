@@ -172,7 +172,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         };
         e.add(colorMultiValueAdaptor);
         b.addValueChangeListener(colorMultiValueAdaptor);
-//        e.add(ValueAdaptor.forField("The color of the Body", Color.class, this, "color"));
+//        e.sum(ValueAdaptor.forField("The color of the Body", Color.class, this, "color"));
     }
 
     private Color[] generateColors(int n) {

@@ -11,8 +11,8 @@ public interface MovingObject2D extends Object2D {
     /**
      * Change this object's motion vector by rotating it {@code angle}*PI degrees
      * and adding {@code velocity} to it's length
-     * @param angle The value to add to the angle of this object's motion vector
-     * @param velocity The value to add to the length of this object's motion vector
+     * @param angle The value to sum to the angle of this object's motion vector
+     * @param velocity The value to sum to the length of this object's motion vector
      */
     public void changeMotion(double angle, double velocity);
 

@@ -189,7 +189,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     /**
      * Adds the given actions to this individual.
      * The actions's execution level is set to the highest execution level found in this individual's actions +1;
-     * @param action The action to add
+     * @param action The action to sum
      * @return {@code true} if actions could be added, {@code false} otherwise.
      */
     @Override
@@ -214,7 +214,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     /**
      * Add <code>property</code> to the Individuals properties if it does not contain one with the same key (i.e. property.getPropertyName() ).
-     * @param property The property to add
+     * @param property The property to sum
      * @return <code>true</code> if <code>property</code> could be added, <code>false</code> otherwise.
      */
     @Override
