@@ -2,46 +2,48 @@ package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.asoem.kdtree.HyperPoint;
+import org.asoem.kdtree.HyperPoint2;
+import org.asoem.kdtree.KDTuple;
 import org.asoem.kdtree.NNResult;
-import scala.Tuple2;
 
 import java.util.Arrays;
-import java.util.List;
 
-public final class AsoemScalaKDTree<T extends MovingObject2D> implements KDTree<T> {
+import static scala.collection.JavaConversions.asJavaIterable;
+import static scala.collection.JavaConversions.asScalaIterable;
 
-    private org.asoem.kdtree.KDTree kdtree;
+public final class AsoemScalaKDTree<T extends Object2D> implements KDTree<T> {
+
+    private org.asoem.kdtree.KDTree kdtree = new org.asoem.kdtree.KDTree();
 
     private AsoemScalaKDTree() {
     }
 
-    public static <T extends MovingObject2D> AsoemScalaKDTree<T> newInstance() {
+    public static <T extends Object2D> AsoemScalaKDTree<T> newInstance() {
         return new AsoemScalaKDTree<T>();
     }
 
     @Override
     public void rebuild(Iterable<T> elements) {
-        List<Tuple2<HyperPoint, T>> pointList = Lists.newArrayList();
-        for (T element : elements) {
-            final Location2D b = element.getAnchorPoint();
-            final HyperPoint hp = new HyperPoint(Arrays.asList(b.getX(), b.getY()));
-            pointList.add(new Tuple2<HyperPoint, T>(hp, element));
-        }
-        kdtree = new org.asoem.kdtree.KDTree(pointList);
+        kdtree = new org.asoem.kdtree.KDTree(asScalaIterable(Iterables.transform(elements, new Function<T, Object>() {
+            @Override
+            public KDTuple apply(T t) {
+                final Location2D b = t.getAnchorPoint();
+                return new KDTuple(new HyperPoint2(b.getX(), b.getY()), t);
+            }
+        })));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Iterable<T> findNeighbours(Location2D p, double range) {
 
-        HyperPoint searchPoint = new HyperPoint(Arrays.asList(p.getX(), p.getY()));
+        final HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
 
-        scala.collection.immutable.List<NNResult<T>> nnResultList
+        final scala.collection.immutable.List<NNResult<T>> nnResultList
                 = (scala.collection.immutable.List<NNResult<T>>) kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
 
-        return Iterables.transform(scala.collection.JavaConversions.asJavaIterable(nnResultList), new Function<NNResult<T>, T>() {
+        return Iterables.transform(asJavaIterable(nnResultList), new Function<NNResult<T>, T>() {
             @Override
             public T apply(NNResult<T> o) {
                 return (T) o.value();

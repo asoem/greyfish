@@ -43,7 +43,6 @@ public class Simulation implements Runnable {
 
     private final Map<Population, Prototype> prototypeMap = Maps.newHashMap();
     private final PostOffice postOffice = PostOffice.newInstance();
-    private final static int FORK_JOIN_THRESHOLD = 500;
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -433,38 +432,41 @@ public class Simulation implements Runnable {
 
     private void processAgents() {
         SIMULATION_LOGGER.debug("{}: processing {} Agents", this, individuals.size());
-        forkJoinPool.invoke(new ProcessAgentsForked(individuals.head(), individuals.size()));
+        if (individuals.size() > 0)
+            forkJoinPool.invoke(new ProcessAgentsForked(individuals.head(), individuals.size(), Math.max(individuals.size(), 1000) / 2));
     }
 
     private class ProcessAgentsForked extends RecursiveAction {
 
-        final FastList.Node<Agent> node;
-        final int nNodes;
+        private final FastList.Node<Agent> node;
+        private final int nNodes;
+        private final int forkThreshold;
 
-        private ProcessAgentsForked(FastList.Node<Agent> node, int nNodes) {
+        private ProcessAgentsForked(final FastList.Node<Agent> node, final int nNodes, final int forkThreshold) {
             assert node != null;
             assert nNodes > 0;
 
             this.node = node;
             this.nNodes = nNodes;
+            this.forkThreshold = forkThreshold;
         }
 
         @Override
         protected void compute() {
-            if (nNodes > FORK_JOIN_THRESHOLD) {
+            if (nNodes > forkThreshold) {
+
                 // split list
                 final int splitAtIndex = nNodes / 2;
                 FastList.Node<Agent> iterNode = node;
-
                 for (int i = splitAtIndex; i-- >= 0;) {
                     iterNode = iterNode.getNext();
                 }
 
-                final FastList.Node<Agent> splitNode = node;
+                final FastList.Node<Agent> splitNode = iterNode;
 
                 // fork
-                final ProcessAgentsForked left = new ProcessAgentsForked(node, splitAtIndex);
-                final ProcessAgentsForked right = new ProcessAgentsForked(splitNode.getPrevious(), nNodes - splitAtIndex);
+                final ProcessAgentsForked left = new ProcessAgentsForked(node, splitAtIndex, forkThreshold);
+                final ProcessAgentsForked right = new ProcessAgentsForked(splitNode.getPrevious(), nNodes - splitAtIndex, forkThreshold);
                 invokeAll(left, right);
             }
             else {
