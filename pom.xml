@@ -260,6 +260,8 @@
                 <version>1.0-alpha-2</version>
                 <configuration>
                     <mainClass>org.asoem.greyfish.gui.GreyfishApplication</mainClass>
+		    <iconFile>${basedir}/src/main/resources/org/asoem/greyfish/gui/greyfish.icns</iconFile>
+		    <vmOptions>-Dapple.laf.useScreenMenuBar=true</vmOptions>
                 </configuration>
             </plugin>
             <plugin>
@@ -274,16 +276,16 @@
                 <configuration>
                     <obfuscate>false</obfuscate>
                     <options>
-                        <option>-allowaccessmodification</option>
-                        <option>
+		    	<option>-dontobfuscate</option>
+			<option>
                             -keep public class org.asoem.greyfish.gui.GreyfishApplication {
                                 public static void main(java.lang.String[]);
                             }
                         </option>
-                        <option>-keep public class * extends org.asoem.greyfish.core.actions.GFAction</option>
-                        <option>-keep public class * extends org.asoem.greyfish.core.properties.GFProperty</option>
-                        <option>-keep public class * extends org.asoem.greyfish.core.conditions.GFCondition</option>
-                    </options>
+			<option>-keep class org.asoem.greyfish.** { @org.simpleframework.** *;}</option>
+			<option>-keep class org.asoem.greyfish.** { @org.asoem.greyfish.**.SimpleXMLConstructor private protected public <![CDATA[<]]>init<![CDATA[>]]>(...); }</option>
+			<option>-keep @org.asoem.greyfish.**.ClassGroup class org.asoem.greyfish.**</option>
+		    </options>
                     <libs>
                         <lib>${java5bootclasspath}</lib>
                     </libs>
