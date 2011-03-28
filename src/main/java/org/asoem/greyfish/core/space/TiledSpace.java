@@ -3,14 +3,11 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.asoem.greyfish.utils.PolarPoint;
-import org.asoem.greyfish.utils.RandomUtils;
 import org.simpleframework.xml.Attribute;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -81,6 +78,10 @@ public class TiledSpace implements Space {
         return new TiledSpace(space);
     }
 
+    public boolean hasLocationAt(int x, int y) {
+        return x >= 0 && y < width && y >= 0 && y < height;
+    }
+
     public enum Direction {
         CENTER(0,0,0),
         NORTH(-1,0,TileLocation.BORDER_NORTH),
@@ -91,10 +92,10 @@ public class TiledSpace implements Space {
         SOUTHWEST(1,-1,TileLocation.BORDER_SOUTH | TileLocation.BORDER_WEST),
         NORTHWEST(-1,-1,TileLocation.BORDER_NORTH | TileLocation.BORDER_WEST),
         SOUTHEAST(1,1,TileLocation.BORDER_SOUTH | TileLocation.BORDER_EAST);
-        // CAVE! Order matters for the reverse() function
+        // CAVE! Order matters for the opposite() function
 
-        private final int xTranslation;
-        private final int yTranslation;
+        final int xTranslation;
+        final int yTranslation;
         final int borderCheck;
 
         private Direction(int yTranslation, int xTranslation, int borderCheck) {
@@ -103,7 +104,7 @@ public class TiledSpace implements Space {
             this.borderCheck = borderCheck;
         }
 
-        public Direction reverse() {
+        public Direction opposite() {
             if (this == CENTER)
                 return CENTER;
             if ((this.ordinal() & 1) != 0) // odd
@@ -115,13 +116,20 @@ public class TiledSpace implements Space {
 
     public TiledSpace(TiledSpace pSpace) {
         this(pSpace.getWidth(), pSpace.getHeight());
+        for (TileLocation location : pSpace.tilesIterable) {
+            getLocationAt(location).setBorderFlags(location.getBorderFlags());
+        }
+    }
+
+    private TileLocation getLocationAt(TileLocation location) {
+        return getLocationAt(location.getX(), location.getY());
     }
 
     public static TiledSpace newInstance(int width, int height) {
         return new TiledSpace(width, height);
     }
 
-    public TiledSpace(@Attribute(name="width") int width, @Attribute(name="height") int height) {
+    private TiledSpace(@Attribute(name = "width") int width, @Attribute(name = "height") int height) {
         Preconditions.checkArgument(width >= 0);
         Preconditions.checkArgument(height >= 0);
 
@@ -129,92 +137,11 @@ public class TiledSpace implements Space {
         this.height = height;
         this.tileMatrix = new TileLocation[width][height];
 
-        //createRandomBorders();
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                TileLocation location = new TileLocation(this, i, j);
-                tileMatrix[i][j] = location;
-                if (i == 0) {
-                    location.borderFlags |= TileLocation.BORDER_WEST;
-                    if (hasDestination(location, Direction.WEST))
-                        getDestination(location, Direction.WEST).borderFlags |= TileLocation.BORDER_EAST;
-                }
-                if (i == width) {
-                    location.borderFlags |= TileLocation.BORDER_EAST;
-                    if (hasDestination(location, Direction.EAST))
-                        getDestination(location, Direction.EAST).borderFlags |= TileLocation.BORDER_WEST;
-                }
-                if (j == 0) {
-                    location.borderFlags |= TileLocation.BORDER_NORTH;
-                    if (hasDestination(location, Direction.NORTH))
-                        getDestination(location, Direction.NORTH).borderFlags |= TileLocation.BORDER_SOUTH;
-                }
-                if (j == height) {
-                    location.borderFlags |= TileLocation.BORDER_SOUTH;
-                    if (hasDestination(location, Direction.SOUTH))
-                        getDestination(location, Direction.SOUTH).borderFlags |= TileLocation.BORDER_NORTH;
-                }
+                tileMatrix[i][j] = new TileLocation(this, i, j);
             }
         }
-
-        for (TileLocation location : tilesIterable) {
-
-            final Map<Direction, TileLocation> adjacentsMap = Maps.newHashMap();
-            final Map<Direction, TileLocation> reachablesList = Maps.newHashMap();
-
-            for (Direction direction : Direction.values()) {
-                final TileLocation adjacentLocation = getAdjacentLocation(location, direction);
-
-                if (adjacentLocation != null) {
-                    adjacentsMap.put(direction, adjacentLocation);
-
-                    if (borderCheck(location, direction)
-                            && borderCheck(adjacentLocation, direction.reverse())) {
-                        reachablesList.put(direction, adjacentLocation);
-                    }
-                }
-            }
-
-            location.setAdjacents(adjacentsMap);
-            location.setReachables(adjacentsMap);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private void createRandomBorders() {
-        for (TileLocation location : tilesIterable) {
-            if (RandomUtils.nextFloat() < 0.2) {
-                location.borderFlags |= TileLocation.BORDER_WEST;
-                if (hasDestination(location, Direction.WEST))
-                    getDestination(location, Direction.WEST).borderFlags |= TileLocation.BORDER_EAST;
-            }
-            if (RandomUtils.nextFloat() < 0.2) {
-                location.borderFlags |= TileLocation.BORDER_EAST;
-                if (hasDestination(location, Direction.EAST))
-                    getDestination(location, Direction.EAST).borderFlags |= TileLocation.BORDER_WEST;
-            }
-            if (RandomUtils.nextFloat() < 0.2) {
-                location.borderFlags |= TileLocation.BORDER_NORTH;
-                if (hasDestination(location, Direction.NORTH))
-                    getDestination(location, Direction.NORTH).borderFlags |= TileLocation.BORDER_SOUTH;
-            }
-            if (RandomUtils.nextFloat() < 0.2) {
-                location.borderFlags |= TileLocation.BORDER_SOUTH;
-                if (hasDestination(location, Direction.SOUTH))
-                    getDestination(location, Direction.SOUTH).borderFlags |= TileLocation.BORDER_NORTH;
-            }
-        }
-    }
-
-    /**
-     * @param location
-     * @param direction
-     * @return the adjacent Location in the given <code>direction</code>
-     * to the passed <code>location</code>,
-     * which is <code>null</code> if <code>location</code> is at a border of the matrix.
-     */
-    public TileLocation getAdjacentLocation(TileLocation location, Direction direction) {
-        return getDestination(location, direction);
     }
 
     public int getHeight() {
@@ -234,7 +161,7 @@ public class TiledSpace implements Space {
     @Override
     public void removeAllOccupants() {
         for (TileLocation location : tilesIterable) {
-            location.occupants.clear();
+            location.removeAllOccupants();
         }
     }
 
@@ -248,13 +175,13 @@ public class TiledSpace implements Space {
         checkNotNull(object2d);
 
         TileLocation loc = getLocation(object2d);
-        loc.occupants.add(object2d);
+        loc.addOccupant(object2d);
         ++nOccupants;
     }
 
     @Override
     public boolean removeOccupant(MovingObject2D individual) {
-        if (getLocation(individual).occupants.remove(individual)) {
+        if (getLocation(individual).removeOccupant(individual)) {
             --nOccupants;
             return true;
         }
@@ -270,10 +197,6 @@ public class TiledSpace implements Space {
         return Iterables.concat(iterables);
     }
 
-    public Iterable<MovingObject2D> getOccupants(TileLocation abstractLocation) {
-        return abstractLocation.occupants;
-    }
-
     public void updateTopo() {
         kdtree.rebuild(getOccupants());
     }
@@ -284,80 +207,33 @@ public class TiledSpace implements Space {
     }
 
     @Override
-    public boolean canMove(MovingObject2D object2d, Location2D newLocation) {
-        if (!covers(object2d)) {
+    public boolean canMove(MovingObject2D origin, Location2D destination) {
+        if (!covers(origin)) {
             if (GUI_LOGGER.isDebugEnabled())
-                GUI_LOGGER.debug("No TileLocation for " + object2d.getAnchorPoint() + " in " + this);
+                GUI_LOGGER.debug("No TileLocation for " + origin.getAnchorPoint() + " in " + this);
             return false;
         }
 
-        TileLocation loc = getLocation(object2d);
-        if (covers(newLocation)) {
-            TileLocation new_loc = getLocation(newLocation);
+        final TileLocation originTile = getLocation(origin);
 
-            if ( ! loc.equals(new_loc) ) {
-                if (loc.getX() < new_loc.getX() && loc.hasBorder(Direction.EAST))
-                    return false;
-                else if (loc.getX() > new_loc.getX() && loc.hasBorder(Direction.WEST))
-                    return false;
-
-                if (loc.getY() < new_loc.getY() && loc.hasBorder(Direction.SOUTH))
-                    return false;
-                else if (loc.getY() > new_loc.getY() && loc.hasBorder(Direction.NORTH))
-                    return false;
-            }
-            return true;
+        if (covers(destination)) {
+            TileLocation destinationTile = getLocation(destination);
+            return originTile.hasReachableNeighbour(destinationTile);
         }
         return false;
     }
 
-    /**
-     * @param object2d
-     * @param newLocation
-     */
     public void moveObject(MovingObject2D object2d, Location2D newLocation) {
         if (canMove(object2d, newLocation)) {
             TileLocation loc = getLocation(object2d);
-            boolean result = loc.occupants.remove(object2d);
+            boolean result = loc.removeOccupant(object2d);
             assert(result);
 
             TileLocation new_loc = getLocation(newLocation);
-            new_loc.occupants.add(object2d);
+            new_loc.addOccupant(object2d);
 
             object2d.setAnchorPoint(newLocation);
         }
-    }
-
-
-
-    /**
-     * @param source
-     * @param direction
-     * @return the location in this direction given the source location, {@code null} if none exists
-     */
-    public TileLocation getDestination(TileLocation source, Direction direction) {
-        checkNotNull(source);
-        return (direction == Direction.CENTER)
-                ? source
-                : (hasDestination(source, direction))
-                ? this.getLocationAt(source.getX()+direction.xTranslation, source.getY()+direction.yTranslation)
-                : null;
-    }
-
-    private boolean hasDestination(TileLocation source, Direction direction) {
-        checkNotNull(source);
-        return direction == Direction.CENTER
-                || source.getY() + direction.yTranslation >= 0
-                && source.getX() + direction.xTranslation >= 0
-                && source.getY() + direction.yTranslation < getHeight()
-                && source.getX() + direction.xTranslation < getWidth();
-    }
-
-    private static boolean borderCheck(TileLocation source, Direction direction) {
-        assert (source != null);
-        assert (direction != null);
-
-        return direction == Direction.CENTER || !source.hasBorder(direction.borderCheck);
     }
 
     public boolean checkForBorderCollision(Location2D l2d, PolarPoint motionVector) {
@@ -365,10 +241,8 @@ public class TiledSpace implements Space {
         checkNotNull(motionVector);
 
         final Location2D locationAfterMove = ImmutableLocation2D.at(l2d, motionVector.toCartesian());
-        if (covers(locationAfterMove))
-            return getLocation(l2d).hasReachableNeighbour(getLocation(locationAfterMove));
+        return !covers(locationAfterMove) || getLocation(l2d).hasBorder(getLocation(locationAfterMove));
 
-        return true;
     }
 
     /* (non-Javadoc)

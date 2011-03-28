@@ -14,6 +14,7 @@ import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Attribute;
@@ -44,7 +45,7 @@ public class Scenario implements PrototypeRegistryListener {
 
     private final Set<Prototype> prototypes = Sets.newHashSet();
 
-    @SuppressWarnings("unused") // for deserialization using Simple API
+    @SimpleXMLConstructor
     private Scenario(
             @Attribute(name="name") String name,
             @ElementArray(name="prototypes", entry="prototype") Prototype[] prototypes,
@@ -106,7 +107,7 @@ public class Scenario implements PrototypeRegistryListener {
     }
 
     public Iterable<Placeholder> getPlaceholder(TileLocation location) {
-        return Iterables.unmodifiableIterable(Iterables.transform(prototypeSpace.getOccupants(location),
+        return Iterables.unmodifiableIterable(Iterables.transform(location.getOccupants(),
                 new Function<MovingObject2D, Placeholder>() {
                     @Override
                     public Placeholder apply(MovingObject2D input) {
