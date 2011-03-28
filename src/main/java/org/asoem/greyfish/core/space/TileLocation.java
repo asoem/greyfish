@@ -2,10 +2,11 @@ package org.asoem.greyfish.core.space;
 
 import com.google.common.primitives.Doubles;
 import javolution.util.FastList;
-import org.asoem.greyfish.core.space.TiledSpace.Direction;
 import org.simpleframework.xml.Attribute;
 
 import java.util.List;
+
+import static org.asoem.greyfish.core.space.Direction.*;
 
 public class TileLocation {
 
@@ -86,7 +87,7 @@ public class TileLocation {
     }
 
     public boolean hasBorder(Direction direction) {
-        return direction != Direction.CENTER && hasBorder(direction.borderCheck);
+        return direction != CENTER && hasBorder(direction.borderCheck);
     }
 
     public boolean hasBorder(int flags) {
@@ -130,19 +131,19 @@ public class TileLocation {
         final int yDiff = l2.getY() - tileLocation.getY();
 
         if (xDiff == 0) {
-           if (yDiff == 0) return TiledSpace.Direction.CENTER;
-            else if (yDiff < 0) return TiledSpace.Direction.NORTH;
-            else return TiledSpace.Direction.SOUTH;
+            if (yDiff == 0) return CENTER;
+            else if (yDiff < 0) return NORTH;
+            else return SOUTH;
         }
         else if (xDiff < 0) {
-            if (yDiff == 0) return TiledSpace.Direction.WEST;
-            else if (yDiff < 0) return TiledSpace.Direction.NORTHWEST;
-            else return TiledSpace.Direction.SOUTHWEST;
+            if (yDiff == 0) return WEST;
+            else if (yDiff < 0) return NORTHWEST;
+            else return SOUTHWEST;
         }
         else if (xDiff > 0) {
-            if (yDiff == 0) return TiledSpace.Direction.EAST;
-            else if (yDiff < 0) return TiledSpace.Direction.NORTHEAST;
-            else return TiledSpace.Direction.SOUTHEAST;
+            if (yDiff == 0) return EAST;
+            else if (yDiff < 0) return NORTHEAST;
+            else return SOUTHEAST;
         }
 
         return null;

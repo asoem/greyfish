@@ -3,12 +3,12 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.lang.ArraysArrayIterator;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Attribute;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -18,43 +18,7 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.GUI_LOGGER;
  * @author christoph
  * This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
-public class TiledSpace implements Space {
-
-    private final Iterable<TileLocation> tilesIterable = new Iterable<TileLocation>() {
-        @Override
-        public Iterator<TileLocation> iterator() {
-            return new Iterator<TileLocation>() {
-
-                private int x = -1;
-                private int y = 0;
-
-                @Override
-                public boolean hasNext() {
-                    return x < width -1 || y < height -1;
-                }
-
-                @Override
-                public TileLocation next() throws NoSuchElementException {
-                    if ( x == width -1) {
-                        x = -1;
-                        ++y;
-                    }
-                    ++x;
-                    try {
-                        return getLocationAt(x, y);
-                    }
-                    catch (Exception e) {
-                        throw new NoSuchElementException();
-                    }
-                }
-
-                @Override
-                public void remove() throws UnsupportedOperationException {
-                    throw new UnsupportedOperationException();
-                }
-            };
-        }
-    };
+public class TiledSpace implements Space, Iterable<TileLocation> {
 
     @Attribute(name="height")
     private final int height;
@@ -82,41 +46,9 @@ public class TiledSpace implements Space {
         return x >= 0 && y < width && y >= 0 && y < height;
     }
 
-    public enum Direction {
-        CENTER(0,0,0),
-        NORTH(-1,0,TileLocation.BORDER_NORTH),
-        SOUTH(1,0,TileLocation.BORDER_SOUTH),
-        EAST(0,1,TileLocation.BORDER_EAST),
-        WEST(0,-1,TileLocation.BORDER_WEST),
-        NORTHEAST(-1,1,TileLocation.BORDER_NORTH | TileLocation.BORDER_EAST),
-        SOUTHWEST(1,-1,TileLocation.BORDER_SOUTH | TileLocation.BORDER_WEST),
-        NORTHWEST(-1,-1,TileLocation.BORDER_NORTH | TileLocation.BORDER_WEST),
-        SOUTHEAST(1,1,TileLocation.BORDER_SOUTH | TileLocation.BORDER_EAST);
-        // CAVE! Order matters for the opposite() function
-
-        final int xTranslation;
-        final int yTranslation;
-        final int borderCheck;
-
-        private Direction(int yTranslation, int xTranslation, int borderCheck) {
-            this.xTranslation = xTranslation;
-            this.yTranslation = yTranslation;
-            this.borderCheck = borderCheck;
-        }
-
-        public Direction opposite() {
-            if (this == CENTER)
-                return CENTER;
-            if ((this.ordinal() & 1) != 0) // odd
-                return Direction.values()[this.ordinal()+1];
-            else
-                return Direction.values()[this.ordinal()-1];
-        }
-    }
-
     public TiledSpace(TiledSpace pSpace) {
         this(pSpace.getWidth(), pSpace.getHeight());
-        for (TileLocation location : pSpace.tilesIterable) {
+        for (TileLocation location : pSpace) {
             getLocationAt(location).setBorderFlags(location.getBorderFlags());
         }
     }
@@ -135,6 +67,7 @@ public class TiledSpace implements Space {
 
         this.width = width;
         this.height = height;
+
         this.tileMatrix = new TileLocation[width][height];
 
         for (int i = 0; i < width; i++) {
@@ -160,7 +93,7 @@ public class TiledSpace implements Space {
 
     @Override
     public void removeAllOccupants() {
-        for (TileLocation location : tilesIterable) {
+        for (TileLocation location : this) {
             location.removeAllOccupants();
         }
     }
@@ -191,7 +124,7 @@ public class TiledSpace implements Space {
     @Override
     public Iterable<MovingObject2D> getOccupants() {
         List<Iterable<MovingObject2D>> iterables = Lists.newArrayList();
-        for (TileLocation location : tilesIterable) {
+        for (TileLocation location : this) {
             iterables.add(location.getOccupants());
         }
         return Iterables.concat(iterables);
@@ -225,11 +158,11 @@ public class TiledSpace implements Space {
 
     public void moveObject(MovingObject2D object2d, Location2D newLocation) {
         if (canMove(object2d, newLocation)) {
-            TileLocation loc = getLocation(object2d);
+            final TileLocation loc = getLocation(object2d);
             boolean result = loc.removeOccupant(object2d);
             assert(result);
 
-            TileLocation new_loc = getLocation(newLocation);
+            final TileLocation new_loc = getLocation(newLocation);
             new_loc.addOccupant(object2d);
 
             object2d.setAnchorPoint(newLocation);
@@ -251,5 +184,10 @@ public class TiledSpace implements Space {
     @Override
     public Iterable<MovingObject2D> findNeighbours(Location2D p, double range) {
         return kdtree.findNeighbours(p, range);
+    }
+
+    @Override
+    public Iterator<TileLocation> iterator() {
+        return new ArraysArrayIterator<TileLocation>(tileMatrix);
     }
 }
