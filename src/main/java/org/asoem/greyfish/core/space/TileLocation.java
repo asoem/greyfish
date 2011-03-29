@@ -1,12 +1,16 @@
 package org.asoem.greyfish.core.space;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import javolution.util.FastList;
 import org.simpleframework.xml.Attribute;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.asoem.greyfish.core.space.Direction.*;
+import static org.asoem.greyfish.core.space.TileDirection.*;
 
 public class TileLocation {
 
@@ -16,17 +20,13 @@ public class TileLocation {
     @Attribute
     private final int y;
 
-    final public static int BORDER_NORTH = 1;
-    final public static int BORDER_WEST = 2;
-    final public static int BORDER_SOUTH = 4;
-    final public static int BORDER_EAST = 8;
-
     private final List<MovingObject2D> occupants = FastList.newInstance();
 
     private final TiledSpace space;
 
-    private int borderFlags = 0;
     private final int borderFlagsMask;
+
+    private int borderFlags = 0;
 
     TileLocation(TiledSpace space, int x, int y) {
         this.space = space;
@@ -34,10 +34,10 @@ public class TileLocation {
         this.y = y;
 
         int mask = 0;
-        if (x == 0) mask |= BORDER_WEST;
-        if (x == space.getWidth() -1) mask |= BORDER_EAST;
-        if (y == 0) mask |= BORDER_NORTH;
-        if (y == space.getHeight() -1) mask |= BORDER_SOUTH;
+        if (x == 0) mask |= (1 << WEST.ordinal());
+        if (x == space.getWidth() -1) mask |= (1 << EAST.ordinal());
+        if (y == 0) mask |= (1 << NORTH.ordinal());
+        if (y == space.getHeight() -1) mask |= (1 << SOUTH.ordinal());
         borderFlagsMask = mask;
     }
 
@@ -78,39 +78,77 @@ public class TileLocation {
 
     @Override
     public String toString() {
-        return "[" + Doubles.join(",",x,y) + "] (border:" +
-                (hasBorder(BORDER_NORTH) ? "N" : "") +
-                (hasBorder(BORDER_EAST) ? "E" : "") +
-                (hasBorder(BORDER_SOUTH) ? "S" : "") +
-                (hasBorder(BORDER_WEST) ? "W" : "") +
-                ")";
+        ArrayList<String> borderList = Lists.newArrayList();
+        if (hasBorder(NORTH)) borderList.add("N");
+        if (hasBorder(NORTHEAST)) borderList.add("NE");
+        if (hasBorder(EAST)) borderList.add("E");
+        if (hasBorder(SOUTHEAST)) borderList.add("SE");
+        if (hasBorder(SOUTH)) borderList.add("S");
+        if (hasBorder(SOUTHWEST)) borderList.add("SW");
+        if (hasBorder(WEST)) borderList.add("W");
+        if (hasBorder(NORTHWEST)) borderList.add("NW");
+
+        return "[" + Doubles.join(",",x,y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
     }
 
-    public boolean hasBorder(Direction direction) {
-        return direction != CENTER && hasBorder(direction.borderCheck);
+    /**
+     * Checks for a border in the given direction. For combined directions (e.g. {@code NORTHWEST}) the function will return
+     * {@code true} if there is a border for any of the single directions (e.g. {@code NORTH} or {@code WEST})
+     * @param direction The direction to check
+     * @return {@code true} if location has a border in the given {@code direction}, {@code false} otherwise.
+     */
+    public boolean hasBorder(TileDirection direction) {
+        return hasBorder(direction, true);
     }
 
-    public boolean hasBorder(int flags) {
+    private boolean hasBorder(TileDirection direction, boolean checkOpposite) {
+
+        switch (direction) {
+            case CENTER:
+                return false;
+
+            case NORTH:
+            case SOUTH:
+            case WEST:
+            case EAST:
+                return hasBorder(1 << direction.ordinal());
+
+            case NORTHEAST:
+                if (hasBorder(1 << NORTH.ordinal() | 1 << EAST.ordinal())) return true;
+            case SOUTHEAST:
+                if (hasBorder(1 << SOUTH.ordinal() | 1 << EAST.ordinal())) return true;
+            case SOUTHWEST:
+                if (hasBorder(1 << SOUTH.ordinal() | 1 << WEST.ordinal())) return true;
+            case NORTHWEST:
+                if (hasBorder(1 << NORTH.ordinal() | 1 << WEST.ordinal())) return true;
+        }
+
+        return !checkOpposite || getNeighbourTile(direction).hasBorder(direction.opposite(), false);
+    }
+
+    private boolean hasBorder(int flags) {
         return ((borderFlags | borderFlagsMask) & flags) != 0;
     }
 
-    public void setBorder(Direction direction, boolean b) {
+    public void setBorder(TileDirection direction, boolean b) {
+        Preconditions.checkArgument(direction != CENTER);
+
         if (b) {
-            borderFlags |= direction.borderCheck;
+            borderFlags |= (1 << direction.ordinal());
             if (hasNeighbourTile(direction))
-                getNeighbourTile(direction).borderFlags |= direction.opposite().borderCheck;
+                getNeighbourTile(direction).borderFlags |= (1 << direction.opposite().ordinal());
         } else {
-            borderFlags &= (~direction.borderCheck);
+            borderFlags &= (~(1 << direction.ordinal()));
             if (hasNeighbourTile(direction))
-                getNeighbourTile(direction).borderFlags &= (~direction.opposite().borderCheck);
+                getNeighbourTile(direction).borderFlags &= (~(1 << direction.opposite().ordinal()));
         }
     }
 
-    TileLocation getNeighbourTile(Direction direction) {
+    TileLocation getNeighbourTile(TileDirection direction) {
         return space.getLocationAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
     }
 
-    boolean hasNeighbourTile(Direction direction) {
+    boolean hasNeighbourTile(TileDirection direction) {
         return space.hasLocationAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
     }
 
@@ -119,16 +157,16 @@ public class TileLocation {
     }
 
     /**
-     * @param l2 TileLocation 2
-     * @return {@code true} if {@code l2} is adjacent to and reachable from this
+     * @param neighbourTile TileLocation 2
+     * @return {@code true} if {@code neighbourTile} is adjacent to and reachable from this
      */
-    public boolean hasReachableNeighbour(TileLocation l2) {
-        return isNeighbourTile(l2) && !hasBorder(computeDirection(this, l2));
+    public boolean hasReachableNeighbour(TileLocation neighbourTile) {
+        return isNeighbourTile(neighbourTile) && !this.hasBorder(computeDirection(this, neighbourTile));
     }
 
-    private static Direction computeDirection(TileLocation tileLocation, TileLocation l2) {
-        final int xDiff = l2.getX() - tileLocation.getX();
-        final int yDiff = l2.getY() - tileLocation.getY();
+    private static TileDirection computeDirection(TileLocation location1, TileLocation location2) {
+        final int xDiff = location2.getX() - location1.getX();
+        final int yDiff = location2.getY() - location1.getY();
 
         if (xDiff == 0) {
             if (yDiff == 0) return CENTER;
@@ -175,5 +213,9 @@ public class TileLocation {
 
     public boolean removeOccupant(MovingObject2D individual) {
         return occupants.remove(individual);
+    }
+
+    public void toggleBorder(TileDirection direction) {
+        setBorder(direction, !hasBorder(direction));
     }
 }

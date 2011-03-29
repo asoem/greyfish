@@ -12,7 +12,6 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GUI_LOGGER;
 
 /**
  * @author christoph
@@ -34,8 +33,7 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
 
     @Override
     public boolean covers(Location2D value) {
-        return value.getX() >= 0 && value.getX() <= width
-                && value.getY() >= 0 && value.getY() <= height;
+        return hasLocationAt((int)value.getX(), (int)value.getY());
     }
 
     public static TiledSpace copyOf(TiledSpace space) {
@@ -43,7 +41,8 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
     }
 
     public boolean hasLocationAt(int x, int y) {
-        return x >= 0 && y < width && y >= 0 && y < height;
+        return x >= 0 && x < width &&
+                y >= 0 && y < height;
     }
 
     public TiledSpace(TiledSpace pSpace) {
@@ -142,15 +141,13 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
     @Override
     public boolean canMove(MovingObject2D origin, Location2D destination) {
         if (!covers(origin)) {
-            if (GUI_LOGGER.isDebugEnabled())
-                GUI_LOGGER.debug("No TileLocation for " + origin.getAnchorPoint() + " in " + this);
-            return false;
+            throw new IllegalArgumentException(String.format("No TileLocation for origin '%s' in %s", origin.getAnchorPoint(), this));
         }
 
         final TileLocation originTile = getLocation(origin);
 
         if (covers(destination)) {
-            TileLocation destinationTile = getLocation(destination);
+            final TileLocation destinationTile = getLocation(destination);
             return originTile.hasReachableNeighbour(destinationTile);
         }
         return false;
@@ -159,10 +156,12 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
     public void moveObject(MovingObject2D object2d, Location2D newLocation) {
         if (canMove(object2d, newLocation)) {
             final TileLocation loc = getLocation(object2d);
+            final TileLocation new_loc = getLocation(newLocation);
+
+            assert (new_loc.getX() > 2 || new_loc.getX() == 2 && new_loc.getY() == 4);
+
             boolean result = loc.removeOccupant(object2d);
             assert(result);
-
-            final TileLocation new_loc = getLocation(newLocation);
             new_loc.addOccupant(object2d);
 
             object2d.setAnchorPoint(newLocation);
