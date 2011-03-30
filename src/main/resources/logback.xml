@@ -30,7 +30,7 @@
     <logger name="org.asoem.greyfish.core.actions" additivity="true">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions.CompatibilityAwareMatingReceiverAction" additivity="true" level="DEBUG">
+    <logger name="org.asoem.greyfish.core.actions.CompatibilityAwareMatingReceiverAction" additivity="true" level="INFO">
     </logger>
 
     <logger name="org.asoem.greyfish.gui" additivity="true">
