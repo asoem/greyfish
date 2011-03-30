@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import javolution.util.FastSet;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -263,7 +262,7 @@ public final class ACLMessage {
     public static class Builder implements BuilderInterface<ACLMessage> {
         private ACLPerformative performative;
         private int source = -1;
-        private final Set<Integer> dests = Sets.newHashSet();
+        private final Set<Integer> dests = FastSet.newInstance();
         private final Set<Integer> reply_to = FastSet.newInstance();
         private ContentType contentType = ContentType.NULL;
         private Object content = NULL_CONTENT;

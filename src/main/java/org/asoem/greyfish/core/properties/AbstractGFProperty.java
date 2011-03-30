@@ -7,10 +7,8 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Root;
 
 import java.util.List;
@@ -19,8 +17,6 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 @Root
 public abstract class AbstractGFProperty extends AbstractGFComponent implements GFProperty {
-
-    private final ListenerSupport<GFPropertyChangeListener> listenerSupport = ListenerSupport.newInstance();
 
     private List<ForwardingGene<?>> geneList = ImmutableList.of();
 
@@ -57,10 +53,6 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     public void export(Exporter e) {
     }
 
-    public void addGFPropertyChangeListener(GFPropertyChangeListener listener) {
-        listenerSupport.addListener(listener);
-    }
-
     @Override
     public final <S> Gene<S> registerGene(final Gene<S> gene) {
         checkNotFrozen();
@@ -68,20 +60,6 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         final ForwardingGene<S> ret = ForwardingGene.newInstance(gene);
         geneList = ImmutableList.<ForwardingGene<?>>builder().addAll(geneList).add( ret ).build();
         return ret;
-    }
-
-    public void removeGFPropertyChangeListener(GFPropertyChangeListener listener) {
-        listenerSupport.removeListener(listener);
-    }
-
-    protected void firePropertyChanged() {
-        listenerSupport.notifyListeners(new Functor<GFPropertyChangeListener>() {
-
-            @Override
-            public void update(GFPropertyChangeListener listener) {
-                listener.propertyChanged(AbstractGFProperty.this);
-            }
-        });
     }
 
     protected AbstractGFProperty(AbstractBuilder<? extends AbstractBuilder> builder) {

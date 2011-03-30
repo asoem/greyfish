@@ -15,7 +15,7 @@ public interface Space {
 
 	public boolean canMove(MovingObject2D object2d, Location2D newLocation);
 
-	public TileLocation getLocation(Location2D componentOwner);
+	public TileLocation getTileAt(Location2D componentOwner);
 	
 	/**
 	 * @param <T>

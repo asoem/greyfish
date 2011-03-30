@@ -1,10 +1,11 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import javolution.util.FastList;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
@@ -14,19 +15,28 @@ import static org.asoem.greyfish.core.space.TileDirection.*;
 
 public class TileLocation {
 
-    @Attribute
-    private final int x;
-
-    @Attribute
-    private final int y;
-
     private final List<MovingObject2D> occupants = FastList.newInstance();
 
     private final TiledSpace space;
 
     private final int borderFlagsMask;
 
+    @Attribute(name = "x")
+    private final int x;
+
+    @Attribute(name = "y")
+    private final int y;
+
+    @Attribute(name = "border", required = false)
     private int borderFlags = 0;
+
+    @SimpleXMLConstructor
+    private TileLocation(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
+        this.x = x;
+        this.y = y;
+        this.borderFlagsMask = 0;
+        this.space = null;
+    }
 
     TileLocation(TiledSpace space, int x, int y) {
         this.space = space;
@@ -92,16 +102,19 @@ public class TileLocation {
     }
 
     /**
-     * Checks for a border in the given direction. For combined directions (e.g. {@code NORTHWEST}) the function will return
+     * Checks for a border in the given {@code direction} of this tile and for a border in the opposite {@code direction} of the tile in the given direction if present.
+     * For combined directions (e.g. {@code NORTHWEST}) the function will return
      * {@code true} if there is a border for any of the single directions (e.g. {@code NORTH} or {@code WEST})
      * @param direction The direction to check
-     * @return {@code true} if location has a border in the given {@code direction}, {@code false} otherwise.
+     * @return {@code true} if this location has a border in the given {@code direction}
+     * or the location in the given {@code direction}, if present, has a border in the opposite direction,
+     * {@code false} otherwise.
      */
     public boolean hasBorder(TileDirection direction) {
         return hasBorder(direction, true);
     }
 
-    private boolean hasBorder(TileDirection direction, boolean checkOpposite) {
+    private boolean hasBorder(TileDirection direction, boolean checkBorderAtDestination) {
 
         switch (direction) {
             case CENTER:
@@ -123,7 +136,7 @@ public class TileLocation {
                 if (hasBorder(1 << NORTH.ordinal() | 1 << WEST.ordinal())) return true;
         }
 
-        return !checkOpposite || getNeighbourTile(direction).hasBorder(direction.opposite(), false);
+        return checkBorderAtDestination && getNeighbourTile(direction).hasBorder(direction.opposite(), false);
     }
 
     private boolean hasBorder(int flags) {
@@ -131,7 +144,28 @@ public class TileLocation {
     }
 
     public void setBorder(TileDirection direction, boolean b) {
-        Preconditions.checkArgument(direction != CENTER);
+        switch (direction) {
+            case CENTER:
+                throw new IllegalArgumentException("A border at CENTER makes no sense");
+            case NORTHEAST:
+                setBorder(NORTH, b);
+                setBorder(SOUTH, b);
+                return;
+            case SOUTHEAST:
+                setBorder(SOUTH, b);
+                setBorder(EAST, b);
+                return;
+            case SOUTHWEST:
+                setBorder(SOUTH, b);
+                setBorder(WEST, b);
+                return;
+            case NORTHWEST:
+                setBorder(NORTH, b);
+                setBorder(WEST, b);
+                return;
+            default:
+                break;
+        }
 
         if (b) {
             borderFlags |= (1 << direction.ordinal());
@@ -145,15 +179,15 @@ public class TileLocation {
     }
 
     TileLocation getNeighbourTile(TileDirection direction) {
-        return space.getLocationAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
+        return space.getTileAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
     }
 
     boolean hasNeighbourTile(TileDirection direction) {
-        return space.hasLocationAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
+        return space.hasTileAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
     }
 
     public Iterable<MovingObject2D> getOccupants() {
-        return occupants;
+        return Iterables.unmodifiableIterable(occupants);
     }
 
     /**

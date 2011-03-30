@@ -17,6 +17,16 @@ public class PostOffice {
 
     private static final int BINS = 64;
 
+    private final List<List<MessageWrapper>> receiverLists = Lists.newArrayListWithCapacity(BINS);
+
+    private int messageCounter;
+
+    private PostOffice() {
+        for (int i = 0; i < BINS; i++) {
+            receiverLists.add(FastList.<MessageWrapper>newInstance());
+        }
+    }
+
     public synchronized void clear() {
         for (List<MessageWrapper> messageWrappers : receiverLists) {
             messageWrappers.clear();
@@ -26,7 +36,7 @@ public class PostOffice {
     public void deliverOrDiscard(Collection<? extends MessageReceiver> agents) {
         final Map<Integer, MessageReceiver> agentMap = Maps.newHashMap();
         for (int i = 0; i < BINS; i++) {
-            for(final MessageWrapper message : receiverLists.get(i)) {
+            for (final MessageWrapper message : receiverLists.get(i)) {
                 if (!agentMap.containsKey(message.receiverId)) {
                     MessageReceiver agent = Iterables.find(agents, new Predicate<MessageReceiver>() {
                         @Override
@@ -43,26 +53,6 @@ public class PostOffice {
             }
             agentMap.clear();
             receiverLists.get(i).clear();
-        }
-    }
-
-    private final class MessageWrapper {
-        private final int receiverId;
-        private final ACLMessage message;
-
-        private MessageWrapper(ACLMessage message, int receiverId) {
-            this.message = message;
-            this.receiverId = receiverId;
-        }
-    }
-
-    final private List<List<MessageWrapper>> receiverLists = Lists.newArrayListWithCapacity(BINS);
-
-    private int messageCounter;
-
-    private PostOffice() {
-        for (int i = 0; i < BINS; i++) {
-            receiverLists.add(FastList.<MessageWrapper>newInstance());
         }
     }
 
@@ -146,6 +136,16 @@ public class PostOffice {
             if (messageWrapper.receiverId == id) {
                 iterator.remove();
             }
+        }
+    }
+
+    private final class MessageWrapper {
+        private final int receiverId;
+        private final ACLMessage message;
+
+        private MessageWrapper(ACLMessage message, int receiverId) {
+            this.message = message;
+            this.receiverId = receiverId;
         }
     }
 }

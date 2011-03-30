@@ -1,11 +1,14 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.ArraysArrayIterator;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementArray;
 
 import java.util.Iterator;
 import java.util.List;
@@ -31,36 +34,14 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
 
     private final KDTree<MovingObject2D> kdtree = AsoemScalaKDTree.newInstance();
 
-    @Override
-    public boolean covers(Location2D value) {
-        return hasLocationAt((int)value.getX(), (int)value.getY());
-    }
-
-    public static TiledSpace copyOf(TiledSpace space) {
-        return new TiledSpace(space);
-    }
-
-    public boolean hasLocationAt(int x, int y) {
-        return x >= 0 && x < width &&
-                y >= 0 && y < height;
-    }
-
     public TiledSpace(TiledSpace pSpace) {
-        this(pSpace.getWidth(), pSpace.getHeight());
-        for (TileLocation location : pSpace) {
-            getLocationAt(location).setBorderFlags(location.getBorderFlags());
-        }
+        this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
+        setBorderedTiles(pSpace.getBorderedTiles());
     }
 
-    private TileLocation getLocationAt(TileLocation location) {
-        return getLocationAt(location.getX(), location.getY());
-    }
-
-    public static TiledSpace newInstance(int width, int height) {
-        return new TiledSpace(width, height);
-    }
-
-    private TiledSpace(@Attribute(name = "width") int width, @Attribute(name = "height") int height) {
+    @SimpleXMLConstructor
+    public TiledSpace(@Attribute(name = "width") int width,
+                       @Attribute(name = "height") int height) {
         Preconditions.checkArgument(width >= 0);
         Preconditions.checkArgument(height >= 0);
 
@@ -68,12 +49,37 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
         this.height = height;
 
         this.tileMatrix = new TileLocation[width][height];
-
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                tileMatrix[i][j] = new TileLocation(this, i, j);
+                this.tileMatrix[i][j] = new TileLocation(this, i, j);
             }
         }
+    }
+
+    @ElementArray(name = "tiles", entry = "tile", required = false)
+    private TileLocation[] getBorderedTiles() {
+        return Iterables.toArray(Iterables.filter(this, new Predicate<TileLocation>() {
+            @Override
+            public boolean apply(TileLocation tileLocation) {
+                return checkNotNull(tileLocation).getBorderFlags() != 0;
+            }
+        }), TileLocation.class);
+    }
+
+    @ElementArray(name = "tiles", entry = "tile", required = false)
+    private void setBorderedTiles(TileLocation[] tiles) {
+        if (tiles != null) {
+            for (TileLocation location : tiles)
+                getTileAt(location).setBorderFlags(location.getBorderFlags());
+        }
+    }
+
+    public static TiledSpace copyOf(TiledSpace space) {
+        return new TiledSpace(space);
+    }
+
+    public static TiledSpace newInstance(int width, int height) {
+        return new TiledSpace(width, height);
     }
 
     public int getHeight() {
@@ -84,7 +90,21 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
         return width;
     }
 
-    public TileLocation getLocationAt(final int x, final int y) throws IndexOutOfBoundsException, IllegalArgumentException {
+    @Override
+    public boolean covers(Location2D value) {
+        return hasTileAt((int) value.getX(), (int) value.getY());
+    }
+
+    public boolean hasTileAt(int x, int y) {
+        return x >= 0 && x < width &&
+                y >= 0 && y < height;
+    }
+
+    private TileLocation getTileAt(TileLocation location) {
+        return getTileAt(location.getX(), location.getY());
+    }
+
+    public TileLocation getTileAt(final int x, final int y) throws IndexOutOfBoundsException, IllegalArgumentException {
         Preconditions.checkPositionIndex(x, width);
         Preconditions.checkPositionIndex(y, height);
         return tileMatrix[x][y];
@@ -106,14 +126,14 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
     public void addOccupant(MovingObject2D object2d) {
         checkNotNull(object2d);
 
-        TileLocation loc = getLocation(object2d);
+        TileLocation loc = getTileAt(object2d);
         loc.addOccupant(object2d);
         ++nOccupants;
     }
 
     @Override
     public boolean removeOccupant(MovingObject2D individual) {
-        if (getLocation(individual).removeOccupant(individual)) {
+        if (getTileAt(individual).removeOccupant(individual)) {
             --nOccupants;
             return true;
         }
@@ -134,8 +154,8 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
     }
 
     @Override
-    public TileLocation getLocation(Location2D componentOwner) throws IndexOutOfBoundsException, IllegalArgumentException {
-        return getLocationAt((int)componentOwner.getX(), (int)componentOwner.getY());
+    public TileLocation getTileAt(Location2D componentOwner) throws IndexOutOfBoundsException, IllegalArgumentException {
+        return getTileAt((int) componentOwner.getX(), (int) componentOwner.getY());
     }
 
     @Override
@@ -144,10 +164,10 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
             throw new IllegalArgumentException(String.format("No TileLocation for origin '%s' in %s", origin.getAnchorPoint(), this));
         }
 
-        final TileLocation originTile = getLocation(origin);
+        final TileLocation originTile = getTileAt(origin);
 
         if (covers(destination)) {
-            final TileLocation destinationTile = getLocation(destination);
+            final TileLocation destinationTile = getTileAt(destination);
             return originTile.hasReachableNeighbour(destinationTile);
         }
         return false;
@@ -155,10 +175,8 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
 
     public void moveObject(MovingObject2D object2d, Location2D newLocation) {
         if (canMove(object2d, newLocation)) {
-            final TileLocation loc = getLocation(object2d);
-            final TileLocation new_loc = getLocation(newLocation);
-
-            assert (new_loc.getX() > 2 || new_loc.getX() == 2 && new_loc.getY() == 4);
+            final TileLocation loc = getTileAt(object2d);
+            final TileLocation new_loc = getTileAt(newLocation);
 
             boolean result = loc.removeOccupant(object2d);
             assert(result);
@@ -173,7 +191,7 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
         checkNotNull(motionVector);
 
         final Location2D locationAfterMove = ImmutableLocation2D.at(l2d, motionVector.toCartesian());
-        return !covers(locationAfterMove) || getLocation(l2d).hasBorder(getLocation(locationAfterMove));
+        return !covers(locationAfterMove) || getTileAt(l2d).hasBorder(getTileAt(locationAfterMove));
 
     }
 
