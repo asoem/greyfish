@@ -14,18 +14,21 @@ import org.asoem.greyfish.utils.CloneMap;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.actions.ContractNetInitiatiorAction.States.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
 
-    private static final String SEND_CFP = "Send-cfp";
-    private static final String WAIT_FOR_POROPOSALS = "Wait-for-proposals";
-    private static final String WAIT_FOR_INFORM = "Wait-for-inform";
-    private static final String END = "End";
-    private static final String TIMEOUT = "Timeout";
+    enum States {
+        SEND_CFP,
+        WAIT_FOR_POROPOSALS,
+        WAIT_FOR_INFORM,
+        END,
+        TIMEOUT
+    }
 
-    private static final int PROPOSAL_TIMEOUT = 2;
-    private static final int INFORM_TIMEOUT = 1;
+    private static final int PROPOSAL_TIMEOUT_STEPS = 2;
+    private static final int INFORM_TIMEOUT_STEPS = 1;
 
     private int timeoutCounter;
     private int nReceivedProposals;
@@ -56,7 +59,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
         registerInitialFSMState(SEND_CFP, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
                 ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
                 sendMessage(cfpMessage);
                 nProposalsExpected = cfpMessage.getAllReceiver().size();
@@ -71,10 +74,11 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
         registerFSMState(WAIT_FOR_POROPOSALS, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
                 for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
+                    assert(receivedMessage != null);
 
                     ACLMessage proposeReply = null;
                     switch (receivedMessage.getPerformative()) {
@@ -125,8 +129,8 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                     GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsExpected);
                     return END;
                 }
-                else if (timeoutCounter == PROPOSAL_TIMEOUT || nReceivedProposals == nProposalsExpected) {
-                    if (timeoutCounter == PROPOSAL_TIMEOUT)
+                else if (timeoutCounter == PROPOSAL_TIMEOUT_STEPS || nReceivedProposals == nProposalsExpected) {
+                    if (timeoutCounter == PROPOSAL_TIMEOUT_STEPS)
                         GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", this, nReceivedProposals);
 
                     timeoutCounter = 0;
@@ -147,8 +151,10 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
         registerFSMState(WAIT_FOR_INFORM, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
                 for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
+                    assert receivedMessage != null;
+
                     switch (receivedMessage.getPerformative()) {
 
                         case INFORM:
@@ -178,7 +184,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                 ++timeoutCounter;
                 if (nReceivedAcceptAnswers == nReceivedProposals)
                     return END;
-                else if (timeoutCounter == INFORM_TIMEOUT)
+                else if (timeoutCounter == INFORM_TIMEOUT_STEPS)
                     return TIMEOUT;
                 else
                     return WAIT_FOR_INFORM;
@@ -188,9 +194,9 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
         registerEndFSMState(TIMEOUT, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
                 if (GFACTIONS_LOGGER.isDebugEnabled())
-                    GFACTIONS_LOGGER.debug(ContractNetInitiatiorAction.class.getSimpleName() + ": Timeout");
+                    GFACTIONS_LOGGER.debug("{}: Timeout", this);
                 return TIMEOUT;
             }
         });
@@ -198,7 +204,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
         registerEndFSMState(END, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
                 return END;
             }
         });

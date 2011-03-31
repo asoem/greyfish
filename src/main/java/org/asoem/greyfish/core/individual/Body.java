@@ -7,6 +7,8 @@ import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.space.DefaultMovingObject2D;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.gui.utils.Circle;
+import org.asoem.greyfish.gui.utils.ShapeChain;
 import org.asoem.greyfish.lang.FiniteSetSupplier;
 import org.asoem.greyfish.lang.FiniteSetSuppliers;
 import org.asoem.greyfish.utils.*;
@@ -27,7 +29,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
     private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
 
     @Attribute(name="radius", required = false)
-    private float radius = 0.1f;
+    private double radius = 0.1f;
 
     private static final FiniteSetSupplier DEFAULT_SUPPLIER = FiniteSetSuppliers.of("Default");
 
@@ -66,7 +68,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
             states = property;
     }
 
-    public float getRadius() {
+    public double getRadius() {
         return radius; //(float) (radius + 0.01 * getComponentOwner().getAge());
     }
 
@@ -182,5 +184,10 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
             cols[i] = Color.getHSBColor((float) i / (float) n, 0.85f, 1.0f);
         }
         return cols;
+    }
+
+    public ShapeChain getShapeChain() {
+        return ShapeChain.with(Circle.at(getX(), getY(), getRadius()), new Color(0,0,(int) Math.min(254, getComponentOwner().getAge())), false)
+                .prependWith(Circle.at(getX(), getY(), getRadius()), getColor(), true);
     }
 }

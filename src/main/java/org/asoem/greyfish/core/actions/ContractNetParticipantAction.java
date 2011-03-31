@@ -16,16 +16,19 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.actions.ContractNetParticipantAction.States.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
-    private static final String CHECK_CFP = "Check-cfp";
-    private static final String WAIT_FOR_ACCEPT = "Wait-for-accept";
-    private static final String END = "End";
-    private static final String TIMEOUT = "Timeout";
+    enum States {
+        CHECK_CFP,
+        WAIT_FOR_ACCEPT,
+        END,
+        TIMEOUT
+    }
 
-    private static final int TIMEOUT_TIME = 1;
+    private static final int TIMEOUT_ACCEPT_STEPS = 1;
 
     private int timeoutCounter;
     private int nExpectedProposeAnswers;
@@ -55,7 +58,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerInitialFSMState(CHECK_CFP, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
                 template = createCFPTemplate(getOntology());
 
                 final List<ACLMessage> cfpReplies = Lists.newArrayList();
@@ -87,7 +90,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerFSMState(WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
                 Iterable<ACLMessage> receivedMessages = receiveMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
@@ -123,14 +126,14 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 ++timeoutCounter;
 
                 return (nExpectedProposeAnswers == 0) ? END :
-                        (timeoutCounter == TIMEOUT_TIME) ? TIMEOUT : WAIT_FOR_ACCEPT;
+                        (timeoutCounter == TIMEOUT_ACCEPT_STEPS) ? TIMEOUT : WAIT_FOR_ACCEPT;
             }
         });
 
         registerEndFSMState(TIMEOUT, new StateAction() {
 
             @Override
-            public String action() {
+            public Object run() {
                 GFACTIONS_LOGGER.debug("{}: TIMEOUT", ContractNetInitiatiorAction.class.getSimpleName());
                 return TIMEOUT;
             }
@@ -138,7 +141,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
         registerEndFSMState(END, new StateAction() {
             @Override
-            public String action() {
+            public Object run() {
                 return END;
             }
         });

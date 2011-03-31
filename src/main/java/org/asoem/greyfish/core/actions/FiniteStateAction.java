@@ -6,9 +6,8 @@ import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.in;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Iterables.all;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
@@ -22,17 +21,17 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         super(cloneable, cloneMap);
     }
 
-    protected abstract interface StateAction {
-        public String action();
+    protected interface StateAction {
+        public Object run();
     }
 
     /* Immutable after freeze */
-    private ImmutableMap<String, StateAction> states = ImmutableMap.of();
-    private String initialStateName;
-    private ImmutableSet<String> endStateNames = ImmutableSet.of();
+    private ImmutableMap<Object, StateAction> states = ImmutableMap.of();
+    private Object initialStateName;
+    private ImmutableSet<Object> endStateNames = ImmutableSet.of();
 
     /* Always mutable */
-    private String currentStateName;
+    private Object currentStateName;
 
     @Override
     protected final void performAction(Simulation simulation) {
@@ -42,8 +41,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
             currentStateName = initialStateName;                                assert currentStateName != null;
         }
 
-        StateAction stateActionToExecute = states.get(currentStateName);        assert stateActionToExecute != null;
-        String nextStateName = stateActionToExecute.action();                   assert nextStateName != null;
+        StateAction stateActionToExecute = states.get(currentStateName);     assert stateActionToExecute != null;
+        Object nextStateName = stateActionToExecute.run();                   assert nextStateName != null;
 
         if (GFACTIONS_LOGGER.isTraceEnabled())
             GFACTIONS_LOGGER.trace(this + ": Transition to " + nextStateName);
@@ -89,21 +88,19 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         return currentStateName != initialStateName && !endStateNames.contains(currentStateName);
     }
 
-    protected final void registerInitialFSMState(final String state, final StateAction action) {
-        checkState(isNullOrEmpty(initialStateName));
+    protected final void registerInitialFSMState(final Object state, final StateAction action) {
+        checkState(initialStateName == null);
         registerFSMState(state, action);
         initialStateName = state;
     }
 
-    protected final void registerFSMState(final String state, final StateAction action) {
-        checkArgument(!isNullOrEmpty(state));
-        checkNotNull(action); // Redundant: ImmutableMap doesn't allow null keys or values
-        states = ImmutableMap.<String, StateAction>builder().putAll(states).put(state, action).build();
+    protected final void registerFSMState(final Object state, final StateAction action) {
+        states = ImmutableMap.<Object, StateAction>builder().putAll(states).put(state, action).build();
     }
 
-    protected final void registerEndFSMState(final String state, final StateAction action) {
+    protected final void registerEndFSMState(final Object state, final StateAction action) {
         registerFSMState(state, action);
-        endStateNames = ImmutableSet.<String>builder().addAll(endStateNames).add(state).build();
+        endStateNames = ImmutableSet.<Object>builder().addAll(endStateNames).add(state).build();
     }
 
     @Override

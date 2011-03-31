@@ -18,7 +18,6 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.isEmpty;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
@@ -55,12 +54,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     @Override
     protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        assert(message != null);
-
         try {
             final double offer = message.getReferenceContent(Double.class);
-            if (offer == 0)
-                GFACTIONS_LOGGER.info(ResourceConsumptionAction.class + ": Got (double) offer = 0. Should be refused on the provider side");
+            assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
             return message
                     .replyFrom(getComponentOwner().getId())
                     .performative(ACLPerformative.ACCEPT_PROPOSAL)
