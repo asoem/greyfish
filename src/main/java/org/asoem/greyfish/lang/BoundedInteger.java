@@ -1,11 +1,6 @@
 package org.asoem.greyfish.lang;
 
-public class BoundedInteger extends Number implements Comparable<Integer> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5903778004560511866L;
+public class BoundedInteger extends Number implements Comparable<Integer>, WellOrderedSetElement<Integer> {
 
 	public final int min;
 	public final int max;
@@ -51,4 +46,19 @@ public class BoundedInteger extends Number implements Comparable<Integer> {
 		if (checkBounds(val))
 			this.val = val;
 	}
+
+    @Override
+    public Integer getUpperBound() {
+        return max;
+    }
+
+    @Override
+    public Integer getLowerBound() {
+        return min;
+    }
+
+    @Override
+    public Integer get() {
+        return val;
+    }
 }
