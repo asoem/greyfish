@@ -17,7 +17,7 @@ import org.uncommons.maths.binary.BitString;
  * Time: 14:20
  */
 @ClassGroup(tags = {"property"})
-public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements OrderedSetProperty<Double> {
+public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements WellOrderedSetElementProperty<Double> {
 
     private final static int BITSTRINGLENGTH = 10;
 
@@ -78,7 +78,7 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements O
 
     public static Builder with() { return new Builder(); }
 
-    public static final class Builder extends AbstractOrderedSetProperty.AbstractBuilder<Builder, Double> implements BuilderInterface<BitSetGeneBackedIntProperty> {
+    public static final class Builder extends AbstractWellOrderedSetElementProperty.AbstractBuilder<Builder, Double> implements BuilderInterface<BitSetGeneBackedIntProperty> {
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override public BitSetGeneBackedIntProperty build() { return new BitSetGeneBackedIntProperty(this); }

@@ -10,7 +10,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @ClassGroup(tags="property")
-public class DoubleProperty extends AbstractOrderedSetProperty<Double> {
+public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double> {
 
     private DoubleProperty() {
         this(new Builder());
@@ -54,6 +54,6 @@ public class DoubleProperty extends AbstractOrderedSetProperty<Double> {
             return new DoubleProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractOrderedSetProperty.AbstractBuilder<T, Double> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractWellOrderedSetElementProperty.AbstractBuilder<T, Double> {
     }
 }

@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 
-public abstract class AbstractOrderedSetProperty<E extends Comparable<E>> extends AbstractGFProperty implements OrderedSetProperty<E> {
+public abstract class AbstractWellOrderedSetElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty implements WellOrderedSetElementProperty<E> {
 
     @Element(name="max")
     protected E upperBound;
@@ -29,7 +29,7 @@ public abstract class AbstractOrderedSetProperty<E extends Comparable<E>> extend
 
     protected E value;
 
-    protected AbstractOrderedSetProperty(AbstractOrderedSetProperty<E> property, CloneMap cloneMap) {
+    protected AbstractWellOrderedSetElementProperty(AbstractWellOrderedSetElementProperty<E> property, CloneMap cloneMap) {
         super(property, cloneMap);
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;
@@ -104,7 +104,7 @@ public abstract class AbstractOrderedSetProperty<E extends Comparable<E>> extend
         checkState(Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)));
     }
 
-    protected AbstractOrderedSetProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
+    protected AbstractWellOrderedSetElementProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
         super(builder);
         this.lowerBound = builder.lowerBound;
         this.upperBound = builder.upperBound;

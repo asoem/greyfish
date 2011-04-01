@@ -1,16 +1,19 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
+import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.DefaultMovingObject2D;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.gui.utils.Circle;
-import org.asoem.greyfish.gui.utils.ShapeChain;
 import org.asoem.greyfish.lang.FiniteSetSupplier;
 import org.asoem.greyfish.lang.FiniteSetSuppliers;
+import org.asoem.greyfish.lang.MutableWellOrderedSetElement;
+import org.asoem.greyfish.lang.WellOrderedSetElement;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -18,6 +21,7 @@ import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.core.Commit;
 
 import java.awt.*;
+import java.awt.geom.Arc2D;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -41,6 +45,8 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
 
     private FiniteSetSupplier<?> states = DEFAULT_SUPPLIER;
 
+    private WellOrderedSetElement<?> outlineValueSupplier = new MutableWellOrderedSetElement<Double>(0.0, 1.0, 0.0);
+
     private Body(IndividualInterface owner) {
         setComponentRoot(owner);
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
@@ -54,6 +60,8 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         if (property != null)
             states = property;
         stateColorMap = body.stateColorMap;
+        if (body.outlineValueSupplier instanceof GFProperty)
+            outlineValueSupplier = map.clone((GFProperty)body.outlineValueSupplier, WellOrderedSetElement.class);
     }
 
     @SuppressWarnings("unused") // used by the deserialization process
@@ -151,7 +159,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
 
     @Override
     public void export(Exporter e) {
-        e.add(ValueAdaptor.forField("Radius of the Circle", Float.class, this, "radius"));
+        e.add(ValueAdaptor.forField("Radius of the Circle", Double.class, this, "radius"));
         FiniteSetValueAdaptor<FiniteSetSupplier> b = new FiniteSetValueAdaptor<FiniteSetSupplier>("StateProperty", FiniteSetSupplier.class) {
             @Override protected void set(FiniteSetSupplier arg0) { states = checkNotNull(arg0);
                 if (!states.equals(DEFAULT_SUPPLIER)) property = FiniteSetProperty.class.cast(states);
@@ -175,6 +183,23 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         e.add(colorMultiValueAdaptor);
         b.addValueChangeListener(colorMultiValueAdaptor);
 //        e.sum(ValueAdaptor.forField("The color of the Body", Color.class, this, "color"));
+
+        e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
+            @Override
+            public Iterable<WellOrderedSetElement> values() {
+                return Iterables.filter(getComponentOwner().getProperties(), this.clazz);
+            }
+
+            @Override
+            protected void set(WellOrderedSetElement arg0) {
+                outlineValueSupplier = arg0;
+            }
+
+            @Override
+            public WellOrderedSetElement get() {
+                return outlineValueSupplier;
+            }
+        });
     }
 
     private Color[] generateColors(int n) {
@@ -186,8 +211,15 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         return cols;
     }
 
-    public ShapeChain getShapeChain() {
-        return ShapeChain.with(Circle.at(getX(), getY(), getRadius()), new Color(0,0,(int) Math.min(254, getComponentOwner().getAge())), false)
-                .prependWith(Circle.at(getX(), getY(), getRadius()), getColor(), true);
+    public void draw(Graphics2D g2d) {
+        Circle c = Circle.at(getX(), getY(), getRadius());
+
+        g2d.setColor(Color.BLACK);
+        g2d.setStroke(new BasicStroke(0.06f));
+        Arc2D.Double arc = new Arc2D.Double(c.getBounds2D(), 0, (int) (outlineValueSupplier.get().doubleValue() / outlineValueSupplier.getUpperBound().doubleValue() * 360), Arc2D.OPEN);
+        g2d.draw(arc);
+
+        g2d.setColor(getColor());
+        g2d.fill(c);
     }
 }
