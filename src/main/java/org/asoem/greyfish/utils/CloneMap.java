@@ -11,7 +11,7 @@ public class CloneMap extends ForwardingMap<DeepCloneable, DeepCloneable> {
 
     private final Map<DeepCloneable, DeepCloneable> map = Maps.newHashMap();
 
-    public <T extends DeepCloneable> T clone(T clonable, Class<T> clazz) {
+    public <T extends DeepCloneable, E> E clone(T clonable, Class<E> clazz) {
         if (clonable == null)
             return null;
         else if (map.containsKey(clonable))
