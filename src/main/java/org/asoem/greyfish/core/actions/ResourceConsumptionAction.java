@@ -30,7 +30,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     private String parameterMessageType = "";
 
     @Element(name="amountPerRequest", required=false)
-    private double amountPerRequest = 0;
+    protected double amountPerRequest = 0;
 
     @Element(name="sensorRange")
     private double sensorRange = 0;
@@ -165,7 +165,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         return new ResourceConsumptionAction(this, cloneMap);
     }
 
-    private ResourceConsumptionAction(ResourceConsumptionAction cloneable, CloneMap cloneMap) {
+    protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
         this.consumerProperty = cloneMap.clone(cloneable.consumerProperty, DoubleProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
@@ -182,6 +182,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     }
 
     public static Builder with() { return new Builder(); }
+
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceConsumptionAction> {
         private Builder() {}
         @Override protected Builder self() { return this; }

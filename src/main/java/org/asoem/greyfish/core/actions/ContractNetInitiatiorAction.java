@@ -153,6 +153,8 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
 
             @Override
             public Object run() {
+                assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
+
                 for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
                     assert receivedMessage != null;
 

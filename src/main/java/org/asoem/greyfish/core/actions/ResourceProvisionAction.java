@@ -121,7 +121,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         return new ResourceProvisionAction(this, cloneMap);
     }
 
-    private ResourceProvisionAction(ResourceProvisionAction cloneable, CloneMap cloneMap) {
+    protected ResourceProvisionAction(ResourceProvisionAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
         this.resourceProperty = cloneMap.clone(cloneable.resourceProperty, ResourceProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
