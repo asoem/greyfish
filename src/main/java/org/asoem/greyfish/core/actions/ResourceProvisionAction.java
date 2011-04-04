@@ -14,6 +14,7 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -50,10 +51,14 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
         double offer = Math.min(requested, resourceProperty.get());
 
-        if (offer > 0)
+        if (offer > 0) {
             ret.performative(ACLPerformative.PROPOSE).objectContent(offer);
-        else
+            LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Offering {}", offer);
+        }
+        else {
             ret.performative(ACLPerformative.REFUSE).stringContent("Nothing to offer");
+            LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Nothing to offer");
+        }
 
         return ret;
     }
@@ -62,8 +67,9 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     protected ACLMessage.Builder handleAccept(ACLMessage message) throws NotUnderstoodException {
         try {
             double offer = message.getReferenceContent(Double.class);
-
             assert resourceProperty.get() >= offer : "Values have changed unexpectedly";
+
+            LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Subtracting {}", offer);
 
             resourceProperty.subtract(offer);
             return message

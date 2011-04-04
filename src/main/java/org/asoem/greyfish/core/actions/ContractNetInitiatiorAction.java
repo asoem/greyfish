@@ -27,12 +27,12 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
         TIMEOUT
     }
 
-    private static final int PROPOSAL_TIMEOUT_STEPS = 2;
+    private static final int PROPOSAL_TIMEOUT_STEPS = 1;
     private static final int INFORM_TIMEOUT_STEPS = 1;
 
     private int timeoutCounter;
-    private int nReceivedProposals;
-    private int nReceivedAcceptAnswers;
+    private int nProposalsReceived;
+    private int nInformReceived;
 
     public ContractNetInitiatiorAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
@@ -53,7 +53,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
     }
 
     private MessageTemplate template = MessageTemplate.alwaysFalse();
-    private int nProposalsExpected;
+    private int nProposalsMax;
 
     private void initFSM() {
         registerInitialFSMState(SEND_CFP, new StateAction() {
@@ -62,9 +62,9 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
             public Object run() {
                 ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
                 sendMessage(cfpMessage);
-                nProposalsExpected = cfpMessage.getAllReceiver().size();
+                nProposalsMax = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
-                nReceivedProposals = 0;
+                nProposalsReceived = 0;
                 template = createCFPReplyTemplate(cfpMessage);
 
                 return WAIT_FOR_POROPOSALS;
@@ -88,7 +88,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                                 proposeReply = handlePropose(receivedMessage).build();
                                 assert (proposeReply != null);
                                 proposeReplies.add(proposeReply);
-                                ++nReceivedProposals;
+                                ++nProposalsReceived;
                                 GFACTIONS_LOGGER.trace("{}: Received proposal", this);
                             } catch (NotUnderstoodException e) {
                                 proposeReply = receivedMessage.replyFrom(getComponentOwner().getId())
@@ -105,17 +105,17 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                         case REFUSE:
                             GFACTIONS_LOGGER.debug("{}: CFP was refused: ", this, receivedMessage);
                             handleRefuse(receivedMessage);
-                            --nProposalsExpected;
+                            --nProposalsMax;
                             break;
 
                         case NOT_UNDERSTOOD:
                             GFACTIONS_LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", this);
-                            --nProposalsExpected;
+                            --nProposalsMax;
                             break;
 
                         default:
                             GFACTIONS_LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", this, receivedMessage.getPerformative());
-                            --nProposalsExpected;
+                            --nProposalsMax;
                             break;
 
                     }
@@ -123,20 +123,21 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                 ++timeoutCounter;
 
 
-                assert nProposalsExpected >= 0;
+                assert nProposalsMax >= 0;
 
-                if (nProposalsExpected == 0) {
-                    GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsExpected);
+                if (nProposalsMax == 0) {
+                    GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsMax);
                     return END;
                 }
-                else if (timeoutCounter == PROPOSAL_TIMEOUT_STEPS || nReceivedProposals == nProposalsExpected) {
-                    if (timeoutCounter == PROPOSAL_TIMEOUT_STEPS)
-                        GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", this, nReceivedProposals);
+                else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
+                    if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
+                        GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", this, nProposalsReceived);
 
                     timeoutCounter = 0;
 
-                    if (nReceivedProposals > 0) {
+                    if (nProposalsReceived > 0) {
                         template = createAcceptReplyTemplate(proposeReplies);
+                        nInformReceived = 0;
                         return WAIT_FOR_INFORM;
                     }
                     else
@@ -179,12 +180,14 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                             break;
                     }
 
-                    ++nReceivedAcceptAnswers;
+                    ++nInformReceived;
                 }
+
                 ++timeoutCounter;
-                if (nReceivedAcceptAnswers == nReceivedProposals)
+
+                if (nInformReceived == nProposalsReceived)
                     return END;
-                else if (timeoutCounter == INFORM_TIMEOUT_STEPS)
+                else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
                     return TIMEOUT;
                 else
                     return WAIT_FOR_INFORM;

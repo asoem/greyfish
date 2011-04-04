@@ -126,7 +126,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 ++timeoutCounter;
 
                 return (nExpectedProposeAnswers == 0) ? END :
-                        (timeoutCounter == TIMEOUT_ACCEPT_STEPS) ? TIMEOUT : WAIT_FOR_ACCEPT;
+                        (timeoutCounter > TIMEOUT_ACCEPT_STEPS) ? TIMEOUT : WAIT_FOR_ACCEPT;
             }
         });
 

@@ -92,7 +92,7 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
 
     @Override
     public boolean covers(Location2D value) {
-        return hasTileAt((int) value.getX(), (int) value.getY());
+        return hasTileAt((int) Math.floor(value.getX()), (int) Math.floor(value.getY()));
     }
 
     public boolean hasTileAt(int x, int y) {

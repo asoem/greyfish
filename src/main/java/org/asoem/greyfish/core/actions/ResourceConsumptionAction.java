@@ -12,6 +12,7 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.equalTo;
@@ -43,6 +44,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     @Override
     protected ACLMessage.Builder createCFP() {
+        LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("CFP");
         return ACLMessage.with()
                 .source(getComponentOwner().getId())
                 .performative(ACLPerformative.CFP)
@@ -57,6 +59,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         try {
             final double offer = message.getReferenceContent(Double.class);
             assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
+
+            LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("ACCEPT_PROPOSAL");
             return message
                     .replyFrom(getComponentOwner().getId())
                     .performative(ACLPerformative.ACCEPT_PROPOSAL)
@@ -64,7 +68,6 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         } catch (Exception e) {
             throw new NotUnderstoodException();
         }
-
     }
 
     @Override
@@ -72,6 +75,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         try {
             final double offer = message.getReferenceContent(Double.class);
             consumerProperty.add(offer);
+
+            LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
         }
         catch (Exception e) {
             throw new NotUnderstoodException();
