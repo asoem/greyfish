@@ -1,7 +1,9 @@
 package org.asoem.greyfish.lang;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import org.asoem.greyfish.utils.BitSets;
+import org.asoem.greyfish.utils.RandomUtils;
 
 import java.math.BigInteger;
 import java.util.BitSet;
@@ -35,10 +37,23 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
      * @param p
      */
     public ImmutableBitSet(ImmutableBitSet val, double p) {
-        BitSet bs = new BitSet(val.bitLength());
+        BitSet bs = new BitSet(val.length());
         int idx = 0;
         for(Boolean b : val)
             bs.set(idx++, b);
+        this.val = BitSets.toBigInteger(bs);
+    }
+
+    /**
+     *
+     * @param length The length of this ImmutableBitSet
+     * @param p The probability that the bit at a given position is set to true
+     */
+    public ImmutableBitSet(int length, double p) {
+        BitSet bs = new BitSet(length);
+        for (int i=0; i<= bs.length(); i++) {
+            bs.set(i, RandomUtils.trueWithProbability(p));
+        }
         this.val = BitSets.toBigInteger(bs);
     }
 
@@ -90,11 +105,11 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
         return this.val.compareTo(val.val);
     }
 
-    public int bitCount() {
+    public int cardinality() {
         return val.bitCount();
     }
 
-    public int bitLength() {
+    public int length() {
         return val.bitLength();
     }
 
@@ -118,7 +133,7 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
             int idx = 0;
             @Override
             protected Boolean computeNext() {
-                if (idx < bitLength())
+                if (idx < length())
                     return val.testBit(idx++);
                 else
                     return endOfData();
@@ -128,5 +143,28 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
 
     public ImmutableBitSet subtract(ImmutableBitSet copy) {
         return new ImmutableBitSet(val.subtract(copy.val));
+    }
+
+    public static ImmutableBitSet ones(int length) {
+        return new ImmutableBitSet(length, 1);
+    }
+
+    public static ImmutableBitSet zeros(int length) {
+        return new ImmutableBitSet(length, 0);
+    }
+
+    public boolean get(int idx) {
+       return val.testBit(idx);
+    }
+
+    public int hammingDistance(ImmutableBitSet that) {
+        Preconditions.checkNotNull(that);
+
+        int modifications = 0;
+        for (int i = 0; i<= Math.min(this.length(), that.length()); i++)
+            if (this.get(i) ^ that.get(i))
+                ++modifications;
+
+        return modifications + Math.abs(this.length() - that.length());
     }
 }

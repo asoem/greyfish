@@ -21,7 +21,7 @@
     <logger name="org.asoem.greyfish.core" additivity="true">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.individual" additivity="true">
+    <logger name="org.asoem.greyfish.core.individual" additivity="true" level="INFO">
     </logger>
 
     <logger name="org.asoem.greyfish.core.simulation" additivity="true">
