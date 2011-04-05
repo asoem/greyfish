@@ -72,9 +72,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     public final ExecutionResult execute(final Simulation simulation) {
         try {
             if (!isResuming()) {
-                if (!evaluateConditions(simulation))
+                if (!evaluateConditions(simulation)) {
                     return ExecutionResult.CONDITIONS_FAILED;
-
+                }
                 if (!evaluateCosts())
                     return ExecutionResult.INSUFFICIENT_ENERGY;
 

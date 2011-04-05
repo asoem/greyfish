@@ -44,7 +44,6 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     @Override
     protected ACLMessage.Builder createCFP() {
-        LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("CFP");
         return ACLMessage.with()
                 .source(getComponentOwner().getId())
                 .performative(ACLPerformative.CFP)
@@ -56,18 +55,15 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     @Override
     protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        try {
-            final double offer = message.getReferenceContent(Double.class);
-            assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
-            LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("ACCEPT_PROPOSAL");
-            return message
-                    .replyFrom(getComponentOwner().getId())
-                    .performative(ACLPerformative.ACCEPT_PROPOSAL)
-                    .objectContent(offer);
-        } catch (Exception e) {
-            throw new NotUnderstoodException();
-        }
+        final double offer = message.getReferenceContent(Double.class);
+
+        assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
+
+        return message
+                .createReplyFrom(getComponentOwner().getId())
+                .performative(ACLPerformative.ACCEPT_PROPOSAL)
+                .objectContent(offer);
     }
 
     @Override

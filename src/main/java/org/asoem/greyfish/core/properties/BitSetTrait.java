@@ -11,6 +11,7 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.toArray;
 
 /**
@@ -19,54 +20,57 @@ import static com.google.common.collect.Iterables.toArray;
  * Time: 14:20
  */
 @ClassGroup(tags = {"property"})
-public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements WellOrderedSetElementProperty<Double>, HammingDistanceComparable {
+public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetElementProperty<ImmutableBitSet>, HammingDistanceComparable {
 
-    private final static int BITSTRINGLENGTH = 10;
+    private final static int BITSET_LENGTH = 10;
 
     private final Gene<ImmutableBitSet> bitStringGene;
 
     @SuppressWarnings("unused") // used in the deserialization process
-    private BitSetGeneBackedIntProperty() {
+    private BitSetTrait() {
         this(new Builder());
     }
 
-    protected BitSetGeneBackedIntProperty(BitSetGeneBackedIntProperty doubleOrderedSetProperty, CloneMap cloneMap) {
+    protected BitSetTrait(BitSetTrait doubleOrderedSetProperty, CloneMap cloneMap) {
         super(doubleOrderedSetProperty, cloneMap);
         bitStringGene = registerGene(DefaultGene.newMutatedCopy(doubleOrderedSetProperty.bitStringGene));
     }
 
     @Override
     public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new BitSetGeneBackedIntProperty(this, map);
+        return new BitSetTrait(this, map);
     }
 
 
     @Override
-    public Double get() {
-        return bitStringGene.get().doubleValue();
+    public ImmutableBitSet get() {
+        return bitStringGene.get();
     }
 
     @Override
-    public Double getUpperBound() {
-        return (double) (1 << BITSTRINGLENGTH) - 1;
+    public ImmutableBitSet getUpperBound() {
+        return ImmutableBitSet.ones(bitStringGene.get().length());
     }
 
     @Override
-    public Double getLowerBound() {
-        return 0.0;
+    public ImmutableBitSet getLowerBound() {
+        return ImmutableBitSet.zeros(bitStringGene.get().length());
     }
 
-    protected BitSetGeneBackedIntProperty(Builder builder) {
+    protected BitSetTrait(Builder builder) {
         super(builder);
         MutationOperator<ImmutableBitSet> mutationOperator = new MutationOperator<ImmutableBitSet>() {
             @Override
             public ImmutableBitSet mutate(ImmutableBitSet original) {
+                checkNotNull(original);
                 return new ImmutableBitSet(original, 0.1);
             }
 
             @Override
             public double normalizedDistance(ImmutableBitSet orig, ImmutableBitSet copy) {
-                return Math.abs(orig.subtract(copy).doubleValue()) / (getUpperBound() - getLowerBound());
+                checkNotNull(orig);
+                checkNotNull(copy);
+                return (double) orig.hammingDistance(copy) / Math.max(orig.length(), copy.length());
             }
 
             @Override
@@ -75,7 +79,7 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements W
             }
         };
         bitStringGene = registerGene(
-            new DefaultGene<ImmutableBitSet>(new ImmutableBitSet(BITSTRINGLENGTH, RandomUtils.RNG), ImmutableBitSet.class, mutationOperator));
+            new DefaultGene<ImmutableBitSet>(new ImmutableBitSet(BITSET_LENGTH, RandomUtils.RNG), ImmutableBitSet.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }
@@ -90,9 +94,9 @@ public class BitSetGeneBackedIntProperty extends AbstractGFProperty implements W
         return 0;
     }
 
-    public static final class Builder extends AbstractWellOrderedSetElementProperty.AbstractBuilder<Builder, Double> implements BuilderInterface<BitSetGeneBackedIntProperty> {
+    public static final class Builder extends AbstractWellOrderedSetElementProperty.AbstractBuilder<Builder, ImmutableBitSet> implements BuilderInterface<BitSetTrait> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public BitSetGeneBackedIntProperty build() { return new BitSetGeneBackedIntProperty(this); }
+        @Override public BitSetTrait build() { return new BitSetTrait(this); }
     }
 }

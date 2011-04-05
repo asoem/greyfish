@@ -59,7 +59,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Override
     protected ACLMessage.Builder handleAccept(ACLMessage message) {
-        return message.replyFrom(getComponentOwner().getId())
+        return message.createReplyFrom(getComponentOwner().getId())
                 .performative(ACLPerformative.INFORM);
     }
 
@@ -68,7 +68,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
         final Genome sperm = getComponentOwner().getGenome();
 
-        return message.replyFrom(getComponentOwner().getId())
+        return message.createReplyFrom(getComponentOwner().getId())
                 .objectContent(new EvaluatedGenome(sperm, 0)) // costs for mating define quality of the genome
                 .performative(ACLPerformative.PROPOSE);
     }

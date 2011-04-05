@@ -57,7 +57,7 @@ public class DefaultGene<T> implements Gene<T> {
 
     @Override
     public final double distance(Gene<?> thatGene) {
-        checkArgument(this.isMutatedCopyOf(thatGene));
+        checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
         return mutationFunction.normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
     }
 }

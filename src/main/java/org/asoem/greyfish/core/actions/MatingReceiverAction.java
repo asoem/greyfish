@@ -117,7 +117,7 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 
     @Override
     protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.replyFrom(this.getComponentOwner().getId());
+        ACLMessage.Builder builder = message.createReplyFrom(this.getComponentOwner().getId());
         try {
             EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
             receiveGenome(evaluatedGenome);

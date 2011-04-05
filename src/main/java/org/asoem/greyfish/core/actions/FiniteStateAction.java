@@ -36,16 +36,14 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     @Override
     protected final void performAction(Simulation simulation) {
         if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
-            if (GFACTIONS_LOGGER.isTraceEnabled())
-                GFACTIONS_LOGGER.trace(this + ": EndTransition to " + initialStateName);
+            GFACTIONS_LOGGER.debug("{}: EndTransition to {}", this, initialStateName);
             currentStateName = initialStateName;                                assert currentStateName != null;
         }
 
         StateAction stateActionToExecute = states.get(currentStateName);     assert stateActionToExecute != null;
         Object nextStateName = stateActionToExecute.run();                   assert nextStateName != null;
 
-        if (GFACTIONS_LOGGER.isTraceEnabled())
-            GFACTIONS_LOGGER.trace(this + ": Transition to " + nextStateName);
+        GFACTIONS_LOGGER.debug("{}: Transition to {}", this, nextStateName);
 
         currentStateName = nextStateName;
     }

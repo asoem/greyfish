@@ -26,8 +26,11 @@ public class Genes {
             Gene<?> thisGene = this_genome_iter.next();
             Gene<?> thatGene = other_genome_iter.next();
 
-            if (!thisGene.isMutatedCopyOf(thatGene))
-                throw new IllegalArgumentException("GeneLists don't match: this=" + thisGenes + "; that=" + thatGenes);
+//            if (!thisGene.isMutatedCopyOf(thatGene))
+//                throw new IllegalArgumentException("Genes are not compatible: " + thisGene + ", " + thatGene);
+
+            if (!thisGene.getSupplierClass().equals(thatGene.getSupplierClass()))
+                throw new IllegalArgumentException("Genes implemented with different types: this: " + thisGene.getSupplierClass() + ", that: " + thatGene.getSupplierClass());
 
             ret += thisGene.distance(thatGene);
         }

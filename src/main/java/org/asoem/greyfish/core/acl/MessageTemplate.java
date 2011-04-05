@@ -103,7 +103,13 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 
         @Override
         public boolean apply(ACLMessage aclMessage) {
-            return predicate.apply(aclMessage.getReferenceContent(clazz));
+            try {
+                if (aclMessage.getContentClass().isAssignableFrom(clazz))
+                    return predicate.apply(aclMessage.getReferenceContent(clazz));
+            } catch (NotUnderstoodException e) {
+                assert false : "Unreachable Code";
+            }
+            return false;
         }
     }
 

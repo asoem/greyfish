@@ -47,7 +47,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
 
-        ACLMessage.Builder ret = message.replyFrom(getComponentOwner().getId());
+        ACLMessage.Builder ret = message.createReplyFrom(getComponentOwner().getId());
 
         double offer = Math.min(requested, resourceProperty.get());
 
@@ -73,7 +73,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
             resourceProperty.subtract(offer);
             return message
-                    .replyFrom(getComponentOwner().getId())
+                    .createReplyFrom(getComponentOwner().getId())
                     .performative(ACLPerformative.INFORM)
                     .objectContent(offer);
         } catch (IllegalArgumentException e) {
@@ -142,10 +142,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProvisionAction> {
         @Override protected Builder self() {  return this; }
-        public ResourceProvisionAction build() {
-            checkState(this.resourceProperty != null, "The ResourceProperty is mandatory");
-            checkState(this.parameterMessageType != null, "The messageType is mandatory");
-            return new ResourceProvisionAction(this); }
+        @Override public ResourceProvisionAction build() { return new ResourceProvisionAction(checkedSelf()); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
@@ -154,5 +151,12 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
         public T resourceProperty(ResourceProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
         public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
+
+        @Override
+        protected T checkedSelf() throws IllegalStateException {
+            checkState(this.resourceProperty != null, "The ResourceProperty is mandatory");
+            checkState(this.parameterMessageType != null, "The messageType is mandatory");
+            return super.checkedSelf();
+        }
     }
 }

@@ -68,7 +68,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     try {
                         cfpReply = handleCFP(message).build();
                     } catch (NotUnderstoodException e) {
-                        cfpReply = message.replyFrom(getComponentOwner().getId())
+                        cfpReply = message.createReplyFrom(getComponentOwner().getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
                         GFACTIONS_LOGGER.debug("Message not understood", e);
@@ -100,7 +100,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                             try {
                                 response = handleAccept(receivedMessage).build();
                             } catch (NotUnderstoodException e) {
-                                response = receivedMessage.replyFrom(getComponentOwner().getId())
+                                response = receivedMessage.createReplyFrom(getComponentOwner().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
 

@@ -39,11 +39,15 @@ public final class ACLMessage {
         this.protocol = builder.protocol;
     }
 
+    public Class<?> getContentClass() {
+        return content == null ? null : content.getClass();
+    }
+
     public enum ContentType {
         NULL,
         STRING,
         BYTE_ARRAY,
-        OTHER
+        OTHER;
     }
 
     public ContentType getContentType() {
@@ -93,9 +97,10 @@ public final class ACLMessage {
      * @return The content object casted to type <code>T</code>
      * @throws IllegalArgumentException if content has not type <code>T</code>
      */
-    public <T> T getReferenceContent(Class<T> clazz) throws IllegalArgumentException {
+    public <T> T getReferenceContent(Class<T> clazz) throws NotUnderstoodException {
         if(!checkNotNull(clazz).isInstance(content))
-            throw new IllegalArgumentException("Requesting " + clazz + " content which has type " + content.getClass());
+            throw NotUnderstoodException.unexpectedPayloadType(this, clazz);
+//            throw new IllegalArgumentException("Requesting " + clazz + " content which has type " + content.getClass());
         return clazz.cast(content);
     }
 
@@ -189,7 +194,7 @@ public final class ACLMessage {
      * Of course, if he wishes to do that, he can reset any of the fields.
      * @return the ACLMessage to send as a reply
      */
-    public Builder replyFrom(Integer individual) {
+    public Builder createReplyFrom(Integer individual) {
         return new Builder()
                 .performative(this.performative)
                 .addReplyTos(this.reply_to)

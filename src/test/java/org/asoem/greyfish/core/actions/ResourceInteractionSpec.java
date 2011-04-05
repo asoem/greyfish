@@ -19,16 +19,16 @@ import java.awt.*;
 import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 @RunWith(JDaveRunner.class)
-public class ResourceProvisionConsumptionSpec extends Specification<ContractNetInitiatiorAction> {
+public class ResourceInteractionSpec extends Specification<ContractNetInitiatiorAction> {
     public class NormalInteraction {
 
         final DoubleProperty energyStorage = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.0).build();
         final ResourceConsumptionAction consumptionAction =
-                ResourceConsumptionAction.with().viaMessagesOfType("test").requesting(1).storesEnergyIn(energyStorage).build();
+                ResourceConsumptionAction.with().name("eat").viaMessagesOfType("test").requesting(1).storesEnergyIn(energyStorage).build();
         final Prototype consumer = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop1", Color.black)).addProperties(energyStorage).addActions(consumptionAction).build());
 
         final ResourceProperty resourceProperty = new ResourceProperty.Builder().lowerBound(0.0).upperBound(1.0).initialValue(1.0).build();
-        final ResourceProvisionAction provisionAction = ResourceProvisionAction.with().parameterMessageType("test").resourceProperty(resourceProperty).build();
+        final ResourceProvisionAction provisionAction = ResourceProvisionAction.with().name("feed").parameterMessageType("test").resourceProperty(resourceProperty).build();
         final Prototype provider = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop2", Color.black)).addProperties(resourceProperty).addActions(provisionAction).build());
 
         final Scenario scenario = Scenario.with().space(1,1)
@@ -39,7 +39,7 @@ public class ResourceProvisionConsumptionSpec extends Specification<ContractNetI
         final Simulation simulation = Simulation.newSimulation(scenario);
 
         public void shouldTransferTheCorrectAmount() {
-            int stepRequired = 3;
+            int stepRequired = 5;
             while (stepRequired-- != 0) {
                 simulation.step();
             }
