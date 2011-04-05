@@ -7,4 +7,5 @@ package org.asoem.greyfish.lang;
  */
 public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
     protected abstract T self();
+    protected T checkedSelf() throws IllegalStateException {return self();}
 }

@@ -54,6 +54,13 @@ public class RandomUtils {
 	}
 
     public static boolean trueWithProbability(double probability) {
-        return nextDouble() < probability;
+        if (probability == 0)
+            return false;
+        else if (probability == 1)
+            return true;
+        else if (probability > 0 && probability < 1)
+            return nextDouble() < probability;
+        else
+            throw new IllegalArgumentException("Probability not in [0,1]: " + probability);
     }
 }
