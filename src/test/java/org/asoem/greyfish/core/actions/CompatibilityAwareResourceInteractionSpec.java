@@ -13,6 +13,7 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.lang.ImmutableBitSet;
 import org.junit.runner.RunWith;
 
 import java.awt.*;
@@ -28,7 +29,7 @@ import static org.asoem.greyfish.core.space.MutableObject2D.at;
 public class CompatibilityAwareResourceInteractionSpec extends Specification<ContractNetInitiatiorAction> {
     public class NormalInteraction {
 
-        final BitSetTrait trait1 = BitSetTrait.with().name("Trait1").build();
+        final BitSetTrait trait1 = BitSetTrait.with().name("Trait1").initialValue(ImmutableBitSet.valueOf("111111")).build();
         final DoubleProperty energyStorage = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.0).build();
         final CompatibilityAwareResourceConsumptionAction consumptionAction =
                 new CompatibilityAwareResourceConsumptionAction.Builder()
@@ -45,7 +46,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .addActions(consumptionAction)
                         .build());
 
-        final BitSetTrait trait = BitSetTrait.with().name("Trait2").build();
+        final BitSetTrait trait = BitSetTrait.with().name("Trait2").initialValue(ImmutableBitSet.valueOf("111000")).build();
         final ResourceProperty resourceProperty = new ResourceProperty.Builder().lowerBound(0.0).upperBound(1.0).initialValue(1.0).build();
         final CompatibilityAwareResourceProvisionAction provisionAction =
                 new CompatibilityAwareResourceProvisionAction.Builder()
@@ -83,7 +84,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
             }, null);
             assert consumerClone != null;
 
-            specify(Iterables.get(Iterables.filter(consumerClone.getProperties(), DoubleProperty.class), 0).get(), should.equal(1.0));
+            specify(Iterables.get(Iterables.filter(consumerClone.getProperties(), DoubleProperty.class), 0).get(), should.equal(0.5));
         }
 
     }

@@ -153,10 +153,10 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
 
         @Override
-        protected T checkedSelf() throws IllegalStateException {
+        protected void checkBuilder() throws IllegalStateException {
             checkState(this.resourceProperty != null, "The ResourceProperty is mandatory");
             checkState(this.parameterMessageType != null, "The messageType is mandatory");
-            return super.checkedSelf();
+            super.checkBuilder();
         }
     }
 }

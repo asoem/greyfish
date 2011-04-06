@@ -89,9 +89,9 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
         public T similarityTrait(GFProperty trait) { this.similarityTrait = checkNotNull(trait); return self(); }
 
         @Override
-        protected T checkedSelf() throws IllegalStateException {
-            checkState(this.similarityTrait != null);
-            return super.checkedSelf();
+        protected void checkBuilder() throws IllegalStateException {
+            checkState(this.similarityTrait != null, "similarityTrait must not be null");
+            super.checkBuilder();
         }
     }
 }

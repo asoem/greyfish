@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutationOperator;
-import org.asoem.greyfish.core.utils.HammingDistanceComparable;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.ImmutableBitSet;
@@ -12,7 +11,6 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.toArray;
 
 /**
  * User: christoph
@@ -20,9 +18,9 @@ import static com.google.common.collect.Iterables.toArray;
  * Time: 14:20
  */
 @ClassGroup(tags = {"property"})
-public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetElementProperty<ImmutableBitSet>, HammingDistanceComparable {
+public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetElementProperty<ImmutableBitSet> {
 
-    private final static int BITSET_LENGTH = 10;
+    private final static int DEFAULT_BITSET_LENGTH = 10;
 
     private final Gene<ImmutableBitSet> bitStringGene;
 
@@ -59,6 +57,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
 
     protected BitSetTrait(Builder builder) {
         super(builder);
+
         MutationOperator<ImmutableBitSet> mutationOperator = new MutationOperator<ImmutableBitSet>() {
             @Override
             public ImmutableBitSet mutate(ImmutableBitSet original) {
@@ -78,25 +77,23 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
                 return normalizedDistance(orig, copy);
             }
         };
+
+        final ImmutableBitSet bitSet = (builder.initialValue == null) ? new ImmutableBitSet(DEFAULT_BITSET_LENGTH, RandomUtils.RNG) : builder.initialValue;
+
         bitStringGene = registerGene(
-            new DefaultGene<ImmutableBitSet>(new ImmutableBitSet(BITSET_LENGTH, RandomUtils.RNG), ImmutableBitSet.class, mutationOperator));
+            new DefaultGene<ImmutableBitSet>(bitSet, ImmutableBitSet.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }
 
-    @Override
-    public Object[] getHammingString() {
-        return toArray(bitStringGene.get(), Boolean.class);
-    }
-
-    @Override
-    public int hammingDistance(HammingDistanceComparable b) {
-        return 0;
-    }
-
-    public static final class Builder extends AbstractWellOrderedSetElementProperty.AbstractBuilder<Builder, ImmutableBitSet> implements BuilderInterface<BitSetTrait> {
-        private Builder() {}
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<BitSetTrait> {
         @Override protected Builder self() { return this; }
-        @Override public BitSetTrait build() { return new BitSetTrait(this); }
+        @Override public BitSetTrait build() { return new BitSetTrait(checkedSelf()); }
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractWellOrderedSetElementProperty.AbstractBuilder<T, ImmutableBitSet> {
+        protected ImmutableBitSet initialValue;
+
+        public T setInitialValue(ImmutableBitSet initialValue) { this.initialValue = initialValue; return self(); }
     }
 }

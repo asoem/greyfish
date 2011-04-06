@@ -9,6 +9,10 @@ import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -166,5 +170,21 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
                 ++modifications;
 
         return modifications + Math.abs(this.length() - that.length());
+    }
+
+    /**
+     * Create a new {@code ImmutableBitSet} from given string {@code s} of '0' and '1' chars
+     * @param s a string of '0' and '1' chars
+     * @return a new ImmutableBitSet equal to the representation of {@code s}
+     */
+    public static ImmutableBitSet valueOf(String s) {
+        checkArgument(checkNotNull(Pattern.matches("[01]+", s)), "Input must be a sequence of '0' and '1' characters: "+ s);
+        BitSet bs = new BitSet(s.length());
+        for (int i=0; i< s.length(); ++i)
+            switch (s.charAt(i)) {
+                case '0' : break;
+                case '1' : bs.set(i, true); break;
+            }
+        return new ImmutableBitSet(bs);
     }
 }

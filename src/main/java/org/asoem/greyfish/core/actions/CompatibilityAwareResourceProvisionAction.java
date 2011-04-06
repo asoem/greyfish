@@ -112,9 +112,9 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
         public T similarityTrait(GFProperty trait) { this.similarityTrait = checkNotNull(trait); return self(); }
 
         @Override
-        protected T checkedSelf() throws IllegalStateException {
-            checkNotNull(similarityTrait);
-            return super.checkedSelf();
+        protected void checkBuilder() throws IllegalStateException {
+            checkNotNull(similarityTrait, "similarityTrait must not be null");
+            super.checkBuilder();
         }
     }
 }
