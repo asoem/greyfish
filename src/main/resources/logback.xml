@@ -27,13 +27,13 @@
     <logger name="org.asoem.greyfish.core.simulation" additivity="true">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="TRACE">
+    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="INFO">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions.ResourceConsumptionAction" additivity="true" level="DEBUG">
+    <logger name="org.asoem.greyfish.core.actions.ResourceConsumptionAction" additivity="true" level="INFO">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions.ResourceProvisionAction" additivity="true" level="DEBUG">
+    <logger name="org.asoem.greyfish.core.actions.ResourceProvisionAction" additivity="true" level="INFO">
     </logger>
 
     <logger name="org.asoem.greyfish.gui" additivity="true">
