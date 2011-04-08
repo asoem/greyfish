@@ -27,7 +27,7 @@ public class SimulationManager implements Iterable<Simulation> {
 	public SimulationManager() {
 	}
 
-	public void addSimulation(final Simulation simulation) {
+	public void add(final Simulation simulation) {
 		simulations.add(simulation);
 		Executors.newSingleThreadExecutor().execute(new Thread(simulationThreads, simulation));
 		fireSimulationAdded(simulation);
