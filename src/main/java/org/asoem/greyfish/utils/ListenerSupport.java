@@ -1,29 +1,28 @@
 package org.asoem.greyfish.utils;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.asoem.greyfish.lang.Functor;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ListenerSupport<T> {
 
-	private List<T> listeners = null;
+	private Set<T> listeners = null;
 
 	public ListenerSupport() {
 	}
 
-    private synchronized List<T> getListeners() {
+    private synchronized Set<T> getListeners() {
         if (listeners == null)
-            listeners = Lists.newArrayList();
+            listeners = Sets.newHashSet();
         return listeners;
     }
 
 	public void addListener(T listener) {
-		if (listener != null)
-			getListeners().add(listener);
+		getListeners().add(listener);
 	}
 
 	public void removeListener(T listener) {
