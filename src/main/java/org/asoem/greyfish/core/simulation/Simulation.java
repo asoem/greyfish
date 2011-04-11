@@ -141,10 +141,9 @@ public class Simulation implements Runnable {
 
         if (SIMULATION_LOGGER.isTraceEnabled())
             listenerSupport.addListener(new SimulationListener() {
-
                 @Override
-                public void simulationStep(Simulation source) {
-                    SIMULATION_LOGGER.trace("End of simulation step " + source.getSteps());
+                public void eventFired(SimulationEvent event) {
+                    SIMULATION_LOGGER.trace("End of simulation step " + event.getSource().getSteps());
                 }
             });
     }
@@ -286,14 +285,6 @@ public class Simulation implements Runnable {
         return space;
     }
 
-    //	public Collection<PopulationLog> getPopulationLogs() {
-    //		return populationLogs.values();
-    //	}
-
-    public synchronized int getStepsToGo() {
-        return stepsToGo;
-    }
-
     public int getSteps() {
         return steps;
     }
@@ -301,6 +292,12 @@ public class Simulation implements Runnable {
     public synchronized void pause() {
         if (running) {
             pause = true;
+            listenerSupport.notifyListeners(new Functor<SimulationListener>() {
+                @Override
+                public void update(SimulationListener listener) {
+                    listener.eventFired(new SimulationEvent(Simulation.this, SimulationEvent.Event.STOP));
+                }
+            });
         }
     }
 
@@ -312,7 +309,7 @@ public class Simulation implements Runnable {
         steps = 0;
 
         initialize();
-        notifyStep();
+        notifyStep(); // TODO: should fire RESET
     }
 
     @Override
@@ -321,8 +318,22 @@ public class Simulation implements Runnable {
             do {
                 synchronized (this) {
                     running = false;
+                    listenerSupport.notifyListeners(new Functor<SimulationListener>() {
+                        @Override
+                        public void update(SimulationListener listener) {
+                            listener.eventFired(new SimulationEvent(Simulation.this, SimulationEvent.Event.STOP));
+                        }
+                    });
+
                     wait();
+
                     running = true;
+                    listenerSupport.notifyListeners(new Functor<SimulationListener>() {
+                        @Override
+                        public void update(SimulationListener listener) {
+                            listener.eventFired(new SimulationEvent(Simulation.this, SimulationEvent.Event.START));
+                        }
+                    });
                 }
 
                 while (!infinite && runs > 0 && !pause) {
@@ -357,20 +368,8 @@ public class Simulation implements Runnable {
         return running;
     }
 
-    public synchronized boolean isInfinite() {
-        return infinite;
-    }
-
     public synchronized void setInfinite(boolean infinite) {
         this.infinite = infinite;
-    }
-
-    public synchronized int getRuns() {
-        return runs;
-    }
-
-    public synchronized void setRuns(int runs) {
-        this.runs = runs;
     }
 
     public Speed getSpeed() {
@@ -381,13 +380,10 @@ public class Simulation implements Runnable {
         currentSpeed = speed;
     }
 
-    public synchronized void setStepsToGo(int ticks) {
-        this.stepsToGo = ticks;
-    }
-
     public synchronized void start() {
         if (!running) {
             pause = false;
+            infinite = true;
             notify();
         }
     }
@@ -535,7 +531,7 @@ public class Simulation implements Runnable {
 
             @Override
             public void update(SimulationListener listener) {
-                listener.simulationStep(Simulation.this);
+                listener.eventFired(new SimulationEvent(Simulation.this, SimulationEvent.Event.STEP));
             }
         });
     }
