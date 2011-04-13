@@ -12,7 +12,12 @@ public class RandomUtils {
 	public static int nextInt() {
 		return RNG.nextInt();
 	}
-	
+
+    /**
+     * @see java.util.Random#nextInt(int)
+     * @param n the bound on the random number to be returned. Must be positive.
+     * @return the next pseudorandom, uniformly distributed int value between 0 (inclusive) and n (exclusive) from this random number generator's sequence
+     */
 	public static int nextInt(final int n) {
 		return RNG.nextInt(n);
 	}
