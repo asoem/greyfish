@@ -28,6 +28,7 @@ public class ScenarioManager extends AbstractCollection<Scenario> {
 
 	@Override
 	public boolean add(final Scenario scenario) {
+        Preconditions.checkNotNull(scenario);
 		if ( scenarios.add(scenario) ) {
 			for (IndividualInterface individual : scenario.getPrototypes()) {
 				if (individual instanceof Prototype)
