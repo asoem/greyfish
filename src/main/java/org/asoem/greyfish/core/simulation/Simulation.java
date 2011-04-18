@@ -22,6 +22,7 @@ import org.asoem.greyfish.core.space.MutableLocation2D;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.lang.HasName;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.PolarPoint;
 
@@ -39,7 +40,7 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.SIMULATION_LOGGER;
 import static org.asoem.greyfish.core.simulation.Simulation.CommandType.*;
 import static org.asoem.greyfish.core.space.MutableLocation2D.at;
 
-public class Simulation implements Runnable {
+public class Simulation implements Runnable, HasName {
 
     private final Map<Population, Prototype> prototypeMap = Maps.newHashMap();
     private final PostOffice postOffice = PostOffice.newInstance();
@@ -542,14 +543,15 @@ public class Simulation implements Runnable {
 
     @Override
     public String toString() {
-        return "Simulation['" + getTitle() + "'] for " + scenario;
+        return "Simulation['" + getName() + "'] for " + scenario;
     }
 
-    public String getTitle() {
+    @Override
+    public String getName() {
         return title;
     }
 
-    public void setTitle(String name) {
+    public void setName(String name) {
         this.title = name;
     }
 
