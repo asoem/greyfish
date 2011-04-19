@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
-public final class Population implements HasName {
+public final class Population implements HasName, Comparable<Population> {
 
 	@Attribute(name="name")
 	private final String name;
@@ -64,5 +64,10 @@ public final class Population implements HasName {
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public int compareTo(Population o) {
+        return name.compareTo(o.name);
     }
 }

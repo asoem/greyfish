@@ -23,6 +23,7 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.lang.HasName;
+import org.asoem.greyfish.utils.Counter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.PolarPoint;
 
@@ -46,6 +47,8 @@ public class Simulation implements Runnable, HasName {
     private final PostOffice postOffice = PostOffice.newInstance();
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+    private final Map<Population, Counter> populationCount = Maps.newHashMap();
 
     public static Simulation newSimulation(final Scenario scenario) {
         return new Simulation(scenario);
@@ -164,6 +167,7 @@ public class Simulation implements Runnable, HasName {
             Prototype clone = prototype.deepClone(Prototype.class);
             assert (!prototypeMap.containsKey(clone.getPopulation())) : "Different Prototypes have the same Population";
             prototypeMap.put(clone.getPopulation(), clone);
+            populationCount.put(clone.getPopulation(), new Counter(0));
         }
 
         // convert each placeholder to a concrete object
@@ -188,6 +192,7 @@ public class Simulation implements Runnable, HasName {
             SIMULATION_LOGGER.debug("Adding Agent to " + this + ": " + individual);
         individual.initialize(this);
         concurrentAgentsView.add(individual);
+        populationCount.get(individual.getPopulation()).increase();
         individual.setAnchorPoint(location);
         space.addOccupant(individual);
     }
@@ -213,6 +218,7 @@ public class Simulation implements Runnable, HasName {
                     public void execute() {
                         space.removeOccupant(individual);
                         concurrentAgentsView.remove(Agent.class.cast(individual));
+                        populationCount.get(individual.getPopulation()).decrease();
                         returnClone(Agent.class.cast(individual));
                     }
                 });
@@ -229,6 +235,10 @@ public class Simulation implements Runnable, HasName {
 
     public int agentCount() {
         return getAgents().size();
+    }
+
+    public int agentCount(Population population) {
+        return populationCount.get(population).get();
     }
 
     public void addSimulationListener(SimulationListener listener) {

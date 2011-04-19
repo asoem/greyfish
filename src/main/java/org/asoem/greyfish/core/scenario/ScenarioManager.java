@@ -63,10 +63,6 @@ public class ScenarioManager extends AbstractCollection<Scenario> {
 		return false;
 	}
 
-	public Scenario getActiveScenario() {
-		return activeScenario;
-	}
-
 	public void addScenarioChangedListener(ScenarioChoiceListener listener) {
 		listenerSupport.addListener(listener);
 	}
@@ -84,4 +80,8 @@ public class ScenarioManager extends AbstractCollection<Scenario> {
 	public int size() {
 		return scenarios.size();
 	}
+
+    public PrototypeManager getPrototypeManager() {
+        return prototypeManager;
+    }
 }
