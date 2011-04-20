@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -25,6 +26,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
 
     @Element(name="property")
     private DoubleProperty consumerProperty = null;
+
+    @Element(name="resourceTransformationFunction", required = false)
+    private String transformationFunction = "#{x0}";
 
     @Element(name="messageType", required=false)
     private String parameterMessageType = "";
@@ -70,12 +74,12 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     protected void handleInform(ACLMessage message) throws NotUnderstoodException {
         try {
             final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(offer);
+            consumerProperty.add(GreyfishMathExpression.evaluate(transformationFunction, Agent.class.cast(getComponentOwner()), offer));
 
             LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
         }
         catch (Exception e) {
-            throw new NotUnderstoodException();
+            throw new NotUnderstoodException(e);
         }
     }
 
@@ -116,7 +120,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 return parameterMessageType;
             }
         });
-        e.add(new ValueAdaptor<Double>("Amount", Double.class) {
+        e.add(new ValueAdaptor<Double>("Requested Amount", Double.class) {
             @Override
             protected void set(Double arg0) {
                 amountPerRequest = checkFrozen(checkNotNull(arg0));
@@ -127,7 +131,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 return amountPerRequest;
             }
         });
-        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Destination", DoubleProperty.class) {
+        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 consumerProperty = checkFrozen(checkNotNull(arg0));
@@ -143,6 +147,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
                 return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
             }
         });
+        e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
         e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
             @Override
             protected void set(Double arg0) {
@@ -167,6 +172,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         this.parameterMessageType = cloneable.parameterMessageType;
         this.sensorRange = cloneable.sensorRange;
         this.amountPerRequest = cloneable.amountPerRequest;
+        this.transformationFunction = cloneable.transformationFunction;
     }
 
     protected ResourceConsumptionAction(AbstractBuilder<?> builder) {
@@ -175,6 +181,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         this.parameterMessageType = builder.parameterMessageType;
         this.amountPerRequest = builder.amountPerRequest;
         this.sensorRange = builder.sensorRange;
+        this.transformationFunction = builder.transformationFunction;
     }
 
     public static Builder with() { return new Builder(); }
@@ -182,7 +189,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceConsumptionAction> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public ResourceConsumptionAction build() { return new ResourceConsumptionAction(this); }
+        @Override public ResourceConsumptionAction build() { return new ResourceConsumptionAction(checkedSelf()); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
@@ -190,10 +197,17 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
         private String parameterMessageType = "";
         private double amountPerRequest = 0;
         private double sensorRange = 0;
+        public String transformationFunction = "#{x0}";
 
-        public T storesEnergyIn(DoubleProperty consumerProperty) { this.consumerProperty = consumerProperty; return self(); }
-        public T viaMessagesOfType(String parameterMessageType) { this.parameterMessageType = parameterMessageType; return self(); }
+        public T storesEnergyIn(DoubleProperty consumerProperty) { this.consumerProperty = checkNotNull(consumerProperty); return self(); }
+        public T viaMessagesOfType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
         public T requesting(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
         public T inRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+        public T transformationFunction(String transformationFunction) { this.transformationFunction = checkNotNull(transformationFunction); return self(); }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            super.checkBuilder();
+        }
     }
 }

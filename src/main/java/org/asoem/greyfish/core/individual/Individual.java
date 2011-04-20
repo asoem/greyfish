@@ -111,7 +111,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public List pollMessages(MessageTemplate template) {
+    public List<ACLMessage> pollMessages(MessageTemplate template) {
         List<ACLMessage> ret = Lists.newArrayList();
         Iterator<ACLMessage> iterator = inBox.listIterator();
         while (iterator.hasNext()) {
@@ -283,7 +283,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public float getAge() {
+    public int getAge() {
         return 0;
     }
 

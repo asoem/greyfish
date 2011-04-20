@@ -294,7 +294,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public float getAge() {
+    public int getAge() {
         assert simulation.getSteps() >= getTimeOfBirth();
         return simulation.getSteps() - getTimeOfBirth();
     }

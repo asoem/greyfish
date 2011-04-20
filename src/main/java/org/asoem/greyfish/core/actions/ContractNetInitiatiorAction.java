@@ -164,7 +164,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                             try {
                                 handleInform(receivedMessage);
                             } catch (NotUnderstoodException e) {
-                                GFACTIONS_LOGGER.error("{}: HandleInform failed: ", e);
+                                GFACTIONS_LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatiorAction.this, e);
                             }
                             break;
 

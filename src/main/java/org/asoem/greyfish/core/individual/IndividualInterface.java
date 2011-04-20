@@ -34,7 +34,7 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
 
     int getId();
     int getTimeOfBirth();
-    float getAge();
+    int getAge();
     Genome getGenome();
     void setGenome(Genome genome);
 

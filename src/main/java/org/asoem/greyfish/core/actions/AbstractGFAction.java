@@ -1,17 +1,18 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.Iterables;
+import net.sourceforge.jeval.EvaluationException;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.GreyfishMathExpression;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
@@ -130,7 +131,12 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public double evaluateFormula() {
-        return GreyfishMathExpression.evaluate(energyCostsFormula, Agent.class.cast(getComponentOwner()));
+        try {
+            return GreyfishMathExpression.evaluate(energyCostsFormula, Agent.class.cast(getComponentOwner()));
+        } catch (EvaluationException e) {
+            GFACTIONS_LOGGER.error("Costs formula could not be evaluated: {}", energyCostsFormula, e);
+            return 0;
+        }
     }
 
     @Element(name="condition", required=false)

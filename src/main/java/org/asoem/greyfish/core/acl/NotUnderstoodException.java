@@ -19,6 +19,10 @@ public class NotUnderstoodException extends Exception {
         super(String.format(formattedMessage, args));
     }
 
+    public NotUnderstoodException(Throwable cause) {
+        super(cause);
+    }
+
     public static NotUnderstoodException unexpectedPayloadType(ACLMessage message, Class<?> clazz) {
         checkNotNull(message);
         Class<?> clazzReceived = message.getContentClass();

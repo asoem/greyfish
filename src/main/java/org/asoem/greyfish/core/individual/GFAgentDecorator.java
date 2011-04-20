@@ -200,7 +200,7 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public List pollMessages(MessageTemplate template) {
+    public List<ACLMessage> pollMessages(MessageTemplate template) {
         return delegate.pollMessages(template);
     }
 
@@ -220,7 +220,7 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public float getAge() {
+    public int getAge() {
         return delegate.getAge();
     }
 
