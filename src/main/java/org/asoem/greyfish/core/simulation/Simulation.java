@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -15,6 +14,8 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.PostOffice;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.*;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
@@ -37,12 +38,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
-import static org.asoem.greyfish.core.io.GreyfishLogger.SIMULATION_LOGGER;
 import static org.asoem.greyfish.core.simulation.Simulation.CommandType.*;
 import static org.asoem.greyfish.core.space.MutableLocation2D.at;
 
 public class Simulation implements Runnable, HasName {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Simulation.class);
     private final Map<Population, Prototype> prototypeMap = Maps.newHashMap();
     private final PostOffice postOffice = PostOffice.newInstance();
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
@@ -64,9 +65,9 @@ public class Simulation implements Runnable, HasName {
 
     @SuppressWarnings("unused")
     public enum Speed {
-        SLOW(20),
-        MEDIUM(10),
-        FAST(5),
+        SLOW(32),
+        MEDIUM(24),
+        FAST(16),
         FASTEST(0);
 
         private final double sleepMillies;
@@ -136,18 +137,18 @@ public class Simulation implements Runnable, HasName {
     private String title = "untitled";
 
     private Simulation(final Scenario scenario) {
-        Preconditions.checkNotNull(scenario);
+        checkNotNull(scenario);
 
         this.scenario = scenario;
 
         initialize();
         setSpeed(Speed.MEDIUM);
 
-        if (SIMULATION_LOGGER.isTraceEnabled())
+        if (LOGGER.isTraceEnabled())
             listenerSupport.addListener(new SimulationListener() {
                 @Override
                 public void eventFired(SimulationEvent event) {
-                    SIMULATION_LOGGER.trace("End of simulation step " + event.getSource().getSteps());
+                    LOGGER.trace("End of simulation step " + event.getSource().getSteps());
                 }
             });
     }
@@ -159,7 +160,7 @@ public class Simulation implements Runnable, HasName {
         try {
             objectPool.clear();
         } catch (Exception e) {
-            SIMULATION_LOGGER.error("Error clearing prototype pool", e);
+            LOGGER.error("Error clearing prototype pool", e);
             System.exit(1);
         }
 
@@ -186,28 +187,26 @@ public class Simulation implements Runnable, HasName {
         return Collections.unmodifiableCollection(concurrentAgentsView);
     }
 
-    private void addAgent(Agent individual, Location2D location) {
-        checkAgent(individual);
-        if (SIMULATION_LOGGER.isDebugEnabled())
-            SIMULATION_LOGGER.debug("Adding Agent to " + this + ": " + individual);
-        individual.initialize(this);
-        concurrentAgentsView.add(individual);
-        populationCount.get(individual.getPopulation()).increase();
-        individual.setAnchorPoint(location);
-        space.addOccupant(individual);
+    private void addAgent(Agent agent, Location2D location) {
+        checkAgent(agent);
+        LOGGER.trace("{}: Adding Agent {}" + this, agent);
+        agent.initialize(this);
+        concurrentAgentsView.add(agent);
+        populationCount.get(agent.getPopulation()).increase();
+        agent.setAnchorPoint(location);
+        space.addOccupant(agent);
     }
 
     private void checkAgent(final Agent individual) {
-        Preconditions.checkNotNull(individual);
-        Preconditions.checkArgument(prototypeMap.containsKey(individual.getPopulation()), "Not prototype found for " + individual);
+        checkNotNull(individual);
+        checkArgument(prototypeMap.containsKey(individual.getPopulation()), "Not prototype found for " + individual);
     }
 
     /**
-     * Remove individual from this scenario
-     * @param individual
+     * Remove agent from this scenario
+     * @param agent
      */
-    public void removeAgent(final IndividualInterface individual) {
-        checkArgument(Agent.class.isInstance(individual));
+    public void removeAgent(final Agent agent) {
         /*
            * TODO: removal could be implemented more efficiently.
            * e.g. by marking agents and removal during a single iteration over all
@@ -216,10 +215,11 @@ public class Simulation implements Runnable, HasName {
                 new Command() {
                     @Override
                     public void execute() {
-                        space.removeOccupant(individual);
-                        concurrentAgentsView.remove(Agent.class.cast(individual));
-                        populationCount.get(individual.getPopulation()).decrease();
-                        returnClone(Agent.class.cast(individual));
+                        space.removeOccupant(agent);
+                        concurrentAgentsView.remove(agent);
+                        populationCount.get(agent.getPopulation()).decrease();
+                        agent.shutDown();
+                        returnClone(Agent.class.cast(agent));
                     }
                 });
     }
@@ -229,7 +229,7 @@ public class Simulation implements Runnable, HasName {
         try {
             objectPool.returnObject(individual.getPopulation(), individual.getIndividual());
         } catch (Exception e) {
-            SIMULATION_LOGGER.error("Error in prototype pool", e);
+            LOGGER.error("Error in prototype pool", e);
         }
     }
 
@@ -254,11 +254,11 @@ public class Simulation implements Runnable, HasName {
     }
 
     /**
-     * Creates a new {@code Agent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
-     * The {@code Agent} will get inserted and executed at the next step at given {@code location}.
+     * Creates a new {@link Agent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
+     * The {@link Agent} will get inserted and executed at the next step at given {@code location}.
      * @param population The {@code Population} of the {@code Prototype} the Agent will be cloned from.
-     * @param location The location where the {@Agent} will be inserted in the {@Space}.
-     * @param genome The {@code Genome} for the new {@code Agent}.
+     * @param location The location where the {@link Agent} will be inserted in the {@link org.asoem.greyfish.core.space.Space}.
+     * @param genome The {@link Genome} for the new {@link Agent}.
      */
     public void createAgent(final Population population, final Location2D location, final Genome genome) {
         checkNotNull(population);
@@ -282,7 +282,7 @@ public class Simulation implements Runnable, HasName {
         try {
             return Agent.newInstance(Individual.class.cast(objectPool.borrowObject(population)), this);
         } catch (Exception e) {
-            SIMULATION_LOGGER.error("Error using objectPool", e);
+            LOGGER.error("Error using objectPool", e);
             System.exit(1);
         }
         return null;
@@ -371,7 +371,7 @@ public class Simulation implements Runnable, HasName {
 
             } while(true);
         } catch (InterruptedException e) {
-            SIMULATION_LOGGER.warn("Tread interrupted!");
+            LOGGER.warn("Tread interrupted!");
         }
     }
 
@@ -429,7 +429,7 @@ public class Simulation implements Runnable, HasName {
      * Proceed on step cycle and execute all agents & commands
      */
     public synchronized void step() {
-        SIMULATION_LOGGER.debug("%s: Step #%d", this, steps);
+        LOGGER.trace("{}: Entering step {}", this, steps);
         updateEnvironment();
         processAgents();
 
@@ -438,7 +438,7 @@ public class Simulation implements Runnable, HasName {
     }
 
     private void processAgents() {
-        SIMULATION_LOGGER.debug("{}: processing {} Agents", this, individuals.size());
+        LOGGER.debug("{}: processing {} Agents", this, individuals.size());
         if (individuals.size() > 0)
             forkJoinPool.invoke(new ProcessAgentsForked(individuals.head(), individuals.size(), Math.max(individuals.size(), 1000) / 2));
     }
@@ -487,7 +487,6 @@ public class Simulation implements Runnable, HasName {
     }
 
     private void updateEnvironment() {
-        SIMULATION_LOGGER.debug("{}: processing {} Update-Commands.", this, commanListMap.size());
 
         final CountDownLatch doneSignal = new CountDownLatch(2);
 
@@ -495,8 +494,10 @@ public class Simulation implements Runnable, HasName {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-
-                for (Command command : commanListMap.get(MESSAGE)) {
+                Collection<Command> messageCommands = commanListMap.get(MESSAGE);
+                if (messageCommands.size() > 0)
+                    LOGGER.debug("{}: Delivering {} Messages", Simulation.this, messageCommands.size());
+                for (Command command : messageCommands) {
                     command.execute();
                 }
 
@@ -510,7 +511,10 @@ public class Simulation implements Runnable, HasName {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                for (Command command : commanListMap.get(AGENT_REMOVE)) {
+                Collection<Command> removeCommands = commanListMap.get(AGENT_REMOVE);
+                if (removeCommands.size() > 0)
+                    LOGGER.debug("{}: Removing {} Agents", Simulation.this, removeCommands.size());
+                for (Command command : removeCommands) {
                     command.execute();
                 }
 
@@ -519,7 +523,10 @@ public class Simulation implements Runnable, HasName {
                     getSpace().moveObject(agent, MutableLocation2D.sum(agent, motion.toCartesian()));
                 }
 
-                for (Command command : commanListMap.get(AGENT_ADD)) {
+                Collection<Command> addCommands = commanListMap.get(AGENT_ADD);
+                if (addCommands.size() > 0)
+                    LOGGER.debug("{}: Adding {} Agents", Simulation.this, addCommands.size());
+                for (Command command : addCommands) {
                     command.execute();
                 }
 
@@ -528,10 +535,11 @@ public class Simulation implements Runnable, HasName {
                 doneSignal.countDown();
             }
         });
+
         try {
             doneSignal.await();
         } catch (InterruptedException ie) {
-            SIMULATION_LOGGER.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
+            LOGGER.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
         }
 
         commanListMap.clear();
@@ -553,7 +561,7 @@ public class Simulation implements Runnable, HasName {
 
     @Override
     public String toString() {
-        return "Simulation['" + getName() + "'] for " + scenario;
+        return "Simulation[" + getName() + "]#" + getSteps();
     }
 
     @Override

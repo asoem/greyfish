@@ -1,21 +1,19 @@
 package org.asoem.greyfish.core.io;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Marker;
 
-import static org.asoem.greyfish.core.io.LoggerFactory.getLogger;
+/**
+ * User: christoph
+ * Date: 28.04.11
+ * Time: 09:47
+ */
+public class ForwardingLogger implements Logger {
 
-public enum GreyfishLogger implements Logger {
-    ROOT_LOGGER(getLogger("org.asoem.greyfish")),
-    CORE_LOGGER(getLogger("org.asoem.greyfish.core")),
-    GFACTIONS_LOGGER(getLogger("org.asoem.greyfish.core.actions")),
-    AGENT_LOGGER(getLogger("org.asoem.greyfish.core.individual")),
-    SIMULATION_LOGGER(getLogger("org.asoem.greyfish.core.simulation")),
-    GUI_LOGGER(getLogger("org.asoem.greyfish.gui")),
-    LOG4J_LOGGER(getLogger("org.perf4j.TimingLogger"));
+    private final org.slf4j.Logger logger;
 
-    public final Logger logger;
-
-    private GreyfishLogger(final Logger logger) {
+    public ForwardingLogger(org.slf4j.Logger logger) {
+        Preconditions.checkNotNull(logger);
         this.logger = logger;
     }
 
@@ -315,7 +313,7 @@ public enum GreyfishLogger implements Logger {
     }
 
     @Override
-    public void error(Marker marker, String s, Object ... objects) {
+    public void error(Marker marker, String s, Object[] objects) {
         logger.error(marker, s, objects);
     }
 

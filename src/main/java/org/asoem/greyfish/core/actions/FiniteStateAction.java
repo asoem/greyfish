@@ -103,6 +103,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "('" + name + "'@" + currentStateName + ")";
+        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateName + "]@" + getComponentOwner();
     }
 }

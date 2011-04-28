@@ -12,9 +12,10 @@ import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 @ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
@@ -24,6 +25,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     @Attribute(name = "reproductive_value")
     private int nOffspring = 1;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproductionAction.class);
 
     @SimpleXMLConstructor
     public SexualReproductionAction() {
@@ -39,8 +41,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     protected void performAction(Simulation simulation) {
         assert(!spermStorage.isEmpty());
 
-        if (GFACTIONS_LOGGER.isDebugEnabled())
-            GFACTIONS_LOGGER.debug("Producing " + nOffspring + " offspring");
+        LOGGER.debug("Producing {} offspring", nOffspring);
 
         for (int i = 0; i < nOffspring; i++) {
             simulation.createAgent(

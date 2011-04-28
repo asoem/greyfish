@@ -11,6 +11,8 @@ import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
@@ -24,10 +26,12 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
+import static org.asoem.greyfish.core.actions.AbstractGFAction.ExecutionResult.*;
 
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGFAction.class);
 
     private ConditionTree conditionTree;
 
@@ -41,7 +45,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     private int timeOfLastExecution;
 
-    public enum ExecutionResult {
+    public static enum ExecutionResult {
         CONDITIONS_FAILED,
         INSUFFICIENT_ENERGY,
         INVALID_INTERNAL_STATE,
@@ -56,7 +60,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected final boolean evaluateCosts() {
         final double needed = evaluateFormula();
-        GFACTIONS_LOGGER.trace("{}: Evaluated energy costs formula to {}.", this, needed);
+        LOGGER.trace("{}: Evaluated energy costs formula to {}.", this, needed);
         return !(energySource != null && energySource.get().compareTo(needed) < 0);
 
     }
@@ -74,34 +78,40 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         try {
             if (!isResuming()) {
                 if (!evaluateConditions(simulation)) {
-                    return ExecutionResult.CONDITIONS_FAILED;
+                    return CONDITIONS_FAILED;
                 }
                 if (!evaluateCosts())
-                    return ExecutionResult.INSUFFICIENT_ENERGY;
+                    return INSUFFICIENT_ENERGY;
 
                 if (!evaluateInternalState(simulation))
-                    return ExecutionResult.INVALID_INTERNAL_STATE;
+                    return INVALID_INTERNAL_STATE;
             }
 
             return executeUnevaluated(simulation);
         }
         catch (Exception e) {
-            GFACTIONS_LOGGER.error("{}: Error during execution.", this, e);
-            return AbstractGFAction.ExecutionResult.ERROR;
+            LOGGER.error("{}: Error during execution.", this, e);
+            return ERROR;
         }
     }
 
     private ExecutionResult executeUnevaluated(final Simulation simulation) {
+        assert simulation != null;
+
         performAction(simulation);
 
         ++executionCount;
         timeOfLastExecution = simulation.getSteps();
 
         if (energySource != null && !isResuming()) {
-            energySource.subtract(evaluateFormula());
+            double costs = evaluateFormula();
+            if (costs > 0) {
+                energySource.subtract(costs);
+                LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining", this, costs, energySource.getName(), energySource.get());
+            }
         }
 
-        return ExecutionResult.EXECUTED;
+        return EXECUTED;
     }
 
     /**
@@ -134,7 +144,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         try {
             return GreyfishMathExpression.evaluate(energyCostsFormula, Agent.class.cast(getComponentOwner()));
         } catch (EvaluationException e) {
-            GFACTIONS_LOGGER.error("Costs formula could not be evaluated: {}", energyCostsFormula, e);
+            LOGGER.error("Costs formula could not be evaluated: {}", energyCostsFormula, e);
             return 0;
         }
     }

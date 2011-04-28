@@ -2,11 +2,10 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import javolution.util.FastList;
 import org.asoem.greyfish.core.actions.AbstractGFAction;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.io.GreyfishLogger;
+import org.asoem.greyfish.core.io.*;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -16,21 +15,22 @@ import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import java.awt.*;
+import java.io.IOException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.AGENT_LOGGER;
 
 public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2D, Initializeable {
 
-    // static during each activation
+    private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
+
     private final Simulation simulation;
     private final int timeOfBirth;
     private final int id;
 
-    // dynamic during each activation
-    private GFAction lastExecutedAction;
+    private final static AgentLogFactory AGENT_LOG_FACTORY = new DefaultAgentLogFactory("agents.log");
+    private final AgentLog log = new AgentLog(AGENT_LOG_FACTORY);
 
-    private FastList<GFAction> resumeQueue = FastList.newInstance();
+    private GFAction lastExecutedAction;
 
     private Agent(Agent individual, CloneMap map) {
         super(map.clone(individual.getDelegate(), IndividualInterface.class));
@@ -38,6 +38,10 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         this.simulation = checkNotNull(individual.simulation);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
+
+        // logging
+        log.set("id", id);
+        log.set("timeOfBirth", timeOfBirth);
 
         initialize(simulation);
         freeze();
@@ -49,6 +53,10 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
+
+        // logging
+        log.set("id", id);
+        log.set("timeOfBirth", timeOfBirth);
 
         initialize(simulation);
         freeze();
@@ -117,6 +125,16 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
             component.initialize(simulation);
         }
     }
+    // TODO move to an interface?
+    public void shutDown() {
+        log.set("timeOfDeath", simulation.getSteps());
+
+        try {
+            log.commit();
+        } catch (IOException e) {
+            LOGGER.error("Log could not be comitted: {}", log, e);
+        }
+    }
 
     @Override
     public double getOrientation() {
@@ -127,64 +145,53 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     public void execute() {
         if (lastExecutedAction != null &&
                 lastExecutedAction.isResuming()) {
-            if (AGENT_LOGGER.isDebugEnabled())
-                AGENT_LOGGER.debug(id + ": Resuming " + lastExecutedAction);
-            if (executeAction(lastExecutedAction)) {
+            LOGGER.debug("{}: Resuming {}", this, lastExecutedAction);
+            if (tryToExecute(lastExecutedAction)) {
                 return;
             } else {
-                GreyfishLogger.AGENT_LOGGER.error("Resume failed");
+                LOGGER.error("{}: Resume failed", this);
             }
         }
         else {
-            if (AGENT_LOGGER.isDebugEnabled())
-                AGENT_LOGGER.trace(id + ": Processing " + Iterables.size(getActions()) + " actions in order");
+            LOGGER.trace("{}: Processing " + Iterables.size(getActions()) + " actions in order", this);
             for (GFAction action : getActions()) {
-                assert !action.isResuming();
+                assert !action.isResuming() : "There should be no action in resuming state";
 
-                if (executeAction(action)) {
+                if (tryToExecute(action)) {
+                    LOGGER.debug("{}: Executed {}", this, action);
                     lastExecutedAction = action;
                     return;
                 }
             }
         }
 
-        if (AGENT_LOGGER.isDebugEnabled())
-            AGENT_LOGGER.debug("Nothing to execute");
+        LOGGER.trace("{}: Nothing to execute", this);
     }
 
-    private boolean executeAction(GFAction action) {
-        StringBuffer debugString = null;
+    private boolean tryToExecute(GFAction action) {
 
-        if (AGENT_LOGGER.isDebugEnabled()) {
-            debugString = new StringBuffer("Agent#");
-            debugString.append(id).append(": Trying to execute ").append(action).append(": ");
-        }
+        LOGGER.trace("{}: Trying to execute {}", this, action);
 
         final AbstractGFAction.ExecutionResult result = action.execute(simulation);
 
         switch (result) {
             case CONDITIONS_FAILED:
-                if (AGENT_LOGGER.isDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Attached conditions evaluated to false.").toString());
+                LOGGER.trace("FAILED: Attached conditions evaluated to false.");
                 return false;
             case INVALID_INTERNAL_STATE:
-                if (AGENT_LOGGER.isDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal preconditions evaluated to false.").toString());
+                LOGGER.trace("FAILED: Internal preconditions evaluated to false.");
                 return false;
             case INSUFFICIENT_ENERGY:
-                if (AGENT_LOGGER.isDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Not enough energy.").toString());
+                LOGGER.trace("FAILED: Not enough energy.");
                 return false;
             case ERROR:
-                if (AGENT_LOGGER.isDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("FAILED: Internal error.").toString());
+                LOGGER.trace("FAILED: Internal error.");
                 return false;
             case EXECUTED:
-                if (AGENT_LOGGER.isDebugEnabled())
-                    AGENT_LOGGER.debug(debugString.append("SUCCESS").toString());
+                LOGGER.trace("SUCCESS");
                 return true;
-            default: // should never be reached
-                AGENT_LOGGER.debug(debugString.append("ERROR: action returned unhandled state ").append(result).append('.').toString());
+            default:
+                assert false : "Code should never be reached";
                 return false;
         }
     }
@@ -282,7 +289,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     @Override
     public String toString() {
-        return "Agent#" + id + "('" + getPopulation() + "'@" + getGenome() + ")";
+        return getPopulation() + "#" + id;
     }
 
     public Individual getIndividual() {

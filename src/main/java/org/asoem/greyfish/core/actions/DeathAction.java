@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -8,13 +10,14 @@ import org.asoem.greyfish.utils.CloneMap;
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
 
+    @SimpleXMLConstructor
 	private DeathAction() {
         this(new Builder());
 	}
 
 	@Override
 	protected void performAction(Simulation simulation) {
-		simulation.removeAgent(getComponentOwner());
+		simulation.removeAgent((Agent) getComponentOwner());
 	}
 
     @Override
