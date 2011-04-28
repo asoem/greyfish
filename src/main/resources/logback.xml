@@ -15,22 +15,29 @@
     </appender>
 
     <logger name="org.asoem.greyfish" additivity="false" level="INFO">
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
     </logger>
 
     <logger name="org.asoem.greyfish.core" additivity="true">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.individual" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.individual" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.simulation" additivity="true">
+    <logger name="org.asoem.greyfish.core.simulation" additivity="false" level="DEBUG">
+        <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+            <file>logs/Simulation.log</file>
+            <append>true</append>
+            <encoder>
+                <pattern>%-5level %logger{10} - %msg %n</pattern>
+            </encoder>
+        </appender>
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions.ResourceConsumptionAction" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.actions.SexualReproductionAction" additivity="true" level="DEBUG">
     </logger>
 
     <logger name="org.asoem.greyfish.core.actions.ResourceProvisionAction" additivity="true" level="INFO">
