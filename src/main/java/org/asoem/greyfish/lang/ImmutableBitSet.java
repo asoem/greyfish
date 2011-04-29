@@ -3,7 +3,6 @@ package org.asoem.greyfish.lang;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import org.asoem.greyfish.utils.BitSets;
-import org.asoem.greyfish.utils.RandomUtils;
 
 import java.math.BigInteger;
 import java.util.BitSet;
@@ -13,6 +12,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.RandomUtils.trueWithProbability;
 
 /**
  * User: christoph
@@ -43,8 +43,8 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
     public ImmutableBitSet(ImmutableBitSet val, double p) {
         BitSet bs = new BitSet(val.length());
         int idx = 0;
-        for(Boolean b : val)
-            bs.set(idx++, b);
+        for(boolean b : val)
+            bs.set(idx++, (trueWithProbability(p)) ? !b : b);
         this.val = BitSets.toBigInteger(bs);
     }
 
@@ -56,7 +56,7 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
     public ImmutableBitSet(int length, double p) {
         BitSet bs = new BitSet(length);
         for (int i=0; i<= bs.length(); i++) {
-            bs.set(i, RandomUtils.trueWithProbability(p));
+            bs.set(i, trueWithProbability(p));
         }
         this.val = BitSets.toBigInteger(bs);
     }
@@ -186,5 +186,15 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
                 case '1' : bs.set(i, true); break;
             }
         return new ImmutableBitSet(bs);
+    }
+
+    /**
+     *
+     * @param bitSet the original ImmutableBitSet
+     * @param p the probability with which each bit will be mutated
+     * @return a new ImmutableBitSet with each bit mutated with probability {@code p}
+     */
+    public static ImmutableBitSet newMutatedCopy(ImmutableBitSet bitSet, double p) {
+        return new ImmutableBitSet(bitSet, p);
     }
 }
