@@ -127,9 +127,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
-        conditionTree.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
+        conditionTree.prepare(simulation);
         executionCount = 0;
         timeOfLastExecution = simulation.getSteps();
     }

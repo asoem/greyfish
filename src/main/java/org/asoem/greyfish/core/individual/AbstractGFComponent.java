@@ -64,7 +64,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     @Override
-    public void initialize(Simulation simulation) {
+    public void prepare(Simulation simulation) {
         checkNotNull(simulation);
         this.simulation = simulation;
     }

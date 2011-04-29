@@ -5,12 +5,11 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.GenomeInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.EvaluatedCandidate;
+import org.asoem.greyfish.core.utils.EvaluatedCandidates;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.RandomUtils;
-import org.uncommons.watchmaker.framework.EvaluatedCandidate;
-import org.uncommons.watchmaker.framework.selection.RouletteWheelSelection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,6 @@ import java.util.List;
 @ClassGroup(tags="property")
 public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedCandidate<GenomeInterface>>> {
 
-    final private static RouletteWheelSelection SELECTOR = new RouletteWheelSelection();
     final private List<EvaluatedCandidate<GenomeInterface>> spermList = new ArrayList<EvaluatedCandidate<GenomeInterface>>();
 
     public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, CloneMap cloneMap) {
@@ -36,15 +34,14 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
 
     public GenomeInterface getRandom() {
         if (!spermList.isEmpty())
-            return spermList.get(RandomUtils.nextInt(spermList.size())).getCandidate();
+            return EvaluatedCandidates.selectRandom(spermList).getObject();
         else
             return null;
     }
 
     public GenomeInterface getRWS() {
         if (!spermList.isEmpty()) {
-            final List<GenomeInterface> selection = SELECTOR.select(spermList, true, 1, RandomUtils.randomInstance());
-            return selection.get(0);
+            return EvaluatedCandidates.selectRouletteWheel(spermList).getObject();
         }
         else
             return null;
@@ -56,8 +53,8 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
         spermList.clear();
     }
 

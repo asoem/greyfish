@@ -8,7 +8,6 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.RandomUtils;
-import org.uncommons.maths.random.GaussianGenerator;
 
 @ClassGroup(tags="property")
 public final class GeneticDoubleProperty extends PropertyDecorator implements WellOrderedSetElementProperty<Double> {
@@ -37,13 +36,13 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        delegate.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        delegate.prepare(simulation);
         doubleSupplier = delegate.registerGene(
                 new DefaultGene<Double>(delegate.getInitialValue(), Double.class, new MutationOperator<Double>() {
                     @Override
                     public Double mutate(Double original) {
-                        return new GaussianGenerator(getLowerBound(), getUpperBound(), RandomUtils.RNG).nextValue();
+                        return RandomUtils.RANDOM_DATA.nextGaussian(0, 1);
                     }
 
                     @Override

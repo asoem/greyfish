@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutationOperator;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.ImmutableBitSet;
@@ -24,7 +25,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
 
     private final Gene<ImmutableBitSet> bitStringGene;
 
-    @SuppressWarnings("unused") // used in the deserialization process
+    @SimpleXMLConstructor
     private BitSetTrait() {
         this(new Builder());
     }
@@ -62,7 +63,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
             @Override
             public ImmutableBitSet mutate(ImmutableBitSet original) {
                 checkNotNull(original);
-                return new ImmutableBitSet(original, 0.1);
+                return ImmutableBitSet.newMutatedCopy(original, 0.1);
             }
 
             @Override
@@ -78,7 +79,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
             }
         };
 
-        final ImmutableBitSet bitSet = (builder.initialValue == null) ? new ImmutableBitSet(DEFAULT_BITSET_LENGTH, RandomUtils.RNG) : builder.initialValue;
+        final ImmutableBitSet bitSet = (builder.initialValue == null) ? new ImmutableBitSet(DEFAULT_BITSET_LENGTH, RandomUtils.randomInstance()) : builder.initialValue;
 
         bitStringGene = registerGene(
             new DefaultGene<ImmutableBitSet>(bitSet, ImmutableBitSet.class, mutationOperator));

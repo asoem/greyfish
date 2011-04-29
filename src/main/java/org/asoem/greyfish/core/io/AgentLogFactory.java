@@ -9,5 +9,6 @@ import java.io.IOException;
  */
 public interface AgentLogFactory {
 
-    public void commit(AgentLog log) throws IOException;
+    void commit(AgentLog log) throws IOException;
+    AgentLog newAgentLog();
 }

@@ -36,8 +36,8 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        getDelegate().initialize(simulation);
+    public void prepare(Simulation simulation) {
+        getDelegate().prepare(simulation);
     }
 
     @Override

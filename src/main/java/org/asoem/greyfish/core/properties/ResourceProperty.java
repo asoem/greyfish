@@ -25,8 +25,8 @@ public class ResourceProperty extends DoubleProperty {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
         consumerGroup.removeAllConsumer();
     }
 

@@ -88,8 +88,8 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
         try{
             FORMULA_EVALUATOR.parse(energyCostsFormula);
         } catch (EvaluationException e) {

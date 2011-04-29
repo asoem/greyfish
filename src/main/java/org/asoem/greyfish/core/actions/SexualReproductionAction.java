@@ -50,6 +50,8 @@ public class SexualReproductionAction extends AbstractGFAction {
                     getComponentOwner().getGenome().mutated().recombined(spermStorage.getRWS())
             );
         }
+
+        getComponentOwner().getLog().add("offspring", nOffspring);
     }
 
     @Override

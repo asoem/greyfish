@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -242,5 +243,10 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public void setMotion(double angle, double velocity) {
         delegate.setMotion(angle, velocity);
+    }
+
+    @Override
+    public AgentLog getLog() {
+        return delegate.getLog();
     }
 }

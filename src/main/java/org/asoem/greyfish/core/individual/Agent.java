@@ -4,22 +4,23 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AbstractGFAction;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.*;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Initializeable;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.Preparable;
 
 import java.awt.*;
 import java.io.IOException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2D, Initializeable {
+public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2D, Preparable<Simulation> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
 
@@ -28,7 +29,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     private final int id;
 
     private final static AgentLogFactory AGENT_LOG_FACTORY = new DefaultAgentLogFactory("agents.log");
-    private final AgentLog log = new AgentLog(AGENT_LOG_FACTORY);
+    private final AgentLog log = AGENT_LOG_FACTORY.newAgentLog();
 
     private GFAction lastExecutedAction;
 
@@ -39,12 +40,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
 
-        // logging
-        log.set("id", id);
-        log.set("timeOfBirth", timeOfBirth);
-
-        initialize(simulation);
-        freeze();
+        init();
     }
 
     private Agent(IndividualInterface individual, Simulation simulation) {
@@ -54,12 +50,20 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
 
+        init();
+    }
+
+    private void init() {
+        prepare(simulation);
+        freeze();
+
         // logging
         log.set("id", id);
         log.set("timeOfBirth", timeOfBirth);
 
-        initialize(simulation);
-        freeze();
+        int i=0;
+        for (Gene<?> gene : getGenome())
+            log.set("Gene#" + String.valueOf(i++), gene);
     }
 
     @Override
@@ -118,11 +122,11 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        // call initialize for all components
+    public void prepare(Simulation simulation) {
+        // call prepare for all components
         for (GFComponent component : this) {
             component.setComponentRoot(this);
-            component.initialize(simulation);
+            component.prepare(simulation);
         }
     }
     // TODO move to an interface?
@@ -304,5 +308,10 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     public int getAge() {
         assert simulation.getSteps() >= getTimeOfBirth();
         return simulation.getSteps() - getTimeOfBirth();
+    }
+
+    @Override
+    public AgentLog getLog() {
+        return log;
     }
 }

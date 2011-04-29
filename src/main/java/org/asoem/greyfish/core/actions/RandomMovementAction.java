@@ -44,8 +44,8 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
         pattern = MovementPatterns.borderAvoidanceMovement(speed, 0.3);
     }
 

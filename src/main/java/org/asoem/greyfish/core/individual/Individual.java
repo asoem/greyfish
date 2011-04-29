@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -126,6 +127,11 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public boolean hasMessages(MessageTemplate template) {
         return Iterables.any(inBox, template);
+    }
+
+    @Override
+    public AgentLog getLog() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

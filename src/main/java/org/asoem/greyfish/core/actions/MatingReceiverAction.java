@@ -11,6 +11,8 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -29,6 +31,8 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
  */
 @ClassGroup(tags="actions")
 public class MatingReceiverAction extends ContractNetInitiatiorAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatingReceiverAction.class);
 
     @Element(name="property")
     private EvaluatedGenomeStorage spermBuffer;
@@ -91,8 +95,10 @@ public class MatingReceiverAction extends ContractNetInitiatiorAction {
 
     public boolean receiveGenome(EvaluatedGenome genome) {
         spermBuffer.addGenome(genome, genome.getFitness());
-        if (GFACTIONS_LOGGER.isTraceEnabled())
-            GFACTIONS_LOGGER.trace(getComponentOwner() + " received sperm: " + genome);
+        getComponentOwner().getLog().add("spermReceived", 1);
+
+        LOGGER.trace(getComponentOwner() + " received sperm: " + genome);
+
         return true;
     }
 

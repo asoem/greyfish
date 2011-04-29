@@ -31,8 +31,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
         checkValidity();
     }
 

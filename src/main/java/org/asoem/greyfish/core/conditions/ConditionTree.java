@@ -75,8 +75,8 @@ public class ConditionTree extends AbstractGFComponent {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
+    public void prepare(Simulation simulation) {
         if (rootCondition != null)
-            rootCondition.initialize(simulation);
+            rootCondition.prepare(simulation);
     }
 }

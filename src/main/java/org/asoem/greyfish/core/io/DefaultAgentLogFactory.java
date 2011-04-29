@@ -33,4 +33,9 @@ public class DefaultAgentLogFactory implements AgentLogFactory {
 
         writer.close();
     }
+
+    @Override
+    public AgentLog newAgentLog() {
+        return new AgentLog(this);
+    }
 }

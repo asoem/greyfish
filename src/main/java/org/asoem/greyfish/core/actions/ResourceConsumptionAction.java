@@ -96,8 +96,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
         checkValidity();
     }
 

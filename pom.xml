@@ -173,21 +173,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.uncommons.watchmaker</groupId>
-            <artifactId>watchmaker-framework</artifactId>
-            <version>0.7.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.collections</groupId>
-                    <artifactId>google-collections</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+            <version>2.2</version>
         </dependency>
-        <dependency>
-            <groupId>org.uncommons.maths</groupId>
-            <artifactId>uncommons-maths</artifactId>
-            <version>1.2.1</version>
-        </dependency>
+
         <dependency>
             <groupId>com.explodingpixels</groupId>
             <artifactId>mac_widgets</artifactId>

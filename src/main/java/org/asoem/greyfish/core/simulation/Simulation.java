@@ -190,7 +190,7 @@ public class Simulation implements Runnable, HasName {
     private void addAgent(Agent agent, Location2D location) {
         checkAgent(agent);
         LOGGER.trace("{}: Adding Agent {}" + this, agent);
-        agent.initialize(this);
+        agent.prepare(this);
         concurrentAgentsView.add(agent);
         populationCount.get(agent.getPopulation()).increase();
         agent.setAnchorPoint(location);

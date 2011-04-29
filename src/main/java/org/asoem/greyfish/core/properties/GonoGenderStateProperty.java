@@ -1,7 +1,5 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
@@ -9,9 +7,11 @@ import org.asoem.greyfish.core.genes.MutationOperator;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.RandomUtils;
 
 import java.util.Set;
+
+import static org.asoem.greyfish.utils.RandomUtils.nextBoolean;
+import static org.asoem.greyfish.utils.RandomUtils.trueWithProbability;
 
 @ClassGroup(tags="property")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<GonoGenderStateProperty.Gender> {
@@ -19,55 +19,16 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     // TODO: Add configurable matrix for state transition values. Alternative: A configurable "state" gene field
 
     public enum Gender {
-        MALE("Male"),
-        FEMALE("Female"),
-        ASEX("Asex");
-
-        private final String name;
-
-        Gender(String name) {
-            this.name = name;
-        }
-
-        public static String[] names() {
-            ImmutableList.Builder<String> builder = ImmutableList.builder();
-            for (Gender g : values())
-                builder.add(g.name());
-            return Iterables.toArray(builder.build(), String.class);
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
+        MALE,
+        FEMALE,
+        ASEX
     }
 
-    private final MutationOperator<Integer> mutationOperator = new MutationOperator<Integer>() {
-        private final static double SEX_ASEX_TRANSITION_PROBABILITY = 0.001;
-
-        @Override
-        public Integer mutate(Integer original) {
-            return RandomUtils.nextDouble() < SEX_ASEX_TRANSITION_PROBABILITY ?
-                    Gender.ASEX.ordinal() :
-                    RandomUtils.nextBoolean() ?
-                            Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
-        }
-
-        @Override
-        public double normalizedDistance(Integer orig, Integer copy) {
-            return 1;
-        }
-
-        @Override
-        public double normalizedWeightedDistance(Integer orig, Integer copy) {
-            return normalizedDistance(orig, copy) * 0.1;
-        }
-    };
     private final Gene<Integer> gene;
 
-    public GonoGenderStateProperty(GonoGenderStateProperty gonoGenderStateProperty, CloneMap cloneMap) {
-        super(gonoGenderStateProperty, cloneMap);
-        gene = DefaultGene.newMutatedCopy(gonoGenderStateProperty.gene);
+    protected GonoGenderStateProperty(GonoGenderStateProperty clone, CloneMap cloneMap) {
+        super(clone, cloneMap);
+        gene = registerGene(DefaultGene.newMutatedCopy(clone.gene));
     }
 
     @Override
@@ -92,7 +53,36 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     protected GonoGenderStateProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
-        gene = registerGene(new DefaultGene<Integer>(RandomUtils.nextBoolean() ? 0 : 1, Integer.class, mutationOperator));
+
+        MutationOperator<Integer> mutationOperator = new MutationOperator<Integer>() {
+            private final static double SEX_ASEX_TRANSITION_PROBABILITY = 0.001;
+
+            @Override
+            public Integer mutate(Integer original) {
+                switch (Gender.values()[original]) {
+                    case ASEX:
+                        return Gender.ASEX.ordinal();
+                    default:
+                        return trueWithProbability(SEX_ASEX_TRANSITION_PROBABILITY) ?
+                                Gender.ASEX.ordinal() :
+                                nextBoolean() ? Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
+                }
+
+            }
+
+            @Override
+            public double normalizedDistance(Integer orig, Integer copy) {
+                return 1;
+            }
+
+            @Override
+            public double normalizedWeightedDistance(Integer orig, Integer copy) {
+                return normalizedDistance(orig, copy) * 0.1;
+            }
+        };
+
+        int initialValue = nextBoolean() ? Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
+        gene = registerGene(new DefaultGene<Integer>(initialValue, Integer.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }

@@ -77,10 +77,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     }
 
     @Override
-    public void initialize(Simulation simulation) {
-        super.initialize(simulation);
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
         for (GFCondition condition : conditions)
-            condition.initialize(simulation);
+            condition.prepare(simulation);
     }
 
     public void addAll(Iterable<GFCondition> childConditions) {

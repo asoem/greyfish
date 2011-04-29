@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import java.io.IOException;
@@ -27,27 +26,19 @@ public class AgentLog {
     }
 
     public void add(String key, int value) {
-        Preconditions.checkArgument(map.containsKey(key));
-        Preconditions.checkArgument(map.get(key) instanceof Integer);
-        map.put(key, (Integer) map.get(key) + value);
+        map.put(key, oldOrNew(key, Integer.class, 0) + value);
     }
 
     public void add(String key, double value) {
-        Preconditions.checkArgument(map.containsKey(key));
-        Preconditions.checkArgument(map.get(key) instanceof Double);
-        map.put(key, (Double) map.get(key) + value);
+        map.put(key, oldOrNew(key, Double.class, 0.0) + value);
     }
 
     public void subtract(String key, int value) {
-        Preconditions.checkArgument(map.containsKey(key));
-        Preconditions.checkArgument(map.get(key) instanceof Integer);
-        map.put(key, (Integer) map.get(key) - value);
+        map.put(key, oldOrNew(key, Integer.class, 0) - value);
     }
 
     public void subtract(String key, double value) {
-        Preconditions.checkArgument(map.containsKey(key));
-        Preconditions.checkArgument(map.get(key) instanceof Double);
-        map.put(key, (Double) map.get(key) - value);
+        map.put(key, oldOrNew(key, Double.class, 0.0) - value);
     }
 
     public void commit() throws IOException {
@@ -56,5 +47,9 @@ public class AgentLog {
 
     public Map<String, Object> getMap() {
         return Collections.unmodifiableMap(map);
+    }
+
+    private <T extends Number> T oldOrNew(String key, Class<T> clazz, T fallback) {
+        return (map.containsKey(key)) ? clazz.cast(map.get(key)) : fallback;
     }
 }
