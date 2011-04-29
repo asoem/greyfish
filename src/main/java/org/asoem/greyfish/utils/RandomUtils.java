@@ -1,61 +1,46 @@
 package org.asoem.greyfish.utils;
 
-import org.uncommons.maths.random.ContinuousUniformGenerator;
-import org.uncommons.maths.random.MersenneTwisterRNG;
+import com.google.common.base.Preconditions;
+import org.apache.commons.math.random.RandomAdaptor;
+import org.apache.commons.math.random.RandomDataImpl;
+import org.apache.commons.math.random.RandomGenerator;
 
 import java.util.Random;
 
 public class RandomUtils {
+    public static final RandomGenerator RANDOM_GENERATOR = new org.apache.commons.math.random.MersenneTwister();
 
-	public static final Random RNG = new MersenneTwisterRNG();
-
-	public static int nextInt() {
-		return RNG.nextInt();
-	}
-
-    /**
-     * @see java.util.Random#nextInt(int)
-     * @param n the bound on the random number to be returned. Must be positive.
-     * @return the next pseudorandom, uniformly distributed int value between 0 (inclusive) and n (exclusive) from this random number generator's sequence
-     */
-	public static int nextInt(final int n) {
-		return RNG.nextInt(n);
-	}
+    public static final RandomDataImpl RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
 
     /**
      * @see java.util.Random#nextDouble()
      * @return the next pseudorandom, uniformly distributed double value between 0.0 and 1.0 from this random number generator's sequence
      */
 	public static double nextDouble() {
-		return RNG.nextDouble();
+		return RANDOM_GENERATOR.nextDouble();
 	}
 
 	public static Random randomInstance() {
-		return RNG;
+		return new RandomAdaptor(RANDOM_GENERATOR);
 	}
 
 	public static int nextInt(final Integer minIncl, final Integer maxExcl) {
-		return minIncl + RNG.nextInt(maxExcl - minIncl);
+        Preconditions.checkArgument(maxExcl >= minIncl);
+		return minIncl + RANDOM_GENERATOR.nextInt(maxExcl - minIncl);
 	}
 
 	public static double nextDouble(double minIncl, double maxExcl) {
-		return new ContinuousUniformGenerator(minIncl,maxExcl,RNG).nextValue();
+        Preconditions.checkArgument(maxExcl >= minIncl);
+		return RANDOM_DATA.nextUniform(minIncl, maxExcl);
 	}
 	
 	public static float nextFloat(float minIncl, float maxExcl) {
-		return new ContinuousUniformGenerator(minIncl,maxExcl,RNG).nextValue().floatValue();
+        Preconditions.checkArgument(maxExcl >= minIncl);
+		return (float) RANDOM_DATA.nextUniform(minIncl, maxExcl);
 	}
 
 	public static boolean nextBoolean() {
-		return RNG.nextBoolean();
-	}
-
-	
-	/**
-	 * @see java.util.Random#nextFloat()
-	 */
-	public static float nextFloat() {
-		return RNG.nextFloat();
+		return RANDOM_GENERATOR.nextBoolean();
 	}
 
     public static boolean trueWithProbability(double probability) {
@@ -67,5 +52,13 @@ public class RandomUtils {
             return nextDouble() < probability;
         else
             throw new IllegalArgumentException("Probability not in [0,1]: " + probability);
+    }
+
+    public static int nextInt(int size) {
+        return RANDOM_GENERATOR.nextInt(size);
+    }
+
+    public static double nextDouble(double sum) {
+        return nextDouble(0, sum);
     }
 }
