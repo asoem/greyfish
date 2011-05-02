@@ -56,7 +56,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
     private int nProposalsMax;
 
     private void initFSM() {
-        registerInitialFSMState(SEND_CFP, new StateAction() {
+        registerInitialState(SEND_CFP, new StateAction() {
 
             @Override
             public Object run() {
@@ -71,14 +71,14 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
             }
         });
 
-        registerFSMState(WAIT_FOR_POROPOSALS, new StateAction() {
+        registerState(WAIT_FOR_POROPOSALS, new StateAction() {
 
             @Override
             public Object run() {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
                 for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
-                    assert(receivedMessage != null);
+                    assert (receivedMessage != null);
 
                     ACLMessage proposeReply = null;
                     switch (receivedMessage.getPerformative()) {
@@ -128,8 +128,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                 if (nProposalsMax == 0) {
                     GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatiorAction.this, nProposalsMax);
                     return END;
-                }
-                else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
+                } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
                     if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
                         GFACTIONS_LOGGER.debug("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatiorAction.this, nProposalsReceived);
 
@@ -139,17 +138,15 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                         template = createAcceptReplyTemplate(proposeReplies);
                         nInformReceived = 0;
                         return WAIT_FOR_INFORM;
-                    }
-                    else
+                    } else
                         return TIMEOUT;
-                }
-                else {
+                } else {
                     return WAIT_FOR_POROPOSALS;
                 }
             }
         });
 
-        registerFSMState(WAIT_FOR_INFORM, new StateAction() {
+        registerState(WAIT_FOR_INFORM, new StateAction() {
 
             @Override
             public Object run() {
@@ -196,7 +193,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
             }
         });
 
-        registerEndFSMState(TIMEOUT, new StateAction() {
+        registerErrorState(TIMEOUT, new StateAction() {
 
             @Override
             public Object run() {
@@ -206,7 +203,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
             }
         });
 
-        registerEndFSMState(END, new StateAction() {
+        registerEndState(END, new StateAction() {
 
             @Override
             public Object run() {

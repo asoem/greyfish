@@ -1,17 +1,22 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.in;
-import static com.google.common.collect.Iterables.all;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
+import static org.asoem.greyfish.core.actions.FiniteStateAction.StateType.*;
 
 public abstract class FiniteStateAction extends AbstractGFAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
 
     protected FiniteStateAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
@@ -21,37 +26,45 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         super(cloneable, cloneMap);
     }
 
-    protected interface StateAction {
-        public Object run();
-    }
-
     /* Immutable after freeze */
-    private ImmutableMap<Object, StateAction> states = ImmutableMap.of();
-    private Object initialStateName;
-    private ImmutableSet<Object> endStateNames = ImmutableSet.of();
+    private ImmutableMap<Object, FSMState> states = ImmutableMap.of();
 
     /* Always mutable */
-    private Object currentStateName;
+    private Object currentStateKey;
 
     @Override
     protected final void performAction(Simulation simulation) {
-        if (endStateNames.contains(currentStateName)) { // TODO: Could be implemented more efficiently via a boolean.
-            GFACTIONS_LOGGER.debug("{}: EndTransition to {}", this, initialStateName);
-            currentStateName = initialStateName;                                assert currentStateName != null;
+        if (currentStateHasType(END)) {
+            LOGGER.debug("{}: EndTransition to {}", this, getInitialStateKey());
+            currentStateKey = getInitialStateKey();
         }
 
-        StateAction stateActionToExecute = states.get(currentStateName);     assert stateActionToExecute != null;
-        Object nextStateName = stateActionToExecute.run();                   assert nextStateName != null;
+        Preconditions.checkState(currentStateKey != null);
+        Preconditions.checkState(states.containsKey(currentStateKey));
 
-        GFACTIONS_LOGGER.debug("{}: Transition to {}", this, nextStateName);
+        StateAction stateActionToExecute = states.get(currentStateKey).getStateAction();
+        Object nextStateKey = stateActionToExecute.run();
 
-        currentStateName = nextStateName;
+        LOGGER.debug("{}: Transition to {}", this, nextStateKey);
+
+        currentStateKey = nextStateKey;
+    }
+
+    private Object getInitialStateKey() {
+        if (states.size() == 0)
+            return null;
+
+        Object firstKey = states.keySet().asList().get(0);
+        if (states.get(firstKey).getStateType() != INIT)
+            return null;
+        else
+            return firstKey;
     }
 
     @Override
     protected boolean evaluateInternalState(Simulation simulation) {
         if (states.isEmpty()) {
-            GFACTIONS_LOGGER.warn(this + " has no states defined; Execution stopped.");
+            LOGGER.warn(this + " has no states defined; Execution stopped.");
             return false;
         }
 
@@ -61,48 +74,101 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        currentStateName = initialStateName;
+        currentStateKey = getInitialStateKey();
     }
 
     @Override
     public void checkConsistency(Iterable<? extends GFComponent> components) {
         super.checkConsistency(components);
         if (!states.isEmpty()) {
-            checkState(initialStateName != null,
-                    "No InitialState defined");
-            checkState(states.containsKey(initialStateName),
-                    "InitialStatName `"+initialStateName+"' has no actual state in "+states);
-            checkState(!endStateNames.isEmpty(),
-                    "No EndState defined");
-            checkState(all(endStateNames, in(states.keySet())) ,
-                    "Not all EndStateNames "+endStateNames+" have an actual state in "+states);
+            checkState(getInitialStateKey() != null, "No InitialState defined");
+            checkState(Iterables.any(states.values(), new Predicate<FSMState>() {
+                @Override
+                public boolean apply(FSMState state) {
+                    return state.getStateType() == END;
+                }
+            }), "No EndState defined");
         }
         else
-            GFACTIONS_LOGGER.warn("FiniteStateAction has no states defined: " + this);
+            LOGGER.warn("FiniteStateAction has no states defined: " + this);
     }
 
     @Override
     public final boolean isResuming() {
-        return currentStateName != initialStateName && !endStateNames.contains(currentStateName);
+        return currentStateHasType(MIDDLE);
     }
 
-    protected final void registerInitialFSMState(final Object state, final StateAction action) {
-        checkState(initialStateName == null);
-        registerFSMState(state, action);
-        initialStateName = state;
+    private boolean currentStateHasType(StateType stateType) {
+        assert currentStateKey != null;
+        assert states.containsKey(currentStateKey);
+        return states.get(currentStateKey).getStateType() == stateType;
     }
 
-    protected final void registerFSMState(final Object state, final StateAction action) {
-        states = ImmutableMap.<Object, StateAction>builder().putAll(states).put(state, action).build();
+    protected final void registerInitialState(final Object stateKey, final StateAction action) {
+        registerStateInternal(stateKey, action, INIT);
     }
 
-    protected final void registerEndFSMState(final Object state, final StateAction action) {
-        registerFSMState(state, action);
-        endStateNames = ImmutableSet.<Object>builder().addAll(endStateNames).add(state).build();
+    protected final void registerState(final Object stateKey, final StateAction action) {
+        registerStateInternal(stateKey, action, MIDDLE);
+    }
+
+    protected final void registerEndState(final Object stateKey, final StateAction action) {
+        registerStateInternal(stateKey, action, StateType.END);
+    }
+
+    protected final void registerErrorState(final Object stateKey, final StateAction action) {
+        registerStateInternal(stateKey, action, StateType.ERROR);
+    }
+
+    private void registerStateInternal(final Object stateKey, final StateAction action, final StateType stateType) {
+        checkNotNull(stateKey);
+        checkNotNull(action);
+        checkNotNull(stateType);
+        switch (stateType) {
+            case INIT:
+                // put in front of the map
+                states = ImmutableMap.<Object, FSMState>builder().put(stateKey, new FSMState(stateType, action)).putAll(states).build();
+                break;
+            default:
+                // put at the end of the map
+                states = ImmutableMap.<Object, FSMState>builder().putAll(states).put(stateKey, new FSMState(stateType, action)).build();
+                break;
+        }
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateName + "]@" + getComponentOwner();
+        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getComponentOwner();
+    }
+
+    protected enum StateType {
+        INIT,
+        MIDDLE,
+        END,
+        ERROR
+    }
+
+    protected interface StateAction {
+        public Object run();
+    }
+
+    protected static class FSMState {
+        private final StateType stateType;
+        private final StateAction stateAction;
+
+        public FSMState(StateType stateType, StateAction stateAction) {
+            Preconditions.checkNotNull(stateType);
+            Preconditions.checkNotNull(stateAction);
+            this.stateType = stateType;
+            this.stateAction = stateAction;
+        }
+
+        public StateType getStateType() {
+            return stateType;
+        }
+
+        public StateAction getStateAction() {
+            return stateAction;
+        }
     }
 }

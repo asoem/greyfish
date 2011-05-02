@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 /**
  * User: christoph
@@ -114,7 +113,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
     private boolean receiveGenome(EvaluatedGenome genome) {
         if (spermBuffer != null) {
             spermBuffer.addGenome(genome, genome.getFitness());
-            GFACTIONS_LOGGER.trace("{} received sperm: {}", getComponentOwner(), genome);
+            LOGGER.trace("{} received sperm: {}", getComponentOwner(), genome);
             return true;
         }
         return false;
@@ -178,8 +177,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
         sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
         sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-        if (GFACTIONS_LOGGER.isDebugEnabled())
-            GFACTIONS_LOGGER.debug(CompatibilityAwareMatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
+        LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
 
@@ -209,11 +207,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override public CompatibilityAwareMatingReceiverAction build() {
-            if (sensorRange <= 0)
-                GFACTIONS_LOGGER.warn("{}: sensorRange '{}' is <= 0.", this, sensorRange);
-            if (Strings.isNullOrEmpty(ontology))
-                GFACTIONS_LOGGER.warn("{}: ontology '{}' is invalid ", this, ontology);
-            return new CompatibilityAwareMatingReceiverAction(this); }
+            return new CompatibilityAwareMatingReceiverAction(checkedSelf()); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
@@ -226,5 +220,14 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         public T storesSpermIn(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
         public T fromMatesOfType(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
         public T closerThan(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            super.checkBuilder();
+            if (sensorRange <= 0)
+                LOGGER.warn("{}: sensorRange '{}' is <= 0.", this, sensorRange);
+            if (Strings.isNullOrEmpty(ontology))
+                LOGGER.warn("{}: ontology '{}' is invalid ", this, ontology);
+        }
     }
 }

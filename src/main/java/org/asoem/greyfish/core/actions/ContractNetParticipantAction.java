@@ -55,7 +55,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     }
 
     private void initFSM() {
-        registerInitialFSMState(CHECK_CFP, new StateAction() {
+        registerInitialState(CHECK_CFP, new StateAction() {
 
             @Override
             public Object run() {
@@ -87,7 +87,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
             }
         });
 
-        registerFSMState(WAIT_FOR_ACCEPT, new StateAction() {
+        registerState(WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
             public Object run() {
@@ -130,16 +130,16 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
             }
         });
 
-        registerEndFSMState(TIMEOUT, new StateAction() {
+        registerErrorState(TIMEOUT, new StateAction() {
 
             @Override
             public Object run() {
-                GFACTIONS_LOGGER.debug("{}: TIMEOUT", ContractNetInitiatiorAction.class.getSimpleName());
+                GFACTIONS_LOGGER.debug("TIMEOUT");
                 return TIMEOUT;
             }
         });
 
-        registerEndFSMState(END, new StateAction() {
+        registerEndState(END, new StateAction() {
             @Override
             public Object run() {
                 return END;

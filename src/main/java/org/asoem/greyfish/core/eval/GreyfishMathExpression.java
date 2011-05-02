@@ -20,6 +20,7 @@ public enum GreyfishMathExpression {
     private final Logger LOGGER = LoggerFactory.getLogger(GreyfishMathExpression.class);
 
     private final Map<String, Object> parserCache = Maps.newHashMap();
+    private final Evaluator EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
 
     public double getResult(String expression, Agent agent, Object ... args) throws EvaluationException {
@@ -38,10 +39,9 @@ public enum GreyfishMathExpression {
             parserCache.put(expression, d);
         }
         else {
-            Evaluator evaluator = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
             try {
-                evaluator.parse(expression);
-                parserCache.put(expression, evaluator);
+                EVALUATOR.parse(expression);
+                parserCache.put(expression, EVALUATOR);
             } catch (EvaluationException e) {
                 LOGGER.debug("Failed to parse expression", e);
                 parserCache.put(expression, 0); // future calls will also fail
@@ -89,4 +89,12 @@ public enum GreyfishMathExpression {
         return SINGLETON_INSTANCE.getResult(checkNotNull(expression), checkNotNull(componentOwner), args);
     }
 
+    public static boolean isValidExpression(String expression) {
+        try {
+            SINGLETON_INSTANCE.EVALUATOR.parse(expression);
+            return true;
+        } catch (EvaluationException e) {
+            return false;
+        }
+    }
 }
