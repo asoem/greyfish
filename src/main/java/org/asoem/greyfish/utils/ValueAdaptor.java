@@ -5,6 +5,7 @@ import com.google.common.base.Supplier;
 import com.jgoodies.binding.value.ValueModel;
 import com.jgoodies.validation.Validatable;
 import com.jgoodies.validation.ValidationResult;
+import org.asoem.greyfish.core.io.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -51,7 +52,15 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
         Preconditions.checkArgument(clazz.isInstance(arg0));
 
         T old = get();
-        set((T) arg0);
+        try {
+            set((T) arg0);
+        }
+        catch (Exception e) {
+            LoggerFactory.getLogger(ValueAdaptor.class).debug("Could not set value", e);
+            // TODO: change Adaptors state
+            return;
+        }
+
         fireValueChanged(old, get());
     }
 
