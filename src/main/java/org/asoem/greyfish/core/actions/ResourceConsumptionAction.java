@@ -22,7 +22,7 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.isEmpty;
 
 @ClassGroup(tags="actions")
-public class ResourceConsumptionAction extends ContractNetInitiatiorAction {
+public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Element(name="property")
     private DoubleProperty consumerProperty = null;

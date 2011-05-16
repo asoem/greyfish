@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -75,6 +76,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
         });
 	}
 
+    @SimpleXMLConstructor
     private LastExecutionTimeCondition() {
         this(new Builder());
     }

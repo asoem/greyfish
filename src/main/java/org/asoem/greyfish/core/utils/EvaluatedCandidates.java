@@ -18,7 +18,7 @@ public class EvaluatedCandidates {
      * @param <T> the type of the candidates objects
      * @return the selected candidate, {@code null} if list is empty
      */
-    public static <T> EvaluatedCandidate<T> selectRouletteWheel(List<? extends EvaluatedCandidate<T>> candidates) {
+    public static <T> EvaluatedCandidate<T> selectRouletteWheel(final List<? extends EvaluatedCandidate<T>> candidates) {
         Preconditions.checkNotNull(candidates);
         if (candidates.isEmpty())
             return null;

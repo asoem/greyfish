@@ -30,7 +30,7 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
  *
  */
 @ClassGroup(tags="actions")
-public class MatingReceiverAction extends ContractNetInitiatiorAction {
+public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatingReceiverAction.class);
 

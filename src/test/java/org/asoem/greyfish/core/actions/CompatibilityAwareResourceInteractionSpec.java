@@ -26,7 +26,7 @@ import static org.asoem.greyfish.core.space.MutableObject2D.at;
  * Time: 11:10
  */
 @RunWith(JDaveRunner.class)
-public class CompatibilityAwareResourceInteractionSpec extends Specification<ContractNetInitiatiorAction> {
+public class CompatibilityAwareResourceInteractionSpec extends Specification<ContractNetInitiatorAction> {
     public class NormalInteraction {
 
         final BitSetTrait trait1 = BitSetTrait.with().name("Trait1").initialValue(ImmutableBitSet.valueOf("111111")).build();

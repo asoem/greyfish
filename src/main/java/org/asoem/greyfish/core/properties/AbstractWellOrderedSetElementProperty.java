@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 
-public abstract class AbstractWellOrderedSetElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty implements WellOrderedSetElementProperty<E> {
+public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty implements WellOrderedSetElementProperty<E> {
 
     @Element(name="max")
     protected E upperBound;

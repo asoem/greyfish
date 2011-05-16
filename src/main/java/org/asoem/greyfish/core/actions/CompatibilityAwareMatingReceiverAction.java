@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.RandomUtils.trueWithProbability;
 
 /**
  * User: christoph
@@ -28,7 +30,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 12:08
  */
 @ClassGroup(tags="actions")
-public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatiorAction {
+public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatorAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompatibilityAwareMatingReceiverAction.class);
 
@@ -151,13 +153,17 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
                 matingProbability = 1 - Genes.normalizedDistance(thisGenes, thatGenes);
             }
 
-            if (RandomUtils.nextDouble() <= matingProbability) {
+            if (trueWithProbability(matingProbability)) {
                 LOGGER.debug("Accepting mating proposal with p={}", matingProbability);
+                Agent.class.cast(getComponentOwner()).getLog().add("nMatingsAccepted", 1);
+
                 receiveGenome(evaluatedGenome);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             }
             else {
                 LOGGER.debug("Refusing mating proposal with p={}", matingProbability);
+                Agent.class.cast(getComponentOwner()).getLog().add("nMatingsRefused", 1);
+
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
             }
         } catch (IllegalArgumentException e) {
@@ -192,6 +198,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
         this.compatibilityDefiningProperty = cloneMap.clone(cloneable.compatibilityDefiningProperty, GFProperty.class);
+
     }
 
     protected CompatibilityAwareMatingReceiverAction(AbstractBuilder<?> builder) {
@@ -200,6 +207,13 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiatio
         this.ontology = builder.ontology;
         this.sensorRange = builder.sensorRange;
         this.compatibilityDefiningProperty = builder.compatibilityDefiningProperty;
+    }
+
+    @Override
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
+        Agent.class.cast(getComponentOwner()).getLog().set("nMatingsAccepted", 0);
+        Agent.class.cast(getComponentOwner()).getLog().set("nMatingsRefused", 0);
     }
 
     public static Builder with() { return new Builder(); }

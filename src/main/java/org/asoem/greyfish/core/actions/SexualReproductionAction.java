@@ -104,6 +104,12 @@ public class SexualReproductionAction extends AbstractGFAction {
         this.nOffspring = builder.nOffspring;
     }
 
+    @Override
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
+        getComponentOwner().getLog().set("offspring", 0);
+    }
+
     public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<SexualReproductionAction> {
         private Builder() {}

@@ -100,7 +100,10 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
         performAction(simulation);
 
-        ++executionCount;
+        if (!isResuming()) {
+            ++executionCount;
+        }
+
         timeOfLastExecution = simulation.getSteps();
 
         if (energySource != null && !isResuming()) {

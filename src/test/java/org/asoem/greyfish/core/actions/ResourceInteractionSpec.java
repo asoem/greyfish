@@ -19,7 +19,7 @@ import java.awt.*;
 import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 @RunWith(JDaveRunner.class)
-public class ResourceInteractionSpec extends Specification<ContractNetInitiatiorAction> {
+public class ResourceInteractionSpec extends Specification<ContractNetInitiatorAction> {
     public class NormalInteraction {
 
         final DoubleProperty energyStorage = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.0).build();

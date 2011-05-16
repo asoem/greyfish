@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.eval;
 
 import net.sourceforge.jeval.VariableResolver;
 import net.sourceforge.jeval.function.FunctionException;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -11,6 +13,7 @@ import java.util.regex.Pattern;
 * Time: 14:37
 */
 class ArgumentsVariableResolver implements VariableResolver {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArgumentsVariableResolver.class);
     private final Object[] args;
 
     private final static Pattern pattern = Pattern.compile("x\\d+");
@@ -25,6 +28,8 @@ class ArgumentsVariableResolver implements VariableResolver {
             int i = Integer.decode(s.substring(1));
             if (i < args.length)
                 return String.valueOf(args[i]);
+            else
+                LOGGER.error("Variable {} is out of bounds for args of length {}.", s, args.length);
         }
         return null;
     }

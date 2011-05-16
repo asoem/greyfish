@@ -18,7 +18,7 @@ import java.awt.*;
 import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 @RunWith(JDaveRunner.class)
-public class MatingInteractionSpec extends Specification<ContractNetInitiatiorAction> {
+public class MatingInteractionSpec extends Specification<ContractNetInitiatorAction> {
     public class NormalInteraction {
 
         final EvaluatedGenomeStorage genomeStorage = EvaluatedGenomeStorage.with().build();

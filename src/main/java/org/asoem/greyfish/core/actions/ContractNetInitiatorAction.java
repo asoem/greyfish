@@ -14,14 +14,14 @@ import org.asoem.greyfish.utils.CloneMap;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.actions.ContractNetInitiatiorAction.States.*;
+import static org.asoem.greyfish.core.actions.ContractNetInitiatorAction.States.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
-public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
+public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
     enum States {
         SEND_CFP,
-        WAIT_FOR_POROPOSALS,
+        WAIT_FOR_PROPOSALS,
         WAIT_FOR_INFORM,
         END,
         TIMEOUT
@@ -34,12 +34,12 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
     private int nProposalsReceived;
     private int nInformReceived;
 
-    public ContractNetInitiatiorAction(AbstractGFAction.AbstractBuilder<?> builder) {
+    public ContractNetInitiatorAction(AbstractGFAction.AbstractBuilder<?> builder) {
         super(builder);
         initFSM();
     }
 
-    protected ContractNetInitiatiorAction(ContractNetInitiatiorAction cloneable, CloneMap cloneMap) {
+    protected ContractNetInitiatorAction(ContractNetInitiatorAction cloneable, CloneMap cloneMap) {
         super(cloneable, cloneMap);
         initFSM();
     }
@@ -67,11 +67,11 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                 nProposalsReceived = 0;
                 template = createCFPReplyTemplate(cfpMessage);
 
-                return WAIT_FOR_POROPOSALS;
+                return WAIT_FOR_PROPOSALS;
             }
         });
 
-        registerState(WAIT_FOR_POROPOSALS, new StateAction() {
+        registerState(WAIT_FOR_PROPOSALS, new StateAction() {
 
             @Override
             public Object run() {
@@ -89,12 +89,12 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                                 assert (proposeReply != null);
                                 proposeReplies.add(proposeReply);
                                 ++nProposalsReceived;
-                                GFACTIONS_LOGGER.trace("{}: Received proposal", ContractNetInitiatiorAction.this);
+                                GFACTIONS_LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
                             } catch (NotUnderstoodException e) {
                                 proposeReply = receivedMessage.createReplyFrom(getComponentOwner().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
-                                GFACTIONS_LOGGER.debug("{}: Message not understood", ContractNetInitiatiorAction.this, e);
+                                GFACTIONS_LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
                             } finally {
                                 assert proposeReply != null;
                             }
@@ -103,18 +103,18 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                             break;
 
                         case REFUSE:
-                            GFACTIONS_LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatiorAction.this, receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
                             handleRefuse(receivedMessage);
                             --nProposalsMax;
                             break;
 
                         case NOT_UNDERSTOOD:
-                            GFACTIONS_LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatiorAction.this);
+                            GFACTIONS_LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatorAction.this);
                             --nProposalsMax;
                             break;
 
                         default:
-                            GFACTIONS_LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatiorAction.this, receivedMessage.getPerformative());
+                            GFACTIONS_LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatorAction.this, receivedMessage.getPerformative());
                             --nProposalsMax;
                             break;
 
@@ -126,11 +126,11 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                 assert nProposalsMax >= 0;
 
                 if (nProposalsMax == 0) {
-                    GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatiorAction.this, nProposalsMax);
+                    GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
                     return END;
                 } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
                     if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
-                        GFACTIONS_LOGGER.debug("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatiorAction.this, nProposalsReceived);
+                        GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
 
                     timeoutCounter = 0;
 
@@ -141,7 +141,7 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                     } else
                         return TIMEOUT;
                 } else {
-                    return WAIT_FOR_POROPOSALS;
+                    return WAIT_FOR_PROPOSALS;
                 }
             }
         });
@@ -161,21 +161,21 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
                             try {
                                 handleInform(receivedMessage);
                             } catch (NotUnderstoodException e) {
-                                GFACTIONS_LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatiorAction.this, e);
+                                GFACTIONS_LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatorAction.this, e);
                             }
                             break;
 
                         case FAILURE:
-                            GFACTIONS_LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatiorAction.this, receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
                             handleFailure(receivedMessage);
                             break;
 
                         case NOT_UNDERSTOOD:
-                            GFACTIONS_LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatiorAction.this, receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
                             break;
 
                         default:
-                            GFACTIONS_LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatiorAction.this, receivedMessage);
+                            GFACTIONS_LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
                             break;
                     }
 
@@ -243,11 +243,9 @@ public abstract class ContractNetInitiatiorAction extends FiniteStateAction {
 
     protected abstract ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException;
 
-    protected void handleRefuse(ACLMessage message) {
-    }
+    protected void handleRefuse(ACLMessage message) {}
 
-    protected void handleFailure(ACLMessage message) {
-    }
+    protected void handleFailure(ACLMessage message) {}
 
     protected void handleInform(ACLMessage message) throws NotUnderstoodException {
     }

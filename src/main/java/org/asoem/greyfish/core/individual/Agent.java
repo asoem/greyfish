@@ -3,7 +3,9 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AbstractGFAction;
+import org.asoem.greyfish.core.actions.CompatibilityAwareMatingReceiverAction;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.*;
@@ -177,6 +179,11 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         LOGGER.trace("{}: Trying to execute {}", this, action);
 
         final AbstractGFAction.ExecutionResult result = action.execute(simulation);
+
+        if (action instanceof CompatibilityAwareMatingReceiverAction
+                && result == AbstractGFAction.ExecutionResult.CONDITIONS_FAILED
+                && ((Integer)((DefaultGene)getGenome().getGenes().get(0)).get()).equals(1))
+            LOGGER.info("SRA returned {}", result);
 
         switch (result) {
             case CONDITIONS_FAILED:

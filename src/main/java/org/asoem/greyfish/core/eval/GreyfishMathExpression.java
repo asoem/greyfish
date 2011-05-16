@@ -17,10 +17,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public enum GreyfishMathExpression {
     SINGLETON_INSTANCE;
 
-    private final Logger LOGGER = LoggerFactory.getLogger(GreyfishMathExpression.class);
-
+    private final static Logger LOGGER = LoggerFactory.getLogger(GreyfishMathExpression.class);
     private final Map<String, Object> parserCache = Maps.newHashMap();
-    private final Evaluator EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
 
     public double getResult(String expression, Agent agent, Object ... args) throws EvaluationException {
@@ -28,9 +26,13 @@ public enum GreyfishMathExpression {
         checkNotNull(agent);
         checkNotNull(args);
 
-        if (!isCached(expression))
-            cache(expression);
-        return evaluateInternal(fromCache(expression), agent, args);
+        try {
+            if (!isCached(expression))
+                cache(expression);
+            return evaluateInternal(fromCache(expression), agent, args);
+        } catch (EvaluationException e) {
+            throw new EvaluationException("Error evaluating " + expression, e);
+        }
     }
 
     private void cache(String expression) {
@@ -40,10 +42,11 @@ public enum GreyfishMathExpression {
         }
         else {
             try {
-                EVALUATOR.parse(expression);
-                parserCache.put(expression, EVALUATOR);
+                Evaluator evaluator = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
+                evaluator.parse(expression);
+                parserCache.put(expression, evaluator);
             } catch (EvaluationException e) {
-                LOGGER.debug("Failed to parse expression", e);
+                LOGGER.error("Failed to parse expression", e);
                 parserCache.put(expression, 0); // future calls will also fail
             }
         }
@@ -91,7 +94,8 @@ public enum GreyfishMathExpression {
 
     public static boolean isValidExpression(String expression) {
         try {
-            SINGLETON_INSTANCE.EVALUATOR.parse(expression);
+            Evaluator evaluator = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
+            evaluator.parse(expression);
             return true;
         } catch (EvaluationException e) {
             return false;
