@@ -20,7 +20,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected void performAction(Simulation simulation) {
+    protected void executeUnconditioned(Simulation simulation) {
         for (int i = 0; i < parameterClones; i++) {
             simulation.createAgent(
                     getComponentOwner().getPopulation(),

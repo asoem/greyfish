@@ -5,28 +5,27 @@ import com.google.common.collect.Iterables;
 import net.sourceforge.jeval.VariableResolver;
 import net.sourceforge.jeval.function.FunctionException;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.properties.ContinuosProperty;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
+import org.asoem.greyfish.core.properties.ContinuousProperty;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
-* User: christoph
-* Date: 20.04.11
-* Time: 14:33
-*/
+ * User: christoph
+ * Date: 20.04.11
+ * Time: 14:33
+ */
 class AgentVariableResolver implements VariableResolver {
-    private final Agent agent;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentVariableResolver.class);
+    private final Agent agent;
 
     public AgentVariableResolver(Agent agent) {
         this.agent = checkNotNull(agent);
@@ -45,7 +44,7 @@ class AgentVariableResolver implements VariableResolver {
         // INTRINSIC VARS
         if ("agent".equals(token1)) {
             if (!scanner.hasNext()) {
-                LOGGER.warn("Scanner found nothing after token 'agent':" + arg0);
+                LOGGER.error("Syntax error in declaration of variable '{}'. Expected 'agent.<PopulationName>'.", arg0);
                 return "0";
             }
             final String token2 = scanner.next();
@@ -54,34 +53,35 @@ class AgentVariableResolver implements VariableResolver {
                 return String.valueOf(agent.getAge());
             }
             else {
-                LOGGER.debug("Unknown child element for token 'agent': {}", token2);
+                LOGGER.error("Error in declaration of variable '{}'. Unknown child element for token 'agent'", arg0);
             }
         }
 
         // PROPERTY VARS
         else if ("property".equals(token1)) {
             if (!scanner.hasNext()) {
-                LOGGER.warn("Scanner found nothing after token 'property':" + arg0);
+                LOGGER.error("Syntax error in declaration of variable '{}'. Expected 'property.<PropertyName>'.", arg0);
                 return "0";
             }
             final String token2 = scanner.next();
 
-            try {
-                final ContinuosProperty<?> property =
-                        Iterables.find(
-                                Iterables.filter(agent.getProperties(), ContinuosProperty.class),
-                                new Predicate<ContinuosProperty>() {
+            final ContinuousProperty<?> property =
+                    Iterables.find(
+                            Iterables.filter(agent.getProperties(), ContinuousProperty.class),
+                            new Predicate<ContinuousProperty>() {
 
-                                    @Override
-                                    public boolean apply(ContinuosProperty object) {
-                                        return object.getName().equals(token2);
-                                    }
-                                });
-                return String.valueOf(property.getAmount());
-            } catch(NoSuchElementException e) {
-                LOGGER.warn("Property variable not found", e);
+                                @Override
+                                public boolean apply(ContinuousProperty object) {
+                                    return object.getName().equals(token2);
+                                }
+                            }, null);
+
+            if (property == null) {
+                LOGGER.error("Cannot find property with name '{}' in agent {}", token2, agent);
                 return "0";
             }
+            else
+                return String.valueOf(property.get());
         }
 
         // SIMULATION VARS
@@ -90,7 +90,7 @@ class AgentVariableResolver implements VariableResolver {
             final Simulation simulation = agent.getSimulation();
 
             if (!scanner.hasNext()) {
-                LOGGER.warn("Scanner found nothing after token 'env':" + arg0);
+                LOGGER.error("Syntax error in declaration of variable '{}'. Expected 'env.<EnvironmentalProperty>'.", arg0);
                 return "0";
             }
             final String token2 = scanner.next();

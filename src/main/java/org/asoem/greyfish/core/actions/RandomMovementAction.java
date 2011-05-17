@@ -22,7 +22,7 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected void performAction(Simulation simulation) {
+    protected void executeUnconditioned(Simulation simulation) {
         pattern.apply(Agent.class.cast(getComponentOwner()), simulation);
     }
 

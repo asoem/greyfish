@@ -3,9 +3,7 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AbstractGFAction;
-import org.asoem.greyfish.core.actions.CompatibilityAwareMatingReceiverAction;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.*;
@@ -150,7 +148,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     @Override
     public void execute() {
         if (lastExecutedAction != null &&
-                lastExecutedAction.isResuming()) {
+                !lastExecutedAction.isDormant()) {
             LOGGER.debug("{}: Resuming {}", this, lastExecutedAction);
             if (tryToExecute(lastExecutedAction)) {
                 return;
@@ -161,7 +159,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         else {
             LOGGER.trace("{}: Processing " + Iterables.size(getActions()) + " actions in order", this);
             for (GFAction action : getActions()) {
-                assert !action.isResuming() : "There should be no action in resuming state";
+                assert action.isDormant() : "There should be no action in resuming state";
 
                 if (tryToExecute(action)) {
                     LOGGER.debug("{}: Executed {}", this, action);
@@ -179,11 +177,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         LOGGER.trace("{}: Trying to execute {}", this, action);
 
         final AbstractGFAction.ExecutionResult result = action.execute(simulation);
-
-        if (action instanceof CompatibilityAwareMatingReceiverAction
-                && result == AbstractGFAction.ExecutionResult.CONDITIONS_FAILED
-                && ((Integer)((DefaultGene)getGenome().getGenes().get(0)).get()).equals(1))
-            LOGGER.info("SRA returned {}", result);
 
         switch (result) {
             case CONDITIONS_FAILED:

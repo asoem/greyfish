@@ -50,7 +50,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
     @Override
     protected boolean evaluateInternalState(Simulation simulation) {
-        return !isResuming() && hasMessages(createCFPTemplate(getOntology()))
+        return isDormant() && hasMessages(createCFPTemplate(getOntology()))
                 && super.evaluateInternalState(simulation);
     }
 
@@ -87,7 +87,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
             }
         });
 
-        registerState(WAIT_FOR_ACCEPT, new StateAction() {
+        registerIntermediateState(WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
             public Object run() {

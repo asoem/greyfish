@@ -24,7 +24,7 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    protected void performAction(Simulation simulation) {
+    protected void executeUnconditioned(Simulation simulation) {
         getComponentOwner().setColor(color);
     }
 

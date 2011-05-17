@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -22,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Iterables.filter;
 import static org.asoem.greyfish.utils.RandomUtils.trueWithProbability;
 
 /**
@@ -69,7 +71,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
+                return filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
@@ -130,6 +132,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
     @Override
     protected ACLMessage.Builder createCFP() {
+        Agent.class.cast(getComponentOwner()).getLog().add("nMatingAttempts", 1);
+
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
         return ACLMessage.with()
@@ -181,8 +185,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Override
     public boolean evaluateInternalState(Simulation simulation) {
         final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
-        sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
-        sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
+        sensedMates = filter(neighbours, IndividualInterface.class);
+        sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
@@ -214,6 +218,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
         super.prepare(simulation);
         Agent.class.cast(getComponentOwner()).getLog().set("nMatingsAccepted", 0);
         Agent.class.cast(getComponentOwner()).getLog().set("nMatingsRefused", 0);
+        Agent.class.cast(getComponentOwner()).getLog().set("nMatingAttempts", 0);
     }
 
     public static Builder with() { return new Builder(); }

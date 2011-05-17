@@ -71,7 +71,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             }
         });
 
-        registerState(WAIT_FOR_PROPOSALS, new StateAction() {
+        registerIntermediateState(WAIT_FOR_PROPOSALS, new StateAction() {
 
             @Override
             public Object run() {
@@ -146,7 +146,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             }
         });
 
-        registerState(WAIT_FOR_INFORM, new StateAction() {
+        registerIntermediateState(WAIT_FOR_INFORM, new StateAction() {
 
             @Override
             public Object run() {

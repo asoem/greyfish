@@ -38,7 +38,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected void performAction(Simulation simulation) {
+    protected void executeUnconditioned(Simulation simulation) {
         assert(!spermStorage.isEmpty());
 
         LOGGER.debug("Producing {} offspring", nOffspring);

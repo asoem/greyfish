@@ -14,7 +14,7 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    protected void performAction(Simulation simulation) {
+    protected void executeUnconditioned(Simulation simulation) {
         /* NOP */
     }
 

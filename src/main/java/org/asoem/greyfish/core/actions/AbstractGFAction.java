@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import net.sourceforge.jeval.EvaluationException;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -22,6 +23,7 @@ import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,6 +46,20 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     private int executionCount;
 
     private int timeOfLastExecution;
+
+    public static enum State {
+        DORMANT,
+        ACTIVE,
+        END_SUCCESS,
+        END_FAILED,
+        END_ERROR
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    private State state = State.DORMANT;
 
     public static enum ExecutionResult {
         CONDITIONS_FAILED,
@@ -75,8 +91,10 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
      */
     @Override
     public final ExecutionResult execute(final Simulation simulation) {
+        Preconditions.checkNotNull(simulation);
+
         try {
-            if (!isResuming()) {
+            if (isDormant()) {
                 if (!evaluateConditions(simulation)) {
                     return CONDITIONS_FAILED;
                 }
@@ -87,41 +105,52 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                     return INVALID_INTERNAL_STATE;
             }
 
-            return executeUnevaluated(simulation);
+            executeUnconditioned(simulation);
+            postExecutionTasks(simulation);
+
+            return EXECUTED;
         }
         catch (Exception e) {
-            LOGGER.error("{}: Error during execution.", this, e);
+            LOGGER.error("Execution error in {} with simulation = {}.", this, simulation, e);
             return ERROR;
         }
     }
 
-    private ExecutionResult executeUnevaluated(final Simulation simulation) {
-        assert simulation != null;
-
-        performAction(simulation);
-
-        if (!isResuming()) {
+    private void postExecutionTasks(final Simulation simulation) {
+        if (getState() == State.END_SUCCESS) {
             ++executionCount;
-        }
+            timeOfLastExecution = simulation.getSteps();
 
-        timeOfLastExecution = simulation.getSteps();
-
-        if (energySource != null && !isResuming()) {
-            double costs = evaluateFormula();
-            if (costs > 0) {
-                energySource.subtract(costs);
-                LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining", this, costs, energySource.getName(), energySource.get());
+            if (energySource != null) {
+                double costs = evaluateFormula();
+                if (costs > 0) {
+                    energySource.subtract(costs);
+                    LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining", this, costs, energySource.getName(), energySource.get());
+                }
             }
         }
 
-        return EXECUTED;
+        if (getState() == State.END_FAILED || getState() == State.END_SUCCESS || getState() == State.END_ERROR) {
+
+            if (getState() == State.END_ERROR)
+                LOGGER.error("This Action is in END_ERROR state: {}.", this);
+
+            reset();
+            state = State.DORMANT;
+        }
     }
 
     /**
-     * This is the actual actions
-     * @param simulation
+     * This method is called after this action was executed and caused a transition into an END_* state.
+     * If you overwrite this method make sure you call {@code super.reset()}.
      */
-    protected abstract void performAction(Simulation simulation);
+    protected void reset() {}
+
+    /**
+     * In this method the behaviour of this action is implemented. This method should not be called directly.
+     * @param simulation The Simulation context.
+     */
+    protected abstract void executeUnconditioned(@Nonnull Simulation simulation);
 
     @Override
     public void setComponentRoot(IndividualInterface individual) {
@@ -215,8 +244,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public boolean isResuming() {
-        return false;
+    public final boolean isDormant() {
+        return state == State.DORMANT;
     }
 
     protected AbstractGFAction(AbstractBuilder<? extends AbstractBuilder> builder) {

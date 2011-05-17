@@ -10,9 +10,10 @@ import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.actions.FiniteStateAction.StateType.*;
 
 public abstract class FiniteStateAction extends AbstractGFAction {
 
@@ -33,11 +34,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     private Object currentStateKey;
 
     @Override
-    protected final void performAction(Simulation simulation) {
-        if (currentStateHasType(END)) {
-            LOGGER.debug("{}: EndTransition to {}", this, getInitialStateKey());
-            currentStateKey = getInitialStateKey();
-        }
+    protected final void executeUnconditioned(@Nonnull Simulation simulation) {
 
         Preconditions.checkState(currentStateKey != null);
         Preconditions.checkState(states.containsKey(currentStateKey));
@@ -46,8 +43,19 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         Object nextStateKey = stateActionToExecute.run();
 
         LOGGER.debug("{}: Transition to {}", this, nextStateKey);
-
         currentStateKey = nextStateKey;
+    }
+
+    @Override
+    public State getState() {
+        return states.get(currentStateKey).getStateType();
+    }
+
+    @Override
+    protected void reset() {
+        super.reset();
+        LOGGER.debug("{}: EndTransition to {}", this, getInitialStateKey());
+        currentStateKey = getInitialStateKey();
     }
 
     private Object getInitialStateKey() {
@@ -55,7 +63,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
             return null;
 
         Object firstKey = states.keySet().asList().get(0);
-        if (states.get(firstKey).getStateType() != INIT)
+        if (states.get(firstKey).getStateType() != State.DORMANT)
             return null;
         else
             return firstKey;
@@ -85,7 +93,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
             checkState(Iterables.any(states.values(), new Predicate<FSMState>() {
                 @Override
                 public boolean apply(FSMState state) {
-                    return state.getStateType() == END;
+                    return state.getStateType() == State.END_SUCCESS;
                 }
             }), "No EndState defined");
         }
@@ -93,39 +101,32 @@ public abstract class FiniteStateAction extends AbstractGFAction {
             LOGGER.warn("FiniteStateAction has no states defined: " + this);
     }
 
-    @Override
-    public final boolean isResuming() {
-        return currentStateHasType(MIDDLE);
-    }
-
-    private boolean currentStateHasType(StateType stateType) {
-        assert currentStateKey != null;
-        assert states.containsKey(currentStateKey);
-        return states.get(currentStateKey).getStateType() == stateType;
-    }
-
     protected final void registerInitialState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, INIT);
+        registerStateInternal(stateKey, action, State.DORMANT);
     }
 
-    protected final void registerState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, MIDDLE);
+    protected final void registerIntermediateState(final Object stateKey, final StateAction action) {
+        registerStateInternal(stateKey, action, State.ACTIVE);
     }
 
     protected final void registerEndState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, StateType.END);
+        registerStateInternal(stateKey, action, State.END_SUCCESS);
+    }
+
+    protected final void registerFailureState(final Object stateKey, final StateAction action) {
+        registerStateInternal(stateKey, action, State.END_FAILED);
     }
 
     protected final void registerErrorState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, StateType.ERROR);
+        registerStateInternal(stateKey, action, State.END_ERROR);
     }
 
-    private void registerStateInternal(final Object stateKey, final StateAction action, final StateType stateType) {
+    private void registerStateInternal(final Object stateKey, final StateAction action, final State stateType) {
         checkNotNull(stateKey);
         checkNotNull(action);
         checkNotNull(stateType);
         switch (stateType) {
-            case INIT:
+            case DORMANT:
                 // put in front of the map
                 states = ImmutableMap.<Object, FSMState>builder().put(stateKey, new FSMState(stateType, action)).putAll(states).build();
                 break;
@@ -141,29 +142,22 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getComponentOwner();
     }
 
-    protected enum StateType {
-        INIT,
-        MIDDLE,
-        END,
-        ERROR
-    }
-
     protected interface StateAction {
         public Object run();
     }
 
     protected static class FSMState {
-        private final StateType stateType;
+        private final State stateType;
         private final StateAction stateAction;
 
-        public FSMState(StateType stateType, StateAction stateAction) {
+        public FSMState(State stateType, StateAction stateAction) {
             Preconditions.checkNotNull(stateType);
             Preconditions.checkNotNull(stateAction);
             this.stateType = stateType;
             this.stateAction = stateAction;
         }
 
-        public StateType getStateType() {
+        public State getStateType() {
             return stateType;
         }
 

@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -10,8 +11,9 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @ClassGroup(tags="property")
-public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double> {
+public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double> implements ContinuousProperty<Double> {
 
+    @SimpleXMLConstructor
     private DoubleProperty() {
         this(new Builder());
     }
@@ -43,6 +45,17 @@ public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double
     }
 
     public static Builder with() { return new Builder(); }
+
+    @Override
+    public void set(Double amount) {
+        value = amount;
+    }
+
+    @Override
+    public Double get() {
+        return value;
+    }
+
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoubleProperty> {
         private Builder() {lowerBound(0.0).upperBound(0.0).initialValue(0.0);}
         @Override protected Builder self() { return this; }
