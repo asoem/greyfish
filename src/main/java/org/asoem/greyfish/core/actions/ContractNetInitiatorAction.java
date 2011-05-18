@@ -14,17 +14,16 @@ import org.asoem.greyfish.utils.CloneMap;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.actions.ContractNetInitiatorAction.States.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
-    enum States {
+    private static enum State {
         SEND_CFP,
         WAIT_FOR_PROPOSALS,
         WAIT_FOR_INFORM,
         END,
-        TIMEOUT
+        NO_RECEIVERS, TIMEOUT
     }
 
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
@@ -56,10 +55,13 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     private int nProposalsMax;
 
     private void initFSM() {
-        registerInitialState(SEND_CFP, new StateAction() {
+        registerInitialState(State.SEND_CFP, new StateAction() {
 
             @Override
             public Object run() {
+                if (!canInitiate())
+                   return State.NO_RECEIVERS;
+
                 ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
                 sendMessage(cfpMessage);
                 nProposalsMax = cfpMessage.getAllReceiver().size();
@@ -67,11 +69,11 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 nProposalsReceived = 0;
                 template = createCFPReplyTemplate(cfpMessage);
 
-                return WAIT_FOR_PROPOSALS;
+                return State.WAIT_FOR_PROPOSALS;
             }
         });
 
-        registerIntermediateState(WAIT_FOR_PROPOSALS, new StateAction() {
+        registerIntermediateState(State.WAIT_FOR_PROPOSALS, new StateAction() {
 
             @Override
             public Object run() {
@@ -127,7 +129,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
                 if (nProposalsMax == 0) {
                     GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
-                    return END;
+                    return State.END;
                 } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
                     if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
                         GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
@@ -137,16 +139,16 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                     if (nProposalsReceived > 0) {
                         template = createAcceptReplyTemplate(proposeReplies);
                         nInformReceived = 0;
-                        return WAIT_FOR_INFORM;
+                        return State.WAIT_FOR_INFORM;
                     } else
-                        return TIMEOUT;
+                        return State.TIMEOUT;
                 } else {
-                    return WAIT_FOR_PROPOSALS;
+                    return State.WAIT_FOR_PROPOSALS;
                 }
             }
         });
 
-        registerIntermediateState(WAIT_FOR_INFORM, new StateAction() {
+        registerIntermediateState(State.WAIT_FOR_INFORM, new StateAction() {
 
             @Override
             public Object run() {
@@ -185,32 +187,20 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 ++timeoutCounter;
 
                 if (nInformReceived == nProposalsReceived)
-                    return END;
+                    return State.END;
                 else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
-                    return TIMEOUT;
+                    return State.TIMEOUT;
                 else
-                    return WAIT_FOR_INFORM;
+                    return State.WAIT_FOR_INFORM;
             }
         });
 
-        registerErrorState(TIMEOUT, new StateAction() {
-
-            @Override
-            public Object run() {
-                if (GFACTIONS_LOGGER.isDebugEnabled())
-                    GFACTIONS_LOGGER.debug("{}: Timeout", this);
-                return TIMEOUT;
-            }
-        });
-
-        registerEndState(END, new StateAction() {
-
-            @Override
-            public Object run() {
-                return END;
-            }
-        });
+        registerFailureState(State.TIMEOUT, new EndStateAction(State.TIMEOUT));
+        registerFailureState(State.NO_RECEIVERS, new EndStateAction(State.NO_RECEIVERS));
+        registerFailureState(State.END, new EndStateAction(State.END));
     }
+
+    protected abstract boolean canInitiate();
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))

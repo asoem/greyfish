@@ -6,6 +6,8 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 
+import javax.annotation.Nonnull;
+
 @ClassGroup(tags="actions")
 public class NullAction extends AbstractGFAction {
 
@@ -14,8 +16,9 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    protected void executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(@Nonnull Simulation simulation) {
         /* NOP */
+        return State.END_SUCCESS;
     }
 
     protected NullAction(AbstractBuilder<?> builder) {

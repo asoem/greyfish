@@ -9,6 +9,7 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,8 +25,9 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    protected void executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(@Nonnull Simulation simulation) {
         getComponentOwner().setColor(color);
+        return State.END_SUCCESS;
     }
 
     @Override

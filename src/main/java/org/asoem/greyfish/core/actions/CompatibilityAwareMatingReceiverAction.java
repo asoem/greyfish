@@ -183,8 +183,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    public boolean evaluateInternalState(Simulation simulation) {
-        final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
+    protected boolean canInitiate() {
+        final Iterable neighbours = getSimulation().getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
         sensedMates = filter(neighbours, IndividualInterface.class);
         sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));

@@ -89,8 +89,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public boolean evaluateInternalState(Simulation simulation) {
-        sensedMates = filter(simulation.findObjects(getComponentOwner(), sensorRange), Agent.class);
+    protected boolean canInitiate() {
+        sensedMates = filter(getSimulation().findObjects(getComponentOwner(), sensorRange), Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
         return ! isEmpty(sensedMates);
     }

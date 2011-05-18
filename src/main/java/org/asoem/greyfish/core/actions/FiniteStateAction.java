@@ -34,8 +34,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     private Object currentStateKey;
 
     @Override
-    protected final void executeUnconditioned(@Nonnull Simulation simulation) {
-
+    protected final State executeUnconditioned(@Nonnull Simulation simulation) {
         Preconditions.checkState(currentStateKey != null);
         Preconditions.checkState(states.containsKey(currentStateKey));
 
@@ -44,10 +43,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
         LOGGER.debug("{}: Transition to {}", this, nextStateKey);
         currentStateKey = nextStateKey;
-    }
 
-    @Override
-    public State getState() {
         return states.get(currentStateKey).getStateType();
     }
 
@@ -67,16 +63,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
             return null;
         else
             return firstKey;
-    }
-
-    @Override
-    protected boolean evaluateInternalState(Simulation simulation) {
-        if (states.isEmpty()) {
-            LOGGER.warn(this + " has no states defined; Execution stopped.");
-            return false;
-        }
-
-        return true;
     }
 
     @Override
@@ -117,10 +103,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         registerStateInternal(stateKey, action, State.END_FAILED);
     }
 
-    protected final void registerErrorState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.END_ERROR);
-    }
-
     private void registerStateInternal(final Object stateKey, final StateAction action, final State stateType) {
         checkNotNull(stateKey);
         checkNotNull(action);
@@ -144,6 +126,19 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     protected interface StateAction {
         public Object run();
+    }
+
+    protected static class EndStateAction implements StateAction {
+        private final Object stateKey;
+
+        public EndStateAction(Object stateKey) {
+            this.stateKey = stateKey;
+        }
+
+        @Override
+        final public Object run() {
+            return stateKey;
+        }
     }
 
     protected static class FSMState {

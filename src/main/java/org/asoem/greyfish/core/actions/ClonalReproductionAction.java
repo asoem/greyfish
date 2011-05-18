@@ -8,6 +8,8 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
+import javax.annotation.Nonnull;
+
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
 
@@ -20,13 +22,14 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected void executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(@Nonnull Simulation simulation) {
         for (int i = 0; i < parameterClones; i++) {
             simulation.createAgent(
                     getComponentOwner().getPopulation(),
                     getComponentOwner().getAnchorPoint(),
                     getComponentOwner().getGenome().mutated());
         }
+        return State.END_SUCCESS;
     }
 
     @Override

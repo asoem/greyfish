@@ -64,7 +64,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     public static enum ExecutionResult {
         CONDITIONS_FAILED,
         INSUFFICIENT_ENERGY,
-        INVALID_INTERNAL_STATE,
+        FAILED,
         EXECUTED,
         ERROR,
     }
@@ -81,13 +81,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     }
 
-    protected boolean evaluateInternalState(final Simulation simulation) {
-        return true;
-    }
-
     /**
      * Called by the individual to evaluateConditions the condition if set and trigger the actions
-     * @param simulation
+     * @param simulation the simulation context
      */
     @Override
     public final ExecutionResult execute(final Simulation simulation) {
@@ -100,15 +96,23 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                 }
                 if (!evaluateCosts())
                     return INSUFFICIENT_ENERGY;
-
-                if (!evaluateInternalState(simulation))
-                    return INVALID_INTERNAL_STATE;
             }
 
-            executeUnconditioned(simulation);
-            postExecutionTasks(simulation);
+            this.state = executeUnconditioned(simulation);
 
-            return EXECUTED;
+
+            switch (state) {
+                case ACTIVE:
+                    return EXECUTED;
+                case END_SUCCESS:
+                case END_FAILED:
+                    postExecutionTasks();
+                    reset();
+                    state = State.DORMANT;
+                    return EXECUTED;
+                default:
+                    throw new Exception("Overwritten method executeUnconditioned() must not return " + state + " in " + this);
+            }
         }
         catch (Exception e) {
             LOGGER.error("Execution error in {} with simulation = {}.", this, simulation, e);
@@ -116,11 +120,11 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         }
     }
 
-    private void postExecutionTasks(final Simulation simulation) {
-        if (getState() == State.END_SUCCESS) {
-            ++executionCount;
-            timeOfLastExecution = simulation.getSteps();
+    private void postExecutionTasks() {
+        ++executionCount;
+        timeOfLastExecution = getSimulation().getSteps();
 
+        if (state == State.END_SUCCESS)
             if (energySource != null) {
                 double costs = evaluateFormula();
                 if (costs > 0) {
@@ -128,16 +132,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                     LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining", this, costs, energySource.getName(), energySource.get());
                 }
             }
-        }
-
-        if (getState() == State.END_FAILED || getState() == State.END_SUCCESS || getState() == State.END_ERROR) {
-
-            if (getState() == State.END_ERROR)
-                LOGGER.error("This Action is in END_ERROR state: {}.", this);
-
-            reset();
-            state = State.DORMANT;
-        }
     }
 
     /**
@@ -149,8 +143,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     /**
      * In this method the behaviour of this action is implemented. This method should not be called directly.
      * @param simulation The Simulation context.
+     * @return the state of the action after execution
      */
-    protected abstract void executeUnconditioned(@Nonnull Simulation simulation);
+    protected abstract State executeUnconditioned(@Nonnull Simulation simulation);
 
     @Override
     public void setComponentRoot(IndividualInterface individual) {

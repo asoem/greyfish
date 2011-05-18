@@ -9,23 +9,23 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.actions.ContractNetParticipantAction.States.*;
 import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
-    enum States {
+    private static enum State {
         CHECK_CFP,
         WAIT_FOR_ACCEPT,
         END,
-        TIMEOUT
+        TIMEOUT,
+        NO_ACCEPT,
+        NO_PROPOSE
     }
 
     private static final int TIMEOUT_ACCEPT_STEPS = 1;
@@ -48,21 +48,15 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         initFSM();
     }
 
-    @Override
-    protected boolean evaluateInternalState(Simulation simulation) {
-        return isDormant() && hasMessages(createCFPTemplate(getOntology()))
-                && super.evaluateInternalState(simulation);
-    }
-
     private void initFSM() {
-        registerInitialState(CHECK_CFP, new StateAction() {
+        registerInitialState(State.CHECK_CFP, new StateAction() {
 
             @Override
             public Object run() {
                 template = createCFPTemplate(getOntology());
 
                 final List<ACLMessage> cfpReplies = Lists.newArrayList();
-                for (ACLMessage message : receiveMessages(getTemplate())) {
+                for (ACLMessage message : receiveMessages(template)) {
 
                     ACLMessage cfpReply;
                     try {
@@ -83,11 +77,11 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
                 template = createProposalReplyTemplate(cfpReplies);
                 timeoutCounter = 0;
-                return nExpectedProposeAnswers > 0 ? WAIT_FOR_ACCEPT : END;
+                return nExpectedProposeAnswers > 0 ? State.WAIT_FOR_ACCEPT : State.NO_PROPOSE;
             }
         });
 
-        registerIntermediateState(WAIT_FOR_ACCEPT, new StateAction() {
+        registerIntermediateState(State.WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
             public Object run() {
@@ -96,7 +90,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
                         case ACCEPT_PROPOSAL:
-                            ACLMessage response = null;
+                            ACLMessage response;
                             try {
                                 response = handleAccept(receivedMessage).build();
                             } catch (NotUnderstoodException e) {
@@ -125,26 +119,15 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
                 ++timeoutCounter;
 
-                return (nExpectedProposeAnswers == 0) ? END :
-                        (timeoutCounter > TIMEOUT_ACCEPT_STEPS) ? TIMEOUT : WAIT_FOR_ACCEPT;
+                return (nExpectedProposeAnswers == 0) ? State.NO_ACCEPT :
+                        (timeoutCounter > TIMEOUT_ACCEPT_STEPS) ? State.TIMEOUT : State.WAIT_FOR_ACCEPT;
             }
         });
 
-        registerErrorState(TIMEOUT, new StateAction() {
-
-            @Override
-            public Object run() {
-                GFACTIONS_LOGGER.debug("TIMEOUT");
-                return TIMEOUT;
-            }
-        });
-
-        registerEndState(END, new StateAction() {
-            @Override
-            public Object run() {
-                return END;
-            }
-        });
+        registerFailureState(State.TIMEOUT, new EndStateAction(State.TIMEOUT));
+        registerFailureState(State.NO_PROPOSE, new EndStateAction(State.NO_PROPOSE));
+        registerFailureState(State.NO_ACCEPT, new EndStateAction(State.NO_ACCEPT));
+        registerEndState(State.END, new EndStateAction(State.END));
     }
 
     protected abstract String getOntology();

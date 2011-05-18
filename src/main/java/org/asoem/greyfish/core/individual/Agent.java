@@ -136,7 +136,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
         try {
             log.commit();
         } catch (IOException e) {
-            LOGGER.error("Log could not be comitted: {}", log, e);
+            LOGGER.error("Log could not be committed: {}", log, e);
         }
     }
 
@@ -153,19 +153,21 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
             if (tryToExecute(lastExecutedAction)) {
                 return;
             } else {
-                LOGGER.error("{}: Resume failed", this);
+                LOGGER.debug("{}: Resume failed", this);
+                lastExecutedAction = null;
+                // TODO: should the method return here?
             }
         }
-        else {
-            LOGGER.trace("{}: Processing " + Iterables.size(getActions()) + " actions in order", this);
-            for (GFAction action : getActions()) {
-                assert action.isDormant() : "There should be no action in resuming state";
 
-                if (tryToExecute(action)) {
-                    LOGGER.debug("{}: Executed {}", this, action);
-                    lastExecutedAction = action;
-                    return;
-                }
+        LOGGER.trace("{}: Processing " + Iterables.size(getActions()) + " actions in order", this);
+
+        for (GFAction action : getActions()) {
+            assert action.isDormant() : "There should be no action in resuming state";
+
+            if (tryToExecute(action)) {
+                LOGGER.debug("{}: Executed {}", this, action);
+                lastExecutedAction = action;
+                return;
             }
         }
 
@@ -182,9 +184,6 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
             case CONDITIONS_FAILED:
                 LOGGER.trace("FAILED: Attached conditions evaluated to false.");
                 return false;
-            case INVALID_INTERNAL_STATE:
-                LOGGER.trace("FAILED: Internal preconditions evaluated to false.");
-                return false;
             case INSUFFICIENT_ENERGY:
                 LOGGER.trace("FAILED: Not enough energy.");
                 return false;
@@ -192,6 +191,9 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
                 LOGGER.trace("FAILED: Internal error.");
                 return false;
             case EXECUTED:
+                LOGGER.trace("SUCCESS");
+                return true;
+            case FAILED:
                 LOGGER.trace("SUCCESS");
                 return true;
             default:

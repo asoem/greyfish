@@ -8,6 +8,8 @@ import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Element;
 
+import javax.annotation.Nonnull;
+
 @ClassGroup(tags="actions")
 public class ConvertQuantityAction extends AbstractGFAction {
 
@@ -24,7 +26,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
     private double parameterMax = 0;
 
     @Override
-    protected void executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(@Nonnull Simulation simulation) {
         if (parameterSource != null && parameterTarget != null) {
             double add_amount = Math.min(parameterSource.get(), parameterMax) * parameterFactor;
 
@@ -35,6 +37,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
             parameterTarget.setValue(parameterTarget.get() + add_amount);
             parameterSource.setValue(parameterSource.get() - add_amount / parameterFactor );
         }
+        return State.END_SUCCESS;
     }
 
     @Override

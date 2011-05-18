@@ -14,7 +14,6 @@ import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
@@ -23,7 +22,6 @@ import org.simpleframework.xml.Element;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 /**
  * @author christoph
@@ -141,12 +139,12 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public boolean evaluateInternalState(Simulation simulation) {
-        final Iterable neighbours = simulation.getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
+    protected boolean canInitiate() {
+        final Iterable neighbours = getSimulation().getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
         sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
         sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
-        if (GFACTIONS_LOGGER.isDebugEnabled())
-            GFACTIONS_LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
+        if (LOGGER.isDebugEnabled())
+            LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
         return ! Iterables.isEmpty(sensedMates);
     }
 

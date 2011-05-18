@@ -7,6 +7,8 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 
+import javax.annotation.Nonnull;
+
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
 
@@ -16,8 +18,9 @@ public class DeathAction extends AbstractGFAction {
 	}
 
 	@Override
-	protected void executeUnconditioned(Simulation simulation) {
+	protected State executeUnconditioned(@Nonnull Simulation simulation) {
 		simulation.removeAgent((Agent) getComponentOwner());
+        return State.END_SUCCESS;
 	}
 
     @Override

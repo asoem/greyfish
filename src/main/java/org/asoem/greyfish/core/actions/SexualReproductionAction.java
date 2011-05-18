@@ -15,6 +15,8 @@ import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @ClassGroup(tags="actions")
@@ -33,13 +35,9 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public boolean evaluateInternalState(Simulation simulation) {
-        return nOffspring > 0 && !spermStorage.isEmpty();
-    }
-
-    @Override
-    protected void executeUnconditioned(Simulation simulation) {
-        assert(!spermStorage.isEmpty());
+    protected State executeUnconditioned(@Nonnull Simulation simulation) {
+        if (nOffspring == 0 || spermStorage.isEmpty())
+            return State.END_FAILED;
 
         LOGGER.debug("Producing {} offspring", nOffspring);
 
@@ -52,6 +50,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         }
 
         getComponentOwner().getLog().add("offspring", nOffspring);
+        return State.END_SUCCESS;
     }
 
     @Override

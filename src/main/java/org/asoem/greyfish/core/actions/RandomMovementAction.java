@@ -9,6 +9,8 @@ import org.asoem.greyfish.utils.Exporter;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
+import javax.annotation.Nonnull;
+
 @ClassGroup(tags = "actions")
 public class RandomMovementAction extends AbstractGFAction {
 
@@ -22,8 +24,9 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected void executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(@Nonnull Simulation simulation) {
         pattern.apply(Agent.class.cast(getComponentOwner()), simulation);
+        return State.END_SUCCESS;
     }
 
     @Override
