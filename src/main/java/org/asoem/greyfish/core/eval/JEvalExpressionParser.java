@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.eval;
 
-import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.function.FunctionException;
 
@@ -21,17 +20,17 @@ public class JEvalExpressionParser implements ExpressionParser {
     public void parse(String expression) {
         try {
             evaluator.parse(expression);
-        } catch (EvaluationException e) {
+        } catch (net.sourceforge.jeval.EvaluationException e) {
             throw new IllegalArgumentException("Expression is not valid.", e);
         }
     }
 
     @Override
-    public double evaluate() {
+    public double evaluate() throws EvaluationException {
         try {
             return Double.valueOf(evaluator.evaluate());
-        } catch (EvaluationException e) {
-            throw new IllegalStateException("Expression could not be evaluated.", e);
+        } catch (net.sourceforge.jeval.EvaluationException e) {
+            throw new EvaluationException("Expression could not be evaluated.", e);
         }
     }
 

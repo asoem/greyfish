@@ -1,8 +1,5 @@
 package org.asoem.greyfish.core.eval;
 
-import net.sourceforge.jeval.VariableResolver;
-import net.sourceforge.jeval.function.FunctionException;
-
 /**
  * User: christoph
  * Date: 20.04.11
@@ -12,9 +9,9 @@ public class VariableResolvers {
     static VariableResolver concat(final VariableResolver... resolvers) {
         return new VariableResolver() {
             @Override
-            public String resolveVariable(String s) throws FunctionException {
+            public String resolve(String s) {
                 for (VariableResolver resolver : resolvers) {
-                    String ret = resolver.resolveVariable(s);
+                    String ret = resolver.resolve(s);
                     if (ret != null)
                         return ret;
                 }
@@ -26,10 +23,10 @@ public class VariableResolvers {
     static VariableResolver concat(final VariableResolver resolver1, final VariableResolver resolver2) {
         return new VariableResolver() {
             @Override
-            public String resolveVariable(String s) throws FunctionException {
-                String ret;
-                if ((ret = resolver1.resolveVariable(s)) == null)
-                    ret = resolver2.resolveVariable(s);
+            public String resolve(String s) {
+                String ret = resolver1.resolve(s);
+                if (ret == null)
+                    ret = resolver2.resolve(s);
                 return ret;
             }
         };

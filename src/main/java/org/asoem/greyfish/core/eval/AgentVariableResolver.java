@@ -2,8 +2,6 @@ package org.asoem.greyfish.core.eval;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import net.sourceforge.jeval.VariableResolver;
-import net.sourceforge.jeval.function.FunctionException;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
@@ -32,12 +30,17 @@ class AgentVariableResolver implements VariableResolver {
     }
 
     @Override
-    public String resolveVariable(final String arg0) throws FunctionException {
+    public String resolve(final String arg0) {
+        checkNotNull(arg0);
+
+        LOGGER.trace("Resolving variable '{}' for agent {}", arg0, agent);
+
+        String ret = null;
 
         final Scanner scanner = new Scanner(arg0).useDelimiter(Pattern.compile("\\."));
         if (!scanner.hasNext()) {
             LOGGER.warn("Scanner was unable to scan input using delimiter '.':" + arg0);
-            return "0";
+            ret = "0";
         }
         final String token1 = scanner.next();
 
@@ -45,12 +48,12 @@ class AgentVariableResolver implements VariableResolver {
         if ("agent".equals(token1)) {
             if (!scanner.hasNext()) {
                 LOGGER.error("Syntax error in declaration of variable '{}'. Expected 'agent.<PopulationName>'.", arg0);
-                return "0";
+                ret = "0";
             }
             final String token2 = scanner.next();
 
             if (token2.startsWith("age")) {
-                return String.valueOf(agent.getAge());
+                ret = String.valueOf(agent.getAge());
             }
             else {
                 LOGGER.error("Error in declaration of variable '{}'. Unknown child element for token 'agent'", arg0);
@@ -61,7 +64,7 @@ class AgentVariableResolver implements VariableResolver {
         else if ("property".equals(token1)) {
             if (!scanner.hasNext()) {
                 LOGGER.error("Syntax error in declaration of variable '{}'. Expected 'property.<PropertyName>'.", arg0);
-                return "0";
+                ret = "0";
             }
             final String token2 = scanner.next();
 
@@ -78,10 +81,10 @@ class AgentVariableResolver implements VariableResolver {
 
             if (property == null) {
                 LOGGER.error("Cannot find property with name '{}' in agent {}", token2, agent);
-                return "0";
+                ret = "0";
             }
             else
-                return String.valueOf(property.get());
+                ret = String.valueOf(property.get());
         }
 
         // SIMULATION VARS
@@ -91,7 +94,7 @@ class AgentVariableResolver implements VariableResolver {
 
             if (!scanner.hasNext()) {
                 LOGGER.error("Syntax error in declaration of variable '{}'. Expected 'env.<EnvironmentalProperty>'.", arg0);
-                return "0";
+                ret = "0";
             }
             final String token2 = scanner.next();
             if (token2.startsWith("agentcount")) {
@@ -102,7 +105,7 @@ class AgentVariableResolver implements VariableResolver {
 
 
                     final String[] keyValue = token2.substring(token2.indexOf('[')+1, token2.length()-1).split("=");
-                    return String.valueOf(Iterables.size(Iterables.filter(
+                    ret = String.valueOf(Iterables.size(Iterables.filter(
                             simulation.getAgents(),
                             new Predicate<Agent>() {
 
@@ -120,10 +123,14 @@ class AgentVariableResolver implements VariableResolver {
                             })));
                 }
                 else
-                    return String.valueOf(agent.getSimulation().agentCount());
+                    ret = String.valueOf(agent.getSimulation().agentCount());
             }
         }
+        else {
+            LOGGER.debug("Variable '{}' cannot be resolved.", arg0);
+        }
 
-        return null;
+        LOGGER.trace("Result: {}", ret);
+        return ret;
     }
 }

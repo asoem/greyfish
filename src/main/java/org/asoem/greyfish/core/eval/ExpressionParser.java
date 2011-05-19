@@ -7,7 +7,7 @@ package org.asoem.greyfish.core.eval;
  * Time: 16:56
  */
 public interface ExpressionParser {
-    void parse(String expression);
-    double evaluate();
+    void parse(String expression) throws IllegalArgumentException;
+    double evaluate() throws EvaluationException;
     void setResolver(VariableResolver resolver);
 }

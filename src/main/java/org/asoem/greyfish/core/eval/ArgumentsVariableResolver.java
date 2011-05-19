@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
-import net.sourceforge.jeval.VariableResolver;
-import net.sourceforge.jeval.function.FunctionException;
+import com.google.common.base.Joiner;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 
@@ -23,14 +22,20 @@ class ArgumentsVariableResolver implements VariableResolver {
     }
 
     @Override
-    public String resolveVariable(String s) throws FunctionException {
+    public String resolve(String s) {
+        LOGGER.trace("Resolving variable '{}' for args [{}]", s, Joiner.on(',').join(args));
+
+        String ret = null;
+
         if (pattern.matcher(s).matches()) {
             int i = Integer.decode(s.substring(1));
             if (i < args.length)
-                return String.valueOf(args[i]);
+                ret = String.valueOf(args[i]);
             else
                 LOGGER.error("Variable {} is out of bounds for args of length {}.", s, args.length);
         }
-        return null;
+
+        LOGGER.trace("Result: {}", ret);
+        return ret;
     }
 }

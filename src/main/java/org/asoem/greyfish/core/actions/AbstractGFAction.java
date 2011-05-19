@@ -2,11 +2,11 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import net.sourceforge.jeval.EvaluationException;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.Agent;
@@ -171,7 +171,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         try {
             return GreyfishMathExpression.evaluate(energyCostsFormula, Agent.class.cast(getComponentOwner()));
         } catch (EvaluationException e) {
-            LOGGER.error("Costs formula could not be evaluated: {}", energyCostsFormula, e);
+            LOGGER.error("Costs formula could not be evaluated: {}. Setting formula to '0'", energyCostsFormula, e);
+            energyCostsFormula = "0";
             return 0;
         }
     }

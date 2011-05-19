@@ -112,6 +112,13 @@
             <artifactId>jeval</artifactId>
             <version>0.9.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.sourceforge.see</groupId>
+            <artifactId>see</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>

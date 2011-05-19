@@ -1,10 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
-import net.sourceforge.jeval.EvaluationConstants;
-import net.sourceforge.jeval.EvaluationException;
-import net.sourceforge.jeval.Evaluator;
-import net.sourceforge.jeval.VariableResolver;
 import org.asoem.greyfish.core.individual.Agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,19 +17,22 @@ public enum GreyfishMathExpression {
     private final static Logger LOGGER = LoggerFactory.getLogger(GreyfishMathExpression.class);
     private final Map<String, Object> parserCache = Maps.newHashMap();
 
+    private final static Supplier<ExpressionParser> PARSER_FACTORY = new Supplier<ExpressionParser>() {
+        @Override
+        public ExpressionParser get() {
+            return new SeeExpressionParser();
+        }
+    };
+
 
     public double getResult(String expression, Agent agent, Object ... args) throws EvaluationException {
         checkNotNull(expression);
         checkNotNull(agent);
         checkNotNull(args);
 
-        try {
-            if (!isCached(expression))
-                cache(expression);
-            return evaluateInternal(fromCache(expression), agent, args);
-        } catch (EvaluationException e) {
-            throw new EvaluationException("Error evaluating " + expression, e);
-        }
+        if (!isCached(expression))
+            cache(expression);
+        return evaluateInternal(fromCache(expression), agent, args);
     }
 
     private void cache(String expression) {
@@ -42,12 +42,12 @@ public enum GreyfishMathExpression {
         }
         else {
             try {
-                Evaluator evaluator = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
+                ExpressionParser evaluator = PARSER_FACTORY.get();
                 evaluator.parse(expression);
                 parserCache.put(expression, evaluator);
-            } catch (EvaluationException e) {
+            } catch (Exception e) {
                 LOGGER.error("Failed to parse expression", e);
-                parserCache.put(expression, 0); // future calls will also fail
+                parserCache.put(expression, 0.0); // future calls will also fail
             }
         }
     }
@@ -60,20 +60,20 @@ public enum GreyfishMathExpression {
         if (object instanceof Double)
             return Double.class.cast(object);
 
-        else if (object instanceof Evaluator) {
-            Evaluator evaluator = Evaluator.class.cast(object);
+        else if (object instanceof ExpressionParser) {
+            ExpressionParser evaluator = ExpressionParser.class.cast(object);
 
             VariableResolver variableResolver =
                     VariableResolvers.concat(
                             new AgentVariableResolver(agent),
                             new ArgumentsVariableResolver(args));
 
-            evaluator.setVariableResolver(variableResolver);
-            return Double.valueOf(evaluator.evaluate());
+            evaluator.setResolver(variableResolver);
+            return evaluator.evaluate();
         }
 
         else
-            throw new IllegalArgumentException("Argument has unhandled type: " + object);
+            throw new IllegalArgumentException("Argument has unhandled type: " + object.getClass());
     }
 
     private Object fromCache(String expression) {
@@ -94,10 +94,10 @@ public enum GreyfishMathExpression {
 
     public static boolean isValidExpression(String expression) {
         try {
-            Evaluator evaluator = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
+            ExpressionParser evaluator = PARSER_FACTORY.get();
             evaluator.parse(expression);
             return true;
-        } catch (EvaluationException e) {
+        } catch (Exception e) {
             return false;
         }
     }
