@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.DefaultMovingObject2D;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.Circle;
 import org.asoem.greyfish.lang.FiniteSetSupplier;
 import org.asoem.greyfish.lang.FiniteSetSuppliers;
@@ -64,12 +65,11 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
             outlineValueSupplier = map.clone((GFProperty)body.outlineValueSupplier, WellOrderedSetElement.class);
     }
 
-    @SuppressWarnings("unused") // used by the deserialization process
+    @SimpleXMLConstructor
     private Body(@ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false) Map<Object, Color> stateColorMap) {
         this.stateColorMap = stateColorMap;
     }
 
-    @SuppressWarnings("unused") // used by the deserialization process
     @Commit
     private void commit() {
         if (property != null)

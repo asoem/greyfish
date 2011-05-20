@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.util.regex.Pattern;
 
 /**
@@ -22,15 +23,17 @@ class ArgumentsVariableResolver implements VariableResolver {
     }
 
     @Override
-    public String resolve(String s) {
+    public Object resolve(@Nonnull String s) {
+        // TODO: Add cache
+
         LOGGER.trace("Resolving variable '{}' for args [{}]", s, Joiner.on(',').join(args));
 
-        String ret = null;
+        Object ret = null;
 
         if (pattern.matcher(s).matches()) {
             int i = Integer.decode(s.substring(1));
             if (i < args.length)
-                ret = String.valueOf(args[i]);
+                ret = args[i];
             else
                 LOGGER.error("Variable {} is out of bounds for args of length {}.", s, args.length);
         }

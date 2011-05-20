@@ -2,11 +2,12 @@ package org.asoem.greyfish.core.eval;
 
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import scala.Option;
 import see.INode;
 import see.Resolver;
 import see.See;
 import see.SeeException;
+
+import javax.annotation.Nonnull;
 
 /**
  * User: christoph
@@ -55,21 +56,19 @@ public class SeeExpressionParser implements ExpressionParser {
     private static class SeeResolverAdaptor implements Resolver, VariableResolver {
 
         private final VariableResolver resolver;
-        private final static Object SCALA_NONE = Option.empty();
 
         private SeeResolverAdaptor(VariableResolver resolver) {
             this.resolver = resolver;
         }
 
         @Override
-        public String resolve(String varName) {
+        public Object resolve(@Nonnull String varName) {
             return resolver.resolve(varName);
         }
 
         @Override
-        public Object get(String varname) {
-            String val = resolver.resolve(varname);
-            return (val == null) ? SCALA_NONE : Double.valueOf(val);
+        public Object get(String varName) {
+            return resolve(varName);
         }
 
         @Override
@@ -79,7 +78,7 @@ public class SeeExpressionParser implements ExpressionParser {
 
         @Override
         public boolean contains(String varName) {
-            return get(varName) != SCALA_NONE;
+            return get(varName) != null;
         }
     }
 }

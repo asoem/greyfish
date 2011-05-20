@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
+import javax.annotation.Nonnull;
+
 /**
  * User: christoph
  * Date: 20.04.11
@@ -9,9 +11,9 @@ public class VariableResolvers {
     static VariableResolver concat(final VariableResolver... resolvers) {
         return new VariableResolver() {
             @Override
-            public String resolve(String s) {
+            public Object resolve(@Nonnull  String s) {
                 for (VariableResolver resolver : resolvers) {
-                    String ret = resolver.resolve(s);
+                    Object ret = resolver.resolve(s);
                     if (ret != null)
                         return ret;
                 }
@@ -23,8 +25,8 @@ public class VariableResolvers {
     static VariableResolver concat(final VariableResolver resolver1, final VariableResolver resolver2) {
         return new VariableResolver() {
             @Override
-            public String resolve(String s) {
-                String ret = resolver1.resolve(s);
+            public Object resolve(@Nonnull String s) {
+                Object ret = resolver1.resolve(s);
                 if (ret == null)
                     ret = resolver2.resolve(s);
                 return ret;

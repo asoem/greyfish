@@ -46,7 +46,7 @@
     <logger name="org.asoem.greyfish.gui" additivity="true">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.eval" additivity="true" level="TRACE">
+    <logger name="org.asoem.greyfish.core.eval" additivity="true" level="INFO">
         <appender-ref ref="STDOUT" />
     </logger>
 

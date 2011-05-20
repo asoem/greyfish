@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -21,6 +22,7 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
@@ -241,6 +243,20 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public Iterable<GFProperty> getProperties() {
         return unmodifiableIterable(properties);
+    }
+
+    @Override
+    @Nullable
+    public <T extends GFProperty> T getProperty(final String name, Class<T> propertyClass) {
+        return Iterables.find(
+                Iterables.filter(getProperties(), propertyClass),
+                new Predicate<T>() {
+
+                    @Override
+                    public boolean apply(T object) {
+                        return object.getName().equals(name);
+                    }
+                }, null);
     }
 
     @Override

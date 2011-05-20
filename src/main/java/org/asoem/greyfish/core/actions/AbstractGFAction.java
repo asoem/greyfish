@@ -46,6 +46,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     private int executionCount;
 
     private int timeOfLastExecution;
+    private double evaluatedCostsFormula;
 
     public static enum State {
         DORMANT,
@@ -74,13 +75,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         return conditionTree.evaluate(simulation);
     }
 
-    protected final boolean evaluateCosts() {
-        final double needed = evaluateFormula();
-        LOGGER.trace("{}: Evaluated energy costs formula to {}.", this, needed);
-        return !(energySource != null && energySource.get().compareTo(needed) < 0);
-
-    }
-
     /**
      * Called by the individual to evaluateConditions the condition if set and trigger the actions
      * @param simulation the simulation context
@@ -94,8 +88,12 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                 if (!evaluateConditions(simulation)) {
                     return CONDITIONS_FAILED;
                 }
-                if (!evaluateCosts())
-                    return INSUFFICIENT_ENERGY;
+                if (hasCosts()) {
+                    evaluatedCostsFormula = evaluateFormula();
+                    if (energySource.get().compareTo(evaluatedCostsFormula) < 0)
+                        return INSUFFICIENT_ENERGY;
+                }
+
             }
 
             this.state = executeUnconditioned(simulation);
@@ -120,16 +118,20 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         }
     }
 
+    private boolean hasCosts() {
+        return energySource != null && energyCostsFormula != null;
+    }
+
     private void postExecutionTasks() {
         ++executionCount;
         timeOfLastExecution = getSimulation().getSteps();
 
         if (state == State.END_SUCCESS)
-            if (energySource != null) {
-                double costs = evaluateFormula();
-                if (costs > 0) {
-                    energySource.subtract(costs);
-                    LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining", this, costs, energySource.getName(), energySource.get());
+            if (hasCosts()) {
+                if (evaluatedCostsFormula != 0) {
+                    energySource.subtract(evaluatedCostsFormula);
+                    LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining",
+                            this, evaluatedCostsFormula, energySource.getName(), energySource.get());
                 }
             }
     }

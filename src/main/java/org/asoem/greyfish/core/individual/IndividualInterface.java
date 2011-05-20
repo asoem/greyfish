@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.utils.DeepCloneable;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public interface IndividualInterface extends DeepCloneable, Freezable, Iterable<
     boolean removeProperty(GFProperty property);
     void removeAllProperties();
     Iterable<GFProperty> getProperties();
+    @Nullable <T extends GFProperty> T getProperty(String name, Class<T> propertyClass);
 
     boolean isCloneOf(Object object);
 

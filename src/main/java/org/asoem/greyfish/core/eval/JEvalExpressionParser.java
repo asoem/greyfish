@@ -3,6 +3,8 @@ package org.asoem.greyfish.core.eval;
 import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.function.FunctionException;
 
+import javax.annotation.Nonnull;
+
 /**
  * User: christoph
  * Date: 18.05.11
@@ -48,13 +50,13 @@ public class JEvalExpressionParser implements ExpressionParser {
         }
 
         @Override
-        public String resolve(String varName) {
+        public Object resolve(@Nonnull String varName) {
             return variableResolver.resolve(varName);
         }
 
         @Override
         public String resolveVariable(String s) throws FunctionException {
-            return resolve(s);
+            return String.valueOf(resolve(s));
         }
     }
 }

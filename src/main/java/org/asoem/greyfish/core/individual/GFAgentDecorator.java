@@ -13,6 +13,7 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
@@ -78,6 +79,12 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public Iterable<GFProperty> getProperties() {
         return delegate.getProperties();
+    }
+
+    @Override
+    @Nullable
+    public <T extends GFProperty> T getProperty(String name, Class<T> propertyClass) {
+        return delegate.getProperty(name, propertyClass);
     }
 
     @Override
