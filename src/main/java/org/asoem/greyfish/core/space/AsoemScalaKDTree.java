@@ -1,20 +1,20 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.kdtree.HyperPoint;
 import org.asoem.kdtree.HyperPoint2;
 import org.asoem.kdtree.KDTuple;
 import org.asoem.kdtree.NNResult;
 
-import java.util.Arrays;
-
 import static scala.collection.JavaConversions.asJavaIterable;
-import static scala.collection.JavaConversions.asScalaIterable;
+import static scala.collection.JavaConversions.iterableAsScalaIterable;
 
 public final class AsoemScalaKDTree<T extends Object2D> implements KDTree<T> {
 
-    private org.asoem.kdtree.KDTree kdtree = new org.asoem.kdtree.KDTree();
+    private org.asoem.kdtree.KDTree<T> kdtree =
+            new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(ImmutableList.<KDTuple<T>>of()));
 
     private AsoemScalaKDTree() {
     }
@@ -25,11 +25,11 @@ public final class AsoemScalaKDTree<T extends Object2D> implements KDTree<T> {
 
     @Override
     public void rebuild(Iterable<T> elements) {
-        kdtree = new org.asoem.kdtree.KDTree(asScalaIterable(Iterables.transform(elements, new Function<T, Object>() {
+        kdtree = new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(Iterables.transform(elements, new Function<T, KDTuple<T>>() {
             @Override
-            public KDTuple apply(T t) {
+            public KDTuple<T> apply(T t) {
                 final Location2D b = t.getAnchorPoint();
-                return new KDTuple(new HyperPoint2(b.getX(), b.getY()), t);
+                return new KDTuple<T>(new HyperPoint2(b.getX(), b.getY()), t);
             }
         })));
     }
