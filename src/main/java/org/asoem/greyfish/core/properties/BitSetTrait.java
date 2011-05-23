@@ -2,7 +2,8 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.MutationOperator;
+import org.asoem.greyfish.core.genes.GeneController;
+import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -59,7 +60,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
     protected BitSetTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
 
-        MutationOperator<ImmutableBitSet> mutationOperator = new MutationOperator<ImmutableBitSet>() {
+        GeneController<ImmutableBitSet> mutationOperator = new GeneControllerAdaptor<ImmutableBitSet>() {
             @Override
             public ImmutableBitSet mutate(ImmutableBitSet original) {
                 checkNotNull(original);
@@ -71,11 +72,6 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
                 checkNotNull(orig);
                 checkNotNull(copy);
                 return (double) orig.hammingDistance(copy) / Math.max(orig.length(), copy.length());
-            }
-
-            @Override
-            public double normalizedWeightedDistance(ImmutableBitSet orig, ImmutableBitSet copy) {
-                return normalizedDistance(orig, copy);
             }
         };
 

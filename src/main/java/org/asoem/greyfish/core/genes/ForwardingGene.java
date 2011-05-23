@@ -33,8 +33,8 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
-    public MutationOperator<T> getMutationFunction() {
-        return delegate.getMutationFunction();
+    public GeneController<T> getGeneController() {
+        return delegate.getGeneController();
     }
 
     @Override

@@ -3,7 +3,8 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.MutationOperator;
+import org.asoem.greyfish.core.genes.GeneController;
+import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -54,7 +55,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     protected GonoGenderStateProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
 
-        MutationOperator<Integer> mutationOperator = new MutationOperator<Integer>() {
+        GeneController<Integer> mutationOperator = new GeneControllerAdaptor<Integer>() {
             private final static double SEX_ASEX_TRANSITION_PROBABILITY = 0.001;
 
             @Override
@@ -78,6 +79,11 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
             @Override
             public double normalizedWeightedDistance(Integer orig, Integer copy) {
                 return normalizedDistance(orig, copy) * 0.1;
+            }
+
+            @Override
+            public Integer initialize() {
+                return nextBoolean() ? Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
             }
         };
 

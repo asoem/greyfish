@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.MutationOperatorAdaptor;
+import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -38,7 +38,7 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
         doubleGene = registerGene(new DefaultGene<Double>(
                 RandomUtils.RANDOM_DATA.nextUniform(getLowerBound(), getUpperBound()),
                 Double.class,
-                new MutationOperatorAdaptor<Double>() {
+                new GeneControllerAdaptor<Double>() {
                     @Override
                     public Double mutate(Double original) {
                         return original += RandomUtils.RANDOM_DATA.nextGaussian(0,1);
@@ -47,6 +47,11 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
                     @Override
                     public double normalizedDistance(Double orig, Double copy) {
                         return Math.abs(orig - copy) / (UPPER_BOUND - LOWER_BOUND);
+                    }
+
+                    @Override
+                    public Double initialize() {
+                        return RandomUtils.RANDOM_DATA.nextUniform(getLowerBound(), getUpperBound());
                     }
                 }
         ));

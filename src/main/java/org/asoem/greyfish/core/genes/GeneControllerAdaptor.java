@@ -5,7 +5,7 @@ package org.asoem.greyfish.core.genes;
  * Date: 23.05.11
  * Time: 15:12
  */
-public class MutationOperatorAdaptor<T> implements MutationOperator<T> {
+public class GeneControllerAdaptor<T> implements GeneController<T> {
     @Override
     public T mutate(T original) {
         return original;
@@ -22,7 +22,7 @@ public class MutationOperatorAdaptor<T> implements MutationOperator<T> {
     }
 
     @Override
-    public T randomize() {
+    public T initialize() {
         throw new UnsupportedOperationException();
     }
 }

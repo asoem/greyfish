@@ -7,7 +7,7 @@ public class DefaultGene<T> implements Gene<T> {
 
 	private final T representation;
     private final Class<T> clazz;
-    private final MutationOperator<T> mutationFunction;
+    private final GeneController<T> mutationFunction;
 
     /**
      * Constructor
@@ -15,14 +15,14 @@ public class DefaultGene<T> implements Gene<T> {
      * @param clazz the Class of the supplied value
      * @param mutationFunction
      */
-	public DefaultGene(T element, Class<T> clazz, MutationOperator<T> mutationFunction) {
+	public DefaultGene(T element, Class<T> clazz, GeneController<T> mutationFunction) {
         this.mutationFunction = checkNotNull(mutationFunction);
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
 	}
 
     public DefaultGene(Gene<T> gene) {
-        this.mutationFunction = checkNotNull(gene.getMutationFunction());
+        this.mutationFunction = checkNotNull(gene.getGeneController());
         this.representation = checkNotNull(gene.get());
         this.clazz = checkNotNull(gene.getSupplierClass());
     }
@@ -42,17 +42,21 @@ public class DefaultGene<T> implements Gene<T> {
         return clazz;
     }
 
-    public MutationOperator<T> getMutationFunction() {
+    public GeneController<T> getGeneController() {
         return mutationFunction;
     }
 
     public static <T> Gene<T> newMutatedCopy(Gene<T> gene) {
-        return new DefaultGene<T>(gene.getMutationFunction().mutate(gene.get()), gene.getSupplierClass(), gene.getMutationFunction());
+        return new DefaultGene<T>(gene.getGeneController().mutate(gene.get()), gene.getSupplierClass(), gene.getGeneController());
+    }
+
+    public static <T> Gene<T> newInitializedCopy(Gene<T> gene) {
+        return new DefaultGene<T>(gene.getGeneController().initialize(), gene.getSupplierClass(), gene.getGeneController());
     }
 
     @Override
     public boolean isMutatedCopyOf(Gene<?> gene) {
-        return this.getMutationFunction().equals(gene.getMutationFunction());
+        return this.getGeneController().equals(gene.getGeneController());
     }
 
     @Override

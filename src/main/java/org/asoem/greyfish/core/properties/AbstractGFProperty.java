@@ -4,9 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.io.LoggerFactory;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
 import org.simpleframework.xml.Root;
@@ -34,11 +37,11 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     public void setGenes(final Iterable<? extends Gene<?>> genes) {
         for (final ForwardingGene<?> gene : geneList) {
             Gene<?> copy = Iterables.find(genes, new Predicate<Gene<?>>() {
-                @Override
-                public boolean apply(Gene<?> o) {
-                    return gene.isMutatedCopyOf(o);
-                }
-            }, null);
+                        @Override
+                        public boolean apply(Gene<?> o) {
+                            return gene.isMutatedCopyOf(o);
+                        }
+                    }, null);
 
             if (copy != null) {
                 gene.setDelegate(copy);
@@ -51,6 +54,21 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
 
     @Override
     public void export(Exporter e) {
+    }
+
+    @Override
+    public void prepare(Simulation simulation) {
+        super.prepare(simulation);
+
+        if (simulation.getSteps() == 0)
+            for (ForwardingGene<?> gene : geneList) {
+                try {
+                    gene.setDelegate(DefaultGene.newInitializedCopy(gene));
+                }
+                catch (Exception e) {
+                    LoggerFactory.getLogger(AbstractGFProperty.class).warn("Could initialize gene.", e);
+                }
+            }
     }
 
     @Override

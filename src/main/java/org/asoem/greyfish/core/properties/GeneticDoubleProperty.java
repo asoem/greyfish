@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.genes.DefaultGene;
-import org.asoem.greyfish.core.genes.MutationOperator;
+import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -39,7 +39,7 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
     public void prepare(Simulation simulation) {
         delegate.prepare(simulation);
         doubleSupplier = delegate.registerGene(
-                new DefaultGene<Double>(delegate.getInitialValue(), Double.class, new MutationOperator<Double>() {
+                new DefaultGene<Double>(delegate.getInitialValue(), Double.class, new GeneControllerAdaptor<Double>() {
                     @Override
                     public Double mutate(Double original) {
                         return RandomUtils.RANDOM_DATA.nextGaussian(0, 1);
@@ -48,11 +48,6 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
                     @Override
                     public double normalizedDistance(Double orig, Double copy) {
                         return Math.abs(orig - copy) / (getUpperBound() - getLowerBound());
-                    }
-
-                    @Override
-                    public double normalizedWeightedDistance(Double orig, Double copy) {
-                        return normalizedDistance(orig, copy);
                     }
                 }));
     }

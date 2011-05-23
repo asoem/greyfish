@@ -5,7 +5,7 @@ package org.asoem.greyfish.core.genes;
  * Date: 22.02.11
  * Time: 14:39
  */
-public interface MutationOperator<T> {
+public interface GeneController<T> {
 
     /**
      *
@@ -29,8 +29,9 @@ public interface MutationOperator<T> {
     double normalizedWeightedDistance(T orig, T copy);
 
     /**
-     * This function is intended to generate a random value to initialize a {@code Gene} when an agent is generated from a prototype.
-     * @return a random value for this gene
+     * This function is intended to generate a value to which a {@code Gene}
+     * will be initialize when (and probably ony when) an agent is generated from a prototype.
+     * @return some value dependent on the implementation
      */
-    T randomize();
+    T initialize();
 }
