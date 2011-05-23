@@ -56,7 +56,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
         return ImmutableBitSet.zeros(bitStringGene.get().length());
     }
 
-    protected BitSetTrait(Builder builder) {
+    protected BitSetTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
 
         MutationOperator<ImmutableBitSet> mutationOperator = new MutationOperator<ImmutableBitSet>() {
@@ -92,9 +92,9 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
         @Override public BitSetTrait build() { return new BitSetTrait(checkedSelf()); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractWellOrderedSetElementProperty.AbstractBuilder<T, ImmutableBitSet> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
         protected ImmutableBitSet initialValue;
 
-        public T setInitialValue(ImmutableBitSet initialValue) { this.initialValue = initialValue; return self(); }
+        public T initialValue(ImmutableBitSet initialValue) { this.initialValue = initialValue; return self(); }
     }
 }

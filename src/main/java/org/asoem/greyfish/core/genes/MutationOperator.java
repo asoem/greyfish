@@ -27,4 +27,10 @@ public interface MutationOperator<T> {
      * @return The normalized weighted normalizedDistance (in range [0,1]) between {@code orig} and {@code copy}
      */
     double normalizedWeightedDistance(T orig, T copy);
+
+    /**
+     * This function is intended to generate a random value to initialize a {@code Gene} when an agent is generated from a prototype.
+     * @return a random value for this gene
+     */
+    T randomize();
 }
