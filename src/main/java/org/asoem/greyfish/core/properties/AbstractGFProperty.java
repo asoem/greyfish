@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
@@ -16,11 +17,10 @@ import org.simpleframework.xml.Root;
 
 import java.util.List;
 
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
-
 @Root
 public abstract class AbstractGFProperty extends AbstractGFComponent implements GFProperty {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGFProperty.class);
     private List<ForwardingGene<?>> geneList = ImmutableList.of();
 
     @Override
@@ -47,7 +47,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
                 gene.setDelegate(copy);
             }
             else {
-                CORE_LOGGER.error("No mutated copy for " + gene + " in " + genes);
+                LOGGER.error("No mutated copy for " + gene + " in " + genes);
             }
         }
     }

@@ -9,14 +9,17 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 public abstract class ContractNetInitiatorAction extends FiniteStateAction {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
 
     private static enum State {
         SEND_CFP,
@@ -91,12 +94,12 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 assert (proposeReply != null);
                                 proposeReplies.add(proposeReply);
                                 ++nProposalsReceived;
-                                GFACTIONS_LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
+                                LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
                             } catch (NotUnderstoodException e) {
                                 proposeReply = receivedMessage.createReplyFrom(getComponentOwner().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
-                                GFACTIONS_LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
+                                LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
                             } finally {
                                 assert proposeReply != null;
                             }
@@ -105,18 +108,18 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                             break;
 
                         case REFUSE:
-                            GFACTIONS_LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
+                            LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
                             handleRefuse(receivedMessage);
                             --nProposalsMax;
                             break;
 
                         case NOT_UNDERSTOOD:
-                            GFACTIONS_LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatorAction.this);
+                            LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatorAction.this);
                             --nProposalsMax;
                             break;
 
                         default:
-                            GFACTIONS_LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatorAction.this, receivedMessage.getPerformative());
+                            LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatorAction.this, receivedMessage.getPerformative());
                             --nProposalsMax;
                             break;
 
@@ -128,11 +131,11 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 assert nProposalsMax >= 0;
 
                 if (nProposalsMax == 0) {
-                    GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
+                    LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
                     return State.END;
                 } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
                     if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
-                        GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
+                        LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
 
                     timeoutCounter = 0;
 
@@ -163,21 +166,21 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                             try {
                                 handleInform(receivedMessage);
                             } catch (NotUnderstoodException e) {
-                                GFACTIONS_LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatorAction.this, e);
+                                LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatorAction.this, e);
                             }
                             break;
 
                         case FAILURE:
-                            GFACTIONS_LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
+                            LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
                             handleFailure(receivedMessage);
                             break;
 
                         case NOT_UNDERSTOOD:
-                            GFACTIONS_LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
+                            LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
                             break;
 
                         default:
-                            GFACTIONS_LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
+                            LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
                             break;
                     }
 

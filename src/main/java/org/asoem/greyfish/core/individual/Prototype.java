@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
@@ -12,10 +14,10 @@ import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
-
 @Root
 public class Prototype extends GFAgentDecorator implements IndividualInterface {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Prototype.class);
 
     private final ListenerSupport<IndividualCompositionListener> listenerSupport = ListenerSupport.newInstance();
 
@@ -142,6 +144,12 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
         return new Prototype(individual);
     }
 
+    public static Prototype forPopulation(Population population) {
+        Individual individual = new Individual();
+        individual.setPopulation(population);
+        return new Prototype(individual);
+    }
+
     @Override
     public void setOrientation(double alpha) {
         throw new UnsupportedOperationException();
@@ -152,8 +160,7 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
         if(component.getComponentOwner() != null
                 && component.getComponentOwner() != this) {
-            if (CORE_LOGGER.isDebugEnabled())
-                CORE_LOGGER.debug("Component already part of another individual");
+                LOGGER.debug("Component already part of another individual");
             return false;
         }
 

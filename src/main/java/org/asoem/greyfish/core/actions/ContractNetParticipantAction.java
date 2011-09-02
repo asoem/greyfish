@@ -9,15 +9,18 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
 
 public abstract class ContractNetParticipantAction extends FiniteStateAction {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetParticipantAction.class);
 
     private static enum State {
         CHECK_CFP,
@@ -65,7 +68,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                         cfpReply = message.createReplyFrom(getComponentOwner().getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
-                        GFACTIONS_LOGGER.debug("Message not understood", e);
+                        LOGGER.debug("Message not understood", e);
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
@@ -98,7 +101,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
 
-                                GFACTIONS_LOGGER.debug("Message not understood", e);
+                                LOGGER.debug("Message not understood", e);
                             }
                             checkAcceptReply(response);
                             sendMessage(response);
@@ -107,10 +110,10 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                             handleReject(receivedMessage);
                             break;
                         case NOT_UNDERSTOOD:
-                            GFACTIONS_LOGGER.debug("Communication Error: Message not understood");
+                            LOGGER.debug("Communication Error: Message not understood");
                             break;
                         default:
-                            GFACTIONS_LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD. Received {}", receivedMessage.getPerformative());
+                            LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD. Received {}", receivedMessage.getPerformative());
                             break;
                     }
 

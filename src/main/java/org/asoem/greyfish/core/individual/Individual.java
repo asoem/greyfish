@@ -63,7 +63,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
             component.setComponentRoot(this);
     }
 
-    public Individual(Builder builder) {
+    protected Individual(Builder builder) {
         this.population = builder.population;
         this.body = Body.newInstance(this);
 
@@ -73,8 +73,7 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
             addAction(property);
     }
 
-    public Individual(final Population population) {
-        this.population = population;
+    Individual() {
         this.body = Body.newInstance(this);
     }
 

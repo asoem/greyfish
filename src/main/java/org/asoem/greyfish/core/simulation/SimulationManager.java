@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
@@ -8,17 +10,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.Executors;
 
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
-
 
 public class SimulationManager implements Iterable<Simulation> {
 
-	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimulationManager.class);
+    private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 
 	private final ThreadGroup simulationThreads = new ThreadGroup("SimulationThreads") {
 		@Override
 		public void uncaughtException(Thread t, Throwable e) {
-			CORE_LOGGER.debug("Exception in simulation thread.", e);
+			LOGGER.debug("Exception in simulation thread.", e);
 		}
     };
 

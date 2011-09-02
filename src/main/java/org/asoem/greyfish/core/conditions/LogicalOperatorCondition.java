@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.ElementList;
@@ -17,7 +19,6 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Arrays.asList;
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 
 /**
@@ -27,6 +28,7 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
  */
 public abstract class LogicalOperatorCondition extends AbstractCondition {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogicalOperatorCondition.class);
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
     protected List<GFCondition> conditions = new ArrayList<GFCondition>(0);
 
@@ -145,8 +147,8 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     public void freeze() {
         super.freeze();
         conditions = ImmutableList.copyOf(conditions);
-        if (conditions.isEmpty() && CORE_LOGGER.isDebugEnabled())
-            CORE_LOGGER.debug("LogicalOperatorCondition '" + name + "' has no Subconditions");
+        if (conditions.isEmpty())
+            LOGGER.debug("LogicalOperatorCondition '" + name + "' has no Subconditions");
     }
 
     @Override

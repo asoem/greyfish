@@ -3,12 +3,14 @@ package org.asoem.greyfish.core.utils;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
 
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
-
 public class GFComponents {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GFComponents.class);
 
     public static <T extends GFComponent> T createNewInstance(Class<T> clazz) {
         try {
@@ -26,7 +28,7 @@ public class GFComponents {
             }
         }
         catch (Exception e) {
-            CORE_LOGGER.error("Could not instantiate class", e);
+            LOGGER.error("Could not instantiate class", e);
             System.exit(1);
         }
         return null;

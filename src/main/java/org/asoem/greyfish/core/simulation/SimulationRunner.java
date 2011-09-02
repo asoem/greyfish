@@ -1,12 +1,14 @@
 package org.asoem.greyfish.core.simulation;
 
-import java.util.concurrent.TimeUnit;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
+import java.util.concurrent.TimeUnit;
 
 public class SimulationRunner implements Runnable {
 
-	private int runs;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimulationRunner.class);
+    private int runs;
 	private int ticks;
 	private int initTicks;
 	private Simulation simulation;
@@ -68,7 +70,7 @@ public class SimulationRunner implements Runnable {
 
 			} while(true);
 		} catch (InterruptedException e) {
-			CORE_LOGGER.debug("Tread interrupted!");
+			LOGGER.debug("Tread interrupted!");
 		}
 	}
 
@@ -141,8 +143,7 @@ public class SimulationRunner implements Runnable {
 		try {
 			wait();
 		} catch (InterruptedException e) {
-            if (CORE_LOGGER.isDebugEnabled())
-                CORE_LOGGER.debug("", e);
+            LOGGER.debug("", e);
 		}
 		running = true;
 	}

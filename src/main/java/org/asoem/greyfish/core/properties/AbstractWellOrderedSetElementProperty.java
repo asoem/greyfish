@@ -3,6 +3,8 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Exporter;
@@ -13,11 +15,11 @@ import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 
 public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty implements WellOrderedSetElementProperty<E> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWellOrderedSetElementProperty.class);
     @Element(name="max")
     protected E upperBound;
 
@@ -48,8 +50,7 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
         }
         else {
             this.value = lowerBound;
-            if (CORE_LOGGER.isDebugEnabled())
-                CORE_LOGGER.debug(this.getClass().getSimpleName() + "#setValue(" + amount + "): Out of range [" + lowerBound + ", " + upperBound + "]");
+            LOGGER.debug("{} #setValue({}): Out of range [{},{}]", this.getClass().getSimpleName(), amount, lowerBound, upperBound);
         }
     }
 

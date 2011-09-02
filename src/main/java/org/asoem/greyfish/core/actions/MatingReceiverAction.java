@@ -21,7 +21,6 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 /**
  * @author christoph
@@ -174,9 +173,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         @Override public MatingReceiverAction build() {
             checkState(spermBuffer != null, "Builder must define a valid spermBuffer.");
             if (sensorRange <= 0)
-                CORE_LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
+                LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))
-                CORE_LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
+                LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
             return new MatingReceiverAction(this); }
     }
 

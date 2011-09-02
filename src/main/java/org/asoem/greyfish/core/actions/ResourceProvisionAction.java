@@ -141,7 +141,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     public static Builder with() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProvisionAction> {
-        @Override protected Builder self() {  return this; }
+        @Override protected Builder self() { return this; }
         @Override public ResourceProvisionAction build() { return new ResourceProvisionAction(checkedSelf()); }
     }
 

@@ -8,6 +8,8 @@ import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -21,7 +23,6 @@ import org.simpleframework.xml.Element;
 import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 
 /**
  * @author christoph
@@ -30,6 +31,7 @@ import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
 @ClassGroup(tags="actions")
 public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModifyQuantitivePropertyAction.class);
     private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
     @Element(name = "property")
@@ -53,7 +55,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
         catch (EvaluationException e) {
-            CORE_LOGGER.warn("CostsFormula is not a valid expression", e);
+            LOGGER.warn("CostsFormula is not a valid expression", e);
             return 0;
         }
     }

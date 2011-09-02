@@ -7,6 +7,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.io.Logger;
+import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.RandomUtils;
 
@@ -15,10 +17,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import static org.asoem.greyfish.core.io.GreyfishLogger.CORE_LOGGER;
-
 public class Genome implements GenomeInterface {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Genome.class);
     private final List<Gene<?>> genes;
 
     private Genome(Builder builder) {
@@ -128,7 +129,7 @@ public class Genome implements GenomeInterface {
                 } catch (Exception e) {
                     final String message = "Could not find a match for all genes defined by " + thisGenes +
                             " in the genome '" + this + "'";
-                    CORE_LOGGER.error(message, e);
+                    LOGGER.error(message, e);
                     throw new IllegalArgumentException(message, e);
                 }
             }
