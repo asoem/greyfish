@@ -16,7 +16,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -35,7 +35,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         @Override
         public Double apply(GenomeInterface genome) {
             try {
-                return GreyfishMathExpression.evaluate(spermFitnessExpression, Agent.class.cast(getComponentOwner()));
+                return GreyfishMathExpression.evaluateAsDouble(spermFitnessExpression, Agent.class.cast(getComponentOwner()));
             } catch (EvaluationException e) {
                 LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
                 return 0.0;
@@ -64,8 +64,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
 
             @Override

@@ -5,17 +5,17 @@ import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurableValueProvider;
+import org.asoem.greyfish.utils.ConfigurableObject;
 
-public interface GFAction extends GFComponent, NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
+public interface GFAction extends GFComponent, NamedDeepCloneableIndividualComponent, ConfigurableObject {
 
-	public boolean evaluateConditions(final Simulation simulation);
+	public boolean evaluateConditions(final ActionContext context);
 	
-	public AbstractGFAction.ExecutionResult execute(final Simulation simulation);
+	public AbstractGFAction.ExecutionResult execute(final ActionContext context);
 
 	public ConditionTree getConditionTree();
 	
-	public double evaluateFormula();
+	public double evaluateFormula(ActionContext context);
 	
 	public int getExecutionCount();
 	

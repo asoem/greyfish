@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -20,7 +20,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate(ActionContext context) {
         return Math.random() < probability;
     }
 
@@ -30,7 +30,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         e.add(new ValueAdaptor<Double>("", Double.class) {
             @Override
             protected void set(Double arg0) {

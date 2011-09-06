@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +81,8 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
 
         e.add(new FiniteSetValueAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
             @Override

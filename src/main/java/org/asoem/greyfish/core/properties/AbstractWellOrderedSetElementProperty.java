@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -74,7 +74,7 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
         setValue(initialValue);
     }
 
-    public void export(Exporter e, Class<E> clazz) {
+    public void export(ConfigurationHandler e, Class<E> clazz) {
         e.add(new ValueAdaptor<E>("lowerBound", clazz) {
             @Override protected void set(E arg0) { lowerBound = checkFrozen(checkNotNull(arg0)); }
             @Override public E get() { return lowerBound; }

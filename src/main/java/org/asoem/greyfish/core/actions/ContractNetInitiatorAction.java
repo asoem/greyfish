@@ -61,12 +61,12 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerInitialState(State.SEND_CFP, new StateAction() {
 
             @Override
-            public Object run() {
-                if (!canInitiate())
+            public Object run(ActionContext context) {
+                if (!canInitiate(context))
                    return State.NO_RECEIVERS;
 
                 ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
-                sendMessage(cfpMessage);
+                context.getSimulation().deliverMessage(cfpMessage);
                 nProposalsMax = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
                 nProposalsReceived = 0;
@@ -79,10 +79,10 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_PROPOSALS, new StateAction() {
 
             @Override
-            public Object run() {
+            public Object run(ActionContext context) {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : context.receiveMessages(getTemplate())) {
                     assert (receivedMessage != null);
 
                     ACLMessage proposeReply = null;
@@ -104,7 +104,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 assert proposeReply != null;
                             }
                             checkProposeReply(proposeReply);
-                            sendMessage(proposeReply);
+                            context.deliverMessage(proposeReply);
                             break;
 
                         case REFUSE:
@@ -154,10 +154,10 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_INFORM, new StateAction() {
 
             @Override
-            public Object run() {
+            public Object run(ActionContext context) {
                 assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : context.receiveMessages(getTemplate())) {
                     assert receivedMessage != null;
 
                     switch (receivedMessage.getPerformative()) {
@@ -203,7 +203,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerFailureState(State.END, new EndStateAction(State.END));
     }
 
-    protected abstract boolean canInitiate();
+    protected abstract boolean canInitiate(ActionContext context);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))

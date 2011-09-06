@@ -34,12 +34,12 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     private Object currentStateKey;
 
     @Override
-    protected final State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected final State executeUnconditioned(@Nonnull ActionContext context) {
         Preconditions.checkState(currentStateKey != null);
         Preconditions.checkState(states.containsKey(currentStateKey));
 
         StateAction stateActionToExecute = states.get(currentStateKey).getStateAction();
-        Object nextStateKey = stateActionToExecute.run();
+        Object nextStateKey = stateActionToExecute.run(context);
 
         LOGGER.debug("{}: Transition to {}", this, nextStateKey);
         currentStateKey = nextStateKey;
@@ -125,7 +125,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     }
 
     protected interface StateAction {
-        public Object run();
+        public Object run(ActionContext context);
     }
 
     protected static class EndStateAction implements StateAction {
@@ -136,7 +136,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         }
 
         @Override
-        final public Object run() {
+        final public Object run(ActionContext context) {
             return stateKey;
         }
     }

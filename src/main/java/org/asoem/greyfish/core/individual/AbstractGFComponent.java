@@ -9,24 +9,15 @@ import org.simpleframework.xml.Attribute;
 
 import java.util.Iterator;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent {
-
-    private IndividualInterface componentOwner;
 
     @Attribute(name="name", required = false)
     protected String name = "";
-
     private boolean frozen = false;
+    private IndividualInterface componentOwner;
 
-    protected Simulation getSimulation() {
-        return simulation;
+    protected AbstractGFComponent() {
     }
-
-    private Simulation simulation;
-
-    protected AbstractGFComponent() { }
 
     protected AbstractGFComponent(AbstractGFComponent cloneable, CloneMap map) {
         super(cloneable, map);
@@ -61,12 +52,6 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "[" + name + ']' + "@" + componentOwner;
-    }
-
-    @Override
-    public void prepare(Simulation simulation) {
-        checkNotNull(simulation);
-        this.simulation = simulation;
     }
 
     @Override
@@ -108,5 +93,9 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     @Override
     public Iterator<GFComponent> iterator() {
         return Iterators.emptyIterator();
+    }
+
+    @Override
+    public void prepare(Simulation context) {
     }
 }

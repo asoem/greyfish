@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.lang.Comparator;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -27,14 +27,14 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        return comparator.compare(getCompareValue(simulation), value);
+    public boolean evaluate(ActionContext context) {
+        return comparator.compare(getCompareValue(context), value);
     }
 
-    protected abstract T getCompareValue(Simulation simulation);
+    protected abstract T getCompareValue(ActionContext context);
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         e.add(new FiniteSetValueAdaptor<Comparator>("", Comparator.class) {
             @Override
             protected void set(Comparator arg0) {

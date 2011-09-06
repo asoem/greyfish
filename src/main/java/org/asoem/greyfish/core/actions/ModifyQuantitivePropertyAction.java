@@ -15,7 +15,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -45,12 +45,12 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
-        parameterQuantitiveProperty.setValue(evaluateFormula());
+    protected State executeUnconditioned(@Nonnull ActionContext context) {
+        parameterQuantitiveProperty.setValue(evaluateFormula(context));
         return State.END_SUCCESS;
     }
 
-    public double evaluateFormula() {
+    public double evaluateFormula(ActionContext context) {
         try {
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
@@ -61,8 +61,8 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {

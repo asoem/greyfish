@@ -55,11 +55,11 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerInitialState(State.CHECK_CFP, new StateAction() {
 
             @Override
-            public Object run() {
+            public Object run(ActionContext context) {
                 template = createCFPTemplate(getOntology());
 
                 final List<ACLMessage> cfpReplies = Lists.newArrayList();
-                for (ACLMessage message : receiveMessages(template)) {
+                for (ACLMessage message : context.receiveMessages(template)) {
 
                     ACLMessage cfpReply;
                     try {
@@ -72,7 +72,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
-                    sendMessage(cfpReply);
+                    context.deliverMessage(cfpReply);
 
                     if (cfpReply.matches(MessageTemplate.performative(ACLPerformative.PROPOSE)))
                         ++nExpectedProposeAnswers;
@@ -87,8 +87,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
-            public Object run() {
-                Iterable<ACLMessage> receivedMessages = receiveMessages(getTemplate());
+            public Object run(ActionContext context) {
+                Iterable<ACLMessage> receivedMessages = context.receiveMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
@@ -104,7 +104,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                                 LOGGER.debug("Message not understood", e);
                             }
                             checkAcceptReply(response);
-                            sendMessage(response);
+                            context.deliverMessage(response);
                             break;
                         case REJECT_PROPOSAL:
                             handleReject(receivedMessage);

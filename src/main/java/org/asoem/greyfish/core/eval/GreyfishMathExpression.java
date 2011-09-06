@@ -69,7 +69,9 @@ public enum GreyfishMathExpression {
                             new ArgumentsVariableResolver(args));
 
             evaluator.setResolver(variableResolver);
-            return evaluator.evaluate();
+
+            // TODO: Add bool evaluation
+            return evaluator.evaluateAsDouble();
         }
 
         else
@@ -84,11 +86,11 @@ public enum GreyfishMathExpression {
         return parserCache.containsKey(expression);
     }
 
-    public static double evaluate(String expression, Agent individualInterface) throws EvaluationException {
+    public static double evaluateAsDouble(String expression, Agent individualInterface) throws EvaluationException {
         return SINGLETON_INSTANCE.getResult(checkNotNull(expression), checkNotNull(individualInterface));
     }
 
-    public static double evaluate(String expression, Agent componentOwner, Object ... args) throws EvaluationException {
+    public static double evaluateAsDouble(String expression, Agent componentOwner, Object... args) throws EvaluationException {
         return SINGLETON_INSTANCE.getResult(checkNotNull(expression), checkNotNull(componentOwner), args);
     }
 

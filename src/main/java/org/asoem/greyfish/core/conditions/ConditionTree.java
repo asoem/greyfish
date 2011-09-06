@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
@@ -35,8 +36,8 @@ public class ConditionTree extends AbstractGFComponent {
         return ConditionTreeDepthFirstIterator.forRoot(rootCondition);
     }
 
-    public boolean evaluate(Simulation simulation) {
-        return rootCondition == null || rootCondition.evaluate(simulation);
+    public boolean evaluate(ActionContext context) {
+        return rootCondition == null || rootCondition.evaluate(context);
     }
 
 	@Override

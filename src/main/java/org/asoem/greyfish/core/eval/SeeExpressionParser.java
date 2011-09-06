@@ -32,12 +32,28 @@ public class SeeExpressionParser implements ExpressionParser {
     }
 
     @Override
-    public double evaluate() throws EvaluationException {
+    public double evaluateAsDouble() throws EvaluationException {
         synchronized(see) {
             try {
 
                 LOGGER.debug("Evaluating INode {}", inode);
                 double ret = see.evalAsDouble(inode);
+                LOGGER.debug("Result: {}", ret);
+                return ret;
+            }
+            catch (Exception ex) {
+                LOGGER.error("Evaluation failed", ex);
+                throw new EvaluationException(ex);
+            }
+        }
+    }
+
+    @Override
+    public boolean evaluateAsBoolean() throws EvaluationException {
+        synchronized(see) {
+            try {
+                LOGGER.debug("Evaluating INode {}", inode);
+                boolean ret = see.evalAsBoolean(inode);
                 LOGGER.debug("Result: {}", ret);
                 return ret;
             }

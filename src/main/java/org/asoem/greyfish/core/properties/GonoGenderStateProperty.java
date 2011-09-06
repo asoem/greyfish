@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.base.Enums;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.Gene;
@@ -9,6 +10,7 @@ import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 import static org.asoem.greyfish.utils.RandomUtils.nextBoolean;
@@ -39,7 +41,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     @Override
     public Set<Gender> getSet() {
-        return Sets.newHashSet(Gender.values());
+        return EnumSet.allOf(Gender.class);
     }
 
     @Override

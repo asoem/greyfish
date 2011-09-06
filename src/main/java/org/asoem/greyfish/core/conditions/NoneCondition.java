@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
@@ -14,15 +14,15 @@ public class NoneCondition extends LogicalOperatorCondition {
     }
 
     @Override
-    public boolean evaluate(final Simulation simulation) {
+    public boolean evaluate(final ActionContext context) {
         switch (conditions.size()) {
             case 0 : return true;
-            case 1 : return ! conditions.get(0).evaluate(simulation);
-            case 2 : return ! conditions.get(0).evaluate(simulation) && ! conditions.get(1).evaluate(simulation);
+            case 1 : return ! conditions.get(0).evaluate(context);
+            case 2 : return ! conditions.get(0).evaluate(context) && ! conditions.get(1).evaluate(context);
             default : return ! Iterables.any(conditions, new Predicate<GFCondition>() {
                 @Override
                 public boolean apply(GFCondition condition) {
-                    return condition.evaluate(simulation);
+                    return condition.evaluate(context);
                 }
             });
         }

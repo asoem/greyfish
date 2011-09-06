@@ -9,8 +9,8 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
@@ -40,7 +40,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Element(name="sensorRange", required=false)
     private double sensorRange;
 
-    private Iterable<IndividualInterface> sensedMates;
+    private Iterable<Agent> sensedMates;
 
     @SuppressWarnings("unused")
     private MatingReceiverAction() {
@@ -48,8 +48,8 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
@@ -138,10 +138,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate() {
-        final Iterable neighbours = getSimulation().getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
-        sensedMates = Iterables.filter(neighbours, IndividualInterface.class);
-        sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(getComponentOwner())));
+    protected boolean canInitiate(ActionContext context) {
+        final Iterable neighbours = context.findNeighbours(sensorRange);
+        sensedMates = Iterables.filter(neighbours, Agent.class);
+        sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(context.getAgent())));
         if (LOGGER.isDebugEnabled())
             LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
         return ! Iterables.isEmpty(sensedMates);

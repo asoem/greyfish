@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
@@ -35,14 +35,14 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected State executeUnconditioned(@Nonnull ActionContext context) {
         if (nOffspring == 0 || spermStorage.isEmpty())
             return State.END_FAILED;
 
         LOGGER.debug("Producing {} offspring", nOffspring);
 
         for (int i = 0; i < nOffspring; i++) {
-            simulation.createAgent(
+            context.createAgent(
                     getComponentOwner().getPopulation(),
                     getComponentOwner().getAnchorPoint(),
                     getComponentOwner().getGenome().mutated().recombined(spermStorage.getRWS())
@@ -54,8 +54,8 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Integer>("Number of offspring", Integer.class) {
             @Override
             protected void set(Integer arg0) {

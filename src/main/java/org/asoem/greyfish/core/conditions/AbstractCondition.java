@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.core.Commit;
 
 /**
@@ -60,7 +60,7 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 	}
 	
 	@Override
-	public void export(Exporter e) {
+	public void configure(ConfigurationHandler e) {
 	}
 
     protected AbstractCondition(AbstractBuilder<? extends AbstractBuilder> builder) {

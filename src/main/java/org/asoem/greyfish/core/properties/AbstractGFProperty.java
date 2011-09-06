@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Root;
 
 import java.util.List;
@@ -53,7 +53,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
     }
 
     @Override
@@ -84,8 +84,8 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         super(builder);
     }
 
-    protected AbstractGFProperty(AbstractGFComponent clonable, CloneMap map) {
-        super(clonable, map);
+    protected AbstractGFProperty(AbstractGFComponent cloneable, CloneMap map) {
+        super(cloneable, map);
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {}

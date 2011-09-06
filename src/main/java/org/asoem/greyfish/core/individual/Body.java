@@ -29,7 +29,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.*;
 
-public class Body extends AbstractGFComponent implements MovingObject2D, ConfigurableValueProvider {
+public class Body extends AbstractGFComponent implements MovingObject2D, ConfigurableObject {
 
     private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
 
@@ -158,7 +158,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         e.add(ValueAdaptor.forField("Radius of the Circle", Double.class, this, "radius"));
         FiniteSetValueAdaptor<FiniteSetSupplier> b = new FiniteSetValueAdaptor<FiniteSetSupplier>("StateProperty", FiniteSetSupplier.class) {
             @Override protected void set(FiniteSetSupplier arg0) { states = checkNotNull(arg0);

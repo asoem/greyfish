@@ -74,7 +74,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage message) throws NotUnderstoodException {
         try {
             final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(GreyfishMathExpression.evaluate(transformationFunction, Agent.class.cast(getComponentOwner()), offer));
+            consumerProperty.add(GreyfishMathExpression.evaluateAsDouble(transformationFunction, Agent.class.cast(getComponentOwner()), offer));
 
             LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
         }
@@ -89,9 +89,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate() {
-        sensedMates = filter(getSimulation().findObjects(getComponentOwner(), sensorRange), Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
+    protected boolean canInitiate(ActionContext context) {
+        sensedMates = filter(context.findNeighbours(sensorRange), Agent.class);
+        sensedMates = filter(sensedMates, not(equalTo(context.getAgent())));
         return ! isEmpty(sensedMates);
     }
 
@@ -107,8 +107,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<String>("Ontology", String.class) {
             @Override
             protected void set(String arg0) {

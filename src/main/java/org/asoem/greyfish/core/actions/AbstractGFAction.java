@@ -2,14 +2,11 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.Logger;
@@ -17,14 +14,13 @@ import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -71,32 +67,32 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public final boolean evaluateConditions(Simulation simulation) {
-        return conditionTree.evaluate(simulation);
+    public final boolean evaluateConditions(ActionContext context) {
+        return conditionTree.evaluate(context);
     }
 
     /**
      * Called by the individual to evaluateConditions the condition if set and trigger the actions
-     * @param simulation the simulation context
+     * @param context
      */
     @Override
-    public final ExecutionResult execute(final Simulation simulation) {
-        Preconditions.checkNotNull(simulation);
+    public final ExecutionResult execute(final ActionContext context) {
+        Preconditions.checkNotNull(context);
 
         try {
             if (isDormant()) {
-                if (!evaluateConditions(simulation)) {
+                if (!evaluateConditions(context)) {
                     return CONDITIONS_FAILED;
                 }
                 if (hasCosts()) {
-                    evaluatedCostsFormula = evaluateFormula();
+                    evaluatedCostsFormula = evaluateFormula(context);
                     if (energySource.get().compareTo(evaluatedCostsFormula) < 0)
                         return INSUFFICIENT_ENERGY;
                 }
 
             }
 
-            this.state = executeUnconditioned(simulation);
+            this.state = executeUnconditioned(context);
 
 
             switch (state) {
@@ -104,7 +100,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                     return EXECUTED;
                 case END_SUCCESS:
                 case END_FAILED:
-                    postExecutionTasks();
+                    postExecutionTasks(context);
                     reset();
                     state = State.DORMANT;
                     return EXECUTED;
@@ -113,7 +109,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             }
         }
         catch (Exception e) {
-            LOGGER.error("Execution error in {} with simulation = {}.", this, simulation, e);
+            LOGGER.error("Execution error in {} with simulation = {}.", this, context, e);
             return ERROR;
         }
     }
@@ -122,9 +118,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         return energySource != null && energyCostsFormula != null;
     }
 
-    private void postExecutionTasks() {
+    private void postExecutionTasks(ActionContext context) {
         ++executionCount;
-        timeOfLastExecution = getSimulation().getSteps();
+        timeOfLastExecution = context.getSimulation().getSteps();
 
         if (state == State.END_SUCCESS)
             if (hasCosts()) {
@@ -144,10 +140,10 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     /**
      * In this method the behaviour of this action is implemented. This method should not be called directly.
-     * @param simulation The Simulation context.
-     * @return the state of the action after execution
+     *
+     * @param context@return the state of the action after execution
      */
-    protected abstract State executeUnconditioned(@Nonnull Simulation simulation);
+    protected abstract State executeUnconditioned(@Nonnull ActionContext context);
 
     @Override
     public void setComponentRoot(IndividualInterface individual) {
@@ -169,9 +165,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public double evaluateFormula() {
+    public double evaluateFormula(ActionContext context) {
         try {
-            return GreyfishMathExpression.evaluate(energyCostsFormula, Agent.class.cast(getComponentOwner()));
+            return GreyfishMathExpression.evaluateAsDouble(energyCostsFormula, context.getAgent());
         } catch (EvaluationException e) {
             LOGGER.error("Costs formula could not be evaluated: {}. Setting formula to '0'", energyCostsFormula, e);
             energyCostsFormula = "0";
@@ -197,7 +193,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         e.add(new ValueAdaptor<String>("Energy Costs", String.class) {
             @Override
             public String get() {
@@ -270,17 +266,5 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         this.conditionTree = new ConditionTree(map.clone(cloneable.getRootCondition(), GFCondition.class));
         this.energySource = map.clone(cloneable.energySource, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
-    }
-
-    protected void sendMessage(ACLMessage message) {
-        getSimulation().deliverMessage(message);
-    }
-
-    protected List<ACLMessage> receiveMessages(MessageTemplate template) {
-        return getComponentOwner().pollMessages(template);
-    }
-
-    protected boolean hasMessages(MessageTemplate template) {
-        return getComponentOwner().hasMessages(template);
     }
 }

@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
@@ -22,12 +22,14 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected State executeUnconditioned(@Nonnull ActionContext context) {
         for (int i = 0; i < parameterClones; i++) {
-            simulation.createAgent(
-                    getComponentOwner().getPopulation(),
-                    getComponentOwner().getAnchorPoint(),
-                    getComponentOwner().getGenome().mutated());
+            Agent agent = context.getAgent();
+
+            context.createAgent(
+                    agent.getPopulation(),
+                    agent.getAnchorPoint(),
+                    agent.getGenome().mutated());
         }
         return State.END_SUCCESS;
     }
@@ -48,8 +50,8 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Integer>("#clones", Integer.class) {
             @Override
             protected void set(Integer arg0) {

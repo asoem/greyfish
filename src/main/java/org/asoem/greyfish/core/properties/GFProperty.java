@@ -3,9 +3,9 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
-import org.asoem.greyfish.utils.ConfigurableValueProvider;
+import org.asoem.greyfish.utils.ConfigurableObject;
 
-public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
+public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualComponent, ConfigurableObject {
 
     /**
      * Add {@code gene} to this property which will than be recognized as part of the genome of this property's componentOwner

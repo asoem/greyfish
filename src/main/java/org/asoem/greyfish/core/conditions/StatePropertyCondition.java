@@ -4,12 +4,12 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -19,6 +19,7 @@ public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
     private FiniteSetProperty stateProperty;
+    // TODO: The stateProperty might get modified during construction phase. Observe this!
 
     @Element(name="state",required=false)
     private Object state;
@@ -30,7 +31,7 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate(ActionContext context) {
         return stateProperty != null &&
                 Objects.equal(stateProperty.get(), state);
     }
@@ -41,7 +42,7 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         final FiniteSetValueAdaptor<FiniteSetProperty> statesAdaptor = new FiniteSetValueAdaptor<FiniteSetProperty>(
                 "Property", FiniteSetProperty.class) {
             @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkFrozen(checkNotNull(arg0)); }

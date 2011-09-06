@@ -1,11 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
@@ -24,14 +23,14 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
-        pattern.apply(Agent.class.cast(getComponentOwner()), simulation);
+    protected State executeUnconditioned(@Nonnull ActionContext context) {
+        pattern.apply(context);
         return State.END_SUCCESS;
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Double>("", Double.class) {
 
             @Override

@@ -28,9 +28,18 @@ public class JEvalExpressionParser implements ExpressionParser {
     }
 
     @Override
-    public double evaluate() throws EvaluationException {
+    public double evaluateAsDouble() throws EvaluationException {
         try {
             return Double.valueOf(evaluator.evaluate());
+        } catch (net.sourceforge.jeval.EvaluationException e) {
+            throw new EvaluationException("Expression could not be evaluated.", e);
+        }
+    }
+
+    @Override
+    public boolean evaluateAsBoolean() throws EvaluationException {
+         try {
+            return Boolean.valueOf(evaluator.evaluate());
         } catch (net.sourceforge.jeval.EvaluationException e) {
             throw new EvaluationException("Expression could not be evaluated.", e);
         }

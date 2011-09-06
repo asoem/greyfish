@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import java.util.Iterator;
@@ -76,8 +76,8 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public void export(Exporter e) {
-        getDelegate().export(e);
+    public void configure(ConfigurationHandler e) {
+        getDelegate().configure(e);
     }
 
     @Override

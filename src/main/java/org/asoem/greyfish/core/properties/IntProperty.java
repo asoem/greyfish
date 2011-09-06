@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 
 @ClassGroup(tags="property")
 public class IntProperty extends AbstractWellOrderedSetElementProperty<Integer> {
@@ -22,7 +22,7 @@ public class IntProperty extends AbstractWellOrderedSetElementProperty<Integer> 
     }
 
     @Override
-	public void export(Exporter e) {
+	public void configure(ConfigurationHandler e) {
 		super.export(e, Integer.class);
 	}
 

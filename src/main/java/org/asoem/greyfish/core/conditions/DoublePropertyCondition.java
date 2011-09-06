@@ -1,11 +1,11 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -20,8 +20,8 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
     }
 
     @Override
-	public void export(Exporter e) {
-		super.export(e);
+	public void configure(ConfigurationHandler e) {
+		super.configure(e);
 		e.add(new FiniteSetValueAdaptor<DoubleProperty>("", DoubleProperty.class
         ) {
 
@@ -43,7 +43,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
 	@Override
-	protected Double getCompareValue(Simulation simulation) {
+	protected Double getCompareValue(ActionContext context) {
 		return doubleProperty.get();
 	}
 

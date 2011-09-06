@@ -2,11 +2,11 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -23,8 +23,8 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        return isSameAction(action, getComponentOwner().getLastExecutedAction());
+    public boolean evaluate(ActionContext context) {
+        return isSameAction(action, context.getAgent().getLastExecutedAction());
     }
 
     private static boolean isSameAction(GFAction a1, GFAction a2) {
@@ -33,7 +33,7 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         e.add(new FiniteSetValueAdaptor<GFAction>("Action", GFAction.class) {
             @Override
             protected void set(GFAction arg0) {

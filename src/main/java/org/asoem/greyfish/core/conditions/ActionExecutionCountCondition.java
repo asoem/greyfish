@@ -1,13 +1,13 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -25,13 +25,13 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @Override
-	protected Integer getCompareValue(Simulation simulation) {
+	protected Integer getCompareValue(ActionContext context) {
 		return action.getExecutionCount();
 	}
 
 	@Override
-	public void export(Exporter e) {
-		super.export(e);
+	public void configure(ConfigurationHandler e) {
+		super.configure(e);
 
 		e.add(new FiniteSetValueAdaptor<GFAction>("", GFAction.class) {
             @Override

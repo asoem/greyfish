@@ -1,11 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -25,8 +24,8 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
-        getComponentOwner().setColor(color);
+    protected State executeUnconditioned(@Nonnull ActionContext context) {
+        context.getAgent().setColor(color);
         return State.END_SUCCESS;
     }
 
@@ -41,8 +40,8 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Color>("Color", Color.class) {
             @Override
             public Color get() {

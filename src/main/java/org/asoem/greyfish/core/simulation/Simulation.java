@@ -87,7 +87,7 @@ public class Simulation implements Runnable, HasName {
         AGENT_ADD
     }
 
-    private final Multimap<CommandType, Command> commanListMap =
+    private final Multimap<CommandType, Command> commandListMap =
             Multimaps.synchronizedMultimap(HashMultimap.<CommandType, Command>create());
 
     private final FastList<Agent> individuals = FastList.newInstance();
@@ -211,7 +211,7 @@ public class Simulation implements Runnable, HasName {
            * TODO: removal could be implemented more efficiently.
            * e.g. by marking agents and removal during a single iteration over all
            */
-        commanListMap.put(AGENT_REMOVE,
+        commandListMap.put(AGENT_REMOVE,
                 new Command() {
                     @Override
                     public void execute() {
@@ -267,7 +267,7 @@ public class Simulation implements Runnable, HasName {
         final Agent agent = newAgentFromPool(population);
         agent.setGenome(genome);
 
-        commanListMap.put(AGENT_ADD,
+        commandListMap.put(AGENT_ADD,
                 new Command() {
                     @Override
                     public void execute() {
@@ -412,7 +412,7 @@ public class Simulation implements Runnable, HasName {
      */
     private void clearExecutionLists() {
         concurrentAgentsView.clear();
-        commanListMap.clear();
+        commandListMap.clear();
     }
 
     private void timedStep() throws InterruptedException {
@@ -494,7 +494,7 @@ public class Simulation implements Runnable, HasName {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                Collection<Command> messageCommands = commanListMap.get(MESSAGE);
+                Collection<Command> messageCommands = commandListMap.get(MESSAGE);
                 if (messageCommands.size() > 0)
                     LOGGER.debug("{}: Delivering {} Messages", Simulation.this, messageCommands.size());
                 for (Command command : messageCommands) {
@@ -511,7 +511,7 @@ public class Simulation implements Runnable, HasName {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                Collection<Command> removeCommands = commanListMap.get(AGENT_REMOVE);
+                Collection<Command> removeCommands = commandListMap.get(AGENT_REMOVE);
                 if (removeCommands.size() > 0)
                     LOGGER.debug("{}: Removing {} Agents", Simulation.this, removeCommands.size());
                 for (Command command : removeCommands) {
@@ -523,7 +523,7 @@ public class Simulation implements Runnable, HasName {
                     getSpace().moveObject(agent, MutableLocation2D.sum(agent, motion.toCartesian()));
                 }
 
-                Collection<Command> addCommands = commanListMap.get(AGENT_ADD);
+                Collection<Command> addCommands = commandListMap.get(AGENT_ADD);
                 if (addCommands.size() > 0)
                     LOGGER.debug("{}: Adding {} Agents", Simulation.this, addCommands.size());
                 for (Command command : addCommands) {
@@ -542,7 +542,7 @@ public class Simulation implements Runnable, HasName {
             LOGGER.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
         }
 
-        commanListMap.clear();
+        commandListMap.clear();
     }
 
     private void notifyStep() {
@@ -574,7 +574,7 @@ public class Simulation implements Runnable, HasName {
     }
 
     public void deliverMessage(final ACLMessage message) {
-        commanListMap.put(MESSAGE,
+        commandListMap.put(MESSAGE,
                 new Command() {
                     @Override
                     public void execute() {

@@ -9,7 +9,6 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -48,7 +47,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Element(name="sensorRange", required=false)
     private double sensorRange;
 
-    private Iterable<IndividualInterface> sensedMates;
+    private Iterable<Agent> sensedMates;
 
     @SuppressWarnings("unused")
     private CompatibilityAwareMatingReceiverAction() {
@@ -56,8 +55,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
@@ -183,10 +182,10 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    protected boolean canInitiate() {
-        final Iterable neighbours = getSimulation().getSpace().findNeighbours(getComponentOwner().getAnchorPoint(), sensorRange);
-        sensedMates = filter(neighbours, IndividualInterface.class);
-        sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
+    protected boolean canInitiate(ActionContext context) {
+        final Iterable neighbours = context.findNeighbours(sensorRange);
+        sensedMates = filter(neighbours, Agent.class);
+        sensedMates = filter(sensedMates, not(equalTo(context.getAgent())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }

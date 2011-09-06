@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AbstractGFAction;
+import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
@@ -24,7 +25,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
 
-    private final Simulation simulation;
+    private final ActionContext actionContext;
     private final int timeOfBirth;
     private final int id;
 
@@ -36,7 +37,9 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     private Agent(Agent individual, CloneMap map) {
         super(map.clone(individual.getDelegate(), IndividualInterface.class));
 
-        this.simulation = checkNotNull(individual.simulation);
+        Simulation simulation = checkNotNull(individual.getSimulation());
+
+        this.actionContext = new ActionContext(simulation, this);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
 
@@ -46,7 +49,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     private Agent(IndividualInterface individual, Simulation simulation) {
         super(individual);
 
-        this.simulation = checkNotNull(simulation);
+        this.actionContext = new ActionContext(checkNotNull(simulation), this);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
 
@@ -54,7 +57,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     private void init() {
-        prepare(simulation);
+        prepare(getSimulation());
         freeze();
 
         // logging
@@ -131,7 +134,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
     // TODO move to an interface?
     public void shutDown() {
-        log.set("timeOfDeath", simulation.getSteps());
+        log.set("timeOfDeath", getSimulation().getSteps());
 
         try {
             log.commit();
@@ -178,7 +181,7 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
 
         LOGGER.trace("{}: Trying to execute {}", this, action);
 
-        final AbstractGFAction.ExecutionResult result = action.execute(simulation);
+        final AbstractGFAction.ExecutionResult result = action.execute(actionContext);
 
         switch (result) {
             case CONDITIONS_FAILED:
@@ -303,13 +306,13 @@ public class Agent extends GFAgentDecorator implements IndividualInterface, Movi
     }
 
     public Simulation getSimulation() {
-        return simulation;
+        return actionContext.getSimulation();
     }
 
     @Override
     public int getAge() {
-        assert simulation.getSteps() >= getTimeOfBirth();
-        return simulation.getSteps() - getTimeOfBirth();
+        assert getSimulation().getSteps() >= getTimeOfBirth();
+        return getSimulation().getSteps() - getTimeOfBirth();
     }
 
     @Override
