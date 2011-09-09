@@ -1,5 +1,8 @@
 package org.asoem.greyfish.utils;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -9,12 +12,13 @@ import java.beans.PropertyChangeSupport;
  * Date: 14.02.11
  * Time: 10:32
  */
-public abstract class MapValuesAdaptor<E> implements PropertyChangeListener {
+public abstract class MapValuesAdaptor<E> implements PropertyChangeListener, WriteProtectable {
 
     private final String name;
     private final Class<E> clazz;
 //    private final IndirectListModel<E> listModel = new IndirectListModel<E>();
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private Supplier<Boolean> writeProtection = Suppliers.ofInstance(Boolean.FALSE);
 
     public MapValuesAdaptor(String name, Class<E> clazz) {
         this.name = name;
@@ -54,5 +58,15 @@ public abstract class MapValuesAdaptor<E> implements PropertyChangeListener {
 
     private void fireValueChanged(Object oldValue, Object newValue) {
         propertyChangeSupport.firePropertyChange("value", oldValue, newValue);
+    }
+
+    @Override
+    public void setWriteProtection(Supplier<Boolean> writeProtection) {
+        this.writeProtection = writeProtection;
+    }
+
+    @Override
+    public boolean isWriteProtected() {
+        return writeProtection.get();
     }
 }

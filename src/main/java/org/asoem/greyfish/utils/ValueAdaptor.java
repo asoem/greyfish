@@ -2,6 +2,7 @@ package org.asoem.greyfish.utils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.jgoodies.binding.value.ValueModel;
 import com.jgoodies.validation.Validatable;
 import com.jgoodies.validation.ValidationResult;
@@ -16,12 +17,14 @@ import java.lang.reflect.Field;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
-public abstract class ValueAdaptor<T> implements ValueModel, Validatable, PropertyChangeListener, Supplier<T> {
+public abstract class ValueAdaptor<T> implements ValueModel, Validatable, PropertyChangeListener, Supplier<T>, WriteProtectable {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueAdaptor.class);
+
     public final String name;
     public final Class<T> clazz;
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private Supplier<Boolean> writeProtection = Suppliers.ofInstance(Boolean.FALSE);
 
     public ValueAdaptor(String name, Class<T> clazz) {
         Preconditions.checkNotNull(name);
@@ -41,6 +44,10 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
         propertyChangeSupport.removePropertyChangeListener(arg0);
     }
 
+    public String getName() {
+        return name;
+    }
+
 
     @Override
     public T getValue() {
@@ -51,6 +58,9 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
     @Override
     public void setValue(Object arg0) {
         Preconditions.checkArgument(clazz.isInstance(arg0));
+
+        if (isWriteProtected())
+            return;
 
         T old = get();
         try {
@@ -117,5 +127,15 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
             LOGGER.error("Could not find field " + fieldName + " for object " + o, e);
         }
         return null;
+    }
+
+    @Override
+    public void setWriteProtection(Supplier<Boolean> writeProtection) {
+        this.writeProtection = writeProtection;
+    }
+
+    @Override
+    public boolean isWriteProtected() {
+        return writeProtection.get();
     }
 }
