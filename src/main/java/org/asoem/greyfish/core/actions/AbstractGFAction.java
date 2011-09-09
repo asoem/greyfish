@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
@@ -19,8 +19,6 @@ import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
-import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -67,32 +65,32 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public final boolean evaluateConditions(ActionContext context) {
-        return conditionTree.evaluate(context);
+    public final boolean evaluateConditions(Simulation simulation) {
+        return conditionTree.evaluate(simulation);
     }
 
     /**
      * Called by the individual to evaluateConditions the condition if set and trigger the actions
-     * @param context
+     * @param simulation
      */
     @Override
-    public final ExecutionResult execute(final ActionContext context) {
-        Preconditions.checkNotNull(context);
+    public final ExecutionResult execute(Simulation simulation) {
+        Preconditions.checkNotNull(simulation);
 
         try {
             if (isDormant()) {
-                if (!evaluateConditions(context)) {
+                if (!evaluateConditions(simulation)) {
                     return CONDITIONS_FAILED;
                 }
                 if (hasCosts()) {
-                    evaluatedCostsFormula = evaluateFormula(context);
+                    evaluatedCostsFormula = evaluateFormula(simulation);
                     if (energySource.get().compareTo(evaluatedCostsFormula) < 0)
                         return INSUFFICIENT_ENERGY;
                 }
 
             }
 
-            this.state = executeUnconditioned(context);
+            this.state = executeUnconditioned(simulation);
 
 
             switch (state) {
@@ -100,7 +98,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
                     return EXECUTED;
                 case END_SUCCESS:
                 case END_FAILED:
-                    postExecutionTasks(context);
+                    postExecutionTasks(simulation);
                     reset();
                     state = State.DORMANT;
                     return EXECUTED;
@@ -109,7 +107,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             }
         }
         catch (Exception e) {
-            LOGGER.error("Execution error in {} with simulation = {}.", this, context, e);
+            LOGGER.error("Execution error in {} with simulation = {}.", this, simulation, e);
             return ERROR;
         }
     }
@@ -118,9 +116,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         return energySource != null && energyCostsFormula != null;
     }
 
-    private void postExecutionTasks(ActionContext context) {
+    private void postExecutionTasks(Simulation simulation) {
         ++executionCount;
-        timeOfLastExecution = context.getSimulation().getSteps();
+        timeOfLastExecution = simulation.getSteps();
 
         if (state == State.END_SUCCESS)
             if (hasCosts()) {
@@ -141,14 +139,14 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     /**
      * In this method the behaviour of this action is implemented. This method should not be called directly.
      *
-     * @param context@return the state of the action after execution
+     * @param simulation
      */
-    protected abstract State executeUnconditioned(@Nonnull ActionContext context);
+    protected abstract State executeUnconditioned(Simulation simulation);
 
     @Override
-    public void setComponentRoot(IndividualInterface individual) {
-        super.setComponentRoot(individual);
-        conditionTree.setComponentRoot(getComponentOwner());
+    public void setAgent(Agent individual) {
+        super.setAgent(individual);
+        conditionTree.setAgent(getAgent());
     }
 
     @Override
@@ -165,9 +163,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public double evaluateFormula(ActionContext context) {
+    public double evaluateFormula(Simulation simulation) {
         try {
-            return GreyfishMathExpression.evaluateAsDouble(energyCostsFormula, context.getAgent());
+            return GreyfishMathExpression.evaluateAsDouble(energyCostsFormula, agent, simulation);
         } catch (EvaluationException e) {
             LOGGER.error("Costs formula could not be evaluated: {}. Setting formula to '0'", energyCostsFormula, e);
             energyCostsFormula = "0";
@@ -184,7 +182,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public void setRootCondition(GFCondition rootCondition) {
         conditionTree = new ConditionTree(checkFrozen(rootCondition));
-        conditionTree.setComponentRoot(this.getComponentOwner());
+        conditionTree.setAgent(this.getAgent());
     }
 
     @Override
@@ -221,7 +219,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent.getProperties(), DoubleProperty.class);
             }
         });
     }

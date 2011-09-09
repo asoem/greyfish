@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.simulation;
 
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.AbstractAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.scenario.Scenario;
@@ -16,7 +16,7 @@ import static org.asoem.greyfish.core.space.MutableObject2D.at;
 public class SimulationSpec extends Specification<Simulation> {
 
     public class SimulationBuildFromScenarioWithNPlaceholders {
-        final Prototype prototype = Prototype.newInstance(Individual.with().population(Population.newPopulation("TestPop", Color.black)).build());
+        final Prototype prototype = Prototype.newInstance(AbstractAgent.with().population(Population.newPopulation("TestPop", Color.black)).build());
         final Scenario scenario = Scenario.with().space(1, 1)
                 .add(prototype, at())
                 .add(prototype, at())

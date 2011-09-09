@@ -47,7 +47,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
 
-        ACLMessage.Builder ret = message.createReplyFrom(getComponentOwner().getId());
+        ACLMessage.Builder ret = message.createReplyFrom(getAgent().getId());
 
         double offer = Math.min(requested, resourceProperty.get());
 
@@ -73,7 +73,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
             resourceProperty.subtract(offer);
             return message
-                    .createReplyFrom(getComponentOwner().getId())
+                    .createReplyFrom(getAgent().getId())
                     .performative(ACLPerformative.INFORM)
                     .objectContent(offer);
         } catch (IllegalArgumentException e) {
@@ -111,7 +111,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
             @Override
             public Iterable<ResourceProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), ResourceProperty.class);
+                return Iterables.filter(agent.getProperties(), ResourceProperty.class);
             }
         });
     }

@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 
@@ -12,7 +12,7 @@ public final class AlwaysTrueCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(ActionContext context) {
+    public boolean evaluate(Simulation simulation) {
         return true;
     }
 

@@ -3,17 +3,17 @@
  */
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.FinalizedAgent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
@@ -21,6 +21,9 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Iterables.filter;
 
 /**
  * @author christoph
@@ -40,7 +43,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Element(name="sensorRange", required=false)
     private double sensorRange;
 
-    private Iterable<Agent> sensedMates;
+    private Iterable<FinalizedAgent> sensedMates;
 
     @SuppressWarnings("unused")
     private MatingReceiverAction() {
@@ -63,7 +66,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
+                return filter(agent.getProperties(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
@@ -90,11 +93,11 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         });
     }
 
-    public boolean receiveGenome(EvaluatedGenome genome) {
+    private boolean receiveGenome(EvaluatedGenome genome) {
         spermBuffer.addGenome(genome, genome.getFitness());
-        getComponentOwner().getLog().add("spermReceived", 1);
+        getAgent().getLog().add("spermReceived", 1);
 
-        LOGGER.trace(getComponentOwner() + " received sperm: " + genome);
+        LOGGER.trace(getAgent() + " received sperm: " + genome);
 
         return true;
     }
@@ -111,7 +114,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
         return ACLMessage.with()
-                .source(getComponentOwner().getId())
+                .source(getAgent().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
@@ -120,7 +123,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.createReplyFrom(this.getComponentOwner().getId());
+        ACLMessage.Builder builder = message.createReplyFrom(this.getAgent().getId());
         try {
             EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
             receiveGenome(evaluatedGenome);
@@ -138,12 +141,11 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(ActionContext context) {
-        final Iterable neighbours = context.findNeighbours(sensorRange);
-        sensedMates = Iterables.filter(neighbours, Agent.class);
-        sensedMates = Iterables.filter(sensedMates, Predicates.not(Predicates.equalTo(context.getAgent())));
-        if (LOGGER.isDebugEnabled())
-            LOGGER.debug(MatingReceiverAction.class.getSimpleName() + ": Found " + Iterables.size(sensedMates) + " possible mate(s)");
+    protected boolean canInitiate(Simulation simulation) {
+        final Iterable neighbours = agent.findNeighbours(sensorRange);
+        sensedMates = filter(neighbours, FinalizedAgent.class);
+        sensedMates = filter(sensedMates, not(equalTo(agent)));
+        LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
 

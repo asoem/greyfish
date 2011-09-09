@@ -49,7 +49,7 @@ public class PostOffice {
 
                 MessageReceiver agent = agentMap.get(message.receiverId);
                 if (agent != null)
-                    agent.addMessage(message.message);
+                    agent.receiveMessage(message.message);
             }
             agentMap.clear();
             receiverLists.get(i).clear();

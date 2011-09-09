@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -36,16 +36,20 @@ public class ConditionTree extends AbstractGFComponent {
         return ConditionTreeDepthFirstIterator.forRoot(rootCondition);
     }
 
-    public boolean evaluate(ActionContext context) {
-        return rootCondition == null || rootCondition.evaluate(context);
+    public boolean evaluate(Simulation simulation) {
+        return rootCondition == null || rootCondition.evaluate(simulation);
     }
 
 	@Override
-	public void setComponentRoot(IndividualInterface individual) {
-		super.setComponentRoot(individual);
+	public void setAgent(Agent individual) {
+		super.setAgent(individual);
         if (rootCondition != null)
-            rootCondition.setComponentRoot(individual);
+            rootCondition.setAgent(individual);
 	}
+
+    @Override
+    public void configure(ConfigurationHandler e) {
+    }
 
     @Override
     public AbstractGFComponent deepCloneHelper(CloneMap map) {

@@ -40,9 +40,9 @@ public class ConsumerGroup<T extends DoubleProperty> implements Iterable<Consume
 		int looserIndex = -1;
 
 		for (int i = 0; i < consumer.size(); i++) {
-			if(consumer.get(i).getIndividual() == result.getWinner())
+			if(consumer.get(i).getAbstractAgent() == result.getWinner())
 				winnerIndex = i;
-			else if (consumer.get(i).getIndividual() == result.getLooser())
+			else if (consumer.get(i).getAbstractAgent() == result.getLooser())
 				looserIndex = i;
 		}
 

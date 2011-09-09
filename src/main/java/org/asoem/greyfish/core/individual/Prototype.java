@@ -2,35 +2,47 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ListenerSupport;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Arrays.asList;
+
 @Root
-public class Prototype extends GFAgentDecorator implements IndividualInterface {
+public class Prototype extends AbstractAgent implements Agent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Prototype.class);
 
     private final ListenerSupport<IndividualCompositionListener> listenerSupport = ListenerSupport.newInstance();
 
-    private Prototype(Prototype prototype, CloneMap map) {
-        super(map.clone(prototype.getDelegate(), IndividualInterface.class));
-        for (GFComponent component : getComponents())
-            component.setComponentRoot(this);
+    public Prototype() {
     }
 
-    private Prototype(@Element(name="delegate") IndividualInterface delegate) {
-        super(delegate);
+    protected Prototype(Prototype prototype, CloneMap map) {
+        super(map.clone(prototype, Prototype.class), map);
         for (GFComponent component : getComponents())
-            component.setComponentRoot(this);
+            component.setAgent(this);
+    }
+
+    protected Prototype(Builder builder) {
+        this.population = builder.population;
+
+        for (GFProperty property : builder.properties.build())
+            addProperty(property);
+
+        for (GFAction property : builder.actions.build())
+            addAction(property);
     }
 
     public void addCompositionListener(
@@ -48,7 +60,7 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
             @Override
             public void update(IndividualCompositionListener listener) {
-                listener.componentAdded(getDelegate(), component);
+                listener.componentAdded(Prototype.this, component);
             }
         });
     }
@@ -58,19 +70,19 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
             @Override
             public void update(IndividualCompositionListener listener) {
-                listener.componentRemoved(getDelegate(), component);
+                listener.componentRemoved(Prototype.this, component);
             }
         });
     }
 
     @Override
     public void changeActionExecutionOrder(final GFAction object, final GFAction object2) {
-        getDelegate().changeActionExecutionOrder(object, object2);
+        super.changeActionExecutionOrder(object, object2);
         listenerSupport.notifyListeners(new Functor<IndividualCompositionListener>() {
 
             @Override
             public void update(IndividualCompositionListener listener) {
-                listener.componentChanged(getDelegate(), object);
+                listener.componentChanged(Prototype.this, object);
             }
         });
     }
@@ -83,8 +95,8 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     @Override
     public boolean addAction(GFAction action) {
         if (componentCanBeAdded(action, getActions())
-                && getDelegate().addAction(action)) {
-            action.setComponentRoot(this);
+                && super.addAction(action)) {
+            action.setAgent(this);
             fireComponentAdded(action);
             return true;
         }
@@ -93,8 +105,8 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
     @Override
     public boolean removeAction(final GFAction action) {
-        if (getDelegate().removeAction(action)) {
-            action.setComponentRoot(null);
+        if (super.removeAction(action)) {
+            action.setAgent(null);
             fireComponentRemoved(action);
             return true;
         }
@@ -110,8 +122,8 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     @Override
     public boolean addProperty(GFProperty property) {
         if (componentCanBeAdded(property, getProperties())
-                && getDelegate().addProperty(property)) {
-            property.setComponentRoot(this);
+                && super.addProperty(property)) {
+            property.setAgent(this);
             fireComponentAdded(property);
             return true;
         }
@@ -120,8 +132,8 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
     @Override
     public boolean removeProperty(final GFProperty property) {
-        if (getDelegate().removeProperty(property)) {
-            property.setComponentRoot(null);
+        if (super.removeProperty(property)) {
+            property.setAgent(null);
             fireComponentRemoved(property);
             return true;
         }
@@ -140,14 +152,14 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
         return new Prototype(this, map);
     }
 
-    public static Prototype newInstance(Individual individual) {
-        return new Prototype(individual);
+    public static Prototype newInstance() {
+        return new Prototype();
     }
 
     public static Prototype forPopulation(Population population) {
-        Individual individual = new Individual();
-        individual.setPopulation(population);
-        return new Prototype(individual);
+        Prototype abstractAgent = new Prototype();
+        abstractAgent.setPopulation(population);
+        return new Prototype();
     }
 
     @Override
@@ -158,9 +170,9 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
     private <T extends GFComponent> boolean componentCanBeAdded(final T component, Iterable<T> target) {
         Preconditions.checkNotNull(component);
 
-        if(component.getComponentOwner() != null
-                && component.getComponentOwner() != this) {
-                LOGGER.debug("Component already part of another individual");
+        if(component.getAgent() != null
+                && component.getAgent() != this) {
+            LOGGER.debug("Component already part of another individual");
             return false;
         }
 
@@ -175,12 +187,24 @@ public class Prototype extends GFAgentDecorator implements IndividualInterface {
 
     }
 
-    public Individual getIndividual() {
-        return Individual.class.cast(getDelegate());
-    }
-
     @Override
     public String toString() {
         return "Prototype[" + getPopulation() + "]";
+    }
+
+    public static class Builder implements BuilderInterface<AbstractAgent> {
+        private final ImmutableList.Builder<GFAction> actions = ImmutableList.builder();
+        private final ImmutableList.Builder<GFProperty> properties =  ImmutableList.builder();
+        private Population population;
+
+        public Builder population(Population population) { this.population = checkNotNull(population); return this; }
+        public Builder addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return this; }
+        public Builder addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return this; }
+
+        @Override
+        public AbstractAgent build() {
+            checkState(population != null);
+            return new Prototype(this);
+        }
     }
 }

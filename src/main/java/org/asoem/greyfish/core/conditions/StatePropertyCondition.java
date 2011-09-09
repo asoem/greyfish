@@ -4,9 +4,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -31,7 +31,7 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(ActionContext context) {
+    public boolean evaluate(Simulation simulation) {
         return stateProperty != null &&
                 Objects.equal(stateProperty.get(), state);
     }
@@ -50,7 +50,7 @@ public class StatePropertyCondition extends LeafCondition {
 
             @Override
             public Iterable<FiniteSetProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class);
+                return Iterables.filter(agent.getProperties(), FiniteSetProperty.class);
             }
         };
         e.add(statesAdaptor);

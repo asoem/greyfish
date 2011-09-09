@@ -4,14 +4,14 @@ import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Object2D;
 import org.simpleframework.xml.Element;
 
-public class Placeholder extends GFAgentDecorator {
+public class Placeholder extends AgentDecorator {
 
     @Element(name = "placeholderObject")
     private final Object2D placeholderObject;
 
-    public Placeholder(@Element(name = "delegate") IndividualInterface deepClonable,
+    public Placeholder(@Element(name = "delegate") Prototype prototype,
                        @Element(name = "placeholderObject") Object2D placeholderObject) {
-        super(deepClonable);
+        super(prototype);
         this.placeholderObject = placeholderObject;
     }
 

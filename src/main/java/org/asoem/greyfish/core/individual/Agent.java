@@ -1,322 +1,61 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.AbstractGFAction;
-import org.asoem.greyfish.core.actions.ActionContext;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.io.*;
+import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.Preparable;
 
+import javax.annotation.Nullable;
 import java.awt.*;
-import java.io.IOException;
+import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2D, MessageReceiver {
+    Population getPopulation();
+    void setPopulation(Population population);
+    Body getBody();
 
-public class Agent extends GFAgentDecorator implements IndividualInterface, MovingObject2D, Preparable<Simulation> {
+    boolean addAction(GFAction action);
+    boolean removeAction(GFAction action);
+    void removeAllActions();
+    Iterable<GFAction> getActions();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
+    boolean addProperty(GFProperty property);
+    boolean removeProperty(GFProperty property);
+    void removeAllProperties();
+    Iterable<GFProperty> getProperties();
+    @Nullable <T extends GFProperty> T getProperty(String name, Class<T> propertyClass);
 
-    private final ActionContext actionContext;
-    private final int timeOfBirth;
-    private final int id;
+    boolean isCloneOf(Object object);
 
-    private final static AgentLogFactory AGENT_LOG_FACTORY = new DefaultAgentLogFactory("agents.log");
-    private final AgentLog log = AGENT_LOG_FACTORY.newAgentLog();
+    Iterable<GFComponent> getComponents();
 
-    private GFAction lastExecutedAction;
+    void changeActionExecutionOrder(GFAction object, GFAction object2);
 
-    private Agent(Agent individual, CloneMap map) {
-        super(map.clone(individual.getDelegate(), IndividualInterface.class));
+    int getId();
+    int getTimeOfBirth();
+    int getAge();
+    Genome getGenome();
+    void setGenome(Genome genome);
 
-        Simulation simulation = checkNotNull(individual.getSimulation());
+    Color getColor();
+    void setColor(Color color);
+    double getRadius();
+    GFAction getLastExecutedAction();
 
-        this.actionContext = new ActionContext(simulation, this);
-        this.id = simulation.generateAgentID();
-        this.timeOfBirth = simulation.getSteps();
+    void execute();
 
-        init();
-    }
+    void sendMessage(ACLMessage message);
+    List<ACLMessage> pollMessages(MessageTemplate template);
+    boolean hasMessages(MessageTemplate template);
 
-    private Agent(IndividualInterface individual, Simulation simulation) {
-        super(individual);
+    AgentLog getLog();
 
-        this.actionContext = new ActionContext(checkNotNull(simulation), this);
-        this.id = simulation.generateAgentID();
-        this.timeOfBirth = simulation.getSteps();
+    Iterable<MovingObject2D> findNeighbours(double range);
 
-        init();
-    }
-
-    private void init() {
-        prepare(getSimulation());
-        freeze();
-
-        // logging
-        log.set("id", id);
-        log.set("timeOfBirth", timeOfBirth);
-
-        int i=0;
-        for (Gene<?> gene : getGenome())
-            log.set("Gene#" + String.valueOf(i++), gene);
-    }
-
-    @Override
-    public void setPopulation(Population population) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean addAction(GFAction action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean removeAction(GFAction action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void removeAllActions() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean addProperty(GFProperty property) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean removeProperty(GFProperty property) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void removeAllProperties() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void changeActionExecutionOrder(GFAction object, GFAction object2) {
-        throw new UnsupportedOperationException();
-    }
-
-    public int getTimeOfBirth() {
-        return timeOfBirth;
-    }
-
-    public static Agent newInstance(Individual individual, Simulation simulation) {
-        return new Agent(individual, simulation);
-    }
-
-    public void setGenome(final Genome genome) {
-        Preconditions.checkNotNull(genome);
-
-        for (GFProperty property : getProperties())
-            property.setGenes(genome.getGenes());
-    }
-
-    @Override
-    public void prepare(Simulation simulation) {
-        // call prepare for all components
-        for (GFComponent component : this) {
-            component.setComponentRoot(this);
-            component.prepare(simulation);
-        }
-    }
-    // TODO move to an interface?
-    public void shutDown() {
-        log.set("timeOfDeath", getSimulation().getSteps());
-
-        try {
-            log.commit();
-        } catch (IOException e) {
-            LOGGER.error("Log could not be committed: {}", log, e);
-        }
-    }
-
-    @Override
-    public double getOrientation() {
-        return getBody().getOrientation();
-    }
-
-    @Override
-    public void execute() {
-        if (lastExecutedAction != null &&
-                !lastExecutedAction.isDormant()) {
-            LOGGER.debug("{}: Resuming {}", this, lastExecutedAction);
-            if (tryToExecute(lastExecutedAction)) {
-                return;
-            } else {
-                LOGGER.debug("{}: Resume failed", this);
-                lastExecutedAction = null;
-                // TODO: should the method return here?
-            }
-        }
-
-        LOGGER.trace("{}: Processing " + Iterables.size(getActions()) + " actions in order", this);
-
-        for (GFAction action : getActions()) {
-            assert action.isDormant() : "There should be no action in resuming state";
-
-            if (tryToExecute(action)) {
-                LOGGER.debug("{}: Executed {}", this, action);
-                lastExecutedAction = action;
-                return;
-            }
-        }
-
-        LOGGER.trace("{}: Nothing to execute", this);
-    }
-
-    private boolean tryToExecute(GFAction action) {
-
-        LOGGER.trace("{}: Trying to execute {}", this, action);
-
-        final AbstractGFAction.ExecutionResult result = action.execute(actionContext);
-
-        switch (result) {
-            case CONDITIONS_FAILED:
-                LOGGER.trace("FAILED: Attached conditions evaluated to false.");
-                return false;
-            case INSUFFICIENT_ENERGY:
-                LOGGER.trace("FAILED: Not enough energy.");
-                return false;
-            case ERROR:
-                LOGGER.trace("FAILED: Internal error.");
-                return false;
-            case EXECUTED:
-                LOGGER.trace("SUCCESS");
-                return true;
-            case FAILED:
-                LOGGER.trace("SUCCESS");
-                return true;
-            default:
-                assert false : "Code should never be reached";
-                return false;
-        }
-    }
-
-    @Override
-    public Genome getGenome() {
-        Genome.Builder builder = Genome.builder();
-        for (GFProperty property : getProperties()) {
-            builder.addAll(property.getGenes());
-        }
-        return builder.build();
-    }
-
-    @Override
-    public double getRadius() {
-        return getBody().getRadius();
-    }
-
-    @Override
-    public GFAction getLastExecutedAction() {
-        return lastExecutedAction;
-    }
-
-    @Override
-    public Color getColor() {
-        return getBody().getColor();
-    }
-
-    @Override
-    public void setColor(Color color) {
-        getBody().setColor(color);
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public Location2D getAnchorPoint() {
-        return getBody().getAnchorPoint();
-    }
-
-    @Override
-    public void setAnchorPoint(Location2D location2d) {
-        getBody().setAnchorPoint(location2d);
-    }
-
-    @Override
-    public double getX() {
-        return getBody().getX();
-    }
-
-    @Override
-    public double getY() {
-        return getBody().getY();
-    }
-
-    @Override
-    public void freeze() {
-        for (GFComponent component : getComponents())
-            component.freeze();
-    }
-
-    @Override
-    public boolean isFrozen() {
-        return true;
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        for (GFComponent component : getComponents())
-            component.checkConsistency(getComponents());
-    }
-
-    @Override
-    public <T> T checkFrozen(T value) throws IllegalStateException {
-        return value;
-    }
-
-    @Override
-    public void checkNotFrozen() throws IllegalStateException {
-        throw new IllegalStateException("Agents are always in frozen state");
-    }
-
-    @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new Agent(this, map);
-    }
-
-    @Override
-    public void setOrientation(double alpha) {
-        getBody().setOrientation(alpha);
-    }
-
-    @Override
-    public String toString() {
-        return getPopulation() + "#" + id;
-    }
-
-    public Individual getIndividual() {
-        return Individual.class.cast(getDelegate());
-    }
-
-    public Simulation getSimulation() {
-        return actionContext.getSimulation();
-    }
-
-    @Override
-    public int getAge() {
-        assert getSimulation().getSteps() >= getTimeOfBirth();
-        return getSimulation().getSteps() - getTimeOfBirth();
-    }
-
-    @Override
-    public AgentLog getLog() {
-        return log;
-    }
+    void shutDown();
 }

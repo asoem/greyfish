@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.properties.DoubleProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -37,13 +37,13 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent.getProperties(), DoubleProperty.class);
             }
         });
 	}
 
 	@Override
-	protected Double getCompareValue(ActionContext context) {
+	protected Double getCompareValue(Simulation simulation) {
 		return doubleProperty.get();
 	}
 

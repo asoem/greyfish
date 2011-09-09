@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -23,8 +23,8 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(ActionContext context) {
-        return isSameAction(action, context.getAgent().getLastExecutedAction());
+    public boolean evaluate(Simulation simulation) {
+        return isSameAction(action, agent.getLastExecutedAction());
     }
 
     private static boolean isSameAction(GFAction a1, GFAction a2) {
@@ -47,7 +47,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(getComponentOwner().getActions(), GFAction.class);
+                return Iterables.filter(agent.getActions(), GFAction.class);
             }
         });
     }

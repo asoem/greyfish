@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.FinalizedAgent;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -41,7 +41,9 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
     @Override
     public Double get() {
         try {
-            return GreyfishMathExpression.evaluateAsDouble(expression, Agent.class.cast(this.getComponentOwner()));
+            return GreyfishMathExpression.evaluateAsDouble(expression,
+                    FinalizedAgent.class.cast(this.getAgent()),
+                    FinalizedAgent.class.cast(getAgent()).getSimulation());
         } catch (EvaluationException e) {
             LoggerFactory.getLogger(FormulaTrait.class).warn("expression could not be evaluated. Returning 0.0");
             return 0.0;

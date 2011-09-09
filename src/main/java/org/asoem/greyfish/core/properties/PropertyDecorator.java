@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -21,13 +21,13 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public IndividualInterface getComponentOwner() {
-        return getDelegate().getComponentOwner();
+    public Agent getAgent() {
+        return getDelegate().getAgent();
     }
 
     @Override
-    public void setComponentRoot(IndividualInterface individual) {
-        getDelegate().setComponentRoot(individual);
+    public void setAgent(Agent individual) {
+        getDelegate().setAgent(individual);
     }
 
     @Override

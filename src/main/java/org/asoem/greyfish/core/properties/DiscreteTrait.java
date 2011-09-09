@@ -6,7 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.FinalizedAgent;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -50,7 +50,9 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
                 @Override
                 public boolean apply(@Nullable String expression) {
                     try {
-                        return GreyfishMathExpression.evaluateAsDouble(expression, (Agent) getComponentOwner()) == 1;
+                        return GreyfishMathExpression.evaluateAsDouble(expression,
+                                (FinalizedAgent) getAgent(),
+                                FinalizedAgent.class.cast(getAgent()).getSimulation()) == 1;
                     } catch (EvaluationException e) {
                         LoggerFactory.getLogger(DiscreteTrait.class).warn("Failed to evaluateAsDouble expression {}", expression);
                         return false;

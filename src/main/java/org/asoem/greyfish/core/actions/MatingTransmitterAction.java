@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -8,8 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.GenomeInterface;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.FinalizedAgent;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -30,18 +28,6 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Element(name="spermFitnessExpression", required = false)
     private String spermFitnessExpression;
-
-    private Function<GenomeInterface, Double> spermEvaluationFunction = new Function<GenomeInterface, Double>() {
-        @Override
-        public Double apply(GenomeInterface genome) {
-            try {
-                return GreyfishMathExpression.evaluateAsDouble(spermFitnessExpression, Agent.class.cast(getComponentOwner()));
-            } catch (EvaluationException e) {
-                LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
-                return 0.0;
-            }
-        }
-    };
 
     @SimpleXMLConstructor
     private MatingTransmitterAction() {
@@ -95,10 +81,19 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = getComponentOwner().getGenome();
+        final Genome sperm = getAgent().getGenome();
 
-        return message.createReplyFrom(getComponentOwner().getId())
-                .objectContent(new EvaluatedGenome(sperm, spermEvaluationFunction.apply(sperm)))
+        double fitness = 0.0;
+        try {
+            fitness = GreyfishMathExpression.evaluateAsDouble(spermFitnessExpression,
+                    FinalizedAgent.class.cast(getAgent()),
+                    FinalizedAgent.class.cast(getAgent()).getSimulation());
+        } catch (EvaluationException e) {
+            LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
+        }
+
+        return message.createReplyFrom(getAgent().getId())
+                .objectContent(new EvaluatedGenome(sperm, fitness))
                 .performative(ACLPerformative.PROPOSE);
     }
 
@@ -109,7 +104,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 //        GenomeInterface sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.apply(sperm));
 
-        return message.createReplyFrom(getComponentOwner().getId())
+        return message.createReplyFrom(getAgent().getId())
                 .performative(ACLPerformative.INFORM);
     }
 

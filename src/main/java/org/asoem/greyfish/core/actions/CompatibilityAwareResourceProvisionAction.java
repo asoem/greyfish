@@ -41,7 +41,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.createReplyFrom(this.getComponentOwner().getId());
+        ACLMessage.Builder builder = message.createReplyFrom(this.getAgent().getId());
 
         final CompatibilityAwareResourceConversation.CFPContent cfpContent;
         try {
@@ -97,7 +97,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
             @Override
             public Iterable<GFProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), GFProperty.class);
+                return Iterables.filter(agent.getProperties(), GFProperty.class);
             }
         });
     }

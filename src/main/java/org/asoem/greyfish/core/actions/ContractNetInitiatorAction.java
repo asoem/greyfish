@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
@@ -61,12 +62,16 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerInitialState(State.SEND_CFP, new StateAction() {
 
             @Override
-            public Object run(ActionContext context) {
-                if (!canInitiate(context))
+            public Object run(Simulation simulation) {
+                if (!canInitiate(simulation))
                    return State.NO_RECEIVERS;
 
-                ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
-                context.getSimulation().deliverMessage(cfpMessage);
+                ACLMessage cfpMessage = createCFP()
+                        .source(agent.getId())
+                        .performative(ACLPerformative.CFP).build();
+
+                simulation.deliverMessage(cfpMessage);
+
                 nProposalsMax = cfpMessage.getAllReceiver().size();
                 timeoutCounter = 0;
                 nProposalsReceived = 0;
@@ -79,10 +84,10 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_PROPOSALS, new StateAction() {
 
             @Override
-            public Object run(ActionContext context) {
+            public Object run(Simulation simulation) {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage receivedMessage : context.receiveMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : agent.pollMessages(getTemplate())) {
                     assert (receivedMessage != null);
 
                     ACLMessage proposeReply = null;
@@ -96,7 +101,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 ++nProposalsReceived;
                                 LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
                             } catch (NotUnderstoodException e) {
-                                proposeReply = receivedMessage.createReplyFrom(getComponentOwner().getId())
+                                proposeReply = receivedMessage.createReplyFrom(agent.getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
                                 LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
@@ -104,7 +109,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 assert proposeReply != null;
                             }
                             checkProposeReply(proposeReply);
-                            context.deliverMessage(proposeReply);
+                            agent.sendMessage(proposeReply);
                             break;
 
                         case REFUSE:
@@ -154,10 +159,10 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_INFORM, new StateAction() {
 
             @Override
-            public Object run(ActionContext context) {
+            public Object run(Simulation simulation) {
                 assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                for (ACLMessage receivedMessage : context.receiveMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : agent.pollMessages(getTemplate())) {
                     assert receivedMessage != null;
 
                     switch (receivedMessage.getPerformative()) {
@@ -203,7 +208,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerFailureState(State.END, new EndStateAction(State.END));
     }
 
-    protected abstract boolean canInitiate(ActionContext context);
+    protected abstract boolean canInitiate(Simulation simulation);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))

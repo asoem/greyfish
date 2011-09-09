@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -8,7 +9,6 @@ import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,8 +24,8 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull ActionContext context) {
-        context.getAgent().setColor(color);
+    protected State executeUnconditioned(Simulation simulation) {
+        agent.setColor(color);
         return State.END_SUCCESS;
     }
 

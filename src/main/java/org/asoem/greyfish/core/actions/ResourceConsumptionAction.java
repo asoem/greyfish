@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.FinalizedAgent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -39,7 +39,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Element(name="sensorRange")
     private double sensorRange = 0;
 
-    private Iterable<Agent> sensedMates;
+    private Iterable<FinalizedAgent> sensedMates;
 
     @SimpleXMLConstructor
     private ResourceConsumptionAction() {
@@ -49,7 +49,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected ACLMessage.Builder createCFP() {
         return ACLMessage.with()
-                .source(getComponentOwner().getId())
+                .source(getAgent().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
@@ -65,7 +65,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
         return message
-                .createReplyFrom(getComponentOwner().getId())
+                .createReplyFrom(getAgent().getId())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .objectContent(offer);
     }
@@ -74,7 +74,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage message) throws NotUnderstoodException {
         try {
             final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(GreyfishMathExpression.evaluateAsDouble(transformationFunction, Agent.class.cast(getComponentOwner()), offer));
+            consumerProperty.add(GreyfishMathExpression.evaluateAsDouble(transformationFunction, agent, simulation, offer));
 
             LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
         }
@@ -89,9 +89,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(ActionContext context) {
-        sensedMates = filter(context.findNeighbours(sensorRange), Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(context.getAgent())));
+    protected boolean canInitiate(Simulation simulation) {
+        sensedMates = filter(agent.findNeighbours(sensorRange), FinalizedAgent.class);
+        sensedMates = filter(sensedMates, not(equalTo(agent)));
         return ! isEmpty(sensedMates);
     }
 
@@ -144,7 +144,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent.getProperties(), DoubleProperty.class);
             }
         });
         e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));

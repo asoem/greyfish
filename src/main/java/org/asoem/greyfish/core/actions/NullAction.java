@@ -1,11 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-
-import javax.annotation.Nonnull;
 
 @ClassGroup(tags="actions")
 public class NullAction extends AbstractGFAction {
@@ -15,7 +14,7 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull ActionContext context) {
+    protected State executeUnconditioned(Simulation simulation) {
         /* NOP */
         return State.END_SUCCESS;
     }

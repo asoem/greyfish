@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.properties.IntProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -39,13 +39,13 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
             @Override
             public Iterable<IntProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), IntProperty.class);
+                return Iterables.filter(agent.getProperties(), IntProperty.class);
             }
         });
     }
 
     @Override
-    protected Integer getCompareValue(ActionContext context) {
+    protected Integer getCompareValue(Simulation simulation) {
         return intProperty.get();
     }
 

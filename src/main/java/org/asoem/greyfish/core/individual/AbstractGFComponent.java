@@ -14,7 +14,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     @Attribute(name="name", required = false)
     protected String name = "";
     private boolean frozen = false;
-    private IndividualInterface componentOwner;
+    protected Agent agent;
 
     protected AbstractGFComponent() {
     }
@@ -25,13 +25,13 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     @Override
-    public IndividualInterface getComponentOwner() {
-        return componentOwner;
+    public Agent getAgent() {
+        return agent;
     }
 
     @Override
-    public void setComponentRoot(IndividualInterface individual) {
-        componentOwner = individual;
+    public void setAgent(Agent individual) {
+        agent = individual;
     }
 
     public void setName(String name) {
@@ -51,7 +51,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + ']' + "@" + componentOwner;
+        return this.getClass().getSimpleName() + "[" + name + ']' + "@" + agent;
     }
 
     @Override
@@ -70,7 +70,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        if (getComponentOwner() == null)
+        if (getAgent() == null)
             throw new IllegalStateException(
                     AbstractGFComponent.class.getSimpleName() + "[" + name + "]: Components must have an owner");
     }

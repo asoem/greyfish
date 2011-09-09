@@ -29,7 +29,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.*;
 
-public class Body extends AbstractGFComponent implements MovingObject2D, ConfigurableObject {
+public class Body extends AbstractGFComponent implements MovingObject2D {
 
     private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
 
@@ -48,8 +48,8 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
 
     private WellOrderedSetElement<?> outlineValueSupplier = new MutableWellOrderedSetElement<Double>(0.0, 1.0, 0.0);
 
-    private Body(IndividualInterface owner) {
-        setComponentRoot(owner);
+    private Body(Agent owner) {
+        setAgent(owner);
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
         stateColorMap = Maps.newHashMap();
         generateColors();
@@ -77,7 +77,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
     }
 
     public double getRadius() {
-        return radius; //(float) (radius + 0.01 * getComponentOwner().getAge());
+        return radius; //(float) (radius + 0.01 * getAgent().getAge());
     }
 
     public Color getColor() {
@@ -89,7 +89,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         generateColors();
     }
 
-    public static Body newInstance(IndividualInterface owner) {
+    public static Body newInstance(Agent owner) {
         return new Body(owner);
     }
 
@@ -166,7 +166,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
                 generateColors(); }
             @Override public FiniteSetSupplier get() { return states; }
             @Override public Iterable<FiniteSetSupplier> values() {
-                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(getComponentOwner().getProperties(), FiniteSetProperty.class));
+                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(agent.getProperties(), FiniteSetProperty.class));
             }
         };
         e.add(b);
@@ -187,7 +187,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
             @Override
             public Iterable<WellOrderedSetElement> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), this.clazz);
+                return Iterables.filter(agent.getProperties(), this.clazz);
             }
 
             @Override

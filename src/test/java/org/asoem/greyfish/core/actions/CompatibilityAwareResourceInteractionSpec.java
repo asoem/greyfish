@@ -4,8 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.FinalizedAgent;
+import org.asoem.greyfish.core.individual.AbstractAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.properties.BitSetTrait;
@@ -40,7 +40,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .similarityTrait(trait1)
                         .build();
         final Prototype consumer = Prototype.newInstance(
-                Individual.with()
+                AbstractAgent.with()
                         .population(Population.newPopulation("TestPop1", Color.black))
                         .addProperties(trait1, energyStorage)
                         .addActions(consumptionAction)
@@ -56,7 +56,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .similarityTrait(trait)
                         .build();
         final Prototype provider = Prototype.newInstance(
-                Individual.with()
+                AbstractAgent.with()
                         .population(Population.newPopulation("TestPop2", Color.black))
                         .addProperties(trait, resourceProperty)
                         .addActions(provisionAction)
@@ -76,9 +76,9 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                 simulation.step();
             }
 
-            Agent consumerClone = Iterables.find(simulation.getAgents(), new Predicate<Agent>() {
+            FinalizedAgent consumerClone = Iterables.find(simulation.getAgents(), new Predicate<FinalizedAgent>() {
                 @Override
-                public boolean apply(Agent agent) {
+                public boolean apply(FinalizedAgent agent) {
                     return agent.getPopulation().equals(consumer.getPopulation());
                 }
             }, null);

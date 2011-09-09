@@ -2,15 +2,11 @@ package org.asoem.greyfish.core.eval;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.ContinuousProperty;
-import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.properties.GFProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,7 +64,6 @@ class AgentVariableResolver implements VariableResolver {
                             public Object apply(@Nullable Object o) {
                                 if (o == null || !Agent.class.isInstance(o))
                                     return null;
-                                Agent agent = Agent.class.cast(o);
                                 return agent.getAge();
                             }
                         });
@@ -92,7 +87,6 @@ class AgentVariableResolver implements VariableResolver {
                         public Object apply(@Nullable Object o) {
                             if (o == null || !Agent.class.isInstance(o))
                                 return null;
-                            Agent agent = Agent.class.cast(o);
                             ContinuousProperty<?> property = agent.getProperty(token2, ContinuousProperty.class);
                             return property == null ? null : property.get();
                         }
@@ -100,6 +94,7 @@ class AgentVariableResolver implements VariableResolver {
                 }
             }
 
+            /*
             // SIMULATION VARS
             else if ("env".equals(token1)) {
 
@@ -122,13 +117,12 @@ class AgentVariableResolver implements VariableResolver {
                             public Object apply(@Nullable Object o) {
                                 if (o == null || !Agent.class.isInstance(o))
                                     return null;
-                                Agent agent = Agent.class.cast(o);
                                 return Iterables.size(Iterables.filter(
                                         agent.getSimulation().getAgents(),
-                                        new Predicate<Agent>() {
+                                        new Predicate<FinalizedAgent>() {
 
                                             @Override
-                                            public boolean apply(Agent object) {
+                                            public boolean apply(FinalizedAgent object) {
                                                 return Iterables.find(object.getProperties(), new Predicate<GFProperty>() {
                                                             @Override
                                                             public boolean apply(GFProperty gfProperty) {
@@ -146,14 +140,15 @@ class AgentVariableResolver implements VariableResolver {
                         return cache(arg0, new Function<Object, Object>() {
                             @Override
                             public Object apply(@Nullable Object o) {
-                                if (o == null || !Agent.class.isInstance(o))
+                                if (o == null || !FinalizedAgent.class.isInstance(o))
                                     return null;
-                                Agent agent = Agent.class.cast(o);
+                                FinalizedAgent agent = FinalizedAgent.class.cast(o);
                                 return agent.getSimulation().agentCount();
                             }
                         });
                 }
             }
+            */
         }
 
         return noMatch(arg0, "Variable '{}' cannot be resolved with this resolver.", arg0);

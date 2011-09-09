@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -25,7 +25,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @Override
-	protected Integer getCompareValue(ActionContext context) {
+	protected Integer getCompareValue(Simulation simulation) {
 		return action.getExecutionCount();
 	}
 
@@ -46,7 +46,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(getComponentOwner().getActions(), GFAction.class);
+                return Iterables.filter(agent.getActions(), GFAction.class);
             }
         });
 	}

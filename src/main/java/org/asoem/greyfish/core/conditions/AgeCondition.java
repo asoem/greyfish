@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -15,7 +15,7 @@ public final class AgeCondition extends IntCompareCondition {
     }
 
     @Override
-	public boolean evaluate(ActionContext context) {
+	public boolean evaluate(Simulation simulation) {
 		return false;
 	}
 
@@ -25,8 +25,8 @@ public final class AgeCondition extends IntCompareCondition {
     }
 
     @Override
-	protected Integer getCompareValue(ActionContext context) {
-		return context.ageOfAgent();
+	protected Integer getCompareValue(Simulation simulation) {
+		return agent.getAge();
 	}
 
     @SimpleXMLConstructor

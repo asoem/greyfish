@@ -11,6 +11,4 @@ import org.asoem.greyfish.core.simulation.Simulation;
 public interface MovementPattern {
 
     void apply(Agent agent, Simulation simulation);
-
-    void apply(ActionContext context);
 }

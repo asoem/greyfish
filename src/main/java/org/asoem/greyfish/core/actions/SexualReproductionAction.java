@@ -15,8 +15,6 @@ import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @ClassGroup(tags="actions")
@@ -35,21 +33,21 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull ActionContext context) {
+    protected State executeUnconditioned(Simulation simulation) {
         if (nOffspring == 0 || spermStorage.isEmpty())
             return State.END_FAILED;
 
         LOGGER.debug("Producing {} offspring", nOffspring);
 
         for (int i = 0; i < nOffspring; i++) {
-            context.createAgent(
-                    getComponentOwner().getPopulation(),
-                    getComponentOwner().getAnchorPoint(),
-                    getComponentOwner().getGenome().mutated().recombined(spermStorage.getRWS())
+            simulation.createAgent(
+                    agent.getPopulation(),
+                    agent.getAnchorPoint(),
+                    agent.getGenome().mutated().recombined(spermStorage.getRWS())
             );
         }
 
-        getComponentOwner().getLog().add("offspring", nOffspring);
+        agent.getLog().add("offspring", nOffspring);
         return State.END_SUCCESS;
     }
 
@@ -81,7 +79,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
+                return Iterables.filter(agent.getProperties(), EvaluatedGenomeStorage.class);
             }
         });
     }
@@ -106,7 +104,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        getComponentOwner().getLog().set("offspring", 0);
+        getAgent().getLog().set("offspring", 0);
     }
 
     public static Builder with() { return new Builder(); }

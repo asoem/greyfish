@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
@@ -18,16 +19,16 @@ import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class GFAgentDecorator extends AbstractDeepCloneable implements IndividualInterface {
+public abstract class AgentDecorator extends AbstractDeepCloneable implements Agent {
 
     @Element(name="delegate")
-    private final IndividualInterface delegate;
+    private final Agent delegate;
 
-    protected GFAgentDecorator(IndividualInterface delegate) {
+    protected AgentDecorator(Agent delegate) {
         this.delegate = delegate;
     }
 
-    protected IndividualInterface getDelegate() {
+    protected Agent getDelegate() {
         return delegate;
     }
 
@@ -218,13 +219,13 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     }
 
     @Override
-    public void addMessages(Iterable<? extends ACLMessage> messages) {
-        delegate.addMessages(messages);
+    public void receiveMessages(Iterable<? extends ACLMessage> messages) {
+        delegate.receiveMessages(messages);
     }
 
     @Override
-    public void addMessage(ACLMessage messages) {
-        delegate.addMessage(messages);
+    public void receiveMessage(ACLMessage messages) {
+        delegate.receiveMessage(messages);
     }
 
     @Override
@@ -255,5 +256,30 @@ public abstract class GFAgentDecorator extends AbstractDeepCloneable implements 
     @Override
     public AgentLog getLog() {
         return delegate.getLog();
+    }
+
+    @Override
+    public void execute() {
+        delegate.execute();
+    }
+
+    @Override
+    public void sendMessage(ACLMessage message) {
+        delegate.sendMessage(message);
+    }
+
+    @Override
+    public Iterable<MovingObject2D> findNeighbours(double range) {
+        return delegate.findNeighbours(range);
+    }
+
+    @Override
+    public void shutDown() {
+        delegate.shutDown();
+    }
+
+    @Override
+    public void setOrientation(double alpha) {
+        delegate.setOrientation(alpha);
     }
 }

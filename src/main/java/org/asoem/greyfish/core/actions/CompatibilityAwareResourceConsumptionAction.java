@@ -49,7 +49,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
 
             @Override
             public Iterable<GFProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), GFProperty.class);
+                return Iterables.filter(agent.getProperties(), GFProperty.class);
             }
         });
     }
@@ -73,7 +73,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
                 message.getReferenceContent(CompatibilityAwareResourceConversation.ProposeContent.class);
 
         return message
-                .createReplyFrom(getComponentOwner().getId())
+                .createReplyFrom(getAgent().getId())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .objectContent(proposeContent.getAmount());
     }

@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.FinalizedAgent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -47,7 +47,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Element(name="sensorRange", required=false)
     private double sensorRange;
 
-    private Iterable<Agent> sensedMates;
+    private Iterable<FinalizedAgent> sensedMates;
 
     @SuppressWarnings("unused")
     private CompatibilityAwareMatingReceiverAction() {
@@ -70,7 +70,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
+                return filter(agent.getProperties(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
@@ -108,7 +108,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             @Override
             public Iterable<GFProperty> values() {
-                return getComponentOwner().getProperties();
+                return agent.getProperties();
             }
         });
     }
@@ -116,7 +116,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     private boolean receiveGenome(EvaluatedGenome genome) {
         if (spermBuffer != null) {
             spermBuffer.addGenome(genome, genome.getFitness());
-            LOGGER.trace("{} received sperm: {}", getComponentOwner(), genome);
+            LOGGER.trace("{} received sperm: {}", getAgent(), genome);
             return true;
         }
         return false;
@@ -131,12 +131,12 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
     @Override
     protected ACLMessage.Builder createCFP() {
-        Agent.class.cast(getComponentOwner()).getLog().add("nMatingAttempts", 1);
+        FinalizedAgent.class.cast(getAgent()).getLog().add("nMatingAttempts", 1);
 
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
         return ACLMessage.with()
-                .source(getComponentOwner().getId())
+                .source(getAgent().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
@@ -145,7 +145,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
     @Override
     protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.createReplyFrom(this.getComponentOwner().getId());
+        ACLMessage.Builder builder = message.createReplyFrom(this.getAgent().getId());
         try {
             final EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
 
@@ -158,14 +158,14 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             if (trueWithProbability(matingProbability)) {
                 LOGGER.debug("Accepting mating proposal with p={}", matingProbability);
-                Agent.class.cast(getComponentOwner()).getLog().add("nMatingsAccepted", 1);
+                FinalizedAgent.class.cast(getAgent()).getLog().add("nMatingsAccepted", 1);
 
                 receiveGenome(evaluatedGenome);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             }
             else {
                 LOGGER.debug("Refusing mating proposal with p={}", matingProbability);
-                Agent.class.cast(getComponentOwner()).getLog().add("nMatingsRefused", 1);
+                FinalizedAgent.class.cast(getAgent()).getLog().add("nMatingsRefused", 1);
 
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
             }
@@ -182,10 +182,10 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    protected boolean canInitiate(ActionContext context) {
-        final Iterable neighbours = context.findNeighbours(sensorRange);
-        sensedMates = filter(neighbours, Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(context.getAgent())));
+    protected boolean canInitiate(Simulation simulation) {
+        final Iterable neighbours = agent.findNeighbours(sensorRange);
+        sensedMates = filter(neighbours, FinalizedAgent.class);
+        sensedMates = filter(sensedMates, not(equalTo(agent)));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
@@ -215,9 +215,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        Agent.class.cast(getComponentOwner()).getLog().set("nMatingsAccepted", 0);
-        Agent.class.cast(getComponentOwner()).getLog().set("nMatingsRefused", 0);
-        Agent.class.cast(getComponentOwner()).getLog().set("nMatingAttempts", 0);
+        FinalizedAgent.class.cast(getAgent()).getLog().set("nMatingsAccepted", 0);
+        FinalizedAgent.class.cast(getAgent()).getLog().set("nMatingsRefused", 0);
+        FinalizedAgent.class.cast(getAgent()).getLog().set("nMatingAttempts", 0);
     }
 
     public static Builder with() { return new Builder(); }

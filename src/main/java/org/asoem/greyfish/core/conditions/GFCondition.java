@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.conditions;
 
 
-import org.asoem.greyfish.core.actions.ActionContext;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.utils.ConfigurableObject;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.simpleframework.xml.Root;
 
 import java.util.List;
 
 @Root
-public interface GFCondition extends GFComponent, ConfigurableObject {
+public interface GFCondition extends GFComponent {
 
-	public boolean evaluate(ActionContext context);
+	public boolean evaluate(Simulation simulation);
 	public boolean isLeafCondition();
 	public boolean isRootCondition();
 	

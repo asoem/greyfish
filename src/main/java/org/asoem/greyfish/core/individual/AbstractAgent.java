@@ -12,7 +12,8 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.space.Location2D;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.CircularFifoBuffer;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
@@ -30,15 +31,12 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.unmodifiableIterable;
-import static java.util.Arrays.asList;
 
 @Root
-public class Individual extends AbstractDeepCloneable implements IndividualInterface {
-
-//    private final ListenerSupport<IndividualCompositionListener> listenerSupport = new ListenerSupport<IndividualCompositionListener>();
+public abstract class AbstractAgent extends AbstractDeepCloneable implements Agent {
 
     @Element(name="population")
-    private Population population = Population.newPopulation("Default", Color.black);
+    protected Population population = Population.newPopulation("Default", Color.black);
 
     @ElementList(name="properties", entry="property", required=false)
     private final List<GFProperty> properties = Lists.newArrayList();
@@ -47,33 +45,31 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     private final List<GFAction> actions = Lists.newArrayList();
 
     @Element(name = "body", required = false)
-    private final Body body;
+    protected final Body body;
 
     private final CircularFifoBuffer<ACLMessage> inBox = CircularFifoBuffer.newInstance(64);
 
-    @SuppressWarnings("unused") // used by the deserialization process
-    private Individual(
-            @ElementList(name="properties", entry="property", required=false) final List<GFProperty> properties,
-            @ElementList(name="actions", entry="action", required=false) final List<GFAction> actions,
+    @SimpleXMLConstructor
+    protected AbstractAgent(
+            @ElementList(name = "properties", entry = "property", required = false) final List<GFProperty> properties,
+            @ElementList(name = "actions", entry = "action", required = false) final List<GFAction> actions,
             @Element(name = "body", required = false) Body body) {
         if (properties != null) this.properties.addAll(properties);
         if (actions != null) this.actions.addAll(actions);
         this.body = (body != null) ? body : Body.newInstance(this);
         for (GFComponent component : getComponents())
-            component.setComponentRoot(this);
+            component.setAgent(this);
     }
 
-    protected Individual(Builder builder) {
-        this.population = builder.population;
-        this.body = Body.newInstance(this);
-
-        for (GFProperty property : builder.properties.build())
-            addProperty(property);
-        for (GFAction property : builder.actions.build())
-            addAction(property);
+    protected AbstractAgent(AbstractAgent abstractAgent, CloneMap map) {
+        super(abstractAgent, map);
+        this.population = abstractAgent.population;
+        this.body = map.clone(abstractAgent.body, Body.class);
+        Iterables.addAll(actions, map.cloneAll(abstractAgent.actions, GFAction.class));
+        Iterables.addAll(properties, map.cloneAll(abstractAgent.properties, GFProperty.class));
     }
 
-    Individual() {
+    AbstractAgent() {
         this.body = Body.newInstance(this);
     }
 
@@ -103,12 +99,17 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public void addMessages(Iterable<? extends ACLMessage> messages) {
+    public void sendMessage(ACLMessage message) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void receiveMessages(Iterable<? extends ACLMessage> messages) {
         Iterables.addAll(inBox, messages);
     }
 
     @Override
-    public void addMessage(ACLMessage message) {
+    public void receiveMessage(ACLMessage message) {
         inBox.add(message);
     }
 
@@ -132,6 +133,16 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @Override
     public AgentLog getLog() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterable<MovingObject2D> findNeighbours(double range) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void shutDown() {
         throw new UnsupportedOperationException();
     }
 
@@ -168,13 +179,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public Iterator<GFComponent> iterator() {
         return getComponents().iterator();
-    }
-
-    protected Individual(Individual individual, CloneMap map) {
-        this.population = individual.population;
-        this.body = map.clone(individual.body, Body.class);
-        Iterables.addAll(actions, map.cloneAll(individual.actions, GFAction.class));
-        Iterables.addAll(properties, map.cloneAll(individual.properties, GFProperty.class));
     }
 
     @Override
@@ -260,21 +264,21 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @Override
     public String toString() {
-        return "Individual[" + population + "]";
+        return "AbstractAgent[" + population + "]";
     }
 
     @SuppressWarnings("unused")
     @Commit
     private void commit() {
         for (GFComponent component : getComponents()) {
-            component.setComponentRoot(this);
+            component.setAgent(this);
         }
     }
 
     @Override
     public boolean isCloneOf(Object object) {
-        return IndividualInterface.class.isInstance(object)
-                && population.equals(IndividualInterface.class.cast(object).getPopulation());
+        return Agent.class.isInstance(object)
+                && population.equals(Agent.class.cast(object).getPopulation());
     }
 
     @Override
@@ -309,11 +313,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     }
 
     @Override
-    public Individual deepCloneHelper(CloneMap map) {
-        return new Individual(this, map);
-    }
-
-    @Override
     public void freeze() {
         checkConsistency(getComponents());
         for (GFComponent component : getComponents())
@@ -339,10 +338,8 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
 
     @Override
     public void checkNotFrozen() {
-        if (isFrozen()) throw new IllegalStateException("Individual is frozen");
+        if (isFrozen()) throw new IllegalStateException("AbstractAgent is frozen");
     }
-
-    public static Builder with() { return new Builder(); }
 
     @Override
     public Location2D getAnchorPoint() {
@@ -352,22 +349,6 @@ public class Individual extends AbstractDeepCloneable implements IndividualInter
     @Override
     public void setAnchorPoint(Location2D location2d) {
         body.setAnchorPoint(location2d);
-    }
-
-    public static class Builder implements BuilderInterface<Individual> {
-        private final ImmutableList.Builder<GFAction> actions = ImmutableList.builder();
-        private final ImmutableList.Builder<GFProperty> properties =  ImmutableList.builder();
-        private Population population;
-
-        public Builder population(Population population) { this.population = checkNotNull(population); return this; }
-        public Builder addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return this; }
-        public Builder addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return this; }
-
-        @Override
-        public Individual build() {
-            checkState(population != null);
-            return new Individual(this);
-        }
     }
 
     @Override

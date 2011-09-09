@@ -20,8 +20,6 @@ import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -45,12 +43,12 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull ActionContext context) {
-        parameterQuantitiveProperty.setValue(evaluateFormula(context));
+    protected State executeUnconditioned(Simulation simulation) {
+        parameterQuantitiveProperty.setValue(evaluateFormula(simulation));
         return State.END_SUCCESS;
     }
 
-    public double evaluateFormula(ActionContext context) {
+    public double evaluateFormula(Simulation simulation) {
         try {
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
@@ -76,7 +74,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent.getProperties(), DoubleProperty.class);
             }
         });
         e.add(new ValueAdaptor<String>("Formula", String.class) {

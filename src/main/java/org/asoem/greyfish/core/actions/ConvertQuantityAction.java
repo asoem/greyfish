@@ -2,12 +2,11 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
 import org.simpleframework.xml.Element;
-
-import javax.annotation.Nonnull;
 
 @ClassGroup(tags="actions")
 public class ConvertQuantityAction extends AbstractGFAction {
@@ -25,7 +24,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
     private double parameterMax = 0;
 
     @Override
-    protected State executeUnconditioned(@Nonnull ActionContext context) {
+    protected State executeUnconditioned(Simulation simulation) {
         if (parameterSource != null && parameterTarget != null) {
             double add_amount = Math.min(parameterSource.get(), parameterMax) * parameterFactor;
 

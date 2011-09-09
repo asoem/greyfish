@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.AbstractAgent;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 /**
- * This class acts as an object pool for the Individual class to increase performance by object reuse.
+ * This class acts as an object pool for the AbstractAgent class to increase performance by object reuse.
  * See: <i>http://www.javaworld.com/javaworld/jw-11-1999/jw-11-performance.html?page=7</i>
  * @author christoph
  *
@@ -17,12 +17,12 @@ public class PrototypePool {
 
 	private final ArrayList<Long> lastAccess = new ArrayList<Long>();
 
-	private final ArrayList<ArrayDeque<Individual>> clonePool = new ArrayList<ArrayDeque<Individual>>();
+	private final ArrayList<ArrayDeque<AbstractAgent>> clonePool = new ArrayList<ArrayDeque<AbstractAgent>>();
 
 	/**
 	 * Keeps a list of all available prototypes (defined by isCloneOf(clone) function) and a to indicating its usage
 	 */
-	private final ArrayList<Individual> prototypeIndexMap = new ArrayList<Individual>();
+	private final ArrayList<AbstractAgent> prototypeIndexMap = new ArrayList<AbstractAgent>();
 
 	private int cloneCount = 0;
 
@@ -30,15 +30,15 @@ public class PrototypePool {
 	 * @param prototype
 	 * @return
 	 */
-	public synchronized Individual createClone(Individual prototype) {
+	public synchronized AbstractAgent createClone(AbstractAgent prototype) {
 
 		final int index = indexOfPrototype(prototype);
 		if (index == -1) {
-			addPrototype(prototype.deepClone(Individual.class));
+			addPrototype(prototype.deepClone(AbstractAgent.class));
 			return createClone(prototype);
 		}
 		else if (clonePool.get(index).isEmpty()) {
-			return prototype.deepClone(Individual.class);
+			return prototype.deepClone(AbstractAgent.class);
 		}
 		else {
 			--cloneCount;
@@ -48,19 +48,19 @@ public class PrototypePool {
 	}
 
 	/**
-	 * @param individual
+	 * @param abstractAgent
 	 */
-	public synchronized void recycleClone(Individual individual) {
+	public synchronized void recycleClone(AbstractAgent abstractAgent) {
 
 		if (cloneCount == FREE_POOL_SIZE) {
 			remove();
 		}
 
-		final int index = indexOfPrototype(individual);
+		final int index = indexOfPrototype(abstractAgent);
 		if (index == -1) {
-			addPrototype(individual);
+			addPrototype(abstractAgent);
 		}
-		clonePool.get(index).push(individual);
+		clonePool.get(index).push(abstractAgent);
 		++cloneCount;
 	}
 
@@ -68,24 +68,24 @@ public class PrototypePool {
 	 * @param prototype
 	 * @return
 	 */
-	private int indexOfPrototype(Individual prototype) {
+	private int indexOfPrototype(AbstractAgent prototype) {
 		for (int i = 0; i < prototypeIndexMap.size(); i++) {
-			final Individual individual = prototypeIndexMap.get(i);
-			if (individual.isCloneOf(prototype))
+			final AbstractAgent abstractAgent = prototypeIndexMap.get(i);
+			if (abstractAgent.isCloneOf(prototype))
 				return i;
 		}
 		return -1;
 	}
 
 	/**
-	 * Add this individual as a prototype.
+	 * Add this abstractAgent as a prototype.
 	 * It will be used for comparison with individuals returned in the future,
 	 * using it's <code>isCloneOf(clone)</code> method, to locate the deque responsible for their storage.
-	 * @param individual
+	 * @param abstractAgent
 	 */
-	private void addPrototype(Individual individual) {
-		prototypeIndexMap.add(individual);
-		clonePool.add(new ArrayDeque<Individual>());
+	private void addPrototype(AbstractAgent abstractAgent) {
+		prototypeIndexMap.add(abstractAgent);
+		clonePool.add(new ArrayDeque<AbstractAgent>());
 		lastAccess.add((long) 0);
 	}
 
@@ -106,8 +106,8 @@ public class PrototypePool {
 		--cloneCount;
 	}
 
-	public Individual[] getProptotypes() {
-		return prototypeIndexMap.toArray(new Individual[prototypeIndexMap.size()]);
+	public AbstractAgent[] getProptotypes() {
+		return prototypeIndexMap.toArray(new AbstractAgent[prototypeIndexMap.size()]);
 	}
 
 	public void clear() {

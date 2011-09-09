@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.share;
 
-import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.AbstractAgent;
 
 public class Referee {
 
-	public static Result interfere( Individual ind1, Individual ind2) {
+	public static Result interfere( AbstractAgent ind1, AbstractAgent ind2) {
 		Result ret = null;
 		//	if(ind1.getStrength() > ind2.getStrength())
 		//	    ret = new Result(ind1, ind2);

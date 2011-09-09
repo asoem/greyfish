@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.eval;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,15 +25,14 @@ public enum GreyfishMathExpression {
         }
     };
 
-
-    public double getResult(String expression, Agent agent, Object ... args) throws EvaluationException {
+    public double getResult(String expression, Agent agent, Simulation simulation, Object... args) throws EvaluationException {
         checkNotNull(expression);
         checkNotNull(agent);
         checkNotNull(args);
 
         if (!isCached(expression))
             cache(expression);
-        return evaluateInternal(fromCache(expression), agent, args);
+        return evaluateInternal(fromCache(expression), agent, simulation, args);
     }
 
     private void cache(String expression) {
@@ -52,7 +52,7 @@ public enum GreyfishMathExpression {
         }
     }
 
-    private double evaluateInternal(Object object, Agent agent, Object... args) throws EvaluationException {
+    private double evaluateInternal(Object object, Agent agent, Simulation simulation, Object... args) throws EvaluationException {
         assert object != null;
         assert agent != null;
         assert args != null;
@@ -65,6 +65,7 @@ public enum GreyfishMathExpression {
 
             VariableResolver variableResolver =
                     VariableResolvers.concat(
+                            new SimulationVariableResolver(simulation),
                             new AgentVariableResolver(agent),
                             new ArgumentsVariableResolver(args));
 
@@ -86,12 +87,12 @@ public enum GreyfishMathExpression {
         return parserCache.containsKey(expression);
     }
 
-    public static double evaluateAsDouble(String expression, Agent individualInterface) throws EvaluationException {
-        return SINGLETON_INSTANCE.getResult(checkNotNull(expression), checkNotNull(individualInterface));
+    public static double evaluateAsDouble(String expression, Agent agent, Simulation simulation) throws EvaluationException {
+        return SINGLETON_INSTANCE.getResult(checkNotNull(expression), checkNotNull(agent), simulation);
     }
 
-    public static double evaluateAsDouble(String expression, Agent componentOwner, Object... args) throws EvaluationException {
-        return SINGLETON_INSTANCE.getResult(checkNotNull(expression), checkNotNull(componentOwner), args);
+    public static double evaluateAsDouble(String expression, Agent componentOwner, Simulation simulation, Object... args) throws EvaluationException {
+        return SINGLETON_INSTANCE.getResult(checkNotNull(expression), checkNotNull(componentOwner), simulation, args);
     }
 
     public static boolean isValidExpression(String expression) {

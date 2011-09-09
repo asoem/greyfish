@@ -5,8 +5,8 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -45,14 +45,14 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
     private void integrate(GFCondition ... conditions) {
         for (GFCondition condition : conditions) {
-            condition.setComponentRoot(getComponentOwner());
+            condition.setAgent(getAgent());
             condition.setParent(this);
         }
     }
 
     private void disintegrate(GFCondition condition) {
         condition.setParent(null);
-        condition.setComponentRoot(null);
+        condition.setAgent(null);
     }
 
     public GFCondition[] getConditions() {
@@ -61,10 +61,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
 
     @Override
-    public void setComponentRoot(IndividualInterface individual) {
-        super.setComponentRoot(individual);
+    public void setAgent(Agent individual) {
+        super.setAgent(individual);
         for (GFCondition condition : this.conditions) {
-            condition.setComponentRoot(individual);
+            condition.setAgent(individual);
         }
     }
 

@@ -10,8 +10,6 @@ import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -34,12 +32,12 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     private Object currentStateKey;
 
     @Override
-    protected final State executeUnconditioned(@Nonnull ActionContext context) {
+    protected final State executeUnconditioned(Simulation simulation) {
         Preconditions.checkState(currentStateKey != null);
         Preconditions.checkState(states.containsKey(currentStateKey));
 
         StateAction stateActionToExecute = states.get(currentStateKey).getStateAction();
-        Object nextStateKey = stateActionToExecute.run(context);
+        Object nextStateKey = stateActionToExecute.run(simulation);
 
         LOGGER.debug("{}: Transition to {}", this, nextStateKey);
         currentStateKey = nextStateKey;
@@ -121,11 +119,11 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getComponentOwner();
+        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getAgent();
     }
 
     protected interface StateAction {
-        public Object run(ActionContext context);
+        public Object run(Simulation simulation);
     }
 
     protected static class EndStateAction implements StateAction {
@@ -136,7 +134,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         }
 
         @Override
-        final public Object run(ActionContext context) {
+        final public Object run(Simulation simulation) {
             return stateKey;
         }
     }

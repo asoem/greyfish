@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
-
-import javax.annotation.Nonnull;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
@@ -17,8 +15,8 @@ public class DeathAction extends AbstractGFAction {
 	}
 
 	@Override
-	protected State executeUnconditioned(@Nonnull ActionContext context) {
-		context.removeAgent();
+	protected State executeUnconditioned(Simulation simulation) {
+		simulation.removeAgent(agent);
         return State.END_SUCCESS;
 	}
 

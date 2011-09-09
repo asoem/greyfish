@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.Collection;
@@ -55,24 +56,24 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerInitialState(State.CHECK_CFP, new StateAction() {
 
             @Override
-            public Object run(ActionContext context) {
+            public Object run(Simulation simulation) {
                 template = createCFPTemplate(getOntology());
 
                 final List<ACLMessage> cfpReplies = Lists.newArrayList();
-                for (ACLMessage message : context.receiveMessages(template)) {
+                for (ACLMessage message : agent.pollMessages(template)) {
 
                     ACLMessage cfpReply;
                     try {
                         cfpReply = handleCFP(message).build();
                     } catch (NotUnderstoodException e) {
-                        cfpReply = message.createReplyFrom(getComponentOwner().getId())
+                        cfpReply = message.createReplyFrom(agent.getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
                         LOGGER.debug("Message not understood", e);
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
-                    context.deliverMessage(cfpReply);
+                    agent.sendMessage(cfpReply);
 
                     if (cfpReply.matches(MessageTemplate.performative(ACLPerformative.PROPOSE)))
                         ++nExpectedProposeAnswers;
@@ -87,8 +88,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
-            public Object run(ActionContext context) {
-                Iterable<ACLMessage> receivedMessages = context.receiveMessages(getTemplate());
+            public Object run(Simulation simulation) {
+                Iterable<ACLMessage> receivedMessages = agent.pollMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
@@ -97,14 +98,14 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                             try {
                                 response = handleAccept(receivedMessage).build();
                             } catch (NotUnderstoodException e) {
-                                response = receivedMessage.createReplyFrom(getComponentOwner().getId())
+                                response = receivedMessage.createReplyFrom(agent.getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
 
                                 LOGGER.debug("Message not understood", e);
                             }
                             checkAcceptReply(response);
-                            context.deliverMessage(response);
+                            agent.sendMessage(response);
                             break;
                         case REJECT_PROPOSAL:
                             handleReject(receivedMessage);
