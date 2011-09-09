@@ -27,7 +27,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
             @Override
             protected void set(DoubleProperty arg0) {
-                doubleProperty = checkFrozen(arg0);
+                doubleProperty = arg0;
             }
 
             @Override

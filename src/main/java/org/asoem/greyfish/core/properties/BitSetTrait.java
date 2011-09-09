@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
@@ -33,7 +33,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
 
     protected BitSetTrait(BitSetTrait doubleOrderedSetProperty, CloneMap cloneMap) {
         super(doubleOrderedSetProperty, cloneMap);
-        bitStringGene = registerGene(DefaultGene.newMutatedCopy(doubleOrderedSetProperty.bitStringGene));
+        bitStringGene = registerGene(ImmutableGene.newMutatedCopy(doubleOrderedSetProperty.bitStringGene));
     }
 
     @Override
@@ -78,7 +78,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
         final ImmutableBitSet bitSet = (builder.initialValue == null) ? new ImmutableBitSet(DEFAULT_BITSET_LENGTH, RandomUtils.randomInstance()) : builder.initialValue;
 
         bitStringGene = registerGene(
-            new DefaultGene<ImmutableBitSet>(bitSet, ImmutableBitSet.class, mutationOperator));
+            new ImmutableGene<ImmutableBitSet>(bitSet, ImmutableBitSet.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }

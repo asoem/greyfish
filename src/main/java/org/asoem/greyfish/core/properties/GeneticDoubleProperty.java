@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -39,7 +39,7 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
     public void prepare(Simulation simulation) {
         delegate.prepare(simulation);
         doubleSupplier = delegate.registerGene(
-                new DefaultGene<Double>(delegate.getInitialValue(), Double.class, new GeneControllerAdaptor<Double>() {
+                new ImmutableGene<Double>(delegate.getInitialValue(), Double.class, new GeneControllerAdaptor<Double>() {
                     @Override
                     public Double mutate(Double original) {
                         return RandomUtils.RANDOM_DATA.nextGaussian(0, 1);

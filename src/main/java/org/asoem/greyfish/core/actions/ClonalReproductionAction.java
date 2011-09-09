@@ -51,7 +51,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
         e.add(new ValueAdaptor<Integer>("#clones", Integer.class) {
             @Override
             protected void set(Integer arg0) {
-                parameterClones = checkFrozen(arg0);
+                parameterClones = arg0;
             }
 
             @Override

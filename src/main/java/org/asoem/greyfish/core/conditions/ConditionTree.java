@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -41,10 +42,10 @@ public class ConditionTree extends AbstractGFComponent {
     }
 
 	@Override
-	public void setAgent(Agent individual) {
-		super.setAgent(individual);
+	public void setAgent(Agent agent) {
+		super.setAgent(agent);
         if (rootCondition != null)
-            rootCondition.setAgent(individual);
+            rootCondition.setAgent(agent);
 	}
 
     @Override
@@ -83,5 +84,10 @@ public class ConditionTree extends AbstractGFComponent {
     public void prepare(Simulation simulation) {
         if (rootCondition != null)
             rootCondition.prepare(simulation);
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
     }
 }

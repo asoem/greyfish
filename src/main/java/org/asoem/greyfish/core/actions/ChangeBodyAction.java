@@ -50,7 +50,7 @@ public class ChangeBodyAction extends AbstractGFAction {
 
             @Override
             protected void set(Color arg0) {
-                color = checkFrozen(checkNotNull(arg0));
+                color = checkNotNull(arg0);
             }
         });
     }

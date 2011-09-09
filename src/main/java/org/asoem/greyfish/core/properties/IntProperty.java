@@ -23,7 +23,7 @@ public class IntProperty extends AbstractWellOrderedSetElementProperty<Integer> 
 
     @Override
 	public void configure(ConfigurationHandler e) {
-		super.export(e, Integer.class);
+		super.configure(e, Integer.class);
 	}
 
 	public void subtract(int val) {

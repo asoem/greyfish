@@ -23,7 +23,7 @@ public class ConsumerGroup<T extends DoubleProperty> implements Iterable<Consume
 	}
 
 	/**
-	 * @param individual
+	 * @param consumer
 	 */
 	public void addConsumer(Consumer<T> consumer) {
 		this.consumer.add(consumer);
@@ -40,9 +40,9 @@ public class ConsumerGroup<T extends DoubleProperty> implements Iterable<Consume
 		int looserIndex = -1;
 
 		for (int i = 0; i < consumer.size(); i++) {
-			if(consumer.get(i).getAbstractAgent() == result.getWinner())
+			if(consumer.get(i).getDefaultAgent() == result.getWinner())
 				winnerIndex = i;
-			else if (consumer.get(i).getAbstractAgent() == result.getLooser())
+			else if (consumer.get(i).getDefaultAgent() == result.getLooser())
 				looserIndex = i;
 		}
 

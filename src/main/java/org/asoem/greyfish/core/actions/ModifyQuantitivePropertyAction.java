@@ -64,7 +64,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
-                parameterQuantitiveProperty = checkFrozen(checkNotNull(arg0));
+                parameterQuantitiveProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -80,7 +80,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
         e.add(new ValueAdaptor<String>("Formula", String.class) {
             @Override
             protected void set(String arg0) {
-                energyCostsFormula = checkFrozen(checkNotNull(arg0));
+                energyCostsFormula = checkNotNull(arg0);
             } // TODO: check if string is a valid expression
 
             @Override

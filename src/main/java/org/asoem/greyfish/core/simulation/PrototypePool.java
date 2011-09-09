@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.asoem.greyfish.core.individual.AbstractAgent;
+import org.asoem.greyfish.core.individual.DefaultAgent;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 /**
- * This class acts as an object pool for the AbstractAgent class to increase performance by object reuse.
+ * This class acts as an object pool for the DefaultAgent class to increase performance by object reuse.
  * See: <i>http://www.javaworld.com/javaworld/jw-11-1999/jw-11-performance.html?page=7</i>
  * @author christoph
  *
@@ -17,12 +17,12 @@ public class PrototypePool {
 
 	private final ArrayList<Long> lastAccess = new ArrayList<Long>();
 
-	private final ArrayList<ArrayDeque<AbstractAgent>> clonePool = new ArrayList<ArrayDeque<AbstractAgent>>();
+	private final ArrayList<ArrayDeque<DefaultAgent>> clonePool = new ArrayList<ArrayDeque<DefaultAgent>>();
 
 	/**
 	 * Keeps a list of all available prototypes (defined by isCloneOf(clone) function) and a to indicating its usage
 	 */
-	private final ArrayList<AbstractAgent> prototypeIndexMap = new ArrayList<AbstractAgent>();
+	private final ArrayList<DefaultAgent> prototypeIndexMap = new ArrayList<DefaultAgent>();
 
 	private int cloneCount = 0;
 
@@ -30,15 +30,15 @@ public class PrototypePool {
 	 * @param prototype
 	 * @return
 	 */
-	public synchronized AbstractAgent createClone(AbstractAgent prototype) {
+	public synchronized DefaultAgent createClone(DefaultAgent prototype) {
 
 		final int index = indexOfPrototype(prototype);
 		if (index == -1) {
-			addPrototype(prototype.deepClone(AbstractAgent.class));
+			addPrototype(prototype.deepClone(DefaultAgent.class));
 			return createClone(prototype);
 		}
 		else if (clonePool.get(index).isEmpty()) {
-			return prototype.deepClone(AbstractAgent.class);
+			return prototype.deepClone(DefaultAgent.class);
 		}
 		else {
 			--cloneCount;
@@ -48,19 +48,19 @@ public class PrototypePool {
 	}
 
 	/**
-	 * @param abstractAgent
+	 * @param defaultAgent
 	 */
-	public synchronized void recycleClone(AbstractAgent abstractAgent) {
+	public synchronized void recycleClone(DefaultAgent defaultAgent) {
 
 		if (cloneCount == FREE_POOL_SIZE) {
 			remove();
 		}
 
-		final int index = indexOfPrototype(abstractAgent);
+		final int index = indexOfPrototype(defaultAgent);
 		if (index == -1) {
-			addPrototype(abstractAgent);
+			addPrototype(defaultAgent);
 		}
-		clonePool.get(index).push(abstractAgent);
+		clonePool.get(index).push(defaultAgent);
 		++cloneCount;
 	}
 
@@ -68,24 +68,24 @@ public class PrototypePool {
 	 * @param prototype
 	 * @return
 	 */
-	private int indexOfPrototype(AbstractAgent prototype) {
+	private int indexOfPrototype(DefaultAgent prototype) {
 		for (int i = 0; i < prototypeIndexMap.size(); i++) {
-			final AbstractAgent abstractAgent = prototypeIndexMap.get(i);
-			if (abstractAgent.isCloneOf(prototype))
+			final DefaultAgent defaultAgent = prototypeIndexMap.get(i);
+			if (defaultAgent.isCloneOf(prototype))
 				return i;
 		}
 		return -1;
 	}
 
 	/**
-	 * Add this abstractAgent as a prototype.
+	 * Add this defaultAgent as a prototype.
 	 * It will be used for comparison with individuals returned in the future,
 	 * using it's <code>isCloneOf(clone)</code> method, to locate the deque responsible for their storage.
-	 * @param abstractAgent
+	 * @param defaultAgent
 	 */
-	private void addPrototype(AbstractAgent abstractAgent) {
-		prototypeIndexMap.add(abstractAgent);
-		clonePool.add(new ArrayDeque<AbstractAgent>());
+	private void addPrototype(DefaultAgent defaultAgent) {
+		prototypeIndexMap.add(defaultAgent);
+		clonePool.add(new ArrayDeque<DefaultAgent>());
 		lastAccess.add((long) 0);
 	}
 
@@ -106,8 +106,8 @@ public class PrototypePool {
 		--cloneCount;
 	}
 
-	public AbstractAgent[] getProptotypes() {
-		return prototypeIndexMap.toArray(new AbstractAgent[prototypeIndexMap.size()]);
+	public DefaultAgent[] getProptotypes() {
+		return prototypeIndexMap.toArray(new DefaultAgent[prototypeIndexMap.size()]);
 	}
 
 	public void clear() {

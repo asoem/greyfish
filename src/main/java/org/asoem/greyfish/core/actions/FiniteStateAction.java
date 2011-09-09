@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -70,8 +69,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
+    public void checkConsistency() {
+        super.checkConsistency();
         if (!states.isEmpty()) {
             checkState(getInitialStateKey() != null, "No InitialState defined");
             checkState(Iterables.any(states.values(), new Predicate<FSMState>() {

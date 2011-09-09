@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
  * Time: 15:43
  */
 public interface MessageReceiver {
-    void receiveMessage(ACLMessage message);
-    void receiveMessages(Iterable<? extends ACLMessage> message);
+    void pushMessage(ACLMessage message);
+    void pushMessages(Iterable<? extends ACLMessage> message);
     int getId();
 }

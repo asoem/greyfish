@@ -6,10 +6,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import org.asoem.greyfish.core.individual.Placeholder;
-import org.asoem.greyfish.core.individual.Prototype;
-import org.asoem.greyfish.core.individual.PrototypeManager;
-import org.asoem.greyfish.core.individual.PrototypeRegistryListener;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.core.space.TileLocation;
@@ -154,10 +151,10 @@ public class Scenario implements PrototypeRegistryListener {
 
         public Builder name(String name) { this.name = name; return this; }
         public Builder space(int dimX, int dimY) { this.space = TiledSpace.newInstance(dimX, dimY); return this; }
-        public Builder add(final Prototype clonable, Object2D location2d) {
-            checkNotNull(clonable);
+        public Builder add(final Prototype prototype, Object2D location2d) {
+            checkNotNull(prototype);
             checkNotNull(location2d);
-            map.put(clonable, checkNotNull(location2d)); return this;
+            map.put(prototype, checkNotNull(location2d)); return this;
         }
         @Override
         public Scenario build() {

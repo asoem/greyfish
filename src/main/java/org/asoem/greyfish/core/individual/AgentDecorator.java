@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -14,21 +15,32 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AgentDecorator extends AbstractDeepCloneable implements Agent {
 
     @Element(name="delegate")
     private final Agent delegate;
 
-    protected AgentDecorator(Agent delegate) {
-        this.delegate = delegate;
+    /**
+     * After decoration, the {@link GFComponent#getAgent()} method of all {@link GFComponent}s of {@code delegate}
+     * will return this {@code AgentDecorator} instead of {@code delegate}.
+     * @param delegate the {@code Agent} to decorate
+     */
+    protected AgentDecorator(@Nonnull Agent delegate) {
+        this.delegate = checkNotNull(delegate);
+        for (GFComponent component : delegate.getComponents()) {
+            component.setAgent(this);
+        }
     }
 
-    protected Agent getDelegate() {
+    protected Agent delegate() {
         return delegate;
     }
 
@@ -42,6 +54,9 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
         delegate.setPopulation(population);
     }
 
+    /**
+     * If you wish overwrite {@link Agent#addAction}, make sure to call {@link GFComponent#setAgent} on {@code action} after addition.
+     */
     @Override
     public boolean addAction(GFAction action) {
         return delegate.addAction(action);
@@ -62,6 +77,9 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
         return delegate.getActions();
     }
 
+    /**
+     * If you wish overwrite {@link Agent#addProperty}, make sure to call {@link GFComponent#setAgent} on {@code action} after addition.
+     */
     @Override
     public boolean addProperty(GFProperty property) {
         return delegate.addProperty(property);
@@ -116,16 +134,6 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     @Override
     public boolean isFrozen() {
         return delegate.isFrozen();
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        delegate.checkConsistency(components);
-    }
-
-    @Override
-    public <T> T checkFrozen(T value) throws IllegalStateException {
-        return delegate.checkFrozen(value);
     }
 
     @Override
@@ -209,8 +217,8 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     }
 
     @Override
-    public List<ACLMessage> pollMessages(MessageTemplate template) {
-        return delegate.pollMessages(template);
+    public List<ACLMessage> pullMessages(MessageTemplate template) {
+        return delegate.pullMessages(template);
     }
 
     @Override
@@ -219,13 +227,13 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     }
 
     @Override
-    public void receiveMessages(Iterable<? extends ACLMessage> messages) {
-        delegate.receiveMessages(messages);
+    public void pushMessages(Iterable<? extends ACLMessage> messages) {
+        delegate.pushMessages(messages);
     }
 
     @Override
-    public void receiveMessage(ACLMessage messages) {
-        delegate.receiveMessage(messages);
+    public void pushMessage(ACLMessage messages) {
+        delegate.pushMessage(messages);
     }
 
     @Override
@@ -281,5 +289,20 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     @Override
     public void setOrientation(double alpha) {
         delegate.setOrientation(alpha);
+    }
+
+    @Override
+    public Simulation getSimulation() {
+        return delegate.getSimulation();
+    }
+
+    @Override
+    public void setSimulation(Simulation simulation) {
+        delegate.setSimulation(simulation);
+    }
+
+    @Override
+    public void prepare(Simulation context) {
+        delegate.prepare(context);
     }
 }

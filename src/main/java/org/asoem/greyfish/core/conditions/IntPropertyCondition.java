@@ -29,7 +29,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
             @Override
             protected void set(IntProperty arg0) {
-                intProperty = checkFrozen(checkNotNull(arg0));
+                intProperty = checkNotNull(arg0);
             }
 
             @Override

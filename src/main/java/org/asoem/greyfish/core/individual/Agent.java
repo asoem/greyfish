@@ -3,19 +3,21 @@ package org.asoem.greyfish.core.individual;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.Preparable;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2D, MessageReceiver {
+public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2D, MessageReceiver, Preparable<Simulation> {
     Population getPopulation();
     void setPopulation(Population population);
     Body getBody();
@@ -31,6 +33,9 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     Iterable<GFProperty> getProperties();
     @Nullable <T extends GFProperty> T getProperty(String name, Class<T> propertyClass);
 
+    Genome getGenome();
+    void setGenome(Genome genome);
+
     boolean isCloneOf(Object object);
 
     Iterable<GFComponent> getComponents();
@@ -40,8 +45,6 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     int getId();
     int getTimeOfBirth();
     int getAge();
-    Genome getGenome();
-    void setGenome(Genome genome);
 
     Color getColor();
     void setColor(Color color);
@@ -51,7 +54,7 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     void execute();
 
     void sendMessage(ACLMessage message);
-    List<ACLMessage> pollMessages(MessageTemplate template);
+    List<ACLMessage> pullMessages(MessageTemplate template);
     boolean hasMessages(MessageTemplate template);
 
     AgentLog getLog();
@@ -61,4 +64,5 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     void shutDown();
 
     Simulation getSimulation();
+    public void setSimulation(Simulation simulation);
 }

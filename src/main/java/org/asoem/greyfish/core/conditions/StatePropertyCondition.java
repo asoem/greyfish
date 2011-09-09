@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -45,7 +44,7 @@ public class StatePropertyCondition extends LeafCondition {
     public void configure(ConfigurationHandler e) {
         final FiniteSetValueAdaptor<FiniteSetProperty> statesAdaptor = new FiniteSetValueAdaptor<FiniteSetProperty>(
                 "Property", FiniteSetProperty.class) {
-            @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkFrozen(checkNotNull(arg0)); }
+            @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkNotNull(arg0); }
             @Override public FiniteSetProperty get() { return stateProperty; }
 
             @Override
@@ -56,7 +55,7 @@ public class StatePropertyCondition extends LeafCondition {
         e.add(statesAdaptor);
 
         final FiniteSetValueAdaptor<Object> stateAdaptor = new FiniteSetValueAdaptor<Object>( "has state", Object.class) {
-            @Override protected void set(Object arg0) { state = checkFrozen(checkNotNull(arg0)); }
+            @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
             @Override public Object get() { return state; }
             @Override public Iterable<Object> values() {
                 return (stateProperty == null) ? ImmutableList.of() : stateProperty.getSet();
@@ -67,9 +66,9 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        Preconditions.checkState(Iterables.contains(components, stateProperty));
+    public void checkConsistency() {
+        super.checkConsistency();
+        Preconditions.checkState(Iterables.contains(agent.getComponents(), stateProperty));
     }
 
     private StatePropertyCondition() {

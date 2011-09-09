@@ -4,7 +4,6 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -90,7 +89,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         ) {
             @Override
             protected void set(String arg0) {
-                parameterMessageType = checkFrozen(checkNotNull(arg0));
+                parameterMessageType = checkNotNull(arg0);
             }
 
             @Override
@@ -101,7 +100,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         e.add(new FiniteSetValueAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
             @Override
             protected void set(ResourceProperty arg0) {
-                resourceProperty = checkFrozen(checkNotNull(arg0));
+                resourceProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -134,8 +133,8 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
+    public void checkConsistency() {
+        super.checkConsistency();
         checkState(resourceProperty != null);
     }
 

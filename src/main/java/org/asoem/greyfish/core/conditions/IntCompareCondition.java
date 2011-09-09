@@ -19,7 +19,7 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
 
             @Override
             protected void set(Integer arg0) {
-                value = checkFrozen(checkNotNull(arg0));
+                value = checkNotNull(arg0);
             }
 
             @Override

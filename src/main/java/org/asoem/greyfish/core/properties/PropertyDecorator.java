@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
@@ -26,13 +27,13 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public void setAgent(Agent individual) {
-        getDelegate().setAgent(individual);
+    public void setAgent(Agent agent) {
+        getDelegate().setAgent(agent);
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        getDelegate().checkConsistency(components);
+    public void checkConsistency() {
+        getDelegate().checkConsistency();
     }
 
     @Override
@@ -48,11 +49,6 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     @Override
     public boolean isFrozen() {
         return getDelegate().isFrozen();
-    }
-
-    @Override
-    public <T> T checkFrozen(T value) throws IllegalStateException {
-        return getDelegate().checkFrozen(value);
     }
 
     @Override
@@ -93,5 +89,10 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     @Override
     public <S> Gene<S> registerGene(Gene<S> gene) {
         return getDelegate().registerGene(gene);
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
     }
 }

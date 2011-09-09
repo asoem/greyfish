@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -87,7 +86,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             public Object run(Simulation simulation) {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage receivedMessage : agent.pollMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : agent.pullMessages(getTemplate())) {
                     assert (receivedMessage != null);
 
                     ACLMessage proposeReply = null;
@@ -162,7 +161,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             public Object run(Simulation simulation) {
                 assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                for (ACLMessage receivedMessage : agent.pollMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : agent.pullMessages(getTemplate())) {
                     assert receivedMessage != null;
 
                     switch (receivedMessage.getPerformative()) {
@@ -251,8 +250,8 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     protected abstract String getOntology();
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
+    public void checkConsistency() {
+        super.checkConsistency();
         checkState(!Strings.isNullOrEmpty(getOntology()));
     }
 }

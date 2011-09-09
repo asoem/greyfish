@@ -7,8 +7,8 @@ import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
@@ -144,8 +144,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     protected abstract State executeUnconditioned(Simulation simulation);
 
     @Override
-    public void setAgent(Agent individual) {
-        super.setAgent(individual);
+    public void setAgent(Agent agent) {
+        super.setAgent(agent);
         conditionTree.setAgent(getAgent());
     }
 
@@ -181,7 +181,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Element(name="condition", required=false)
     @Override
     public void setRootCondition(GFCondition rootCondition) {
-        conditionTree = new ConditionTree(checkFrozen(rootCondition));
+        conditionTree = new ConditionTree(rootCondition);
         conditionTree.setAgent(this.getAgent());
     }
 
@@ -192,6 +192,8 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public void configure(ConfigurationHandler e) {
+        super.configure(e);
+
         e.add(new ValueAdaptor<String>("Energy Costs", String.class) {
             @Override
             public String get() {
@@ -200,16 +202,15 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
             @Override
             protected void set(String arg0) {
-                energyCostsFormula = checkFrozen(arg0);
+                energyCostsFormula = arg0;
             }
         });
-        //		e.sum( new ValueAdaptor<Boolean>("Is last?", Boolean.class, parameterLast)
-        //				{ @Override protected void set(Boolean arg0) { parameterLast = arg0; }});
+
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
         ) {
             @Override
             protected void set(DoubleProperty arg0) {
-                energySource = checkFrozen(arg0);
+                energySource = arg0;
             }
 
             @Override
@@ -225,9 +226,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        checkState(Iterables.contains(components, energySource));
+    public void checkConsistency() {
+        super.checkConsistency();
+        checkState(Iterables.contains(agent.getComponents(), energySource));
     }
 
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
@@ -238,6 +239,11 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public final boolean isDormant() {
         return state == State.DORMANT;
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
     }
 
     protected AbstractGFAction(AbstractBuilder<? extends AbstractBuilder> builder) {

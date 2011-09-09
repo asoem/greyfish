@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -30,12 +30,12 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
 
     protected DoubleTrait(DoubleTrait doubleTrait, CloneMap map) {
         super(doubleTrait, map);
-        doubleGene = registerGene(DefaultGene.newMutatedCopy(doubleTrait.doubleGene));
+        doubleGene = registerGene(ImmutableGene.newMutatedCopy(doubleTrait.doubleGene));
     }
 
     protected DoubleTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
-        doubleGene = registerGene(new DefaultGene<Double>(
+        doubleGene = registerGene(new ImmutableGene<Double>(
                 RandomUtils.RANDOM_DATA.nextUniform(getLowerBound(), getUpperBound()),
                 Double.class,
                 new GeneControllerAdaptor<Double>() {

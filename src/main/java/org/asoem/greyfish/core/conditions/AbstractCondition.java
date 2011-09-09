@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.core.Commit;
@@ -26,7 +27,7 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
 
 	@Override
 	public void setParent(GFCondition parent) {
-		this.parentCondition = checkFrozen(parent);
+		this.parentCondition = parent;
 	}
 
 	@Override
@@ -75,5 +76,10 @@ public abstract class AbstractCondition extends AbstractGFComponent implements G
     @Override
     public String toString() {
         return parentCondition + "<-" + this.getClass().getSimpleName();
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
     }
 }

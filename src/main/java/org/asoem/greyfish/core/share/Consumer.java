@@ -1,22 +1,22 @@
 package org.asoem.greyfish.core.share;
 
-import org.asoem.greyfish.core.individual.AbstractAgent;
+import org.asoem.greyfish.core.individual.DefaultAgent;
 import org.asoem.greyfish.core.properties.AbstractGFProperty;
 
 public class Consumer<T extends AbstractGFProperty> {
-	private AbstractAgent abstractAgent;
+	private DefaultAgent defaultAgent;
 	private T property;
 
-	public Consumer(AbstractAgent abstractAgent, T property) {
-		if(abstractAgent == null || property == null)
+	public Consumer(DefaultAgent defaultAgent, T property) {
+		if(defaultAgent == null || property == null)
 			throw new IllegalArgumentException();
 
-		this.abstractAgent = abstractAgent;
+		this.defaultAgent = defaultAgent;
 		this.property = property;
 	}
 
-	public AbstractAgent getAbstractAgent() {
-		return abstractAgent;
+	public DefaultAgent getDefaultAgent() {
+		return defaultAgent;
 	}
 
 	public T getProperty() {

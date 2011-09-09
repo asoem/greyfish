@@ -39,6 +39,6 @@ public class Genes {
     }
 
     public static <T> Gene<T> newMutatedCopy(final Gene<T> gene) {
-        return new DefaultGene<T>(gene);
+        return new ImmutableGene<T>(gene);
     }
 }

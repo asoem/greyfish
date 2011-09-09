@@ -15,11 +15,6 @@ public class Placeholder extends AgentDecorator {
         this.placeholderObject = placeholderObject;
     }
 
-    @Override
-    public void execute() {
-        throw new UnsupportedOperationException();
-    }
-
     public static Placeholder newInstance(Prototype prototype, Object2D location2D) {
         return new Placeholder(prototype, location2D);
     }
@@ -50,6 +45,6 @@ public class Placeholder extends AgentDecorator {
     }
 
     public Prototype getPrototype() {
-        return Prototype.class.cast(getDelegate());
+        return Prototype.class.cast(delegate());
     }
 }

@@ -87,7 +87,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
         e.add(new FiniteSetValueAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
             @Override
             protected void set(GFProperty arg0) {
-                similarityTrait = checkFrozen(checkNotNull(arg0));
+                similarityTrait = checkNotNull(arg0);
             }
 
             @Override

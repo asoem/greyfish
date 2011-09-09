@@ -13,6 +13,7 @@ import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.PostOffice;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
@@ -90,8 +91,8 @@ public class Simulation implements Runnable, HasName {
     private final Multimap<CommandType, Command> commandListMap =
             Multimaps.synchronizedMultimap(HashMultimap.<CommandType, Command>create());
 
-    private final FastList<FinalizedAgent> individuals = FastList.newInstance();
-    private final Collection<FinalizedAgent> concurrentAgentsView = individuals.shared();
+    private final FastList<Agent> individuals = FastList.newInstance();
+    private final Collection<Agent> concurrentAgentsView = individuals.shared();
 
     private final ListenerSupport<SimulationListener> listenerSupport = ListenerSupport.newInstance();
 
@@ -103,7 +104,7 @@ public class Simulation implements Runnable, HasName {
                     checkNotNull(key);
                     checkArgument(key instanceof Population);
                     final Prototype prototype = prototypeMap.get(Population.class.cast(key));
-                    return new FinalizedAgent(prototype, Simulation.this);
+                    return new Clone(prototype, Simulation.this);
                 }
             },
             10000, 100);
@@ -173,7 +174,7 @@ public class Simulation implements Runnable, HasName {
 
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
-            final FinalizedAgent clone = newAgentFromPool(placeholder.getPopulation());
+            final Agent clone = newAgentFromPool(placeholder.getPopulation());
             addAgent(clone, at(placeholder));
         }
 
@@ -183,13 +184,13 @@ public class Simulation implements Runnable, HasName {
     /**
      * @return a copy of the list of active individuals
      */
-    public Collection<FinalizedAgent> getAgents() {
+    public Collection<Agent> getAgents() {
         return Collections.unmodifiableCollection(concurrentAgentsView);
     }
 
-    private void addAgent(FinalizedAgent agent, Location2D location) {
+    private void addAgent(Agent agent, Location2D location) {
         checkAgent(agent);
-        LOGGER.trace("{}: Adding FinalizedAgent {}" + this, agent);
+        LOGGER.trace("{}: Adding Agent {}" + this, agent);
         agent.prepare(this);
         concurrentAgentsView.add(agent);
         populationCount.get(agent.getPopulation()).increase();
@@ -206,7 +207,7 @@ public class Simulation implements Runnable, HasName {
      * Remove agent from this scenario
      * @param agent
      */
-    public void removeAgent(final Agent agent) {
+    public void removeAgent(final Clone agent) {
         /*
            * TODO: removal could be implemented more efficiently.
            * e.g. by marking agents and removal during a single iteration over all
@@ -219,12 +220,12 @@ public class Simulation implements Runnable, HasName {
                         concurrentAgentsView.remove(agent);
                         populationCount.get(agent.getPopulation()).decrease();
                         agent.shutDown();
-                        returnClone(agent);
+                        putCloneInPool(agent);
                     }
                 });
     }
 
-    private void returnClone(final Agent agent) {
+    private void putCloneInPool(final Clone agent) {
         checkAgent(agent);
         try {
             objectPool.returnObject(agent.getPopulation(), agent);
@@ -254,17 +255,17 @@ public class Simulation implements Runnable, HasName {
     }
 
     /**
-     * Creates a new {@link org.asoem.greyfish.core.individual.FinalizedAgent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
-     * The {@link org.asoem.greyfish.core.individual.FinalizedAgent} will get inserted and executed at the next step at given {@code location}.
-     * @param population The {@code Population} of the {@code Prototype} the FinalizedAgent will be cloned from.
-     * @param location The location where the {@link org.asoem.greyfish.core.individual.FinalizedAgent} will be inserted in the {@link org.asoem.greyfish.core.space.Space}.
-     * @param genome The {@link Genome} for the new {@link org.asoem.greyfish.core.individual.FinalizedAgent}.
+     * Creates a new {@link org.asoem.greyfish.core.individual.Agent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
+     * The {@link org.asoem.greyfish.core.individual.Agent} will get inserted and executed at the next step at given {@code location}.
+     * @param population The {@code Population} of the {@code Prototype} the Agent will be cloned from.
+     * @param location The location where the {@link org.asoem.greyfish.core.individual.Agent} will be inserted in the {@link org.asoem.greyfish.core.space.Space}.
+     * @param genome The {@link org.asoem.greyfish.core.genes.ImmutableGenome} for the new {@link org.asoem.greyfish.core.individual.Agent}.
      */
     public void createAgent(final Population population, final Location2D location, final Genome genome) {
         checkNotNull(population);
         checkState(prototypeMap.containsKey(population));
 
-        final FinalizedAgent agent = newAgentFromPool(population);
+        final Clone agent = newAgentFromPool(population);
         agent.setGenome(genome);
 
         commandListMap.put(AGENT_ADD,
@@ -276,11 +277,11 @@ public class Simulation implements Runnable, HasName {
                 });
     }
 
-    private FinalizedAgent newAgentFromPool(final Population population) {
+    private Clone newAgentFromPool(final Population population) {
         assert population != null;
         assert prototypeMap.containsKey(population);
         try {
-            return FinalizedAgent.class.cast(objectPool.borrowObject(population));
+            return Clone.class.cast(objectPool.borrowObject(population));
         } catch (Exception e) {
             LOGGER.error("Error using objectPool", e);
             System.exit(1);
@@ -445,11 +446,11 @@ public class Simulation implements Runnable, HasName {
 
     private class ProcessAgentsForked extends RecursiveAction {
 
-        private final FastList.Node<FinalizedAgent> node;
+        private final FastList.Node<Agent> node;
         private final int nNodes;
         private final int forkThreshold;
 
-        private ProcessAgentsForked(final FastList.Node<FinalizedAgent> node, final int nNodes, final int forkThreshold) {
+        private ProcessAgentsForked(final FastList.Node<Agent> node, final int nNodes, final int forkThreshold) {
             assert node != null;
             assert nNodes > 0;
 
@@ -464,12 +465,12 @@ public class Simulation implements Runnable, HasName {
 
                 // split list
                 final int splitAtIndex = nNodes / 2;
-                FastList.Node<FinalizedAgent> iterNode = node;
+                FastList.Node<Agent> iterNode = node;
                 for (int i = splitAtIndex; i-- >= 0;) {
                     iterNode = iterNode.getNext();
                 }
 
-                final FastList.Node<FinalizedAgent> splitNode = iterNode;
+                final FastList.Node<Agent> splitNode = iterNode;
 
                 // fork
                 final ProcessAgentsForked left = new ProcessAgentsForked(node, splitAtIndex, forkThreshold);
@@ -477,7 +478,7 @@ public class Simulation implements Runnable, HasName {
                 invokeAll(left, right);
             }
             else {
-                FastList.Node<FinalizedAgent> currentNode = node;
+                FastList.Node<Agent> currentNode = node;
                 for (int i = nNodes; i > 0; --i) {
                     currentNode = currentNode.getNext();
                     currentNode.getValue().execute();
@@ -518,7 +519,7 @@ public class Simulation implements Runnable, HasName {
                     command.execute();
                 }
 
-                for (FinalizedAgent agent : getAgents()) {
+                for (Agent agent : getAgents()) {
                     final PolarPoint motion = agent.getMotionVector();
                     getSpace().moveObject(agent, MutableLocation2D.sum(agent, motion.toCartesian()));
                 }

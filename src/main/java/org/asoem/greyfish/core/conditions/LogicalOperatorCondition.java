@@ -61,10 +61,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
 
 
     @Override
-    public void setAgent(Agent individual) {
-        super.setAgent(individual);
+    public void setAgent(Agent agent) {
+        super.setAgent(agent);
         for (GFCondition condition : this.conditions) {
-            condition.setAgent(individual);
+            condition.setAgent(agent);
         }
     }
 
@@ -152,10 +152,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        super.checkConsistency(components);
+    public void checkConsistency() throws IllegalStateException {
+        super.checkConsistency();
         for (GFCondition condition : conditions) {
-            condition.checkConsistency(components);
+            condition.checkConsistency();
         }
     }
 

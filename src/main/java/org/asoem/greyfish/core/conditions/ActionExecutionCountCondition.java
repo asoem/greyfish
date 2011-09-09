@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.CloneMap;
@@ -36,7 +35,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 		e.add(new FiniteSetValueAdaptor<GFAction>("", GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
-                action = checkFrozen(checkNotNull(arg0));
+                action = checkNotNull(arg0);
             }
 
             @Override
@@ -66,8 +65,8 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        super.checkConsistency(components);
+    public void checkConsistency() throws IllegalStateException {
+        super.checkConsistency();
         checkState(action != null);
     }
 

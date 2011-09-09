@@ -48,7 +48,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
             @Override
             protected void set(Integer arg0) {
-                steps = checkFrozen(checkNotNull(arg0));
+                steps = checkNotNull(arg0);
             }
 
             @Override
@@ -61,7 +61,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
             @Override
             protected void set(GFAction arg0) {
-                action = checkFrozen(checkNotNull(arg0));
+                action = checkNotNull(arg0);
             }
 
             @Override

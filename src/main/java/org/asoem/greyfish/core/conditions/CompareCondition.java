@@ -38,7 +38,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
         e.add(new FiniteSetValueAdaptor<Comparator>("", Comparator.class) {
             @Override
             protected void set(Comparator arg0) {
-                comparator = checkFrozen(checkNotNull(arg0));
+                comparator = checkNotNull(arg0);
             }
 
             @Override

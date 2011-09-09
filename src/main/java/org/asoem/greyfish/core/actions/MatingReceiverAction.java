@@ -8,8 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.FinalizedAgent;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
@@ -43,7 +42,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Element(name="sensorRange", required=false)
     private double sensorRange;
 
-    private Iterable<FinalizedAgent> sensedMates;
+    private Iterable<Agent> sensedMates;
 
     @SuppressWarnings("unused")
     private MatingReceiverAction() {
@@ -53,10 +52,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class) {
+        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("ImmutableGenome Storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
-                spermBuffer = checkFrozen(checkNotNull(arg0));
+                spermBuffer = checkNotNull(arg0);
             }
 
             @Override
@@ -72,7 +71,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
             @Override
             protected void set(String arg0) {
-                ontology = checkFrozen(checkNotNull(arg0));
+                ontology = checkNotNull(arg0);
             }
 
             @Override
@@ -83,7 +82,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
             @Override
             protected void set(Double arg0) {
-                sensorRange = checkFrozen(checkNotNull(arg0));
+                sensorRange = checkNotNull(arg0);
             }
 
             @Override
@@ -103,8 +102,8 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
+    public void checkConsistency() {
+        super.checkConsistency();
         checkNotNull(spermBuffer);
         checkNotNull(ontology);
     }
@@ -143,7 +142,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     protected boolean canInitiate(Simulation simulation) {
         final Iterable neighbours = agent.findNeighbours(sensorRange);
-        sensedMates = filter(neighbours, FinalizedAgent.class);
+        sensedMates = filter(neighbours, Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent)));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);

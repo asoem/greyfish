@@ -29,7 +29,7 @@ public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double
 
     @Override
 	public void configure(ConfigurationHandler e) {
-		super.export(e, Double.class);
+		super.configure(e, Double.class);
 	}
 
 	public void subtract(double val) {

@@ -1,16 +1,16 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GenomeInterface;
+import org.asoem.greyfish.core.genes.Genome;
 
 import java.util.Iterator;
 
-public class EvaluatedGenome implements GenomeInterface {
+public class EvaluatedGenome implements Genome {
 
     private final double fitness;
-    private final GenomeInterface delegate;
+    private final Genome delegate;
 
-    public EvaluatedGenome(GenomeInterface sperm, double fitness) {
+    public EvaluatedGenome(Genome sperm, double fitness) {
         delegate = sperm;
         this.fitness = fitness;
     }
@@ -30,13 +30,23 @@ public class EvaluatedGenome implements GenomeInterface {
     }
 
     @Override
-    public double distance(GenomeInterface genome) {
+    public double distance(Genome genome) {
         return delegate.distance(genome);
     }
 
     @Override
     public Iterable<Gene<?>> findCopiesFor(Iterable<Gene<?>> thisGenes) {
         return delegate.findCopiesFor(thisGenes);
+    }
+
+    @Override
+    public Genome mutated() {
+        return delegate.mutated();
+    }
+
+    @Override
+    public Genome recombined(Genome genome) {
+        return delegate.recombined(genome);
     }
 
     @Override

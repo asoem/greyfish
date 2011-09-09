@@ -4,8 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import org.asoem.greyfish.core.individual.AbstractAgent;
-import org.asoem.greyfish.core.individual.FinalizedAgent;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.DefaultAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
@@ -23,10 +23,10 @@ public class MatingInteractionSpec extends Specification<ContractNetInitiatorAct
 
         final EvaluatedGenomeStorage genomeStorage = EvaluatedGenomeStorage.with().build();
         final MatingReceiverAction receiverAction = MatingReceiverAction.with().fromMatesOfType("mate").closerThan(1.0).storesSpermIn(genomeStorage).build();
-        final Prototype female = Prototype.newInstance(AbstractAgent.with().population(Population.newPopulation("Female", Color.black)).addProperties(genomeStorage).addActions(receiverAction).build());
+        final Prototype female = Prototype.with().population(Population.newPopulation("Female", Color.black)).addProperties(genomeStorage).addActions(receiverAction).build();
 
         final MatingTransmitterAction transmitterAction = MatingTransmitterAction.with().offersSpermToMatesOfType("mate").build();
-        final Prototype male = Prototype.newInstance(AbstractAgent.with().population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build());
+        final Prototype male = Prototype.with().population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build();
 
         final Scenario scenario = Scenario.with().space(1,1)
                 .add(female, at())
@@ -41,9 +41,9 @@ public class MatingInteractionSpec extends Specification<ContractNetInitiatorAct
                 simulation.step();
             }
 
-            FinalizedAgent consumerClone = Iterables.find(simulation.getAgents(), new Predicate<FinalizedAgent>() {
+            Agent consumerClone = Iterables.find(simulation.getAgents(), new Predicate<Agent>() {
                 @Override
-                public boolean apply(FinalizedAgent agent) {
+                public boolean apply(Agent agent) {
                     return agent.getPopulation().equals(female.getPopulation());
                 }
             }, null);

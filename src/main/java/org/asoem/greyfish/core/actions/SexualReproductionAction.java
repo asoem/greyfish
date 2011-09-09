@@ -57,7 +57,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         e.add(new ValueAdaptor<Integer>("Number of offspring", Integer.class) {
             @Override
             protected void set(Integer arg0) {
-                nOffspring = checkFrozen(checkNotNull(arg0));
+                nOffspring = checkNotNull(arg0);
             }
 
             @Override
@@ -66,10 +66,10 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class) {
+        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("ImmutableGenome storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
-                spermStorage = checkFrozen(checkNotNull(arg0));
+                spermStorage = checkNotNull(arg0);
             }
 
             @Override

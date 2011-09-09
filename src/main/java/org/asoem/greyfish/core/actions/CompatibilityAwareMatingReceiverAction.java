@@ -7,8 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
-import org.asoem.greyfish.core.individual.FinalizedAgent;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -47,7 +46,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Element(name="sensorRange", required=false)
     private double sensorRange;
 
-    private Iterable<FinalizedAgent> sensedMates;
+    private Iterable<Agent> sensedMates;
 
     @SuppressWarnings("unused")
     private CompatibilityAwareMatingReceiverAction() {
@@ -57,10 +56,10 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("Genome Storage", EvaluatedGenomeStorage.class) {
+        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("ImmutableGenome Storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
-                spermBuffer = checkFrozen(checkNotNull(arg0));
+                spermBuffer = checkNotNull(arg0);
             }
 
             @Override
@@ -76,7 +75,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
             @Override
             protected void set(String arg0) {
-                ontology = checkFrozen(checkNotNull(arg0));
+                ontology = checkNotNull(arg0);
             }
 
             @Override
@@ -87,7 +86,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
         e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
             @Override
             protected void set(Double arg0) {
-                sensorRange = checkFrozen(checkNotNull(arg0));
+                sensorRange = checkNotNull(arg0);
             }
 
             @Override
@@ -98,7 +97,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
         e.add(new FiniteSetValueAdaptor<GFProperty>("Compatibility Defining Property", GFProperty.class) {
             @Override
             protected void set(GFProperty arg0) {
-                compatibilityDefiningProperty = checkFrozen(checkNotNull(arg0));
+                compatibilityDefiningProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -123,15 +122,15 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
+    public void checkConsistency() {
+        super.checkConsistency();
         checkNotNull(spermBuffer);
         checkNotNull(ontology);
     }
 
     @Override
     protected ACLMessage.Builder createCFP() {
-        FinalizedAgent.class.cast(getAgent()).getLog().add("nMatingAttempts", 1);
+        agent.getLog().add("nMatingAttempts", 1);
 
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
@@ -158,14 +157,14 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             if (trueWithProbability(matingProbability)) {
                 LOGGER.debug("Accepting mating proposal with p={}", matingProbability);
-                FinalizedAgent.class.cast(getAgent()).getLog().add("nMatingsAccepted", 1);
+                agent.getLog().add("nMatingsAccepted", 1);
 
                 receiveGenome(evaluatedGenome);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             }
             else {
                 LOGGER.debug("Refusing mating proposal with p={}", matingProbability);
-                FinalizedAgent.class.cast(getAgent()).getLog().add("nMatingsRefused", 1);
+                agent.getLog().add("nMatingsRefused", 1);
 
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
             }
@@ -184,7 +183,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Override
     protected boolean canInitiate(Simulation simulation) {
         final Iterable neighbours = agent.findNeighbours(sensorRange);
-        sensedMates = filter(neighbours, FinalizedAgent.class);
+        sensedMates = filter(neighbours, Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent)));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
@@ -215,9 +214,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        FinalizedAgent.class.cast(getAgent()).getLog().set("nMatingsAccepted", 0);
-        FinalizedAgent.class.cast(getAgent()).getLog().set("nMatingsRefused", 0);
-        FinalizedAgent.class.cast(getAgent()).getLog().set("nMatingAttempts", 0);
+        agent.getLog().set("nMatingsAccepted", 0);
+        agent.getLog().set("nMatingsRefused", 0);
+        agent.getLog().set("nMatingAttempts", 0);
     }
 
     public static Builder with() { return new Builder(); }

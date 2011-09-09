@@ -1,18 +1,18 @@
 package org.asoem.greyfish.core.share;
 
-import org.asoem.greyfish.core.individual.AbstractAgent;
+import org.asoem.greyfish.core.individual.DefaultAgent;
 
 public class Result {
 
-	private AbstractAgent winner;
-	private AbstractAgent looser;
+	private DefaultAgent winner;
+	private DefaultAgent looser;
 	private boolean tie;
 
-	public Result(AbstractAgent winner, AbstractAgent looser) {
+	public Result(DefaultAgent winner, DefaultAgent looser) {
 		this(winner, looser, false);
 	}
 
-	public Result(AbstractAgent winner, AbstractAgent looser, boolean tie) {
+	public Result(DefaultAgent winner, DefaultAgent looser, boolean tie) {
 		if(winner == null || looser == null)
 			throw new NullPointerException();
 
@@ -24,14 +24,14 @@ public class Result {
 	/**
 	 * @return the winner
 	 */
-	public AbstractAgent getWinner() {
+	public DefaultAgent getWinner() {
 		return winner;
 	}
 
 	/**
 	 * @return the looser
 	 */
-	public AbstractAgent getLooser() {
+	public DefaultAgent getLooser() {
 		return looser;
 	}
 

@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.individual.FinalizedAgent;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -56,7 +56,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
             @Override
             protected void set(String arg0) {
-                ontology = checkFrozen(checkNotNull(arg0));
+                ontology = checkNotNull(arg0);
             }
 
             @Override
@@ -86,8 +86,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         double fitness = 0.0;
         try {
             fitness = GreyfishMathExpression.evaluateAsDouble(spermFitnessExpression,
-                    FinalizedAgent.class.cast(getAgent()),
-                    FinalizedAgent.class.cast(getAgent()).getSimulation());
+                    agent,
+                    agent.getSimulation());
         } catch (EvaluationException e) {
             LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
         }
@@ -101,7 +101,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     protected ACLMessage.Builder handleAccept(ACLMessage message) {
         // costs for mating define quality of the genome
 //        DoubleProperty doubleProperty = null;
-//        GenomeInterface sperm = null;
+//        Genome sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.apply(sperm));
 
         return message.createReplyFrom(getAgent().getId())

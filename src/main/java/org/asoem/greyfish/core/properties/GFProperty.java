@@ -23,11 +23,5 @@ public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualCom
      */
     public Iterable<Gene<?>> getGenes();
 
-    /**
-     * Set the delegates of the contained {@code IndexedGene}s and their index to the values provided by the given {@code geneIterator}
-     *
-     * @param geneIterator A {@code Genome}'s geneList ListIterator which provides the delegate genes
-     * @see org.asoem.greyfish.core.genes.Genome#listIterator()
-     */
     public void setGenes(Iterable<? extends Gene<?>> geneIterator);
 }

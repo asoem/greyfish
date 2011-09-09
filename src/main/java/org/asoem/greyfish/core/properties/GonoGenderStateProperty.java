@@ -1,8 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Enums;
-import com.google.common.collect.Sets;
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
@@ -31,7 +29,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     protected GonoGenderStateProperty(GonoGenderStateProperty clone, CloneMap cloneMap) {
         super(clone, cloneMap);
-        gene = registerGene(DefaultGene.newMutatedCopy(clone.gene));
+        gene = registerGene(ImmutableGene.newMutatedCopy(clone.gene));
     }
 
     @Override
@@ -90,7 +88,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
         };
 
         int initialValue = nextBoolean() ? Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
-        gene = registerGene(new DefaultGene<Integer>(initialValue, Integer.class, mutationOperator));
+        gene = registerGene(new ImmutableGene<Integer>(initialValue, Integer.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }

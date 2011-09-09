@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
 import java.util.Iterator;
@@ -13,7 +15,6 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Attribute(name="name", required = false)
     protected String name = "";
-    private boolean frozen = false;
     protected Agent agent;
 
     protected AbstractGFComponent() {
@@ -30,13 +31,13 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     @Override
-    public void setAgent(Agent individual) {
-        agent = individual;
+    public void setAgent(Agent agent) {
+        this.agent = agent;
     }
 
     public void setName(String name) {
         Preconditions.checkNotNull(name);
-        this.name = checkFrozen(name);
+        this.name = name;
     }
 
     @Override
@@ -56,12 +57,6 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void freeze() {
-        frozen = true;
-    }
-
-    public final <T> T checkFrozen(T value) {
-        checkNotFrozen();
-        return value;
     }
 
     public final void checkNotFrozen() {
@@ -69,7 +64,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
+    public void checkConsistency() throws IllegalStateException {
         if (getAgent() == null)
             throw new IllegalStateException(
                     AbstractGFComponent.class.getSimpleName() + "[" + name + "]: Components must have an owner");
@@ -87,7 +82,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public boolean isFrozen() {
-        return frozen;
+        return agent != null && agent.isFrozen();
     }
 
     @Override
@@ -97,5 +92,15 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
 
     @Override
     public void prepare(Simulation context) {
+    }
+
+    @Override
+    public void configure(ConfigurationHandler e) {
+        e.setWriteProtection(new Supplier<Boolean>() {
+            @Override
+            public Boolean get() {
+                return isFrozen();
+            }
+        });
     }
 }

@@ -211,6 +211,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
         return cols;
     }
 
+    // TODO: Invert dependency
     public void draw(Graphics2D g2d) {
         Circle c = Circle.at(getX(), getY(), getRadius());
 
@@ -221,5 +222,10 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
 
         g2d.setColor(getColor());
         g2d.fill(c);
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
     }
 }

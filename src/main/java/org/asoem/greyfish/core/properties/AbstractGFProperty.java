@@ -4,10 +4,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -33,7 +34,12 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         });
     }
 
-    @Override
+    /**
+     * Set the delegates of the contained {@code IndexedGene}s and their index to the values provided by the given {@code geneIterator}
+     *
+     * @param genes A {@code Genome}'s geneList ListIterator which provides the delegate genes
+     * @see org.asoem.greyfish.core.genes.ImmutableGenome#listIterator()
+     */
     public void setGenes(final Iterable<? extends Gene<?>> genes) {
         for (final ForwardingGene<?> gene : geneList) {
             Gene<?> copy = Iterables.find(genes, new Predicate<Gene<?>>() {
@@ -63,7 +69,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         if (simulation.getSteps() == 0)
             for (ForwardingGene<?> gene : geneList) {
                 try {
-                    gene.setDelegate(DefaultGene.newInitializedCopy(gene));
+                    gene.setDelegate(ImmutableGene.newInitializedCopy(gene));
                 }
                 catch (Exception e) {
                     LoggerFactory.getLogger(AbstractGFProperty.class).warn("Could initialize gene.", e);
@@ -86,6 +92,11 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
 
     protected AbstractGFProperty(AbstractGFComponent cloneable, CloneMap map) {
         super(cloneable, map);
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {}

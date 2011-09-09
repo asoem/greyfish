@@ -37,7 +37,7 @@ public class LastExecutedActionCondition extends LeafCondition {
         e.add(new FiniteSetValueAdaptor<GFAction>("Action", GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
-                action = checkFrozen(checkNotNull(arg0));
+                action = checkNotNull(arg0);
             }
 
             @Override

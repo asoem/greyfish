@@ -4,8 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
-import org.asoem.greyfish.core.individual.FinalizedAgent;
-import org.asoem.greyfish.core.individual.AbstractAgent;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.DefaultAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.properties.BitSetTrait;
@@ -39,12 +39,11 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .storesEnergyIn(energyStorage)
                         .similarityTrait(trait1)
                         .build();
-        final Prototype consumer = Prototype.newInstance(
-                AbstractAgent.with()
+        final Prototype consumer = Prototype.with()
                         .population(Population.newPopulation("TestPop1", Color.black))
                         .addProperties(trait1, energyStorage)
                         .addActions(consumptionAction)
-                        .build());
+                        .build();
 
         final BitSetTrait trait = BitSetTrait.with().name("Trait2").initialValue(ImmutableBitSet.valueOf("111000")).build();
         final ResourceProperty resourceProperty = new ResourceProperty.Builder().lowerBound(0.0).upperBound(1.0).initialValue(1.0).build();
@@ -55,12 +54,11 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .resourceProperty(resourceProperty)
                         .similarityTrait(trait)
                         .build();
-        final Prototype provider = Prototype.newInstance(
-                AbstractAgent.with()
+        final Prototype provider = Prototype.with()
                         .population(Population.newPopulation("TestPop2", Color.black))
                         .addProperties(trait, resourceProperty)
                         .addActions(provisionAction)
-                        .build());
+                        .build();
 
         final Scenario scenario =
                 Scenario.with().space(1,1)
@@ -76,9 +74,9 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                 simulation.step();
             }
 
-            FinalizedAgent consumerClone = Iterables.find(simulation.getAgents(), new Predicate<FinalizedAgent>() {
+            Agent consumerClone = Iterables.find(simulation.getAgents(), new Predicate<Agent>() {
                 @Override
-                public boolean apply(FinalizedAgent agent) {
+                public boolean apply(Agent agent) {
                     return agent.getPopulation().equals(consumer.getPopulation());
                 }
             }, null);

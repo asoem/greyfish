@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishMathExpression;
-import org.asoem.greyfish.core.individual.FinalizedAgent;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -39,7 +39,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Element(name="sensorRange")
     private double sensorRange = 0;
 
-    private Iterable<FinalizedAgent> sensedMates;
+    private Iterable<Agent> sensedMates;
 
     @SimpleXMLConstructor
     private ResourceConsumptionAction() {
@@ -90,7 +90,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = filter(agent.findNeighbours(sensorRange), FinalizedAgent.class);
+        sensedMates = filter(agent.findNeighbours(sensorRange), Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent)));
         return ! isEmpty(sensedMates);
     }
@@ -112,7 +112,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         e.add(new ValueAdaptor<String>("Ontology", String.class) {
             @Override
             protected void set(String arg0) {
-                parameterMessageType = checkFrozen(checkNotNull(arg0));
+                parameterMessageType = checkNotNull(arg0);
             }
 
             @Override
@@ -123,7 +123,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         e.add(new ValueAdaptor<Double>("Requested Amount", Double.class) {
             @Override
             protected void set(Double arg0) {
-                amountPerRequest = checkFrozen(checkNotNull(arg0));
+                amountPerRequest = checkNotNull(arg0);
             }
 
             @Override
@@ -134,7 +134,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
-                consumerProperty = checkFrozen(checkNotNull(arg0));
+                consumerProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -151,7 +151,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
             @Override
             protected void set(Double arg0) {
-                sensorRange = checkFrozen(checkNotNull(arg0));
+                sensorRange = checkNotNull(arg0);
             }
 
             @Override
