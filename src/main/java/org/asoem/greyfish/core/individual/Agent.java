@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.utils.DeepCloneable;
@@ -58,4 +59,6 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     Iterable<MovingObject2D> findNeighbours(double range);
 
     void shutDown();
+
+    Simulation getSimulation();
 }

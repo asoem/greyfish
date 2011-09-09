@@ -74,7 +74,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage message) throws NotUnderstoodException {
         try {
             final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(GreyfishMathExpression.evaluateAsDouble(transformationFunction, agent, simulation, offer));
+            consumerProperty.add(GreyfishMathExpression.evaluateAsDouble(transformationFunction, agent, agent.getSimulation(), offer));
 
             LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
         }
