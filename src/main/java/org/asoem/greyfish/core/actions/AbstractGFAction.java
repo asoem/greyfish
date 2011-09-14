@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.EvaluationException;
-import org.asoem.greyfish.core.eval.GreyfishMathExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
@@ -23,6 +23,7 @@ import org.simpleframework.xml.Root;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.AbstractGFAction.ExecutionResult.*;
+import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
 
 @Root
 public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
@@ -32,7 +33,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     private ConditionTree conditionTree;
 
     @Element(name="costs_formula", required = false)
-    private String energyCostsFormula = "0";
+    private GreyfishExpression energyCosts = compileExpression("0").forContext(AbstractGFAction.class);
 
     @Element(name="energy_source", required=false)
     private DoubleProperty energySource;
@@ -113,7 +114,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     }
 
     private boolean hasCosts() {
-        return energySource != null && energyCostsFormula != null;
+        return energySource != null && energyCosts != null;
     }
 
     private void postExecutionTasks(Simulation simulation) {
@@ -165,10 +166,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     @Override
     public double evaluateFormula(Simulation simulation) {
         try {
-            return GreyfishMathExpression.evaluateAsDouble(energyCostsFormula, agent, simulation);
+            return energyCosts.evaluateAsDouble(this);
         } catch (EvaluationException e) {
-            LOGGER.error("Costs formula could not be evaluated: {}. Setting formula to '0'", energyCostsFormula, e);
-            energyCostsFormula = "0";
+            LOGGER.error("Costs formula could not be evaluated: {}.", energyCosts, e);
             return 0;
         }
     }
@@ -194,15 +194,15 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        e.add(new ValueAdaptor<String>("Energy Costs", String.class) {
+        e.add(new ValueAdaptor<GreyfishExpression>("Energy Costs", GreyfishExpression.class) {
             @Override
-            public String get() {
-                return energyCostsFormula;
+            public GreyfishExpression get() {
+                return energyCosts;
             }
 
             @Override
-            protected void set(String arg0) {
-                energyCostsFormula = arg0;
+            protected void set(GreyfishExpression arg0) {
+                energyCosts = arg0;
             }
         });
 
@@ -248,7 +248,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected AbstractGFAction(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
-        this.energyCostsFormula = builder.formula;
+        this.energyCosts = builder.formula;
         this.energySource = builder.source;
         this.conditionTree = new ConditionTree(builder.condition);
     }
@@ -256,11 +256,11 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
         private GFCondition condition;
         private DoubleProperty source;
-        private String formula = "0";
+        private GreyfishExpression formula = compileExpression("0").forContext(AbstractGFAction.class);
 
         public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
         private T source(DoubleProperty source) { this.source = source; return self(); }
-        private T formula(String formula) { this.formula = formula; return self(); }
+        private T formula(String formula) { this.formula = compileExpression(formula).forContext(AbstractGFAction.class); return self(); }
         public T generatesCosts(DoubleProperty source, String formula) {
             return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
     }
@@ -269,6 +269,6 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         super(cloneable, map);
         this.conditionTree = new ConditionTree(map.clone(cloneable.getRootCondition(), GFCondition.class));
         this.energySource = map.clone(cloneable.energySource, DoubleProperty.class);
-        this.energyCostsFormula = cloneable.energyCostsFormula;
+        this.energyCosts = cloneable.energyCosts;
     }
 }

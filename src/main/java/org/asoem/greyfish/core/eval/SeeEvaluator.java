@@ -9,26 +9,23 @@ import see.SeeException;
 
 import javax.annotation.Nonnull;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * User: christoph
  * Date: 19.05.11
  * Time: 09:41
  */
-public class SeeExpressionParser implements ExpressionParser {
+public class SeeEvaluator implements Evaluator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SeeExpressionParser.class);
-    private final static See see = See.create();
+    private static final Logger LOGGER = LoggerFactory.getLogger(SeeEvaluator.class);
+    private static final See see = See.create();
+
     private INode inode;
+    private String expression;
 
-    @Override
-    public void parse(String expression) throws IllegalArgumentException {
-        try {
-            inode = see.parse(expression);
-            LOGGER.debug("See parsed Expression {} to Node {}.", expression, inode);
-        }
-        catch (SeeException e) {
-            throw new IllegalArgumentException(e);
-        }
+    public SeeEvaluator(String expression) {
+        setExpression(expression);
     }
 
     @Override
@@ -69,7 +66,24 @@ public class SeeExpressionParser implements ExpressionParser {
         see.setParent(new SeeResolverAdaptor(resolver));
     }
 
-    private static class SeeResolverAdaptor implements Resolver, VariableResolver {
+    @Override
+    public void setExpression(String expression) {
+        this.expression = checkNotNull(expression);
+        try {
+            inode = see.parse(expression);
+            LOGGER.debug("See parsed Expression {} to Node {}.", expression, inode);
+        }
+        catch (SeeException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    @Override
+    public String getExpression() {
+        return expression;
+    }
+
+    private static class SeeResolverAdaptor extends AbstractVariableResolver implements Resolver {
 
         private final VariableResolver resolver;
 

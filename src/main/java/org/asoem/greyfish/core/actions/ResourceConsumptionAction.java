@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.eval.GreyfishMathExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -20,6 +20,7 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.isEmpty;
+import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
@@ -29,6 +30,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Element(name="resourceTransformationFunction", required = false)
     private String transformationFunction = "#{x0}";
+
+    private GreyfishExpression<ResourceConsumptionAction> transformationExpression =
+            compileExpression("#{x0}").forContext(ResourceConsumptionAction.class);
 
     @Element(name="messageType", required=false)
     private String parameterMessageType = "";
@@ -74,7 +78,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage message) throws NotUnderstoodException {
         try {
             final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(GreyfishMathExpression.evaluateAsDouble(transformationFunction, agent, agent.getSimulation(), offer));
+            consumerProperty.add(transformationExpression.evaluateAsDouble(this, offer));
 
             LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
         }

@@ -1,30 +1,24 @@
 package org.asoem.greyfish.core.eval;
 
-import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.function.FunctionException;
 
 import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
  * Date: 18.05.11
  * Time: 16:57
  */
-public class JEvalExpressionParser implements ExpressionParser {
+public class JEvalEvaluator implements Evaluator {
 
-    private final Evaluator evaluator;
+    private final net.sourceforge.jeval.Evaluator evaluator = new net.sourceforge.jeval.Evaluator();
 
-    public JEvalExpressionParser(Evaluator evaluator) {
-        this.evaluator = evaluator;
-    }
+    private String expression;
 
-    @Override
-    public void parse(String expression) {
-        try {
-            evaluator.parse(expression);
-        } catch (net.sourceforge.jeval.EvaluationException e) {
-            throw new IllegalArgumentException("Expression is not valid.", e);
-        }
+    public JEvalEvaluator(String expression) {
+        setExpression(expression);
     }
 
     @Override
@@ -38,7 +32,7 @@ public class JEvalExpressionParser implements ExpressionParser {
 
     @Override
     public boolean evaluateAsBoolean() throws EvaluationException {
-         try {
+        try {
             return Boolean.valueOf(evaluator.evaluate());
         } catch (net.sourceforge.jeval.EvaluationException e) {
             throw new EvaluationException("Expression could not be evaluated.", e);
@@ -50,7 +44,22 @@ public class JEvalExpressionParser implements ExpressionParser {
         evaluator.setVariableResolver(new JEvalVariableResolverAdaptor(resolver));
     }
 
-    private static class JEvalVariableResolverAdaptor implements VariableResolver, net.sourceforge.jeval.VariableResolver {
+    @Override
+    public void setExpression(String expression) {
+        this.expression = checkNotNull(expression);
+        try {
+            evaluator.parse(expression);
+        } catch (net.sourceforge.jeval.EvaluationException e) {
+            throw new IllegalArgumentException("Expression is not valid.", e);
+        }
+    }
+
+    @Override
+    public String getExpression() {
+        return expression;
+    }
+
+    private static class JEvalVariableResolverAdaptor extends AbstractVariableResolver implements net.sourceforge.jeval.VariableResolver {
 
         private final VariableResolver variableResolver;
 

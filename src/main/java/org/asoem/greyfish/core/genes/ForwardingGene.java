@@ -1,8 +1,20 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
+import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.AbstractDeepCloneable;
+import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloneable;
+
+import javax.annotation.Nullable;
+import java.util.Iterator;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ForwardingGene<T> implements Gene<T> {
+public class ForwardingGene<T> extends AbstractDeepCloneable implements Gene<T> {
 
     private Gene<T> delegate;
 
@@ -12,6 +24,11 @@ public class ForwardingGene<T> implements Gene<T> {
      */
     public ForwardingGene(Gene<T> gene) {
         setDelegate(gene);
+    }
+
+    public ForwardingGene(ForwardingGene gene, CloneMap map) {
+        super(gene, map);
+        delegate = map.clone(gene.delegate, Gene.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -56,7 +73,77 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
+    public Agent getAgent() {
+        return delegate.getAgent();
+    }
+
+    @Override
+    public void setAgent(@Nullable Agent agent) {
+        delegate.setAgent(agent);
+    }
+
+    @Override
+    public void setName(String name) {
+        delegate.setName(name);
+    }
+
+    @Override
+    public boolean hasName(String s) {
+        return delegate.hasName(s);
+    }
+
+    @Override
+    public void checkConsistency() {
+        delegate.checkConsistency();
+    }
+
+    @Override
+    public void configure(ConfigurationHandler e) {
+        delegate.configure(e);
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        delegate.accept(visitor);
+    }
+
+    @Override
+    public void prepare(Simulation context) {
+        delegate.prepare(context);
+    }
+
+    @Override
+    public void freeze() {
+        delegate.freeze();
+    }
+
+    @Override
+    public boolean isFrozen() {
+        return delegate.isFrozen();
+    }
+
+    @Override
+    public void checkNotFrozen() throws IllegalStateException {
+        delegate.checkNotFrozen();
+    }
+
+    @Override
+    public String getName() {
+        return delegate.getName();
+    }
+
+    @Override
+    public Iterator<GFComponent> iterator() {
+        return delegate.iterator();
+    }
+
+    @Override
     public String toString() {
         return "Gene@[" + get() + "]";
+    }
+
+    @Override
+    public DeepCloneable deepCloneHelper(CloneMap map) {
+        return new ForwardingGene(this, map);
     }
 }

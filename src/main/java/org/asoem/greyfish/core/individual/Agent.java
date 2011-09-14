@@ -26,6 +26,7 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     boolean removeAction(GFAction action);
     void removeAllActions();
     Iterable<GFAction> getActions();
+    @Nullable <T extends GFAction> T getAction(String actionName, Class<T> gfActionClass);
 
     boolean addProperty(GFProperty property);
     boolean removeProperty(GFProperty property);
@@ -35,6 +36,7 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
 
     Genome getGenome();
     void setGenome(Genome genome);
+    @Nullable <T extends Gene> T getGene(String geneName, Class<T> geneClass);
 
     boolean isCloneOf(Object object);
 

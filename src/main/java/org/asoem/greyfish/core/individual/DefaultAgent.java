@@ -9,6 +9,7 @@ import com.sun.istack.internal.NotNull;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.genes.MutableGenome;
@@ -197,6 +198,19 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
         return unmodifiableIterable(actions);
     }
 
+    @Override
+    public <T extends GFAction> T getAction(final String actionName, Class<T> gfActionClass) {
+        return Iterables.find(
+                Iterables.filter(actions, gfActionClass),
+                new Predicate<T>() {
+
+                    @Override
+                    public boolean apply(T object) {
+                        return object.hasName(actionName);
+                    }
+                }, null);
+    }
+
     /**
      * Add <code>property</code> to the Individuals properties if it does not contain one with the same key (i.e. property.getPropertyName() ).
      * @param property The property to sum
@@ -230,12 +244,12 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
     @Nullable
     public <T extends GFProperty> T getProperty(final String name, Class<T> propertyClass) {
         return Iterables.find(
-                Iterables.filter(getProperties(), propertyClass),
+                Iterables.filter(properties, propertyClass),
                 new Predicate<T>() {
 
                     @Override
                     public boolean apply(T object) {
-                        return object.getName().equals(name);
+                        return object.hasName(name);
                     }
                 }, null);
     }
@@ -395,6 +409,12 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
     public void setGenome(final Genome genome) {
         Preconditions.checkNotNull(genome);
         this.genome.reset(genome);
+    }
+
+    @Override
+    public <T extends Gene> T getGene(String geneName, Class<T> geneClass) {
+        // TODO: Implement
+        return null;
     }
 
     public static Builder with() {

@@ -1,7 +1,9 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.eval.EvaluationException;
-import org.asoem.greyfish.core.eval.GreyfishMathExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.CloneMap;
@@ -17,7 +19,10 @@ import org.asoem.greyfish.utils.ValueAdaptor;
 @ClassGroup(tags = {"property"})
 public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty<Double> {
 
-    private String expression = "0";
+    private static final Logger LOGGER = LoggerFactory.getLogger(FormulaTrait.class);
+
+    private GreyfishExpression<FormulaTrait> expression =
+            GreyfishExpressionFactory.compileExpression("0").forContext(FormulaTrait.class);
 
     protected FormulaTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
@@ -25,6 +30,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
 
     protected FormulaTrait(FormulaTrait cloneable, CloneMap map) {
         super(cloneable, map);
+        this.expression = cloneable.expression;
     }
 
     @Override
@@ -40,11 +46,9 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
     @Override
     public Double get() {
         try {
-            return GreyfishMathExpression.evaluateAsDouble(expression,
-                    agent,
-                    agent.getSimulation());
+            return expression.evaluateAsDouble(this);
         } catch (EvaluationException e) {
-            LoggerFactory.getLogger(FormulaTrait.class).warn("expression could not be evaluated. Returning 0.0");
+            LOGGER.warn("expression could not be evaluated. Returning 0.0");
             return 0.0;
         }
     }

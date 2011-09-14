@@ -1,9 +1,10 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Supplier;
+import org.asoem.greyfish.core.individual.GFComponent;
 
 
-public interface Gene<T> extends Supplier<T> {
+public interface Gene<T> extends GFComponent, Supplier<T> {
 
     /**
      * @return the class of the value this gene is supplying

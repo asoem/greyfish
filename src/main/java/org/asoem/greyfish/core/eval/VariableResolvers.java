@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
  */
 public class VariableResolvers {
     static VariableResolver concat(final VariableResolver... resolvers) {
-        return new VariableResolver() {
+        return new AbstractVariableResolver() {
             @Override
             public Object resolve(@Nonnull  String s) {
                 for (VariableResolver resolver : resolvers) {
@@ -23,7 +23,7 @@ public class VariableResolvers {
     }
 
     static VariableResolver concat(final VariableResolver resolver1, final VariableResolver resolver2) {
-        return new VariableResolver() {
+        return new AbstractVariableResolver() {
             @Override
             public Object resolve(@Nonnull String s) {
                 Object ret = resolver1.resolve(s);

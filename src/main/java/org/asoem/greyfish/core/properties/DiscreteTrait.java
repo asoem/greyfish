@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.eval.EvaluationException;
-import org.asoem.greyfish.core.eval.GreyfishMathExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -25,7 +27,8 @@ import java.util.Set;
 @ClassGroup(tags = {"property"})
 public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProperty<String> {
 
-    private Map<String, String> phenotypeConditionMap = ImmutableMap.of();
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscreteTrait.class);
+    private Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = ImmutableMap.of();
     private String currentState = null;
     private boolean dirty = true;
 
@@ -45,14 +48,13 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
     public String get() {
         if (dirty) {
             // TODO: in a quick and dirty state. How to handle no match / empty map?
-            currentState = Iterables.find(phenotypeConditionMap.values(), new Predicate<String>() {
+            currentState = Iterables.find(phenotypeConditionMap.keySet(), new Predicate<String>() {
                 @Override
                 public boolean apply(@Nullable String expression) {
                     try {
-                        return GreyfishMathExpression.evaluateAsDouble(expression,
-                                agent, agent.getSimulation()) == 1;
+                        return phenotypeConditionMap.get(expression).evaluateAsBoolean(DiscreteTrait.this);
                     } catch (EvaluationException e) {
-                        LoggerFactory.getLogger(DiscreteTrait.class).warn("Failed to evaluateAsDouble expression {}", expression);
+                        LOGGER.warn("Failed to evaluateAsBoolean expression {}", expression);
                         return false;
                     }
                 }
@@ -89,9 +91,9 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
-        private final Map<String, String> phenotypeConditionMap = Maps.newHashMap();
+        private final Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = Maps.newHashMap();
 
-        public AbstractBuilder<T> addState(String state, String when) { phenotypeConditionMap.put(state, when); return self();}
+        public AbstractBuilder<T> addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactory.compileExpression(when).forContext(DiscreteTrait.class)); return self();}
     }
 
 }

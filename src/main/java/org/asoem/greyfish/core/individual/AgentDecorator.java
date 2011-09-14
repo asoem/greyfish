@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.individual;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -304,5 +305,15 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     @Override
     public void prepare(Simulation context) {
         delegate.prepare(context);
+    }
+
+    @Override
+    public <T extends GFAction> T getAction(String actionName, Class<T> gfActionClass) {
+        return delegate.getAction(actionName, gfActionClass);
+    }
+
+    @Override
+    public <T extends Gene> T getGene(String geneName, Class<T> geneClass) {
+        return delegate.getGene(geneName, geneClass);
     }
 }

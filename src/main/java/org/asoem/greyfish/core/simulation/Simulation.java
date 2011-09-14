@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -207,7 +208,8 @@ public class Simulation implements Runnable, HasName {
      * Remove agent from this scenario
      * @param agent
      */
-    public void removeAgent(final Clone agent) {
+    public void removeAgent(final Agent agent) {
+        Preconditions.checkArgument(Clone.class.isInstance(checkNotNull(agent)));
         /*
            * TODO: removal could be implemented more efficiently.
            * e.g. by marking agents and removal during a single iteration over all
@@ -220,7 +222,7 @@ public class Simulation implements Runnable, HasName {
                         concurrentAgentsView.remove(agent);
                         populationCount.get(agent.getPopulation()).decrease();
                         agent.shutDown();
-                        putCloneInPool(agent);
+                        putCloneInPool(Clone.class.cast(agent));
                     }
                 });
     }

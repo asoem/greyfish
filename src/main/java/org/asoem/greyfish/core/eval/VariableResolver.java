@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.asoem.greyfish.core.individual.GFComponent;
 
 /**
  * User: christoph
@@ -9,6 +8,7 @@ import javax.annotation.Nullable;
  * Time: 17:00
  */
 public interface VariableResolver {
-      @Nullable
-      Object resolve(@Nonnull String varName);
+    Object resolve(String varName);
+    GFComponent getContext();
+    void setContext(GFComponent context);
 }

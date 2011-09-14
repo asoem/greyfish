@@ -67,7 +67,7 @@ public class MutableGenome implements Genome {
             Iterator<Gene<?>> thatGenesIterator = genome.iterator();
 
             while (thatGenesIterator.hasNext() && thatGenesIterator.hasNext()) {
-                thisGenesIterator.next().setDelegate(ImmutableGene.copyOf(thatGenesIterator.next()));
+                thisGenesIterator.next().setDelegate(thatGenesIterator.next().deepClone(Gene.class));
             }
         }
     }
