@@ -14,9 +14,10 @@ public interface ResolverConverter {
     /**
      *
      *
-     * @param varName The name of a variable which is fed into a {@link org.asoem.greyfish.core.eval.VariableResolver}
+     * @param varName The name of a variable which is fed into a {@link GreyfishVariableResolver}
      * @param context The context of the variable definition.
      * @return a {@link Function} of the {@code context} identified by {@code varName}
+     * @throws VariableResolutionException if the variable identified by varName has wrong syntax or does not match any function.
      */
-    public Function<GFComponent, Object> get(String varName, Class<? extends GFComponent> context);
+    public <T extends GFComponent> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException;
 }

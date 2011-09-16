@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -83,5 +84,22 @@ public class MutableGenome implements Genome {
                 return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedCopyOf(gene);
             }
         }));
+    }
+
+    public boolean addGene(Gene<?> gene) {
+        return genes.add(new ForwardingGene(gene));
+    }
+
+    public boolean remove(final Gene gene) {
+        return Iterables.removeIf(genes, new Predicate<ForwardingGene<?>>() {
+            @Override
+            public boolean apply(@Nullable ForwardingGene<?> forwardingGene) {
+                return forwardingGene.getDelegate().equals(gene);
+            }
+        });
+    }
+
+    public void removeAllGenes() {
+        genes.clear();
     }
 }

@@ -20,23 +20,29 @@ import java.util.List;
 public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2D, MessageReceiver, Preparable<Simulation> {
     Population getPopulation();
     void setPopulation(Population population);
+
     Body getBody();
 
     boolean addAction(GFAction action);
     boolean removeAction(GFAction action);
     void removeAllActions();
     Iterable<GFAction> getActions();
-    @Nullable <T extends GFAction> T getAction(String actionName, Class<T> gfActionClass);
+    @Nullable <T extends GFAction> T getAction(String name, Class<T> clazz);
 
     boolean addProperty(GFProperty property);
     boolean removeProperty(GFProperty property);
     void removeAllProperties();
     Iterable<GFProperty> getProperties();
-    @Nullable <T extends GFProperty> T getProperty(String name, Class<T> propertyClass);
+    @Nullable <T extends GFProperty> T getProperty(String name, Class<T> clazz);
+
+    boolean addGene(Gene gene);
+    boolean removeGene(Gene gene);
+    void removeAllGenes();
+    Iterable<Gene<?>> getGenes();
+    @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
 
     Genome getGenome();
     void setGenome(Genome genome);
-    @Nullable <T extends Gene> T getGene(String geneName, Class<T> geneClass);
 
     boolean isCloneOf(Object object);
 
@@ -47,13 +53,10 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     int getId();
     int getTimeOfBirth();
     int getAge();
-
     Color getColor();
     void setColor(Color color);
     double getRadius();
     GFAction getLastExecutedAction();
-
-    void execute();
 
     void sendMessage(ACLMessage message);
     List<ACLMessage> pullMessages(MessageTemplate template);
@@ -63,6 +66,7 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
 
     Iterable<MovingObject2D> findNeighbours(double range);
 
+    void execute();
     void shutDown();
 
     Simulation getSimulation();

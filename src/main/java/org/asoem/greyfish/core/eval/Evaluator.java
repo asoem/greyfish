@@ -7,10 +7,10 @@ package org.asoem.greyfish.core.eval;
  * Time: 16:56
  */
 public interface Evaluator {
+
     double evaluateAsDouble() throws EvaluationException;
     boolean evaluateAsBoolean() throws EvaluationException;
-    void setResolver(VariableResolver resolver);
 
-    void setExpression(String expression);
+    void setExpression(String expression) throws SyntaxException;
     String getExpression();
 }

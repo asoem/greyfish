@@ -8,10 +8,11 @@ import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
 
 /**
-* User: christoph
-* Date: 14.09.11
-* Time: 18:37
-*/
+ * User: christoph
+ * Date: 14.09.11
+ * Time: 18:37
+ */
+@SuppressWarnings("unchecked")
 class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
 
     public GreyfishExpression read(InputNode node) throws Exception {
@@ -24,7 +25,7 @@ class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
 
     public void write(OutputNode node, GreyfishExpression external) {
         String expression = external.getExpression();
-        Class<? extends GFComponent> context = external.getContextClass();
+        Class<?> context = external.getContextClass();
 
         node.setAttribute("expression", expression);
         node.setAttribute("context", context.getCanonicalName());

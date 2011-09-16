@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * User: christoph
  * Date: 13.09.11
@@ -28,7 +30,10 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
     private static final Splitter GOM_SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
 
     @Override
-    public Function<GFComponent, Object> get(String varName, final Class<? extends GFComponent> context) {
+    public <T extends GFComponent> Function<T, ?> get(String varName, final Class<T> context) {
+        checkNotNull(varName);
+        checkNotNull(context);
+
         Iterator<String> gomParts = GOM_SPLITTER.split(varName).iterator();
 
         if (gomParts.hasNext()) {
@@ -37,17 +42,17 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
 
             if ("this".equals(root)) {
                 if (GFAction.class.equals(context)) {
-                    return action(gomParts, new Function<GFComponent, GFAction>() {
+                    return action(gomParts, new Function<T, GFAction>() {
                         @Override
-                        public GFAction apply(@Nullable GFComponent gfComponent) {
+                        public GFAction apply(@Nullable T gfComponent) {
                             return GFAction.class.cast(gfComponent);
                         }
                     });
                 }
                 else if (GFProperty.class.equals(context)) {
-                    return property(gomParts, new Function<GFComponent, GFProperty>() {
+                    return property(gomParts, new Function<T, GFProperty>() {
                         @Override
-                        public GFProperty apply(@Nullable GFComponent gfComponent) {
+                        public GFProperty apply(@Nullable T gfComponent) {
                             return GFProperty.class.cast(gfComponent);
                         }
                     });
@@ -55,9 +60,9 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
             }
             else if ("sim".equals(root)) {
                 if (Simulation.class.equals(context)) {
-                    return simulation(gomParts, new Function<GFComponent, Simulation>() {
+                    return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
-                        public Simulation apply(@Nullable GFComponent gfComponent) {
+                        public Simulation apply(@Nullable T gfComponent) {
                             return gfComponent.getAgent().getSimulation();
                             // TODO: We should have direct access to simulation object through a component
                         }
@@ -69,30 +74,50 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         throw new RuntimeException("");
     }
 
-    private Function<GFComponent, Object> action(Iterator<String> parts, Function<GFComponent, GFAction> ret) {
+    private <T extends GFComponent> Function<T, ?> action(Iterator<String> parts, Function<T, GFAction> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
+            if ("agent".equals(nextPart)) {
+                return agent(parts, Functions.compose(new Function<GFAction, Agent>() {
+                    @Override
+                    public Agent apply(@Nullable GFAction action) {
+                        return action.getAgent();
+                    }
+                }, ret));
+            }
+
             if (nextPart.matches("conditions\\[.+\\]")) {
             }
             throw new RuntimeException("GFAction has no member named " + nextPart);
         }
-
-        throw new RuntimeException("Nothing");
+        else {
+            return ret;
+        }
     }
 
-    private Function<GFComponent, Object> property(Iterator<String> parts, Function<GFComponent, GFProperty> ret) {
+    private <T extends GFComponent> Function<T, ?> property(Iterator<String> parts, Function<T, GFProperty> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
+            if ("agent".equals(nextPart)) {
+                return agent(parts, Functions.compose(new Function<GFProperty, Agent>() {
+                    @Override
+                    public Agent apply(@Nullable GFProperty property) {
+                        return property.getAgent();
+                    }
+                }, ret));
+            }
+
             if ("".equals(nextPart)) {
 
             }
             throw new RuntimeException("GFProperty has no member named " + nextPart);
         }
-
-        throw new RuntimeException("Nothing");
+        else {
+            return ret;
+        }
     }
 
-    private Function<GFComponent, Object> simulation(Iterator<String> parts, Function<GFComponent, Simulation> ret) {
+    private <T extends GFComponent> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
@@ -114,18 +139,35 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
 
             throw new RuntimeException("Simulation has no member named " + nextPart);
         }
-
-        throw new RuntimeException("Nothing");
+        else {
+            return ret;
+        }
     }
 
-    private Function<GFComponent, Object> gene(Iterator<String> parts, Function<GFComponent, Gene> ret) {
-        throw new RuntimeException("Nothing");
+    private <T extends GFComponent> Function<T, ?> gene(Iterator<String> parts, Function<T, Gene> ret) {
+        if (parts.hasNext()) {
+            String nextPart = parts.next();
+            throw new RuntimeException("Gene has no member named " + nextPart);
+        }
+        else {
+            return ret;
+        }
     }
 
-    private Function<GFComponent, Object> agent(Iterator<String> parts, Function<GFComponent, Agent> ret) {
+    private <T extends GFComponent> Function<T, ?> agent(Iterator<String> parts, Function<T, Agent> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             Matcher matcher;
+
+            if ("simulation".equals(nextPart)) {
+                return simulation(parts, Functions.compose( new Function<Agent, Simulation>() {
+                    @Override
+                    public Simulation apply(@Nullable Agent agent) {
+                        return agent.getSimulation();
+                    }
+                },ret));
+            }
+
 
             matcher = Pattern.compile("properties\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
             if (matcher.matches()) {
@@ -171,7 +213,8 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
 
             throw new RuntimeException("Agent has no member named " + nextPart);
         }
-
-        throw new RuntimeException("Nothing");
+        else {
+            return ret;
+        }
     }
 }

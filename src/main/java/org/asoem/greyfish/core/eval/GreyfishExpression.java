@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.eval;
 
 import org.asoem.greyfish.core.individual.GFComponent;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * User: christoph
  * Date: 13.09.11
@@ -10,11 +12,11 @@ import org.asoem.greyfish.core.individual.GFComponent;
 public class GreyfishExpression<T extends GFComponent> {
 
     private final Evaluator evaluator;
-    private final VariableResolver variableResolver;
+    private final GreyfishVariableResolver<T> variableResolver;
 
-    public GreyfishExpression(Evaluator evaluator, VariableResolver resolver) {
-        this.evaluator = evaluator;
-        this.variableResolver = resolver;
+    public GreyfishExpression(String expression, EvaluatorFactory evaluatorFactory, GreyfishVariableResolver<T> resolver) {
+        this.variableResolver = checkNotNull(resolver);
+        this.evaluator = checkNotNull(evaluatorFactory).createEvaluator(expression, this.variableResolver);
     }
 
     public double evaluateAsDouble(T context) throws EvaluationException {
@@ -24,7 +26,7 @@ public class GreyfishExpression<T extends GFComponent> {
 
     public double evaluateAsDouble(T context, Object ... args) throws EvaluationException {
         variableResolver.setContext(context);
-        // TODO: add argument parsing capability to VariableResolver
+        // TODO: add argument parsing capability to GreyfishVariableResolver
         // variableResolver.setArguments(args)
         return evaluator.evaluateAsDouble();
     }
@@ -42,8 +44,9 @@ public class GreyfishExpression<T extends GFComponent> {
         return evaluator.getExpression();
     }
 
+    @SuppressWarnings("unchecked")
     public Class<T> getContextClass() {
-        return (Class<T>) variableResolver.getContext().getClass(); // TODO: Parametrize VariableResolver
+        return (Class<T>) variableResolver.getContext().getClass();
     }
 
     @Override

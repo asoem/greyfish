@@ -316,4 +316,24 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     public <T extends Gene> T getGene(String geneName, Class<T> geneClass) {
         return delegate.getGene(geneName, geneClass);
     }
+
+    @Override
+    public boolean addGene(Gene gene) {
+        return delegate.addGene(gene);
+    }
+
+    @Override
+    public boolean removeGene(Gene gene) {
+        return delegate.removeGene(gene);
+    }
+
+    @Override
+    public void removeAllGenes() {
+        delegate.removeAllGenes();
+    }
+
+    @Override
+    public Iterable<Gene<?>> getGenes() {
+        return delegate.getGenes();
+    }
 }

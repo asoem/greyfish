@@ -24,8 +24,9 @@ public class SeeEvaluator implements Evaluator {
     private INode inode;
     private String expression;
 
-    public SeeEvaluator(String expression) {
+    public SeeEvaluator(String expression, VariableResolver resolver) {
         setExpression(expression);
+        see.setParent(new SeeResolverAdaptor(resolver));
     }
 
     @Override
@@ -62,11 +63,6 @@ public class SeeEvaluator implements Evaluator {
     }
 
     @Override
-    public void setResolver(VariableResolver resolver) {
-        see.setParent(new SeeResolverAdaptor(resolver));
-    }
-
-    @Override
     public void setExpression(String expression) {
         this.expression = checkNotNull(expression);
         try {
@@ -83,12 +79,12 @@ public class SeeEvaluator implements Evaluator {
         return expression;
     }
 
-    private static class SeeResolverAdaptor extends AbstractVariableResolver implements Resolver {
+    private static class SeeResolverAdaptor implements VariableResolver, Resolver {
 
         private final VariableResolver resolver;
 
         private SeeResolverAdaptor(VariableResolver resolver) {
-            this.resolver = resolver;
+            this.resolver = checkNotNull(resolver);
         }
 
         @Override

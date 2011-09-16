@@ -1,14 +1,12 @@
 package org.asoem.greyfish.core.eval;
 
-import org.asoem.greyfish.core.individual.GFComponent;
+import javax.annotation.Nullable;
 
 /**
  * User: christoph
- * Date: 18.05.11
- * Time: 17:00
+ * Date: 16.09.11
+ * Time: 11:09
  */
 public interface VariableResolver {
-    Object resolve(String varName);
-    GFComponent getContext();
-    void setContext(GFComponent context);
+    @Nullable Object resolve(String varName) throws VariableResolutionException;
 }

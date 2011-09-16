@@ -1,9 +1,8 @@
 package org.asoem.greyfish.core.eval;
 
 /**
- * User: christoph
- * Date: 19.05.11
- * Time: 10:47
+ * Unchecked exception thrown to indicate a evaluation error in the {@link Evaluator}
+ * used to evaluate a {@link GreyfishExpression} pattern.
  */
 public class EvaluationException extends Exception {
     public EvaluationException(String s, Throwable e) {

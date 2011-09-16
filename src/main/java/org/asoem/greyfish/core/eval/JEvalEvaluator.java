@@ -17,8 +17,9 @@ public class JEvalEvaluator implements Evaluator {
 
     private String expression;
 
-    public JEvalEvaluator(String expression) {
+    public JEvalEvaluator(String expression, VariableResolver resolver) {
         setExpression(expression);
+        evaluator.setVariableResolver(new JEvalVariableResolverAdaptor(resolver));
     }
 
     @Override
@@ -40,11 +41,6 @@ public class JEvalEvaluator implements Evaluator {
     }
 
     @Override
-    public void setResolver(VariableResolver resolver) {
-        evaluator.setVariableResolver(new JEvalVariableResolverAdaptor(resolver));
-    }
-
-    @Override
     public void setExpression(String expression) {
         this.expression = checkNotNull(expression);
         try {
@@ -59,12 +55,12 @@ public class JEvalEvaluator implements Evaluator {
         return expression;
     }
 
-    private static class JEvalVariableResolverAdaptor extends AbstractVariableResolver implements net.sourceforge.jeval.VariableResolver {
+    private static class JEvalVariableResolverAdaptor implements VariableResolver, net.sourceforge.jeval.VariableResolver {
 
         private final VariableResolver variableResolver;
 
         public JEvalVariableResolverAdaptor(VariableResolver variableResolver) {
-            this.variableResolver = variableResolver;
+            this.variableResolver = checkNotNull(variableResolver);
         }
 
         @Override

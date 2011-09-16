@@ -47,7 +47,8 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
     @ElementList(name="actions", entry="action", required=false)
     private final List<GFAction> actions = Lists.newArrayList();
 
-    private final MutableGenome genome = new MutableGenome();
+    @Element(name="genome", required=false)
+    private final MutableGenome genome;
 
     @Element(name = "body", required = false)
     protected final Body body;
@@ -59,10 +60,12 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
     protected DefaultAgent(
             @ElementList(name = "properties", entry = "property", required = false) final List<GFProperty> properties,
             @ElementList(name = "actions", entry = "action", required = false) final List<GFAction> actions,
-            @Element(name = "body", required = false) Body body) {
+            @Element(name = "body", required = false) Body body,
+            @Element(name = "body", required = false) MutableGenome genome) {
         if (properties != null) this.properties.addAll(properties);
         if (actions != null) this.actions.addAll(actions);
         this.body = (body != null) ? body : Body.newInstance(this);
+        this.genome = genome;
         for (GFComponent component : getComponents())
             component.setAgent(this);
     }
@@ -71,6 +74,10 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
         super(defaultAgent, map);
         this.population = defaultAgent.population;
         this.body = map.clone(defaultAgent.body, Body.class);
+        this.genome = new MutableGenome();
+        for (Gene<?> gene : map.cloneAll(defaultAgent.getGenome(), Gene.class)) {
+            genome.addGene(gene);
+        }
         Iterables.addAll(actions, map.cloneAll(defaultAgent.actions, GFAction.class));
         Iterables.addAll(properties, map.cloneAll(defaultAgent.properties, GFProperty.class));
     }
@@ -78,6 +85,10 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
     protected DefaultAgent(AbstractBuilder<?> builder) {
         this.population = builder.population;
         this.body = Body.newInstance(this);
+        this.genome = new MutableGenome();
+        for (Gene<?> gene : builder.genes) {
+            addGene(gene);
+        }
 
         for (GFAction action : builder.actions) {
             addAction(action);
@@ -252,6 +263,26 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
                         return object.hasName(name);
                     }
                 }, null);
+    }
+
+    @Override
+    public boolean addGene(Gene gene) {
+        return genome.addGene(gene);
+    }
+
+    @Override
+    public boolean removeGene(Gene gene) {
+        return genome.remove(gene);
+    }
+
+    @Override
+    public void removeAllGenes() {
+        genome.removeAllGenes();
+    }
+
+    @Override
+    public Iterable<Gene<?>> getGenes() {
+        return genome;
     }
 
     @Override
@@ -436,7 +467,9 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
         private final List<GFAction> actions = Lists.newArrayList();
         private final List<GFProperty> properties =  Lists.newArrayList();
         private Population population;
+        public final List<Gene<?>> genes = Lists.newArrayList();
 
+        public T addGenes(Gene<?> ... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
         public T population(Population population) { this.population = checkNotNull(population); return self(); }
         public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
         public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
