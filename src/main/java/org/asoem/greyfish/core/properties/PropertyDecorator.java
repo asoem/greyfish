@@ -5,13 +5,12 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import java.util.Iterator;
 
-public abstract class PropertyDecorator extends AbstractDeepCloneable implements GFProperty {
+public abstract class PropertyDecorator implements GFProperty {
 
     @Element(name = "delegate")
     protected abstract GFProperty getDelegate();

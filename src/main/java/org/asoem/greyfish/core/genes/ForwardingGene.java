@@ -4,7 +4,6 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
@@ -14,7 +13,7 @@ import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ForwardingGene<T> extends AbstractDeepCloneable implements Gene<T> {
+public class ForwardingGene<T> implements Gene<T> {
 
     private Gene<T> delegate;
 
@@ -27,7 +26,7 @@ public class ForwardingGene<T> extends AbstractDeepCloneable implements Gene<T> 
     }
 
     public ForwardingGene(ForwardingGene gene, CloneMap map) {
-        super(gene, map);
+        map.insert(gene, this);
         delegate = map.clone(gene.delegate, Gene.class);
     }
 

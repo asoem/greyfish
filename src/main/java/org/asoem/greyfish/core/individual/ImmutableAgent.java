@@ -17,58 +17,19 @@ import org.asoem.greyfish.utils.DeepCloneable;
  */
 public class ImmutableAgent extends AbstractAgent {
 
-    private final Population population;
-
-    private final ComponentList<GFProperty> properties;
-
-    private final ComponentList<GFAction> actions;
-
-    private final MutableGenome genome;
-
-    private final Body body;
-
-    private final SimulationContext simulationContext;
-
     private ImmutableAgent(Agent agent, Simulation simulation) {
-        super(body, properties, actions, genome);
-        Agent clone = agent.deepClone(Agent.class);
-
-        this.population = clone.getPopulation();
-        this.properties = ImmutableComponentList.copyOf(clone.getProperties(), this);
-        this.actions = ImmutableComponentList.copyOf(clone.getActions(), this);
-        this.genome = new MutableGenome(clone.getGenome(), this);
-        this.body = clone.getBody();
-        this.simulationContext = new SimulationContext(simulation, this);
+        super(agent);
     }
 
-
     private ImmutableAgent(Population population, Iterable<? extends GFProperty> properties, Iterable<? extends GFAction> actions, Iterable<? extends Gene<?>> genes, Body body, Simulation simulation) {
-        super(body, new ImmutableComponentList<GFProperty>() {
-            @Override
-            protected Agent getAgent() {
-                return ImmutableAgent.this;
-            }
-        });
+        super(body, ImmutableComponentList.copyOf(properties), ImmutableComponentList.copyOf(actions), new MutableGenome(genes));
         setPopulation(population);
-        this.population = population;
-        this.properties = ImmutableComponentList.copyOf(properties, this);
-        this.actions = ImmutableComponentList.copyOf(actions, this);
-        this.genome = new MutableGenome(genes, this);
-        this.body = body;
         this.simulationContext = new SimulationContext(simulation, this);
     }
 
     @SuppressWarnings("unchecked")
     protected ImmutableAgent(ImmutableAgent agent, CloneMap map) {
-        super(body, properties, actions, genome);
-        this(
-                agent.population,
-                map.cloneAll(agent.getProperties(), GFProperty.class),
-                map.cloneAll(agent.getActions(), GFAction.class),
-                (Iterable<Gene<?>>) (Iterable<?>) map.cloneAll(agent.getGenome(), Gene.class),
-                map.clone(agent.getBody(), Body.class),
-                agent.getSimulation()
-        );
+        super(agent, map);
     }
 
     @Override

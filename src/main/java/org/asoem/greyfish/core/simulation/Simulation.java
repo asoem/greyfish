@@ -26,6 +26,7 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.lang.HasName;
+import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Counter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.PolarPoint;
@@ -167,7 +168,7 @@ public class Simulation implements Runnable, HasName {
         }
 
         for (Prototype prototype : scenario.getPrototypes()) {
-            Prototype clone = prototype.deepClone(Prototype.class);
+            Prototype clone = CloneMap.deepClone(prototype, Prototype.class);
             assert (!prototypeMap.containsKey(clone.getPopulation())) : "Different Prototypes have the same Population";
             prototypeMap.put(clone.getPopulation(), clone);
             populationCount.put(clone.getPopulation(), new Counter(0));

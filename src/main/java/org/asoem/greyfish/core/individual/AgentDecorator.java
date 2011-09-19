@@ -10,7 +10,6 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.PolarPoint;
@@ -24,7 +23,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AgentDecorator extends AbstractDeepCloneable implements Agent {
+public abstract class AgentDecorator implements Agent {
 
     @Element(name="delegate")
     private final Agent delegate;

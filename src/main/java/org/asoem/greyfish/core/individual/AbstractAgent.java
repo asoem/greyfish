@@ -12,7 +12,6 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
@@ -27,7 +26,7 @@ import java.util.List;
  * Date: 19.09.11
  * Time: 16:20
  */
-public abstract class AbstractAgent extends AbstractDeepCloneable implements Agent {
+public abstract class AbstractAgent implements Agent {
 
     @ElementList(name="properties", entry="property", required=false)
     protected final ComponentList<GFProperty> properties;
@@ -56,12 +55,24 @@ public abstract class AbstractAgent extends AbstractDeepCloneable implements Age
     
     @SuppressWarnings("unchecked")
     protected AbstractAgent(AbstractAgent abstractAgent, CloneMap map) {
-        super(abstractAgent, map);
+        map.insert(abstractAgent, this);
         this.population = abstractAgent.population;
         this.actions = (ComponentList<GFAction>) map.clone(abstractAgent.actions, ComponentList.class);
         this.properties = (ComponentList<GFProperty>) map.clone(abstractAgent.properties, ComponentList.class);
         this.genome = map.clone(abstractAgent.genome, Genome.class);
         this.body = map.clone(abstractAgent.body, Body.class);
+    }
+
+    public AbstractAgent(Agent agent) {
+        Agent clone = CloneMap.deepClone(agent, Agent.class);
+        this.population = clone.getPopulation();
+        this.actions = clone.getActions();
+        this.properties = clone.getProperties();
+        this.genome = clone.getGenome();
+        this.body = clone.getBody();
+
+        for(GFComponent component : getComponents())
+            component.setAgent(this);
     }
 
     @Override

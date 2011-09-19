@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.individual.DefaultAgent;
+import org.asoem.greyfish.utils.CloneMap;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -34,11 +35,11 @@ public class PrototypePool {
 
 		final int index = indexOfPrototype(prototype);
 		if (index == -1) {
-			addPrototype(prototype.deepClone(DefaultAgent.class));
+			addPrototype(CloneMap.deepClone(prototype, DefaultAgent.class));
 			return createClone(prototype);
 		}
 		else if (clonePool.get(index).isEmpty()) {
-			return prototype.deepClone(DefaultAgent.class);
+			return CloneMap.deepClone(prototype, DefaultAgent.class);
 		}
 		else {
 			--cloneCount;

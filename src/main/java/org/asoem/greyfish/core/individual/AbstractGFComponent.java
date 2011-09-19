@@ -4,14 +4,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
 import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
 import java.util.Iterator;
 
-public abstract class AbstractGFComponent extends AbstractDeepCloneable implements GFComponent {
+public abstract class AbstractGFComponent implements GFComponent {
 
     @Attribute(name="name", required = false)
     protected String name = "";
@@ -21,7 +20,7 @@ public abstract class AbstractGFComponent extends AbstractDeepCloneable implemen
     }
 
     protected AbstractGFComponent(AbstractGFComponent cloneable, CloneMap map) {
-        super(cloneable, map);
+        map.insert(cloneable, this);
         this.name = cloneable.name;
     }
 
