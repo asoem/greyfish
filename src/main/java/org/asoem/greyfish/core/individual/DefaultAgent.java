@@ -42,10 +42,10 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
     protected Population population = Population.newPopulation("Default", Color.black);
 
     @ElementList(name="properties", entry="property", required=false)
-    private final List<GFProperty> properties = Lists.newArrayList();
+    private final List<GFProperty> properties = ComponentList.forOwner(this);
 
     @ElementList(name="actions", entry="action", required=false)
-    private final List<GFAction> actions = Lists.newArrayList();
+    private final List<GFAction> actions = ComponentList.forOwner(this);
 
     @Element(name="genome", required=false)
     private final MutableGenome genome;
@@ -54,7 +54,7 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
     protected final Body body;
 
     @NotNull
-    protected SimulationContext simulationContext = new SimulationContext(null, this);
+    protected SimulationContext simulationContext;
 
     @SimpleXMLConstructor
     protected DefaultAgent(
@@ -62,8 +62,10 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
             @ElementList(name = "actions", entry = "action", required = false) final List<GFAction> actions,
             @Element(name = "body", required = false) Body body,
             @Element(name = "body", required = false) MutableGenome genome) {
-        if (properties != null) this.properties.addAll(properties);
-        if (actions != null) this.actions.addAll(actions);
+        if (properties != null)
+            this.properties.addAll(properties);
+        if (actions != null)
+            this.actions.addAll(actions);
         this.body = (body != null) ? body : Body.newInstance(this);
         this.genome = genome;
         for (GFComponent component : getComponents())
@@ -89,7 +91,6 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
         for (Gene<?> gene : builder.genes) {
             addGene(gene);
         }
-
         for (GFAction action : builder.actions) {
             addAction(action);
         }
@@ -444,8 +445,7 @@ public class DefaultAgent extends AbstractDeepCloneable implements Agent, Moving
 
     @Override
     public <T extends Gene> T getGene(String geneName, Class<T> geneClass) {
-        // TODO: Implement
-        return null;
+        return genome.getGene(geneName, geneClass);
     }
 
     public static Builder with() {

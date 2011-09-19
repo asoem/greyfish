@@ -94,6 +94,7 @@ public class MutableGenome implements Genome {
         return Iterables.removeIf(genes, new Predicate<ForwardingGene<?>>() {
             @Override
             public boolean apply(@Nullable ForwardingGene<?> forwardingGene) {
+                assert forwardingGene != null;
                 return forwardingGene.getDelegate().equals(gene);
             }
         });
@@ -101,5 +102,15 @@ public class MutableGenome implements Genome {
 
     public void removeAllGenes() {
         genes.clear();
+    }
+
+    public <T extends Gene<?>> T getGene(final String geneName, Class<T> geneClass) {
+        return geneClass.cast(Iterables.find(this, new Predicate<Gene<?>>() {
+            @Override
+            public boolean apply(@Nullable Gene<?> forwardingGene) {
+                assert forwardingGene != null;
+                return forwardingGene.getName().equals(geneName);
+            }
+        }, null));
     }
 }
