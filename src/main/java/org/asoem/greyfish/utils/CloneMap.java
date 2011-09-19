@@ -42,8 +42,8 @@ public class CloneMap extends ForwardingMap<DeepCloneable, DeepCloneable> {
         super.putAll(map);
     }
 
-    public <T extends DeepCloneable> Iterable<T> cloneAll(Iterable<? extends T> conditions, final Class<T> clazz) {
-        return Iterables.transform(conditions, new Function<T, T>() {
+    public <T extends DeepCloneable> Iterable<T> cloneAll(Iterable<? extends T> iterable, final Class<T> clazz) {
+        return Iterables.transform(iterable, new Function<T, T>() {
             @Override
             public T apply(T clonable) {
                 return CloneMap.this.clone(clonable, clazz);
