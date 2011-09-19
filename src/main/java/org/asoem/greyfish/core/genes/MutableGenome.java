@@ -5,6 +5,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.MutableComponentList;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -15,9 +17,23 @@ import java.util.List;
  * Date: 09.09.11
  * Time: 15:21
  */
-public class MutableGenome implements Genome {
+public class MutableGenome extends MutableComponentList<Gene<?>> implements Genome {
 
     private List<ForwardingGene<?>> genes = Lists.newArrayList();
+
+    public MutableGenome(Iterable<? extends Gene<?>> genome, Agent agent) {
+        super(agent);
+        Iterables.addAll(genes, Iterables.transform(genome, new Function<Gene<?>, ForwardingGene<?>>() {
+            @Override
+            public ForwardingGene<?> apply(@Nullable Gene<?> gene) {
+                return ForwardingGene.newInstance(gene);
+            }
+        }));
+    }
+
+    public MutableGenome(Agent agent) {
+        super(agent);
+    }
 
     @Override
     public int size() {
@@ -36,7 +52,7 @@ public class MutableGenome implements Genome {
 
     @Override
     public Genome mutated() {
-        MutableGenome ret = new MutableGenome();
+        MutableGenome ret = new MutableGenome(null);
         ret.reset(this);
         for (ForwardingGene<?> gene : ret.genes) {
             gene.setDelegate(ImmutableGene.newMutatedCopy(gene));
@@ -45,15 +61,14 @@ public class MutableGenome implements Genome {
     }
 
     @Override
-    public Genome recombined(Genome rws) {
-        MutableGenome ret = new MutableGenome();
+    public Genome recombined(Genome genome) {
+        MutableGenome ret = new MutableGenome(null);
         ret.reset(this);
         // TODO: implement recombination
         return ret;
     }
 
-    @Override
-    public Iterator<Gene<?>> iterator() {
+    public Iterator<Gene<?>> delegateIterator() {
         return Iterators.transform(genes.iterator(), new Function<ForwardingGene<?>, Gene<?>>() {
             @Override
             public Gene<?> apply(ForwardingGene<?> forwardingGene) {
@@ -112,5 +127,9 @@ public class MutableGenome implements Genome {
                 return forwardingGene.getName().equals(geneName);
             }
         }, null));
+    }
+
+    public Genome unmodifiableView() {
+        throw new RuntimeException("Not yet implemented");
     }
 }

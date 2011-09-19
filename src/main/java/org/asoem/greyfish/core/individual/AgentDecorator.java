@@ -74,7 +74,7 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     }
 
     @Override
-    public Iterable<GFAction> getActions() {
+    public ComponentList<GFAction> getActions() {
         return delegate.getActions();
     }
 
@@ -97,7 +97,7 @@ public abstract class AgentDecorator extends AbstractDeepCloneable implements Ag
     }
 
     @Override
-    public Iterable<GFProperty> getProperties() {
+    public ComponentList<GFProperty> getProperties() {
         return delegate.getProperties();
     }
 

@@ -5,7 +5,6 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -26,13 +25,13 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     boolean addAction(GFAction action);
     boolean removeAction(GFAction action);
     void removeAllActions();
-    Iterable<GFAction> getActions();
+    ComponentList<GFAction> getActions();
     @Nullable <T extends GFAction> T getAction(String name, Class<T> clazz);
 
     boolean addProperty(GFProperty property);
     boolean removeProperty(GFProperty property);
     void removeAllProperties();
-    Iterable<GFProperty> getProperties();
+    ComponentList<GFProperty> getProperties();
     @Nullable <T extends GFProperty> T getProperty(String name, Class<T> clazz);
 
     boolean addGene(Gene gene);

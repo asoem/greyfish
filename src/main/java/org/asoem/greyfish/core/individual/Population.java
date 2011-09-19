@@ -10,7 +10,9 @@ import java.awt.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-
+/**
+ * Used to identify agents as being clones of the same prototype. Can be shared.
+ */
 public final class Population implements HasName, Comparable<Population> {
 
 	@Attribute(name="name")

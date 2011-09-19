@@ -4,9 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ImmutableComponentList;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -15,24 +16,20 @@ import org.asoem.greyfish.utils.RandomUtils;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
-public class ImmutableGenome implements Genome {
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class ImmutableGenome extends ImmutableComponentList<Gene<?>> implements Genome {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImmutableGenome.class);
-    private final List<Gene<?>> genes;
 
     private ImmutableGenome(Builder builder) {
-        this.genes = ImmutableList.copyOf(builder.genes);
-    }
-
-    public List<Gene<?>> getGenes() {
-        return genes;
+        super(builder.genes, builder.agent);
     }
 
     public ImmutableGenome recombined(final Genome genome) {
         Preconditions.checkArgument(isCompatibleGenome(genome));
-        Builder builder = builder();
+        Builder builder = new Builder(null);
 
         Iterator<Gene<?>> other_genome_iter = genome.iterator();
         Iterator<Gene<?>> this_genome_iter = this.iterator();
@@ -45,20 +42,6 @@ public class ImmutableGenome implements Genome {
         }
 
         return builder.build();
-    }
-
-    @Override
-    public Iterator<Gene<?>> iterator() {
-        return genes.iterator();
-    }
-
-    public ListIterator<Gene<?>> listIterator() {
-        return genes.listIterator();
-    }
-
-    @Override
-    public int size() {
-        return genes.size();
     }
 
     public boolean isCompatibleGenome(Genome genome) {
@@ -76,23 +59,16 @@ public class ImmutableGenome implements Genome {
 
     @Override
     public String toString() {
-        return "[" + Joiner.on(',').join(genes) + "]";
+        return "[" + Joiner.on(',').join(delegate()) + "]";
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public int indexOf(Gene<?> gene) {
-        return genes.indexOf(gene);
-    }
-
-    public static ImmutableGenome copyOf(MutableGenome genome) {
-        return new Builder().addAll(genome).build();
-    }
-
-    public static class Builder implements BuilderInterface<ImmutableGenome> {
+    protected static class Builder implements BuilderInterface<ImmutableGenome> {
         private final List<Gene<?>> genes = Lists.newArrayList();
+        private final Agent agent;
+
+        public Builder(Agent agent) {
+            this.agent = checkNotNull(agent);
+        }
 
         public <T extends Gene<?>> Builder add(T gene) { this.genes.add(gene); return this; }
         public <T extends Gene<?>> Builder add(T ... genes) { this.genes.addAll(Arrays.asList(genes)); return this; }
@@ -105,7 +81,7 @@ public class ImmutableGenome implements Genome {
     }
 
     public ImmutableGenome mutated() {
-        return builder().addAll(Iterables.transform(this, new Function<Gene<?>, Gene<?>>() {
+        return new Builder(null).addAll(Iterables.transform(this, new Function<Gene<?>, Gene<?>>() {
             @Override
             public Gene<?> apply(Gene<?> gene) {
                 return ImmutableGene.newMutatedCopy(gene);
@@ -124,7 +100,7 @@ public class ImmutableGenome implements Genome {
             @Override
             public Gene<?> apply(final Gene<?> indexedGene) {
                 try {
-                    return Iterables.find(getGenes(), new Predicate<Gene<?>>() {
+                    return Iterables.find(delegate(), new Predicate<Gene<?>>() {
                         @Override
                         public boolean apply(Gene<?> gene) {
                             return gene.isMutatedCopyOf(indexedGene);
