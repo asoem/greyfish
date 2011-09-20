@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -14,9 +14,9 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	@Element(name="property")
 	private DoubleProperty doubleProperty;
 
-    protected DoublePropertyCondition(DoublePropertyCondition condition, CloneMap map) {
+    protected DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.doubleProperty = map.clone(condition.doubleProperty, DoubleProperty.class);
+        this.doubleProperty = map.continueWith(condition.doubleProperty, DoubleProperty.class);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
     @Override
-    public DoublePropertyCondition deepCloneHelper(CloneMap map) {
-        return new DoublePropertyCondition(this, map);
+    public DoublePropertyCondition deepClone(DeepCloner cloner) {
+        return new DoublePropertyCondition(this, cloner);
     }
 
     private DoublePropertyCondition() {

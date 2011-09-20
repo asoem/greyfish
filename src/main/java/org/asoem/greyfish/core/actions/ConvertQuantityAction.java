@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="actions")
@@ -39,14 +39,14 @@ public class ConvertQuantityAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
-        return new ConvertQuantityAction(this, cloneMap);
+    public AbstractGFComponent deepClone(DeepCloner cloner) {
+        return new ConvertQuantityAction(this, cloner);
     }
 
-    public ConvertQuantityAction(ConvertQuantityAction cloneable, CloneMap map) {
+    public ConvertQuantityAction(ConvertQuantityAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterSource = map.clone(cloneable.parameterSource, DoubleProperty.class);
-        this.parameterTarget = map.clone(cloneable.parameterTarget, DoubleProperty.class);
+        this.parameterSource = map.continueWith(cloneable.parameterSource, DoubleProperty.class);
+        this.parameterTarget = map.continueWith(cloneable.parameterTarget, DoubleProperty.class);
         this.parameterFactor = cloneable.parameterFactor;
         this.parameterMax = cloneable.parameterMax;
     }

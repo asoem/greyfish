@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -32,7 +32,7 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
         this.clazz = checkNotNull(gene.getSupplierClass());
     }
 
-    protected ImmutableGene(ImmutableGene<T> gene, CloneMap map) {
+    protected ImmutableGene(ImmutableGene<T> gene, DeepCloner map) {
         super(gene, map);
         this.mutationFunction = checkNotNull(gene.getGeneController());
         this.representation = checkNotNull(gene.get());
@@ -84,7 +84,7 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new ImmutableGene<T>(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new ImmutableGene<T>(this, cloner);
     }
 }

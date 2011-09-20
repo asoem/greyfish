@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.share;
 
-import org.asoem.greyfish.core.individual.DefaultAgent;
+import org.asoem.greyfish.core.individual.MutableAgent;
 
 public class Referee {
 
-	public static Result interfere( DefaultAgent ind1, DefaultAgent ind2) {
+	public static Result interfere( MutableAgent ind1, MutableAgent ind2) {
 		Result ret = null;
 		//	if(ind1.getStrength() > ind2.getStrength())
 		//	    ret = new Result(ind1, ind2);

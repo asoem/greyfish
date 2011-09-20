@@ -13,7 +13,7 @@ import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -265,10 +265,10 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
             return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
     }
 
-    protected AbstractGFAction(AbstractGFAction cloneable, CloneMap map) {
+    protected AbstractGFAction(AbstractGFAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.conditionTree = new ConditionTree(map.clone(cloneable.getRootCondition(), GFCondition.class));
-        this.energySource = map.clone(cloneable.energySource, DoubleProperty.class);
+        this.conditionTree = new ConditionTree(map.continueWith(cloneable.getRootCondition(), GFCondition.class));
+        this.energySource = map.continueWith(cloneable.energySource, DoubleProperty.class);
         this.energyCosts = cloneable.energyCosts;
     }
 }

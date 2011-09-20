@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -18,9 +18,9 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	@Element(name="action")
 	private GFAction action;
 
-    public ActionExecutionCountCondition(ActionExecutionCountCondition condition, CloneMap map) {
+    public ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.clone(condition.action, GFAction.class);
+        this.action = map.continueWith(condition.action, GFAction.class);
     }
 
     @Override
@@ -51,8 +51,8 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	}
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new ActionExecutionCountCondition(this, map);
+    public AbstractGFComponent deepClone(DeepCloner cloner) {
+        return new ActionExecutionCountCondition(this, cloner);
     }
 
     private ActionExecutionCountCondition() {

@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
@@ -19,8 +19,8 @@ public abstract class AbstractGFComponent implements GFComponent {
     protected AbstractGFComponent() {
     }
 
-    protected AbstractGFComponent(AbstractGFComponent cloneable, CloneMap map) {
-        map.insert(cloneable, this);
+    protected AbstractGFComponent(AbstractGFComponent cloneable, DeepCloner map) {
+        map.setAsCloned(cloneable, this);
         this.name = cloneable.name;
     }
 

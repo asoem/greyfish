@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND operator.
@@ -19,8 +19,8 @@ import org.asoem.greyfish.utils.CloneMap;
 public class AllCondition extends LogicalOperatorCondition {
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new AllCondition(this, map);
+    public AbstractGFComponent deepClone(DeepCloner cloner) {
+        return new AllCondition(this, cloner);
     }
 
     @SimpleXMLConstructor
@@ -28,7 +28,7 @@ public class AllCondition extends LogicalOperatorCondition {
         this(new Builder());
     }
 
-    protected AllCondition(AllCondition cloneable, CloneMap map) {
+    protected AllCondition(AllCondition cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 

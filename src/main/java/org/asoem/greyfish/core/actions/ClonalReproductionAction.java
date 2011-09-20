@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
@@ -31,11 +31,11 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public ClonalReproductionAction deepCloneHelper(CloneMap map) {
-        return new ClonalReproductionAction(this, map);
+    public ClonalReproductionAction deepClone(DeepCloner cloner) {
+        return new ClonalReproductionAction(this, cloner);
     }
 
-    public ClonalReproductionAction(ClonalReproductionAction cloneable, CloneMap map) {
+    public ClonalReproductionAction(ClonalReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.parameterClones = cloneable.parameterClones;
     }

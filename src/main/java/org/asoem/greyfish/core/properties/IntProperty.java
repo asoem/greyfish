@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 
 @ClassGroup(tags="property")
@@ -12,13 +12,13 @@ public class IntProperty extends AbstractWellOrderedSetElementProperty<Integer> 
         this(new Builder());
     }
 
-    protected IntProperty(IntProperty intProperty, CloneMap cloneMap) {
-        super(intProperty, cloneMap);
+    protected IntProperty(IntProperty intProperty, DeepCloner cloner) {
+        super(intProperty, cloner);
     }
 
     @Override
-    public IntProperty deepCloneHelper(CloneMap cloneMap) {
-        return new IntProperty(this, cloneMap);
+    public IntProperty deepClone(DeepCloner cloner) {
+        return new IntProperty(this, cloner);
     }
 
     @Override

@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,8 +37,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     private int nExpectedProposeAnswers;
     private MessageTemplate template = MessageTemplate.alwaysFalse();
 
-    protected ContractNetParticipantAction(ContractNetParticipantAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
+    protected ContractNetParticipantAction(ContractNetParticipantAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
         initFSM();
     }
 

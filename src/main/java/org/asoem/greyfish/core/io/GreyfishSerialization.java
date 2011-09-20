@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.individual.Prototype;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.Registry;
@@ -37,8 +37,8 @@ public enum GreyfishSerialization {
         serializeObject(dest, scenario);
     }
 
-    public static Prototype readPrototype(File source) throws Exception {
-        return deserializeFile(source, Prototype.class);
+    public static Agent readPrototype(File source) throws Exception {
+        return deserializeFile(source, Agent.class);
     }
 
     public static Scenario readScenario(File source) throws Exception {

@@ -14,7 +14,7 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -101,13 +101,13 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
-        return new ModifyQuantitivePropertyAction(this, cloneMap);
+    public AbstractGFComponent deepClone(DeepCloner cloner) {
+        return new ModifyQuantitivePropertyAction(this, cloner);
     }
 
-    public ModifyQuantitivePropertyAction(ModifyQuantitivePropertyAction cloneable, CloneMap map) {
+    public ModifyQuantitivePropertyAction(ModifyQuantitivePropertyAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterQuantitiveProperty = map.clone(cloneable.parameterQuantitiveProperty, DoubleProperty.class);
+        this.parameterQuantitiveProperty = map.continueWith(cloneable.parameterQuantitiveProperty, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
 

@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.ImmutableBitSet;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 
@@ -31,14 +31,14 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
         this(new Builder());
     }
 
-    protected BitSetTrait(BitSetTrait doubleOrderedSetProperty, CloneMap cloneMap) {
-        super(doubleOrderedSetProperty, cloneMap);
+    protected BitSetTrait(BitSetTrait doubleOrderedSetProperty, DeepCloner cloner) {
+        super(doubleOrderedSetProperty, cloner);
         bitStringGene = registerGene(ImmutableGene.newMutatedCopy(doubleOrderedSetProperty.bitStringGene));
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new BitSetTrait(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new BitSetTrait(this, cloner);
     }
 
 

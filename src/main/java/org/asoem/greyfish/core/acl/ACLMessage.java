@@ -47,7 +47,7 @@ public final class ACLMessage {
         NULL,
         STRING,
         BYTE_ARRAY,
-        OTHER;
+        OTHER
     }
 
     public ContentType getContentType() {

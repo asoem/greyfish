@@ -2,11 +2,10 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -31,8 +30,8 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
 
     protected E value;
 
-    protected AbstractWellOrderedSetElementProperty(AbstractWellOrderedSetElementProperty<E> property, CloneMap cloneMap) {
-        super(property, cloneMap);
+    protected AbstractWellOrderedSetElementProperty(AbstractWellOrderedSetElementProperty<E> property, DeepCloner cloner) {
+        super(property, cloner);
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;
         this.initialValue = property.initialValue;

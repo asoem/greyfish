@@ -25,17 +25,17 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     boolean addAction(GFAction action);
     boolean removeAction(GFAction action);
     void removeAllActions();
-    ComponentList<GFAction> getActions();
+    Iterable<GFAction> getActions();
     @Nullable <T extends GFAction> T getAction(String name, Class<T> clazz);
 
     boolean addProperty(GFProperty property);
     boolean removeProperty(GFProperty property);
     void removeAllProperties();
-    ComponentList<GFProperty> getProperties();
+    Iterable<GFProperty> getProperties();
     @Nullable <T extends GFProperty> T getProperty(String name, Class<T> clazz);
 
-    boolean addGene(Gene gene);
-    boolean removeGene(Gene gene);
+    boolean addGene(Gene<?> gene);
+    boolean removeGene(Gene<?> gene);
     void removeAllGenes();
     Iterable<Gene<?>> getGenes();
     @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
@@ -43,6 +43,10 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     Genome getGenome();
     void setGenome(Genome genome);
 
+    /**
+     * @param object a possible clone
+     * @return {@code true} if object is a clone of this agent, {@code false} otherwise
+     */
     boolean isCloneOf(Object object);
 
     Iterable<GFComponent> getComponents();

@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
@@ -21,11 +21,11 @@ public class DeathAction extends AbstractGFAction {
 	}
 
     @Override
-    public DeathAction deepCloneHelper(CloneMap cloneMap) {
-        return new DeathAction(this, cloneMap);
+    public DeathAction deepClone(DeepCloner cloner) {
+        return new DeathAction(this, cloner);
     }
 
-    private DeathAction(AbstractGFAction cloneable, CloneMap map) {
+    private DeathAction(AbstractGFAction cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 

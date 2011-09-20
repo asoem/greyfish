@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -108,12 +108,12 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public MatingTransmitterAction deepCloneHelper(CloneMap cloneMap) {
-        return new MatingTransmitterAction(this, cloneMap);
+    public MatingTransmitterAction deepClone(DeepCloner cloner) {
+        return new MatingTransmitterAction(this, cloner);
     }
 
-    private MatingTransmitterAction(MatingTransmitterAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
+    private MatingTransmitterAction(MatingTransmitterAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.spermFitnessExpression = cloneable.spermFitnessExpression;
     }

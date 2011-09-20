@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collection;
 
@@ -41,8 +41,8 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         initFSM();
     }
 
-    protected ContractNetInitiatorAction(ContractNetInitiatorAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
+    protected ContractNetInitiatorAction(ContractNetInitiatorAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
         initFSM();
     }
 

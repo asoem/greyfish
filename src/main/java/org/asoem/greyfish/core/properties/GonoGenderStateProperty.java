@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -27,8 +27,8 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     private final Gene<Integer> gene;
 
-    protected GonoGenderStateProperty(GonoGenderStateProperty clone, CloneMap cloneMap) {
-        super(clone, cloneMap);
+    protected GonoGenderStateProperty(GonoGenderStateProperty clone, DeepCloner cloner) {
+        super(clone, cloner);
         gene = registerGene(ImmutableGene.newMutatedCopy(clone.gene));
     }
 
@@ -43,8 +43,8 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     @Override
-    public GonoGenderStateProperty deepCloneHelper(CloneMap cloneMap) {
-        return new GonoGenderStateProperty(this, cloneMap);
+    public GonoGenderStateProperty deepClone(DeepCloner cloner) {
+        return new GonoGenderStateProperty(this, cloner);
     }
 
     @SuppressWarnings("unused") // used in the deserialization process

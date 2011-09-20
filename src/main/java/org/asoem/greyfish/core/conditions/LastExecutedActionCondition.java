@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -17,9 +17,9 @@ public class LastExecutedActionCondition extends LeafCondition {
     @Element(name="actions", required=false)
     private GFAction action;
 
-    protected LastExecutedActionCondition(LastExecutedActionCondition condition, CloneMap map) {
+    protected LastExecutedActionCondition(LastExecutedActionCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.clone(condition.action, GFAction.class);
+        this.action = map.continueWith(condition.action, GFAction.class);
     }
 
     @Override
@@ -53,8 +53,8 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public LastExecutedActionCondition deepCloneHelper(CloneMap map) {
-        return new LastExecutedActionCondition(this, map);
+    public LastExecutedActionCondition deepClone(DeepCloner cloner) {
+        return new LastExecutedActionCondition(this, cloner);
     }
 
     private LastExecutedActionCondition() {

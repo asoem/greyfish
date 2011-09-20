@@ -2,12 +2,11 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.MutableGenome;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 
 
 /**
@@ -17,48 +16,60 @@ import org.asoem.greyfish.utils.DeepCloneable;
  */
 public class ImmutableAgent extends AbstractAgent {
 
-    private ImmutableAgent(Agent agent, Simulation simulation) {
-        super(agent);
-    }
-
-    private ImmutableAgent(Population population, Iterable<? extends GFProperty> properties, Iterable<? extends GFAction> actions, Iterable<? extends Gene<?>> genes, Body body, Simulation simulation) {
-        super(body, ImmutableComponentList.copyOf(properties), ImmutableComponentList.copyOf(actions), new MutableGenome(genes));
+    private ImmutableAgent(Population population, Iterable<GFProperty> properties, Iterable<GFAction> actions, Iterable<Gene<?>> genes, Body body) {
+        super(body,
+                ImmutableComponentList.copyOf(properties),
+                ImmutableComponentList.copyOf(actions),
+                ImmutableGenome.copyOf(genes));
         setPopulation(population);
-        this.simulationContext = new SimulationContext(simulation, this);
     }
 
-    @SuppressWarnings("unchecked")
-    protected ImmutableAgent(ImmutableAgent agent, CloneMap map) {
+    protected ImmutableAgent(ImmutableAgent agent, DeepCloner map) {
         super(agent, map);
     }
 
-    @Override
-    protected SimulationContext getSimulationContext() {
-        return simulationContext;
+    public ImmutableAgent(Builder builder) {
+        super(new Body(),
+                ImmutableComponentList.copyOf(builder.properties),
+                ImmutableComponentList.copyOf(builder.actions),
+                ImmutableGenome.copyOf(builder.genes));
+        setPopulation(builder.population);
     }
 
     @Override
-    public Body getBody() {
-        return body;
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new ImmutableAgent(this, cloner);
     }
 
-    @Override
-    public ComponentList<GFAction> getActions() {
-        return actions;
+    /**
+     * Create a "quasi" deep clone of {@code agent}.
+     * This means, that all components are deep cloned from {@code agent}, but the agent itself is a new ImmutableAgent.
+     * @param agent the prototype from which to clone the components
+     * @return a new ImmutableAgent with components deep cloned from {@code agent}
+     */
+    public static ImmutableAgent cloneOf(Agent agent) {
+        Agent clone = DeepCloner.startWith(agent, Agent.class);
+
+        return new ImmutableAgent(
+                clone.getPopulation(),
+                clone.getProperties(),
+                clone.getActions(),
+                clone.getGenes(),
+                clone.getBody());
     }
 
-    @Override
-    public ComponentList<GFProperty> getProperties() {
-        return properties;
+    public static Builder with() {
+        return new Builder();
     }
 
-    @Override
-    public Genome getGenome() {
-        return genome;
-    }
-
-    @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new ImmutableAgent(this, map);
+    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ImmutableAgent> {
+        @Override
+        public ImmutableAgent build() {
+            return new ImmutableAgent(checkedSelf());
+        }
+        @Override
+        protected Builder self() {
+            return this;
+        }
     }
 }

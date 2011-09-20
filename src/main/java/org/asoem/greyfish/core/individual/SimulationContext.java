@@ -17,8 +17,8 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class SimulationContext {
-    private final CircularFifoBuffer<ACLMessage> inBox = CircularFifoBuffer.newInstance(64);
+class SimulationContext {
+    private final CircularFifoBuffer<ACLMessage> inBox;
     private final Simulation simulation;
     private final int timeOfBirth;
     private final int id;
@@ -31,6 +31,15 @@ public class SimulationContext {
         this.agent = checkNotNull(agent);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
+        this.inBox = CircularFifoBuffer.newInstance(64);
+    }
+
+    private SimulationContext() {
+        inBox = null;
+        simulation = null;
+        timeOfBirth = 0;
+        id = 0;
+        agent = null;
     }
 
     public void pushMessages(Iterable<? extends ACLMessage> messages) {
@@ -42,6 +51,7 @@ public class SimulationContext {
     }
 
     public List<ACLMessage> pullMessages(MessageTemplate template) {
+        checkNotNull(template);
         List<ACLMessage> ret = Lists.newArrayList();
         Iterator<ACLMessage> iterator = inBox.listIterator();
         while (iterator.hasNext()) {
@@ -54,7 +64,7 @@ public class SimulationContext {
     }
 
     public boolean hasMessages(MessageTemplate template) {
-        return Iterables.any(inBox, template);
+        return Iterables.any(inBox, checkNotNull(template));
     }
 
     public int getTimeOfBirth() {
@@ -62,7 +72,7 @@ public class SimulationContext {
     }
 
     public void sendMessage(ACLMessage message) {
-        simulation.deliverMessage(message);
+        simulation.deliverMessage(checkNotNull(message));
     }
 
     public GFAction getLastExecutedAction() {
@@ -115,6 +125,7 @@ public class SimulationContext {
     }
 
     private boolean tryToExecute(GFAction action) {
+        assert action != null;
 
         LOGGER.trace("{}: Trying to execute {}", this, action);
 
@@ -141,4 +152,66 @@ public class SimulationContext {
                 return false;
         }
     }
+
+    static SimulationContext NULL_CONTEXT = new SimulationContext() {
+        @Override
+        public void pushMessages(Iterable<? extends ACLMessage> messages) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void pushMessage(ACLMessage message) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<ACLMessage> pullMessages(MessageTemplate template) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean hasMessages(MessageTemplate template) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getTimeOfBirth() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void sendMessage(ACLMessage message) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public GFAction getLastExecutedAction() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getId() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Simulation getSimulation() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getAge() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Iterable<MovingObject2D> findNeighbours(double range) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void execute() {
+            throw new UnsupportedOperationException();
+        }
+    };
 }

@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.ElementList;
 
 import java.util.ArrayList;
@@ -32,9 +32,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
     protected List<GFCondition> conditions = new ArrayList<GFCondition>(0);
 
-    protected LogicalOperatorCondition(LogicalOperatorCondition clonable, CloneMap map) {
+    protected LogicalOperatorCondition(LogicalOperatorCondition clonable, DeepCloner map) {
         super(clonable, map);
-        addAll(map.cloneAll(clonable.getChildConditions(), GFCondition.class));
+        for (GFCondition condition : clonable.getChildConditions())
+            add(map.continueWith(condition, GFCondition.class));
     }
 
     private void integrate(Iterable<? extends GFCondition> condition2) {

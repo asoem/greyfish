@@ -9,13 +9,13 @@ public class Placeholder extends AgentDecorator {
     @Element(name = "placeholderObject")
     private final Object2D placeholderObject;
 
-    public Placeholder(@Element(name = "delegate") Prototype prototype,
+    public Placeholder(@Element(name = "delegate") Agent prototype,
                        @Element(name = "placeholderObject") Object2D placeholderObject) {
         super(prototype);
         this.placeholderObject = placeholderObject;
     }
 
-    public static Placeholder newInstance(Prototype prototype, Object2D location2D) {
+    public static Placeholder newInstance(Agent prototype, Object2D location2D) {
         return new Placeholder(prototype, location2D);
     }
 

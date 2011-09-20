@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
 
@@ -25,9 +25,9 @@ public class ForwardingGene<T> implements Gene<T> {
         setDelegate(gene);
     }
 
-    public ForwardingGene(ForwardingGene gene, CloneMap map) {
-        map.insert(gene, this);
-        delegate = map.clone(gene.delegate, Gene.class);
+    public ForwardingGene(ForwardingGene gene, DeepCloner map) {
+        map.setAsCloned(gene, this);
+        delegate = map.continueWith(gene.delegate, Gene.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -142,7 +142,7 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new ForwardingGene(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new ForwardingGene(this, cloner);
     }
 }

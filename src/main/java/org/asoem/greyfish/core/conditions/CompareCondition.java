@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.Comparator;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Attribute;
@@ -20,7 +20,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     @Element(name="value")
     protected T value;
 
-    protected CompareCondition(CompareCondition<T> condition, CloneMap map) {
+    protected CompareCondition(CompareCondition<T> condition, DeepCloner map) {
         super(condition, map);
         this.comparator = condition.comparator;
         this.value = condition.value;

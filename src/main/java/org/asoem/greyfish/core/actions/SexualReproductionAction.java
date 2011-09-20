@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -85,13 +85,13 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public SexualReproductionAction deepCloneHelper(CloneMap cloneMap) {
-        return new SexualReproductionAction(this, cloneMap);
+    public SexualReproductionAction deepClone(DeepCloner cloner) {
+        return new SexualReproductionAction(this, cloner);
     }
 
-    private SexualReproductionAction(SexualReproductionAction cloneable, CloneMap map) {
+    private SexualReproductionAction(SexualReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.spermStorage = map.clone(cloneable.spermStorage, EvaluatedGenomeStorage.class);
+        this.spermStorage = map.continueWith(cloneable.spermStorage, EvaluatedGenomeStorage.class);
         this.nOffspring = cloneable.nOffspring;
     }
 

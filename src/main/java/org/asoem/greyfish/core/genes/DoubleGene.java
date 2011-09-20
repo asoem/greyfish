@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
 
 public class DoubleGene extends ImmutableGene<Double> {
@@ -34,12 +34,12 @@ public class DoubleGene extends ImmutableGene<Double> {
     }
 
 
-    protected DoubleGene(ImmutableGene<Double> doubleImmutableGene, CloneMap map) {
+    protected DoubleGene(ImmutableGene<Double> doubleImmutableGene, DeepCloner map) {
         super(doubleImmutableGene, map);
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new DoubleGene(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new DoubleGene(this, cloner);
     }
 }

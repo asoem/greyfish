@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -30,11 +30,11 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new ChangeBodyAction(this, map);
+    public AbstractGFComponent deepClone(DeepCloner cloner) {
+        return new ChangeBodyAction(this, cloner);
     }
 
-    public ChangeBodyAction(ChangeBodyAction cloneable, CloneMap map) {
+    public ChangeBodyAction(ChangeBodyAction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.color = cloneable.color;
     }

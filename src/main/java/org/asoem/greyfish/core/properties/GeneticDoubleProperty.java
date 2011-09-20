@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.RandomUtils;
 
 @ClassGroup(tags="property")
@@ -21,8 +21,8 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
         }
     };
 
-    protected GeneticDoubleProperty(GeneticDoubleProperty geneticDoubleProperty, CloneMap cloneMap) {
-        delegate = cloneMap.clone(geneticDoubleProperty.delegate, DoubleProperty.class);
+    protected GeneticDoubleProperty(GeneticDoubleProperty geneticDoubleProperty, DeepCloner cloner) {
+        delegate = cloner.continueWith(geneticDoubleProperty.delegate, DoubleProperty.class);
     }
 
     @Override
@@ -53,8 +53,8 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
     }
 
     @Override
-    public GeneticDoubleProperty deepCloneHelper(CloneMap cloneMap) {
-        return new GeneticDoubleProperty(this, cloneMap);
+    public GeneticDoubleProperty deepClone(DeepCloner cloner) {
+        return new GeneticDoubleProperty(this, cloner);
     }
 
     @Override

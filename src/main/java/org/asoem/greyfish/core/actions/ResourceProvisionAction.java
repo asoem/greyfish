@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -116,13 +116,13 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public ResourceProvisionAction deepCloneHelper(CloneMap cloneMap) {
-        return new ResourceProvisionAction(this, cloneMap);
+    public ResourceProvisionAction deepClone(DeepCloner cloner) {
+        return new ResourceProvisionAction(this, cloner);
     }
 
-    protected ResourceProvisionAction(ResourceProvisionAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        this.resourceProperty = cloneMap.clone(cloneable.resourceProperty, ResourceProperty.class);
+    protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.resourceProperty = cloner.continueWith(cloneable.resourceProperty, ResourceProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
     }
 

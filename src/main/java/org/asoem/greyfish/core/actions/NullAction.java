@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 @ClassGroup(tags="actions")
 public class NullAction extends AbstractGFAction {
@@ -31,11 +31,11 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
-        return new NullAction(this, cloneMap);
+    public AbstractGFComponent deepClone(DeepCloner cloner) {
+        return new NullAction(this, cloner);
     }
 
-    public NullAction(NullAction cloneable, CloneMap map) {
+    public NullAction(NullAction cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 }

@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
@@ -73,7 +73,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public ComponentList<GFAction> getActions() {
+    public Iterable<GFAction> getActions() {
         return delegate.getActions();
     }
 
@@ -96,7 +96,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public ComponentList<GFProperty> getProperties() {
+    public Iterable<GFProperty> getProperties() {
         return delegate.getProperties();
     }
 
@@ -122,8 +122,8 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return delegate.deepCloneHelper(map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return delegate.deepClone(cloner);
     }
 
     @Override
@@ -317,12 +317,12 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public boolean addGene(Gene gene) {
+    public boolean addGene(Gene<?> gene) {
         return delegate.addGene(gene);
     }
 
     @Override
-    public boolean removeGene(Gene gene) {
+    public boolean removeGene(Gene<?> gene) {
         return delegate.removeGene(gene);
     }
 

@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 
@@ -27,9 +27,9 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
         this.similarityTrait = builder.similarityTrait;
     }
 
-    protected CompatibilityAwareResourceConsumptionAction(CompatibilityAwareResourceConsumptionAction action, CloneMap map) {
+    protected CompatibilityAwareResourceConsumptionAction(CompatibilityAwareResourceConsumptionAction action, DeepCloner map) {
         super(action, map);
-        similarityTrait = map.clone(action.similarityTrait, GFProperty.class);
+        similarityTrait = map.continueWith(action.similarityTrait, GFProperty.class);
     }
 
     @Override
@@ -55,8 +55,8 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
     }
 
     @Override
-    public ResourceConsumptionAction deepCloneHelper(CloneMap cloneMap) {
-        return new CompatibilityAwareResourceConsumptionAction(this, cloneMap);
+    public ResourceConsumptionAction deepClone(DeepCloner cloner) {
+        return new CompatibilityAwareResourceConsumptionAction(this, cloner);
     }
 
     @Override

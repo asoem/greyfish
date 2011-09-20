@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -20,8 +20,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         super(builder);
     }
 
-    protected FiniteStateAction(FiniteStateAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
+    protected FiniteStateAction(FiniteStateAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
     }
 
     /* Immutable after freeze */

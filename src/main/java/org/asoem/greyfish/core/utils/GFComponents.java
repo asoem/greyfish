@@ -2,11 +2,14 @@ package org.asoem.greyfish.core.utils;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
+
+import javax.annotation.Nullable;
 
 public class GFComponents {
 
@@ -32,5 +35,10 @@ public class GFComponents {
             System.exit(1);
         }
         return null;
+    }
+
+    public static void rebaseAll(Iterable<? extends GFComponent> iterable, @Nullable Agent agent) {
+        for (GFComponent component : iterable)
+            component.setAgent(agent);
     }
 }

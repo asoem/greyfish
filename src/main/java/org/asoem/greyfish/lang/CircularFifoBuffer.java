@@ -7,6 +7,13 @@ import javolution.util.FastList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * A List implementation that can hold a fixed number of elements.
+ * If the limit is reached, any further addition will replace the the oldest element.
+ * Does not permit null values.
+ */
 public final class CircularFifoBuffer<E> extends ForwardingList<E> {
 
 	private final FastList<E> delegate;
@@ -23,6 +30,7 @@ public final class CircularFifoBuffer<E> extends ForwardingList<E> {
 	 * If the buffer is full, the least recently added element is discarded so that a new element can be inserted.
 	 */
 	public boolean add(E element) {
+        checkNotNull(element);
 		if (isFull()) {
 			final E removed = delegate.removeFirst();
 			elementReplaced(removed);
@@ -46,7 +54,7 @@ public final class CircularFifoBuffer<E> extends ForwardingList<E> {
 	public int maxSize() {
 		return maxSize;
 	}
-	
+
 	public void elementReplaced(E element) {}
 
     public static <T> CircularFifoBuffer<T> newInstance(int size) {

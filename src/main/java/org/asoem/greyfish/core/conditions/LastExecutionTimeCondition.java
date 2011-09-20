@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -23,9 +23,9 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	@Element(name="steps")
 	private int steps;
 
-    protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, CloneMap map) {
+    protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.clone(condition.action, GFAction.class);
+        this.action = map.continueWith(condition.action, GFAction.class);
         this.steps = condition.steps;
     }
 
@@ -36,8 +36,8 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	}
 
     @Override
-    public LastExecutionTimeCondition deepCloneHelper(CloneMap map) {
-        return new LastExecutionTimeCondition(this, map);
+    public LastExecutionTimeCondition deepClone(DeepCloner cloner) {
+        return new LastExecutionTimeCondition(this, cloner);
     }
 
     @Override

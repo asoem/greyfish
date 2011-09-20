@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -28,14 +28,14 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
         super(builder);
     }
 
-    protected FormulaTrait(FormulaTrait cloneable, CloneMap map) {
+    protected FormulaTrait(FormulaTrait cloneable, DeepCloner map) {
         super(cloneable, map);
         this.expression = cloneable.expression;
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new FormulaTrait(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new FormulaTrait(this, cloner);
     }
 
     @Override

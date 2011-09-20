@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -14,8 +13,10 @@ import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.PostOffice;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
-import org.asoem.greyfish.core.individual.*;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ImmutableAgent;
+import org.asoem.greyfish.core.individual.Placeholder;
+import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.scenario.Scenario;
@@ -26,7 +27,6 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.lang.HasName;
-import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.Counter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.PolarPoint;
@@ -47,7 +47,7 @@ import static org.asoem.greyfish.core.space.MutableLocation2D.at;
 public class Simulation implements Runnable, HasName {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Simulation.class);
-    private final Map<Population, Prototype> prototypeMap = Maps.newHashMap();
+    private final Map<Population, Agent> prototypeMap = Maps.newHashMap();
     private final PostOffice postOffice = PostOffice.newInstance();
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
@@ -105,8 +105,7 @@ public class Simulation implements Runnable, HasName {
                 public Object makeObject(Object key) throws Exception {
                     checkNotNull(key);
                     checkArgument(key instanceof Population);
-                    final Prototype prototype = prototypeMap.get(Population.class.cast(key));
-                    return new Clone(prototype, Simulation.this);
+                    return ImmutableAgent.cloneOf(prototypeMap.get(Population.class.cast(key)));
                 }
             },
             10000, 100);
@@ -167,8 +166,8 @@ public class Simulation implements Runnable, HasName {
             System.exit(1);
         }
 
-        for (Prototype prototype : scenario.getPrototypes()) {
-            Prototype clone = CloneMap.deepClone(prototype, Prototype.class);
+        for (Agent prototype : scenario.getPrototypes()) {
+            ImmutableAgent clone = ImmutableAgent.cloneOf(prototype);
             assert (!prototypeMap.containsKey(clone.getPopulation())) : "Different Prototypes have the same Population";
             prototypeMap.put(clone.getPopulation(), clone);
             populationCount.put(clone.getPopulation(), new Counter(0));
@@ -200,9 +199,9 @@ public class Simulation implements Runnable, HasName {
         space.addOccupant(agent);
     }
 
-    private void checkAgent(final Agent individual) {
-        checkNotNull(individual);
-        checkArgument(prototypeMap.containsKey(individual.getPopulation()), "Not prototype found for " + individual);
+    private void checkAgent(final Agent agent) {
+        checkArgument(ImmutableAgent.class.isInstance(agent));
+        checkArgument(prototypeMap.containsKey(agent.getPopulation()), "Not prototype found for " + agent);
     }
 
     /**
@@ -210,7 +209,8 @@ public class Simulation implements Runnable, HasName {
      * @param agent
      */
     public void removeAgent(final Agent agent) {
-        Preconditions.checkArgument(Clone.class.isInstance(checkNotNull(agent)));
+        checkNotNull(agent);
+
         /*
            * TODO: removal could be implemented more efficiently.
            * e.g. by marking agents and removal during a single iteration over all
@@ -223,12 +223,12 @@ public class Simulation implements Runnable, HasName {
                         concurrentAgentsView.remove(agent);
                         populationCount.get(agent.getPopulation()).decrease();
                         agent.shutDown();
-                        putCloneInPool(Clone.class.cast(agent));
+                        putCloneInPool(agent);
                     }
                 });
     }
 
-    private void putCloneInPool(final Clone agent) {
+    private void putCloneInPool(final Agent agent) {
         checkAgent(agent);
         try {
             objectPool.returnObject(agent.getPopulation(), agent);
@@ -268,7 +268,7 @@ public class Simulation implements Runnable, HasName {
         checkNotNull(population);
         checkState(prototypeMap.containsKey(population));
 
-        final Clone agent = newAgentFromPool(population);
+        final Agent agent = newAgentFromPool(population);
         agent.setGenome(genome);
 
         commandListMap.put(AGENT_ADD,
@@ -280,11 +280,11 @@ public class Simulation implements Runnable, HasName {
                 });
     }
 
-    private Clone newAgentFromPool(final Population population) {
+    private Agent newAgentFromPool(final Population population) {
         assert population != null;
         assert prototypeMap.containsKey(population);
         try {
-            return Clone.class.cast(objectPool.borrowObject(population));
+            return Agent.class.cast(objectPool.borrowObject(population));
         } catch (Exception e) {
             LOGGER.error("Error using objectPool", e);
             System.exit(1);
@@ -292,7 +292,7 @@ public class Simulation implements Runnable, HasName {
         return null;
     }
 
-    public Iterable<Prototype> getPrototypes() {
+    public Iterable<Agent> getPrototypes() {
         return prototypeMap.values();
     }
 

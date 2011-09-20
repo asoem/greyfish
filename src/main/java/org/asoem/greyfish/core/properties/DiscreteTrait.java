@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
 
@@ -38,7 +38,7 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
         phenotypeConditionMap = ImmutableMap.copyOf(builder.phenotypeConditionMap);
     }
 
-    protected DiscreteTrait(DiscreteTrait cloneable, CloneMap map) {
+    protected DiscreteTrait(DiscreteTrait cloneable, DeepCloner map) {
         super(cloneable, map);
 
         phenotypeConditionMap = cloneable.phenotypeConditionMap; // Independent of clone. All clones can share this map.
@@ -74,8 +74,8 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new DiscreteTrait(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new DiscreteTrait(this, cloner);
     }
 
     @Override

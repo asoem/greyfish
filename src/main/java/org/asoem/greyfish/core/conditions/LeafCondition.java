@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public abstract class LeafCondition extends AbstractCondition {
         super(builder);
 	}
 
-    public LeafCondition(LeafCondition condition, CloneMap map) {
+    public LeafCondition(LeafCondition condition, DeepCloner map) {
         super(condition, map);
     }
 

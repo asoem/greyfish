@@ -10,8 +10,8 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.utils.CloneMap;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -22,11 +22,11 @@ public class Prototype extends AgentDecorator {
     private final ListenerSupport<IndividualCompositionListener> listenerSupport = ListenerSupport.newInstance();
     private static final Logger LOGGER = LoggerFactory.getLogger(Prototype.class);
 
-    private Prototype(Prototype prototype, CloneMap map) {
-        super(map.clone(prototype.delegate(), Agent.class));
+    private Prototype(Prototype prototype, DeepCloner map) {
+        super(map.continueWith(prototype.delegate(), Agent.class));
     }
 
-    public Prototype(@Element(name="delegate") DefaultAgent delegate) {
+    public Prototype(@Element(name="delegate") Agent delegate) {
         super(delegate);
     }
 
@@ -136,11 +136,11 @@ public class Prototype extends AgentDecorator {
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new Prototype(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new Prototype(this, cloner);
     }
 
-    public static Prototype newInstance(DefaultAgent individual) {
+    public static Prototype newInstance(Agent individual) {
         return new Prototype(individual);
     }
 
@@ -195,7 +195,7 @@ public class Prototype extends AgentDecorator {
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<Prototype> {
         @Override
         public Prototype build() {
-            return new Prototype(new DefaultAgent(checkedSelf()));
+            return new Prototype(new MutableAgent(checkedSelf()));
         }
         @Override
         protected Builder self() {
@@ -203,6 +203,6 @@ public class Prototype extends AgentDecorator {
         }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DefaultAgent.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends MutableAgent.AbstractBuilder<T> {
     }
 }

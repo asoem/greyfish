@@ -149,13 +149,13 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public MatingReceiverAction deepCloneHelper(CloneMap cloneMap) {
-        return new MatingReceiverAction(this, cloneMap);
+    public MatingReceiverAction deepClone(DeepCloner cloner) {
+        return new MatingReceiverAction(this, cloner);
     }
 
-    private MatingReceiverAction(MatingReceiverAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        this.spermBuffer = cloneMap.clone(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
+    private MatingReceiverAction(MatingReceiverAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.spermBuffer = cloner.continueWith(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
     }

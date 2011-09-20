@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.properties.WellOrderedSetElementProperty;
 import org.asoem.greyfish.core.space.DefaultMovingObject2D;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
@@ -49,25 +49,29 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
     private WellOrderedSetElement<?> outlineValueSupplier = new MutableWellOrderedSetElement<Double>(0.0, 1.0, 0.0);
 
     private Body(Agent owner) {
+        this();
         setAgent(owner);
-        setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-        stateColorMap = Maps.newHashMap();
-        generateColors();
     }
 
-    private Body(Body body, CloneMap map) {
-        super(body, map);
-        this.property = map.clone(body.property, FiniteSetProperty.class);
+    private Body(Body body, DeepCloner cloner) {
+        super(body, cloner);
+        this.property = cloner.continueWith(body.property, FiniteSetProperty.class);
         if (property != null)
             states = property;
         stateColorMap = body.stateColorMap;
-        if (body.outlineValueSupplier instanceof GFProperty)
-            outlineValueSupplier = map.clone((GFProperty)body.outlineValueSupplier, WellOrderedSetElement.class);
+        if (body.outlineValueSupplier instanceof WellOrderedSetElementProperty)
+            outlineValueSupplier = cloner.continueWith((WellOrderedSetElementProperty) body.outlineValueSupplier, WellOrderedSetElementProperty.class);
     }
 
     @SimpleXMLConstructor
     private Body(@ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false) Map<Object, Color> stateColorMap) {
         this.stateColorMap = stateColorMap;
+    }
+
+    public Body() {
+        setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        stateColorMap = Maps.newHashMap();
+        generateColors();
     }
 
     @Commit
@@ -103,8 +107,8 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new Body(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new Body(this, cloner);
     }
 
     @Override

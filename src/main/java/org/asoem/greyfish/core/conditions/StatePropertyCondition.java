@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -23,9 +23,9 @@ public class StatePropertyCondition extends LeafCondition {
     @Element(name="state",required=false)
     private Object state;
 
-    public StatePropertyCondition(StatePropertyCondition condition, CloneMap map) {
+    public StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.stateProperty = map.clone(condition.stateProperty, FiniteSetProperty.class);
+        this.stateProperty = map.continueWith(condition.stateProperty, FiniteSetProperty.class);
         this.state = condition.state;
     }
 
@@ -36,8 +36,8 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public StatePropertyCondition deepCloneHelper(CloneMap map) {
-        return new StatePropertyCondition(this, map);
+    public StatePropertyCondition deepClone(DeepCloner cloner) {
+        return new StatePropertyCondition(this, cloner);
     }
 
     @Override

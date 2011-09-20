@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Root;
 
@@ -90,7 +90,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         super(builder);
     }
 
-    protected AbstractGFProperty(AbstractGFComponent cloneable, CloneMap map) {
+    protected AbstractGFProperty(AbstractGFComponent cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 

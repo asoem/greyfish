@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.DefaultAgent;
+import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.properties.BitSetTrait;
@@ -39,7 +39,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .storesEnergyIn(energyStorage)
                         .similarityTrait(trait1)
                         .build();
-        final Prototype consumer = Prototype.with()
+        final Agent consumer = ImmutableAgent.with()
                         .population(Population.newPopulation("TestPop1", Color.black))
                         .addProperties(trait1, energyStorage)
                         .addActions(consumptionAction)
@@ -54,7 +54,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .resourceProperty(resourceProperty)
                         .similarityTrait(trait)
                         .build();
-        final Prototype provider = Prototype.with()
+        final Agent provider = ImmutableAgent.with()
                         .population(Population.newPopulation("TestPop2", Color.black))
                         .addProperties(trait, resourceProperty)
                         .addActions(provisionAction)

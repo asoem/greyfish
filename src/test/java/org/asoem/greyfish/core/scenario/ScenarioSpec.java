@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.DefaultAgent;
+import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.individual.Prototype;
 import org.junit.runner.RunWith;
@@ -18,7 +18,7 @@ import static org.asoem.greyfish.core.space.MutableObject2D.at;
 public class ScenarioSpec extends Specification<Scenario> {
 
     public class ScenarioBuildWith1Prototypes {
-        final Prototype prototype = Prototype.with().population(Population.newPopulation("TestPop", Color.black)).build();
+        final Agent prototype = ImmutableAgent.with().population(Population.newPopulation("TestPop", Color.black)).build();
         final Scenario scenario = Scenario.with().space(1, 1).add(prototype, at()).build();
 
         public void shouldReturn1Prototypes() {
@@ -27,7 +27,7 @@ public class ScenarioSpec extends Specification<Scenario> {
     }
 
     public class ScenarioBuildWith2IdenticalPrototypes {
-        final Prototype prototype = Prototype.with().population(Population.newPopulation("TestPop", Color.black)).build();
+        final Agent prototype = ImmutableAgent.with().population(Population.newPopulation("TestPop", Color.black)).build();
         final Scenario scenario = Scenario.with().space(1, 1).add(prototype, at()).add(prototype, at()).build();
 
         public void shouldReturn1Prototypes() {

@@ -7,6 +7,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.MutableComponentList;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -21,18 +22,13 @@ public class MutableGenome extends MutableComponentList<Gene<?>> implements Geno
 
     private List<ForwardingGene<?>> genes = Lists.newArrayList();
 
-    public MutableGenome(Iterable<? extends Gene<?>> genome, Agent agent) {
-        super(agent);
+    public MutableGenome(Iterable<? extends Gene<?>> genome) {
         Iterables.addAll(genes, Iterables.transform(genome, new Function<Gene<?>, ForwardingGene<?>>() {
             @Override
             public ForwardingGene<?> apply(@Nullable Gene<?> gene) {
                 return ForwardingGene.newInstance(gene);
             }
         }));
-    }
-
-    public MutableGenome(Agent agent) {
-        super(agent);
     }
 
     @Override
@@ -83,7 +79,7 @@ public class MutableGenome extends MutableComponentList<Gene<?>> implements Geno
             Iterator<Gene<?>> thatGenesIterator = genome.iterator();
 
             while (thatGenesIterator.hasNext() && thatGenesIterator.hasNext()) {
-                thisGenesIterator.next().setDelegate(thatGenesIterator.next().deepClone(Gene.class));
+                thisGenesIterator.next().setDelegate(DeepCloner.startWith(thatGenesIterator.next(), Gene.class));
             }
         }
     }

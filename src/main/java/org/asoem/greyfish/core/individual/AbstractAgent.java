@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
@@ -11,15 +12,22 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.core.utils.GFComponents;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.core.Commit;
 
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Iterables.unmodifiableIterable;
+import static java.util.Arrays.asList;
 
 /**
  * User: christoph
@@ -30,17 +38,19 @@ public abstract class AbstractAgent implements Agent {
 
     @ElementList(name="properties", entry="property", required=false)
     protected final ComponentList<GFProperty> properties;
-    
+
     @ElementList(name="actions", entry="action", required=false)
     protected final ComponentList<GFAction> actions;
-    
+
     @Element(name="genome", required=false)
     protected final Genome genome;
-    
+
     @Element(name = "body", required = false)
     protected final Body body;
-    
+
     protected Population population;
+
+    protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
 
     @SimpleXMLConstructor
     protected AbstractAgent(@Element(name = "body", required = false) Body body,
@@ -51,28 +61,23 @@ public abstract class AbstractAgent implements Agent {
         this.properties = properties;
         this.actions = actions;
         this.genome = genome;
+
+        GFComponents.rebaseAll(getComponents(), this);
     }
-    
+
+    @Commit
+    private void commit() {
+        GFComponents.rebaseAll(getComponents(), this);
+    }
+
     @SuppressWarnings("unchecked")
-    protected AbstractAgent(AbstractAgent abstractAgent, CloneMap map) {
-        map.insert(abstractAgent, this);
+    protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner map) {
+        map.setAsCloned(abstractAgent, this);
         this.population = abstractAgent.population;
-        this.actions = (ComponentList<GFAction>) map.clone(abstractAgent.actions, ComponentList.class);
-        this.properties = (ComponentList<GFProperty>) map.clone(abstractAgent.properties, ComponentList.class);
-        this.genome = map.clone(abstractAgent.genome, Genome.class);
-        this.body = map.clone(abstractAgent.body, Body.class);
-    }
-
-    public AbstractAgent(Agent agent) {
-        Agent clone = CloneMap.deepClone(agent, Agent.class);
-        this.population = clone.getPopulation();
-        this.actions = clone.getActions();
-        this.properties = clone.getProperties();
-        this.genome = clone.getGenome();
-        this.body = clone.getBody();
-
-        for(GFComponent component : getComponents())
-            component.setAgent(this);
+        this.actions = (ComponentList<GFAction>) map.continueWith(abstractAgent.actions, ComponentList.class);
+        this.properties = (ComponentList<GFProperty>) map.continueWith(abstractAgent.properties, ComponentList.class);
+        this.genome = map.continueWith(abstractAgent.genome, Genome.class);
+        this.body = map.continueWith(abstractAgent.body, Body.class);
     }
 
     @Override
@@ -85,19 +90,41 @@ public abstract class AbstractAgent implements Agent {
         this.population = population;
     }
 
+    private <E extends GFComponent> boolean addComponent(ComponentList<E> list, E element) {
+        if (list.add(element)) {
+            element.setAgent(this);
+            return true;
+        }
+        return false;
+    }
+
+    private static <E extends GFComponent> boolean removeComponent(ComponentList<E> list, E element) {
+        if (list.remove(element)) {
+            element.setAgent(null);
+            return true;
+        }
+        return false;
+    }
+
+    private static void clearComponentList(ComponentList<? extends GFComponent> list) {
+        List<GFComponent> temp = ImmutableList.copyOf(list);
+        list.clear();
+        GFComponents.rebaseAll(temp, null);
+    }
+
     @Override
     public boolean addAction(GFAction action) {
-        return actions.add(action);
+        return addComponent(actions, action);
     }
 
     @Override
     public boolean removeAction(GFAction action) {
-        return actions.remove(action);
+        return removeComponent(actions, action);
     }
 
     @Override
     public void removeAllActions() {
-        actions.clear();
+        clearComponentList(actions);
     }
 
     @Override
@@ -107,17 +134,17 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public boolean addProperty(GFProperty property) {
-        return properties.add(property);
+        return addComponent(properties, property);
     }
 
     @Override
     public boolean removeProperty(GFProperty property) {
-        return properties.remove(property);
+        return removeComponent(properties, property);
     }
 
     @Override
     public void removeAllProperties() {
-        properties.clear();
+        clearComponentList(properties);
     }
 
     @Override
@@ -126,23 +153,23 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public boolean addGene(Gene gene) {
-        return genome.add(gene);
+    public boolean addGene(Gene<?> gene) {
+        return addComponent(genome, gene);
     }
 
     @Override
-    public boolean removeGene(Gene gene) {
-        return genome.remove(gene);
+    public boolean removeGene(Gene<?> gene) {
+        return removeComponent(genome, gene);
     }
 
     @Override
     public void removeAllGenes() {
-        genome.clear();
+        clearComponentList(genome);
     }
 
     @Override
     public Iterable<Gene<?>> getGenes() {
-        return genome;
+        return unmodifiableIterable(genome);
     }
 
     @Override
@@ -155,14 +182,21 @@ public abstract class AbstractAgent implements Agent {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * WARNING: This implementation just checks if {@code object} is an {@link Agent} and shares the same population with this agent.
+     * It does not check if they are or have been derived from the same prototype via {@link #deepClone}.
+     */
     @Override
     public boolean isCloneOf(Object object) {
-        throw new UnsupportedOperationException();
+        // TODO: should be implemented differently. See JavaDoc.
+        return object != null
+                && Agent.class.isInstance(object) && population.equals(Agent.class.cast(object).getPopulation());
+
     }
 
     @Override
     public Iterable<GFComponent> getComponents() {
-        return Iterables.concat(body, actions, properties, getGenes());
+        return unmodifiableIterable(concat(body, actions, properties, genome));
     }
 
     @Override
@@ -172,27 +206,27 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void pushMessage(ACLMessage message) {
-        getSimulationContext().pushMessage(message);
+        simulationContext.pushMessage(message);
     }
 
     @Override
     public void pushMessages(Iterable<? extends ACLMessage> message) {
-        getSimulationContext().pushMessages(message);
+        simulationContext.pushMessages(message);
     }
 
     @Override
     public int getId() {
-        return getSimulationContext().getId();
+        return simulationContext.getId();
     }
 
     @Override
     public int getTimeOfBirth() {
-        return getSimulationContext().getTimeOfBirth();
+        return simulationContext.getTimeOfBirth();
     }
 
     @Override
     public int getAge() {
-        return getSimulationContext().getAge();
+        return simulationContext.getAge();
     }
 
     @Override
@@ -212,22 +246,22 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public GFAction getLastExecutedAction() {
-        return getSimulationContext().getLastExecutedAction();
+        return simulationContext.getLastExecutedAction();
     }
 
     @Override
     public void sendMessage(ACLMessage message) {
-        getSimulationContext().sendMessage(message);
+        simulationContext.sendMessage(message);
     }
 
     @Override
     public List<ACLMessage> pullMessages(MessageTemplate template) {
-        return getSimulationContext().pullMessages(template);
+        return simulationContext.pullMessages(template);
     }
 
     @Override
     public boolean hasMessages(MessageTemplate template) {
-        return getSimulationContext().hasMessages(template);
+        return simulationContext.hasMessages(template);
     }
 
     @Override
@@ -237,28 +271,28 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Iterable<MovingObject2D> findNeighbours(double range) {
-        return getSimulationContext().findNeighbours(range);
+        return simulationContext.findNeighbours(range);
     }
 
     @Override
     public void execute() {
-
+        simulationContext.execute();
     }
 
     @Override
-    public void shutDown() {}
+    public void shutDown() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public Simulation getSimulation() {
-        return getSimulationContext().getSimulation();
+        return simulationContext.getSimulation();
     }
 
     @Override
     public void setSimulation(Simulation simulation) {
-        throw new UnsupportedOperationException();
+        this.simulationContext = new SimulationContext(simulation, this);
     }
-
-    protected abstract SimulationContext getSimulationContext();
 
     @Override
     public void freeze() {
@@ -271,7 +305,10 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void checkNotFrozen() throws IllegalStateException {}
+    public void checkNotFrozen() {
+        if (isFrozen())
+            throw new IllegalStateException("MutableAgent is frozen");
+    }
 
     @Override
     public Iterator<GFComponent> iterator() {
@@ -329,5 +366,39 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void prepare(Simulation context) {}
+    public void prepare(Simulation context) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Genome getGenome() {
+        return genome;
+    }
+
+    @Override
+    public Iterable<GFProperty> getProperties() {
+        return properties;
+    }
+
+    @Override
+    public Iterable<GFAction> getActions() {
+        return actions;
+    }
+
+    @Override
+    public Body getBody() {
+        return body;
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
+        protected final List<GFAction> actions = Lists.newArrayList();
+        protected final List<GFProperty> properties =  Lists.newArrayList();
+        protected Population population;
+        public final List<Gene<?>> genes = Lists.newArrayList();
+
+        public T addGenes(Gene<?> ... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
+        public T population(Population population) { this.population = checkNotNull(population); return self(); }
+        public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
+        public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
+    }
 }

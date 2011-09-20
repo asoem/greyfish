@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.utils.EvaluatedCandidates;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +25,8 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
 
     final private List<EvaluatedCandidate<Genome>> spermList = Lists.newArrayList();
 
-    public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, CloneMap cloneMap) {
-        super(storage, cloneMap);
+    public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, DeepCloner cloner) {
+        super(storage, cloner);
     }
 
     public void addGenome(Genome genome, double d) {
@@ -61,8 +61,8 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     @Override
-    public EvaluatedGenomeStorage deepCloneHelper(CloneMap cloneMap) {
-        return new EvaluatedGenomeStorage(this, cloneMap);
+    public EvaluatedGenomeStorage deepClone(DeepCloner cloner) {
+        return new EvaluatedGenomeStorage(this, cloner);
     }
 
     @SimpleXMLConstructor

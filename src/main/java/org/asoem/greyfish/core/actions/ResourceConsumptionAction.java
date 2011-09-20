@@ -166,13 +166,13 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public ResourceConsumptionAction deepCloneHelper(CloneMap cloneMap) {
-        return new ResourceConsumptionAction(this, cloneMap);
+    public ResourceConsumptionAction deepClone(DeepCloner cloner) {
+        return new ResourceConsumptionAction(this, cloner);
     }
 
-    protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        this.consumerProperty = cloneMap.clone(cloneable.consumerProperty, DoubleProperty.class);
+    protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.consumerProperty = cloner.continueWith(cloneable.consumerProperty, DoubleProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
         this.sensorRange = cloneable.sensorRange;
         this.amountPerRequest = cloneable.amountPerRequest;

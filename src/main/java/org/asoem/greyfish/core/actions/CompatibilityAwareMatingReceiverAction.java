@@ -190,16 +190,16 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    public CompatibilityAwareMatingReceiverAction deepCloneHelper(CloneMap cloneMap) {
-        return new CompatibilityAwareMatingReceiverAction(this, cloneMap);
+    public CompatibilityAwareMatingReceiverAction deepClone(DeepCloner cloner) {
+        return new CompatibilityAwareMatingReceiverAction(this, cloner);
     }
 
-    private CompatibilityAwareMatingReceiverAction(CompatibilityAwareMatingReceiverAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        this.spermBuffer = cloneMap.clone(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
+    private CompatibilityAwareMatingReceiverAction(CompatibilityAwareMatingReceiverAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.spermBuffer = cloner.continueWith(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
-        this.compatibilityDefiningProperty = cloneMap.clone(cloneable.compatibilityDefiningProperty, GFProperty.class);
+        this.compatibilityDefiningProperty = cloner.continueWith(cloneable.compatibilityDefiningProperty, GFProperty.class);
 
     }
 

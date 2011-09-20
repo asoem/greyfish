@@ -5,12 +5,12 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 @ClassGroup(tags="condition")
 public final class AgeCondition extends IntCompareCondition {
 
-    public AgeCondition(AgeCondition condition, CloneMap map) {
+    public AgeCondition(AgeCondition condition, DeepCloner map) {
         super(condition, map);
     }
 
@@ -20,8 +20,8 @@ public final class AgeCondition extends IntCompareCondition {
 	}
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new AgeCondition(this, map);
+    public AbstractGFComponent deepClone(DeepCloner cloner) {
+        return new AgeCondition(this, cloner);
     }
 
     @Override
