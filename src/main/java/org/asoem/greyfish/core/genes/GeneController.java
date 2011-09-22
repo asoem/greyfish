@@ -36,5 +36,5 @@ public interface GeneController<T> {
      * will be initialize when (and probably ony when) an agent is generated from a prototype.
      * @return some value dependent on the implementation
      */
-    T initialize();
+    T createInitialValue();
 }

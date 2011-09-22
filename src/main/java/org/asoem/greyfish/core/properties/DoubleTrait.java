@@ -50,7 +50,7 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
                     }
 
                     @Override
-                    public Double initialize() {
+                    public Double createInitialValue() {
                         return RandomUtils.RANDOM_DATA.nextUniform(getLowerBound(), getUpperBound());
                     }
                 }

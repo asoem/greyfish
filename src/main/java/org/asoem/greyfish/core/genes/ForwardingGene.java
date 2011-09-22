@@ -4,9 +4,9 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -69,6 +69,11 @@ public class ForwardingGene<T> implements Gene<T> {
     @Override
     public double distance(Gene<?> thatGene) {
         return delegate.distance(thatGene);
+    }
+
+    @Override
+    public T mutated() {
+        return delegate.mutated();
     }
 
     @Override

@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.individual.AbstractGFComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -12,7 +12,7 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
 
 	private final T representation;
     private final Class<T> clazz;
-    private final GeneController<T> mutationFunction;
+    private final GeneController<T> geneController;
 
     /**
      * Constructor
@@ -20,21 +20,15 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
      * @param clazz the Class of the supplied value
      * @param geneController the function which describes how to mutate the gene
      */
-	public ImmutableGene(T element, Class<T> clazz, GeneController<T> geneController) {
-        this.mutationFunction = checkNotNull(geneController);
+	protected ImmutableGene(T element, Class<T> clazz, GeneController<T> geneController) {
+        this.geneController = checkNotNull(geneController);
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
 	}
 
-    public ImmutableGene(Gene<T> gene) {
-        this.mutationFunction = checkNotNull(gene.getGeneController());
-        this.representation = checkNotNull(gene.get());
-        this.clazz = checkNotNull(gene.getSupplierClass());
-    }
-
-    protected ImmutableGene(ImmutableGene<T> gene, DeepCloner map) {
+    private ImmutableGene(ImmutableGene<T> gene, DeepCloner map) {
         super(gene, map);
-        this.mutationFunction = checkNotNull(gene.getGeneController());
+        this.geneController = checkNotNull(gene.getGeneController());
         this.representation = checkNotNull(gene.get());
         this.clazz = checkNotNull(gene.getSupplierClass());
     }
@@ -56,15 +50,21 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
 
     @Override
     public GeneController<T> getGeneController() {
-        return mutationFunction;
+        return geneController;
     }
 
-    public static <T> Gene<T> newMutatedCopy(Gene<T> gene) {
-        return new ImmutableGene<T>(gene.getGeneController().mutate(gene.get()), gene.getSupplierClass(), gene.getGeneController());
+    public static <E> ImmutableGene<E> newMutatedCopy(Gene<E> gene) {
+        return new ImmutableGene<E>(
+                gene.getGeneController().mutate(gene.get()),
+                gene.getSupplierClass(),
+                gene.getGeneController());
     }
 
-    public static <T> Gene<T> newInitializedCopy(Gene<T> gene) {
-        return new ImmutableGene<T>(gene.getGeneController().initialize(), gene.getSupplierClass(), gene.getGeneController());
+    public static <E> ImmutableGene<E> newInitializedCopy(Gene<E> gene) {
+        return new ImmutableGene<E>(
+                gene.getGeneController().createInitialValue(),
+                gene.getSupplierClass(),
+                gene.getGeneController());
     }
 
     @Override
@@ -75,7 +75,12 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
     @Override
     public final double distance(Gene<?> thatGene) {
         checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
-        return mutationFunction.normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
+        return getGeneController().normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
+    }
+
+    @Override
+    public void set(T value) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -86,5 +91,9 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new ImmutableGene<T>(this, cloner);
+    }
+
+    public static <T> Gene<T> copyOf(Gene<T> gene) {
+        return new ImmutableGene<T>(gene.get(), gene.getSupplierClass(), gene.getGeneController());
     }
 }

@@ -11,7 +11,8 @@ import javax.annotation.Nullable;
 
 public interface GFComponent extends Preparable<Simulation>, Freezable, HasName, Iterable<GFComponent>, DeepCloneable {
 
-    public Agent getAgent();
+
+    @Nullable public Agent getAgent();
     void setAgent(@Nullable Agent agent);
 
     public void setName(String name);

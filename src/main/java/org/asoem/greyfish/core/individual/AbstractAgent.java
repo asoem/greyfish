@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
@@ -43,7 +44,7 @@ public abstract class AbstractAgent implements Agent {
     protected final ComponentList<GFAction> actions;
 
     @Element(name="genome", required=false)
-    protected final Genome genome;
+    protected final Genome<Gene<?>> genome;
 
     @Element(name = "body", required = false)
     protected final Body body;
@@ -56,11 +57,11 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(@Element(name = "body", required = false) Body body,
                             @ElementList(name="properties", entry="property", required=false) ComponentList<GFProperty> properties,
                             @ElementList(name="actions", entry="action", required=false) ComponentList<GFAction> actions,
-                            @Element(name="genome", required=false) Genome genome) {
-        this.body = body;
-        this.properties = properties;
-        this.actions = actions;
-        this.genome = genome;
+                            @Element(name="genome", required=false) Genome<Gene<?>> genome) {
+        this.body = checkNotNull(body);
+        this.properties = checkNotNull(properties);
+        this.actions = checkNotNull(actions);
+        this.genome = checkNotNull(genome);
 
         GFComponents.rebaseAll(getComponents(), this);
     }
@@ -98,7 +99,7 @@ public abstract class AbstractAgent implements Agent {
         return false;
     }
 
-    private static <E extends GFComponent> boolean removeComponent(ComponentList<E> list, E element) {
+    private static <E extends GFComponent> boolean removeComponent(ComponentList<? extends E> list, E element) {
         if (list.remove(element)) {
             element.setAgent(null);
             return true;
@@ -154,7 +155,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public boolean addGene(Gene<?> gene) {
-        return addComponent(genome, gene);
+        return addComponent(genome, ForwardingGene.newInstance(gene));
     }
 
     @Override
@@ -178,7 +179,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void setGenome(Genome genome) {
+    public void injectGamete(Genome genome) {
         throw new UnsupportedOperationException();
     }
 
@@ -371,7 +372,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Genome getGenome() {
+    public Genome createGamete() {
         return genome;
     }
 

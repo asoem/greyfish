@@ -197,13 +197,13 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public Genome getGenome() {
-        return delegate.getGenome();
+    public Genome createGamete() {
+        return delegate.createGamete();
     }
 
     @Override
-    public void setGenome(Genome genome) {
-        delegate.setGenome(genome);
+    public void injectGamete(Genome genome) {
+        delegate.injectGamete(genome);
     }
 
     @Override

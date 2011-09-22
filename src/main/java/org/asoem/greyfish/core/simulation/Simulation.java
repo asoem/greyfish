@@ -1,9 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
 import javolution.util.FastList;
 import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
@@ -53,18 +51,6 @@ public class Simulation implements Runnable, HasName {
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     private final Map<Population, Counter> populationCount = Maps.newHashMap();
-
-    public static Simulation newSimulation(final Scenario scenario) {
-        return new Simulation(scenario);
-    }
-
-    public int getPrototypesCount() {
-        return this.prototypeMap.size();
-    }
-
-    public Iterable<MovingObject2D> findObjects(Location2D location, double radius) {
-        return space.findNeighbours(location, radius);
-    }
 
     @SuppressWarnings("unused")
     public enum Speed {
@@ -153,6 +139,28 @@ public class Simulation implements Runnable, HasName {
                     LOGGER.trace("End of simulation step " + event.getSource().getSteps());
                 }
             });
+    }
+
+    public static Simulation newSimulation(final Scenario scenario) {
+        return new Simulation(scenario);
+    }
+
+    public int getPrototypesCount() {
+        return this.prototypeMap.size();
+    }
+
+    public Iterable<MovingObject2D> findObjects(Location2D location, double radius) {
+        return space.findNeighbours(location, radius);
+    }
+
+    public Iterable<Agent> getAgents(final Population population) {
+        checkNotNull(population);
+        return Iterables.filter(concurrentAgentsView, new Predicate<Agent>() {
+            @Override
+            public boolean apply(Agent agent) {
+                return agent.getPopulation().equals(population);
+            }
+        });
     }
 
     private void initialize() {
@@ -269,7 +277,7 @@ public class Simulation implements Runnable, HasName {
         checkState(prototypeMap.containsKey(population));
 
         final Agent agent = newAgentFromPool(population);
-        agent.setGenome(genome);
+        agent.injectGamete(genome);
 
         commandListMap.put(AGENT_ADD,
                 new Command() {

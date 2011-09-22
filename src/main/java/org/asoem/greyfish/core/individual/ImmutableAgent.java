@@ -1,12 +1,15 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
+
+import javax.annotation.Nullable;
 
 
 /**
@@ -20,7 +23,12 @@ public class ImmutableAgent extends AbstractAgent {
         super(body,
                 ImmutableComponentList.copyOf(properties),
                 ImmutableComponentList.copyOf(actions),
-                ImmutableGenome.copyOf(genes));
+                ImmutableGenome.copyOf(Iterables.transform(genes, new Function<Gene<?>, Gene<?>>() {
+                    @Override
+                    public Gene<?> apply(@Nullable Gene<?> gene) {
+                        return ForwardingGene.newInstance(gene);
+                    }
+                })));
         setPopulation(population);
     }
 
@@ -32,8 +40,28 @@ public class ImmutableAgent extends AbstractAgent {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                ImmutableGenome.copyOf(builder.genes));
+                ImmutableGenome.copyOf(Iterables.transform(builder.genes, new Function<Gene<?>, Gene<?>>() {
+                    @Override
+                    public Gene<?> apply(@Nullable Gene<?> gene) {
+                        return ForwardingGene.newInstance(gene);
+                    }
+                })));
         setPopulation(builder.population);
+    }
+
+    @Override
+    public Genome createGamete() {
+        return ImmutableGenome.copyOf(Iterables.transform(genome, new Function<Gene<?>, Gene<?>>() {
+            @Override
+            public Gene<?> apply(@Nullable Gene<?> gene) {
+                return ImmutableGene.copyOf(gene);
+            }
+        }));
+    }
+
+    @Override
+    public void injectGamete(Genome genome) {
+
     }
 
     @Override

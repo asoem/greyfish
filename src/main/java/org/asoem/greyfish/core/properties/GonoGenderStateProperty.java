@@ -82,7 +82,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
             }
 
             @Override
-            public Integer initialize() {
+            public Integer createInitialValue() {
                 return nextBoolean() ? Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
             }
         };

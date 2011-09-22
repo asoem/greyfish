@@ -4,33 +4,38 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public abstract class AbstractGFComponent implements GFComponent {
 
     @Attribute(name="name", required = false)
     protected String name = "";
+
+    @Nullable
     protected Agent agent;
 
-    protected AbstractGFComponent() {
-    }
+    protected AbstractGFComponent() {}
 
     protected AbstractGFComponent(AbstractGFComponent cloneable, DeepCloner map) {
         map.setAsCloned(cloneable, this);
+        this.agent = map.continueWith(agent, Agent.class);
         this.name = cloneable.name;
     }
 
     @Override
+    @Nullable
     public Agent getAgent() {
         return agent;
     }
 
     @Override
-    public void setAgent(Agent agent) {
+    public void setAgent(@Nullable Agent agent) {
         this.agent = agent;
     }
 

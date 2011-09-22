@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.IncompatibleGenomeException;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -17,10 +18,17 @@ import java.awt.*;
 import java.util.List;
 
 public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2D, MessageReceiver, Preparable<Simulation> {
+    /**
+     * @param object a possible clone
+     * @return {@code true} if object is a clone of this agent, {@code false} otherwise
+     */
+    boolean isCloneOf(Object object);
+
+    Iterable<GFComponent> getComponents();
+    void changeActionExecutionOrder(GFAction object, GFAction object2);
+
     Population getPopulation();
     void setPopulation(Population population);
-
-    Body getBody();
 
     boolean addAction(GFAction action);
     boolean removeAction(GFAction action);
@@ -40,38 +48,37 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, 
     Iterable<Gene<?>> getGenes();
     @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
 
-    Genome getGenome();
-    void setGenome(Genome genome);
+    /**
+     * Creates a new Genome with exact copies of this agents genes.
+     * @return the new Genome
+     */
+    Genome createGamete();
 
     /**
-     * @param object a possible clone
-     * @return {@code true} if object is a clone of this agent, {@code false} otherwise
+     * Inject a copy of this agents genome so that this agents genes return the values of the genes in the given genome
+     * @param genome a copy of this agents genome
+     * @throws org.asoem.greyfish.core.genes.IncompatibleGenomeException
+     * if {@code genome} is not a copy of this agents genome as defined by {@link Genome#isCompatibleGenome}
      */
-    boolean isCloneOf(Object object);
+    void injectGamete(Genome genome) throws IncompatibleGenomeException;
 
-    Iterable<GFComponent> getComponents();
-
-    void changeActionExecutionOrder(GFAction object, GFAction object2);
-
-    int getId();
-    int getTimeOfBirth();
-    int getAge();
+    Body getBody();
     Color getColor();
     void setColor(Color color);
     double getRadius();
-    GFAction getLastExecutedAction();
-
-    void sendMessage(ACLMessage message);
-    List<ACLMessage> pullMessages(MessageTemplate template);
-    boolean hasMessages(MessageTemplate template);
-
-    AgentLog getLog();
-
-    Iterable<MovingObject2D> findNeighbours(double range);
-
-    void execute();
-    void shutDown();
 
     Simulation getSimulation();
     public void setSimulation(Simulation simulation);
+    int getId();
+    int getTimeOfBirth();
+    int getAge();
+    GFAction getLastExecutedAction();
+    void sendMessage(ACLMessage message);
+    List<ACLMessage> pullMessages(MessageTemplate template);
+    boolean hasMessages(MessageTemplate template);
+    Iterable<MovingObject2D> findNeighbours(double range);
+    void execute();
+    void shutDown();
+
+    AgentLog getLog();
 }

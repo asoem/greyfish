@@ -13,7 +13,7 @@ public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualCom
      *
      * @param gene The gene to register in this property
      * @return A Supplier for type {@code S}
-     * @see org.asoem.greyfish.core.individual.Agent#getGenome()
+     * @see org.asoem.greyfish.core.individual.Agent#createGamete()
      */
     <S> Gene<S> registerGene(final Gene<S> gene);
 

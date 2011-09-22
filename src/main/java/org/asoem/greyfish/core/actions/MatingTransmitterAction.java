@@ -82,7 +82,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = getAgent().getGenome();
+        final Genome sperm = getAgent().createGamete();
 
         double fitness = 0.0;
         try {

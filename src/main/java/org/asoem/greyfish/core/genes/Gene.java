@@ -9,13 +9,13 @@ public interface Gene<T> extends GFComponent, Supplier<T> {
     /**
      * @return the class of the value this gene is supplying
      */
-    public Class<T> getSupplierClass();
+    Class<T> getSupplierClass();
 
     /**
      *
      * @return the controller for this gene
      */
-    public GeneController<T> getGeneController();
+    GeneController<T> getGeneController();
 
     /**
      *
@@ -30,4 +30,10 @@ public interface Gene<T> extends GFComponent, Supplier<T> {
      * @return the distance
      */
     double distance(Gene<?> thatGene);
+
+    /**
+     * Set this genes current value to {@code value}
+     * @param value the new value this gene will supply
+     */
+    void set(T value);
 }

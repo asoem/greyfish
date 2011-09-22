@@ -1,6 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -14,6 +17,9 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -40,10 +46,19 @@ public class SexualReproductionAction extends AbstractGFAction {
         LOGGER.debug("Producing {} offspring", nOffspring);
 
         for (int i = 0; i < nOffspring; i++) {
+
+            List<?> geneValues = ImmutableList.copyOf(Iterables.<Gene<?>, Object>transform(agent.createGamete(), new Function<Gene<?>, Object>() {
+                @Override
+                public Object apply(@Nullable Gene<?> gene) {
+                    assert gene != null;
+                    return gene.mutated();
+                }
+            }));
+
             simulation.createAgent(
                     agent.getPopulation(),
                     agent.getAnchorPoint(),
-                    agent.getGenome().mutated().recombined(spermStorage.getRWS())
+                    agent.createGamete().mutated().recombined(spermStorage.getRWS())
             );
         }
 
@@ -104,7 +119,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        getAgent().getLog().set("offspring", 0);
+        agent.getLog().set("offspring", 0);
     }
 
     public static Builder with() { return new Builder(); }
