@@ -39,7 +39,7 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
         return(Iterables.all(this, new Predicate<Gene<?>>() {
             @Override
             public boolean apply(Gene<?> gene) {
-                return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedCopyOf(gene);
+                return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedCopy(gene);
             }
         }));
     }

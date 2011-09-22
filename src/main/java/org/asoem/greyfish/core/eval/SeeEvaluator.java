@@ -8,6 +8,7 @@ import see.See;
 import see.SeeException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -21,12 +22,20 @@ public class SeeEvaluator implements Evaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SeeEvaluator.class);
     private static final See see = See.create();
 
-    private INode inode;
-    private String expression;
+    private @Nullable INode inode;
+    private String expression = "";
 
-    public SeeEvaluator(String expression, VariableResolver resolver) {
+    public SeeEvaluator() {
+    }
+
+    public SeeEvaluator(String expression, @Nullable VariableResolver resolver) {
         setExpression(expression);
-        see.setParent(new SeeResolverAdaptor(resolver));
+        setResolver(resolver);
+    }
+
+    public void setResolver(@Nullable VariableResolver resolver) {
+        if (resolver != null)
+            see.setParent(new SeeResolverAdaptor(resolver));
     }
 
     @Override

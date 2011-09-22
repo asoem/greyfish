@@ -20,7 +20,7 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
      * @param clazz the Class of the supplied value
      * @param geneController the function which describes how to mutate the gene
      */
-	protected ImmutableGene(T element, Class<T> clazz, GeneController<T> geneController) {
+    public ImmutableGene(T element, Class<T> clazz, GeneController<T> geneController) {
         this.geneController = checkNotNull(geneController);
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
@@ -68,7 +68,7 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
     }
 
     @Override
-    public boolean isMutatedCopyOf(Gene<?> gene) {
+    public boolean isMutatedCopy(Gene<?> gene) {
         return this.getGeneController().equals(gene.getGeneController());
     }
 

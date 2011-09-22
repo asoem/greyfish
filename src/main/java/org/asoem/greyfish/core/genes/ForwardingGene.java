@@ -54,8 +54,8 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
-    public boolean isMutatedCopyOf(Gene<?> gene) {
-        return this.delegate.isMutatedCopyOf(gene);
+    public boolean isMutatedCopy(Gene<?> gene) {
+        return this.delegate.isMutatedCopy(gene);
     }
 
     public static <T> ForwardingGene<T> newInstance(Gene<T> delegate) {
@@ -72,8 +72,8 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
-    public T mutated() {
-        return delegate.mutated();
+    public void set(T value) {
+        delegate.set(value);
     }
 
     @Override

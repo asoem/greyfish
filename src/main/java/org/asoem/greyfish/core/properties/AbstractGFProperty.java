@@ -45,7 +45,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
             Gene<?> copy = Iterables.find(genes, new Predicate<Gene<?>>() {
                         @Override
                         public boolean apply(Gene<?> o) {
-                            return gene.isMutatedCopyOf(o);
+                            return gene.isMutatedCopy(o);
                         }
                     }, null);
 

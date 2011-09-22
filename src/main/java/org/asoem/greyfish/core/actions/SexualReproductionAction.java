@@ -1,25 +1,19 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -47,18 +41,10 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         for (int i = 0; i < nOffspring; i++) {
 
-            List<?> geneValues = ImmutableList.copyOf(Iterables.<Gene<?>, Object>transform(agent.createGamete(), new Function<Gene<?>, Object>() {
-                @Override
-                public Object apply(@Nullable Gene<?> gene) {
-                    assert gene != null;
-                    return gene.mutated();
-                }
-            }));
-
             simulation.createAgent(
                     agent.getPopulation(),
                     agent.getAnchorPoint(),
-                    agent.createGamete().mutated().recombined(spermStorage.getRWS())
+                    agent.createGamete()/*.mutated().recombined(spermStorage.getRWS())*/
             );
         }
 

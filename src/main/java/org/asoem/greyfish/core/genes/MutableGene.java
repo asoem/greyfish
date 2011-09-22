@@ -24,7 +24,7 @@ public class MutableGene<E> extends AbstractGFComponent implements Gene<E> {
         this.geneController = checkNotNull(geneController);
     }
 
-    public MutableGene(MutableGene<E> mutableGene, DeepCloner cloner) {
+    protected MutableGene(MutableGene<E> mutableGene, DeepCloner cloner) {
         super(mutableGene, cloner);
         this.supplierClass = mutableGene.supplierClass;
         this.geneController = mutableGene.geneController;
@@ -41,19 +41,14 @@ public class MutableGene<E> extends AbstractGFComponent implements Gene<E> {
     }
 
     @Override
-    public boolean isMutatedCopyOf(Gene<?> gene) {
+    public boolean isMutatedCopy(Gene<?> gene) {
         return this.getGeneController().equals(gene.getGeneController());
     }
 
     @Override
     public double distance(Gene<?> thatGene) {
-        checkArgument(isMutatedCopyOf(thatGene));
+        checkArgument(isMutatedCopy(thatGene));
         return getGeneController().normalizedDistance(this.get(), supplierClass.cast(thatGene.get()));
-    }
-
-    @Override
-    public void set(E value) {
-        this.value = checkNotNull(value);
     }
 
     @Override
@@ -69,5 +64,10 @@ public class MutableGene<E> extends AbstractGFComponent implements Gene<E> {
     @Override
     public E get() {
         return value;
+    }
+
+    @Override
+    public void set(E value) {
+        this.value = checkNotNull(value);
     }
 }

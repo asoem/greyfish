@@ -53,7 +53,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
         return(Iterables.all(this, new Predicate<Gene<?>>() {
             @Override
             public boolean apply(Gene<?> gene) {
-                return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedCopyOf(gene);
+                return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedCopy(gene);
             }
         }));
     }
@@ -110,7 +110,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
                     return Iterables.find(delegate(), new Predicate<Gene<?>>() {
                         @Override
                         public boolean apply(Gene<?> gene) {
-                            return gene.isMutatedCopyOf(indexedGene);
+                            return gene.isMutatedCopy(indexedGene);
                         }
                     });
                 } catch (Exception e) {

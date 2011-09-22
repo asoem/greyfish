@@ -8,27 +8,22 @@ import org.asoem.greyfish.core.genes.Genome;
  * Date: 19.09.11
  * Time: 15:59
  */
-public abstract class ForwardingGenome extends ForwardingComponentList<Gene<?>> implements Genome {
+public abstract class ForwardingGenome<E extends Gene<?>> extends ForwardingComponentList<E> implements Genome<E> {
 
-    protected abstract Genome delegate();
+    protected abstract Genome<E> delegate();
 
     @Override
-    public double distance(Genome genome) {
-        return delegate().distance(genome);
+    public double distance(Genome<? extends E> es) {
+        return delegate().distance(es);
     }
 
     @Override
-    public Iterable<Gene<?>> findCopiesFor(Iterable<Gene<?>> thisGenes) {
+    public Iterable<E> findCopiesFor(Iterable<? extends E> thisGenes) {
         return delegate().findCopiesFor(thisGenes);
     }
 
     @Override
-    public Genome mutated() {
-        return delegate().mutated();
-    }
-
-    @Override
-    public Genome recombined(Genome genome) {
-        return delegate().recombined(genome);
+    public boolean isCompatibleGenome(Genome<? extends E> es) {
+        return delegate().isCompatibleGenome(es);
     }
 }
