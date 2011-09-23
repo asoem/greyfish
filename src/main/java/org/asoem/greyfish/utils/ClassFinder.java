@@ -1,5 +1,7 @@
 package org.asoem.greyfish.utils;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -58,16 +60,16 @@ public class ClassFinder {
 	 * @return Array of found classes
 	 * @throws ClassNotFoundException
 	 */
-	public Class<?>[] getAll(String packageName) throws ClassNotFoundException {
+	public Iterable<Class<?>> getAll(String packageName) throws ClassNotFoundException {
 		String packageDir = convertPackege(packageName);
-		final ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+		final ArrayList<Class<?>> classes = Lists.newArrayList();
         for (String binDir : binDirs) {
             packageDir = binDir + File.separator + packageDir;
             final File dir = new File(packageDir);
             classes.addAll(extractClasses(packageName, dir));
         }
 		
-		return classes.toArray(new Class<?>[classes.size()]);
+		return classes;
 	}
 	
 	/**

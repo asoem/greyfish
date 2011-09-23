@@ -21,17 +21,17 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueAdaptor.class);
 
-    public final String name;
-    public final Class<T> clazz;
+    private final String name;
+    private final Class<T> valueType;
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     private Supplier<Boolean> writeProtection = Suppliers.ofInstance(Boolean.FALSE);
 
-    public ValueAdaptor(String name, Class<T> clazz) {
+    public ValueAdaptor(String name, Class<T> valueType) {
         Preconditions.checkNotNull(name);
-        Preconditions.checkNotNull(clazz);
+        Preconditions.checkNotNull(valueType);
 
         this.name = name;
-        this.clazz = clazz;
+        this.valueType = valueType;
     }
 
     @Override
@@ -48,6 +48,9 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
         return name;
     }
 
+    public Class<T> getValueType() {
+        return valueType;
+    }
 
     @Override
     public T getValue() {
@@ -57,7 +60,7 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
     @SuppressWarnings("unchecked")
     @Override
     public void setValue(Object arg0) {
-        Preconditions.checkArgument(clazz.isInstance(arg0));
+        Preconditions.checkArgument(valueType.isInstance(arg0));
 
         if (isWriteProtected())
             return;
@@ -116,7 +119,7 @@ public abstract class ValueAdaptor<T> implements ValueModel, Validatable, Proper
                 @Override
                 public T get() {
                     try {
-                        return clazz.cast(field.get(o));
+                        return getValueType().cast(field.get(o));
                     } catch (IllegalAccessException e) {
                         LOGGER.error("Cannot get value of field " + fieldName + " for object " + o, e);
                     }
