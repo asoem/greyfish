@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.eval;
 
+import org.asoem.greyfish.utils.RandomDataGenerator;
 import org.mvel2.MVEL;
+import org.mvel2.ParserContext;
 import org.mvel2.integration.VariableResolverFactory;
 
 import javax.annotation.Nullable;
@@ -19,6 +21,13 @@ public class MvelEvaluator implements Evaluator {
     private String expression;
     private Serializable compiledExpression;
     private @Nullable VariableResolverFactory factory;
+    private static final ParserContext PARSER_CONTEXT = new ParserContext();
+    static {
+        PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
+
+        PARSER_CONTEXT.addImport("gaussian", MVEL.getStaticMethod(RandomDataGenerator.class, "gaussian", new Class[] {double.class, double.class}));
+        PARSER_CONTEXT.addImport("poisson", MVEL.getStaticMethod(RandomDataGenerator.class, "poisson", new Class[] {double.class}));
+    }
 
     @Override
     public double evaluateAsDouble() throws EvaluationException {
@@ -33,7 +42,7 @@ public class MvelEvaluator implements Evaluator {
     @Override
     public void setExpression(String expression) throws SyntaxException {
         this.expression = expression;
-        this.compiledExpression = MVEL.compileExpression(expression);
+        this.compiledExpression = MVEL.compileExpression(expression, PARSER_CONTEXT);
     }
 
     @Override
@@ -95,10 +104,10 @@ public class MvelEvaluator implements Evaluator {
     private static class GreyfishMvelVariableResolverFactory implements VariableResolverFactory {
 
         private VariableResolverFactory nextFactory;
-        private final VariableResolver delegate;
+        private final VariableResolver variableResolver;
 
         public GreyfishMvelVariableResolverFactory(VariableResolver resolver) {
-            this.delegate = checkNotNull(resolver);
+            this.variableResolver = checkNotNull(resolver);
         }
 
         @Override
@@ -138,7 +147,7 @@ public class MvelEvaluator implements Evaluator {
 
         @Override
         public org.mvel2.integration.VariableResolver getVariableResolver(String s) {
-            return new MvelVariableResolverAdaptor(s, delegate);
+            return new MvelVariableResolverAdaptor(s, variableResolver);
         }
 
         @Override
@@ -154,7 +163,7 @@ public class MvelEvaluator implements Evaluator {
         @Override
         public boolean isResolveable(String s) {
             try {
-                delegate.canResolve(s);
+                variableResolver.canResolve(s);
                 return true;
             } catch (VariableResolutionException e) {
                 return false;

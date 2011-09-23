@@ -191,7 +191,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
         e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
             @Override
             public Iterable<WellOrderedSetElement> values() {
-                return Iterables.filter(agent.getProperties(), this.clazz);
+                return Iterables.filter(agent.getProperties(), this.getValueType());
             }
 
             @Override
