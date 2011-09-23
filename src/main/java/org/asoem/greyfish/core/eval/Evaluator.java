@@ -13,4 +13,6 @@ public interface Evaluator {
 
     void setExpression(String expression) throws SyntaxException;
     String getExpression();
+
+    void setResolver(VariableResolver resolver);
 }

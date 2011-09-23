@@ -33,6 +33,7 @@ public class SeeEvaluator implements Evaluator {
         setResolver(resolver);
     }
 
+    @Override
     public void setResolver(@Nullable VariableResolver resolver) {
         if (resolver != null)
             see.setParent(new SeeResolverAdaptor(resolver));
@@ -88,7 +89,7 @@ public class SeeEvaluator implements Evaluator {
         return expression;
     }
 
-    private static class SeeResolverAdaptor implements VariableResolver, Resolver {
+    private static class SeeResolverAdaptor extends ForwardingVariableResolver implements Resolver {
 
         private final VariableResolver resolver;
 
@@ -97,8 +98,8 @@ public class SeeEvaluator implements Evaluator {
         }
 
         @Override
-        public Object resolve(@Nonnull String varName) {
-            return resolver.resolve(varName);
+        public VariableResolver delegate() {
+            return resolver;
         }
 
         @Override
@@ -113,7 +114,7 @@ public class SeeEvaluator implements Evaluator {
 
         @Override
         public boolean contains(String varName) {
-            return get(varName) != null;
+            return canResolve(varName);
         }
     }
 }

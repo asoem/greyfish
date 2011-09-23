@@ -18,18 +18,16 @@ public class MvelEvaluator implements Evaluator {
 
     private String expression;
     private Serializable compiledExpression;
-    private VariableResolverFactory factory = new GreyfishMvelVariableResolverFactory();
-    private @Nullable VariableResolver variableResolver;
+    private @Nullable VariableResolverFactory factory;
 
     @Override
     public double evaluateAsDouble() throws EvaluationException {
-
-        return MVEL.executeExpression(compiledExpression, factory, Double.class);
+        return Double.class.cast(MVEL.executeExpression(compiledExpression, factory));
     }
 
     @Override
     public boolean evaluateAsBoolean() throws EvaluationException {
-        return MVEL.executeExpression(compiledExpression, factory, Boolean.class);
+        return Boolean.class.cast(MVEL.executeExpression(compiledExpression, factory));
     }
 
     @Override
@@ -43,23 +41,24 @@ public class MvelEvaluator implements Evaluator {
         return expression;
     }
 
-    public void setVariableResolver(@Nullable VariableResolver resolver) {
-        this.variableResolver = checkNotNull(resolver);
+    @Override
+    public void setResolver(@Nullable VariableResolver resolver) {
+        this.factory = new GreyfishMvelVariableResolverFactory(checkNotNull(resolver));
     }
 
-    private class MvelVariableResolverAdaptor implements VariableResolver, org.mvel2.integration.VariableResolver {
+    private static class MvelVariableResolverAdaptor extends ForwardingVariableResolver implements org.mvel2.integration.VariableResolver {
 
         private final String name;
+        private final VariableResolver delegate;
 
-        public MvelVariableResolverAdaptor(String name) {
-            this.name = name;
+        public MvelVariableResolverAdaptor(String name, VariableResolver delegate) {
+            this.name = checkNotNull(name);
+            this.delegate = checkNotNull(delegate);
         }
 
         @Override
-        public Object resolve(String varName) throws VariableResolutionException {
-            if (variableResolver == null)
-                return null;
-            return variableResolver.resolve(varName);
+        public VariableResolver delegate() {
+            return delegate;
         }
 
         @Override
@@ -93,9 +92,14 @@ public class MvelEvaluator implements Evaluator {
         }
     }
 
-    private class GreyfishMvelVariableResolverFactory implements VariableResolverFactory {
+    private static class GreyfishMvelVariableResolverFactory implements VariableResolverFactory {
 
         private VariableResolverFactory nextFactory;
+        private final VariableResolver delegate;
+
+        public GreyfishMvelVariableResolverFactory(VariableResolver resolver) {
+            this.delegate = checkNotNull(resolver);
+        }
 
         @Override
         public org.mvel2.integration.VariableResolver createVariable(String s, Object o) {
@@ -114,12 +118,12 @@ public class MvelEvaluator implements Evaluator {
 
         @Override
         public org.mvel2.integration.VariableResolver createIndexedVariable(int i, String s, Object o, Class<?> aClass) {
-           throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public org.mvel2.integration.VariableResolver setIndexedVariableResolver(int i, org.mvel2.integration.VariableResolver variableResolver) {
-           throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -134,7 +138,7 @@ public class MvelEvaluator implements Evaluator {
 
         @Override
         public org.mvel2.integration.VariableResolver getVariableResolver(String s) {
-            return new MvelVariableResolverAdaptor(s);
+            return new MvelVariableResolverAdaptor(s, delegate);
         }
 
         @Override
@@ -150,7 +154,7 @@ public class MvelEvaluator implements Evaluator {
         @Override
         public boolean isResolveable(String s) {
             try {
-                variableResolver.resolve(s);
+                delegate.canResolve(s);
                 return true;
             } catch (VariableResolutionException e) {
                 return false;

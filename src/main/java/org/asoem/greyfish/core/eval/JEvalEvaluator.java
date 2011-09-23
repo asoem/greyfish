@@ -19,7 +19,7 @@ public class JEvalEvaluator implements Evaluator {
 
     public JEvalEvaluator(String expression, VariableResolver resolver) {
         setExpression(expression);
-        evaluator.setVariableResolver(new JEvalVariableResolverAdaptor(resolver));
+        setResolver(resolver);
     }
 
     @Override
@@ -55,7 +55,12 @@ public class JEvalEvaluator implements Evaluator {
         return expression;
     }
 
-    private static class JEvalVariableResolverAdaptor implements VariableResolver, net.sourceforge.jeval.VariableResolver {
+    @Override
+    public void setResolver(VariableResolver resolver) {
+        evaluator.setVariableResolver(new JEvalVariableResolverAdaptor(resolver));
+    }
+
+    private static class JEvalVariableResolverAdaptor extends ForwardingVariableResolver implements net.sourceforge.jeval.VariableResolver {
 
         private final VariableResolver variableResolver;
 
@@ -64,8 +69,8 @@ public class JEvalEvaluator implements Evaluator {
         }
 
         @Override
-        public Object resolve(@Nonnull String varName) {
-            return variableResolver.resolve(varName);
+        public VariableResolver delegate() {
+            return variableResolver;
         }
 
         @Override

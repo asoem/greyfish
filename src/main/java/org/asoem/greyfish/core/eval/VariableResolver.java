@@ -8,5 +8,6 @@ import javax.annotation.Nullable;
  * Time: 11:09
  */
 public interface VariableResolver {
+    boolean canResolve(String name);
     @Nullable Object resolve(String varName) throws VariableResolutionException;
 }

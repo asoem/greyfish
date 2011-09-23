@@ -35,6 +35,12 @@ public class CachedResolverConverter implements ResolverConverter {
         }
     }
 
+    @Override
+    public <T extends GFComponent> boolean canConvert(String name, Class<T> contextClass) {
+        ResolverCacheKey key = new ResolverCacheKey(name, contextClass);
+        return resolverMap.containsKey(key) || delegate.canConvert(name, contextClass);
+    }
+
     private static class ResolverCacheKey {
         private final String varName;
         private final Class<? extends GFComponent> context;

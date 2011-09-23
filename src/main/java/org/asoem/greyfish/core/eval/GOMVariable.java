@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
+import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.GFComponent;
 
 /**
@@ -9,11 +10,15 @@ import org.asoem.greyfish.core.individual.GFComponent;
  */
 public class GOMVariable {
 
-    private final GFComponent context;
+    private final Class<? extends GFComponent> context;
     private final String expression;
 
-    public GOMVariable(String expression, GFComponent context) {
+    public GOMVariable(String expression, Class<? extends GFComponent> context) {
         this.expression = expression;
         this.context = context;
+    }
+
+    public static GOMVariable create(Class<? extends GFComponent> contextClass, String varName) {
+        return new GOMVariable(varName, contextClass);
     }
 }

@@ -74,6 +74,15 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         throw new RuntimeException("");
     }
 
+    @Override
+    public <T extends GFComponent> boolean canConvert(String name, final Class<T> contextClass) {
+        try {
+           return get(name, contextClass) != null;
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
     private <T extends GFComponent> Function<T, ?> action(Iterator<String> parts, Function<T, GFAction> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();

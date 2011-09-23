@@ -18,6 +18,11 @@ public class GreyfishVariableResolverConverterAdaptor<T extends GFComponent> ext
     }
 
     @Override
+    public boolean canResolve(String name) {
+        return converter.canConvert(name, contextClass);
+    }
+
+    @Override
     public Object resolve(String varName) throws VariableResolutionException {
         return converter.get(varName, contextClass).apply(context);
     }
