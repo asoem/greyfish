@@ -220,7 +220,7 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent.getProperties(), DoubleProperty.class);
+                return Iterables.filter(getAllComponents(), DoubleProperty.class);
             }
         });
     }

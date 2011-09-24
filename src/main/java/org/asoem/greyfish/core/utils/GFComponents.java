@@ -15,7 +15,7 @@ public class GFComponents {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GFComponents.class);
 
-    public static <T extends GFComponent> T createNewInstance(Class<T> clazz) {
+    public static <T extends GFComponent> T createNewInstance(Class<T> clazz) throws Exception {
         try {
             if (GFAction.class.isAssignableFrom(clazz)) {
                 return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
@@ -32,9 +32,8 @@ public class GFComponents {
         }
         catch (Exception e) {
             LOGGER.error("Could not instantiate class", e);
-            System.exit(1);
+            throw e;
         }
-        return null;
     }
 
     public static void rebaseAll(Iterable<? extends GFComponent> iterable, @Nullable Agent agent) {

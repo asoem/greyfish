@@ -47,7 +47,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(agent.getActions(), GFAction.class);
+                return Iterables.filter(getAllComponents(), GFAction.class);
             }
         });
     }

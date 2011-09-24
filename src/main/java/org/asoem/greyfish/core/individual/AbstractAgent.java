@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
@@ -24,6 +26,7 @@ import org.simpleframework.xml.core.Commit;
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.concat;
@@ -198,6 +201,7 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public Iterable<GFComponent> getComponents() {
         return unmodifiableIterable(concat(body, actions, properties, genome));
+        // TODO: does not return follow the whole tree
     }
 
     @Override

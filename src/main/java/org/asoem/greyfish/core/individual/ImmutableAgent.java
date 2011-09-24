@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.utils.GFComponents;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -47,6 +48,7 @@ public class ImmutableAgent extends AbstractAgent {
                     }
                 })));
         setPopulation(builder.population);
+        GFComponents.rebaseAll(getComponents(), this);
     }
 
     @Override

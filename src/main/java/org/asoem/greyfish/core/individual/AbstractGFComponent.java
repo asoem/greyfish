@@ -2,11 +2,11 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
@@ -26,6 +26,16 @@ public abstract class AbstractGFComponent implements GFComponent {
         map.setAsCloned(cloneable, this);
         this.agent = map.continueWith(agent, Agent.class);
         this.name = cloneable.name;
+    }
+
+    protected AbstractGFComponent(AbstractBuilder<?> builder) {
+        this.name = builder.name;
+    }
+
+    public static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
+        private String name = "";
+
+        public T name(String name) { this.name = name; return self(); }
     }
 
     @Override
@@ -60,8 +70,7 @@ public abstract class AbstractGFComponent implements GFComponent {
     }
 
     @Override
-    public void freeze() {
-    }
+    public void freeze() {}
 
     public final void checkNotFrozen() {
         if (isFrozen()) throw new IllegalStateException("Component is frozen");
@@ -72,16 +81,6 @@ public abstract class AbstractGFComponent implements GFComponent {
         if (getAgent() == null)
             throw new IllegalStateException(
                     AbstractGFComponent.class.getSimpleName() + "[" + name + "]: Components must have an owner");
-    }
-
-    protected AbstractGFComponent(AbstractBuilder<?> builder) {
-        this.name = builder.name;
-    }
-
-    public static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
-        private String name = "";
-
-        public T name(String name) { this.name = name; return self(); }
     }
 
     @Override
@@ -106,5 +105,10 @@ public abstract class AbstractGFComponent implements GFComponent {
                 return isFrozen();
             }
         });
+    }
+
+    @Override
+    public Iterable<GFComponent> getAllComponents() {
+        return agent == null ? ImmutableList.<GFComponent>of() : agent.getComponents();
     }
 }

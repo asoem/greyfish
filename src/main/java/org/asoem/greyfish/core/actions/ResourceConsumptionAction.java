@@ -148,7 +148,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent.getProperties(), DoubleProperty.class);
+                return Iterables.filter(getAllComponents(), DoubleProperty.class);
             }
         });
         e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));

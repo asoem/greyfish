@@ -110,7 +110,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
             @Override
             public Iterable<ResourceProperty> values() {
-                return Iterables.filter(agent.getProperties(), ResourceProperty.class);
+                return Iterables.filter(getAllComponents(), ResourceProperty.class);
             }
         });
     }

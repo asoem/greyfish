@@ -65,7 +65,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return filter(agent.getProperties(), EvaluatedGenomeStorage.class);
+                return filter(getAllComponents(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {

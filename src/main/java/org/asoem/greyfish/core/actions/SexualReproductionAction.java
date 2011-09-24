@@ -80,7 +80,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return Iterables.filter(agent.getProperties(), EvaluatedGenomeStorage.class);
+                return Iterables.filter(getAllComponents(), EvaluatedGenomeStorage.class);
             }
         });
     }

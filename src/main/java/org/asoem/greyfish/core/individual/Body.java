@@ -32,27 +32,30 @@ import static com.google.common.collect.Iterables.*;
 public class Body extends AbstractGFComponent implements MovingObject2D {
 
     private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
-
     @Attribute(name="radius", required = false)
     private double radius = 0.1f;
-
     private static final FiniteSetSupplier DEFAULT_SUPPLIER = FiniteSetSuppliers.of("Default");
-
     @Element(name="colorStateProperty", required = false)
     private FiniteSetProperty property;
-
     @ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false)
     private final Map<Object, Color> stateColorMap;
-
     private FiniteSetSupplier<?> states = DEFAULT_SUPPLIER;
-
     private WellOrderedSetElement<?> outlineValueSupplier = new MutableWellOrderedSetElement<Double>(0.0, 1.0, 0.0);
 
+    /**
+     *
+     * @param owner the agent which this body is part of
+     */
     private Body(Agent owner) {
         this();
-        setAgent(owner);
+        setAgent(checkNotNull(owner));
     }
 
+    /**
+     *
+     * @param body The original
+     * @param cloner The Cloner
+     */
     private Body(Body body, DeepCloner cloner) {
         super(body, cloner);
         this.property = cloner.continueWith(body.property, FiniteSetProperty.class);
@@ -68,6 +71,9 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
         this.stateColorMap = stateColorMap;
     }
 
+    /**
+     * Default Constructor.
+     */
     public Body() {
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
         stateColorMap = Maps.newHashMap();
@@ -163,6 +169,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
 
     @Override
     public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(ValueAdaptor.forField("Radius of the Circle", Double.class, this, "radius"));
         FiniteSetValueAdaptor<FiniteSetSupplier> b = new FiniteSetValueAdaptor<FiniteSetSupplier>("StateProperty", FiniteSetSupplier.class) {
             @Override protected void set(FiniteSetSupplier arg0) { states = checkNotNull(arg0);
@@ -191,7 +198,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
         e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
             @Override
             public Iterable<WellOrderedSetElement> values() {
-                return Iterables.filter(agent.getProperties(), this.getValueType());
+                return Iterables.filter(getAllComponents(), this.getValueType());
             }
 
             @Override

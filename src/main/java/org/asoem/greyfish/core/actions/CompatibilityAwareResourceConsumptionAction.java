@@ -49,7 +49,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
 
             @Override
             public Iterable<GFProperty> values() {
-                return Iterables.filter(agent.getProperties(), GFProperty.class);
+                return Iterables.filter(getAllComponents(), GFProperty.class);
             }
         });
     }

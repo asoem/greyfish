@@ -63,7 +63,9 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
                         public Simulation apply(@Nullable T gfComponent) {
-                            return gfComponent.getAgent().getSimulation();
+                            if (gfComponent != null && gfComponent.getAgent() != null)
+                                return gfComponent.getAgent().getSimulation();
+                            return null;
                             // TODO: We should have direct access to simulation object through a component
                         }
                     });
