@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
@@ -14,7 +15,6 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.core.utils.GFComponents;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.TreeNode;
 import org.asoem.greyfish.lang.Trees;
@@ -26,6 +26,7 @@ import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "body", required = false)
     protected final Body body;
 
-    private final AgentComponent rootComponent = new RootComponent(this);
+    private final AgentComponent rootComponent;
 
     protected Population population;
 
@@ -68,12 +69,19 @@ public abstract class AbstractAgent implements Agent {
         this.actions = checkNotNull(actions);
         this.genome = checkNotNull(genome);
 
+        rootComponent = new AgentComponentWrapper(Iterables.concat(
+                Collections.singleton(body),
+                properties,
+                actions,
+                genome
+        ));
         rootComponent.setAgent(this);
     }
 
     @Commit
     private void commit() {
-        GFComponents.rebaseAll(getComponents(), this);
+        for (AgentComponent component : getComponents())
+            component.setAgent(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -84,6 +92,14 @@ public abstract class AbstractAgent implements Agent {
         this.properties = (ComponentList<GFProperty>) map.continueWith(abstractAgent.properties, ComponentList.class);
         this.genome = map.continueWith(abstractAgent.genome, Genome.class);
         this.body = map.continueWith(abstractAgent.body, Body.class);
+
+        rootComponent = new AgentComponentWrapper(Iterables.concat(
+                Collections.singleton(body),
+                properties,
+                actions,
+                genome
+        ));
+        rootComponent.setAgent(this);
     }
 
     @Override
@@ -115,7 +131,8 @@ public abstract class AbstractAgent implements Agent {
     private static void clearComponentList(ComponentList<? extends AgentComponent> list) {
         List<AgentComponent> temp = ImmutableList.copyOf(list);
         list.clear();
-        GFComponents.rebaseAll(temp, null);
+        for (AgentComponent component : temp)
+            component.setAgent(null);
     }
 
     @Override

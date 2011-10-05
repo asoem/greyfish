@@ -96,4 +96,9 @@ public abstract class AbstractAgentComponent implements AgentComponent {
             }
         });
     }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
+    }
 }

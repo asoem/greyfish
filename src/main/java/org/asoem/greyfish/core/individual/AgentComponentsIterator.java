@@ -47,7 +47,7 @@ public class AgentComponentsIterator extends AbstractIterator<AgentComponent> im
     }
 
     @Override
-    public void visit(RootComponent rootComponent) {
+    public void visit(AgentComponentWrapper agentComponentWrapper) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

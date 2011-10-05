@@ -5,13 +5,10 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.MutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.GFComponents;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Root;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Root
 public class MutableAgent extends AbstractAgent {
@@ -30,7 +27,6 @@ public class MutableAgent extends AbstractAgent {
                 new MutableComponentList<GFAction>(builder.actions),
                 new MutableGenome(builder.genes));
         setPopulation(builder.population);
-        GFComponents.rebaseAll(getComponents(), this);
     }
 
     @Override
@@ -60,7 +56,7 @@ public class MutableAgent extends AbstractAgent {
 
         this.simulationContext = new SimulationContext(simulation, this);
 
-        for (AgentComponent component : this) {
+        for (AgentComponent component : getComponents()) {
             component.prepare(simulation);
         }
     }

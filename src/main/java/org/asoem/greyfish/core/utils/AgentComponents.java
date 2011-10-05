@@ -2,20 +2,17 @@ package org.asoem.greyfish.core.utils;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
 
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class GFComponents {
+public class AgentComponents {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GFComponents.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentComponents.class);
 
     public static <T extends AgentComponent> T createNewInstance(Class<T> clazz) throws RuntimeException {
         try {
@@ -42,11 +39,6 @@ public class GFComponents {
         T ret = createNewInstance(clazz);
         ret.setName(name);
         return ret;
-    }
-
-    public static void rebaseAll(Iterable<? extends AgentComponent> iterable, @Nullable Agent agent) {
-        for (AgentComponent component : iterable)
-            component.setAgent(agent);
     }
 
     public static <T extends AgentComponent> Builder<T> forClass(Class<T> clazz) {

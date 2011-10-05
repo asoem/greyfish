@@ -16,5 +16,5 @@ public interface ComponentVisitor {
     void visit(GFCondition condition);
     void visit(Body body);
     void visit(Gene<?> gene);
-    void visit(RootComponent rootComponent);
+    void visit(AgentComponent abstractAgentComponent);
 }
