@@ -65,7 +65,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return filter(getAllComponents(), EvaluatedGenomeStorage.class);
+                return filter(agent.get().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
@@ -102,13 +102,6 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public void checkConsistency() {
-        super.checkConsistency();
-        checkNotNull(spermBuffer);
-        checkNotNull(ontology);
-    }
-
-    @Override
     protected ACLMessage.Builder createCFP() {
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
@@ -141,9 +134,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        final Iterable neighbours = agent.findNeighbours(sensorRange);
+        final Iterable neighbours = agent.get().findNeighbours(sensorRange);
         sensedMates = filter(neighbours, Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent)));
+        sensedMates = filter(sensedMates, not(equalTo(agent.get())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }

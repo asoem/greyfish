@@ -11,7 +11,7 @@ public class CompositionModificationEvent extends ChangeEvent {
 	public static final int COMPONENT_ADDED = 0;
 	public static final int COMPONENT_REMOVED = 0;
 
-	public CompositionModificationEvent(Object source, GFComponent component) {
+	public CompositionModificationEvent(Object source, AgentComponent component) {
 		super(source);
 	}
 

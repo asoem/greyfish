@@ -4,5 +4,5 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.HasName;
 import org.asoem.greyfish.utils.Preparable;
 
-public interface NamedIndividualComponent extends GFComponent, Preparable<Simulation>, HasName {
+public interface NamedIndividualComponent extends AgentComponent, Preparable<Simulation>, HasName {
 }

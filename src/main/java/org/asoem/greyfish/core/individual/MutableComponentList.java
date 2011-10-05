@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 18.09.11
  * Time: 15:53
  */
-public class MutableComponentList<E extends GFComponent> extends ForwardingList<E> implements ComponentList<E> {
+public class MutableComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
 
     private final List<E> delegate = Lists.newArrayList();
 

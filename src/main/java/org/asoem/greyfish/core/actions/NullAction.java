@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -31,7 +31,7 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepClone(DeepCloner cloner) {
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new NullAction(this, cloner);
     }
 

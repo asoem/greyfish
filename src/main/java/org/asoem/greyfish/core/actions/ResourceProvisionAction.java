@@ -110,7 +110,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
             @Override
             public Iterable<ResourceProperty> values() {
-                return Iterables.filter(getAllComponents(), ResourceProperty.class);
+                return Iterables.filter(agent.get().getProperties(), ResourceProperty.class);
             }
         });
     }
@@ -130,12 +130,6 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         super(builder);
         this.parameterMessageType = builder.parameterMessageType;
         this.resourceProperty = builder.resourceProperty;
-    }
-
-    @Override
-    public void checkConsistency() {
-        super.checkConsistency();
-        checkState(resourceProperty != null);
     }
 
     public static Builder with() { return new Builder(); }

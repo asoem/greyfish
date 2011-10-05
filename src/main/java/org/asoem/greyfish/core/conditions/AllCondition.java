@@ -5,7 +5,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -19,7 +19,7 @@ import org.asoem.greyfish.utils.DeepCloner;
 public class AllCondition extends LogicalOperatorCondition {
 
     @Override
-    public AbstractGFComponent deepClone(DeepCloner cloner) {
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new AllCondition(this, cloner);
     }
 

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import javolution.util.FastList;
@@ -579,6 +580,11 @@ public class Simulation implements Runnable, HasName {
     @Override
     public String getName() {
         return title;
+    }
+
+    @Override
+    public boolean hasName(String s) {
+        return Objects.equal(title, s);
     }
 
     public void setName(String name) {

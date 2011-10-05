@@ -10,6 +10,7 @@ import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.lang.TreeNode;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.Preparable;
 
@@ -17,14 +18,16 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Iterable<GFComponent>, MovingObject2D, MessageReceiver, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, MovingObject2D, MessageReceiver, Preparable<Simulation> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
      */
     boolean isCloneOf(Object object);
 
-    Iterable<GFComponent> getComponents();
+    TreeNode<AgentComponent> getRootComponent();
+
+    Iterable<AgentComponent> getComponents();
     void changeActionExecutionOrder(GFAction object, GFAction object2);
 
     Population getPopulation();

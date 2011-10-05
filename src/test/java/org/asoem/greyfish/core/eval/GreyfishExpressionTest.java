@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
-import javolution.io.Struct;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -21,18 +20,19 @@ import static org.mockito.BDDMockito.given;
 public class GreyfishExpressionTest {
 
     @Mock EvaluatorFactory evaluatorFactory;
-    @Mock GreyfishVariableResolver<GFComponent> greyfishVariableResolver;
+    @Mock GreyfishVariableResolver<AgentComponent> greyfishVariableResolver;
     @Mock Evaluator evaluator;
-    @Mock GFComponent context;
+    @Mock
+    AgentComponent context;
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullEvaluatorFactory() {
-        new GreyfishExpression<GFComponent>("", null, greyfishVariableResolver);
+        new GreyfishExpression<AgentComponent>("", null, greyfishVariableResolver);
     }
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullGreyfishVariableResolver() {
-        new GreyfishExpression<GFComponent>("", evaluatorFactory, null);
+        new GreyfishExpression<AgentComponent>("", evaluatorFactory, null);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class GreyfishExpressionTest {
         });
 
         // when
-        GreyfishExpression<GFComponent> expression = new GreyfishExpression<GFComponent>("", evaluatorFactory, greyfishVariableResolver);
+        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluatorFactory, greyfishVariableResolver);
         double ret = expression.evaluateAsDouble(context);
 
         // then
@@ -66,7 +66,7 @@ public class GreyfishExpressionTest {
         });
 
         // when
-        GreyfishExpression<GFComponent> expression = new GreyfishExpression<GFComponent>("", evaluatorFactory, greyfishVariableResolver);
+        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluatorFactory, greyfishVariableResolver);
         boolean ret = expression.evaluateAsBoolean(context);
 
         // then

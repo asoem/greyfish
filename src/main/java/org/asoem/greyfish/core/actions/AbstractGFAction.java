@@ -1,39 +1,41 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.conditions.ConditionTree;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import java.util.Collections;
+
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.AbstractGFAction.ExecutionResult.*;
 import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
 
 @Root
-public abstract class AbstractGFAction extends AbstractGFComponent implements GFAction {
+public abstract class AbstractGFAction extends AbstractAgentComponent implements GFAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGFAction.class);
 
-    private ConditionTree conditionTree;
+    @Element(name="condition", required=false)
+    private Optional<GFCondition> rootCondition = Optional.absent();
 
     @Element(name="costs_formula", required = false)
-    private GreyfishExpression energyCosts = compileExpression("0").forContext(AbstractGFAction.class);
+    private GreyfishExpression<AbstractGFAction> energyCosts = compileExpression("0").forContext(AbstractGFAction.class);
 
     @Element(name="energy_source", required=false)
     private DoubleProperty energySource;
@@ -67,16 +69,17 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Override
     public final boolean evaluateConditions(Simulation simulation) {
-        return conditionTree.evaluate(simulation);
+        return rootCondition.isPresent() && rootCondition.get().evaluate(simulation);
     }
 
     /**
      * Called by the individual to evaluateConditions the condition if set and trigger the actions
-     * @param simulation
+     * @param simulation the simulation context
      */
     @Override
     public final ExecutionResult execute(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
+        Preconditions.checkState(agent.isPresent());
 
         try {
             if (isDormant()) {
@@ -140,27 +143,18 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
     /**
      * In this method the behaviour of this action is implemented. This method should not be called directly.
      *
-     * @param simulation
+     * @param simulation the simulation context
+     * @return the state in which this action should be after execution
      */
     protected abstract State executeUnconditioned(Simulation simulation);
 
     @Override
-    public void setAgent(Agent agent) {
-        super.setAgent(agent);
-        conditionTree.setAgent(getAgent());
-    }
-
-    @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        conditionTree.prepare(simulation);
+        if (rootCondition.isPresent())
+            rootCondition.get().prepare(simulation);
         executionCount = 0;
         timeOfLastExecution = simulation.getSteps();
-    }
-
-    @Override
-    public ConditionTree getConditionTree() {
-        return conditionTree;
     }
 
     @Override
@@ -175,14 +169,14 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     @Element(name="condition", required=false)
     public GFCondition getRootCondition() {
-        return conditionTree.getRootCondition();
+        return rootCondition.orNull();
     }
 
     @Element(name="condition", required=false)
     @Override
     public void setRootCondition(GFCondition rootCondition) {
-        conditionTree = new ConditionTree(rootCondition);
-        conditionTree.setAgent(this.getAgent());
+        this.rootCondition = Optional.fromNullable(rootCondition);
+        rootCondition.setAgent(this.getAgent());
     }
 
     @Override
@@ -220,15 +214,9 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getAllComponents(), DoubleProperty.class);
+                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
             }
         });
-    }
-
-    @Override
-    public void checkConsistency() {
-        super.checkConsistency();
-        checkState(Iterables.contains(agent.getComponents(), energySource));
     }
 
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
@@ -250,13 +238,13 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
         super(builder);
         this.energyCosts = builder.formula;
         this.energySource = builder.source;
-        this.conditionTree = new ConditionTree(builder.condition);
+        this.rootCondition = Optional.fromNullable(builder.condition);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractAgentComponent.AbstractBuilder<T> {
         private GFCondition condition;
         private DoubleProperty source;
-        private GreyfishExpression formula = compileExpression("0").forContext(AbstractGFAction.class);
+        private GreyfishExpression<AbstractGFAction> formula = compileExpression("0").forContext(AbstractGFAction.class);
 
         public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
         private T source(DoubleProperty source) { this.source = source; return self(); }
@@ -267,8 +255,13 @@ public abstract class AbstractGFAction extends AbstractGFComponent implements GF
 
     protected AbstractGFAction(AbstractGFAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.conditionTree = new ConditionTree(map.continueWith(cloneable.getRootCondition(), GFCondition.class));
+        this.rootCondition = Optional.fromNullable(map.continueWith(cloneable.getRootCondition(), GFCondition.class));
         this.energySource = map.continueWith(cloneable.energySource, DoubleProperty.class);
         this.energyCosts = cloneable.energyCosts;
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return rootCondition.isPresent() ? Collections.<AgentComponent>singletonList(getRootCondition()) : Collections.<AgentComponent>emptyList();
     }
 }

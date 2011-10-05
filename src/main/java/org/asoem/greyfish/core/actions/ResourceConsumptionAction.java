@@ -94,8 +94,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = filter(agent.findNeighbours(sensorRange), Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent)));
+        sensedMates = filter(agent.get().findNeighbours(sensorRange), Agent.class);
+        sensedMates = filter(sensedMates, not(equalTo(agent.get())));
         return ! isEmpty(sensedMates);
     }
 
@@ -148,7 +148,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getAllComponents(), DoubleProperty.class);
+                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
             }
         });
         e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));

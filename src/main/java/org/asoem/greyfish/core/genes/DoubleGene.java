@@ -3,7 +3,8 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -14,6 +15,8 @@ import org.asoem.greyfish.utils.ValueAdaptor;
 
 import javax.annotation.Nullable;
 
+import java.util.Collections;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,7 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 09:37
  */
 @ClassGroup(tags = "genes")
-public class DoubleGene extends AbstractGFComponent implements Gene<Double> {
+public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
 
     private GreyfishExpression<DoubleGene> initialValueGenerator = GreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
     private GreyfishExpression<DoubleGene> mutationDistributionFunction = GreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
@@ -128,5 +131,10 @@ public class DoubleGene extends AbstractGFComponent implements Gene<Double> {
                 return initialValueGenerator;
             }
         });
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return Collections.emptyList();
     }
 }

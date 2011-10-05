@@ -1,14 +1,17 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
 
+import java.util.Collections;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
+public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> {
 
 	private final T representation;
     private final Class<T> clazz;
@@ -95,5 +98,10 @@ public class ImmutableGene<T> extends AbstractGFComponent implements Gene<T> {
 
     public static <T> Gene<T> copyOf(Gene<T> gene) {
         return new ImmutableGene<T>(gene.get(), gene.getSupplierClass(), gene.getGeneController());
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return Collections.emptyList();
     }
 }

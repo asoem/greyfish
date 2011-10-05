@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
@@ -20,13 +20,13 @@ public final class AgeCondition extends IntCompareCondition {
 	}
 
     @Override
-    public AbstractGFComponent deepClone(DeepCloner cloner) {
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new AgeCondition(this, cloner);
     }
 
     @Override
 	protected Integer getCompareValue(Simulation simulation) {
-		return agent.getAge();
+		return agent.get().getAge();
 	}
 
     @SimpleXMLConstructor

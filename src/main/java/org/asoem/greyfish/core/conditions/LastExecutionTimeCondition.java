@@ -71,7 +71,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(getAllComponents(), GFAction.class);
+                return Iterables.filter(agent.get().getProperties(), GFAction.class);
             }
         });
 	}

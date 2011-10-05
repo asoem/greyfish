@@ -1,13 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -49,7 +48,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
 
             @Override
             public Iterable<GFProperty> values() {
-                return Iterables.filter(getAllComponents(), GFProperty.class);
+                return agent.get().getProperties();
             }
         });
     }

@@ -10,6 +10,7 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
+import org.asoem.greyfish.lang.TreeNode;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.PolarPoint;
@@ -29,13 +30,13 @@ public abstract class AgentDecorator implements Agent {
     private final Agent delegate;
 
     /**
-     * After decoration, the {@link GFComponent#getAgent()} method of all {@link GFComponent}s of {@code delegate}
+     * After decoration, the {@link AgentComponent#getAgent()} method of all {@link AgentComponent}s of {@code delegate}
      * will return this {@code AgentDecorator} instead of {@code delegate}.
      * @param delegate the {@code Agent} to decorate
      */
     protected AgentDecorator(@Nonnull Agent delegate) {
         this.delegate = checkNotNull(delegate);
-        for (GFComponent component : delegate.getComponents()) {
+        for (AgentComponent component : delegate.getComponents()) {
             component.setAgent(this);
         }
     }
@@ -55,7 +56,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     /**
-     * If you wish overwrite {@link Agent#addAction}, make sure to call {@link GFComponent#setAgent} on {@code action} after addition.
+     * If you wish overwrite {@link Agent#addAction}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
     public boolean addAction(GFAction action) {
@@ -78,7 +79,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     /**
-     * If you wish overwrite {@link Agent#addProperty}, make sure to call {@link GFComponent#setAgent} on {@code action} after addition.
+     * If you wish overwrite {@link Agent#addProperty}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
     public boolean addProperty(GFProperty property) {
@@ -112,7 +113,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public Iterable<GFComponent> getComponents() {
+    public Iterable<AgentComponent> getComponents() {
         return delegate.getComponents();
     }
 
@@ -142,7 +143,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public Iterator<GFComponent> iterator() {
+    public Iterator<AgentComponent> iterator() {
         return delegate.iterator();
     }
 
@@ -334,5 +335,10 @@ public abstract class AgentDecorator implements Agent {
     @Override
     public Iterable<Gene<?>> getGenes() {
         return delegate.getGenes();
+    }
+
+    @Override
+    public TreeNode<AgentComponent> getRootComponent() {
+        return delegate.getRootComponent();
     }
 }

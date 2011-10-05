@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.interfaces;
 
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 
-public interface GFInterface extends GFComponent {
+public interface GFInterface extends AgentComponent {
 
 }

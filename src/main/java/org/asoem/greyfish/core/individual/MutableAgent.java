@@ -1,9 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -13,10 +11,7 @@ import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Root;
 
-import java.util.List;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Arrays.asList;
 
 @Root
 public class MutableAgent extends AbstractAgent {
@@ -65,7 +60,7 @@ public class MutableAgent extends AbstractAgent {
 
         this.simulationContext = new SimulationContext(simulation, this);
 
-        for (GFComponent component : this) {
+        for (AgentComponent component : this) {
             component.prepare(simulation);
         }
     }

@@ -8,7 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 
@@ -30,7 +30,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
     private static final Splitter GOM_SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
 
     @Override
-    public <T extends GFComponent> Function<T, ?> get(String varName, final Class<T> context) {
+    public <T extends AgentComponent> Function<T, ?> get(String varName, final Class<T> context) {
         checkNotNull(varName);
         checkNotNull(context);
 
@@ -77,7 +77,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
     }
 
     @Override
-    public <T extends GFComponent> boolean canConvert(String name, final Class<T> contextClass) {
+    public <T extends AgentComponent> boolean canConvert(String name, final Class<T> contextClass) {
         try {
            return get(name, contextClass) != null;
         } catch (RuntimeException e) {
@@ -85,7 +85,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         }
     }
 
-    private <T extends GFComponent> Function<T, ?> action(Iterator<String> parts, Function<T, GFAction> ret) {
+    private <T extends AgentComponent> Function<T, ?> action(Iterator<String> parts, Function<T, GFAction> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
@@ -106,7 +106,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         }
     }
 
-    private <T extends GFComponent> Function<T, ?> property(Iterator<String> parts, Function<T, GFProperty> ret) {
+    private <T extends AgentComponent> Function<T, ?> property(Iterator<String> parts, Function<T, GFProperty> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
@@ -128,7 +128,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         }
     }
 
-    private <T extends GFComponent> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation> ret) {
+    private <T extends AgentComponent> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
@@ -155,7 +155,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         }
     }
 
-    private <T extends GFComponent> Function<T, ?> gene(Iterator<String> parts, Function<T, Gene> ret) {
+    private <T extends AgentComponent> Function<T, ?> gene(Iterator<String> parts, Function<T, Gene> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             throw new RuntimeException("Gene has no member named " + nextPart);
@@ -165,7 +165,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         }
     }
 
-    private <T extends GFComponent> Function<T, ?> agent(Iterator<String> parts, Function<T, Agent> ret) {
+    private <T extends AgentComponent> Function<T, ?> agent(Iterator<String> parts, Function<T, Agent> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             Matcher matcher;

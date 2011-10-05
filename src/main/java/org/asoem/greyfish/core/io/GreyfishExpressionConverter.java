@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.simpleframework.xml.convert.Converter;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
@@ -18,7 +18,7 @@ class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
     public GreyfishExpression read(InputNode node) throws Exception {
         String expression = node.getAttribute("expression").getValue();
         String contextClassStr = node.getAttribute("context").getValue();
-        Class<? extends GFComponent> contextClass = (Class<? extends GFComponent>) Class.forName(contextClassStr);
+        Class<? extends AgentComponent> contextClass = (Class<? extends AgentComponent>) Class.forName(contextClassStr);
 
         return GreyfishExpressionFactory.compileExpression(expression).forContext(contextClass);
     }

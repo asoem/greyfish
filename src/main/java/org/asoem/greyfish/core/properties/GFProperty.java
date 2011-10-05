@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
 
-public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualComponent {
+public interface GFProperty extends AgentComponent, NamedDeepCloneableIndividualComponent {
 
     /**
      * Add {@code gene} to this property which will than be recognized as part of the genome of this property's agent

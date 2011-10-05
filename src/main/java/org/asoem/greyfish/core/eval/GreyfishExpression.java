@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -9,7 +9,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 14:09
  */
-public class GreyfishExpression<T extends GFComponent> {
+public class GreyfishExpression<T extends AgentComponent> {
 
     private final Evaluator evaluator;
     private final GreyfishVariableResolver<T> variableResolver;

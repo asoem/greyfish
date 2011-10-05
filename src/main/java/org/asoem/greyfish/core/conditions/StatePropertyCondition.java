@@ -1,14 +1,13 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -49,7 +48,7 @@ public class StatePropertyCondition extends LeafCondition {
 
             @Override
             public Iterable<FiniteSetProperty> values() {
-                return Iterables.filter(getAllComponents(), FiniteSetProperty.class);
+                return Iterables.filter(agent.get().getProperties(), FiniteSetProperty.class);
             }
         };
         e.add(statesAdaptor);
@@ -63,12 +62,6 @@ public class StatePropertyCondition extends LeafCondition {
         };
         statesAdaptor.addValueChangeListener(stateAdaptor);
         e.add(stateAdaptor);
-    }
-
-    @Override
-    public void checkConsistency() {
-        super.checkConsistency();
-        Preconditions.checkState(Iterables.contains(agent.getComponents(), stateProperty));
     }
 
     private StatePropertyCondition() {

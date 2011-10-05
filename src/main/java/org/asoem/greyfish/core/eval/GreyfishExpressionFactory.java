@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,12 +24,12 @@ public enum GreyfishExpressionFactory {
         private final CachedResolverConverter cachedConverter = new CachedResolverConverter(DefaultGreyfishResolverConverter.INSTANCE);
 
         @Override
-        public <T extends GFComponent> GreyfishVariableResolver<T> create(Class<T> contextClass) {
+        public <T extends AgentComponent> GreyfishVariableResolver<T> create(Class<T> contextClass) {
             return new GreyfishVariableResolverConverterAdaptor<T>(cachedConverter, contextClass);
         }
     };
 
-    public <T extends GFComponent> GreyfishExpression<T> create(String expression, Class<T> contextClass) throws SyntaxException {
+    public <T extends AgentComponent> GreyfishExpression<T> create(String expression, Class<T> contextClass) throws SyntaxException {
         return new GreyfishExpression<T>(expression, evaluatorFactory, variableResolverFactory.create(contextClass));
     }
 
@@ -52,7 +52,7 @@ public enum GreyfishExpressionFactory {
             this.expression = checkNotNull(expression);
         }
 
-        public <T extends GFComponent> GreyfishExpression<T> forContext(Class<T> contextClass) throws SyntaxException {
+        public <T extends AgentComponent> GreyfishExpression<T> forContext(Class<T> contextClass) throws SyntaxException {
             return INSTANCE.create(expression, contextClass);
         }
     }

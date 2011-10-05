@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
 import com.google.common.base.Function;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 
 /**
  * User: christoph
@@ -19,7 +19,7 @@ public interface ResolverConverter {
      * @return a {@link Function} of the {@code context} identified by {@code varName}
      * @throws VariableResolutionException if the variable identified by varName has wrong syntax or does not match any function.
      */
-    <T extends GFComponent> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException;
+    <T extends AgentComponent> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException;
 
     /**
      *
@@ -27,5 +27,5 @@ public interface ResolverConverter {
      * @param contextClass The class of the context object passed to the resolved function
      * @return {@code true} if this ResolverConverter can convert name x contextClass, {@code false} otherwise
      */
-    <T extends GFComponent> boolean canConvert(String name, Class<T> contextClass);
+    <T extends AgentComponent> boolean canConvert(String name, Class<T> contextClass);
 }

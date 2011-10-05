@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
@@ -74,7 +74,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getAllComponents(), DoubleProperty.class);
+                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
             }
         });
         e.add(new ValueAdaptor<String>("Formula", String.class) {
@@ -101,7 +101,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepClone(DeepCloner cloner) {
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new ModifyQuantitivePropertyAction(this, cloner);
     }
 

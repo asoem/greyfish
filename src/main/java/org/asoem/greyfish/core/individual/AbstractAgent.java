@@ -1,8 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.AbstractIterator;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
@@ -17,19 +16,20 @@ import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.utils.GFComponents;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.lang.TreeNode;
+import org.asoem.greyfish.lang.Trees;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.core.Commit;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.unmodifiableIterable;
 import static java.util.Arrays.asList;
 
@@ -52,6 +52,8 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "body", required = false)
     protected final Body body;
 
+    private final AgentComponent rootComponent = new RootComponent(this);
+
     protected Population population;
 
     protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
@@ -66,7 +68,7 @@ public abstract class AbstractAgent implements Agent {
         this.actions = checkNotNull(actions);
         this.genome = checkNotNull(genome);
 
-        GFComponents.rebaseAll(getComponents(), this);
+        rootComponent.setAgent(this);
     }
 
     @Commit
@@ -94,7 +96,7 @@ public abstract class AbstractAgent implements Agent {
         this.population = population;
     }
 
-    private <E extends GFComponent> boolean addComponent(ComponentList<E> list, E element) {
+    private <E extends AgentComponent> boolean addComponent(ComponentList<E> list, E element) {
         if (list.add(element)) {
             element.setAgent(this);
             return true;
@@ -102,7 +104,7 @@ public abstract class AbstractAgent implements Agent {
         return false;
     }
 
-    private static <E extends GFComponent> boolean removeComponent(ComponentList<? extends E> list, E element) {
+    private static <E extends AgentComponent> boolean removeComponent(ComponentList<? extends E> list, E element) {
         if (list.remove(element)) {
             element.setAgent(null);
             return true;
@@ -110,8 +112,8 @@ public abstract class AbstractAgent implements Agent {
         return false;
     }
 
-    private static void clearComponentList(ComponentList<? extends GFComponent> list) {
-        List<GFComponent> temp = ImmutableList.copyOf(list);
+    private static void clearComponentList(ComponentList<? extends AgentComponent> list) {
+        List<AgentComponent> temp = ImmutableList.copyOf(list);
         list.clear();
         GFComponents.rebaseAll(temp, null);
     }
@@ -199,9 +201,8 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterable<GFComponent> getComponents() {
-        return unmodifiableIterable(concat(body, actions, properties, genome));
-        // TODO: does not return follow the whole tree
+    public TreeNode<AgentComponent> getRootComponent() {
+        return rootComponent;
     }
 
     @Override
@@ -316,7 +317,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterator<GFComponent> iterator() {
+    public Iterator<AgentComponent> iterator() {
         return getComponents().iterator();
     }
 
@@ -405,5 +406,20 @@ public abstract class AbstractAgent implements Agent {
         public T population(Population population) { this.population = checkNotNull(population); return self(); }
         public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
         public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
+    }
+
+    @Override
+    public Iterable<AgentComponent> getComponents() {
+        return new Iterable<AgentComponent>() {
+            @Override
+            public Iterator<AgentComponent> iterator() {
+                return Trees.postOrderView(rootComponent, new Function<TreeNode<AgentComponent>, Iterator<AgentComponent>>() {
+                    @Override
+                    public Iterator<AgentComponent> apply(@Nullable TreeNode<AgentComponent> agentComponentTreeNode) {
+                        return checkNotNull(agentComponentTreeNode).children().iterator();
+                    }
+                });
+            }
+        };
     }
 }

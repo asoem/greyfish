@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -17,7 +17,7 @@ public final class AlwaysTrueCondition extends LeafCondition {
     }
 
     @Override
-    public AbstractGFComponent deepClone(DeepCloner cloner) {
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new AlwaysTrueCondition(this, cloner);
     }
 

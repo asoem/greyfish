@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.eval;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ public class CachedResolverConverter implements ResolverConverter {
 
     private final ResolverConverter delegate;
 
-    private final Map<ResolverCacheKey, Function<? extends GFComponent, ?>> resolverMap = Maps.newHashMap();
+    private final Map<ResolverCacheKey, Function<? extends AgentComponent, ?>> resolverMap = Maps.newHashMap();
 
     public CachedResolverConverter(ResolverConverter delegate) {
         this.delegate = delegate;
@@ -23,7 +23,7 @@ public class CachedResolverConverter implements ResolverConverter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends GFComponent> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException {
+    public <T extends AgentComponent> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException {
         ResolverCacheKey key = new ResolverCacheKey(varName, context);
         if (resolverMap.containsKey(key)) {
             return (Function<T, ?>) resolverMap.get(key);
@@ -36,16 +36,16 @@ public class CachedResolverConverter implements ResolverConverter {
     }
 
     @Override
-    public <T extends GFComponent> boolean canConvert(String name, Class<T> contextClass) {
+    public <T extends AgentComponent> boolean canConvert(String name, Class<T> contextClass) {
         ResolverCacheKey key = new ResolverCacheKey(name, contextClass);
         return resolverMap.containsKey(key) || delegate.canConvert(name, contextClass);
     }
 
     private static class ResolverCacheKey {
         private final String varName;
-        private final Class<? extends GFComponent> context;
+        private final Class<? extends AgentComponent> context;
 
-        public ResolverCacheKey(String varName, Class<? extends GFComponent> context) {
+        public ResolverCacheKey(String varName, Class<? extends AgentComponent> context) {
             this.varName = varName;
             this.context = context;
         }

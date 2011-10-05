@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -25,12 +25,12 @@ public class ChangeBodyAction extends AbstractGFAction {
 
     @Override
     protected State executeUnconditioned(Simulation simulation) {
-        agent.setColor(color);
+        agent.get().setColor(color);
         return State.END_SUCCESS;
     }
 
     @Override
-    public AbstractGFComponent deepClone(DeepCloner cloner) {
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new ChangeBodyAction(this, cloner);
     }
 

@@ -69,7 +69,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return filter(agent.getProperties(), EvaluatedGenomeStorage.class);
+                return filter(agent.get().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
@@ -107,7 +107,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             @Override
             public Iterable<GFProperty> values() {
-                return agent.getProperties();
+                return agent.get().getProperties();
             }
         });
     }
@@ -122,15 +122,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    public void checkConsistency() {
-        super.checkConsistency();
-        checkNotNull(spermBuffer);
-        checkNotNull(ontology);
-    }
-
-    @Override
     protected ACLMessage.Builder createCFP() {
-        agent.getLog().add("nMatingAttempts", 1);
+        agent.get().getLog().add("nMatingAttempts", 1);
 
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
 
@@ -157,14 +150,14 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             if (trueWithProbability(matingProbability)) {
                 LOGGER.debug("Accepting mating proposal with p={}", matingProbability);
-                agent.getLog().add("nMatingsAccepted", 1);
+                agent.get().getLog().add("nMatingsAccepted", 1);
 
                 receiveGenome(evaluatedGenome);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             }
             else {
                 LOGGER.debug("Refusing mating proposal with p={}", matingProbability);
-                agent.getLog().add("nMatingsRefused", 1);
+                agent.get().getLog().add("nMatingsRefused", 1);
 
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
             }
@@ -182,9 +175,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        final Iterable neighbours = agent.findNeighbours(sensorRange);
+        final Iterable neighbours = agent.get().findNeighbours(sensorRange);
         sensedMates = filter(neighbours, Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent)));
+        sensedMates = filter(sensedMates, not(equalTo(agent.get())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
@@ -214,9 +207,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        agent.getLog().set("nMatingsAccepted", 0);
-        agent.getLog().set("nMatingsRefused", 0);
-        agent.getLog().set("nMatingAttempts", 0);
+        agent.get().getLog().set("nMatingsAccepted", 0);
+        agent.get().getLog().set("nMatingsRefused", 0);
+        agent.get().getLog().set("nMatingAttempts", 0);
     }
 
     public static Builder with() { return new Builder(); }

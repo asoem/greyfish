@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * <p><b>Note:</b> This implementation delegates to an {@link com.google.common.collect.ImmutableMap} internally to speed up name based retrieval.
  */
-public class ImmutableComponentList<E extends GFComponent> extends ForwardingList<E> implements ComponentList<E> {
+public class ImmutableComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
 
     private final ImmutableMap<String, E> delegate;
 
@@ -49,7 +49,7 @@ public class ImmutableComponentList<E extends GFComponent> extends ForwardingLis
         return delegate.values().asList();
     }
 
-    public static <E extends GFComponent> ImmutableComponentList<E> copyOf(Iterable<E> components) {
+    public static <E extends AgentComponent> ImmutableComponentList<E> copyOf(Iterable<E> components) {
         return new ImmutableComponentList<E>(components);
     }
 

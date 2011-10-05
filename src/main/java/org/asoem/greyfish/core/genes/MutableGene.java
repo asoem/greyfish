@@ -1,9 +1,12 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
+
+import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -13,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 21.09.11
  * Time: 20:05
  */
-public class MutableGene<E> extends AbstractGFComponent implements Gene<E> {
+public class MutableGene<E> extends AbstractAgentComponent implements Gene<E> {
     private final Class<E> supplierClass;
     private final GeneController<E> geneController;
     private E value;
@@ -69,5 +72,10 @@ public class MutableGene<E> extends AbstractGFComponent implements Gene<E> {
     @Override
     public void set(E value) {
         this.value = checkNotNull(value);
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return Collections.emptyList();
     }
 }

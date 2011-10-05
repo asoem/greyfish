@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Object2D;
+import org.asoem.greyfish.gui.model.Prototype;
 import org.simpleframework.xml.Element;
 
 public class Placeholder extends AgentDecorator {

@@ -1,9 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -66,22 +64,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
         currentStateKey = getInitialStateKey();
-    }
-
-    @Override
-    public void checkConsistency() {
-        super.checkConsistency();
-        if (!states.isEmpty()) {
-            checkState(getInitialStateKey() != null, "No InitialState defined");
-            checkState(Iterables.any(states.values(), new Predicate<FSMState>() {
-                @Override
-                public boolean apply(FSMState state) {
-                    return state.getStateType() == State.END_SUCCESS;
-                }
-            }), "No EndState defined");
-        }
-        else
-            LOGGER.warn("FiniteStateAction has no states defined: " + this);
     }
 
     protected final void registerInitialState(final Object stateKey, final StateAction action) {

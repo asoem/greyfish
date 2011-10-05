@@ -23,13 +23,14 @@ import org.simpleframework.xml.core.Commit;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.util.Collections;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.*;
 
-public class Body extends AbstractGFComponent implements MovingObject2D {
+public class Body extends AbstractAgentComponent implements MovingObject2D {
 
     private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
     @Attribute(name="radius", required = false)
@@ -177,7 +178,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
                 generateColors(); }
             @Override public FiniteSetSupplier get() { return states; }
             @Override public Iterable<FiniteSetSupplier> values() {
-                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(agent.getProperties(), FiniteSetProperty.class));
+                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(agent.get().getProperties(), FiniteSetProperty.class));
             }
         };
         e.add(b);
@@ -198,7 +199,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
         e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
             @Override
             public Iterable<WellOrderedSetElement> values() {
-                return Iterables.filter(getAllComponents(), this.getValueType());
+                return Iterables.filter(agent.get().getProperties(), WellOrderedSetElement.class);
             }
 
             @Override
@@ -238,5 +239,10 @@ public class Body extends AbstractGFComponent implements MovingObject2D {
     @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return Collections.emptyList();
     }
 }

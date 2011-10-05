@@ -2,13 +2,11 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Element;
-
-import java.util.Iterator;
 
 public abstract class PropertyDecorator implements GFProperty {
 
@@ -28,11 +26,6 @@ public abstract class PropertyDecorator implements GFProperty {
     @Override
     public void setAgent(Agent agent) {
         getDelegate().setAgent(agent);
-    }
-
-    @Override
-    public void checkConsistency() {
-        getDelegate().checkConsistency();
     }
 
     @Override
@@ -66,11 +59,6 @@ public abstract class PropertyDecorator implements GFProperty {
     }
 
     @Override
-    public Iterator<GFComponent> iterator() {
-        return getDelegate().iterator();
-    }
-
-    @Override
     public void configure(ConfigurationHandler e) {
         getDelegate().configure(e);
     }
@@ -93,5 +81,10 @@ public abstract class PropertyDecorator implements GFProperty {
     @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return getDelegate().children();
     }
 }

@@ -1,5 +1,6 @@
-package org.asoem.greyfish.core.actions;
+package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.core.actions.ForwardingComponentList;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 

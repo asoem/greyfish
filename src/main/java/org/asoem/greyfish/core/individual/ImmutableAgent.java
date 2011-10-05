@@ -48,7 +48,6 @@ public class ImmutableAgent extends AbstractAgent {
                     }
                 })));
         setPopulation(builder.population);
-        GFComponents.rebaseAll(getComponents(), this);
     }
 
     @Override

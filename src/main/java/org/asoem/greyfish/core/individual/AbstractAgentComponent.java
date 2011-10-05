@@ -1,34 +1,31 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
-import java.util.Iterator;
 
-public abstract class AbstractGFComponent implements GFComponent {
+public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Attribute(name="name", required = false)
     protected String name = "";
 
-    @Nullable
-    protected Agent agent;
+    protected Optional<Agent> agent = Optional.absent();
 
-    protected AbstractGFComponent() {}
+    protected AbstractAgentComponent() {}
 
-    protected AbstractGFComponent(AbstractGFComponent cloneable, DeepCloner map) {
+    protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
         map.setAsCloned(cloneable, this);
-        this.agent = map.continueWith(agent, Agent.class);
+        this.agent = Optional.fromNullable(map.continueWith(agent.orNull(), Agent.class));
         this.name = cloneable.name;
     }
 
-    protected AbstractGFComponent(AbstractBuilder<?> builder) {
+    protected AbstractAgentComponent(AbstractBuilder<?> builder) {
         this.name = builder.name;
     }
 
@@ -41,12 +38,14 @@ public abstract class AbstractGFComponent implements GFComponent {
     @Override
     @Nullable
     public Agent getAgent() {
-        return agent;
+        return agent.orNull();
     }
 
     @Override
-    public void setAgent(@Nullable Agent agent) {
-        this.agent = agent;
+    public final void setAgent(@Nullable Agent agent) {
+        this.agent = Optional.fromNullable(agent);
+        for (AgentComponent component : children())
+            component.setAgent(agent);
     }
 
     public void setName(String name) {
@@ -77,20 +76,8 @@ public abstract class AbstractGFComponent implements GFComponent {
     }
 
     @Override
-    public void checkConsistency() throws IllegalStateException {
-        if (getAgent() == null)
-            throw new IllegalStateException(
-                    AbstractGFComponent.class.getSimpleName() + "[" + name + "]: Components must have an owner");
-    }
-
-    @Override
     public boolean isFrozen() {
-        return agent != null && agent.isFrozen();
-    }
-
-    @Override
-    public Iterator<GFComponent> iterator() {
-        return Iterators.emptyIterator();
+        return agent.isPresent() && agent.get().isFrozen();
     }
 
     @Override
@@ -99,16 +86,14 @@ public abstract class AbstractGFComponent implements GFComponent {
 
     @Override
     public void configure(ConfigurationHandler e) {
+        if (!agent.isPresent())
+            throw new IllegalStateException();
+
         e.setWriteProtection(new Supplier<Boolean>() {
             @Override
             public Boolean get() {
                 return isFrozen();
             }
         });
-    }
-
-    @Override
-    public Iterable<GFComponent> getAllComponents() {
-        return agent == null ? ImmutableList.<GFComponent>of() : agent.getComponents();
     }
 }

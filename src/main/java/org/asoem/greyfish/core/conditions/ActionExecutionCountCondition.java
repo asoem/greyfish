@@ -1,8 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -45,13 +44,13 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(getAllComponents(), GFAction.class);
+                return agent.get().getActions();
             }
         });
 	}
 
     @Override
-    public AbstractGFComponent deepClone(DeepCloner cloner) {
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new ActionExecutionCountCondition(this, cloner);
     }
 
@@ -62,12 +61,6 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     protected ActionExecutionCountCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
         this.action = builder.action;
-    }
-
-    @Override
-    public void checkConsistency() throws IllegalStateException {
-        super.checkConsistency();
-        checkState(action != null);
     }
 
     public static Builder trueIf() { return new Builder(); }

@@ -42,13 +42,13 @@ public class SexualReproductionAction extends AbstractGFAction {
         for (int i = 0; i < nOffspring; i++) {
 
             simulation.createAgent(
-                    agent.getPopulation(),
-                    agent.getAnchorPoint(),
-                    agent.createGamete()/*.mutated().recombined(spermStorage.getRWS())*/
+                    agent.get().getPopulation(),
+                    agent.get().getAnchorPoint(),
+                    agent.get().createGamete()/*.mutated().recombined(spermStorage.getRWS())*/
             );
         }
 
-        agent.getLog().add("offspring", nOffspring);
+        agent.get().getLog().add("offspring", nOffspring);
         return State.END_SUCCESS;
     }
 
@@ -80,7 +80,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return Iterables.filter(getAllComponents(), EvaluatedGenomeStorage.class);
+                return Iterables.filter(agent.get().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
     }
@@ -105,7 +105,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        agent.getLog().set("offspring", 0);
+        agent.get().getLog().set("offspring", 0);
     }
 
     public static Builder with() { return new Builder(); }

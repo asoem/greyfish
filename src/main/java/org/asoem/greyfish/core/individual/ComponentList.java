@@ -9,10 +9,10 @@ import java.util.List;
  * Date: 19.09.11
  * Time: 11:16
  *
- * <p>A list to store {@link GFComponent}s and wrap common operations.
+ * <p>A list to store {@link AgentComponent}s and wrap common operations.
  * Implementations should not permit {@code null} elements or duplicates and should block addition of new components,
  * if it has the same name as a different component in this list.</p>
  */
-public interface ComponentList<E extends GFComponent> extends List<E>, DeepCloneable {
+public interface ComponentList<E extends AgentComponent> extends List<E>, DeepCloneable {
     <T extends E> T get(String name, Class<T> clazz);
 }

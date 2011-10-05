@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -66,7 +65,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                    return State.NO_RECEIVERS;
 
                 ACLMessage cfpMessage = createCFP()
-                        .source(agent.getId())
+                        .source(agent.get().getId())
                         .performative(ACLPerformative.CFP).build();
 
                 simulation.deliverMessage(cfpMessage);
@@ -86,7 +85,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             public Object run(Simulation simulation) {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage receivedMessage : agent.pullMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
                     assert (receivedMessage != null);
 
                     ACLMessage proposeReply = null;
@@ -100,7 +99,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 ++nProposalsReceived;
                                 LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
                             } catch (NotUnderstoodException e) {
-                                proposeReply = receivedMessage.createReplyFrom(agent.getId())
+                                proposeReply = receivedMessage.createReplyFrom(agent.get().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
                                 LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
@@ -108,7 +107,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 assert proposeReply != null;
                             }
                             checkProposeReply(proposeReply);
-                            agent.sendMessage(proposeReply);
+                            agent.get().sendMessage(proposeReply);
                             break;
 
                         case REFUSE:
@@ -161,7 +160,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             public Object run(Simulation simulation) {
                 assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                for (ACLMessage receivedMessage : agent.pullMessages(getTemplate())) {
+                for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
                     assert receivedMessage != null;
 
                     switch (receivedMessage.getPerformative()) {
@@ -249,9 +248,4 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
     protected abstract String getOntology();
 
-    @Override
-    public void checkConsistency() {
-        super.checkConsistency();
-        checkState(!Strings.isNullOrEmpty(getOntology()));
-    }
 }

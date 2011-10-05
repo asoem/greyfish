@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.asoem.greyfish.lang.HasName;
 import org.simpleframework.xml.Attribute;
@@ -44,9 +45,14 @@ public final class Population implements HasName, Comparable<Population> {
 		return name;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+    @Override
+    public boolean hasName(String s) {
+        return Objects.equal(name, s);
+    }
+
+    /* (non-Javadoc)
+      * @see java.lang.Object#toString()
+      */
 	@Override
 	public String toString() {
 		return getName();

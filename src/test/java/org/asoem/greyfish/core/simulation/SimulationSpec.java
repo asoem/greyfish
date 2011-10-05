@@ -5,7 +5,6 @@ import jdave.junit4.JDaveRunner;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.junit.runner.RunWith;
 

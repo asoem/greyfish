@@ -1,13 +1,13 @@
 package org.asoem.greyfish.core.eval;
 
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 
 /**
  * User: christoph
  * Date: 13.09.11
  * Time: 14:40
  */
-public class GreyfishVariableResolverConverterAdaptor<T extends GFComponent> extends AbstractGreyfishVariableResolver<T> {
+public class GreyfishVariableResolverConverterAdaptor<T extends AgentComponent> extends AbstractGreyfishVariableResolver<T> {
 
     private final ResolverConverter converter;
     private final Class<T> contextClass;
