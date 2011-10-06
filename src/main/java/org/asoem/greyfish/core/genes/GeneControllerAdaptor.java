@@ -22,7 +22,7 @@ public class GeneControllerAdaptor<T> implements GeneController<T> {
     }
 
     @Override
-    public T initialize() {
+    public T createInitialValue() {
         throw new UnsupportedOperationException();
     }
 }

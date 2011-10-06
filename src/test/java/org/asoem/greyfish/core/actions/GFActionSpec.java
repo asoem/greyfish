@@ -24,12 +24,12 @@ class GFActionSpec extends FlatSpec {
       // TODO: val classFieldListMap Map[class, fieldList]
 
 
-      for (clazz <- classWithAnnotationIterator) {
+      for (valueType <- classWithAnnotationIterator) {
 
         val fieldList = new ListBuffer[Field]
-        var objOrSuper = clazz.asInstanceOf[java.lang.Class[Object]];
+        var objOrSuper = valueType.asInstanceOf[java.lang.Class[Object]];
         do {
-          for (field <- clazz.getDeclaredFields()) {
+          for (field <- valueType.getDeclaredFields()) {
             fieldList += field
           }
           objOrSuper = objOrSuper.getSuperclass().asInstanceOf[java.lang.Class[Object]];
@@ -39,7 +39,7 @@ class GFActionSpec extends FlatSpec {
         // next, I need to create an instance of this class
         // and set the fields to some arbitrary to
 
-        val instance = clazz.newInstance().asInstanceOf[java.lang.Class[Object]];
+        val instance = valueType.newInstance().asInstanceOf[java.lang.Class[Object]];
         instanceList += instance
 
         for (field <- fieldList) {

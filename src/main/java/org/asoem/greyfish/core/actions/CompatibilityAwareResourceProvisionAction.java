@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
@@ -8,8 +7,8 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +28,9 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
     protected GFProperty similarityTrait;
 
-    public CompatibilityAwareResourceProvisionAction(CompatibilityAwareResourceProvisionAction action, CloneMap map) {
+    public CompatibilityAwareResourceProvisionAction(CompatibilityAwareResourceProvisionAction action, DeepCloner map) {
         super(action, map);
-        similarityTrait = map.clone(action.similarityTrait, GFProperty.class);
+        similarityTrait = map.continueWith(action.similarityTrait, GFProperty.class);
     }
 
     public CompatibilityAwareResourceProvisionAction(AbstractBuilder<? extends AbstractBuilder> builder) {
@@ -41,7 +40,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.createReplyFrom(this.getComponentOwner().getId());
+        ACLMessage.Builder builder = message.createReplyFrom(this.getAgent().getId());
 
         final CompatibilityAwareResourceConversation.CFPContent cfpContent;
         try {
@@ -76,18 +75,18 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
     }
 
     @Override
-    public CompatibilityAwareResourceProvisionAction deepCloneHelper(CloneMap cloneMap) {
-        return new CompatibilityAwareResourceProvisionAction(this, cloneMap);
+    public CompatibilityAwareResourceProvisionAction deepClone(DeepCloner cloner) {
+        return new CompatibilityAwareResourceProvisionAction(this, cloner);
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
 
         e.add(new FiniteSetValueAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
             @Override
             protected void set(GFProperty arg0) {
-                similarityTrait = checkFrozen(checkNotNull(arg0));
+                similarityTrait = checkNotNull(arg0);
             }
 
             @Override
@@ -97,7 +96,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
             @Override
             public Iterable<GFProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), GFProperty.class);
+                return agent.get().getProperties();
             }
         });
     }

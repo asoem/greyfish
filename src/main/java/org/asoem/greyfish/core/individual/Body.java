@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.properties.WellOrderedSetElementProperty;
 import org.asoem.greyfish.core.space.DefaultMovingObject2D;
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
@@ -23,51 +23,62 @@ import org.simpleframework.xml.core.Commit;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.util.Collections;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.*;
 
-public class Body extends AbstractGFComponent implements MovingObject2D, ConfigurableValueProvider {
+public class Body extends AbstractAgentComponent implements MovingObject2D {
 
     private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
-
     @Attribute(name="radius", required = false)
     private double radius = 0.1f;
-
     private static final FiniteSetSupplier DEFAULT_SUPPLIER = FiniteSetSuppliers.of("Default");
-
     @Element(name="colorStateProperty", required = false)
     private FiniteSetProperty property;
-
     @ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false)
     private final Map<Object, Color> stateColorMap;
-
     private FiniteSetSupplier<?> states = DEFAULT_SUPPLIER;
-
     private WellOrderedSetElement<?> outlineValueSupplier = new MutableWellOrderedSetElement<Double>(0.0, 1.0, 0.0);
 
-    private Body(IndividualInterface owner) {
-        setComponentRoot(owner);
-        setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-        stateColorMap = Maps.newHashMap();
-        generateColors();
+    /**
+     *
+     * @param owner the agent which this body is part of
+     */
+    private Body(Agent owner) {
+        this();
+        setAgent(checkNotNull(owner));
     }
 
-    private Body(Body body, CloneMap map) {
-        super(body, map);
-        this.property = map.clone(body.property, FiniteSetProperty.class);
+    /**
+     *
+     * @param body The original
+     * @param cloner The Cloner
+     */
+    private Body(Body body, DeepCloner cloner) {
+        super(body, cloner);
+        this.property = cloner.continueWith(body.property, FiniteSetProperty.class);
         if (property != null)
             states = property;
         stateColorMap = body.stateColorMap;
-        if (body.outlineValueSupplier instanceof GFProperty)
-            outlineValueSupplier = map.clone((GFProperty)body.outlineValueSupplier, WellOrderedSetElement.class);
+        if (body.outlineValueSupplier instanceof WellOrderedSetElementProperty)
+            outlineValueSupplier = cloner.continueWith((WellOrderedSetElementProperty) body.outlineValueSupplier, WellOrderedSetElementProperty.class);
     }
 
     @SimpleXMLConstructor
     private Body(@ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false) Map<Object, Color> stateColorMap) {
         this.stateColorMap = stateColorMap;
+    }
+
+    /**
+     * Default Constructor.
+     */
+    public Body() {
+        setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        stateColorMap = Maps.newHashMap();
+        generateColors();
     }
 
     @Commit
@@ -77,7 +88,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
     }
 
     public double getRadius() {
-        return radius; //(float) (radius + 0.01 * getComponentOwner().getAge());
+        return radius; //(float) (radius + 0.01 * getAgent().getAge());
     }
 
     public Color getColor() {
@@ -89,7 +100,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         generateColors();
     }
 
-    public static Body newInstance(IndividualInterface owner) {
+    public static Body newInstance(Agent owner) {
         return new Body(owner);
     }
 
@@ -103,8 +114,8 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new Body(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new Body(this, cloner);
     }
 
     @Override
@@ -158,7 +169,8 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(ValueAdaptor.forField("Radius of the Circle", Double.class, this, "radius"));
         FiniteSetValueAdaptor<FiniteSetSupplier> b = new FiniteSetValueAdaptor<FiniteSetSupplier>("StateProperty", FiniteSetSupplier.class) {
             @Override protected void set(FiniteSetSupplier arg0) { states = checkNotNull(arg0);
@@ -166,7 +178,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
                 generateColors(); }
             @Override public FiniteSetSupplier get() { return states; }
             @Override public Iterable<FiniteSetSupplier> values() {
-                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(getComponentOwner().getProperties(), FiniteSetProperty.class));
+                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(agent.get().getProperties(), FiniteSetProperty.class));
             }
         };
         e.add(b);
@@ -187,7 +199,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
             @Override
             public Iterable<WellOrderedSetElement> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), this.clazz);
+                return Iterables.filter(agent.get().getProperties(), WellOrderedSetElement.class);
             }
 
             @Override
@@ -211,6 +223,7 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
         return cols;
     }
 
+    // TODO: Invert dependency
     public void draw(Graphics2D g2d) {
         Circle c = Circle.at(getX(), getY(), getRadius());
 
@@ -221,5 +234,15 @@ public class Body extends AbstractGFComponent implements MovingObject2D, Configu
 
         g2d.setColor(getColor());
         g2d.fill(c);
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return Collections.emptyList();
     }
 }

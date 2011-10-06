@@ -4,14 +4,14 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.genes.GenomeInterface;
+import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.EvaluatedCandidate;
 import org.asoem.greyfish.core.utils.EvaluatedCandidates;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,27 +21,27 @@ import java.util.List;
  *
  */
 @ClassGroup(tags="property")
-public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedCandidate<GenomeInterface>>> {
+public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedCandidate<Genome>>> {
 
-    final private List<EvaluatedCandidate<GenomeInterface>> spermList = Lists.newArrayList();
+    final private List<EvaluatedCandidate<Genome>> spermList = Lists.newArrayList();
 
-    public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, CloneMap cloneMap) {
-        super(storage, cloneMap);
+    public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, DeepCloner cloner) {
+        super(storage, cloner);
     }
 
-    public void addGenome(GenomeInterface genome, double d) {
+    public void addGenome(Genome genome, double d) {
 //        if (!spermList.contains(genome)) // TODO: check for duplicates
-            spermList.add(new EvaluatedCandidate<GenomeInterface>(genome, d));
+            spermList.add(new EvaluatedCandidate<Genome>(genome, d));
     }
 
-    public GenomeInterface getRandom() {
+    public Genome getRandom() {
         if (!spermList.isEmpty())
             return EvaluatedCandidates.selectRandom(get()).getObject();
         else
             return null;
     }
 
-    public GenomeInterface getRWS() {
+    public Genome getRWS() {
         if (!spermList.isEmpty()) {
             return EvaluatedCandidates.selectRouletteWheel(get()).getObject();
         }
@@ -61,8 +61,8 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     @Override
-    public EvaluatedGenomeStorage deepCloneHelper(CloneMap cloneMap) {
-        return new EvaluatedGenomeStorage(this, cloneMap);
+    public EvaluatedGenomeStorage deepClone(DeepCloner cloner) {
+        return new EvaluatedGenomeStorage(this, cloner);
     }
 
     @SimpleXMLConstructor
@@ -77,7 +77,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     public static Builder with() { return new Builder(); }
 
     @Override
-    public List<EvaluatedCandidate<GenomeInterface>> get() {
+    public List<EvaluatedCandidate<Genome>> get() {
         return Collections.unmodifiableList(spermList);
     }
 

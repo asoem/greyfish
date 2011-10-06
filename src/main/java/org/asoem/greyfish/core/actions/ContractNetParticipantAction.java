@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,8 +36,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     private int nExpectedProposeAnswers;
     private MessageTemplate template = MessageTemplate.alwaysFalse();
 
-    protected ContractNetParticipantAction(ContractNetParticipantAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
+    protected ContractNetParticipantAction(ContractNetParticipantAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
         initFSM();
     }
 
@@ -55,24 +54,24 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerInitialState(State.CHECK_CFP, new StateAction() {
 
             @Override
-            public Object run() {
+            public Object run(Simulation simulation) {
                 template = createCFPTemplate(getOntology());
 
                 final List<ACLMessage> cfpReplies = Lists.newArrayList();
-                for (ACLMessage message : receiveMessages(template)) {
+                for (ACLMessage message : agent.get().pullMessages(template)) {
 
                     ACLMessage cfpReply;
                     try {
                         cfpReply = handleCFP(message).build();
                     } catch (NotUnderstoodException e) {
-                        cfpReply = message.createReplyFrom(getComponentOwner().getId())
+                        cfpReply = message.createReplyFrom(agent.get().getId())
                                 .performative(ACLPerformative.NOT_UNDERSTOOD)
                                 .stringContent(e.getMessage()).build();
                         LOGGER.debug("Message not understood", e);
                     }
                     checkCFPReply(cfpReply);
                     cfpReplies.add(cfpReply);
-                    sendMessage(cfpReply);
+                    agent.get().sendMessage(cfpReply);
 
                     if (cfpReply.matches(MessageTemplate.performative(ACLPerformative.PROPOSE)))
                         ++nExpectedProposeAnswers;
@@ -87,8 +86,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
-            public Object run() {
-                Iterable<ACLMessage> receivedMessages = receiveMessages(getTemplate());
+            public Object run(Simulation simulation) {
+                Iterable<ACLMessage> receivedMessages = agent.get().pullMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
@@ -97,14 +96,14 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                             try {
                                 response = handleAccept(receivedMessage).build();
                             } catch (NotUnderstoodException e) {
-                                response = receivedMessage.createReplyFrom(getComponentOwner().getId())
+                                response = receivedMessage.createReplyFrom(agent.get().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
 
                                 LOGGER.debug("Message not understood", e);
                             }
                             checkAcceptReply(response);
-                            sendMessage(response);
+                            agent.get().sendMessage(response);
                             break;
                         case REJECT_PROPOSAL:
                             handleReject(receivedMessage);
@@ -177,9 +176,4 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         );
     }
 
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        checkState(!Strings.isNullOrEmpty(getOntology()));
-    }
 }

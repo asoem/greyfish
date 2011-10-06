@@ -5,8 +5,8 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -17,14 +17,14 @@ public class LastExecutedActionCondition extends LeafCondition {
     @Element(name="actions", required=false)
     private GFAction action;
 
-    protected LastExecutedActionCondition(LastExecutedActionCondition condition, CloneMap map) {
+    protected LastExecutedActionCondition(LastExecutedActionCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.clone(condition.action, GFAction.class);
+        this.action = map.continueWith(condition.action, GFAction.class);
     }
 
     @Override
     public boolean evaluate(Simulation simulation) {
-        return isSameAction(action, getComponentOwner().getLastExecutedAction());
+        return isSameAction(action, agent.get().getLastExecutedAction());
     }
 
     private static boolean isSameAction(GFAction a1, GFAction a2) {
@@ -33,11 +33,11 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         e.add(new FiniteSetValueAdaptor<GFAction>("Action", GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
-                action = checkFrozen(checkNotNull(arg0));
+                action = checkNotNull(arg0);
             }
 
             @Override
@@ -47,14 +47,14 @@ public class LastExecutedActionCondition extends LeafCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(getComponentOwner().getActions(), GFAction.class);
+                return Iterables.filter(agent.get().getProperties(), GFAction.class);
             }
         });
     }
 
     @Override
-    public LastExecutedActionCondition deepCloneHelper(CloneMap map) {
-        return new LastExecutedActionCondition(this, map);
+    public LastExecutedActionCondition deepClone(DeepCloner cloner) {
+        return new LastExecutedActionCondition(this, cloner);
     }
 
     private LastExecutedActionCondition() {

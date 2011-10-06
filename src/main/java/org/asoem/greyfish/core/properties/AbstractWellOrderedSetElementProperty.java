@@ -2,12 +2,11 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -31,8 +30,8 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
 
     protected E value;
 
-    protected AbstractWellOrderedSetElementProperty(AbstractWellOrderedSetElementProperty<E> property, CloneMap cloneMap) {
-        super(property, cloneMap);
+    protected AbstractWellOrderedSetElementProperty(AbstractWellOrderedSetElementProperty<E> property, DeepCloner cloner) {
+        super(property, cloner);
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;
         this.initialValue = property.initialValue;
@@ -74,35 +73,34 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
         setValue(initialValue);
     }
 
-    public void export(Exporter e, Class<E> clazz) {
+    public void configure(ConfigurationHandler e, Class<E> clazz) {
+        super.configure(e);
+
         e.add(new ValueAdaptor<E>("lowerBound", clazz) {
-            @Override protected void set(E arg0) { lowerBound = checkFrozen(checkNotNull(arg0)); }
+            @Override protected void set(E arg0) { lowerBound = checkNotNull(arg0); }
             @Override public E get() { return lowerBound; }
         });
         e.add(new ValueAdaptor<E>("upperBound", clazz) {
-            @Override protected void set(E arg0) { upperBound = checkFrozen(checkNotNull(arg0)); }
+            @Override protected void set(E arg0) { upperBound = arg0; }
             @Override public E get() { return upperBound; }
         });
         e.add(new ValueAdaptor<E>("Initial", clazz) {
 
-            @Override protected void set(E arg0) { initialValue = checkFrozen(checkNotNull(arg0)); }
+            @Override protected void set(E arg0) { initialValue = arg0; }
             @Override public E get() { return initialValue; }
             @Override public ValidationResult validate() {
+
                 ValidationResult validationResult = new ValidationResult();
+
+                if (get() == null)
+                    validationResult.addError(getName() + " must not be null");
+
                 if (!Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)))
-                    validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
+                    validationResult.addError("Value of `"+getName()+"' must not be smaller than `Min' and greater than `Max'");
+
                 return validationResult;
             }
         });
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        super.checkConsistency(components);
-        checkState(lowerBound != null);
-        checkState(upperBound != null);
-        checkState(initialValue != null);
-        checkState(Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)));
     }
 
     protected AbstractWellOrderedSetElementProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
@@ -120,5 +118,15 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
         public T upperBound(E upperBound) { this.upperBound = checkNotNull(upperBound); return self(); }
         public T lowerBound(E lowerBound) { this.lowerBound = checkNotNull(lowerBound); return self(); }
         public T initialValue(E initialValue) { this.initialValue = checkNotNull(initialValue); return self(); }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            super.checkBuilder();
+
+            checkState(lowerBound != null);
+            checkState(upperBound != null);
+            checkState(initialValue != null);
+            checkState(Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)));
+        }
     }
 }

@@ -4,8 +4,8 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.IntProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -16,20 +16,20 @@ public final class IntPropertyCondition extends IntCompareCondition {
     @Element(name="property")
     private IntProperty intProperty;
 
-    protected IntPropertyCondition(IntPropertyCondition condition, CloneMap map) {
+    protected IntPropertyCondition(IntPropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.intProperty = map.clone(condition.intProperty, IntProperty.class);
+        this.intProperty = map.continueWith(condition.intProperty, IntProperty.class);
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new FiniteSetValueAdaptor<IntProperty>("", IntProperty.class
         ) {
 
             @Override
             protected void set(IntProperty arg0) {
-                intProperty = checkFrozen(checkNotNull(arg0));
+                intProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -39,7 +39,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
             @Override
             public Iterable<IntProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), IntProperty.class);
+                return Iterables.filter(agent.get().getProperties(), IntProperty.class);
             }
         });
     }
@@ -50,8 +50,8 @@ public final class IntPropertyCondition extends IntCompareCondition {
     }
 
     @Override
-    public IntPropertyCondition deepCloneHelper(CloneMap map) {
-        return new IntPropertyCondition(this, map);
+    public IntPropertyCondition deepClone(DeepCloner cloner) {
+        return new IntPropertyCondition(this, cloner);
     }
 
     private IntPropertyCondition() {

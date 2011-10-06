@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.junit.runner.RunWith;
 
 @RunWith(JDaveRunner.class)
@@ -23,7 +24,7 @@ public class AndConditionSpec extends Specification<LogicalOperatorCondition> {
                         AlwaysTrueCondition.trueIf().build()
                         , AlwaysTrueCondition.trueIf().build()
                 ).build();
-        final AllCondition clone = condition.deepClone(AllCondition.class);
+        final AllCondition clone = DeepCloner.startWith(condition, AllCondition.class);
 
         public void shouldHaveTheSameNumberOfChildren() {
             specify(clone.getChildConditions().size(), must.equal(condition.getChildConditions().size()));

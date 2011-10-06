@@ -13,21 +13,21 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class PrototypeManager extends ForwardingSet<Prototype> {
+public class PrototypeManager extends ForwardingSet<Agent> {
 
 	private final ListenerSupport<PrototypeRegistryListener> listenerSupport = ListenerSupport.newInstance();
-    private final Set<Prototype> prototypes = Sets.newHashSet();
+    private final Set<Agent> prototypes = Sets.newHashSet();
 
 	public PrototypeManager() {
 	}
 
     @Override
-    protected Set<Prototype> delegate() {
+    protected Set<Agent> delegate() {
         return prototypes;
     }
 
     @Override
-	public synchronized boolean add(Prototype individual) {
+	public synchronized boolean add(Agent individual) {
 		if ( ! hasCloneOf(individual)
 				&& delegate().add(individual)) {
 			firePrototypeAdded(individual, indexOf(individual));
@@ -38,7 +38,7 @@ public class PrototypeManager extends ForwardingSet<Prototype> {
 
 	@Override
 	public synchronized boolean remove(Object object) {
-		final Prototype prototype = Prototype.class.cast(checkNotNull(object));
+		final Agent prototype = Agent.class.cast(checkNotNull(object));
 
 		final int index = indexOf(prototype);
 		if (index != -1 && delegate().remove(prototype)) {
@@ -57,13 +57,13 @@ public class PrototypeManager extends ForwardingSet<Prototype> {
     }
 
     public void unregisterAllPrototypes() {
-        for (Prototype prototype : prototypes) {
+        for (Agent prototype : prototypes) {
             remove(prototype);
         }
 	}
 
-	public synchronized Prototype[] getProptotypes() {
-		return Iterables.toArray(prototypes, Prototype.class);
+	public synchronized Agent[] getProptotypes() {
+		return Iterables.toArray(prototypes, Agent.class);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class PrototypeManager extends ForwardingSet<Prototype> {
 		listenerSupport.removeListener(listener);
 	}
 
-	private void firePrototypeAdded(final Prototype individual, final Integer index) {
+	private void firePrototypeAdded(final Agent individual, final Integer index) {
         listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
             @Override
             public void update(PrototypeRegistryListener l) {
@@ -87,7 +87,7 @@ public class PrototypeManager extends ForwardingSet<Prototype> {
         }});
 	}
 
-	private void firePrototypeRemoved(final Prototype individual, final Integer index) {
+	private void firePrototypeRemoved(final Agent individual, final Integer index) {
 		listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
             @Override
             public void update(PrototypeRegistryListener l) {
@@ -95,17 +95,17 @@ public class PrototypeManager extends ForwardingSet<Prototype> {
         }});
 	}
 
-	public Prototype get(Population population) {
-		for (Prototype individual : getProptotypes()) {
+	public Agent get(Population population) {
+		for (Agent individual : getProptotypes()) {
 			if (individual.getPopulation().equals(population))
 				return individual;
 		}
 		return null;
 	}
 
-	public boolean hasCloneOf(Prototype clone) {
+	public boolean hasCloneOf(Agent clone) {
 		boolean ret = false;
-		for (Prototype individual : delegate()) {
+		for (Agent individual : delegate()) {
 			if (clone.isCloneOf(individual)) {
 				ret = true;
 				break;
@@ -114,16 +114,16 @@ public class PrototypeManager extends ForwardingSet<Prototype> {
 		return ret;
 	}
 
-	public int indexOf(Prototype individual) {
+	public int indexOf(Agent individual) {
 		return Iterables.indexOf(delegate(), Predicates.equalTo(individual));
 	}
 
-	public Prototype get(int index) {
+	public Agent get(int index) {
 		return Iterables.get(delegate(), index);
 	}
 
 	@Override
-	public Iterator<Prototype> iterator() {
+	public Iterator<Agent> iterator() {
 		return delegate().iterator();
 	}
 }

@@ -5,15 +5,15 @@ import org.asoem.greyfish.core.share.ConsumerGroup;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 @ClassGroup(tags="property")
 public class ResourceProperty extends DoubleProperty {
 
     private final ConsumerGroup<DoubleProperty> consumerGroup = new ConsumerGroup<DoubleProperty>(getName());
 
-    public ResourceProperty(ResourceProperty property, CloneMap cloneMap) {
-        super(property, cloneMap);
+    public ResourceProperty(ResourceProperty property, DeepCloner cloner) {
+        super(property, cloner);
     }
 
     public ConsumerGroup<? extends DoubleProperty> getConsumerGroup() {
@@ -31,8 +31,8 @@ public class ResourceProperty extends DoubleProperty {
     }
 
     @Override
-    public DoubleProperty deepCloneHelper(CloneMap cloneMap) {
-        return new ResourceProperty(this, cloneMap);
+    public DoubleProperty deepClone(DeepCloner cloner) {
+        return new ResourceProperty(this, cloner);
     }
 
     protected ResourceProperty(DoubleProperty.AbstractBuilder<? extends DoubleProperty.AbstractBuilder> builder) {

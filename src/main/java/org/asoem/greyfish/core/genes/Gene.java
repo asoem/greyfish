@@ -1,27 +1,31 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Supplier;
+import org.asoem.greyfish.core.individual.AgentComponent;
+
+import javax.annotation.Nullable;
 
 
-public interface Gene<T> extends Supplier<T> {
+public interface Gene<T> extends AgentComponent, Supplier<T> {
 
     /**
      * @return the class of the value this gene is supplying
      */
-    public Class<T> getSupplierClass();
+    Class<T> getSupplierClass();
 
     /**
      *
      * @return the controller for this gene
      */
-    public GeneController<T> getGeneController();
+    GeneController<T> getGeneController();
 
     /**
+     *
      *
      * @param gene the gene to test for
      * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
      */
-    boolean isMutatedCopyOf(Gene<?> gene);
+    boolean isMutatedCopy(@Nullable Gene<?> gene);
 
     /**
      * Computes the normalizedDistance between {@code this} and {@code that} using an arbitrary metric.
@@ -29,4 +33,10 @@ public interface Gene<T> extends Supplier<T> {
      * @return the distance
      */
     double distance(Gene<?> thatGene);
+
+    /**
+     * Set this genes current value to {@code value}
+     * @param value the new value this gene will supply
+     */
+    void set(T value);
 }

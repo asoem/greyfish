@@ -6,6 +6,7 @@ import org.asoem.greyfish.utils.PolarPoint;
 public interface MovingObject2D extends Object2D {
 
     public PolarPoint getMotionVector();
+
     public void setMotionVector(PolarPoint polarPoint);
 
     /**

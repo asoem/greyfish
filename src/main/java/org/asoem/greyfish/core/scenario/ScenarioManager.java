@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.scenario;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.individual.IndividualInterface;
-import org.asoem.greyfish.core.individual.Prototype;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.gui.model.Prototype;
 import org.asoem.greyfish.core.individual.PrototypeManager;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.utils.ListenerSupport;
@@ -30,7 +30,7 @@ public class ScenarioManager extends AbstractCollection<Scenario> {
 	public boolean add(final Scenario scenario) {
         Preconditions.checkNotNull(scenario);
 		if ( scenarios.add(scenario) ) {
-			for (IndividualInterface individual : scenario.getPrototypes()) {
+			for (Agent individual : scenario.getPrototypes()) {
 				if (individual instanceof Prototype)
 					prototypeManager.add(Prototype.class.cast(individual));
 			}

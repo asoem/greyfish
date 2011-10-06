@@ -1,13 +1,11 @@
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -19,9 +17,9 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	@Element(name="action")
 	private GFAction action;
 
-    public ActionExecutionCountCondition(ActionExecutionCountCondition condition, CloneMap map) {
+    public ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.clone(condition.action, GFAction.class);
+        this.action = map.continueWith(condition.action, GFAction.class);
     }
 
     @Override
@@ -30,13 +28,13 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	}
 
 	@Override
-	public void export(Exporter e) {
-		super.export(e);
+	public void configure(ConfigurationHandler e) {
+		super.configure(e);
 
 		e.add(new FiniteSetValueAdaptor<GFAction>("", GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
-                action = checkFrozen(checkNotNull(arg0));
+                action = checkNotNull(arg0);
             }
 
             @Override
@@ -46,14 +44,14 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(getComponentOwner().getActions(), GFAction.class);
+                return agent.get().getActions();
             }
         });
 	}
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new ActionExecutionCountCondition(this, map);
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+        return new ActionExecutionCountCondition(this, cloner);
     }
 
     private ActionExecutionCountCondition() {
@@ -63,12 +61,6 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     protected ActionExecutionCountCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
         super(builder);
         this.action = builder.action;
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) throws IllegalStateException {
-        super.checkConsistency(components);
-        checkState(action != null);
     }
 
     public static Builder trueIf() { return new Builder(); }

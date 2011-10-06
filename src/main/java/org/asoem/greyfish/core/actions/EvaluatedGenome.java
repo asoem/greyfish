@@ -1,18 +1,24 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GenomeInterface;
+import org.asoem.greyfish.core.genes.ForwardingGenome;
+import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 
-import java.util.Iterator;
-
-public class EvaluatedGenome implements GenomeInterface {
+public class EvaluatedGenome extends ForwardingGenome {
 
     private final double fitness;
-    private final GenomeInterface delegate;
+    private final Genome delegate;
 
-    public EvaluatedGenome(GenomeInterface sperm, double fitness) {
+    public EvaluatedGenome(Genome sperm, double fitness) {
         delegate = sperm;
         this.fitness = fitness;
+    }
+
+    public EvaluatedGenome(EvaluatedGenome genome, DeepCloner cloner) {
+        cloner.setAsCloned(genome, this);
+        delegate = cloner.continueWith(genome.delegate, Genome.class);
+        this.fitness = genome.fitness;
     }
 
     public double getFitness() {
@@ -25,22 +31,12 @@ public class EvaluatedGenome implements GenomeInterface {
     }
 
     @Override
-    public int size() {
-        return delegate.size();
+    protected Genome delegate() {
+        return delegate;
     }
 
     @Override
-    public double distance(GenomeInterface genome) {
-        return delegate.distance(genome);
-    }
-
-    @Override
-    public Iterable<Gene<?>> findCopiesFor(Iterable<Gene<?>> thisGenes) {
-        return delegate.findCopiesFor(thisGenes);
-    }
-
-    @Override
-    public Iterator<Gene<?>> iterator() {
-        return delegate.iterator();
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new EvaluatedGenome(this, cloner);
     }
 }

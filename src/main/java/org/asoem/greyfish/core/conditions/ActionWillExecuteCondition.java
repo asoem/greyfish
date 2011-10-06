@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -15,9 +15,9 @@ public class ActionWillExecuteCondition extends LeafCondition {
 
     private final GFAction parameterAction;
 
-    public ActionWillExecuteCondition(ActionWillExecuteCondition condition, CloneMap map) {
+    public ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
         super(condition, map);
-        this.parameterAction = map.clone(condition.parameterAction, GFAction.class);
+        this.parameterAction = map.continueWith(condition.parameterAction, GFAction.class);
     }
 
     @Override
@@ -26,8 +26,8 @@ public class ActionWillExecuteCondition extends LeafCondition {
     }
 
     @Override
-    public ActionWillExecuteCondition deepCloneHelper(CloneMap map) {
-        return new ActionWillExecuteCondition(this, map);
+    public ActionWillExecuteCondition deepClone(DeepCloner cloner) {
+        return new ActionWillExecuteCondition(this, cloner);
     }
 
     protected ActionWillExecuteCondition(AbstractBuilder<? extends AbstractBuilder> builder) {

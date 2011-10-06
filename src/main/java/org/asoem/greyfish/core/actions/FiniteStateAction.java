@@ -1,16 +1,11 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
-
-import javax.annotation.Nonnull;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -23,8 +18,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         super(builder);
     }
 
-    protected FiniteStateAction(FiniteStateAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
+    protected FiniteStateAction(FiniteStateAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
     }
 
     /* Immutable after freeze */
@@ -34,12 +29,12 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     private Object currentStateKey;
 
     @Override
-    protected final State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected final State executeUnconditioned(Simulation simulation) {
         Preconditions.checkState(currentStateKey != null);
         Preconditions.checkState(states.containsKey(currentStateKey));
 
         StateAction stateActionToExecute = states.get(currentStateKey).getStateAction();
-        Object nextStateKey = stateActionToExecute.run();
+        Object nextStateKey = stateActionToExecute.run(simulation);
 
         LOGGER.debug("{}: Transition to {}", this, nextStateKey);
         currentStateKey = nextStateKey;
@@ -69,22 +64,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
         currentStateKey = getInitialStateKey();
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        if (!states.isEmpty()) {
-            checkState(getInitialStateKey() != null, "No InitialState defined");
-            checkState(Iterables.any(states.values(), new Predicate<FSMState>() {
-                @Override
-                public boolean apply(FSMState state) {
-                    return state.getStateType() == State.END_SUCCESS;
-                }
-            }), "No EndState defined");
-        }
-        else
-            LOGGER.warn("FiniteStateAction has no states defined: " + this);
     }
 
     protected final void registerInitialState(final Object stateKey, final StateAction action) {
@@ -121,11 +100,11 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getComponentOwner();
+        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getAgent();
     }
 
     protected interface StateAction {
-        public Object run();
+        public Object run(Simulation simulation);
     }
 
     protected static class EndStateAction implements StateAction {
@@ -136,7 +115,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         }
 
         @Override
-        final public Object run() {
+        final public Object run(Simulation simulation) {
             return stateKey;
         }
     }

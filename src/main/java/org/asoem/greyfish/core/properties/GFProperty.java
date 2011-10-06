@@ -1,20 +1,19 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
-import org.asoem.greyfish.utils.ConfigurableValueProvider;
 
-public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualComponent, ConfigurableValueProvider {
+public interface GFProperty extends AgentComponent, NamedDeepCloneableIndividualComponent {
 
     /**
-     * Add {@code gene} to this property which will than be recognized as part of the genome of this property's componentOwner
+     * Add {@code gene} to this property which will than be recognized as part of the genome of this property's agent
      *
      *
      *
      * @param gene The gene to register in this property
      * @return A Supplier for type {@code S}
-     * @see org.asoem.greyfish.core.individual.IndividualInterface#getGenome()
+     * @see org.asoem.greyfish.core.individual.Agent#createGamete()
      */
     <S> Gene<S> registerGene(final Gene<S> gene);
 
@@ -24,11 +23,5 @@ public interface GFProperty extends GFComponent, NamedDeepCloneableIndividualCom
      */
     public Iterable<Gene<?>> getGenes();
 
-    /**
-     * Set the delegates of the contained {@code IndexedGene}s and their index to the values provided by the given {@code geneIterator}
-     *
-     * @param geneIterator A {@code Genome}'s geneList ListIterator which provides the delegate genes
-     * @see org.asoem.greyfish.core.genes.Genome#listIterator()
-     */
     public void setGenes(Iterable<? extends Gene<?>> geneIterator);
 }

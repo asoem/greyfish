@@ -4,6 +4,9 @@ package org.asoem.greyfish.core.genes;
  * User: christoph
  * Date: 22.02.11
  * Time: 14:39
+ *
+ * Classes implementing this Interface (strategy) define how the underlying gene (context)
+ * should compute a mutated mutated version of itself and the distance to a mutated copy.
  */
 public interface GeneController<T> {
 
@@ -33,5 +36,5 @@ public interface GeneController<T> {
      * will be initialize when (and probably ony when) an agent is generated from a prototype.
      * @return some value dependent on the implementation
      */
-    T initialize();
+    T createInitialValue();
 }

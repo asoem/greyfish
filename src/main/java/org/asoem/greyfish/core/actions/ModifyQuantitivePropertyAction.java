@@ -7,20 +7,18 @@ import com.google.common.collect.Iterables;
 import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
-
-import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -45,12 +43,12 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
-        parameterQuantitiveProperty.setValue(evaluateFormula());
+    protected State executeUnconditioned(Simulation simulation) {
+        parameterQuantitiveProperty.setValue(evaluateFormula(simulation));
         return State.END_SUCCESS;
     }
 
-    public double evaluateFormula() {
+    public double evaluateFormula(Simulation simulation) {
         try {
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
@@ -61,12 +59,12 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
-                parameterQuantitiveProperty = checkFrozen(checkNotNull(arg0));
+                parameterQuantitiveProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -76,13 +74,13 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
             }
         });
         e.add(new ValueAdaptor<String>("Formula", String.class) {
             @Override
             protected void set(String arg0) {
-                energyCostsFormula = checkFrozen(checkNotNull(arg0));
+                energyCostsFormula = checkNotNull(arg0);
             } // TODO: check if string is a valid expression
 
             @Override
@@ -103,13 +101,13 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
-        return new ModifyQuantitivePropertyAction(this, cloneMap);
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+        return new ModifyQuantitivePropertyAction(this, cloner);
     }
 
-    public ModifyQuantitivePropertyAction(ModifyQuantitivePropertyAction cloneable, CloneMap map) {
+    public ModifyQuantitivePropertyAction(ModifyQuantitivePropertyAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterQuantitiveProperty = map.clone(cloneable.parameterQuantitiveProperty, DoubleProperty.class);
+        this.parameterQuantitiveProperty = map.continueWith(cloneable.parameterQuantitiveProperty, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
 

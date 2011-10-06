@@ -1,25 +1,25 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class IntCompareCondition extends CompareCondition<Integer> {
 
-    protected IntCompareCondition(IntCompareCondition condition, CloneMap map) {
+    protected IntCompareCondition(IntCompareCondition condition, DeepCloner map) {
         super(condition, map);
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Integer>("Value", Integer.class) {
 
             @Override
             protected void set(Integer arg0) {
-                value = checkFrozen(checkNotNull(arg0));
+                value = checkNotNull(arg0);
             }
 
             @Override

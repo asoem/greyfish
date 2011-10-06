@@ -3,12 +3,10 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
-
-import javax.annotation.Nonnull;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
@@ -22,22 +20,22 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected State executeUnconditioned(Simulation simulation) {
         for (int i = 0; i < parameterClones; i++) {
             simulation.createAgent(
-                    getComponentOwner().getPopulation(),
-                    getComponentOwner().getAnchorPoint(),
-                    getComponentOwner().getGenome().mutated());
+                    agent.get().getPopulation(),
+                    agent.get().getAnchorPoint(),
+                    agent.get().createGamete()/*.mutated()*/);
         }
         return State.END_SUCCESS;
     }
 
     @Override
-    public ClonalReproductionAction deepCloneHelper(CloneMap map) {
-        return new ClonalReproductionAction(this, map);
+    public ClonalReproductionAction deepClone(DeepCloner cloner) {
+        return new ClonalReproductionAction(this, cloner);
     }
 
-    public ClonalReproductionAction(ClonalReproductionAction cloneable, CloneMap map) {
+    public ClonalReproductionAction(ClonalReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.parameterClones = cloneable.parameterClones;
     }
@@ -48,12 +46,12 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Integer>("#clones", Integer.class) {
             @Override
             protected void set(Integer arg0) {
-                parameterClones = checkFrozen(arg0);
+                parameterClones = arg0;
             }
 
             @Override

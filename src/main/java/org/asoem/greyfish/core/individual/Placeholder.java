@@ -2,25 +2,21 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Object2D;
+import org.asoem.greyfish.gui.model.Prototype;
 import org.simpleframework.xml.Element;
 
-public class Placeholder extends GFAgentDecorator {
+public class Placeholder extends AgentDecorator {
 
     @Element(name = "placeholderObject")
     private final Object2D placeholderObject;
 
-    public Placeholder(@Element(name = "delegate") IndividualInterface deepClonable,
+    public Placeholder(@Element(name = "delegate") Agent prototype,
                        @Element(name = "placeholderObject") Object2D placeholderObject) {
-        super(deepClonable);
+        super(prototype);
         this.placeholderObject = placeholderObject;
     }
 
-    @Override
-    public void execute() {
-        throw new UnsupportedOperationException();
-    }
-
-    public static Placeholder newInstance(Prototype prototype, Object2D location2D) {
+    public static Placeholder newInstance(Agent prototype, Object2D location2D) {
         return new Placeholder(prototype, location2D);
     }
 
@@ -50,6 +46,6 @@ public class Placeholder extends GFAgentDecorator {
     }
 
     public Prototype getPrototype() {
-        return Prototype.class.cast(getDelegate());
+        return Prototype.class.cast(delegate());
     }
 }

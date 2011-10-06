@@ -4,13 +4,12 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -47,7 +46,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
 
-        ACLMessage.Builder ret = message.createReplyFrom(getComponentOwner().getId());
+        ACLMessage.Builder ret = message.createReplyFrom(getAgent().getId());
 
         double offer = Math.min(requested, resourceProperty.get());
 
@@ -73,7 +72,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
             resourceProperty.subtract(offer);
             return message
-                    .createReplyFrom(getComponentOwner().getId())
+                    .createReplyFrom(getAgent().getId())
                     .performative(ACLPerformative.INFORM)
                     .objectContent(offer);
         } catch (IllegalArgumentException e) {
@@ -82,15 +81,15 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<String>(
                 "Ontology",
                 String.class
         ) {
             @Override
             protected void set(String arg0) {
-                parameterMessageType = checkFrozen(checkNotNull(arg0));
+                parameterMessageType = checkNotNull(arg0);
             }
 
             @Override
@@ -101,7 +100,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         e.add(new FiniteSetValueAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
             @Override
             protected void set(ResourceProperty arg0) {
-                resourceProperty = checkFrozen(checkNotNull(arg0));
+                resourceProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -111,19 +110,19 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
             @Override
             public Iterable<ResourceProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), ResourceProperty.class);
+                return Iterables.filter(agent.get().getProperties(), ResourceProperty.class);
             }
         });
     }
 
     @Override
-    public ResourceProvisionAction deepCloneHelper(CloneMap cloneMap) {
-        return new ResourceProvisionAction(this, cloneMap);
+    public ResourceProvisionAction deepClone(DeepCloner cloner) {
+        return new ResourceProvisionAction(this, cloner);
     }
 
-    protected ResourceProvisionAction(ResourceProvisionAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        this.resourceProperty = cloneMap.clone(cloneable.resourceProperty, ResourceProperty.class);
+    protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.resourceProperty = cloner.continueWith(cloneable.resourceProperty, ResourceProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
     }
 
@@ -131,12 +130,6 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         super(builder);
         this.parameterMessageType = builder.parameterMessageType;
         this.resourceProperty = builder.resourceProperty;
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        checkState(resourceProperty != null);
     }
 
     public static Builder with() { return new Builder(); }

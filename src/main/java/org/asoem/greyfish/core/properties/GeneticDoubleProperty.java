@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.RandomUtils;
 
 @ClassGroup(tags="property")
@@ -21,8 +21,8 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
         }
     };
 
-    protected GeneticDoubleProperty(GeneticDoubleProperty geneticDoubleProperty, CloneMap cloneMap) {
-        delegate = cloneMap.clone(geneticDoubleProperty.delegate, DoubleProperty.class);
+    protected GeneticDoubleProperty(GeneticDoubleProperty geneticDoubleProperty, DeepCloner cloner) {
+        delegate = cloner.continueWith(geneticDoubleProperty.delegate, DoubleProperty.class);
     }
 
     @Override
@@ -39,7 +39,7 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
     public void prepare(Simulation simulation) {
         delegate.prepare(simulation);
         doubleSupplier = delegate.registerGene(
-                new DefaultGene<Double>(delegate.getInitialValue(), Double.class, new GeneControllerAdaptor<Double>() {
+                new ImmutableGene<Double>(delegate.getInitialValue(), Double.class, new GeneControllerAdaptor<Double>() {
                     @Override
                     public Double mutate(Double original) {
                         return RandomUtils.RANDOM_DATA.nextGaussian(0, 1);
@@ -53,8 +53,8 @@ public final class GeneticDoubleProperty extends PropertyDecorator implements We
     }
 
     @Override
-    public GeneticDoubleProperty deepCloneHelper(CloneMap cloneMap) {
-        return new GeneticDoubleProperty(this, cloneMap);
+    public GeneticDoubleProperty deepClone(DeepCloner cloner) {
+        return new GeneticDoubleProperty(this, cloner);
     }
 
     @Override

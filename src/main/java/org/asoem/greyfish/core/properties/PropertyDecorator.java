@@ -1,16 +1,14 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.individual.IndividualInterface;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.AbstractDeepCloneable;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
-import java.util.Iterator;
-
-public abstract class PropertyDecorator extends AbstractDeepCloneable implements GFProperty {
+public abstract class PropertyDecorator implements GFProperty {
 
     @Element(name = "delegate")
     protected abstract GFProperty getDelegate();
@@ -21,18 +19,13 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public IndividualInterface getComponentOwner() {
-        return getDelegate().getComponentOwner();
+    public Agent getAgent() {
+        return getDelegate().getAgent();
     }
 
     @Override
-    public void setComponentRoot(IndividualInterface individual) {
-        getDelegate().setComponentRoot(individual);
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        getDelegate().checkConsistency(components);
+    public void setAgent(Agent agent) {
+        getDelegate().setAgent(agent);
     }
 
     @Override
@@ -51,11 +44,6 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public <T> T checkFrozen(T value) throws IllegalStateException {
-        return getDelegate().checkFrozen(value);
-    }
-
-    @Override
     public void checkNotFrozen() throws IllegalStateException {
         getDelegate().checkNotFrozen();
     }
@@ -71,13 +59,8 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     }
 
     @Override
-    public Iterator<GFComponent> iterator() {
-        return getDelegate().iterator();
-    }
-
-    @Override
-    public void export(Exporter e) {
-        getDelegate().export(e);
+    public void configure(ConfigurationHandler e) {
+        getDelegate().configure(e);
     }
 
     @Override
@@ -93,5 +76,15 @@ public abstract class PropertyDecorator extends AbstractDeepCloneable implements
     @Override
     public <S> Gene<S> registerGene(Gene<S> gene) {
         return getDelegate().registerGene(gene);
+    }
+
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return getDelegate().children();
     }
 }

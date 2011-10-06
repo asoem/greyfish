@@ -6,8 +6,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Placeholder;
-import org.asoem.greyfish.core.individual.Prototype;
 import org.asoem.greyfish.core.individual.PrototypeManager;
 import org.asoem.greyfish.core.individual.PrototypeRegistryListener;
 import org.asoem.greyfish.core.space.MovingObject2D;
@@ -43,12 +43,12 @@ public class Scenario implements PrototypeRegistryListener {
     @Attribute(name="name")
     private final String name;
 
-    private final Set<Prototype> prototypes = Sets.newHashSet();
+    private final Set<Agent> prototypes = Sets.newHashSet();
 
     @SimpleXMLConstructor
     private Scenario(
             @Attribute(name="name") String name,
-            @ElementArray(name="prototypes", entry="prototype") Prototype[] prototypes,
+            @ElementArray(name="prototypes", entry="prototype") Agent[] prototypes,
             @Element(name="space") TiledSpace space,
             @ElementArray(name="placeholders", entry="placeholder") Placeholder[] placeholders) {
         assert name != null;
@@ -67,14 +67,16 @@ public class Scenario implements PrototypeRegistryListener {
     private Scenario(Builder builder) {
         this.name = builder.name;
         this.prototypeSpace = TiledSpace.copyOf(builder.space);
-        for (Map.Entry<Prototype, Object2D> entry : builder.map.entries()) {
+        for (Map.Entry<Agent, Object2D> entry : builder.map.entries()) {
             addPlaceholder(entry.getKey(), entry.getValue());
         }
     }
 
-    public void addPlaceholder(Prototype prototype, Object2D location) {
+    public void addPlaceholder(Agent prototype, Object2D location) {
+        checkNotNull(prototype);
+        checkNotNull(location);
         prototypes.add(prototype);
-        prototypeSpace.addOccupant( Placeholder.newInstance(checkNotNull(prototype), checkNotNull(location)) );
+        prototypeSpace.addOccupant(Placeholder.newInstance(prototype, location));
     }
 
     public boolean removePlaceholder(Placeholder ph) {
@@ -83,11 +85,11 @@ public class Scenario implements PrototypeRegistryListener {
     }
 
     @ElementArray(name="prototypes", entry="prototype")
-    private Prototype[] getPrototypesArray() {
-        return Iterables.toArray(getPrototypes(), Prototype.class);
+    private Agent[] getPrototypesArray() {
+        return Iterables.toArray(getPrototypes(), Agent.class);
     }
 
-    public Iterable<Prototype> getPrototypes() {
+    public Iterable<Agent> getPrototypes() {
         return prototypes;
     }
 
@@ -127,13 +129,13 @@ public class Scenario implements PrototypeRegistryListener {
 
     @Override
     public void prototypeAdded(PrototypeManager source,
-                               Prototype prototype, int index) {
+                               Agent prototype, int index) {
         prototypes.add(prototype);
     }
 
     @Override
     public void prototypeRemoved(PrototypeManager source,
-                                 Prototype prototype, int index) {
+                                 Agent prototype, int index) {
         throw new UnsupportedOperationException("Not Implemented yet");
         // TODO: implement
     }
@@ -149,22 +151,22 @@ public class Scenario implements PrototypeRegistryListener {
     public static Builder with() {return new Builder(); }
     public static class Builder implements BuilderInterface<Scenario> {
         private TiledSpace space;
-        private final Multimap<Prototype, Object2D> map = ArrayListMultimap.create();
+        private final Multimap<Agent, Object2D> map = ArrayListMultimap.create();
         private String name;
 
         public Builder name(String name) { this.name = name; return this; }
         public Builder space(int dimX, int dimY) { this.space = TiledSpace.newInstance(dimX, dimY); return this; }
-        public Builder add(final Prototype clonable, Object2D location2d) {
-            checkNotNull(clonable);
+        public Builder add(final Agent prototype, Object2D location2d) {
+            checkNotNull(prototype);
             checkNotNull(location2d);
-            map.put(clonable, checkNotNull(location2d)); return this;
+            map.put(prototype, checkNotNull(location2d)); return this;
         }
         @Override
         public Scenario build() {
             checkState(space != null);
-            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<Prototype, Object2D>>() {
+            checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<Agent, Object2D>>() {
                 @Override
-                public boolean apply(Map.Entry<Prototype, Object2D> simulationObjectLocation2DEntry) {
+                public boolean apply(Map.Entry<Agent, Object2D> simulationObjectLocation2DEntry) {
                     return space.covers(simulationObjectLocation2DEntry.getValue());
                 }
             }));

@@ -1,18 +1,18 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
 public abstract class DoubleCompareCondition extends CompareCondition<Double> {
 
-    protected DoubleCompareCondition(DoublePropertyCondition condition, CloneMap map) {
+    protected DoubleCompareCondition(DoublePropertyCondition condition, DeepCloner map) {
         super(condition, map);
     }
 
     @Override
-	public void export(Exporter e) {
-		super.export(e);
+	public void configure(ConfigurationHandler e) {
+		super.configure(e);
 		e.add(new ValueAdaptor<Double>("", Double.class) {
             @Override
             protected void set(Double arg0) {

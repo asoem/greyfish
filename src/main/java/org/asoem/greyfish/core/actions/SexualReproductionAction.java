@@ -6,16 +6,14 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -35,31 +33,32 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected State executeUnconditioned(Simulation simulation) {
         if (nOffspring == 0 || spermStorage.isEmpty())
             return State.END_FAILED;
 
         LOGGER.debug("Producing {} offspring", nOffspring);
 
         for (int i = 0; i < nOffspring; i++) {
+
             simulation.createAgent(
-                    getComponentOwner().getPopulation(),
-                    getComponentOwner().getAnchorPoint(),
-                    getComponentOwner().getGenome().mutated().recombined(spermStorage.getRWS())
+                    agent.get().getPopulation(),
+                    agent.get().getAnchorPoint(),
+                    agent.get().createGamete()/*.mutated().recombined(spermStorage.getRWS())*/
             );
         }
 
-        getComponentOwner().getLog().add("offspring", nOffspring);
+        agent.get().getLog().add("offspring", nOffspring);
         return State.END_SUCCESS;
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Integer>("Number of offspring", Integer.class) {
             @Override
             protected void set(Integer arg0) {
-                nOffspring = checkFrozen(checkNotNull(arg0));
+                nOffspring = checkNotNull(arg0);
             }
 
             @Override
@@ -68,10 +67,10 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("Genome storage", EvaluatedGenomeStorage.class) {
+        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("ImmutableGenome storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
-                spermStorage = checkFrozen(checkNotNull(arg0));
+                spermStorage = checkNotNull(arg0);
             }
 
             @Override
@@ -81,19 +80,19 @@ public class SexualReproductionAction extends AbstractGFAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), EvaluatedGenomeStorage.class);
+                return Iterables.filter(agent.get().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
     }
 
     @Override
-    public SexualReproductionAction deepCloneHelper(CloneMap cloneMap) {
-        return new SexualReproductionAction(this, cloneMap);
+    public SexualReproductionAction deepClone(DeepCloner cloner) {
+        return new SexualReproductionAction(this, cloner);
     }
 
-    private SexualReproductionAction(SexualReproductionAction cloneable, CloneMap map) {
+    private SexualReproductionAction(SexualReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.spermStorage = map.clone(cloneable.spermStorage, EvaluatedGenomeStorage.class);
+        this.spermStorage = map.continueWith(cloneable.spermStorage, EvaluatedGenomeStorage.class);
         this.nOffspring = cloneable.nOffspring;
     }
 
@@ -106,7 +105,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        getComponentOwner().getLog().set("offspring", 0);
+        agent.get().getLog().set("offspring", 0);
     }
 
     public static Builder with() { return new Builder(); }

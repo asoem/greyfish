@@ -1,15 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -25,24 +24,24 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
-        getComponentOwner().setColor(color);
+    protected State executeUnconditioned(Simulation simulation) {
+        agent.get().setColor(color);
         return State.END_SUCCESS;
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new ChangeBodyAction(this, map);
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+        return new ChangeBodyAction(this, cloner);
     }
 
-    public ChangeBodyAction(ChangeBodyAction cloneable, CloneMap map) {
+    public ChangeBodyAction(ChangeBodyAction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.color = cloneable.color;
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Color>("Color", Color.class) {
             @Override
             public Color get() {
@@ -51,7 +50,7 @@ public class ChangeBodyAction extends AbstractGFAction {
 
             @Override
             protected void set(Color arg0) {
-                color = checkFrozen(checkNotNull(arg0));
+                color = checkNotNull(arg0);
             }
         });
     }

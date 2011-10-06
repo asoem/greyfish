@@ -1,14 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Element;
-
-import javax.annotation.Nonnull;
 
 @ClassGroup(tags="actions")
 public class ConvertQuantityAction extends AbstractGFAction {
@@ -26,7 +24,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
     private double parameterMax = 0;
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected State executeUnconditioned(Simulation simulation) {
         if (parameterSource != null && parameterTarget != null) {
             double add_amount = Math.min(parameterSource.get(), parameterMax) * parameterFactor;
 
@@ -41,14 +39,14 @@ public class ConvertQuantityAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
-        return new ConvertQuantityAction(this, cloneMap);
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+        return new ConvertQuantityAction(this, cloner);
     }
 
-    public ConvertQuantityAction(ConvertQuantityAction cloneable, CloneMap map) {
+    public ConvertQuantityAction(ConvertQuantityAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterSource = map.clone(cloneable.parameterSource, DoubleProperty.class);
-        this.parameterTarget = map.clone(cloneable.parameterTarget, DoubleProperty.class);
+        this.parameterSource = map.continueWith(cloneable.parameterSource, DoubleProperty.class);
+        this.parameterTarget = map.continueWith(cloneable.parameterTarget, DoubleProperty.class);
         this.parameterFactor = cloneable.parameterFactor;
         this.parameterMax = cloneable.parameterMax;
     }

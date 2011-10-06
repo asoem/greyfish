@@ -4,8 +4,8 @@ import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
@@ -18,18 +18,18 @@ public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double
         this(new Builder());
     }
 
-    protected DoubleProperty(DoubleProperty property, CloneMap cloneMap) {
-        super(property, cloneMap);
+    protected DoubleProperty(DoubleProperty property, DeepCloner cloner) {
+        super(property, cloner);
     }
 
     @Override
-    public DoubleProperty deepCloneHelper(CloneMap cloneMap) {
-        return new DoubleProperty(this, cloneMap);
+    public DoubleProperty deepClone(DeepCloner cloner) {
+        return new DoubleProperty(this, cloner);
     }
 
     @Override
-	public void export(Exporter e) {
-		super.export(e, Double.class);
+	public void configure(ConfigurationHandler e) {
+		super.configure(e, Double.class);
 	}
 
 	public void subtract(double val) {

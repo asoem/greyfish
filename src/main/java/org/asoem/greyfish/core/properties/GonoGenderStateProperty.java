@@ -1,14 +1,14 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.collect.Sets;
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 import static org.asoem.greyfish.utils.RandomUtils.nextBoolean;
@@ -27,9 +27,9 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     private final Gene<Integer> gene;
 
-    protected GonoGenderStateProperty(GonoGenderStateProperty clone, CloneMap cloneMap) {
-        super(clone, cloneMap);
-        gene = registerGene(DefaultGene.newMutatedCopy(clone.gene));
+    protected GonoGenderStateProperty(GonoGenderStateProperty clone, DeepCloner cloner) {
+        super(clone, cloner);
+        gene = registerGene(ImmutableGene.newMutatedCopy(clone.gene));
     }
 
     @Override
@@ -39,12 +39,12 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
 
     @Override
     public Set<Gender> getSet() {
-        return Sets.newHashSet(Gender.values());
+        return EnumSet.allOf(Gender.class);
     }
 
     @Override
-    public GonoGenderStateProperty deepCloneHelper(CloneMap cloneMap) {
-        return new GonoGenderStateProperty(this, cloneMap);
+    public GonoGenderStateProperty deepClone(DeepCloner cloner) {
+        return new GonoGenderStateProperty(this, cloner);
     }
 
     @SuppressWarnings("unused") // used in the deserialization process
@@ -82,13 +82,13 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
             }
 
             @Override
-            public Integer initialize() {
+            public Integer createInitialValue() {
                 return nextBoolean() ? Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
             }
         };
 
         int initialValue = nextBoolean() ? Gender.MALE.ordinal() : Gender.FEMALE.ordinal();
-        gene = registerGene(new DefaultGene<Integer>(initialValue, Integer.class, mutationOperator));
+        gene = registerGene(new ImmutableGene<Integer>(initialValue, Integer.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }

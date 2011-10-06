@@ -1,67 +1,44 @@
 package org.asoem.greyfish.core.io;
 
-import org.asoem.greyfish.core.individual.Prototype;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.convert.Registry;
+import org.simpleframework.xml.convert.RegistryStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.CycleStrategy;
 import org.simpleframework.xml.transform.Matcher;
-import org.simpleframework.xml.transform.Transform;
 
-import java.awt.*;
 import java.io.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class  GreyfishSerialization {
+public enum GreyfishSerialization {
 
-    private final static Matcher MATCHER = new Matcher() {
+    INSTANCE;
 
-        @Override
-        public Transform match(final Class arg0) throws Exception {
-            if(arg0.isEnum()
-                    || arg0.getSuperclass() != null
-                    && arg0.getSuperclass().isEnum()) { // This is a Workaround for a java bug. See: http://forums.oracle.com/forums/thread.jspa?threadID=1035332
-                return new Transform<Enum>() {
+    private final Logger LOGGER = LoggerFactory.getLogger(GreyfishSerialization.class);
 
-                    public Enum read(String value) throws Exception {
-                        return Enum.valueOf(arg0, value);
-                    }
+    private final Matcher MATCHER = new FixedEnumMatcher();
+    private final Registry registry = new Registry();
+    private final Serializer serializer = new Persister(new RegistryStrategy(registry, new CycleStrategy("id", "ref")), MATCHER);
 
-                    public String write(Enum value) throws Exception {
-                        return value.name();
-                    }
-                };
-            }
-            else if (Color.class.equals(arg0)) {
-                return new Transform<Color>() {
-
-                    @Override
-                    public Color read(String arg0) throws Exception {
-                        return new Color(Integer.valueOf(arg0));
-                    }
-
-                    @Override
-                    public String write(Color arg0) throws Exception {
-                        return String.valueOf(arg0.getRGB());
-                    }
-
-                };
-            }
-            return null;
+    GreyfishSerialization() {
+        try {
+            registry.bind(GreyfishExpression.class, GreyfishExpressionConverter.class);
+        } catch (Exception e) {
+            LOGGER.error("Binding converter to registry failed", e);
         }
-    };
-
-    private final static Serializer serializer = new Persister(new CycleStrategy("id", "ref"), MATCHER);
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishSerialization.class);
+    }
 
     public static void writeScenario(Scenario scenario, File dest) throws Exception {
         serializeObject(dest, scenario);
     }
 
-    public static Prototype readPrototype(File source) throws Exception {
-        return deserializeFile(source, Prototype.class);
+    public static Agent readPrototype(File source) throws Exception {
+        return deserializeFile(source, Agent.class);
     }
 
     public static Scenario readScenario(File source) throws Exception {
@@ -73,24 +50,24 @@ public class  GreyfishSerialization {
     }
 
     public static <T> T deserializeFile(File file, Class<T> clazz) throws Exception {
-        LOGGER.debug("Reading from: {}", file.getAbsolutePath());
+        INSTANCE.LOGGER.debug("Reading from: {}", file.getAbsolutePath());
         return deserializeFile(new FileInputStream(file), clazz);
     }
 
     public static <T> T deserializeFile(InputStream iStream, Class<T> clazz) throws Exception {
         try {
-            return serializer.read(clazz, iStream);
+            return INSTANCE.serializer.read(clazz, iStream);
         } catch (Exception e1) {
-            LOGGER.error("Deserialization failed", e1);
+            INSTANCE.LOGGER.error("Deserialization failed", e1);
             throw e1;
         }
     }
 
     public static <T> boolean validateFile(File file, Class<T> clazz) {
         try {
-            return serializer.validate(clazz, file);
+            return INSTANCE.serializer.validate(clazz, file);
         } catch (Exception e) {
-            LOGGER.error("Unable to deserialize file {} to class {}", file, clazz, e);
+            INSTANCE.LOGGER.error("Unable to deserialize file {} to class {}", file, clazz, e);
         }
         return false;
     }
@@ -100,21 +77,21 @@ public class  GreyfishSerialization {
             checkArgument(file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
         serializeObject(new FileOutputStream(file), object);
-        LOGGER.debug("Object written to: {}", file.getAbsolutePath());
+        INSTANCE.LOGGER.debug("Object written to: {}", file.getAbsolutePath());
     }
 
     public static void serializeObject(OutputStream oStream, Object object) throws RuntimeException {
         checkNotNull(oStream);
         checkNotNull(object);
 
-        LOGGER.debug("Serializing object of type {}", object.getClass().getName());
+        INSTANCE.LOGGER.debug("Serializing object of type {}", object.getClass().getName());
 
         try {
             final File tempFile = File.createTempFile("Greyfish", "xml");
-            serializer.write(object, tempFile);
-            serializer.write(object, oStream);
+            INSTANCE.serializer.write(object, tempFile);
+            INSTANCE.serializer.write(object, oStream);
         } catch (Exception e) {
-            LOGGER.error("Serialization failed", e);
+            INSTANCE.LOGGER.error("Serialization failed", e);
             throw new RuntimeException("Object not serializable", e);
         }
     }

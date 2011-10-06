@@ -47,7 +47,7 @@ public final class ACLMessage {
         NULL,
         STRING,
         BYTE_ARRAY,
-        OTHER;
+        OTHER
     }
 
     public ContentType getContentType() {
@@ -100,7 +100,7 @@ public final class ACLMessage {
     public <T> T getReferenceContent(Class<T> clazz) throws NotUnderstoodException {
         if(!checkNotNull(clazz).isInstance(content))
             throw NotUnderstoodException.unexpectedPayloadType(this, clazz);
-//            throw new IllegalArgumentException("Requesting " + clazz + " content which has type " + content.getClass());
+//            throw new IllegalArgumentException("Requesting " + valueType + " content which has type " + content.getClass());
         return clazz.cast(content);
     }
 

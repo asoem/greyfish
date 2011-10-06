@@ -4,21 +4,24 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.genes.DefaultGene;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.genes.ImmutableGene;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Root;
 
+import java.util.Collections;
 import java.util.List;
 
 @Root
-public abstract class AbstractGFProperty extends AbstractGFComponent implements GFProperty {
+public abstract class AbstractGFProperty extends AbstractAgentComponent implements GFProperty {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGFProperty.class);
     private List<ForwardingGene<?>> geneList = ImmutableList.of();
@@ -33,13 +36,18 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         });
     }
 
-    @Override
+    /**
+     * Set the delegates of the contained {@code IndexedGene}s and their index to the values provided by the given {@code geneIterator}
+     *
+     * @param genes A {@code Genome}'s geneList ListIterator which provides the delegate genes
+     * @see org.asoem.greyfish.core.genes.ImmutableGenome#listIterator()
+     */
     public void setGenes(final Iterable<? extends Gene<?>> genes) {
         for (final ForwardingGene<?> gene : geneList) {
             Gene<?> copy = Iterables.find(genes, new Predicate<Gene<?>>() {
                         @Override
                         public boolean apply(Gene<?> o) {
-                            return gene.isMutatedCopyOf(o);
+                            return gene.isMutatedCopy(o);
                         }
                     }, null);
 
@@ -53,7 +61,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
     }
 
     @Override
@@ -63,7 +71,7 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         if (simulation.getSteps() == 0)
             for (ForwardingGene<?> gene : geneList) {
                 try {
-                    gene.setDelegate(DefaultGene.newInitializedCopy(gene));
+                    gene.setDelegate(ImmutableGene.newInitializedCopy(gene));
                 }
                 catch (Exception e) {
                     LoggerFactory.getLogger(AbstractGFProperty.class).warn("Could initialize gene.", e);
@@ -84,9 +92,19 @@ public abstract class AbstractGFProperty extends AbstractGFComponent implements 
         super(builder);
     }
 
-    protected AbstractGFProperty(AbstractGFComponent clonable, CloneMap map) {
-        super(clonable, map);
+    protected AbstractGFProperty(AbstractAgentComponent cloneable, DeepCloner map) {
+        super(cloneable, map);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFComponent.AbstractBuilder<T> {}
+    @Override
+    public void accept(ComponentVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return Collections.emptyList();
+    }
+
+    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractAgentComponent.AbstractBuilder<T> {}
 }

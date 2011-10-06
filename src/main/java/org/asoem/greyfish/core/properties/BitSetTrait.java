@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.DefaultGene;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.ImmutableBitSet;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.RandomUtils;
 
@@ -31,14 +31,14 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
         this(new Builder());
     }
 
-    protected BitSetTrait(BitSetTrait doubleOrderedSetProperty, CloneMap cloneMap) {
-        super(doubleOrderedSetProperty, cloneMap);
-        bitStringGene = registerGene(DefaultGene.newMutatedCopy(doubleOrderedSetProperty.bitStringGene));
+    protected BitSetTrait(BitSetTrait doubleOrderedSetProperty, DeepCloner cloner) {
+        super(doubleOrderedSetProperty, cloner);
+        bitStringGene = registerGene(ImmutableGene.newMutatedCopy(doubleOrderedSetProperty.bitStringGene));
     }
 
     @Override
-    public DeepCloneable deepCloneHelper(CloneMap map) {
-        return new BitSetTrait(this, map);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new BitSetTrait(this, cloner);
     }
 
 
@@ -78,7 +78,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
         final ImmutableBitSet bitSet = (builder.initialValue == null) ? new ImmutableBitSet(DEFAULT_BITSET_LENGTH, RandomUtils.randomInstance()) : builder.initialValue;
 
         bitStringGene = registerGene(
-            new DefaultGene<ImmutableBitSet>(bitSet, ImmutableBitSet.class, mutationOperator));
+            new ImmutableGene<ImmutableBitSet>(bitSet, ImmutableBitSet.class, mutationOperator));
     }
 
     public static Builder with() { return new Builder(); }

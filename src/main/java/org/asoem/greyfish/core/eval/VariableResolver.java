@@ -1,14 +1,13 @@
 package org.asoem.greyfish.core.eval;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * User: christoph
- * Date: 18.05.11
- * Time: 17:00
+ * Date: 16.09.11
+ * Time: 11:09
  */
 public interface VariableResolver {
-      @Nullable
-      Object resolve(@Nonnull String varName);
+    boolean canResolve(String name);
+    @Nullable Object resolve(String varName) throws VariableResolutionException;
 }

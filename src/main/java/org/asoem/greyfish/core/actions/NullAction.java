@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-
-import javax.annotation.Nonnull;
+import org.asoem.greyfish.utils.DeepCloner;
 
 @ClassGroup(tags="actions")
 public class NullAction extends AbstractGFAction {
@@ -16,7 +14,7 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
+    protected State executeUnconditioned(Simulation simulation) {
         /* NOP */
         return State.END_SUCCESS;
     }
@@ -33,11 +31,11 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap cloneMap) {
-        return new NullAction(this, cloneMap);
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+        return new NullAction(this, cloner);
     }
 
-    public NullAction(NullAction cloneable, CloneMap map) {
+    public NullAction(NullAction cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 }

@@ -1,25 +1,26 @@
 package org.asoem.greyfish.core.conditions;
 
 
-import org.asoem.greyfish.core.individual.GFComponent;
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurableValueProvider;
 import org.simpleframework.xml.Root;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Root
-public interface GFCondition extends GFComponent, ConfigurableValueProvider {
+public interface GFCondition extends AgentComponent {
 
 	public boolean evaluate(Simulation simulation);
 	public boolean isLeafCondition();
 	public boolean isRootCondition();
 	
 	public List<GFCondition> getChildConditions();
-	public GFCondition getParentCondition();
+	@Nullable
+    public GFCondition getParentCondition();
 	public GFCondition getRoot();
 	
-	public void setParent(GFCondition parent);
+	public void setParent(@Nullable GFCondition parent);
 	public boolean add(GFCondition condition);
 	public boolean remove(GFCondition condition);
 }

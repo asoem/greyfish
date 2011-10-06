@@ -1,15 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
-
-import javax.annotation.Nonnull;
 
 @ClassGroup(tags = "actions")
 public class RandomMovementAction extends AbstractGFAction {
@@ -24,14 +21,14 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(@Nonnull Simulation simulation) {
-        pattern.apply(Agent.class.cast(getComponentOwner()), simulation);
+    protected State executeUnconditioned(Simulation simulation) {
+        pattern.apply(agent.get(), simulation);
         return State.END_SUCCESS;
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<Double>("", Double.class) {
 
             @Override
@@ -53,11 +50,11 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    public RandomMovementAction deepCloneHelper(CloneMap cloneMap) {
-        return new RandomMovementAction(this, cloneMap);
+    public RandomMovementAction deepClone(DeepCloner cloner) {
+        return new RandomMovementAction(this, cloner);
     }
 
-    private RandomMovementAction(RandomMovementAction cloneable, CloneMap map) {
+    private RandomMovementAction(RandomMovementAction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.speed = cloneable.speed;
     }

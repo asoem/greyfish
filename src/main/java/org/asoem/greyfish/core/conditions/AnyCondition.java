@@ -8,7 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical OR operator.
@@ -17,7 +17,7 @@ import org.asoem.greyfish.utils.CloneMap;
  */
 public class AnyCondition extends LogicalOperatorCondition {
 
-    public AnyCondition(AnyCondition condition, CloneMap map) {
+    public AnyCondition(AnyCondition condition, DeepCloner map) {
         super(condition, map);
     }
 
@@ -37,8 +37,8 @@ public class AnyCondition extends LogicalOperatorCondition {
     }
 
     @Override
-    public AnyCondition deepCloneHelper(CloneMap map) {
-        return new AnyCondition(this, map);
+    public AnyCondition deepClone(DeepCloner cloner) {
+        return new AnyCondition(this, cloner);
     }
 
     @SimpleXMLConstructor

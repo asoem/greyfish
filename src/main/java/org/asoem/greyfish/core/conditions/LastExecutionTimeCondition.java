@@ -6,8 +6,8 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -23,9 +23,9 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	@Element(name="steps")
 	private int steps;
 
-    protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, CloneMap map) {
+    protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.clone(condition.action, GFAction.class);
+        this.action = map.continueWith(condition.action, GFAction.class);
         this.steps = condition.steps;
     }
 
@@ -36,19 +36,19 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	}
 
     @Override
-    public LastExecutionTimeCondition deepCloneHelper(CloneMap map) {
-        return new LastExecutionTimeCondition(this, map);
+    public LastExecutionTimeCondition deepClone(DeepCloner cloner) {
+        return new LastExecutionTimeCondition(this, cloner);
     }
 
     @Override
-	public void export(Exporter e) {
-		super.export(e);
+	public void configure(ConfigurationHandler e) {
+		super.configure(e);
 		
 		e.add(new ValueAdaptor<Integer>("Steps", Integer.class) {
 
             @Override
             protected void set(Integer arg0) {
-                steps = checkFrozen(checkNotNull(arg0));
+                steps = checkNotNull(arg0);
             }
 
             @Override
@@ -61,7 +61,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
             @Override
             protected void set(GFAction arg0) {
-                action = checkFrozen(checkNotNull(arg0));
+                action = checkNotNull(arg0);
             }
 
             @Override
@@ -71,7 +71,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(getComponentOwner().getActions(), GFAction.class);
+                return Iterables.filter(agent.get().getProperties(), GFAction.class);
             }
         });
 	}

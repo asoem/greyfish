@@ -1,15 +1,13 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.GFComponent;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -19,13 +17,14 @@ public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
     private FiniteSetProperty stateProperty;
+    // TODO: The stateProperty might get modified during construction phase. Observe this!
 
     @Element(name="state",required=false)
     private Object state;
 
-    public StatePropertyCondition(StatePropertyCondition condition, CloneMap map) {
+    public StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.stateProperty = map.clone(condition.stateProperty, FiniteSetProperty.class);
+        this.stateProperty = map.continueWith(condition.stateProperty, FiniteSetProperty.class);
         this.state = condition.state;
     }
 
@@ -36,26 +35,26 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public StatePropertyCondition deepCloneHelper(CloneMap map) {
-        return new StatePropertyCondition(this, map);
+    public StatePropertyCondition deepClone(DeepCloner cloner) {
+        return new StatePropertyCondition(this, cloner);
     }
 
     @Override
-    public void export(Exporter e) {
+    public void configure(ConfigurationHandler e) {
         final FiniteSetValueAdaptor<FiniteSetProperty> statesAdaptor = new FiniteSetValueAdaptor<FiniteSetProperty>(
                 "Property", FiniteSetProperty.class) {
-            @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkFrozen(checkNotNull(arg0)); }
+            @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkNotNull(arg0); }
             @Override public FiniteSetProperty get() { return stateProperty; }
 
             @Override
             public Iterable<FiniteSetProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class);
+                return Iterables.filter(agent.get().getProperties(), FiniteSetProperty.class);
             }
         };
         e.add(statesAdaptor);
 
         final FiniteSetValueAdaptor<Object> stateAdaptor = new FiniteSetValueAdaptor<Object>( "has state", Object.class) {
-            @Override protected void set(Object arg0) { state = checkFrozen(checkNotNull(arg0)); }
+            @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
             @Override public Object get() { return state; }
             @Override public Iterable<Object> values() {
                 return (stateProperty == null) ? ImmutableList.of() : stateProperty.getSet();
@@ -63,12 +62,6 @@ public class StatePropertyCondition extends LeafCondition {
         };
         statesAdaptor.addValueChangeListener(stateAdaptor);
         e.add(stateAdaptor);
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        Preconditions.checkState(Iterables.contains(components, stateProperty));
     }
 
     private StatePropertyCondition() {

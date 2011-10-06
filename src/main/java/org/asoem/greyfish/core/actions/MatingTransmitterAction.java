@@ -1,26 +1,25 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.eval.EvaluationException;
-import org.asoem.greyfish.core.eval.GreyfishMathExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.GenomeInterface;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
+import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags="actions")
 public class MatingTransmitterAction extends ContractNetParticipantAction {
@@ -29,19 +28,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     private String ontology;
 
     @Element(name="spermFitnessExpression", required = false)
-    private String spermFitnessExpression;
-
-    private Function<GenomeInterface, Double> spermEvaluationFunction = new Function<GenomeInterface, Double>() {
-        @Override
-        public Double apply(GenomeInterface genome) {
-            try {
-                return GreyfishMathExpression.evaluate(spermFitnessExpression, Agent.class.cast(getComponentOwner()));
-            } catch (EvaluationException e) {
-                LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
-                return 0.0;
-            }
-        }
-    };
+    private GreyfishExpression<MatingTransmitterAction> spermFitnessExpression =
+            compileExpression("").forContext(MatingTransmitterAction.class);
 
     @SimpleXMLConstructor
     private MatingTransmitterAction() {
@@ -64,13 +52,13 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
 
             @Override
             protected void set(String arg0) {
-                ontology = checkFrozen(checkNotNull(arg0));
+                ontology = checkNotNull(arg0);
             }
 
             @Override
@@ -78,16 +66,15 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
                 return ontology;
             }
         });
-        e.add(new ValueAdaptor<String>("Sperm Fitness", String.class) {
+        e.add(new ValueAdaptor<GreyfishExpression>("Sperm Fitness", GreyfishExpression.class) {
 
             @Override
-            protected void set(String arg0) {
-                checkArgument(GreyfishMathExpression.isValidExpression(arg0));
+            protected void set(GreyfishExpression arg0) {
                 spermFitnessExpression = arg0;
             }
 
             @Override
-            public String get() {
+            public GreyfishExpression get() {
                 return spermFitnessExpression;
             }
         });
@@ -95,10 +82,17 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Override
     protected ACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = getComponentOwner().getGenome();
+        final Genome sperm = getAgent().createGamete();
 
-        return message.createReplyFrom(getComponentOwner().getId())
-                .objectContent(new EvaluatedGenome(sperm, spermEvaluationFunction.apply(sperm)))
+        double fitness = 0.0;
+        try {
+            fitness = spermFitnessExpression.evaluateAsDouble(this);
+        } catch (EvaluationException e) {
+            LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
+        }
+
+        return message.createReplyFrom(getAgent().getId())
+                .objectContent(new EvaluatedGenome(sperm, fitness))
                 .performative(ACLPerformative.PROPOSE);
     }
 
@@ -106,20 +100,20 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     protected ACLMessage.Builder handleAccept(ACLMessage message) {
         // costs for mating define quality of the genome
 //        DoubleProperty doubleProperty = null;
-//        GenomeInterface sperm = null;
+//        Genome sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.apply(sperm));
 
-        return message.createReplyFrom(getComponentOwner().getId())
+        return message.createReplyFrom(getAgent().getId())
                 .performative(ACLPerformative.INFORM);
     }
 
     @Override
-    public MatingTransmitterAction deepCloneHelper(CloneMap cloneMap) {
-        return new MatingTransmitterAction(this, cloneMap);
+    public MatingTransmitterAction deepClone(DeepCloner cloner) {
+        return new MatingTransmitterAction(this, cloner);
     }
 
-    private MatingTransmitterAction(MatingTransmitterAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
+    private MatingTransmitterAction(MatingTransmitterAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.spermFitnessExpression = cloneable.spermFitnessExpression;
     }
@@ -139,16 +133,16 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
         private String ontology;
-        private String spermFitnessExpression = "0.0";
+        private GreyfishExpression<MatingTransmitterAction> spermFitnessExpression =
+                compileExpression("0.0").forContext(MatingTransmitterAction.class);
 
-        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = spermFitnessExpression; return self(); }
+        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = compileExpression(spermFitnessExpression).forContext(MatingTransmitterAction.class); return self(); }
         public T offersSpermToMatesOfType(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
             checkState(!Strings.isNullOrEmpty(ontology));
-            checkState(GreyfishMathExpression.isValidExpression(spermFitnessExpression));
         }
     }
 }

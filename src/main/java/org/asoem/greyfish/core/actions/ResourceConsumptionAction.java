@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.eval.GreyfishMathExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -20,6 +20,7 @@ import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.isEmpty;
+import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
@@ -29,6 +30,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Element(name="resourceTransformationFunction", required = false)
     private String transformationFunction = "#{x0}";
+
+    private GreyfishExpression<ResourceConsumptionAction> transformationExpression =
+            compileExpression("#{x0}").forContext(ResourceConsumptionAction.class);
 
     @Element(name="messageType", required=false)
     private String parameterMessageType = "";
@@ -49,7 +53,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected ACLMessage.Builder createCFP() {
         return ACLMessage.with()
-                .source(getComponentOwner().getId())
+                .source(getAgent().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
@@ -65,7 +69,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
         return message
-                .createReplyFrom(getComponentOwner().getId())
+                .createReplyFrom(getAgent().getId())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .objectContent(offer);
     }
@@ -74,7 +78,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage message) throws NotUnderstoodException {
         try {
             final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(GreyfishMathExpression.evaluate(transformationFunction, Agent.class.cast(getComponentOwner()), offer));
+            consumerProperty.add(transformationExpression.evaluateAsDouble(this, offer));
 
             LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
         }
@@ -89,9 +93,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate() {
-        sensedMates = filter(getSimulation().findObjects(getComponentOwner(), sensorRange), Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
+    protected boolean canInitiate(Simulation simulation) {
+        sensedMates = filter(agent.get().findNeighbours(sensorRange), Agent.class);
+        sensedMates = filter(sensedMates, not(equalTo(agent.get())));
         return ! isEmpty(sensedMates);
     }
 
@@ -107,12 +111,12 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
         e.add(new ValueAdaptor<String>("Ontology", String.class) {
             @Override
             protected void set(String arg0) {
-                parameterMessageType = checkFrozen(checkNotNull(arg0));
+                parameterMessageType = checkNotNull(arg0);
             }
 
             @Override
@@ -123,7 +127,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         e.add(new ValueAdaptor<Double>("Requested Amount", Double.class) {
             @Override
             protected void set(Double arg0) {
-                amountPerRequest = checkFrozen(checkNotNull(arg0));
+                amountPerRequest = checkNotNull(arg0);
             }
 
             @Override
@@ -134,7 +138,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
-                consumerProperty = checkFrozen(checkNotNull(arg0));
+                consumerProperty = checkNotNull(arg0);
             }
 
             @Override
@@ -144,14 +148,14 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
             }
         });
         e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
         e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
             @Override
             protected void set(Double arg0) {
-                sensorRange = checkFrozen(checkNotNull(arg0));
+                sensorRange = checkNotNull(arg0);
             }
 
             @Override
@@ -162,13 +166,13 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public ResourceConsumptionAction deepCloneHelper(CloneMap cloneMap) {
-        return new ResourceConsumptionAction(this, cloneMap);
+    public ResourceConsumptionAction deepClone(DeepCloner cloner) {
+        return new ResourceConsumptionAction(this, cloner);
     }
 
-    protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        this.consumerProperty = cloneMap.clone(cloneable.consumerProperty, DoubleProperty.class);
+    protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.consumerProperty = cloner.continueWith(cloneable.consumerProperty, DoubleProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
         this.sensorRange = cloneable.sensorRange;
         this.amountPerRequest = cloneable.amountPerRequest;

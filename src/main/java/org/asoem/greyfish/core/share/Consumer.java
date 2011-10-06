@@ -1,22 +1,22 @@
 package org.asoem.greyfish.core.share;
 
-import org.asoem.greyfish.core.individual.Individual;
+import org.asoem.greyfish.core.individual.MutableAgent;
 import org.asoem.greyfish.core.properties.AbstractGFProperty;
 
 public class Consumer<T extends AbstractGFProperty> {
-	private Individual individual;
+	private MutableAgent mutableAgent;
 	private T property;
 
-	public Consumer(Individual individual, T property) {
-		if(individual == null || property == null)
+	public Consumer(MutableAgent mutableAgent, T property) {
+		if(mutableAgent == null || property == null)
 			throw new IllegalArgumentException();
 
-		this.individual = individual;
+		this.mutableAgent = mutableAgent;
 		this.property = property;
 	}
 
-	public Individual getIndividual() {
-		return individual;
+	public MutableAgent getMutableAgent() {
+		return mutableAgent;
 	}
 
 	public T getProperty() {

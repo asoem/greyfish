@@ -5,11 +5,11 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.utils.DeepCloner;
 
 public class NoneCondition extends LogicalOperatorCondition {
 
-    public NoneCondition(NoneCondition condition, CloneMap map) {
+    public NoneCondition(NoneCondition condition, DeepCloner map) {
         super(condition, map);
     }
 
@@ -35,8 +35,8 @@ public class NoneCondition extends LogicalOperatorCondition {
     public static Builder trueIf() { return new Builder(); }
 
     @Override
-    public NoneCondition deepCloneHelper(CloneMap map) {
-        return new NoneCondition(this, map);
+    public NoneCondition deepClone(DeepCloner cloner) {
+        return new NoneCondition(this, cloner);
     }
 
     @SimpleXMLConstructor
