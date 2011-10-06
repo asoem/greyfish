@@ -53,6 +53,12 @@
             <name>Laughing Panda</name>
             <url>http://maven.laughingpanda.org/maven2/</url>
         </repository>
+
+        <repository>
+            <id>Codehaus</id>
+            <name>Codehaus Repository</name>
+            <url>http://repository.codehaus.org/</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -80,6 +86,12 @@
             <groupId>org.jdave</groupId>
             <artifactId>jdave-junit4</artifactId>
             <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0-rc1</version>
             <scope>test</scope>
         </dependency>
 
@@ -111,6 +123,12 @@
             <groupId>net.sourceforge.scee</groupId>
             <artifactId>see</artifactId>
             <version>1.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
+            <version>2.0.19</version>
         </dependency>
 
         <dependency>
@@ -149,7 +167,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>r09</version>
+            <version>10.0</version>
         </dependency>
         <dependency>
             <groupId>jfree</groupId>
@@ -221,8 +239,8 @@
                 <version>1.0-alpha-2</version>
                 <configuration>
                     <mainClass>org.asoem.greyfish.gui.GreyfishApplication</mainClass>
-		    <iconFile>${basedir}/src/main/resources/org/asoem/greyfish/gui/greyfish.icns</iconFile>
-		    <vmOptions>-Dapple.laf.useScreenMenuBar=true</vmOptions>
+                    <iconFile>${basedir}/src/main/resources/org/asoem/greyfish/gui/greyfish.icns</iconFile>
+                    <vmOptions>-Dapple.laf.useScreenMenuBar=true</vmOptions>
                 </configuration>
             </plugin>
             <plugin>
@@ -237,16 +255,16 @@
                 <configuration>
                     <obfuscate>false</obfuscate>
                     <options>
-		    	<option>-dontobfuscate</option>
-			<option>
+                        <option>-dontobfuscate</option>
+                        <option>
                             -keep public class org.asoem.greyfish.gui.GreyfishApplication {
-                                public static void main(java.lang.String[]);
+                            public static void main(java.lang.String[]);
                             }
                         </option>
-			<option>-keep class org.asoem.greyfish.** { @org.simpleframework.** *;}</option>
-			<option>-keep class org.asoem.greyfish.** { @org.asoem.greyfish.**.SimpleXMLConstructor private protected public <![CDATA[<]]>init<![CDATA[>]]>(...); }</option>
-			<option>-keep @org.asoem.greyfish.**.ClassGroup class org.asoem.greyfish.**</option>
-		    </options>
+                        <option>-keep class org.asoem.greyfish.** { @org.simpleframework.** *;}</option>
+                        <option>-keep class org.asoem.greyfish.** { @org.asoem.greyfish.**.SimpleXMLConstructor private protected public <![CDATA[<]]>init<![CDATA[>]]>(...); }</option>
+                        <option>-keep @org.asoem.greyfish.**.ClassGroup class org.asoem.greyfish.**</option>
+                    </options>
                     <libs>
                         <lib>${java5bootclasspath}</lib>
                     </libs>
