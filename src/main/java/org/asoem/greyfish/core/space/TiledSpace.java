@@ -1,15 +1,17 @@
 package org.asoem.greyfish.core.space;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ArraysArrayIterator;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -205,6 +207,11 @@ public class TiledSpace implements Space, Iterable<TileLocation> {
 
     @Override
     public Iterator<TileLocation> iterator() {
-        return new ArraysArrayIterator<TileLocation>(tileMatrix);
+        return Iterators.concat(Iterators.transform(Iterators.forArray(tileMatrix), new Function<TileLocation[], Iterator<TileLocation>>() {
+            @Override
+            public Iterator<TileLocation> apply(@Nullable TileLocation[] tileLocations) {
+                return Iterators.forArray(tileLocations);
+            }
+        }));
     }
 }

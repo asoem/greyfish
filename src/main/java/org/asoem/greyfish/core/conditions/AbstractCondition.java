@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.base.Optional;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -16,32 +15,32 @@ import javax.annotation.Nullable;
  */
 public abstract class AbstractCondition extends AbstractAgentComponent implements GFCondition {
 
-    private Optional<GFCondition> parentCondition;
+    private GFCondition parentCondition;
 
     protected AbstractCondition(AbstractCondition cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parentCondition = Optional.fromNullable(map.continueWith(cloneable.parentCondition.orNull(), GFCondition.class));
+        this.parentCondition = map.continueWith(cloneable.parentCondition, GFCondition.class);
     }
 
     @Override
     @Nullable
     public GFCondition getParentCondition() {
-        return parentCondition.orNull();
+        return parentCondition;
     }
 
     @Override
     public void setParent(@Nullable GFCondition parent) {
-        this.parentCondition = Optional.fromNullable(parent);
+        this.parentCondition = parent;
     }
 
     @Override
     public final boolean isRootCondition() {
-        return ! parentCondition.isPresent();
+        return parentCondition != null;
     }
 
     @Override
-    public GFCondition getRoot() {
-        return (isRootCondition()) ? this : parentCondition.get().getRoot();
+    public final GFCondition getRoot() {
+        return (isRootCondition()) ? this : parentCondition.getRoot();
     }
 
     @Commit

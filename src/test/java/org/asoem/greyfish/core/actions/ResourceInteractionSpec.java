@@ -23,16 +23,16 @@ public class ResourceInteractionSpec extends Specification<ContractNetInitiatorA
 
         final DoubleProperty energyStorage = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.0).build();
         final ResourceConsumptionAction consumptionAction =
-                ResourceConsumptionAction.with().name("eat").viaMessagesOfType("test").requesting(1).storesEnergyIn(energyStorage).build();
+                ResourceConsumptionAction.with().name("eat").viaMessagesOfType("builderTest").requesting(1).storesEnergyIn(energyStorage).build();
         final Agent consumer = ImmutableAgent.with().population(Population.newPopulation("TestPop1", Color.black)).addProperties(energyStorage).addActions(consumptionAction).build();
 
         final ResourceProperty resourceProperty = new ResourceProperty.Builder().lowerBound(0.0).upperBound(1.0).initialValue(1.0).build();
-        final ResourceProvisionAction provisionAction = ResourceProvisionAction.with().name("feed").parameterMessageType("test").resourceProperty(resourceProperty).build();
+        final ResourceProvisionAction provisionAction = ResourceProvisionAction.with().name("feed").parameterMessageType("builderTest").resourceProperty(resourceProperty).build();
         final Agent provider = ImmutableAgent.with().population(Population.newPopulation("TestPop2", Color.black)).addProperties(resourceProperty).addActions(provisionAction).build();
 
         final Scenario scenario = Scenario.with().space(1,1)
-                .add(consumer, at())
-                .add(provider, at())
+                .add(consumer, at(0,0))
+                .add(provider, at(0,0))
                 .build();
 
         final Simulation simulation = Simulation.newSimulation(scenario);

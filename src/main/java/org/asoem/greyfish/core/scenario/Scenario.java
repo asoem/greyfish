@@ -59,7 +59,7 @@ public class Scenario implements PrototypeRegistryListener {
         this.name = name;
         this.prototypeSpace = space;
         this.prototypes.addAll(Arrays.asList(prototypes));
-        for (Placeholder placeholder : placeholders) {
+        for (Agent placeholder : placeholders) {
             prototypeSpace.addOccupant(placeholder);
         }
     }
@@ -68,11 +68,16 @@ public class Scenario implements PrototypeRegistryListener {
         this.name = builder.name;
         this.prototypeSpace = TiledSpace.copyOf(builder.space);
         for (Map.Entry<Agent, Object2D> entry : builder.map.entries()) {
-            addPlaceholder(entry.getKey(), entry.getValue());
+            addAgent(entry.getKey(), entry.getValue());
         }
     }
 
-    public void addPlaceholder(Agent prototype, Object2D location) {
+    /**
+     *
+     * @param prototype
+     * @param location
+     */
+    public void addAgent(Agent prototype, Object2D location) {
         checkNotNull(prototype);
         checkNotNull(location);
         prototypes.add(prototype);
@@ -98,6 +103,9 @@ public class Scenario implements PrototypeRegistryListener {
         return Iterables.toArray(getPlaceholder(), Placeholder.class);
     }
 
+    /**
+     * @return an immutable view of immutable views of the agents that have been added to this scenario.
+     */
     public Iterable<Placeholder> getPlaceholder() {
         return Iterables.unmodifiableIterable(Iterables.transform(prototypeSpace.getOccupants(),
                 new Function<MovingObject2D, Placeholder>() {
@@ -148,7 +156,12 @@ public class Scenario implements PrototypeRegistryListener {
         return prototypeSpace; // TODO: should return an immutable view of prototypeSpace
     }
 
-    public static Builder with() {return new Builder(); }
+    /**
+     * Equivalent to new {@code new Scenario.Builder()}
+     * @return a new {@link Builder} instance
+     */
+    public static Builder with() { return new Builder(); }
+
     public static class Builder implements BuilderInterface<Scenario> {
         private TiledSpace space;
         private final Multimap<Agent, Object2D> map = ArrayListMultimap.create();
@@ -163,7 +176,7 @@ public class Scenario implements PrototypeRegistryListener {
         }
         @Override
         public Scenario build() {
-            checkState(space != null);
+            checkState(space != null, "Builder cannot build: A space is required");
             checkState(Iterables.all(map.entries(), new Predicate<Map.Entry<Agent, Object2D>>() {
                 @Override
                 public boolean apply(Map.Entry<Agent, Object2D> simulationObjectLocation2DEntry) {

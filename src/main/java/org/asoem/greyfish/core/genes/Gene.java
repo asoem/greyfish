@@ -22,7 +22,7 @@ public interface Gene<T> extends AgentComponent, Supplier<T> {
     /**
      *
      *
-     * @param gene the gene to test for
+     * @param gene the gene to builderTest for
      * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
      */
     boolean isMutatedCopy(@Nullable Gene<?> gene);

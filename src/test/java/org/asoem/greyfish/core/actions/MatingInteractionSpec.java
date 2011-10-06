@@ -28,8 +28,8 @@ public class MatingInteractionSpec extends Specification<ContractNetInitiatorAct
         final Agent male = ImmutableAgent.with().population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build();
 
         final Scenario scenario = Scenario.with().space(1,1)
-                .add(female, at())
-                .add(male, at())
+                .add(female, at(0,0))
+                .add(male, at(0,0))
                 .build();
 
         final Simulation simulation = Simulation.newSimulation(scenario);

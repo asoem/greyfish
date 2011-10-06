@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.utils;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
@@ -25,12 +26,15 @@ public class AgentComponents {
             else if (GFCondition.class.isAssignableFrom(clazz)) {
                 return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("trueIf").invoke(null)).build());
             }
+            else if (Gene.class.isAssignableFrom(clazz)) {
+                return clazz.getConstructor().newInstance();
+            }
             else {
-                throw new IllegalArgumentException("Type not supported" + clazz);
+                throw new IllegalArgumentException("Type not supported: " + clazz);
             }
         }
         catch (Exception e) {
-            LOGGER.error("Could not instantiate class", e);
+            LOGGER.error("Could not instantiate object for class {}", clazz, e);
             throw new RuntimeException(e);
         }
     }

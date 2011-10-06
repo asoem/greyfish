@@ -66,15 +66,15 @@ public class MutableObject2D implements Object2D {
         return y;
     }
 
-    public static MutableObject2D at() {
-        return new MutableObject2D(0, 0, 0);
-    }
-
     public static MutableObject2D at(double x, double y) {
         return new MutableObject2D(x, y, 0);
     }
 
     public static MutableObject2D at(double x, double y, double angle) {
         return new MutableObject2D(x, y, angle);
+    }
+
+    public static MutableObject2D at(Location2D location2D, double angle) {
+        return new MutableObject2D(location2D.getX(), location2D.getY(), angle);
     }
 }

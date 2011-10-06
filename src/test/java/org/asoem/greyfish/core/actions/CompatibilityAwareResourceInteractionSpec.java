@@ -33,7 +33,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
         final CompatibilityAwareResourceConsumptionAction consumptionAction =
                 new CompatibilityAwareResourceConsumptionAction.Builder()
                         .name("eat")
-                        .viaMessagesOfType("test")
+                        .viaMessagesOfType("builderTest")
                         .requesting(1)
                         .storesEnergyIn(energyStorage)
                         .similarityTrait(trait1)
@@ -49,7 +49,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
         final CompatibilityAwareResourceProvisionAction provisionAction =
                 new CompatibilityAwareResourceProvisionAction.Builder()
                         .name("feed")
-                        .parameterMessageType("test")
+                        .parameterMessageType("builderTest")
                         .resourceProperty(resourceProperty)
                         .similarityTrait(trait)
                         .build();
@@ -61,8 +61,8 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
 
         final Scenario scenario =
                 Scenario.with().space(1,1)
-                        .add(consumer, at())
-                        .add(provider, at())
+                        .add(consumer, at(0,0))
+                        .add(provider, at(0,0))
                         .build();
 
         final Simulation simulation = Simulation.newSimulation(scenario);

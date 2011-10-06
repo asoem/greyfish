@@ -36,9 +36,12 @@ public abstract class AgentDecorator implements Agent {
      */
     protected AgentDecorator(@Nonnull Agent delegate) {
         this.delegate = checkNotNull(delegate);
+        /*
         for (AgentComponent component : delegate.getComponents()) {
+
             component.setAgent(this);
         }
+        */
     }
 
     protected Agent delegate() {

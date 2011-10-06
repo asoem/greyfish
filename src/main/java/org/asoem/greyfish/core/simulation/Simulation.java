@@ -14,7 +14,6 @@ import org.asoem.greyfish.core.acl.PostOffice;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
-import org.asoem.greyfish.core.individual.Placeholder;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
@@ -183,7 +182,7 @@ public class Simulation implements Runnable, HasName {
         }
 
         // convert each placeholder to a concrete object
-        for (Placeholder placeholder : scenario.getPlaceholder()) {
+        for (Agent placeholder : scenario.getPlaceholder()) {
             final Agent clone = newAgentFromPool(placeholder.getPopulation());
             addAgent(clone, at(placeholder));
         }

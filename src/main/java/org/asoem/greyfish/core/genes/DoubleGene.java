@@ -14,7 +14,6 @@ import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
 import javax.annotation.Nullable;
-
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -29,7 +28,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
 
     private GreyfishExpression<DoubleGene> initialValueGenerator = GreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
+
     private GreyfishExpression<DoubleGene> mutationDistributionFunction = GreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
+
     private final GeneController<Double> geneController = new GeneController<Double>() {
 
         @Override
@@ -62,10 +63,10 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
             }
         }
     };
+
     private Double value = 0.0;
 
-    public DoubleGene() {
-    }
+    public DoubleGene() {}
 
     protected DoubleGene(DoubleGene doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
@@ -118,7 +119,7 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<GreyfishExpression>("Initial Value Distribution", GreyfishExpression.class) {
+        e.add(new ValueAdaptor<GreyfishExpression>("Initial Value", GreyfishExpression.class) {
             @Override
             @SuppressWarnings("unchecked") // save because of contextClass verification
             protected void set(GreyfishExpression arg0) {
@@ -129,6 +130,20 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
             @Override
             public GreyfishExpression get() {
                 return initialValueGenerator;
+            }
+        });
+
+        e.add(new ValueAdaptor<GreyfishExpression>("Mutation", GreyfishExpression.class) {
+            @Override
+            @SuppressWarnings("unchecked") // save because of contextClass verification
+            protected void set(GreyfishExpression arg0) {
+                checkArgument(arg0.getContextClass().equals(DoubleGene.class));
+                mutationDistributionFunction = (GreyfishExpression<DoubleGene>) arg0;
+            }
+
+            @Override
+            public GreyfishExpression get() {
+                return mutationDistributionFunction;
             }
         });
     }

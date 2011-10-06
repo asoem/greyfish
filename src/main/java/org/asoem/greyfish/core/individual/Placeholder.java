@@ -2,9 +2,14 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.Object2D;
-import org.asoem.greyfish.gui.model.Prototype;
 import org.simpleframework.xml.Element;
 
+
+/**
+ * An unmodifiable view of an agent at a specified location
+ *
+ * TODO: it is not enforced yet that the agent is unmodifiable!
+ */
 public class Placeholder extends AgentDecorator {
 
     @Element(name = "placeholderObject")
@@ -18,6 +23,11 @@ public class Placeholder extends AgentDecorator {
 
     public static Placeholder newInstance(Agent prototype, Object2D location2D) {
         return new Placeholder(prototype, location2D);
+    }
+
+    @Override
+    public void execute() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -43,9 +53,5 @@ public class Placeholder extends AgentDecorator {
     @Override
     public void setOrientation(double alpha) {
         placeholderObject.setOrientation(alpha);
-    }
-
-    public Prototype getPrototype() {
-        return Prototype.class.cast(delegate());
     }
 }
