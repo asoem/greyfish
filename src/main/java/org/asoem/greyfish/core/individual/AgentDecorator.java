@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.lang.TreeNode;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -151,23 +151,13 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public double getY() {
-        return delegate.getY();
+    public void setAnchorPoint(Coordinates2D coordinates2d) {
+        delegate.setAnchorPoint(coordinates2d);
     }
 
     @Override
-    public double getX() {
-        return delegate.getX();
-    }
-
-    @Override
-    public void setAnchorPoint(Location2D location2d) {
-        delegate.setAnchorPoint(location2d);
-    }
-
-    @Override
-    public Location2D getAnchorPoint() {
-        return delegate.getAnchorPoint();
+    public Coordinates2D getCoordinates() {
+        return delegate.getCoordinates();
     }
 
     @Override

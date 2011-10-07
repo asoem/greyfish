@@ -24,4 +24,8 @@ public interface MovingObject2D extends Object2D {
      * @param velocity The new value of the length of this object's motion vector
      */
     public void setMotion(double angle, double velocity);
+
+    public void setAnchorPoint(Coordinates2D coordinates2d);
+
+    public void setOrientation(double alpha);
 }

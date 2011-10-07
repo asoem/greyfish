@@ -34,15 +34,14 @@ public class MutableObject2D implements Object2D {
     }
 
     @Override
-    public Location2D getAnchorPoint() {
-        return ImmutableLocation2D.at(x, y);
+    public Coordinates2D getCoordinates() {
+        return ImmutableCoordinates2D.at(x, y);
     }
 
-    @Override
-    public void setAnchorPoint(Location2D location2d) {
-        checkNotNull(location2d);
-        x = location2d.getX();
-        y = location2d.getY();
+    public void setCoordinates(Coordinates2D coordinates2d) {
+        checkNotNull(coordinates2d);
+        x = coordinates2d.getX();
+        y = coordinates2d.getY();
     }
 
     @Override
@@ -50,23 +49,12 @@ public class MutableObject2D implements Object2D {
         return orientation;
     }
 
-    @Override
     public void setOrientation(double alpha) {
         checkArgument(alpha > 0 && alpha <= MathLib.PI);
         this.orientation = alpha;
     }
 
-    @Override
-    public double getX() {
-        return x;
-    }
-
-    @Override
-    public double getY() {
-        return y;
-    }
-
-    public static MutableObject2D at(double x, double y) {
+    public static MutableObject2D locatedAt(double x, double y) {
         return new MutableObject2D(x, y, 0);
     }
 
@@ -74,7 +62,7 @@ public class MutableObject2D implements Object2D {
         return new MutableObject2D(x, y, angle);
     }
 
-    public static MutableObject2D at(Location2D location2D, double angle) {
-        return new MutableObject2D(location2D.getX(), location2D.getY(), angle);
+    public static MutableObject2D at(Coordinates2D coordinates2D, double angle) {
+        return new MutableObject2D(coordinates2D.getX(), coordinates2D.getY(), angle);
     }
 }

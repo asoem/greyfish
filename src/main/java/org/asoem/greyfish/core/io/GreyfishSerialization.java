@@ -1,8 +1,6 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.scenario.Scenario;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.Registry;
 import org.simpleframework.xml.convert.RegistryStrategy;
@@ -25,28 +23,14 @@ public enum GreyfishSerialization {
     private final Registry registry = new Registry();
     private final Serializer serializer = new Persister(new RegistryStrategy(registry, new CycleStrategy("id", "ref")), MATCHER);
 
+    // TODO: explicit dependency to Serializer could be abstracted
+
     GreyfishSerialization() {
         try {
             registry.bind(GreyfishExpression.class, GreyfishExpressionConverter.class);
         } catch (Exception e) {
             LOGGER.error("Binding converter to registry failed", e);
         }
-    }
-
-    public static void writeScenario(Scenario scenario, File dest) throws Exception {
-        serializeObject(dest, scenario);
-    }
-
-    public static Agent readPrototype(File source) throws Exception {
-        return deserializeFile(source, Agent.class);
-    }
-
-    public static Scenario readScenario(File source) throws Exception {
-        return deserializeFile(source, Scenario.class);
-    }
-
-    public static void writeObject(File dest, Object object) throws Exception {
-        serializeObject(dest, object);
     }
 
     public static <T> T deserializeFile(File file, Class<T> clazz) throws Exception {

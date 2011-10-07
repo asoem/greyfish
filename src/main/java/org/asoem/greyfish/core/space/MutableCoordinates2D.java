@@ -5,7 +5,7 @@ import org.simpleframework.xml.Attribute;
 
 import java.awt.geom.Point2D;
 
-public class MutableLocation2D implements Location2D {
+public class MutableCoordinates2D implements Coordinates2D {
 
     @Attribute
     private double x;
@@ -13,18 +13,18 @@ public class MutableLocation2D implements Location2D {
     @Attribute
     private double y;
 
-    public MutableLocation2D() {
+    public MutableCoordinates2D() {
     }
 
-    public MutableLocation2D(MutableLocation2D location2d) {
+    public MutableCoordinates2D(MutableCoordinates2D location2d) {
         set(location2d);
     }
 
-    public MutableLocation2D(double x, double y) {
+    public MutableCoordinates2D(double x, double y) {
         set(x, y);
     }
 
-    public void set(MutableLocation2D location2d) {
+    public void set(MutableCoordinates2D location2d) {
         set(location2d.x, location2d.y);
     }
 
@@ -59,7 +59,7 @@ public class MutableLocation2D implements Location2D {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MutableLocation2D that = (MutableLocation2D) o;
+        MutableCoordinates2D that = (MutableCoordinates2D) o;
 
         return Double.compare(that.x, x) == 0 && Double.compare(that.y, y) == 0;
 
@@ -76,11 +76,11 @@ public class MutableLocation2D implements Location2D {
         return result;
     }
 
-    public Location2D add(Location2D l2d) {
+    public Coordinates2D add(Coordinates2D l2d) {
         return sum(this, l2d);
     }
 
-    public static Location2D sum(Location2D a, Location2D b) {
+    public static Coordinates2D sum(Coordinates2D a, Coordinates2D b) {
         return at(a.getX() + b.getX(), a.getY() + b.getY());
     }
 
@@ -88,16 +88,16 @@ public class MutableLocation2D implements Location2D {
         return new Point2D.Double(x, y);
     }
 
-    public static Location2D at(double x, double y) {
-        return new MutableLocation2D(x,y);
+    public static Coordinates2D at(double x, double y) {
+        return new MutableCoordinates2D(x,y);
     }
 
-    public static Location2D at(Location2D location) {
-        return at(location.getX(), location.getY());
+    public static Coordinates2D at(Coordinates2D coordinates) {
+        return at(coordinates.getX(), coordinates.getY());
     }
 
-    public void set(Location2D location2d) {
-        setX(location2d.getX());
-        setY(location2d.getY());
+    public void set(Coordinates2D coordinates2d) {
+        setX(coordinates2d.getX());
+        setY(coordinates2d.getY());
     }
 }

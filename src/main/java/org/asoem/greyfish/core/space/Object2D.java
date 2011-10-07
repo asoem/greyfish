@@ -6,9 +6,14 @@ package org.asoem.greyfish.core.space;
  * Time: 11:18
  */
 public interface Object2D extends Location2D {
-    public Location2D getAnchorPoint();
-    public void setAnchorPoint(Location2D location2d);
-
+    /**
+     * @return the orientation (angle difference from 0) of this object2D
+     */
     public double getOrientation();
-    public void setOrientation(double alpha);
+
+    /**
+     * @return the coordinates of the anchorpoint of this object2D
+     */
+    @Override
+    Coordinates2D getCoordinates();
 }

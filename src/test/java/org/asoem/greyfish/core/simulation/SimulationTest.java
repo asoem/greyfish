@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.Placeholder;
 import org.asoem.greyfish.core.scenario.Scenario;
+import org.asoem.greyfish.core.space.MutableObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +24,8 @@ import static org.mockito.BDDMockito.given;
 public class SimulationTest {
 
     @Mock Agent prototype;
-    @Mock Scenario scenario;
+    @Mock
+    Scenario scenario;
 
     @Test
     public void newSimulationTest() {
@@ -31,8 +34,8 @@ public class SimulationTest {
         given(scenario.getSpace()).willReturn(new TiledSpace(10, 10));
         given(scenario.getPrototypes()).willReturn(singleton(prototype));
         given(scenario.getPlaceholder()).willReturn(ImmutableList.of(
-                Placeholder.newInstance(prototype, at(0,0)),
-                Placeholder.newInstance(prototype, at(0,0)))
+                Placeholder.newInstance(prototype, MutableObject2D.locatedAt(0, 0)),
+                Placeholder.newInstance(prototype, MutableObject2D.locatedAt(0, 0)))
         );
 
         // when

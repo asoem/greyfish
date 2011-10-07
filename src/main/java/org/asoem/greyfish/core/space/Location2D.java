@@ -1,6 +1,10 @@
 package org.asoem.greyfish.core.space;
 
+/**
+ * User: christoph
+ * Date: 07.10.11
+ * Time: 11:12
+ */
 public interface Location2D {
-	public double getX();
-	public double getY();
+    Coordinates2D getCoordinates();
 }

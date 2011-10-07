@@ -13,7 +13,7 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.TreeNode;
@@ -339,16 +339,6 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public double getX() {
-        return body.getX();
-    }
-
-    @Override
-    public double getY() {
-        return body.getY();
-    }
-
-    @Override
     public PolarPoint getMotionVector() {
         return body.getMotionVector();
     }
@@ -369,13 +359,13 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Location2D getAnchorPoint() {
-        return body.getAnchorPoint();
+    public Coordinates2D getCoordinates() {
+        return body.getCoordinates();
     }
 
     @Override
-    public void setAnchorPoint(Location2D location2d) {
-        body.setAnchorPoint(location2d);
+    public void setAnchorPoint(Coordinates2D coordinates2d) {
+        body.setAnchorPoint(coordinates2d);
     }
 
     @Override

@@ -9,22 +9,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.asoem.greyfish.core.space.MutableObject2D.at;
+import static org.asoem.greyfish.core.space.MutableObject2D.locatedAt;
+import static org.asoem.greyfish.core.space.TiledSpace.ofSize;
 import static org.junit.Assert.assertEquals;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class ScenarioTest {
+public class BasicScenarioTest {
 
     @Mock Agent prototype;
 
     @Test
     public void builderTest() {
         // given
-        Scenario scenario = Scenario.with().name("foo")
-                .add(prototype, at(0,0))
-                .add(prototype, at(0,0))
-                .space(1,1)
+        Scenario scenario = BasicScenario.builder("TestScenario", ofSize(1, 1))
+                .addAgent(prototype, locatedAt(0.0, 0.0))
+                .addAgent(prototype, locatedAt(0.0, 0.0))
                 .build();
         // when
         Iterable<Agent> prototypes = scenario.getPrototypes();

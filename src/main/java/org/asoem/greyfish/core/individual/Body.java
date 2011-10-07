@@ -6,8 +6,8 @@ import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
 import org.asoem.greyfish.core.properties.WellOrderedSetElementProperty;
+import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.DefaultMovingObject2D;
-import org.asoem.greyfish.core.space.Location2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.Circle;
@@ -149,23 +149,13 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
     }
 
     @Override
-    public Location2D getAnchorPoint() {
-        return movingObject2D.getAnchorPoint();
+    public Coordinates2D getCoordinates() {
+        return movingObject2D.getCoordinates();
     }
 
     @Override
-    public void setAnchorPoint(Location2D location2d) {
-        movingObject2D.setAnchorPoint(location2d);
-    }
-
-    @Override
-    public double getX() {
-        return movingObject2D.getX();
-    }
-
-    @Override
-    public double getY() {
-        return movingObject2D.getY();
+    public void setAnchorPoint(Coordinates2D coordinates2d) {
+        movingObject2D.setAnchorPoint(coordinates2d);
     }
 
     @Override
@@ -225,7 +215,7 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
 
     // TODO: Invert dependency
     public void draw(Graphics2D g2d) {
-        Circle c = Circle.at(getX(), getY(), getRadius());
+        Circle c = Circle.at(getCoordinates().getX(), getCoordinates().getY(), getRadius());
 
         g2d.setColor(Color.BLACK);
         g2d.setStroke(new BasicStroke(0.06f));

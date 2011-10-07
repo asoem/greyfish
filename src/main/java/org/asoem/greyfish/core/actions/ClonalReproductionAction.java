@@ -24,7 +24,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
         for (int i = 0; i < parameterClones; i++) {
             simulation.createAgent(
                     agent.get().getPopulation(),
-                    agent.get().getAnchorPoint(),
+                    agent.get().getCoordinates(),
                     agent.get().createGamete()/*.mutated()*/);
         }
         return State.END_SUCCESS;

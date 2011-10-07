@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.Object2D;
 import org.simpleframework.xml.Element;
 
@@ -18,7 +18,7 @@ public class Placeholder extends AgentDecorator {
     public Placeholder(@Element(name = "delegate") Agent prototype,
                        @Element(name = "placeholderObject") Object2D placeholderObject) {
         super(prototype);
-        this.placeholderObject = placeholderObject;
+        this.placeholderObject = placeholderObject; // TODO: store an immutable copy of placeholderObject
     }
 
     public static Placeholder newInstance(Agent prototype, Object2D location2D) {
@@ -31,18 +31,8 @@ public class Placeholder extends AgentDecorator {
     }
 
     @Override
-    public double getX() {
-        return placeholderObject.getX();
-    }
-
-    @Override
-    public double getY() {
-        return placeholderObject.getY();
-    }
-
-    @Override
-    public Location2D getAnchorPoint() {
-        return placeholderObject;
+    public Coordinates2D getCoordinates() {
+        return placeholderObject.getCoordinates();
     }
 
     @Override
@@ -52,6 +42,6 @@ public class Placeholder extends AgentDecorator {
 
     @Override
     public void setOrientation(double alpha) {
-        placeholderObject.setOrientation(alpha);
+        throw new UnsupportedOperationException();
     }
 }

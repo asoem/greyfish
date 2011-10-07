@@ -51,7 +51,8 @@ public class MovementPatterns {
                 agent.setMotion(angle, speed);
 
                 // check Border
-                if (simulation.getSpace().checkForBorderCollision(agent, agent.getMotionVector())) {
+                // TODO: LOD violation
+                if (simulation.getSpace().checkForBorderCollision(agent.getCoordinates(), agent.getMotionVector())) {
                     agent.setMotion(angle + MathLib.PI / 4, speed);
                 }
             }

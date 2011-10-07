@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.asoem.greyfish.core.space.TileDirection.*;
 
-public class TileLocation {
+public class TileLocation implements Location2D {
 
     private final List<MovingObject2D> occupants = FastList.newInstance();
 
@@ -63,6 +63,15 @@ public class TileLocation {
      */
     public int getY() {
         return y;
+    }
+
+    /**
+     * This method the same as calling {@link ImmutableCoordinates2D#at(double, double)} with arguments {@link #getX()} and {@link #getY()}
+     * @return the coordinates of the top left corner of this location in the tiledSpace.
+     */
+    @Override
+    public Coordinates2D getCoordinates() {
+        return ImmutableCoordinates2D.at(x, y);
     }
 
     @Override

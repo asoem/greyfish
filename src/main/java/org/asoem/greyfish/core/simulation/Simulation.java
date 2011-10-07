@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
@@ -18,17 +19,18 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.scenario.Scenario;
-import org.asoem.greyfish.core.space.Location2D;
+import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.core.space.MutableLocation2D;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
+import org.asoem.greyfish.lang.GuavaMaps;
 import org.asoem.greyfish.lang.HasName;
 import org.asoem.greyfish.utils.Counter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.PolarPoint;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -40,17 +42,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.simulation.Simulation.CommandType.*;
-import static org.asoem.greyfish.core.space.MutableLocation2D.at;
+import static org.asoem.greyfish.core.space.ImmutableCoordinates2D.sum;
+import static org.asoem.greyfish.core.space.MutableCoordinates2D.at;
 
 public class Simulation implements Runnable, HasName {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Simulation.class);
-    private final Map<Population, Agent> prototypeMap = Maps.newHashMap();
+
+    private final Map<Population, Agent> prototypeMap;
     private final PostOffice postOffice = PostOffice.newInstance();
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
-
-    private final Map<Population, Counter> populationCount = Maps.newHashMap();
+    private final Map<Population, Counter> populationCounterMap;
 
     @SuppressWarnings("unused")
     public enum Speed {
@@ -116,7 +119,7 @@ public class Simulation implements Runnable, HasName {
 
     private final Scenario scenario;
 
-    private TiledSpace space;
+    private final TiledSpace space;
 
     private int stepsToGo;
 
@@ -128,8 +131,27 @@ public class Simulation implements Runnable, HasName {
         checkNotNull(scenario);
 
         this.scenario = scenario;
+        this.prototypeMap = Maps.uniqueIndex(scenario.getPrototypes(), new Function<Agent, Population>() {
+            @Override
+            public Population apply(@Nullable Agent agent) {
+                assert agent != null;
+                return agent.getPopulation();
+            }
+        });
+
+        this.populationCounterMap = GuavaMaps.fromKeys(prototypeMap.keySet(),
+                new Function<Population, Counter>() {
+                    @Override
+                    public Counter apply(@Nullable Population population) {
+                        return new Counter(0);
+                    }
+                }
+        );
+
+        this.space = new TiledSpace(scenario.getSpace());
 
         initialize();
+
         setSpeed(Speed.MEDIUM);
 
         if (LOGGER.isTraceEnabled())
@@ -149,12 +171,13 @@ public class Simulation implements Runnable, HasName {
         return this.prototypeMap.size();
     }
 
-    public Iterable<MovingObject2D> findObjects(Location2D location, double radius) {
-        return space.findNeighbours(location, radius);
+    public Iterable<MovingObject2D> findObjects(Coordinates2D coordinates, double radius) {
+        return space.findNeighbours(coordinates, radius);
     }
 
     public Iterable<Agent> getAgents(final Population population) {
         checkNotNull(population);
+
         return Iterables.filter(concurrentAgentsView, new Predicate<Agent>() {
             @Override
             public boolean apply(Agent agent) {
@@ -164,46 +187,30 @@ public class Simulation implements Runnable, HasName {
     }
 
     private void initialize() {
-        this.space = new TiledSpace(scenario.getSpace());
-
-        prototypeMap.clear();
-        try {
-            objectPool.clear();
-        } catch (Exception e) {
-            LOGGER.error("Error clearing prototype pool", e);
-            System.exit(1);
-        }
-
-        for (Agent prototype : scenario.getPrototypes()) {
-            ImmutableAgent clone = ImmutableAgent.cloneOf(prototype);
-            assert (!prototypeMap.containsKey(clone.getPopulation())) : "Different Prototypes have the same Population";
-            prototypeMap.put(clone.getPopulation(), clone);
-            populationCount.put(clone.getPopulation(), new Counter(0));
-        }
-
         // convert each placeholder to a concrete object
         for (Agent placeholder : scenario.getPlaceholder()) {
             final Agent clone = newAgentFromPool(placeholder.getPopulation());
-            addAgent(clone, at(placeholder));
+            addAgent(clone, at(placeholder.getCoordinates()));
         }
-
-        space.updateTopo();
     }
 
     /**
-     * @return a copy of the list of active individuals
+     * @return an unmodifiable view of the list of active individuals
      */
     public Collection<Agent> getAgents() {
         return Collections.unmodifiableCollection(concurrentAgentsView);
     }
 
-    private void addAgent(Agent agent, Location2D location) {
+    private void addAgent(Agent agent, Coordinates2D coordinates) {
         checkAgent(agent);
+        checkArgument(space.covers(coordinates));
+
         LOGGER.trace("{}: Adding Agent {}" + this, agent);
+
         agent.prepare(this);
         concurrentAgentsView.add(agent);
-        populationCount.get(agent.getPopulation()).increase();
-        agent.setAnchorPoint(location);
+        populationCounterMap.get(agent.getPopulation()).increase();
+        agent.setAnchorPoint(coordinates);
         space.addOccupant(agent);
     }
 
@@ -229,7 +236,7 @@ public class Simulation implements Runnable, HasName {
                     public void execute() {
                         space.removeOccupant(agent);
                         concurrentAgentsView.remove(agent);
-                        populationCount.get(agent.getPopulation()).decrease();
+                        populationCounterMap.get(agent.getPopulation()).decrease();
                         agent.shutDown();
                         putCloneInPool(agent);
                     }
@@ -246,11 +253,12 @@ public class Simulation implements Runnable, HasName {
     }
 
     public int agentCount() {
-        return getAgents().size();
+        return concurrentAgentsView.size();
     }
 
     public int agentCount(Population population) {
-        return populationCount.get(population).get();
+        checkArgument(populationCounterMap.containsKey(population), "Population unknown: " + population);
+        return populationCounterMap.get(population).get();
     }
 
     public void addSimulationListener(SimulationListener listener) {
@@ -269,11 +277,14 @@ public class Simulation implements Runnable, HasName {
      * Creates a new {@link org.asoem.greyfish.core.individual.Agent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
      * The {@link org.asoem.greyfish.core.individual.Agent} will get inserted and executed at the next step at given {@code location}.
      * @param population The {@code Population} of the {@code Prototype} the Agent will be cloned from.
-     * @param location The location where the {@link org.asoem.greyfish.core.individual.Agent} will be inserted in the {@link org.asoem.greyfish.core.space.Space}.
+     * @param coordinates The coordinates where the {@link org.asoem.greyfish.core.individual.Agent} will be inserted in the {@link org.asoem.greyfish.core.space.TiledSpace}.
      * @param genome The {@link org.asoem.greyfish.core.genes.ImmutableGenome} for the new {@link org.asoem.greyfish.core.individual.Agent}.
      */
-    public void createAgent(final Population population, final Location2D location, final Genome genome) {
+    public void createAgent(final Population population, final Coordinates2D coordinates, final Genome genome) {
         checkNotNull(population);
+        checkNotNull(coordinates);
+        checkNotNull(genome);
+
         checkState(prototypeMap.containsKey(population));
 
         final Agent agent = newAgentFromPool(population);
@@ -283,7 +294,7 @@ public class Simulation implements Runnable, HasName {
                 new Command() {
                     @Override
                     public void execute() {
-                        addAgent(agent, at(location));
+                        addAgent(agent, at(coordinates));
                     }
                 });
     }
@@ -328,6 +339,14 @@ public class Simulation implements Runnable, HasName {
         stop();
 
         clearExecutionLists();
+        space.removeAllOccupants();
+        prototypeMap.clear();
+        try {
+            objectPool.clear();
+        } catch (Exception e) {
+            LOGGER.error("Error clearing prototype pool", e);
+            System.exit(1);
+        }
 
         steps = 0;
 
@@ -532,7 +551,7 @@ public class Simulation implements Runnable, HasName {
 
                 for (Agent agent : getAgents()) {
                     final PolarPoint motion = agent.getMotionVector();
-                    getSpace().moveObject(agent, MutableLocation2D.sum(agent, motion.toCartesian()));
+                    getSpace().moveObject(agent, sum(agent.getCoordinates(), motion.toCartesian()));
                 }
 
                 Collection<Command> addCommands = commandListMap.get(AGENT_ADD);
@@ -582,15 +601,16 @@ public class Simulation implements Runnable, HasName {
     }
 
     @Override
-    public boolean hasName(String s) {
+    public boolean hasName(@Nullable String s) {
         return Objects.equal(title, s);
     }
 
     public void setName(String name) {
-        this.title = name;
+        this.title = checkNotNull(name);
     }
 
     public void deliverMessage(final ACLMessage message) {
+        checkNotNull(message);
         commandListMap.put(MESSAGE,
                 new Command() {
                     @Override

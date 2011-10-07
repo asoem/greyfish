@@ -93,7 +93,7 @@ class SimulationContext {
     }
 
     public Iterable<MovingObject2D> findNeighbours(double range) {
-        return simulation.findObjects(agent, range);
+        return simulation.findObjects(agent.getCoordinates(), range);
     }
 
     public void execute() {

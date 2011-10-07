@@ -1,19 +1,22 @@
 package org.asoem.greyfish.core.acl;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import javolution.util.FastList;
 import org.asoem.greyfish.core.individual.MessageReceiver;
 
-import java.util.Collection;
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class PostOffice {
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Iterators.transform;
+import static com.google.common.collect.Iterators.unmodifiableIterator;
+
+public class PostOffice implements Iterable<ACLMessage> {
 
     private static final int BINS = 64;
 
@@ -33,7 +36,9 @@ public class PostOffice {
         }
     }
 
-    public void deliverOrDiscard(Collection<? extends MessageReceiver> agents) {
+    public void deliverOrDiscard(Iterable<? extends MessageReceiver> agents) {
+        checkNotNull(agents);
+
         final Map<Integer, MessageReceiver> agentMap = Maps.newHashMap();
         for (int i = 0; i < BINS; i++) {
             for (final MessageWrapper message : receiverLists.get(i)) {
@@ -57,6 +62,8 @@ public class PostOffice {
     }
 
     public synchronized void addMessage(ACLMessage message) {
+        checkNotNull(message);
+
         for (int id : message.getAllReceiver()) {
             int bin = id2bin(id);
             int sizeBefore = receiverLists.get(bin).size();
@@ -92,6 +99,8 @@ public class PostOffice {
     }
 
     private List<ACLMessage> pollMessagesInBin(final int bin, final MessageTemplate messageTemplate) {
+        assert messageTemplate != null;
+
         if (messageTemplate.equals(MessageTemplate.alwaysFalse()))
             return ImmutableList.of();
 
@@ -110,6 +119,8 @@ public class PostOffice {
     }
 
     public synchronized List<ACLMessage> pollMessages(final MessageTemplate messageTemplate) {
+        checkNotNull(messageTemplate);
+
         final List<ACLMessage> ret = Lists.newArrayList();
         for (int i = 0; i < BINS; i++) {
             ret.addAll(pollMessagesInBin(i, messageTemplate));
@@ -137,6 +148,17 @@ public class PostOffice {
                 iterator.remove();
             }
         }
+    }
+
+    @Override
+    public Iterator<ACLMessage> iterator() {
+        return unmodifiableIterator(transform(concat(receiverLists).iterator(), new Function<MessageWrapper, ACLMessage>() {
+            @Override
+            public ACLMessage apply(@Nullable MessageWrapper messageWrapper) {
+                assert messageWrapper != null;
+                return messageWrapper.message;
+            }
+        }));
     }
 
     private final class MessageWrapper {

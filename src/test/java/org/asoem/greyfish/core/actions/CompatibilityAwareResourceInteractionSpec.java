@@ -10,8 +10,11 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.properties.BitSetTrait;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.ResourceProperty;
+import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.MutableObject2D;
+import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.ImmutableBitSet;
 import org.junit.runner.RunWith;
 
@@ -60,9 +63,9 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .build();
 
         final Scenario scenario =
-                Scenario.with().space(1,1)
-                        .add(consumer, at(0,0))
-                        .add(provider, at(0,0))
+                BasicScenario.builder("TestScenario", TiledSpace.ofSize(1, 1))
+                        .addAgent(consumer, MutableObject2D.locatedAt(0, 0))
+                        .addAgent(provider, MutableObject2D.locatedAt(0, 0))
                         .build();
 
         final Simulation simulation = Simulation.newSimulation(scenario);

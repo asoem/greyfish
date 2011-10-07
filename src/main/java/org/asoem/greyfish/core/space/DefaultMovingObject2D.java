@@ -7,27 +7,27 @@ import org.simpleframework.xml.Element;
 public class DefaultMovingObject2D implements MovingObject2D {
 
     @Element(name="point")
-    protected final MutableLocation2D anchorPoint;
+    protected final MutableCoordinates2D anchorPoint;
 
     private double orientationAngle;
 
     private PolarPoint motionVector = new PolarPoint(0, 0);
 
     public DefaultMovingObject2D() {
-        anchorPoint = new MutableLocation2D();
+        anchorPoint = new MutableCoordinates2D();
     }
 
-    protected DefaultMovingObject2D(@Element(name = "point") MutableLocation2D anchorPoint) {
+    protected DefaultMovingObject2D(@Element(name = "point") MutableCoordinates2D anchorPoint) {
         this.anchorPoint = anchorPoint;
     }
 
-    public Location2D getAnchorPoint() {
-        return new MutableLocation2D(anchorPoint);
+    public Coordinates2D getCoordinates() {
+        return new MutableCoordinates2D(anchorPoint);
     }
 
     @Override
-    public void setAnchorPoint(Location2D location2d) {
-        setAnchorPoint(location2d.getX(), location2d.getY());
+    public void setAnchorPoint(Coordinates2D coordinates2d) {
+        setAnchorPoint(coordinates2d.getX(), coordinates2d.getY());
     }
 
     void setAnchorPoint(double x, double y) {
@@ -62,15 +62,5 @@ public class DefaultMovingObject2D implements MovingObject2D {
     @Override
     public void setMotion(double angle, double velocity) {
         motionVector = PolarPoint.newInstance(angle, velocity);
-    }
-
-    @Override
-    public double getX() {
-        return anchorPoint.getX();
-    }
-
-    @Override
-    public double getY() {
-        return anchorPoint.getY();
     }
 }
