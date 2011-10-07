@@ -5,21 +5,30 @@ import com.explodingpixels.macwidgets.SourceListCategory;
 import com.explodingpixels.macwidgets.SourceListItem;
 import com.explodingpixels.macwidgets.SourceListModel;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.event.KeyListener;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class MacWidgetUtils {
 
 	public static SourceListModel createListModel(SourceListCategory ... categories) {
+        checkNotNull(categories);
+
 		final SourceListModel ret = new SourceListModel();
 		for (SourceListCategory sourceListCategory : categories) {
+            checkNotNull(sourceListCategory);
 			ret.addCategory(sourceListCategory);
 		}
 		return ret;
 	}
-	
+
 	public static boolean removeItemFromModel(SourceListModel model, SourceListItem item) {
+        checkNotNull(model);
+        checkNotNull(item);
+
 		final SourceListCategory cat = getCategory(model, item);
 		if (cat != null) {
 			model.removeItemFromCategory(item, cat);
@@ -27,8 +36,11 @@ public class MacWidgetUtils {
 		}
 		return false;
 	}
-	
-	public static SourceListCategory getCategory(final SourceListModel model, final SourceListItem item) {
+
+    @Nullable
+	public static SourceListCategory getCategory(final SourceListModel model, @Nullable final SourceListItem item) {
+        checkNotNull(model);
+
 		List<SourceListCategory> cat = model.getCategories();
 		for (SourceListCategory sourceListCategory : cat) {
 			if (sourceListCategory.containsItem(item)) {

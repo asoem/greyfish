@@ -1,8 +1,8 @@
 package org.asoem.greyfish.utils;
 
 import javolution.lang.MathLib;
-import org.asoem.greyfish.core.space.Location2D;
-import org.asoem.greyfish.core.space.MutableLocation2D;
+import org.asoem.greyfish.core.space.Coordinates2D;
+import org.asoem.greyfish.core.space.MutableCoordinates2D;
 
 public class PolarPoint {
 
@@ -38,8 +38,8 @@ public class PolarPoint {
         return new PolarPoint(phi, length);
     }
 
-    public Location2D toCartesian() {
-        return MutableLocation2D.at(
+    public Coordinates2D toCartesian() {
+        return MutableCoordinates2D.at(
                 distance * Math.cos(angle),
                 distance * Math.sin(angle)
         );
