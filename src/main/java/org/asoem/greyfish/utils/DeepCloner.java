@@ -13,6 +13,9 @@ public class DeepCloner {
     private final Map<DeepCloneable, DeepCloneable> map = Maps.newHashMap();
     private DeepCloneable keyForExpectedPut = null;
 
+    private DeepCloner() {
+    }
+
     private boolean insertIsRequired() {
         return keyForExpectedPut != null;
     }
@@ -26,7 +29,7 @@ public class DeepCloner {
         map.put(key, value);
     }
 
-    public <T extends DeepCloneable> T continueWith(@Nullable T cloneable, Class<T> clazz) {
+    public <T extends DeepCloneable> T cloneField(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
         if (insertIsRequired())
             throw new IllegalStateException(
@@ -43,8 +46,8 @@ public class DeepCloner {
         }
     }
 
-    public static <T extends DeepCloneable> T startWith(@Nullable T cloneable, Class<T> clazz) {
+    public static <T extends DeepCloneable> T clone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
-        return new DeepCloner().continueWith(cloneable, clazz);
+        return new DeepCloner().cloneField(cloneable, clazz);
     }
 }
