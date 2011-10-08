@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -16,7 +16,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
     protected DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.doubleProperty = map.continueWith(condition.doubleProperty, DoubleProperty.class);
+        this.doubleProperty = map.cloneField(condition.doubleProperty, DoubleProperty.class);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
 	@Override
-	protected Double getCompareValue(Simulation simulation) {
+	protected Double getCompareValue(ParallelizedSimulation simulation) {
 		return doubleProperty.get();
 	}
 

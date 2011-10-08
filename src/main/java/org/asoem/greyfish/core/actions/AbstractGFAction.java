@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
@@ -68,7 +68,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public final boolean evaluateConditions(Simulation simulation) {
+    public final boolean evaluateConditions(ParallelizedSimulation simulation) {
         return rootCondition.isPresent() && rootCondition.get().evaluate(simulation);
     }
 
@@ -77,7 +77,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
      * @param simulation the simulation context
      */
     @Override
-    public final ExecutionResult execute(Simulation simulation) {
+    public final ExecutionResult execute(ParallelizedSimulation simulation) {
         Preconditions.checkNotNull(simulation);
         Preconditions.checkState(agent.isPresent());
 
@@ -120,7 +120,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         return energySource != null && energyCosts != null;
     }
 
-    private void postExecutionTasks(Simulation simulation) {
+    private void postExecutionTasks(ParallelizedSimulation simulation) {
         ++executionCount;
         timeOfLastExecution = simulation.getSteps();
 
@@ -146,10 +146,10 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
      * @param simulation the simulation context
      * @return the state in which this action should be after execution
      */
-    protected abstract State executeUnconditioned(Simulation simulation);
+    protected abstract State executeUnconditioned(ParallelizedSimulation simulation);
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         if (rootCondition.isPresent())
             rootCondition.get().prepare(simulation);
@@ -158,7 +158,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public double evaluateFormula(Simulation simulation) {
+    public double evaluateFormula(ParallelizedSimulation simulation) {
         try {
             return energyCosts.evaluateAsDouble(this);
         } catch (EvaluationException e) {
@@ -219,7 +219,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         });
     }
 
-    public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
+    public boolean wasNotExecutedForAtLeast(final ParallelizedSimulation simulation, final int steps) {
         // TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
         return simulation.getSteps() - timeOfLastExecution >= steps;
     }
@@ -255,8 +255,8 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     protected AbstractGFAction(AbstractGFAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = Optional.fromNullable(map.continueWith(cloneable.getRootCondition(), GFCondition.class));
-        this.energySource = map.continueWith(cloneable.energySource, DoubleProperty.class);
+        this.rootCondition = Optional.fromNullable(map.cloneField(cloneable.getRootCondition(), GFCondition.class));
+        this.energySource = map.cloneField(cloneable.energySource, DoubleProperty.class);
         this.energyCosts = cloneable.energyCosts;
     }
 

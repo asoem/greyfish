@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.MutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -51,7 +51,7 @@ public class MutableAgent extends AbstractAgent {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         Preconditions.checkNotNull(simulation);
 
         this.simulationContext = new SimulationContext(simulation, this);

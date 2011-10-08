@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -21,7 +21,7 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(ParallelizedSimulation simulation) {
         pattern.apply(agent.get(), simulation);
         return State.END_SUCCESS;
     }
@@ -44,7 +44,7 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         pattern = MovementPatterns.borderAvoidanceMovement(speed, 0.3);
     }

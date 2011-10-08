@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.share.Consumer;
 import org.asoem.greyfish.core.share.ConsumerGroup;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -25,7 +25,7 @@ public class ResourceProperty extends DoubleProperty {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         consumerGroup.removeAllConsumer();
     }

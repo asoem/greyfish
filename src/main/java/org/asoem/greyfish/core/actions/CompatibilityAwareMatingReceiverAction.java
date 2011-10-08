@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
@@ -174,7 +174,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    protected boolean canInitiate(Simulation simulation) {
+    protected boolean canInitiate(ParallelizedSimulation simulation) {
         final Iterable neighbours = agent.get().findNeighbours(sensorRange);
         sensedMates = filter(neighbours, Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent.get())));
@@ -189,10 +189,10 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
     private CompatibilityAwareMatingReceiverAction(CompatibilityAwareMatingReceiverAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.spermBuffer = cloner.continueWith(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
+        this.spermBuffer = cloner.cloneField(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
-        this.compatibilityDefiningProperty = cloner.continueWith(cloneable.compatibilityDefiningProperty, GFProperty.class);
+        this.compatibilityDefiningProperty = cloner.cloneField(cloneable.compatibilityDefiningProperty, GFProperty.class);
 
     }
 
@@ -205,7 +205,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         agent.get().getLog().set("nMatingsAccepted", 0);
         agent.get().getLog().set("nMatingsRefused", 0);

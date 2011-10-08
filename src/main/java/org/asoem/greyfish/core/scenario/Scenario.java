@@ -30,7 +30,7 @@ public interface Scenario {
     Set<Agent> getPrototypes();
 
     /**
-     * @return an unmodifiable view of {@link org.asoem.greyfish.core.individual.Placeholder} agents created by this {@code Scenario}.
+     * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Placeholder} agents created by this {@code Scenario}.
      */
     Iterable<Placeholder> getPlaceholder();
 

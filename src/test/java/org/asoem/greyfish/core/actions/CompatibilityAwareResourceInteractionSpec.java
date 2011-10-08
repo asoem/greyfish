@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.MutableObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.ImmutableBitSet;
@@ -41,7 +41,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .storesEnergyIn(energyStorage)
                         .similarityTrait(trait1)
                         .build();
-        final Agent consumer = ImmutableAgent.with()
+        final Agent consumer = ImmutableAgent.of(null)
                         .population(Population.newPopulation("TestPop1", Color.black))
                         .addProperties(trait1, energyStorage)
                         .addActions(consumptionAction)
@@ -56,7 +56,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .resourceProperty(resourceProperty)
                         .similarityTrait(trait)
                         .build();
-        final Agent provider = ImmutableAgent.with()
+        final Agent provider = ImmutableAgent.of(null)
                         .population(Population.newPopulation("TestPop2", Color.black))
                         .addProperties(trait, resourceProperty)
                         .addActions(provisionAction)
@@ -68,7 +68,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .addAgent(provider, MutableObject2D.locatedAt(0, 0))
                         .build();
 
-        final Simulation simulation = Simulation.newSimulation(scenario);
+        final ParallelizedSimulation simulation = ParallelizedSimulation.newSimulation(scenario);
 
         public void shouldTransferTheCorrectAmount() {
             int stepRequired = 5;

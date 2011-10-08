@@ -52,4 +52,24 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
     public Iterable<E> findCopiesFor(Iterable<? extends E> thisGenes) {
         throw new RuntimeException("Not yet implemented"); // TODO: implement
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        MutableGenome that = (MutableGenome) o;
+
+        if (!genes.equals(that.genes)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + genes.hashCode();
+        return result;
+    }
 }

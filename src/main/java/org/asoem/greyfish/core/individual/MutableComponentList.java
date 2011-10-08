@@ -22,7 +22,7 @@ public class MutableComponentList<E extends AgentComponent> extends ForwardingLi
     @SuppressWarnings("unchecked")
     public MutableComponentList(MutableComponentList<E> list, DeepCloner cloner) {
         for (E e : list)
-            delegate.add((E) cloner.continueWith(e, DeepCloneable.class));
+            delegate.add((E) cloner.cloneField(e, DeepCloneable.class));
     }
 
     public MutableComponentList() {

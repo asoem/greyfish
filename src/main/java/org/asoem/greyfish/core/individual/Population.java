@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Used to identify agents as being clones of the same prototype. Can be shared.
  */
-public final class Population implements HasName, Comparable<Population> {
+public class Population implements HasName, Comparable<Population> {
 
 	@Attribute(name="name")
 	private final String name;
@@ -26,7 +26,7 @@ public final class Population implements HasName, Comparable<Population> {
         return new Population(name, color);
     }
 
-    private Population(
+    public Population(
             @Attribute(name="name") String name,
             @Element(name="color") Color color) {
         checkArgument(!Strings.isNullOrEmpty(name));

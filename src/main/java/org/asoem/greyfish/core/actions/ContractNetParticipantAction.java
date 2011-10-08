@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collection;
@@ -54,7 +54,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerInitialState(State.CHECK_CFP, new StateAction() {
 
             @Override
-            public Object run(Simulation simulation) {
+            public Object run(ParallelizedSimulation simulation) {
                 template = createCFPTemplate(getOntology());
 
                 final List<ACLMessage> cfpReplies = Lists.newArrayList();
@@ -86,7 +86,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_ACCEPT, new StateAction() {
 
             @Override
-            public Object run(Simulation simulation) {
+            public Object run(ParallelizedSimulation simulation) {
                 Iterable<ACLMessage> receivedMessages = agent.get().pullMessages(getTemplate());
                 for (ACLMessage receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement

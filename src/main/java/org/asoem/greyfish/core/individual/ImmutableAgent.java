@@ -11,6 +11,8 @@ import org.asoem.greyfish.utils.DeepCloner;
 
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkState;
+
 
 /**
  * User: christoph
@@ -76,7 +78,7 @@ public class ImmutableAgent extends AbstractAgent {
      * @return a new ImmutableAgent with components deep cloned from {@code agent}
      */
     public static ImmutableAgent cloneOf(Agent agent) {
-        Agent clone = DeepCloner.startWith(agent, Agent.class);
+        Agent clone = DeepCloner.clone(agent, Agent.class);
 
         return new ImmutableAgent(
                 clone.getPopulation(),
@@ -86,11 +88,15 @@ public class ImmutableAgent extends AbstractAgent {
                 clone.getBody());
     }
 
-    public static Builder with() {
-        return new Builder();
+    public static Builder of(Population population) {
+        return new Builder(population);
     }
 
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ImmutableAgent> {
+        public Builder(Population population) {
+            population(population);
+        }
+
         @Override
         public ImmutableAgent build() {
             return new ImmutableAgent(checkedSelf());

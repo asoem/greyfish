@@ -6,7 +6,7 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -18,14 +18,15 @@ import org.asoem.greyfish.utils.DeepCloner;
  */
 public class AllCondition extends LogicalOperatorCondition {
 
+
     @Override
     public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new AllCondition(this, cloner);
     }
 
     @SimpleXMLConstructor
-    private AllCondition() {
-        this(new Builder());
+    public AllCondition(GFCondition ... conditions) {
+        super(conditions);
     }
 
     protected AllCondition(AllCondition cloneable, DeepCloner map) {
@@ -37,7 +38,7 @@ public class AllCondition extends LogicalOperatorCondition {
     }
 
     @Override
-    public boolean evaluate(final Simulation simulation) {
+    public boolean evaluate(final ParallelizedSimulation simulation) {
         switch (conditions.size()) {
             case 0 : return true;
             case 1 : return conditions.get(0).evaluate(simulation);
@@ -51,15 +52,18 @@ public class AllCondition extends LogicalOperatorCondition {
         }
     }
 
-    public static Builder trueIf() { return new Builder(); }
+    public static AllCondition all(GFCondition ... conditions) { return new AllCondition(conditions); }
+
     public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<AllCondition> {
-        private Builder() {}
+
+        public Builder(GFCondition ... conditions) {
+            add(conditions);
+        }
+
         @Override protected Builder self() { return this; }
-        @Override public AllCondition build() { return new AllCondition(this); }
+        @Override public AllCondition build() { return new AllCondition(checkedSelf()); }
     }
 
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LogicalOperatorCondition.AbstractBuilder<T> {
-        public T and(GFCondition ... conditions) { return addConditions(conditions); }
-        public T all(Iterable<GFCondition> conditions) { return addConditions(conditions); }
     }
 }

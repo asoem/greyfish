@@ -4,7 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -24,12 +24,12 @@ public class StatePropertyCondition extends LeafCondition {
 
     public StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.stateProperty = map.continueWith(condition.stateProperty, FiniteSetProperty.class);
+        this.stateProperty = map.cloneField(condition.stateProperty, FiniteSetProperty.class);
         this.state = condition.state;
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate(ParallelizedSimulation simulation) {
         return stateProperty != null &&
                 Objects.equal(stateProperty.get(), state);
     }

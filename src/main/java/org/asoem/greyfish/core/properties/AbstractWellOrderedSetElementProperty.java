@@ -4,7 +4,7 @@ import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.ValueAdaptor;
@@ -68,7 +68,7 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         setValue(initialValue);
     }

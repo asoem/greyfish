@@ -6,8 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -47,6 +47,6 @@ public class MutableAgentTest {
         Gene ret = agent.getGene("foo", Gene.class);
 
         // then
-        assertEquals(gene, ret);
+        assertThat(ret).isEqualTo(gene);
     }
 }

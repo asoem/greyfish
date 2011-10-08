@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -43,12 +43,12 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(ParallelizedSimulation simulation) {
         parameterQuantitiveProperty.setValue(evaluateFormula(simulation));
         return State.END_SUCCESS;
     }
 
-    public double evaluateFormula(Simulation simulation) {
+    public double evaluateFormula(ParallelizedSimulation simulation) {
         try {
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
@@ -91,7 +91,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         try{
             FORMULA_EVALUATOR.parse(energyCostsFormula);
@@ -107,7 +107,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
     public ModifyQuantitivePropertyAction(ModifyQuantitivePropertyAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterQuantitiveProperty = map.continueWith(cloneable.parameterQuantitiveProperty, DoubleProperty.class);
+        this.parameterQuantitiveProperty = map.cloneField(cloneable.parameterQuantitiveProperty, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
 

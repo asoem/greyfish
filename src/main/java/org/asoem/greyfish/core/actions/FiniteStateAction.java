@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,7 +29,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     private Object currentStateKey;
 
     @Override
-    protected final State executeUnconditioned(Simulation simulation) {
+    protected final State executeUnconditioned(ParallelizedSimulation simulation) {
         Preconditions.checkState(currentStateKey != null);
         Preconditions.checkState(states.containsKey(currentStateKey));
 
@@ -61,7 +61,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         currentStateKey = getInitialStateKey();
     }
@@ -104,7 +104,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     }
 
     protected interface StateAction {
-        public Object run(Simulation simulation);
+        public Object run(ParallelizedSimulation simulation);
     }
 
     protected static class EndStateAction implements StateAction {
@@ -115,7 +115,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         }
 
         @Override
-        final public Object run(Simulation simulation) {
+        final public Object run(ParallelizedSimulation simulation) {
             return stateKey;
         }
     }

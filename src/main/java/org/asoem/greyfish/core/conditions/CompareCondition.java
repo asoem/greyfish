@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.Comparator;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -27,11 +27,11 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate(ParallelizedSimulation simulation) {
         return comparator.compare(getCompareValue(simulation), value);
     }
 
-    protected abstract T getCompareValue(Simulation simulation);
+    protected abstract T getCompareValue(ParallelizedSimulation simulation);
 
     @Override
     public void configure(ConfigurationHandler e) {

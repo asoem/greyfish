@@ -1,16 +1,13 @@
 package org.asoem.greyfish.core.eval;
 
-import com.sun.corba.se.impl.orb.ParserTable;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.annotation.concurrent.ThreadSafe;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -29,7 +26,8 @@ public class DefaultGreyfishResolverConverterTest {
     @Mock Agent agent;
     @Mock GFAction action;
     @Mock GFProperty property;
-    @Mock Simulation simulation;
+    @Mock
+    ParallelizedSimulation simulation;
 
     @Test
     public void shouldReturnTheContextItselfForAnAction() {

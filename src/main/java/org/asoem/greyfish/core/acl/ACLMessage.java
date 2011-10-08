@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class ACLMessage {
+public class ACLMessage {
 
     private static int progressiveId;
 
@@ -104,7 +104,7 @@ public final class ACLMessage {
         return clazz.cast(content);
     }
 
-    public List<Integer> getAllReceiver() {
+    public List<Integer> getRecipients() {
         return dests;
     }
 

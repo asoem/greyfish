@@ -6,18 +6,20 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.ElementList;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterators.unmodifiableIterator;
 import static java.util.Arrays.asList;
 
 
@@ -26,17 +28,22 @@ import static java.util.Arrays.asList;
  * @author christoph
  *
  */
-public abstract class LogicalOperatorCondition extends AbstractCondition {
+public abstract class LogicalOperatorCondition extends AbstractCondition implements Iterable<GFCondition> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogicalOperatorCondition.class);
 
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
     protected List<GFCondition> conditions = Lists.newArrayList();
 
-    protected LogicalOperatorCondition(LogicalOperatorCondition clonable, DeepCloner map) {
-        super(clonable, map);
-        for (GFCondition condition : clonable.getChildConditions())
-            add(map.continueWith(condition, GFCondition.class));
+    protected LogicalOperatorCondition(LogicalOperatorCondition cloneable, DeepCloner map) {
+        super(cloneable, map);
+        for (GFCondition condition : cloneable.getChildConditions())
+            add(map.cloneField(condition, GFCondition.class));
+    }
+
+    public LogicalOperatorCondition(GFCondition ... conditions) {
+        addAll(Arrays.asList(conditions));
+        integrate(conditions);
     }
 
     private void integrate(Iterable<? extends GFCondition> condition2) {
@@ -68,7 +75,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         for (GFCondition condition : conditions)
             condition.prepare(simulation);
@@ -136,12 +143,18 @@ public abstract class LogicalOperatorCondition extends AbstractCondition {
     protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractCondition.AbstractBuilder<T> {
         private final List<GFCondition> conditions = Lists.newArrayList();
 
-        protected T addConditions(GFCondition... conditions) { addConditions(asList(conditions)); return self(); }
-        protected T addConditions(Iterable<GFCondition> conditions) { Iterables.addAll(this.conditions, conditions); return self(); }
+        protected T add(GFCondition condition) { condition.add(checkNotNull(condition)); return self(); }
+        protected T add(GFCondition ... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
+        protected T addAll(Iterable<? extends GFCondition> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
     }
 
     @Override
-    public Iterable<AgentComponent> children() {
+    public final Iterable<AgentComponent> children() {
         return Collections.<AgentComponent>unmodifiableList(conditions);
+    }
+
+    @Override
+    public final Iterator<GFCondition> iterator() {
+        return unmodifiableIterator(conditions.iterator());
     }
 }

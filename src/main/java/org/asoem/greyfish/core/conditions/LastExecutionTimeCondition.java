@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -25,12 +25,12 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
     protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.continueWith(condition.action, GFAction.class);
+        this.action = map.cloneField(condition.action, GFAction.class);
         this.steps = condition.steps;
     }
 
     @Override
-	public boolean evaluate(Simulation simulation) {
+	public boolean evaluate(ParallelizedSimulation simulation) {
 		return action != null
 			&& action.wasNotExecutedForAtLeast(simulation, steps);
 	}

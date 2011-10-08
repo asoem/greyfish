@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -19,11 +19,11 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     protected LastExecutedActionCondition(LastExecutedActionCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.continueWith(condition.action, GFAction.class);
+        this.action = map.cloneField(condition.action, GFAction.class);
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate(ParallelizedSimulation simulation) {
         return isSameAction(action, agent.get().getLastExecutedAction());
     }
 

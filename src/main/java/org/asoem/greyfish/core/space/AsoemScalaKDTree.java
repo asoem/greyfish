@@ -24,7 +24,7 @@ public final class AsoemScalaKDTree<T extends Object2D> implements KDTree<T> {
     }
 
     @Override
-    public void rebuild(Iterable<T> elements) {
+    public void rebuild(Iterable<? extends T> elements) {
         kdtree = new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(Iterables.transform(elements, new Function<T, KDTuple<T>>() {
             @Override
             public KDTuple<T> apply(T t) {
@@ -36,7 +36,7 @@ public final class AsoemScalaKDTree<T extends Object2D> implements KDTree<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Iterable<T> findNeighbours(Coordinates2D p, double range) {
+    public Iterable<T> findObjects(Coordinates2D p, double range) {
 
         final HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
 

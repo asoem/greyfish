@@ -27,6 +27,7 @@ import java.util.List;
 public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implements Genome<E> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImmutableGenome.class);
+
     private final ComponentList<E> delegate;
 
     private ImmutableGenome(Builder<E> builder) {
@@ -40,7 +41,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
         delegate = ImmutableComponentList.copyOf(Iterables.transform(immutableGenome, new Function<Gene<?>, Gene<?>>() {
             @Override
             public Gene<?> apply(@Nullable Gene<?> gene) {
-                return cloner.continueWith(gene, Gene.class);
+                return cloner.cloneField(gene, Gene.class);
             }
         }));
     }
@@ -121,5 +122,25 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
                 }
             }
         });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ImmutableGenome that = (ImmutableGenome) o;
+
+        if (!delegate.equals(that.delegate)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + delegate.hashCode();
+        return result;
     }
 }

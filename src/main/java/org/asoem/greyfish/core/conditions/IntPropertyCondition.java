@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.IntProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -18,7 +18,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
     protected IntPropertyCondition(IntPropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.intProperty = map.continueWith(condition.intProperty, IntProperty.class);
+        this.intProperty = map.cloneField(condition.intProperty, IntProperty.class);
     }
 
     @Override
@@ -45,7 +45,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
     }
 
     @Override
-    protected Integer getCompareValue(Simulation simulation) {
+    protected Integer getCompareValue(ParallelizedSimulation simulation) {
         return intProperty.get();
     }
 

@@ -39,7 +39,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
         delegate = ImmutableMap.copyOf(Maps.transformValues(list.delegate, new Function<E, E>() {
             @Override
             public E apply(@Nullable E e) {
-                return (E) cloner.continueWith(e, DeepCloneable.class);
+                return (E) cloner.cloneField(e, DeepCloneable.class);
             }
         }));
     }

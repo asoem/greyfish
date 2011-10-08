@@ -17,10 +17,12 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
 
     private GFCondition parentCondition;
 
-    protected AbstractCondition(AbstractCondition cloneable, DeepCloner map) {
-        super(cloneable, map);
-        this.parentCondition = map.continueWith(cloneable.parentCondition, GFCondition.class);
+    protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.parentCondition = cloner.cloneField(cloneable.parentCondition, GFCondition.class);
     }
+
+    protected AbstractCondition() {}
 
     @Override
     @Nullable

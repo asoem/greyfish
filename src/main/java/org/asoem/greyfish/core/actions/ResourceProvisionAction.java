@@ -122,7 +122,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.resourceProperty = cloner.continueWith(cloneable.resourceProperty, ResourceProperty.class);
+        this.resourceProperty = cloner.cloneField(cloneable.resourceProperty, ResourceProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
     }
 

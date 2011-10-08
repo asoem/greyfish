@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -24,9 +24,9 @@ public class ForwardingGene<T> implements Gene<T> {
         setDelegate(gene);
     }
 
-    public ForwardingGene(ForwardingGene gene, DeepCloner map) {
+    public ForwardingGene(ForwardingGene<T> gene, DeepCloner map) {
         map.setAsCloned(gene, this);
-        delegate = map.continueWith(gene.delegate, Gene.class);
+        delegate = map.cloneField(gene.delegate, Gene.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -106,7 +106,7 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
-    public void prepare(Simulation context) {
+    public void prepare(ParallelizedSimulation context) {
         delegate.prepare(context);
     }
 
@@ -143,5 +143,22 @@ public class ForwardingGene<T> implements Gene<T> {
     @Override
     public Iterable<AgentComponent> children() {
         return delegate.children();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ForwardingGene that = (ForwardingGene) o;
+
+        if (!delegate.equals(that.delegate)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
     }
 }

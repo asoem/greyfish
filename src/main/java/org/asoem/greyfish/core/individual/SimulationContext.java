@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.actions.AbstractGFAction;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.lang.CircularFifoBuffer;
 
@@ -19,14 +19,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 class SimulationContext {
     private final CircularFifoBuffer<ACLMessage> inBox;
-    private final Simulation simulation;
+    private final ParallelizedSimulation simulation;
     private final int timeOfBirth;
     private final int id;
     private final Agent agent;
     private GFAction lastExecutedAction;
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationContext.class);
 
-    public SimulationContext(Simulation simulation, Agent agent) {
+    public SimulationContext(ParallelizedSimulation simulation, Agent agent) {
         this.simulation = checkNotNull(simulation);
         this.agent = checkNotNull(agent);
         this.id = simulation.generateAgentID();
@@ -83,7 +83,7 @@ class SimulationContext {
         return id;
     }
 
-    public Simulation getSimulation() {
+    public ParallelizedSimulation getSimulation() {
         return simulation;
     }
 
@@ -195,7 +195,7 @@ class SimulationContext {
         }
 
         @Override
-        public Simulation getSimulation() {
+        public ParallelizedSimulation getSimulation() {
             throw new UnsupportedOperationException();
         }
 

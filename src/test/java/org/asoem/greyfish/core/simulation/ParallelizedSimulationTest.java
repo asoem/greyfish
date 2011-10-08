@@ -1,10 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.Placeholder;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.MutableObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -13,24 +10,25 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-
 import static java.util.Collections.singleton;
 import static org.asoem.greyfish.core.space.MutableObject2D.at;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.eq;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SimulationTest {
+public class ParallelizedSimulationTest {
 
-    @Mock Agent prototype;
-    @Mock
-    Scenario scenario;
+    @Mock Scenario scenario;
+    @Mock Population population;
 
     @Test
     public void newSimulationTest() {
         // given
-        given(prototype.getComponents()).willReturn(Collections.<AgentComponent>emptyList());
+        given(population.getName()).willReturn("TestPopulation");
+        Agent prototype = ImmutableAgent.of(population).build();
         given(scenario.getSpace()).willReturn(new TiledSpace(10, 10));
         given(scenario.getPrototypes()).willReturn(singleton(prototype));
         given(scenario.getPlaceholder()).willReturn(ImmutableList.of(
@@ -39,9 +37,9 @@ public class SimulationTest {
         );
 
         // when
-        Simulation simulation = Simulation.newSimulation(scenario);
+        ParallelizedSimulation simulation = ParallelizedSimulation.newSimulation(scenario);
 
         // then
-        assertTrue(simulation.getAgents().size() == 2);
+        assertEquals(simulation.getAgents().size(), 2);
     }
 }

@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -93,14 +93,14 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(Simulation simulation) {
+    protected boolean canInitiate(ParallelizedSimulation simulation) {
         sensedMates = filter(agent.get().findNeighbours(sensorRange), Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent.get())));
         return ! isEmpty(sensedMates);
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         checkValidity();
     }
@@ -172,7 +172,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.consumerProperty = cloner.continueWith(cloneable.consumerProperty, DoubleProperty.class);
+        this.consumerProperty = cloner.cloneField(cloneable.consumerProperty, DoubleProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
         this.sensorRange = cloneable.sensorRange;
         this.amountPerRequest = cloneable.amountPerRequest;

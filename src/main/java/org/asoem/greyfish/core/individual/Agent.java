@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.genes.IncompatibleGenomeException;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.lang.TreeNode;
 import org.asoem.greyfish.utils.DeepCloneable;
@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, MovingObject2D, MessageReceiver, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, MovingObject2D, MessageReceiver, Preparable<ParallelizedSimulation> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -70,8 +70,8 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
     void setColor(Color color);
     double getRadius();
 
-    Simulation getSimulation();
-    public void setSimulation(Simulation simulation);
+    ParallelizedSimulation getSimulation();
+    public void setSimulation(ParallelizedSimulation simulation);
     int getId();
     int getTimeOfBirth();
     int getAge();

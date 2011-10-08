@@ -39,7 +39,7 @@ public class MessageTemplate implements Predicate<ACLMessage> {
 
         @Override
         public boolean apply(ACLMessage aclMessage) {
-            return Arrays.asList(checkNotNull(aclMessage).getAllReceiver()).contains(id);
+            return Arrays.asList(checkNotNull(aclMessage).getRecipients()).contains(id);
         }
     }
 

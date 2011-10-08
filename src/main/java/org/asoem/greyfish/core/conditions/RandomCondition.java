@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -20,7 +20,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate(ParallelizedSimulation simulation) {
         return Math.random() < probability;
     }
 

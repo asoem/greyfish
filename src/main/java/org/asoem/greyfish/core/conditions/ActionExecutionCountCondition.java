@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
@@ -19,11 +19,11 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
     public ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.continueWith(condition.action, GFAction.class);
+        this.action = map.cloneField(condition.action, GFAction.class);
     }
 
     @Override
-	protected Integer getCompareValue(Simulation simulation) {
+	protected Integer getCompareValue(ParallelizedSimulation simulation) {
 		return action.getExecutionCount();
 	}
 

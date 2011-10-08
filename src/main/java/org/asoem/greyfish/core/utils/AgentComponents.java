@@ -24,7 +24,7 @@ public class AgentComponents {
                 return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
             }
             else if (GFCondition.class.isAssignableFrom(clazz)) {
-                return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("trueIf").invoke(null)).build());
+                return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("all").invoke(null)).build());
             }
             else if (Gene.class.isAssignableFrom(clazz)) {
                 return clazz.getConstructor().newInstance();

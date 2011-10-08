@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -15,7 +15,7 @@ public class DeathAction extends AbstractGFAction {
 	}
 
 	@Override
-	protected State executeUnconditioned(Simulation simulation) {
+	protected State executeUnconditioned(ParallelizedSimulation simulation) {
 		simulation.removeAgent(agent.get());
         return State.END_SUCCESS;
 	}

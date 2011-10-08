@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -24,7 +24,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
     private double parameterMax = 0;
 
     @Override
-    protected State executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(ParallelizedSimulation simulation) {
         if (parameterSource != null && parameterTarget != null) {
             double add_amount = Math.min(parameterSource.get(), parameterMax) * parameterFactor;
 
@@ -45,8 +45,8 @@ public class ConvertQuantityAction extends AbstractGFAction {
 
     public ConvertQuantityAction(ConvertQuantityAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterSource = map.continueWith(cloneable.parameterSource, DoubleProperty.class);
-        this.parameterTarget = map.continueWith(cloneable.parameterTarget, DoubleProperty.class);
+        this.parameterSource = map.cloneField(cloneable.parameterSource, DoubleProperty.class);
+        this.parameterTarget = map.cloneField(cloneable.parameterTarget, DoubleProperty.class);
         this.parameterFactor = cloneable.parameterFactor;
         this.parameterMax = cloneable.parameterMax;
     }

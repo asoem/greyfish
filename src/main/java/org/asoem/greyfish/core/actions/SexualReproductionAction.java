@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -33,7 +33,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(Simulation simulation) {
+    protected State executeUnconditioned(ParallelizedSimulation simulation) {
         if (nOffspring == 0 || spermStorage.isEmpty())
             return State.END_FAILED;
 
@@ -92,7 +92,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     private SexualReproductionAction(SexualReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.spermStorage = map.continueWith(cloneable.spermStorage, EvaluatedGenomeStorage.class);
+        this.spermStorage = map.cloneField(cloneable.spermStorage, EvaluatedGenomeStorage.class);
         this.nOffspring = cloneable.nOffspring;
     }
 
@@ -103,7 +103,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         agent.get().getLog().set("offspring", 0);
     }

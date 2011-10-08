@@ -34,7 +34,11 @@ public class TiledSpace implements Iterable<TileLocation> {
 
     private int nOccupants;
 
-    private final KDTree<MovingObject2D> kdtree = AsoemScalaKDTree.newInstance();
+    private final KDTree<MovingObject2D> kdTree = AsoemScalaKDTree.newInstance();
+
+    /**
+     * marks the kdTree as outdated
+     */
     private boolean dirty = true;
 
     public TiledSpace(TiledSpace pSpace) {
@@ -161,7 +165,7 @@ public class TiledSpace implements Iterable<TileLocation> {
     }
 
     public void updateTopo() {
-        kdtree.rebuild(getOccupants());
+        kdTree.rebuild(getOccupants());
         dirty = false;
     }
 
@@ -206,10 +210,16 @@ public class TiledSpace implements Iterable<TileLocation> {
 
     }
 
-    public Iterable<MovingObject2D> findNeighbours(Coordinates2D p, double range) {
+    /**
+     * @param coordinates the search point
+     * @param range the radius of the circle around {@code coordinates}
+     * @return all objects whose anchor point ({@link org.asoem.greyfish.core.space.MovingObject2D#getCoordinates()})
+     * intersects with the circle defined by {@code coordinates} and {@code range}
+     */
+    public Iterable<MovingObject2D> findObjects(Coordinates2D coordinates, double range) {
         if (dirty)
             updateTopo();
-        return kdtree.findNeighbours(p, range);
+        return kdTree.findObjects(coordinates, range);
     }
 
     @Override

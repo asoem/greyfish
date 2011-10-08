@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -14,7 +14,7 @@ public class NoneCondition extends LogicalOperatorCondition {
     }
 
     @Override
-    public boolean evaluate(final Simulation simulation) {
+    public boolean evaluate(final ParallelizedSimulation simulation) {
         switch (conditions.size()) {
             case 0 : return true;
             case 1 : return ! conditions.get(0).evaluate(simulation);
@@ -48,6 +48,6 @@ public class NoneCondition extends LogicalOperatorCondition {
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override public NoneCondition build() { return new NoneCondition(this); }
-        public Builder none(GFCondition ... conditions) { return super.addConditions(conditions); }
+        public Builder none(GFCondition ... conditions) { return super.add(conditions); }
     }
 }

@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
@@ -133,7 +133,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(Simulation simulation) {
+    protected boolean canInitiate(ParallelizedSimulation simulation) {
         final Iterable neighbours = agent.get().findNeighbours(sensorRange);
         sensedMates = filter(neighbours, Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent.get())));
@@ -148,7 +148,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private MatingReceiverAction(MatingReceiverAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.spermBuffer = cloner.continueWith(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
+        this.spermBuffer = cloner.cloneField(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
     }

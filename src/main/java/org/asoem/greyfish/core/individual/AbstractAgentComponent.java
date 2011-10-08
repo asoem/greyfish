@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Attribute;
@@ -21,7 +21,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
         map.setAsCloned(cloneable, this);
-        this.agent = Optional.fromNullable(map.continueWith(agent.orNull(), Agent.class));
+        this.agent = Optional.fromNullable(map.cloneField(agent.orNull(), Agent.class));
         this.name = cloneable.name;
     }
 
@@ -81,7 +81,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     @Override
-    public void prepare(Simulation context) {
+    public void prepare(ParallelizedSimulation context) {
     }
 
     @Override

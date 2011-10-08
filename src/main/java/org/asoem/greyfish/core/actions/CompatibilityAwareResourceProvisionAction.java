@@ -30,7 +30,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
     public CompatibilityAwareResourceProvisionAction(CompatibilityAwareResourceProvisionAction action, DeepCloner map) {
         super(action, map);
-        similarityTrait = map.continueWith(action.similarityTrait, GFProperty.class);
+        similarityTrait = map.cloneField(action.similarityTrait, GFProperty.class);
     }
 
     public CompatibilityAwareResourceProvisionAction(AbstractBuilder<? extends AbstractBuilder> builder) {

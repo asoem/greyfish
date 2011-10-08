@@ -5,7 +5,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.utils.EvaluatedCandidate;
 import org.asoem.greyfish.core.utils.EvaluatedCandidates;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -55,7 +55,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void prepare(ParallelizedSimulation simulation) {
         super.prepare(simulation);
         spermList.clear();
     }

@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collection;
@@ -60,7 +60,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerInitialState(State.SEND_CFP, new StateAction() {
 
             @Override
-            public Object run(Simulation simulation) {
+            public Object run(ParallelizedSimulation simulation) {
                 if (!canInitiate(simulation))
                    return State.NO_RECEIVERS;
 
@@ -70,7 +70,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
                 simulation.deliverMessage(cfpMessage);
 
-                nProposalsMax = cfpMessage.getAllReceiver().size();
+                nProposalsMax = cfpMessage.getRecipients().size();
                 timeoutCounter = 0;
                 nProposalsReceived = 0;
                 template = createCFPReplyTemplate(cfpMessage);
@@ -82,7 +82,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_PROPOSALS, new StateAction() {
 
             @Override
-            public Object run(Simulation simulation) {
+            public Object run(ParallelizedSimulation simulation) {
 
                 Collection<ACLMessage> proposeReplies = Lists.newArrayList();
                 for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
@@ -157,7 +157,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerIntermediateState(State.WAIT_FOR_INFORM, new StateAction() {
 
             @Override
-            public Object run(Simulation simulation) {
+            public Object run(ParallelizedSimulation simulation) {
                 assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
                 for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
@@ -206,7 +206,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         registerFailureState(State.END, new EndStateAction(State.END));
     }
 
-    protected abstract boolean canInitiate(Simulation simulation);
+    protected abstract boolean canInitiate(ParallelizedSimulation simulation);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))

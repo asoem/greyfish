@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
 
@@ -17,11 +17,11 @@ public class ActionWillExecuteCondition extends LeafCondition {
 
     public ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
         super(condition, map);
-        this.parameterAction = map.continueWith(condition.parameterAction, GFAction.class);
+        this.parameterAction = map.cloneField(condition.parameterAction, GFAction.class);
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate(ParallelizedSimulation simulation) {
         return parameterAction.evaluateConditions(simulation);
     }
 

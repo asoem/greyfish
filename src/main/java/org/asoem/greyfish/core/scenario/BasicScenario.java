@@ -69,11 +69,13 @@ public class BasicScenario implements Scenario {
     public boolean addAgent(Agent prototype, Object2D location) {
         checkNotNull(prototype);
         checkNotNull(location);
-        if (prototypes.add(prototype) ) {
-            prototypeSpace.addOccupant(Placeholder.newInstance(prototype, location));
-            return true;
-        }
-        return false;
+
+        if (!prototypes.contains(prototype))
+            if (!prototypes.add(prototype))
+                return false;
+
+        prototypeSpace.addOccupant(Placeholder.newInstance(prototype, location));
+        return true;
     }
 
     @Override
@@ -158,7 +160,8 @@ public class BasicScenario implements Scenario {
         public Builder addAgent(final Agent prototype, Object2D object2D) {
             checkNotNull(prototype);
             checkNotNull(object2D);
-            map.put(prototype, checkNotNull(object2D)); return this;
+            map.put(prototype, object2D);
+            return this;
         }
 
         /**

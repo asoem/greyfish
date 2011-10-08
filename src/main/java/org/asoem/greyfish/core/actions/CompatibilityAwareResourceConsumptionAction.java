@@ -28,7 +28,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
 
     protected CompatibilityAwareResourceConsumptionAction(CompatibilityAwareResourceConsumptionAction action, DeepCloner map) {
         super(action, map);
-        similarityTrait = map.continueWith(action.similarityTrait, GFProperty.class);
+        similarityTrait = map.cloneField(action.similarityTrait, GFProperty.class);
     }
 
     @Override

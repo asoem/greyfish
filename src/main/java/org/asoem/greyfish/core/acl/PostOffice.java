@@ -61,17 +61,25 @@ public class PostOffice implements Iterable<ACLMessage> {
         }
     }
 
-    public synchronized void addMessage(ACLMessage message) {
+    /**
+     *
+     * @param message the message
+     * @return the number of deliveries
+     */
+    public synchronized int addMessage(ACLMessage message) {
         checkNotNull(message);
 
-        for (int id : message.getAllReceiver()) {
+        int added = 0;
+        for (int id : message.getRecipients()) {
             int bin = id2bin(id);
-            int sizeBefore = receiverLists.get(bin).size();
-            receiverLists.get(bin).add(new MessageWrapper(message, id));
-            int sizeAfter = receiverLists.get(bin).size();
-            if (sizeAfter > sizeBefore)
-                ++messageCounter;
+
+            if (receiverLists.get(bin).add(new MessageWrapper(message, id))) {
+                ++added;
+            }
         }
+
+        messageCounter += added;
+        return added;
     }
 
     public synchronized List<ACLMessage> pollMessages(final int receiverId) {

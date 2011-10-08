@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -88,10 +88,10 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner map) {
         map.setAsCloned(abstractAgent, this);
         this.population = abstractAgent.population;
-        this.actions = (ComponentList<GFAction>) map.continueWith(abstractAgent.actions, ComponentList.class);
-        this.properties = (ComponentList<GFProperty>) map.continueWith(abstractAgent.properties, ComponentList.class);
-        this.genome = map.continueWith(abstractAgent.genome, Genome.class);
-        this.body = map.continueWith(abstractAgent.body, Body.class);
+        this.actions = (ComponentList<GFAction>) map.cloneField(abstractAgent.actions, ComponentList.class);
+        this.properties = (ComponentList<GFProperty>) map.cloneField(abstractAgent.properties, ComponentList.class);
+        this.genome = map.cloneField(abstractAgent.genome, Genome.class);
+        this.body = map.cloneField(abstractAgent.body, Body.class);
 
         rootComponent = new AgentComponentWrapper(Iterables.concat(
                 Collections.singleton(body),
@@ -308,12 +308,12 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Simulation getSimulation() {
+    public ParallelizedSimulation getSimulation() {
         return simulationContext.getSimulation();
     }
 
     @Override
-    public void setSimulation(Simulation simulation) {
+    public void setSimulation(ParallelizedSimulation simulation) {
         this.simulationContext = new SimulationContext(simulation, this);
     }
 
@@ -379,8 +379,10 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void prepare(Simulation context) {
-        throw new UnsupportedOperationException();
+    public void prepare(ParallelizedSimulation context) {
+        for (AgentComponent component : getComponents()) {
+            component.prepare(context);
+        }
     }
 
     @Override
@@ -410,7 +412,7 @@ public abstract class AbstractAgent implements Agent {
         public final List<Gene<?>> genes = Lists.newArrayList();
 
         public T addGenes(Gene<?> ... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
-        public T population(Population population) { this.population = checkNotNull(population); return self(); }
+        public T population(Population population) { this.population = checkNotNull(population, "Population must not be null"); return self(); }
         public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
         public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
     }

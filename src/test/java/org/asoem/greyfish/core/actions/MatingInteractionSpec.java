@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.MutableObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.junit.runner.RunWith;
@@ -25,17 +25,17 @@ public class MatingInteractionSpec extends Specification<ContractNetInitiatorAct
 
         final EvaluatedGenomeStorage genomeStorage = EvaluatedGenomeStorage.with().build();
         final MatingReceiverAction receiverAction = MatingReceiverAction.with().fromMatesOfType("mate").closerThan(1.0).storesSpermIn(genomeStorage).build();
-        final Agent female = ImmutableAgent.with().population(Population.newPopulation("Female", Color.black)).addProperties(genomeStorage).addActions(receiverAction).build();
+        final Agent female = ImmutableAgent.of(null).population(Population.newPopulation("Female", Color.black)).addProperties(genomeStorage).addActions(receiverAction).build();
 
         final MatingTransmitterAction transmitterAction = MatingTransmitterAction.with().offersSpermToMatesOfType("mate").build();
-        final Agent male = ImmutableAgent.with().population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build();
+        final Agent male = ImmutableAgent.of(null).population(Population.newPopulation("Male", Color.black)).addActions(transmitterAction).build();
 
         final Scenario scenario = BasicScenario.builder("TestScenario", TiledSpace.ofSize(1, 1))
                 .addAgent(female, MutableObject2D.locatedAt(0, 0))
                 .addAgent(male, MutableObject2D.locatedAt(0, 0))
                 .build();
 
-        final Simulation simulation = Simulation.newSimulation(scenario);
+        final ParallelizedSimulation simulation = ParallelizedSimulation.newSimulation(scenario);
 
         public void shouldTransferTheCorrectAmount() {
             int stepRequired = 3;

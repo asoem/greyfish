@@ -17,7 +17,7 @@ public class EvaluatedGenome extends ForwardingGenome {
 
     public EvaluatedGenome(EvaluatedGenome genome, DeepCloner cloner) {
         cloner.setAsCloned(genome, this);
-        delegate = cloner.continueWith(genome.delegate, Genome.class);
+        delegate = cloner.cloneField(genome.delegate, Genome.class);
         this.fitness = genome.fitness;
     }
 

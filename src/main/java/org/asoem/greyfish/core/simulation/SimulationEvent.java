@@ -9,8 +9,8 @@ public class SimulationEvent {
     public enum Event {
         STEP,
         START,
-        STOP,
-        PAUSE
+        PAUSE,
+        STOP
     }
 
     private final Simulation source;

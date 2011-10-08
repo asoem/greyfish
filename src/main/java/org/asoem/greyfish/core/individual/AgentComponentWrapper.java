@@ -28,7 +28,7 @@ public class AgentComponentWrapper extends AbstractAgentComponent {
         this.children = Iterables.transform(agentComponentWrapper.children, new Function<AgentComponent, AgentComponent>() {
             @Override
             public AgentComponent apply(@Nullable AgentComponent agentComponent) {
-                return cloner.continueWith(agentComponent, AgentComponent.class);
+                return cloner.cloneField(agentComponent, AgentComponent.class);
             }
         });
     }

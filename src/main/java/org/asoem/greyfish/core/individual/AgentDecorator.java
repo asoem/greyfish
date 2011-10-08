@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.lang.TreeNode;
@@ -286,17 +286,17 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public Simulation getSimulation() {
+    public ParallelizedSimulation getSimulation() {
         return delegate.getSimulation();
     }
 
     @Override
-    public void setSimulation(Simulation simulation) {
+    public void setSimulation(ParallelizedSimulation simulation) {
         delegate.setSimulation(simulation);
     }
 
     @Override
-    public void prepare(Simulation context) {
+    public void prepare(ParallelizedSimulation context) {
         delegate.prepare(context);
     }
 

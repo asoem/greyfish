@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 
 import static org.asoem.greyfish.utils.RandomUtils.*;
 
@@ -15,7 +15,7 @@ public class MovementPatterns {
 
     private static MovementPattern NO_MOVEMENT = new MovementPattern() {
         @Override
-        public void apply(Agent agent, Simulation simulation) { /* DO NOTHING*/ }
+        public void apply(Agent agent, ParallelizedSimulation simulation) { /* DO NOTHING*/ }
     };
 
     public static MovementPattern noMovement() {
@@ -26,7 +26,7 @@ public class MovementPatterns {
     public static MovementPattern randomMovement(final double speed, final double rotationProbability) {
         return new MovementPattern() {
             @Override
-            public void apply(Agent agent, Simulation simulation) {
+            public void apply(Agent agent, ParallelizedSimulation simulation) {
                 double angle = agent.getMotionVector().getAngle();
 
                 if (trueWithProbability(rotationProbability)) {
@@ -41,7 +41,7 @@ public class MovementPatterns {
     public static MovementPattern borderAvoidanceMovement(final double speed, final double rotationProbability) {
         return new MovementPattern() {
             @Override
-            public void apply(Agent agent, Simulation simulation) {
+            public void apply(Agent agent, ParallelizedSimulation simulation) {
                 double angle = agent.getMotionVector().getAngle();
 
                 if (trueWithProbability(rotationProbability)) {

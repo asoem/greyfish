@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -59,10 +59,10 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 }
             }
             else if ("sim".equals(root)) {
-                if (Simulation.class.equals(context)) {
-                    return simulation(gomParts, new Function<T, Simulation>() {
+                if (ParallelizedSimulation.class.equals(context)) {
+                    return simulation(gomParts, new Function<T, ParallelizedSimulation>() {
                         @Override
-                        public Simulation apply(@Nullable T gfComponent) {
+                        public ParallelizedSimulation apply(@Nullable T gfComponent) {
                             if (gfComponent != null && gfComponent.getAgent() != null)
                                 return gfComponent.getAgent().getSimulation();
                             return null;
@@ -128,16 +128,16 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
         }
     }
 
-    private <T extends AgentComponent> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation> ret) {
+    private <T extends AgentComponent> Function<T, ?> simulation(Iterator<String> parts, Function<T, ParallelizedSimulation> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
             Pattern.compile("agents\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
 
             if (nextPart.matches("agents\\[.+\\]")) {
-                return agent(parts, Functions.compose(new Function<Simulation, Agent>() {
+                return agent(parts, Functions.compose(new Function<ParallelizedSimulation, Agent>() {
                     @Override
-                    public Agent apply(@Nullable Simulation simulation) {
+                    public Agent apply(@Nullable ParallelizedSimulation simulation) {
                         return Iterables.find(simulation.getAgents(), new Predicate<Agent>() {
                             @Override
                             public boolean apply(Agent agent) {
@@ -171,9 +171,9 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
             Matcher matcher;
 
             if ("simulation".equals(nextPart)) {
-                return simulation(parts, Functions.compose( new Function<Agent, Simulation>() {
+                return simulation(parts, Functions.compose( new Function<Agent, ParallelizedSimulation>() {
                     @Override
-                    public Simulation apply(@Nullable Agent agent) {
+                    public ParallelizedSimulation apply(@Nullable Agent agent) {
                         return agent.getSimulation();
                     }
                 },ret));

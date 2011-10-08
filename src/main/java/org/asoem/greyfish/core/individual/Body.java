@@ -59,12 +59,12 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
      */
     private Body(Body body, DeepCloner cloner) {
         super(body, cloner);
-        this.property = cloner.continueWith(body.property, FiniteSetProperty.class);
+        this.property = cloner.cloneField(body.property, FiniteSetProperty.class);
         if (property != null)
             states = property;
         stateColorMap = body.stateColorMap;
         if (body.outlineValueSupplier instanceof WellOrderedSetElementProperty)
-            outlineValueSupplier = cloner.continueWith((WellOrderedSetElementProperty) body.outlineValueSupplier, WellOrderedSetElementProperty.class);
+            outlineValueSupplier = cloner.cloneField((WellOrderedSetElementProperty) body.outlineValueSupplier, WellOrderedSetElementProperty.class);
     }
 
     @SimpleXMLConstructor
