@@ -24,7 +24,8 @@
     <logger name="org.asoem.greyfish.core.mutableAgent.FinalizedAgent" additivity="true" level="INFO">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.simulation" additivity="false" level="INFO">
+    <logger name="org.asoem.greyfish.core.simulation" additivity="true" level="INFO">
+        <!--
         <appender name="FILE" class="ch.qos.logback.core.FileAppender">
             <file>logs/Simulation.log</file>
             <append>true</append>
@@ -32,6 +33,8 @@
                 <pattern>%-5level %logger{10} - %msg %n</pattern>
             </encoder>
         </appender>
+        -->
+        <appender-ref ref="STDOUT" />
     </logger>
 
     <logger name="org.asoem.greyfish.core.actions" additivity="true" level="INFO">
