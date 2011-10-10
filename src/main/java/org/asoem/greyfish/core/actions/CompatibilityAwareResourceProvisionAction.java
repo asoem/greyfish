@@ -105,6 +105,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
         @Override protected Builder self() { return this; }
         @Override public CompatibilityAwareResourceProvisionAction checkedBuild() { return new CompatibilityAwareResourceProvisionAction(this); }
     }
+
     protected static abstract class AbstractBuilder<E extends CompatibilityAwareResourceProvisionAction, T extends AbstractBuilder<E, T>> extends ResourceProvisionAction.AbstractBuilder<E, T> {
         private GFProperty similarityTrait;
 

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
@@ -86,6 +87,6 @@ public class ImmutableAgentTest {
         ImmutableAgent clone = ImmutableAgent.cloneOf(agent);
 
         // then
-        assertThat(clone.getComponents()).containsOnly(agent.getComponents());
+        assertThat(clone.getComponents()).hasSize(Iterables.size(agent.getComponents()));
     }
 }

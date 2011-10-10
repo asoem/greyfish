@@ -9,9 +9,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.mock;
 
 /**
  * User: christoph
@@ -94,8 +94,8 @@ public class DefaultGreyfishResolverConverterTest {
         Object ret = converter.get("this.agent.age", GFAction.class).apply(action);
 
         // then
-        assert(ret instanceof String);
-        assertEquals(ret, 23);
+        assertThat(ret).isInstanceOf(Integer.class);
+        assertThat(ret).isEqualTo(23);
     }
 
     @Test(expected=NullPointerException.class)

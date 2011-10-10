@@ -9,11 +9,13 @@ import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
 import org.asoem.greyfish.core.individual.MessageReceiver;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Iterators.transform;
 import static com.google.common.collect.Iterators.unmodifiableIterator;
 
 public class PostOffice implements Iterable<ACLMessage> {
@@ -55,7 +57,7 @@ public class PostOffice implements Iterable<ACLMessage> {
                                 @Override
                                 protected void compute() {
                                     for (MessageWrapper message : concat(receiverLists.subList(0, (BINS / 2) - 1))) {
-                                        pushMessageToReceiver(receiverFunction.apply(message.receiverId), message);
+                                        pushMessageToReceiver(receiverFunction.apply(message.receiverId), message.message);
                                     }
                                 }
                             },
@@ -63,7 +65,7 @@ public class PostOffice implements Iterable<ACLMessage> {
                                 @Override
                                 protected void compute() {
                                     for (MessageWrapper message : concat(receiverLists.subList((BINS / 2), BINS - 1))) {
-                                        pushMessageToReceiver(receiverFunction.apply(message.receiverId), message);
+                                        pushMessageToReceiver(receiverFunction.apply(message.receiverId), message.message);
                                     }
                                 }
                             }
@@ -73,7 +75,7 @@ public class PostOffice implements Iterable<ACLMessage> {
         }
         else {
             for (MessageWrapper message : concat(receiverLists)) {
-                pushMessageToReceiver(receiverFunction.apply(message.receiverId), message);
+                pushMessageToReceiver(receiverFunction.apply(message.receiverId), message.message);
             }
         }
 
@@ -118,7 +120,7 @@ public class PostOffice implements Iterable<ACLMessage> {
         while (iterator.hasNext()) {
             MessageWrapper messageWrapper = iterator.next();
             if (messageWrapper.receiverId == receiverId) {
-                ret.add(messageWrapper);
+                ret.add(messageWrapper.message);
                 iterator.remove();
             }
         }
@@ -136,9 +138,9 @@ public class PostOffice implements Iterable<ACLMessage> {
         final List<MessageWrapper> messages = receiverLists.get(bin);
         Iterator<MessageWrapper> iterator = messages.listIterator();
         while (iterator.hasNext()) {
-            ACLMessage message = iterator.next().message;
+            MessageWrapper message = iterator.next();
             if (messageTemplate.apply(message)) {
-                ret.add(message);
+                ret.add(message.message);
                 iterator.remove();
             }
         }
@@ -181,7 +183,13 @@ public class PostOffice implements Iterable<ACLMessage> {
 
     @Override
     public Iterator<ACLMessage> iterator() {
-        return unmodifiableIterator(Iterables.<ACLMessage>concat(receiverLists).iterator());
+        return unmodifiableIterator(transform(Iterables.<MessageWrapper>concat(receiverLists).iterator(), new Function<MessageWrapper, ACLMessage>() {
+            @Override
+            public ACLMessage apply(@Nullable MessageWrapper o) {
+                assert o != null;
+                return o.message;
+            }
+        }));
     }
 
     private final class MessageWrapper extends ForwardingACLMessage {

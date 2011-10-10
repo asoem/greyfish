@@ -143,7 +143,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         protected String parameterMessageType;
 
         public T resourceProperty(ResourceProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
-        public T parameterMessageType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
+        public T classification(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

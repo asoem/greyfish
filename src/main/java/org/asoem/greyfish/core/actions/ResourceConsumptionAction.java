@@ -1,11 +1,13 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -29,8 +31,6 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     private DoubleProperty consumerProperty = null;
 
     @Element(name="resourceTransformationFunction", required = false)
-    private String transformationFunction = "#{x0}";
-
     private GreyfishExpression<ResourceConsumptionAction> transformationExpression =
             compileExpression("#{x0}").forContext(ResourceConsumptionAction.class);
 
@@ -53,7 +53,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected ImmutableACLMessage.Builder createCFP() {
         return ImmutableACLMessage.with()
-                .sender(getAgent().getId())
+                .sender(agent.get().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
@@ -175,7 +175,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.parameterMessageType = cloneable.parameterMessageType;
         this.sensorRange = cloneable.sensorRange;
         this.amountPerRequest = cloneable.amountPerRequest;
-        this.transformationFunction = cloneable.transformationFunction;
+        this.transformationExpression = cloneable.transformationExpression;
     }
 
     protected ResourceConsumptionAction(AbstractBuilder<?,?> builder) {
@@ -184,14 +184,18 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.parameterMessageType = builder.parameterMessageType;
         this.amountPerRequest = builder.amountPerRequest;
         this.sensorRange = builder.sensorRange;
-        this.transformationFunction = builder.transformationFunction;
+        this.transformationExpression = GreyfishExpressionFactory
+                .compileExpression( Optional.fromNullable(builder.transformationFunction).or("") )
+                .forContext(ResourceConsumptionAction.class);
     }
 
     public static Builder with() { return new Builder(); }
 
     public static final class Builder extends AbstractBuilder<ResourceConsumptionAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public ResourceConsumptionAction checkedBuild() { return new ResourceConsumptionAction(this); }
+        @Override public ResourceConsumptionAction checkedBuild() {
+            return new ResourceConsumptionAction(this);
+        }
     }
 
     protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
@@ -199,10 +203,10 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         private String parameterMessageType = "";
         private double amountPerRequest = 0;
         private double sensorRange = 0;
-        public String transformationFunction = "#{x0}";
+        public String transformationFunction = null;
 
-        public T storesEnergyIn(DoubleProperty consumerProperty) { this.consumerProperty = checkNotNull(consumerProperty); return self(); }
-        public T viaMessagesOfType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
+        public T energyStorage(DoubleProperty consumerProperty) { this.consumerProperty = checkNotNull(consumerProperty); return self(); }
+        public T classification(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
         public T requesting(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
         public T inRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
         public T transformationFunction(String transformationFunction) { this.transformationFunction = checkNotNull(transformationFunction); return self(); }

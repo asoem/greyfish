@@ -29,6 +29,18 @@ public class MvelEvaluator implements Evaluator {
         PARSER_CONTEXT.addImport("poisson", MVEL.getStaticMethod(RandomDataGenerator.class, "poisson", new Class[] {double.class}));
     }
 
+    public MvelEvaluator() {
+    }
+
+    public MvelEvaluator(String expression) {
+        setExpression(expression);
+    }
+
+    public MvelEvaluator(String expression, VariableResolver resolver) {
+        setExpression(expression);
+        setResolver(resolver);
+    }
+
     @Override
     public double evaluateAsDouble() throws EvaluationException {
         return Double.class.cast(MVEL.executeExpression(compiledExpression, factory));

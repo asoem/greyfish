@@ -15,7 +15,7 @@ public enum GreyfishExpressionFactory {
     private EvaluatorFactory evaluatorFactory = new EvaluatorFactory() {
         @Override
         public Evaluator createEvaluator(String expression, VariableResolver resolver) throws SyntaxException {
-            return new SeeEvaluator(expression, resolver);
+            return new MvelEvaluator(expression, resolver);
         }
     };
 
