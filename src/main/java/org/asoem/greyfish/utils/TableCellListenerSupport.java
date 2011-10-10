@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  *  When editing is stopped the new to is saved. When the oold and new
  *  values are different, then the provided Action is invoked.
  *
- *  The source of the Action is a TableCellListener instance.
+ *  The sender of the Action is a TableCellListener instance.
  */
 public class TableCellListenerSupport implements PropertyChangeListener, Runnable
 {
