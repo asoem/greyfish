@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Attribute;
@@ -25,11 +25,11 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         this.name = cloneable.name;
     }
 
-    protected AbstractAgentComponent(AbstractBuilder<?> builder) {
+    protected AbstractAgentComponent(AbstractBuilder<? extends AbstractAgentComponent, ? extends AbstractBuilder> builder) {
         this.name = builder.name;
     }
 
-    public static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
+    public static abstract class AbstractBuilder<E extends AbstractAgentComponent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.lang.AbstractBuilder<E, T> {
         private String name = "";
 
         public T name(String name) { this.name = name; return self(); }
@@ -42,7 +42,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     @Override
-    public final void setAgent(@Nullable Agent agent) {
+    public void setAgent(@Nullable Agent agent) {
         this.agent = Optional.fromNullable(agent);
         for (AgentComponent component : children())
             component.setAgent(agent);
@@ -81,7 +81,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     @Override
-    public void prepare(ParallelizedSimulation context) {
+    public void prepare(Simulation context) {
     }
 
     @Override

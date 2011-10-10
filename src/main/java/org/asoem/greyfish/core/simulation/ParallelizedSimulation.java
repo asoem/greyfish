@@ -4,6 +4,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.*;
 import javolution.util.FastList;
 import jsr166y.ForkJoinPool;
@@ -16,6 +19,7 @@ import org.asoem.greyfish.core.acl.PostOffice;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
+import org.asoem.greyfish.core.individual.MessageReceiver;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
@@ -98,7 +102,7 @@ public class ParallelizedSimulation implements Simulation {
 
     private String title = "untitled";
 
-    private ParallelizedSimulation(final Scenario scenario) {
+    public ParallelizedSimulation(final Scenario scenario) {
         checkNotNull(scenario);
 
         this.scenario = scenario;
@@ -406,7 +410,20 @@ public class ParallelizedSimulation implements Simulation {
                     command.execute();
                 }
 
-                postOffice.deliverOrDiscard(getAgents());
+                Cache<Integer, MessageReceiver> agentCache = CacheBuilder.newBuilder()
+                        .build(new CacheLoader<Integer, MessageReceiver>() {
+                            @Override
+                            public MessageReceiver load(final Integer integer) throws Exception {
+                                return Iterables.find(getAgents(), new Predicate<MessageReceiver>() {
+                                    @Override
+                                    public boolean apply(MessageReceiver receiver) {
+                                        return receiver.getId() == integer;
+                                    }
+                                });
+                            }
+                        });
+
+                postOffice.deliverOrDiscardAllMessages(agentCache);
 
                 doneSignal.countDown();
             }
@@ -425,7 +442,8 @@ public class ParallelizedSimulation implements Simulation {
 
                 for (Agent agent : getAgents()) {
                     final PolarPoint motion = agent.getMotionVector();
-                    getSpace().moveObject(agent, sum(agent.getCoordinates(), motion.toCartesian()));
+                    if (motion.getDistance() != 0)
+                        getSpace().moveObject(agent, sum(agent.getCoordinates(), motion.toCartesian()));
                 }
 
                 Collection<Command> addCommands = commandListMap.get(CommandType.AGENT_ADD);
@@ -492,7 +510,7 @@ public class ParallelizedSimulation implements Simulation {
                 new Command() {
                     @Override
                     public void execute() {
-                        postOffice.addMessage(message);
+                        postOffice.dispatch(message);
                     }
                 });
     }
@@ -500,7 +518,7 @@ public class ParallelizedSimulation implements Simulation {
     /**
      * Creates a new {@code Simulation} and calls {@link #step()} until the {@code stopTrigger} returns {@code true}
      * @param scenario the {@code Scenario} used to initialize this Simulation
-     * @param stopTrigger the {@code Predicate} which will be asked after each simulation step if the simulation should stop.
+     * @param stopTrigger the {@code Predicate} which will be asked before each simulation step if the simulation should stop.
      * @return the newly created simulation
      */
     public static ParallelizedSimulation runScenario(Scenario scenario, Predicate<? super ParallelizedSimulation> stopTrigger) {
@@ -508,6 +526,7 @@ public class ParallelizedSimulation implements Simulation {
         checkNotNull(stopTrigger);
 
         ParallelizedSimulation simulation = new ParallelizedSimulation(scenario);
+
         while (!stopTrigger.apply(simulation)) {
             simulation.step();
         }

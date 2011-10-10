@@ -23,7 +23,6 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     private final ImmutableMap<String, E> delegate;
 
     private ImmutableComponentList(Iterable<E> components) {
-        checkNotNull(components);
         delegate = Maps.uniqueIndex(components, new Function<E, String>() {
             @Override
             public String apply(@Nullable E component) {
@@ -50,6 +49,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     }
 
     public static <E extends AgentComponent> ImmutableComponentList<E> copyOf(Iterable<E> components) {
+        checkNotNull(components);
         return new ImmutableComponentList<E>(components);
     }
 

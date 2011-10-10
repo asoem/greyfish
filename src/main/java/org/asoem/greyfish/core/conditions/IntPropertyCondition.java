@@ -2,10 +2,9 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.IntProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -45,7 +44,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
     }
 
     @Override
-    protected Integer getCompareValue(ParallelizedSimulation simulation) {
+    protected Integer getCompareValue(Simulation simulation) {
         return intProperty.get();
     }
 
@@ -58,20 +57,19 @@ public final class IntPropertyCondition extends IntCompareCondition {
         this(new Builder());
     }
 
-    protected IntPropertyCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected IntPropertyCondition(AbstractBuilder<?,?> builder) {
         super(builder);
         this.intProperty = builder.intProperty;
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<IntPropertyCondition> {
-        private Builder() {}
 
+    public static final class Builder extends AbstractBuilder<IntPropertyCondition, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public IntPropertyCondition build() { return new IntPropertyCondition(this); }
+        @Override public IntPropertyCondition checkedBuild() { return new IntPropertyCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends IntCompareCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends IntPropertyCondition, T extends AbstractBuilder<E,T>> extends IntCompareCondition.AbstractBuilder<E,T> {
         private IntProperty intProperty;
 
         public T valueOf(IntProperty intProperty) { this.intProperty = checkNotNull(intProperty); return self(); }

@@ -1,10 +1,9 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
 
@@ -52,7 +51,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
         this(new Builder());
     }
 
-    protected GonoGenderStateProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected GonoGenderStateProperty(AbstractBuilder<?,?> builder) {
         super(builder);
 
         GeneController<Integer> mutationOperator = new GeneControllerAdaptor<Integer>() {
@@ -92,11 +91,11 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<GonoGenderStateProperty> {
+    public static final class Builder extends AbstractBuilder<GonoGenderStateProperty, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public GonoGenderStateProperty build() { return new GonoGenderStateProperty(this); }
+        @Override public GonoGenderStateProperty checkedBuild() { return new GonoGenderStateProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {}
+    protected static abstract class AbstractBuilder<E extends GonoGenderStateProperty, T extends AbstractBuilder<E, T>> extends AbstractGFProperty.AbstractBuilder<E, T> {}
 }

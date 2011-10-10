@@ -3,16 +3,14 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -288,11 +286,6 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public AgentLog getLog() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Iterable<MovingObject2D> findNeighbours(double range) {
         return simulationContext.findNeighbours(range);
     }
@@ -308,12 +301,12 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public ParallelizedSimulation getSimulation() {
+    public Simulation getSimulation() {
         return simulationContext.getSimulation();
     }
 
     @Override
-    public void setSimulation(ParallelizedSimulation simulation) {
+    public void setSimulation(Simulation simulation) {
         this.simulationContext = new SimulationContext(simulation, this);
     }
 
@@ -379,7 +372,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void prepare(ParallelizedSimulation context) {
+    public void prepare(Simulation context) {
         for (AgentComponent component : getComponents()) {
             component.prepare(context);
         }
@@ -405,14 +398,17 @@ public abstract class AbstractAgent implements Agent {
         return body;
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends org.asoem.greyfish.lang.AbstractBuilder<T> {
-        protected final List<GFAction> actions = Lists.newArrayList();
-        protected final List<GFProperty> properties =  Lists.newArrayList();
+    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E,T>> extends org.asoem.greyfish.lang.AbstractBuilder<E,T> {
+        protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
+        protected final ComponentList<GFProperty> properties =  new MutableComponentList<GFProperty>();
         protected Population population;
-        public final List<Gene<?>> genes = Lists.newArrayList();
+        public final ComponentList<Gene<?>> genes = new MutableComponentList<Gene<?>>();
+
+        protected AbstractBuilder(Population population) {
+            this.population = checkNotNull(population, "Population must not be null");
+        }
 
         public T addGenes(Gene<?> ... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
-        public T population(Population population) { this.population = checkNotNull(population, "Population must not be null"); return self(); }
         public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
         public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
     }

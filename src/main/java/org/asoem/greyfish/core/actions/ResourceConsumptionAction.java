@@ -3,13 +3,13 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
@@ -51,25 +51,24 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ACLMessage.Builder createCFP() {
-        return ACLMessage.with()
-                .source(getAgent().getId())
+    protected ImmutableACLMessage.Builder createCFP() {
+        return ImmutableACLMessage.with()
+                .sender(getAgent().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
-                .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
+                .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
                 .objectContent(amountPerRequest);
     }
 
     @Override
-    protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
 
         final double offer = message.getReferenceContent(Double.class);
 
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
-        return message
-                .createReplyFrom(getAgent().getId())
+        return ImmutableACLMessage.replyTo(message, agent.get().getId())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .objectContent(offer);
     }
@@ -93,14 +92,14 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(ParallelizedSimulation simulation) {
+    protected boolean canInitiate(Simulation simulation) {
         sensedMates = filter(agent.get().findNeighbours(sensorRange), Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent.get())));
         return ! isEmpty(sensedMates);
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
         checkValidity();
     }
@@ -179,7 +178,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.transformationFunction = cloneable.transformationFunction;
     }
 
-    protected ResourceConsumptionAction(AbstractBuilder<?> builder) {
+    protected ResourceConsumptionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.consumerProperty = builder.consumerProperty;
         this.parameterMessageType = builder.parameterMessageType;
@@ -190,13 +189,12 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     public static Builder with() { return new Builder(); }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceConsumptionAction> {
-        private Builder() {}
+    public static final class Builder extends AbstractBuilder<ResourceConsumptionAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public ResourceConsumptionAction build() { return new ResourceConsumptionAction(checkedSelf()); }
+        @Override public ResourceConsumptionAction checkedBuild() { return new ResourceConsumptionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
         private DoubleProperty consumerProperty = null;
         private String parameterMessageType = "";
         private double amountPerRequest = 0;

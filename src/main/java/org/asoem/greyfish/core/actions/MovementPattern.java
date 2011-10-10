@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 
 /**
  * User: christoph
@@ -10,5 +10,5 @@ import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
  */
 public interface MovementPattern {
 
-    void apply(Agent agent, ParallelizedSimulation simulation);
+    void apply(Agent agent, Simulation simulation);
 }

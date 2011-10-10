@@ -17,6 +17,9 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
 
     private List<Gene<?>> genes = Lists.newArrayList();
 
+    public MutableGenome() {
+    }
+
     public MutableGenome(Iterable<? extends Gene<?>> genome) {
         Iterables.addAll(genes, genome);
     }

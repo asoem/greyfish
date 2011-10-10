@@ -2,11 +2,11 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
@@ -33,14 +33,14 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
         similarityTrait = map.cloneField(action.similarityTrait, GFProperty.class);
     }
 
-    public CompatibilityAwareResourceProvisionAction(AbstractBuilder<? extends AbstractBuilder> builder) {
+    public CompatibilityAwareResourceProvisionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.similarityTrait = builder.similarityTrait;
     }
 
     @Override
-    protected ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.createReplyFrom(this.getAgent().getId());
+    protected ImmutableACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
+        ImmutableACLMessage.Builder builder = ImmutableACLMessage.replyTo(message, this.getAgent().getId());
 
         final CompatibilityAwareResourceConversation.CFPContent cfpContent;
         try {
@@ -101,11 +101,11 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
         });
     }
 
-    public static class Builder extends AbstractBuilder<Builder> implements BuilderInterface<CompatibilityAwareResourceProvisionAction> {
+    public static class Builder extends AbstractBuilder<CompatibilityAwareResourceProvisionAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public CompatibilityAwareResourceProvisionAction build() { return new CompatibilityAwareResourceProvisionAction(checkedSelf()); }
+        @Override public CompatibilityAwareResourceProvisionAction checkedBuild() { return new CompatibilityAwareResourceProvisionAction(this); }
     }
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ResourceProvisionAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends CompatibilityAwareResourceProvisionAction, T extends AbstractBuilder<E, T>> extends ResourceProvisionAction.AbstractBuilder<E, T> {
         private GFProperty similarityTrait;
 
         public T similarityTrait(GFProperty trait) { this.similarityTrait = checkNotNull(trait); return self(); }

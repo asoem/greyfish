@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.ElementList;
 
@@ -75,7 +75,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition impleme
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
         for (GFCondition condition : conditions)
             condition.prepare(simulation);
@@ -127,7 +127,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition impleme
         return conditions.remove(condition);
     }
 
-    protected LogicalOperatorCondition(AbstractBuilder<? extends AbstractBuilder<?>> builder) {
+    protected LogicalOperatorCondition(AbstractBuilder<?,?> builder) {
         super(builder);
         addAll(builder.conditions);
     }
@@ -140,7 +140,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition impleme
             LOGGER.debug("LogicalOperatorCondition '" + name + "' has no subconditions");
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends LogicalOperatorCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {
         private final List<GFCondition> conditions = Lists.newArrayList();
 
         protected T add(GFCondition condition) { condition.add(checkNotNull(condition)); return self(); }

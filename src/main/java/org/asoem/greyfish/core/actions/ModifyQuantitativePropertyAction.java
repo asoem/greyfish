@@ -11,11 +11,10 @@ import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -27,28 +26,28 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  */
 @ClassGroup(tags="actions")
-public class ModifyQuantitivePropertyAction extends AbstractGFAction {
+public class ModifyQuantitativePropertyAction extends AbstractGFAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModifyQuantitivePropertyAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModifyQuantitativePropertyAction.class);
     private final Evaluator FORMULA_EVALUATOR = new Evaluator(EvaluationConstants.SINGLE_QUOTE ,true,true,false,true);
 
     @Element(name = "property")
-    private DoubleProperty parameterQuantitiveProperty;
+    private DoubleProperty parameterQuantitativeProperty;
 
     @Element(name = "energyRenewalFormula")
     private String energyCostsFormula = "0";
 
-    private ModifyQuantitivePropertyAction() {
+    private ModifyQuantitativePropertyAction() {
         this(new Builder());
     }
 
     @Override
-    protected State executeUnconditioned(ParallelizedSimulation simulation) {
-        parameterQuantitiveProperty.setValue(evaluateFormula(simulation));
-        return State.END_SUCCESS;
+    protected ActionState executeUnconditioned(Simulation simulation) {
+        parameterQuantitativeProperty.setValue(evaluateFormula(simulation));
+        return ActionState.END_SUCCESS;
     }
 
-    public double evaluateFormula(ParallelizedSimulation simulation) {
+    public double evaluateFormula(Simulation simulation) {
         try {
             return Double.valueOf(FORMULA_EVALUATOR.evaluate());
         }
@@ -64,12 +63,12 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
         e.add(new FiniteSetValueAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
-                parameterQuantitiveProperty = checkNotNull(arg0);
+                parameterQuantitativeProperty = checkNotNull(arg0);
             }
 
             @Override
             public DoubleProperty get() {
-                return parameterQuantitiveProperty;
+                return parameterQuantitativeProperty;
             }
 
             @Override
@@ -91,7 +90,7 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
         try{
             FORMULA_EVALUATOR.parse(energyCostsFormula);
@@ -102,35 +101,33 @@ public class ModifyQuantitivePropertyAction extends AbstractGFAction {
 
     @Override
     public AbstractAgentComponent deepClone(DeepCloner cloner) {
-        return new ModifyQuantitivePropertyAction(this, cloner);
+        return new ModifyQuantitativePropertyAction(this, cloner);
     }
 
-    public ModifyQuantitivePropertyAction(ModifyQuantitivePropertyAction cloneable, DeepCloner map) {
+    public ModifyQuantitativePropertyAction(ModifyQuantitativePropertyAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterQuantitiveProperty = map.cloneField(cloneable.parameterQuantitiveProperty, DoubleProperty.class);
+        this.parameterQuantitativeProperty = map.cloneField(cloneable.parameterQuantitativeProperty, DoubleProperty.class);
         this.energyCostsFormula = cloneable.energyCostsFormula;
     }
 
-    protected ModifyQuantitivePropertyAction(AbstractBuilder<?> builder) {
+    protected ModifyQuantitativePropertyAction(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.energyCostsFormula = builder.energyCostsFormula;
-        this.parameterQuantitiveProperty = builder.quantitiveProperty;
+        this.parameterQuantitativeProperty = builder.quantitativeProperty;
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ModifyQuantitivePropertyAction> {
+    public static final class Builder extends AbstractBuilder<ModifyQuantitativePropertyAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public ModifyQuantitivePropertyAction build() { return new ModifyQuantitivePropertyAction(this); }
+        @Override public ModifyQuantitativePropertyAction checkedBuild() { return new ModifyQuantitativePropertyAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
-        private DoubleProperty quantitiveProperty;
+    protected static abstract class AbstractBuilder<E extends ModifyQuantitativePropertyAction, T extends AbstractBuilder<E, T>> extends AbstractGFAction.AbstractBuilder<E,T> {
+        private DoubleProperty quantitativeProperty;
         private String energyCostsFormula = "0";
 
-        public T change(DoubleProperty quantitiveProperty) { this.quantitiveProperty = checkNotNull(quantitiveProperty); return self(); }
+        public T change(DoubleProperty quantitativeProperty) { this.quantitativeProperty = checkNotNull(quantitativeProperty); return self(); }
         public T to(String energyCostsFormula) { this.energyCostsFormula = energyCostsFormula; return self(); } // TODO: check if string is a valid expression
-
-        public ModifyQuantitivePropertyAction build() { return new ModifyQuantitivePropertyAction(this); }
     }
 }

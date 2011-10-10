@@ -1,8 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
 
@@ -15,9 +14,9 @@ public class DeathAction extends AbstractGFAction {
 	}
 
 	@Override
-	protected State executeUnconditioned(ParallelizedSimulation simulation) {
+	protected ActionState executeUnconditioned(Simulation simulation) {
 		simulation.removeAgent(agent.get());
-        return State.END_SUCCESS;
+        return ActionState.END_SUCCESS;
 	}
 
     @Override
@@ -29,14 +28,15 @@ public class DeathAction extends AbstractGFAction {
         super(cloneable, map);
     }
 
-    protected DeathAction(AbstractBuilder<?> builder) {
+    protected DeathAction(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DeathAction> {
+
+    public static final class Builder extends AbstractBuilder<DeathAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public DeathAction build() { return new DeathAction(this); }
+        @Override public DeathAction checkedBuild() { return new DeathAction(this); }
     }
 }

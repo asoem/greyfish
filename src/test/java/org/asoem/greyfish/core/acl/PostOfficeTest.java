@@ -14,28 +14,29 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.class)
 public class PostOfficeTest {
 
-    @Mock ACLMessage message;
+    @Mock
+    ImmutableACLMessage message;
 
     @Test
-    public void testAddMessage() throws Exception {
+    public void testDispatch() throws Exception {
         // given
         given(message.getRecipients()).willReturn(Arrays.asList(1));
         PostOffice postOffice = PostOffice.newInstance();
 
         // when
-        int ret = postOffice.addMessage(message);
+        int messagesToDeliver = postOffice.dispatch(message);
 
         // then
-        assertThat(ret).isEqualTo(1);
+        assertThat(messagesToDeliver).isEqualTo(1);
         assertThat(postOffice).hasSize(1);
     }
 
     @Test
-    public void testPollMessage() throws Exception {
+    public void testPollMessages() throws Exception {
         // given
         given(message.getRecipients()).willReturn(Arrays.asList(1));
         PostOffice postOffice = PostOffice.newInstance();
-        postOffice.addMessage(message);
+        postOffice.dispatch(message);
 
         // when
         List<ACLMessage> polledMessages = postOffice.pollMessages(1);

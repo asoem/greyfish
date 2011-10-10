@@ -1,8 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.DeepCloner;
 
 public final class AlwaysTrueCondition extends LeafCondition {
@@ -12,7 +11,7 @@ public final class AlwaysTrueCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(ParallelizedSimulation simulation) {
+    public boolean apply(Simulation simulation) {
         return true;
     }
 
@@ -25,17 +24,17 @@ public final class AlwaysTrueCondition extends LeafCondition {
         this(new Builder());
     }
 
-    private AlwaysTrueCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    private AlwaysTrueCondition(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<AlwaysTrueCondition> {
+    public static final class Builder extends AbstractBuilder<AlwaysTrueCondition, Builder> {
         private Builder() {}
 
         @Override protected Builder self() { return this; }
-        @Override public AlwaysTrueCondition build() { return new AlwaysTrueCondition(this); }
+        @Override public AlwaysTrueCondition checkedBuild() { return new AlwaysTrueCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {}
+    protected static abstract class AbstractBuilder<E extends AlwaysTrueCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {}
 }

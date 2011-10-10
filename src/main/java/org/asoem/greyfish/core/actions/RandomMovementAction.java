@@ -1,10 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
@@ -21,9 +20,9 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(ParallelizedSimulation simulation) {
+    protected ActionState executeUnconditioned(Simulation simulation) {
         pattern.apply(agent.get(), simulation);
-        return State.END_SUCCESS;
+        return ActionState.END_SUCCESS;
     }
 
     @Override
@@ -44,7 +43,7 @@ public class RandomMovementAction extends AbstractGFAction {
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
         pattern = MovementPatterns.borderAvoidanceMovement(speed, 0.3);
     }
@@ -59,19 +58,19 @@ public class RandomMovementAction extends AbstractGFAction {
         this.speed = cloneable.speed;
     }
 
-    protected RandomMovementAction(AbstractBuilder<?> builder) {
+    protected RandomMovementAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.speed = builder.speed;
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<RandomMovementAction> {
+    public static final class Builder extends AbstractBuilder<RandomMovementAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public RandomMovementAction build() { return new RandomMovementAction(this); }
+        @Override public RandomMovementAction checkedBuild() { return new RandomMovementAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends RandomMovementAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
         private double speed = 0.1;
 
         public T speed(double speed) { this.speed = speed; return self(); }

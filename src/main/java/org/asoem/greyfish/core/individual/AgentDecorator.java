@@ -5,14 +5,13 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.io.AgentLog;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.Coordinates2D;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.lang.TreeNode;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Element;
 
@@ -256,11 +255,6 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public AgentLog getLog() {
-        return delegate.getLog();
-    }
-
-    @Override
     public void execute() {
         delegate.execute();
     }
@@ -286,17 +280,17 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public ParallelizedSimulation getSimulation() {
+    public Simulation getSimulation() {
         return delegate.getSimulation();
     }
 
     @Override
-    public void setSimulation(ParallelizedSimulation simulation) {
+    public void setSimulation(Simulation simulation) {
         delegate.setSimulation(simulation);
     }
 
     @Override
-    public void prepare(ParallelizedSimulation context) {
+    public void prepare(Simulation context) {
         delegate.prepare(context);
     }
 

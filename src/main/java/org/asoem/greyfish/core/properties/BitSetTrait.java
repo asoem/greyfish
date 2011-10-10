@@ -1,15 +1,14 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.ImmutableBitSet;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.RandomUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -57,7 +56,7 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
         return ImmutableBitSet.zeros(bitStringGene.get().length());
     }
 
-    protected BitSetTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected BitSetTrait(AbstractBuilder<?,?> builder) {
         super(builder);
 
         GeneController<ImmutableBitSet> mutationOperator = new GeneControllerAdaptor<ImmutableBitSet>() {
@@ -83,12 +82,12 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
 
     public static Builder with() { return new Builder(); }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<BitSetTrait> {
+    public static final class Builder extends AbstractBuilder<BitSetTrait,Builder>  {
         @Override protected Builder self() { return this; }
-        @Override public BitSetTrait build() { return new BitSetTrait(checkedSelf()); }
+        @Override public BitSetTrait checkedBuild() { return new BitSetTrait(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends BitSetTrait, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         protected ImmutableBitSet initialValue;
 
         public T initialValue(ImmutableBitSet initialValue) { this.initialValue = initialValue; return self(); }

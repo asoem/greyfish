@@ -2,15 +2,13 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 public class ActionExecutionCountCondition extends IntCompareCondition {
 
@@ -23,7 +21,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @Override
-	protected Integer getCompareValue(ParallelizedSimulation simulation) {
+	protected Integer getCompareValue(Simulation simulation) {
 		return action.getExecutionCount();
 	}
 
@@ -58,20 +56,20 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
         this(new Builder());
     }
 
-    protected ActionExecutionCountCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected ActionExecutionCountCondition(AbstractBuilder<?,?> builder) {
         super(builder);
         this.action = builder.action;
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ActionExecutionCountCondition> {
+    public static final class Builder extends AbstractBuilder<ActionExecutionCountCondition,Builder> {
         private Builder() {}
 
         @Override protected Builder self() { return this; }
-        @Override public ActionExecutionCountCondition build() { return new ActionExecutionCountCondition(this); }
+        @Override public ActionExecutionCountCondition checkedBuild() { return new ActionExecutionCountCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends IntCompareCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends ActionExecutionCountCondition, T extends AbstractBuilder<E, T>> extends IntCompareCondition.AbstractBuilder<E,T> {
         private GFAction action;
 
         public T executionCountOf(GFAction action) { this.action = checkNotNull(action); return self(); }

@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.utils.DeepCloneable;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -14,5 +15,6 @@ import java.util.List;
  * if it has the same name as a different component in this list.</p>
  */
 public interface ComponentList<E extends AgentComponent> extends List<E>, DeepCloneable {
+    @Nullable
     <T extends E> T get(String name, Class<T> clazz);
 }

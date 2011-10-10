@@ -2,8 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Element;
@@ -11,7 +10,7 @@ import org.simpleframework.xml.Element;
 @ClassGroup(tags="actions")
 public class ConvertQuantityAction extends AbstractGFAction {
 
-    @Element(name="source")
+    @Element(name="sender")
     private DoubleProperty parameterSource = null;
 
     @Element(name="target")
@@ -24,7 +23,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
     private double parameterMax = 0;
 
     @Override
-    protected State executeUnconditioned(ParallelizedSimulation simulation) {
+    protected ActionState executeUnconditioned(Simulation simulation) {
         if (parameterSource != null && parameterTarget != null) {
             double add_amount = Math.min(parameterSource.get(), parameterMax) * parameterFactor;
 
@@ -35,7 +34,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
             parameterTarget.setValue(parameterTarget.get() + add_amount);
             parameterSource.setValue(parameterSource.get() - add_amount / parameterFactor );
         }
-        return State.END_SUCCESS;
+        return ActionState.END_SUCCESS;
     }
 
     @Override
@@ -51,7 +50,7 @@ public class ConvertQuantityAction extends AbstractGFAction {
         this.parameterMax = cloneable.parameterMax;
     }
 
-    protected ConvertQuantityAction(AbstractBuilder<?> builder) {
+    protected ConvertQuantityAction(AbstractBuilder<? extends ConvertQuantityAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.parameterTarget = builder.parameterTarget;
         this.parameterFactor = builder.parameterFactor;
@@ -60,13 +59,12 @@ public class ConvertQuantityAction extends AbstractGFAction {
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ConvertQuantityAction> {
-        private Builder() {}
+    public static final class Builder extends AbstractBuilder<ConvertQuantityAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public ConvertQuantityAction build() { return new ConvertQuantityAction(this); }
+        @Override public ConvertQuantityAction checkedBuild() { return new ConvertQuantityAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends ConvertQuantityAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
         private DoubleProperty parameterSource = null;
         private DoubleProperty parameterTarget = null;
         private double parameterFactor = 0;

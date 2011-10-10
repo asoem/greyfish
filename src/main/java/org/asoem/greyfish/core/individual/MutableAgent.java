@@ -2,10 +2,10 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.simpleframework.xml.Root;
@@ -14,18 +14,21 @@ import org.simpleframework.xml.Root;
 public class MutableAgent extends AbstractAgent {
 
     public MutableAgent() {
-        this(new Builder());
+        super(new Body(),
+                new MutableComponentList<GFProperty>(),
+                new MutableComponentList<GFAction>(),
+                new MutableGenome<Gene<?>>());
     }
 
     protected MutableAgent(MutableAgent mutableAgent, DeepCloner map) {
         super(mutableAgent, map);
     }
 
-    protected MutableAgent(AbstractBuilder<?> builder) {
+    protected MutableAgent(AbstractBuilder<?,?> builder) {
         super(new Body(),
                 new MutableComponentList<GFProperty>(builder.properties),
                 new MutableComponentList<GFAction>(builder.actions),
-                new MutableGenome(builder.genes));
+                new MutableGenome<Gene<?>>(builder.genes));
         setPopulation(builder.population);
     }
 
@@ -51,7 +54,7 @@ public class MutableAgent extends AbstractAgent {
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
 
         this.simulationContext = new SimulationContext(simulation, this);
@@ -66,14 +69,18 @@ public class MutableAgent extends AbstractAgent {
         return new MutableAgent(this, cloner);
     }
 
-    public static Builder with() {
-        return new Builder();
+    public static Builder with(Population population) {
+        return new Builder(population);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<MutableAgent> {
+    public static final class Builder extends AbstractBuilder<MutableAgent, Builder> {
+        protected Builder(Population population) {
+            super(population);
+        }
+
         @Override
-        public MutableAgent build() {
-            return new MutableAgent(checkedSelf());
+        public MutableAgent checkedBuild() {
+            return new MutableAgent(this);
         }
         @Override
         protected Builder self() {

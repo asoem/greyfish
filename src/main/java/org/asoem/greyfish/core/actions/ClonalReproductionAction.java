@@ -1,10 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 
@@ -20,14 +19,14 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(ParallelizedSimulation simulation) {
+    protected ActionState executeUnconditioned(Simulation simulation) {
         for (int i = 0; i < parameterClones; i++) {
             simulation.createAgent(
                     agent.get().getPopulation(),
                     agent.get().getCoordinates(),
                     agent.get().createGamete()/*.mutated()*/);
         }
-        return State.END_SUCCESS;
+        return ActionState.END_SUCCESS;
     }
 
     @Override
@@ -40,7 +39,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
         this.parameterClones = cloneable.parameterClones;
     }
 
-    protected ClonalReproductionAction(AbstractBuilder<?> builder) {
+    protected ClonalReproductionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.parameterClones = builder.nClones;
     }
@@ -62,13 +61,13 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ClonalReproductionAction> {
-        private Builder() {}
+
+    public static final class Builder extends AbstractBuilder<ClonalReproductionAction,Builder>  {
         @Override protected Builder self() { return this; }
-        @Override public ClonalReproductionAction build() { return new ClonalReproductionAction(this); }
+        @Override public ClonalReproductionAction checkedBuild() { return new ClonalReproductionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
         private int nClones = 1;
 
         public T clones(int parameterClones) { this.nClones = parameterClones; return self(); }

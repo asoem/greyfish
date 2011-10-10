@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.conditions;
 
 
+import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 @Root
-public interface GFCondition extends AgentComponent {
-
-	public boolean evaluate(ParallelizedSimulation simulation);
+public interface GFCondition extends AgentComponent, Predicate<Simulation> {
 	public boolean isLeafCondition();
 	public boolean isRootCondition();
 	

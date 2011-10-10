@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
@@ -21,7 +21,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
 
     protected GFProperty similarityTrait;
 
-    protected CompatibilityAwareResourceConsumptionAction(AbstractBuilder<?> builder) {
+    protected CompatibilityAwareResourceConsumptionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.similarityTrait = builder.similarityTrait;
     }
@@ -59,30 +59,29 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
     }
 
     @Override
-    protected ACLMessage.Builder createCFP() {
-        ACLMessage.Builder builder = super.createCFP();
+    protected ImmutableACLMessage.Builder createCFP() {
+        ImmutableACLMessage.Builder builder = super.createCFP();
         builder.objectContent(new CompatibilityAwareResourceConversation.CFPContent(amountPerRequest, similarityTrait));
         return builder;
     }
 
     @Override
-    protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
 
         CompatibilityAwareResourceConversation.ProposeContent proposeContent =
                 message.getReferenceContent(CompatibilityAwareResourceConversation.ProposeContent.class);
 
-        return message
-                .createReplyFrom(getAgent().getId())
+        return ImmutableACLMessage.replyTo(message, agent.get().getId())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .objectContent(proposeContent.getAmount());
     }
 
-    public static class Builder extends AbstractBuilder<Builder> implements BuilderInterface<CompatibilityAwareResourceConsumptionAction> {
+    public static class Builder extends AbstractBuilder<CompatibilityAwareResourceConsumptionAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public CompatibilityAwareResourceConsumptionAction build() { return new CompatibilityAwareResourceConsumptionAction(checkedSelf()); }
+        @Override public CompatibilityAwareResourceConsumptionAction checkedBuild() { return new CompatibilityAwareResourceConsumptionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ResourceConsumptionAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends CompatibilityAwareResourceConsumptionAction, T extends AbstractBuilder<E,T>> extends ResourceConsumptionAction.AbstractBuilder<E,T> {
         protected GFProperty similarityTrait;
 
         public T similarityTrait(GFProperty trait) { this.similarityTrait = checkNotNull(trait); return self(); }

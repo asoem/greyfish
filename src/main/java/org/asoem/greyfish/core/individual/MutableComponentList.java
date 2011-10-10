@@ -1,21 +1,23 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ForwardingList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.HookedForwardingList;
 
 import javax.annotation.Nullable;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
  * Date: 18.09.11
  * Time: 15:53
  */
-public class MutableComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
+public class MutableComponentList<E extends AgentComponent> extends HookedForwardingList<E> implements ComponentList<E> {
 
     private final List<E> delegate = Lists.newArrayList();
 
@@ -51,5 +53,15 @@ public class MutableComponentList<E extends AgentComponent> extends ForwardingLi
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new MutableComponentList<E>(this, cloner);
+    }
+
+    @Override
+    protected void beforeAddition(@Nullable E element) {
+        String name = checkNotNull(element).getName();
+        for (E e : delegate) {
+            if (e.hasName(name))
+                throw new IllegalArgumentException("A ComponentList preserves uniqueness of component names." +
+                        "Cannot add a second element with name='" + name + "'");
+        }
     }
 }

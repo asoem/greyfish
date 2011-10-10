@@ -2,12 +2,11 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -30,7 +29,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
     }
 
     @Override
-	public boolean evaluate(ParallelizedSimulation simulation) {
+	public boolean apply(Simulation simulation) {
 		return action != null
 			&& action.wasNotExecutedForAtLeast(simulation, steps);
 	}
@@ -81,21 +80,21 @@ public class LastExecutionTimeCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected LastExecutionTimeCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected LastExecutionTimeCondition(AbstractBuilder<?,?> builder) {
         super(builder);
         this.action = builder.action;
         this.steps = builder.steps;
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<LastExecutionTimeCondition> {
+    public static final class Builder extends AbstractBuilder<LastExecutionTimeCondition, Builder> {
         private Builder() {}
 
         @Override protected Builder self() { return this; }
-        @Override public LastExecutionTimeCondition build() { return new LastExecutionTimeCondition(this); }
+        @Override public LastExecutionTimeCondition checkedBuild() { return new LastExecutionTimeCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends LastExecutionTimeCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
         private GFAction action;
         private int steps;
 

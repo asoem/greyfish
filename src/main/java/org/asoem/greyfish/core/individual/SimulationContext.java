@@ -4,11 +4,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
-import org.asoem.greyfish.core.actions.AbstractGFAction;
+import org.asoem.greyfish.core.actions.ExecutionResult;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.lang.CircularFifoBuffer;
 
@@ -19,14 +19,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 class SimulationContext {
     private final CircularFifoBuffer<ACLMessage> inBox;
-    private final ParallelizedSimulation simulation;
+    private final Simulation simulation;
     private final int timeOfBirth;
     private final int id;
     private final Agent agent;
     private GFAction lastExecutedAction;
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationContext.class);
 
-    public SimulationContext(ParallelizedSimulation simulation, Agent agent) {
+    public SimulationContext(Simulation simulation, Agent agent) {
         this.simulation = checkNotNull(simulation);
         this.agent = checkNotNull(agent);
         this.id = simulation.generateAgentID();
@@ -83,7 +83,7 @@ class SimulationContext {
         return id;
     }
 
-    public ParallelizedSimulation getSimulation() {
+    public Simulation getSimulation() {
         return simulation;
     }
 
@@ -129,7 +129,7 @@ class SimulationContext {
 
         LOGGER.trace("{}: Trying to execute {}", this, action);
 
-        final AbstractGFAction.ExecutionResult result = action.execute(simulation);
+        final ExecutionResult result = action.execute(simulation);
 
         switch (result) {
             case CONDITIONS_FAILED:
@@ -195,7 +195,7 @@ class SimulationContext {
         }
 
         @Override
-        public ParallelizedSimulation getSimulation() {
+        public Simulation getSimulation() {
             throw new UnsupportedOperationException();
         }
 

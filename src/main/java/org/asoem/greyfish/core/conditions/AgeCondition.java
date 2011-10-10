@@ -1,9 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
 
@@ -15,7 +14,7 @@ public final class AgeCondition extends IntCompareCondition {
     }
 
     @Override
-	public boolean evaluate(ParallelizedSimulation simulation) {
+	public boolean apply(Simulation simulation) {
 		return false;
 	}
 
@@ -25,7 +24,7 @@ public final class AgeCondition extends IntCompareCondition {
     }
 
     @Override
-	protected Integer getCompareValue(ParallelizedSimulation simulation) {
+	protected Integer getCompareValue(Simulation simulation) {
 		return agent.get().getAge();
 	}
 
@@ -34,17 +33,15 @@ public final class AgeCondition extends IntCompareCondition {
         this(new Builder());
     }
 
-    private AgeCondition(AbstractBuilder<?> builder) {
+    private AgeCondition(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<AgeCondition> {
-        private Builder() {}
-
+    public static final class Builder extends AbstractBuilder<AgeCondition, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public AgeCondition build() { return new AgeCondition(this); }
+        @Override public AgeCondition checkedBuild() { return new AgeCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends IntCompareCondition.AbstractBuilder<T> {}
+    protected static abstract class AbstractBuilder<E extends AgeCondition, T extends AbstractBuilder<E,T>> extends IntCompareCondition.AbstractBuilder<E,T> {}
 }

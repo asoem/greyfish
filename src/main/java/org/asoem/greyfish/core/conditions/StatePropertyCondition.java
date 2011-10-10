@@ -4,8 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
@@ -29,7 +28,7 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(ParallelizedSimulation simulation) {
+    public boolean apply(Simulation simulation) {
         return stateProperty != null &&
                 Objects.equal(stateProperty.get(), state);
     }
@@ -68,20 +67,19 @@ public class StatePropertyCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected StatePropertyCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected StatePropertyCondition(AbstractBuilder<?,?> builder) {
         super(builder);
         this.state = builder.state;
         this.stateProperty = builder.property;
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<StatePropertyCondition> {
-        private Builder() {}
+    public static final class Builder extends AbstractBuilder<StatePropertyCondition,Builder> {
         @Override protected Builder self() { return this; }
-        @Override public StatePropertyCondition build() { return new StatePropertyCondition(this); }
+        @Override public StatePropertyCondition checkedBuild() { return new StatePropertyCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends StatePropertyCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
         private FiniteSetProperty<?> property;
         private Object state;
 

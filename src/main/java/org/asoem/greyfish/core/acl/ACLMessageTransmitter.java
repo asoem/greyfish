@@ -2,5 +2,5 @@ package org.asoem.greyfish.core.acl;
 
 public interface ACLMessageTransmitter {
 
-	public void deliverMessage(final ACLMessage message);
+	public void deliverMessage(final ImmutableACLMessage message);
 }

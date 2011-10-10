@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.lang.AbstractBuilder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,13 +18,13 @@ public class AgentComponents {
     public static <T extends AgentComponent> T createNewInstance(Class<T> clazz) throws RuntimeException {
         try {
             if (GFAction.class.isAssignableFrom(clazz)) {
-                return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
+                return clazz.cast(org.asoem.greyfish.lang.Builder.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
             }
             else if (GFProperty.class.isAssignableFrom(clazz)) {
-                return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
+                return clazz.cast(org.asoem.greyfish.lang.Builder.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
             }
             else if (GFCondition.class.isAssignableFrom(clazz)) {
-                return clazz.cast(BuilderInterface.class.cast(clazz.getDeclaredMethod("all").invoke(null)).build());
+                return clazz.cast(org.asoem.greyfish.lang.Builder.class.cast(clazz.getDeclaredMethod("all").invoke(null)).build());
             }
             else if (Gene.class.isAssignableFrom(clazz)) {
                 return clazz.getConstructor().newInstance();
@@ -49,7 +49,7 @@ public class AgentComponents {
         return new Builder<T>(clazz);
     }
 
-    public static class Builder<T extends AgentComponent> implements BuilderInterface<T> {
+    public static class Builder<T extends AgentComponent> extends AbstractBuilder<T, Builder<T>> {
         private final Class<T> clazz;
         private String name = "";
 
@@ -58,7 +58,12 @@ public class AgentComponents {
         }
 
         @Override
-        public T build() {
+        protected Builder<T> self() {
+            return this;
+        }
+
+        @Override
+        public T checkedBuild() {
              return createNewInstance(clazz, name);
         }
 

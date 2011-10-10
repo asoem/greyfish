@@ -8,6 +8,7 @@ import org.asoem.kdtree.HyperPoint2;
 import org.asoem.kdtree.KDTuple;
 import org.asoem.kdtree.NNResult;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static scala.collection.JavaConversions.asJavaIterable;
 import static scala.collection.JavaConversions.iterableAsScalaIterable;
 
@@ -37,10 +38,11 @@ public final class AsoemScalaKDTree<T extends Object2D> implements KDTree<T> {
     @SuppressWarnings("unchecked")
     @Override
     public Iterable<T> findObjects(Coordinates2D p, double range) {
+        checkNotNull(p);
 
-        final HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
+        HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
 
-        final scala.collection.immutable.List<NNResult<T>> nnResultList
+        scala.collection.immutable.List<NNResult<T>> nnResultList
                 = (scala.collection.immutable.List<NNResult<T>>) kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
 
         return Iterables.transform(asJavaIterable(nnResultList), new Function<NNResult<T>, T>() {

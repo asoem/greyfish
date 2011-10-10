@@ -4,9 +4,9 @@ import com.google.common.collect.Ordering;
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -68,7 +68,7 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
         setValue(initialValue);
     }
@@ -103,14 +103,14 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
         });
     }
 
-    protected AbstractWellOrderedSetElementProperty(AbstractBuilder<? extends AbstractBuilder, E> builder) {
+    protected AbstractWellOrderedSetElementProperty(AbstractBuilder<?,?,E> builder) {
         super(builder);
         this.lowerBound = builder.lowerBound;
         this.upperBound = builder.upperBound;
         this.initialValue = builder.initialValue;
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<C extends AbstractWellOrderedSetElementProperty<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<C,T> {
         protected E upperBound;
         protected E lowerBound;
         protected E initialValue;

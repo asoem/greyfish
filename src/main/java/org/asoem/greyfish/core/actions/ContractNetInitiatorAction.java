@@ -3,21 +3,18 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.ACLPerformative;
-import org.asoem.greyfish.core.acl.MessageTemplate;
-import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.DeepCloner;
 
 import java.util.Collection;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class ContractNetInitiatorAction extends FiniteStateAction {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
 
     private static enum State {
@@ -35,14 +32,12 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     private int nProposalsReceived;
     private int nInformReceived;
 
-    public ContractNetInitiatorAction(AbstractGFAction.AbstractBuilder<?> builder) {
+    public ContractNetInitiatorAction(AbstractBuilder<? extends ContractNetInitiatorAction, ? extends AbstractBuilder> builder) {
         super(builder);
-        initFSM();
     }
 
     protected ContractNetInitiatorAction(ContractNetInitiatorAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        initFSM();
     }
 
     private MessageTemplate getTemplate() {
@@ -53,38 +48,35 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         this.template = template;
     }
 
-    private MessageTemplate template = MessageTemplate.alwaysFalse();
+    private MessageTemplate template = MessageTemplates.alwaysFalse();
     private int nProposalsMax;
 
-    private void initFSM() {
-        registerInitialState(State.SEND_CFP, new StateAction() {
+    @Override
+    protected Object initialState() {
+        return State.SEND_CFP;
+    }
 
-            @Override
-            public Object run(ParallelizedSimulation simulation) {
-                if (!canInitiate(simulation))
-                   return State.NO_RECEIVERS;
+    @Override
+    protected StateClass executeState(Object state, Simulation simulation) {
+        if (State.SEND_CFP.equals(state)) {
+            if (!canInitiate(simulation))
+                return failure(State.NO_RECEIVERS);
 
-                ACLMessage cfpMessage = createCFP()
-                        .source(agent.get().getId())
-                        .performative(ACLPerformative.CFP).build();
+            ImmutableACLMessage cfpMessage = createCFP()
+                    .sender(agent.get().getId())
+                    .performative(ACLPerformative.CFP).build();
 
-                simulation.deliverMessage(cfpMessage);
+            simulation.deliverMessage(cfpMessage);
 
-                nProposalsMax = cfpMessage.getRecipients().size();
-                timeoutCounter = 0;
-                nProposalsReceived = 0;
-                template = createCFPReplyTemplate(cfpMessage);
+            nProposalsMax = cfpMessage.getRecipients().size();
+            timeoutCounter = 0;
+            nProposalsReceived = 0;
+            template = createCFPReplyTemplate(cfpMessage);
 
-                return State.WAIT_FOR_PROPOSALS;
-            }
-        });
-
-        registerIntermediateState(State.WAIT_FOR_PROPOSALS, new StateAction() {
-
-            @Override
-            public Object run(ParallelizedSimulation simulation) {
-
-                Collection<ACLMessage> proposeReplies = Lists.newArrayList();
+            return transition(State.WAIT_FOR_PROPOSALS);
+        }
+        else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
+             Collection<ACLMessage> proposeReplies = Lists.newArrayList();
                 for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
                     assert (receivedMessage != null);
 
@@ -93,18 +85,15 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
                         case PROPOSE:
                             try {
-                                proposeReply = handlePropose(receivedMessage).build();
-                                assert (proposeReply != null);
+                                proposeReply = checkNotNull(handlePropose(receivedMessage)).build();
                                 proposeReplies.add(proposeReply);
                                 ++nProposalsReceived;
                                 LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
                             } catch (NotUnderstoodException e) {
-                                proposeReply = receivedMessage.createReplyFrom(agent.get().getId())
+                                proposeReply = ImmutableACLMessage.replyTo(receivedMessage, agent.get().getId())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .stringContent(e.getMessage()).build();
                                 LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
-                            } finally {
-                                assert proposeReply != null;
                             }
                             checkProposeReply(proposeReply);
                             agent.get().sendMessage(proposeReply);
@@ -135,30 +124,27 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
                 if (nProposalsMax == 0) {
                     LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
-                    return State.END;
-                } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
+                    return endTransition(State.END);
+                }
+                else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
                     if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
-                        LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
+                        LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
 
                     timeoutCounter = 0;
 
                     if (nProposalsReceived > 0) {
                         template = createAcceptReplyTemplate(proposeReplies);
                         nInformReceived = 0;
-                        return State.WAIT_FOR_INFORM;
+                        return transition(State.WAIT_FOR_INFORM);
                     } else
-                        return State.TIMEOUT;
-                } else {
-                    return State.WAIT_FOR_PROPOSALS;
+                        return failure(State.TIMEOUT);
                 }
-            }
-        });
-
-        registerIntermediateState(State.WAIT_FOR_INFORM, new StateAction() {
-
-            @Override
-            public Object run(ParallelizedSimulation simulation) {
-                assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
+                else {
+                    return transition(State.WAIT_FOR_PROPOSALS);
+                }
+        }
+        else if (State.WAIT_FOR_INFORM.equals(state)) {
+             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
                 for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
                     assert receivedMessage != null;
@@ -193,51 +179,48 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 ++timeoutCounter;
 
                 if (nInformReceived == nProposalsReceived)
-                    return State.END;
+                    return endTransition(State.END);
                 else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
-                    return State.TIMEOUT;
+                    return failure(State.TIMEOUT);
                 else
-                    return State.WAIT_FOR_INFORM;
-            }
-        });
+                    return transition(State.WAIT_FOR_INFORM);
+        }
 
-        registerFailureState(State.TIMEOUT, new EndStateAction(State.TIMEOUT));
-        registerFailureState(State.NO_RECEIVERS, new EndStateAction(State.NO_RECEIVERS));
-        registerFailureState(State.END, new EndStateAction(State.END));
+        throw unknownState();
     }
 
-    protected abstract boolean canInitiate(ParallelizedSimulation simulation);
+    protected abstract boolean canInitiate(Simulation simulation);
 
-    private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
+    private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))
-            return MessageTemplate.alwaysFalse();
+            return MessageTemplates.alwaysFalse();
         else
-            return MessageTemplate.any( // is a reply
+            return MessageTemplates.or( // is a reply
                     Iterables.toArray(
                             Iterables.transform(acceptMessages, new Function<ACLMessage, MessageTemplate>() {
                                 @Override
                                 public MessageTemplate apply(ACLMessage aclMessage) {
-                                    return MessageTemplate.isReplyTo(aclMessage);
+                                    return MessageTemplates.isReplyTo(aclMessage);
                                 }
                             }),
                             MessageTemplate.class));
     }
 
-    private static MessageTemplate createCFPReplyTemplate(final ACLMessage cfp) {
-        return MessageTemplate.isReplyTo(cfp);
+    private static MessageTemplate createCFPReplyTemplate(final ImmutableACLMessage cfp) {
+        return MessageTemplates.isReplyTo(cfp);
     }
 
     private static void checkProposeReply(ACLMessage response) {
         assert(response != null);
-        assert(response.matches(MessageTemplate.any(
-                MessageTemplate.performative(ACLPerformative.ACCEPT_PROPOSAL),
-                MessageTemplate.performative(ACLPerformative.REJECT_PROPOSAL),
-                MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
+        assert(response.matches(MessageTemplates.or(
+                MessageTemplates.performative(ACLPerformative.ACCEPT_PROPOSAL),
+                MessageTemplates.performative(ACLPerformative.REJECT_PROPOSAL),
+                MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ACLMessage.Builder createCFP();
+    protected abstract ImmutableACLMessage.Builder createCFP();
 
-    protected abstract ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException;
 
     protected void handleRefuse(ACLMessage message) {}
 

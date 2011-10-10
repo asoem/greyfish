@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.Comparator;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -27,11 +27,11 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     }
 
     @Override
-    public boolean evaluate(ParallelizedSimulation simulation) {
+    public boolean apply(Simulation simulation) {
         return comparator.compare(getCompareValue(simulation), value);
     }
 
-    protected abstract T getCompareValue(ParallelizedSimulation simulation);
+    protected abstract T getCompareValue(Simulation simulation);
 
     @Override
     public void configure(ConfigurationHandler e) {
@@ -53,13 +53,13 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
         });
     }
 
-    protected CompareCondition(AbstractBuilder<? extends AbstractBuilder, T> builder) {
+    protected CompareCondition(AbstractBuilder<?,?,T> builder) {
         super(builder);
         this.comparator = builder.comparator;
         this.value = builder.value;
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<C extends CompareCondition<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<C,T> {
         private Comparator comparator;
         private E value;
 

@@ -2,9 +2,8 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -33,9 +32,9 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected State executeUnconditioned(ParallelizedSimulation simulation) {
+    protected ActionState executeUnconditioned(Simulation simulation) {
         if (nOffspring == 0 || spermStorage.isEmpty())
-            return State.END_FAILED;
+            return ActionState.END_FAILED;
 
         LOGGER.debug("Producing {} offspring", nOffspring);
 
@@ -48,8 +47,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             );
         }
 
-        agent.get().getLog().add("offspring", nOffspring);
-        return State.END_SUCCESS;
+        return ActionState.END_SUCCESS;
     }
 
     @Override
@@ -96,26 +94,25 @@ public class SexualReproductionAction extends AbstractGFAction {
         this.nOffspring = cloneable.nOffspring;
     }
 
-    protected SexualReproductionAction(AbstractBuilder<?> builder) {
+    protected SexualReproductionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.spermStorage = builder.spermStorage;
         this.nOffspring = builder.nOffspring;
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        agent.get().getLog().set("offspring", 0);
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<SexualReproductionAction> {
+    public static final class Builder extends AbstractBuilder<SexualReproductionAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public SexualReproductionAction build() { return new SexualReproductionAction(this); }
+        @Override public SexualReproductionAction checkedBuild() { return new SexualReproductionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
         private EvaluatedGenomeStorage spermStorage;
         private int nOffspring = 1;
 

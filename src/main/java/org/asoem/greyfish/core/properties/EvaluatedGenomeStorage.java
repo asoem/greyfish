@@ -5,11 +5,10 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.EvaluatedCandidate;
 import org.asoem.greyfish.core.utils.EvaluatedCandidates;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
 
@@ -55,7 +54,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
         spermList.clear();
     }
@@ -70,7 +69,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
         this(new Builder());
     }
 
-    protected EvaluatedGenomeStorage(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected EvaluatedGenomeStorage(AbstractBuilder<? extends EvaluatedGenomeStorage, ? extends AbstractBuilder> builder) {
         super(builder);
     }
 
@@ -81,12 +80,12 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
         return Collections.unmodifiableList(spermList);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<EvaluatedGenomeStorage> {
+    public static final class Builder extends AbstractBuilder<EvaluatedGenomeStorage, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public EvaluatedGenomeStorage build() { return new EvaluatedGenomeStorage(this); }
+        @Override public EvaluatedGenomeStorage checkedBuild() { return new EvaluatedGenomeStorage(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends EvaluatedGenomeStorage,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
     }
 }

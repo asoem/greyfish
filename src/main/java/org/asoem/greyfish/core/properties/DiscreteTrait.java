@@ -9,11 +9,10 @@ import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
     private String currentState = null;
     private boolean dirty = true;
 
-    protected DiscreteTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected DiscreteTrait(AbstractBuilder<?,?> builder) {
         super(builder);
 
         phenotypeConditionMap = ImmutableMap.copyOf(builder.phenotypeConditionMap);
@@ -84,16 +83,15 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DiscreteTrait> {
-        private Builder() {}
+    public static final class Builder extends AbstractBuilder<DiscreteTrait,Builder> {
         @Override protected Builder self() { return this; }
-        @Override public DiscreteTrait build() { return new DiscreteTrait(checkedSelf()); }
+        @Override public DiscreteTrait checkedBuild() { return new DiscreteTrait(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends DiscreteTrait,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         private final Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = Maps.newHashMap();
 
-        public AbstractBuilder<T> addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactory.compileExpression(when).forContext(DiscreteTrait.class)); return self();}
+        public T addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactory.compileExpression(when).forContext(DiscreteTrait.class)); return self();}
     }
 
 }

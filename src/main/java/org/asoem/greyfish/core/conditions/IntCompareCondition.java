@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,9 +29,9 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
         });
     }
 
-    protected IntCompareCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected IntCompareCondition(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends CompareCondition.AbstractBuilder<T, Integer> {}
+    protected static abstract class AbstractBuilder<E extends IntCompareCondition, T extends AbstractBuilder<E,T>> extends CompareCondition.AbstractBuilder<E,T, Integer> {}
 }

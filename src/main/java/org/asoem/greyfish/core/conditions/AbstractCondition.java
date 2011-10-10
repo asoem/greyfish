@@ -58,11 +58,11 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
     public void configure(ConfigurationHandler e) {
     }
 
-    protected AbstractCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected AbstractCondition(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractAgentComponent.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends AbstractCondition, T extends AbstractBuilder<E,T>> extends AbstractAgentComponent.AbstractBuilder<E,T> {
     }
 
     @Override

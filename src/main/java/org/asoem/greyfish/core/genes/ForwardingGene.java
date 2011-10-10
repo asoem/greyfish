@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -106,7 +106,7 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
-    public void prepare(ParallelizedSimulation context) {
+    public void prepare(Simulation context) {
         delegate.prepare(context);
     }
 

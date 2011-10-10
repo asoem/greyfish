@@ -1,14 +1,13 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
+import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.lang.ImmutableBitSet;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.RandomUtils;
 
 /**
@@ -33,7 +32,7 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
         doubleGene = registerGene(ImmutableGene.newMutatedCopy(doubleTrait.doubleGene));
     }
 
-    protected DoubleTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected DoubleTrait(AbstractBuilder<?,?> builder) {
         super(builder);
         doubleGene = registerGene(new ImmutableGene<Double>(
                 RandomUtils.RANDOM_DATA.nextUniform(getLowerBound(), getUpperBound()),
@@ -78,12 +77,13 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoubleTrait> {
+
+    public static final class Builder extends AbstractBuilder<DoubleTrait, Builder>  {
         @Override protected Builder self() { return this; }
-        @Override public DoubleTrait build() { return new DoubleTrait(checkedSelf()); }
+        @Override public DoubleTrait checkedBuild() { return new DoubleTrait(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends DoubleTrait, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         protected ImmutableBitSet initialValue;
 
         public T initialValue(ImmutableBitSet initialValue) { this.initialValue = initialValue; return self(); }

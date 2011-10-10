@@ -3,13 +3,13 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
@@ -38,7 +38,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
         double requested;
         try {
             requested = message.getReferenceContent(Double.class);
@@ -46,7 +46,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
 
-        ACLMessage.Builder ret = message.createReplyFrom(getAgent().getId());
+        ImmutableACLMessage.Builder ret = ImmutableACLMessage.replyTo(message, getAgent().getId());
 
         double offer = Math.min(requested, resourceProperty.get());
 
@@ -63,7 +63,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ACLMessage.Builder handleAccept(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder handleAccept(ACLMessage message) throws NotUnderstoodException {
         try {
             double offer = message.getReferenceContent(Double.class);
             assert resourceProperty.get() >= offer : "Values have changed unexpectedly";
@@ -71,8 +71,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
             LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Subtracting {}", offer);
 
             resourceProperty.subtract(offer);
-            return message
-                    .createReplyFrom(getAgent().getId())
+            return ImmutableACLMessage.replyTo(message, getAgent().getId())
                     .performative(ACLPerformative.INFORM)
                     .objectContent(offer);
         } catch (IllegalArgumentException e) {
@@ -126,19 +125,20 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         this.parameterMessageType = cloneable.parameterMessageType;
     }
 
-    protected ResourceProvisionAction(AbstractBuilder<?> builder) {
+    protected ResourceProvisionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.parameterMessageType = builder.parameterMessageType;
         this.resourceProperty = builder.resourceProperty;
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProvisionAction> {
+
+    public static final class Builder extends AbstractBuilder<ResourceProvisionAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public ResourceProvisionAction build() { return new ResourceProvisionAction(checkedSelf()); }
+        @Override public ResourceProvisionAction checkedBuild() { return new ResourceProvisionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
         protected ResourceProperty resourceProperty;
         protected String parameterMessageType;
 

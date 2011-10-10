@@ -10,7 +10,6 @@ import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.core.individual.ImmutableComponentList;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloneable;
 import org.asoem.greyfish.utils.DeepCloner;
 
@@ -30,7 +29,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
 
     private final ComponentList<E> delegate;
 
-    private ImmutableGenome(Builder<E> builder) {
+    private ImmutableGenome(Builder builder) {
         delegate = ImmutableComponentList.copyOf(builder.genes);
     }
 
@@ -76,7 +75,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
     }
 
     public static <E extends Gene<?>> ImmutableGenome<E> copyOf(Iterable<? extends E> genes) {
-        return new Builder<E>().addAll(genes).build();
+        return new Builder().addAll(genes).build();
     }
 
     @Override
@@ -84,12 +83,12 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
         return delegate.get(name, clazz);
     }
 
-    protected static class Builder<E extends Gene<?>> implements BuilderInterface<ImmutableGenome<E>> {
+    protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.lang.Builder<ImmutableGenome<E>> {
         private final List<E> genes = Lists.newArrayList();
 
-        public Builder<E> add(E gene) { this.genes.add(gene); return this; }
-        public Builder<E> add(E ... genes) { this.genes.addAll(Arrays.asList(genes)); return this; }
-        public Builder<E> addAll(Iterable<? extends E> genes) { Iterables.addAll(this.genes, genes); return this; }
+        public Builder add(E gene) { this.genes.add(gene); return this; }
+        public Builder add(E ... genes) { this.genes.addAll(Arrays.asList(genes)); return this; }
+        public Builder addAll(Iterable<? extends E> genes) { Iterables.addAll(this.genes, genes); return this; }
 
         @Override
         public ImmutableGenome<E> build() {

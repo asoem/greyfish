@@ -2,8 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.share.Consumer;
 import org.asoem.greyfish.core.share.ConsumerGroup;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.DeepCloner;
 
@@ -25,7 +24,7 @@ public class ResourceProperty extends DoubleProperty {
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
         consumerGroup.removeAllConsumer();
     }
@@ -35,7 +34,7 @@ public class ResourceProperty extends DoubleProperty {
         return new ResourceProperty(this, cloner);
     }
 
-    protected ResourceProperty(DoubleProperty.AbstractBuilder<? extends DoubleProperty.AbstractBuilder> builder) {
+    protected ResourceProperty(DoubleProperty.AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
@@ -44,11 +43,10 @@ public class ResourceProperty extends DoubleProperty {
     }
 
 //    public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceProperty> {
-        public Builder() {}
+    public static final class Builder extends AbstractBuilder<ResourceProperty, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public ResourceProperty build() { return new ResourceProperty(this); }
+        @Override public ResourceProperty checkedBuild() { return new ResourceProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DoubleProperty.AbstractBuilder<T> {}
+    protected static abstract class AbstractBuilder<E extends ResourceProperty, T extends AbstractBuilder<E,T>> extends DoubleProperty.AbstractBuilder<E,T> {}
 }

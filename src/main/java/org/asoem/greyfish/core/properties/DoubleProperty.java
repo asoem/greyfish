@@ -2,10 +2,9 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
@@ -40,7 +39,7 @@ public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double
 		setValue(value + val);
 	}
 
-    protected DoubleProperty(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected DoubleProperty(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
@@ -56,10 +55,10 @@ public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double
         return value;
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoubleProperty> {
-        private Builder() {lowerBound(0.0).upperBound(0.0).initialValue(0.0);}
+    public static final class Builder extends AbstractBuilder<DoubleProperty, Builder> {
+        public Builder() {lowerBound(0.0).upperBound(0.0).initialValue(0.0);}
         @Override protected Builder self() { return this; }
-        @Override public DoubleProperty build() {
+        @Override public DoubleProperty checkedBuild() {
             checkState(lowerBound != null);
             checkState(upperBound != null);
             checkState(initialValue != null);
@@ -67,6 +66,6 @@ public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double
             return new DoubleProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractWellOrderedSetElementProperty.AbstractBuilder<T, Double> {
+    protected static abstract class AbstractBuilder<E extends DoubleProperty, T extends AbstractBuilder<E, T>> extends AbstractWellOrderedSetElementProperty.AbstractBuilder<E, T, Double> {
     }
 }

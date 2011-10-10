@@ -8,11 +8,11 @@ import org.slf4j.Marker;
  * Date: 28.04.11
  * Time: 09:47
  */
-public class ForwardingLogger implements Logger {
+public class SLF4JLoggerAdaptor implements Logger {
 
     private final org.slf4j.Logger logger;
 
-    public ForwardingLogger(org.slf4j.Logger logger) {
+    public SLF4JLoggerAdaptor(org.slf4j.Logger logger) {
         Preconditions.checkNotNull(logger);
         this.logger = logger;
     }

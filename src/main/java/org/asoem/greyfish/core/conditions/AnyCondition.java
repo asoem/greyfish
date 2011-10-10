@@ -5,9 +5,8 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.utils.DeepCloner;
 
 /**
@@ -22,15 +21,15 @@ public class AnyCondition extends LogicalOperatorCondition {
     }
 
     @Override
-    public boolean evaluate(final ParallelizedSimulation simulation) {
+    public boolean apply(final Simulation simulation) {
         switch (conditions.size()) {
             case 0 : return true;
-            case 1 : return conditions.get(0).evaluate(simulation);
-            case 2 : return conditions.get(0).evaluate(simulation) || conditions.get(1).evaluate(simulation);
+            case 1 : return conditions.get(0).apply(simulation);
+            case 2 : return conditions.get(0).apply(simulation) || conditions.get(1).apply(simulation);
             default : return Iterables.any(conditions, new Predicate<GFCondition>() {
                 @Override
                 public boolean apply(GFCondition condition) {
-                    return condition.evaluate(simulation);
+                    return condition.apply(simulation);
                 }
             });
         }
@@ -46,16 +45,14 @@ public class AnyCondition extends LogicalOperatorCondition {
         this(new Builder());
     }
 
-    protected AnyCondition(AbstractBuilder<?> builder) {
+    protected AnyCondition(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<AnyCondition> {
-        private Builder() {}
-
+    public static final class Builder extends AbstractBuilder<AnyCondition,Builder> {
         @Override protected Builder self() { return this; }
-        @Override public AnyCondition build() { return new AnyCondition(this); }
+        @Override public AnyCondition checkedBuild() { return new AnyCondition(this); }
         public Builder any(GFCondition ... conditions) { return super.add(conditions); }
     }
 }

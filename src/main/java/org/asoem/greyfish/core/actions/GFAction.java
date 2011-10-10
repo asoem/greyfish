@@ -2,22 +2,26 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.NamedDeepCloneableIndividualComponent;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 
-public interface GFAction extends AgentComponent, NamedDeepCloneableIndividualComponent {
+public interface GFAction extends AgentComponent {
 
-	public boolean evaluateConditions(ParallelizedSimulation simulation);
+	public boolean evaluateCondition(Simulation simulation);
 	
-	public AbstractGFAction.ExecutionResult execute(ParallelizedSimulation simulation);
+	public ExecutionResult execute(Simulation simulation);
 
-	public double evaluateFormula(ParallelizedSimulation simulation);
-	
+	public double evaluateFormula(Simulation simulation);
+
+    public ActionState getActionState();
+
+    /**
+     * @return the number of times this {@code GFAction} was executed when in {@link ActionState#DORMANT}
+     */
 	public int getExecutionCount();
 	
 //	public boolean isLast();
 	
-	public boolean wasNotExecutedForAtLeast(final ParallelizedSimulation simulation, final int steps);
+	public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps);
 
     public void setRootCondition(GFCondition rootCondition);
 

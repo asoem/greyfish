@@ -7,13 +7,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.*;
 import org.simpleframework.xml.Element;
@@ -94,7 +94,6 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private boolean receiveGenome(EvaluatedGenome genome) {
         spermBuffer.addGenome(genome, genome.getFitness());
-        getAgent().getLog().add("spermReceived", 1);
 
         LOGGER.trace(getAgent() + " received sperm: " + genome);
 
@@ -102,20 +101,25 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ACLMessage.Builder createCFP() {
-        assert(!Iterables.isEmpty(sensedMates)); // see #evaluateConditions(Simulation)
+    protected ImmutableACLMessage.Builder createCFP() {
+        int sensedMatesCount = Iterables.size(sensedMates);
+        assert(sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
-        return ACLMessage.with()
-                .source(getAgent().getId())
+        return ImmutableACLMessage.with()
+                .sender(agent.get().getId())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
-                .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId());
+                .addReceiver(
+                        ((sensedMatesCount) == 1
+                                ? sensedMates.iterator().next()
+                                : Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount))
+                        ).getId());
     }
 
     @Override
-    protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        ACLMessage.Builder builder = message.createReplyFrom(this.getAgent().getId());
+    protected ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
+        ImmutableACLMessage.Builder builder = ImmutableACLMessage.replyTo(message, this.agent.get().getId());
         try {
             EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
             receiveGenome(evaluatedGenome);
@@ -133,8 +137,8 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(ParallelizedSimulation simulation) {
-        final Iterable neighbours = agent.get().findNeighbours(sensorRange);
+    protected boolean canInitiate(Simulation simulation) {
+        Iterable neighbours = agent.get().findNeighbours(sensorRange);
         sensedMates = filter(neighbours, Agent.class);
         sensedMates = filter(sensedMates, not(equalTo(agent.get())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
@@ -153,7 +157,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         this.sensorRange = cloneable.sensorRange;
     }
 
-    protected MatingReceiverAction(AbstractBuilder<?> builder) {
+    protected MatingReceiverAction(AbstractBuilder<?extends MatingReceiverAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.spermBuffer = builder.spermBuffer;
         this.ontology = builder.ontology;
@@ -161,25 +165,33 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     public static Builder with() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<MatingReceiverAction> {
-        private Builder() {}
+
+    public static final class Builder extends AbstractBuilder<MatingReceiverAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public MatingReceiverAction build() {
+
+        @Override
+        protected MatingReceiverAction checkedBuild() {
+            return new MatingReceiverAction(this);
+        }
+    }
+
+    protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
+        protected EvaluatedGenomeStorage spermBuffer = null;
+        protected String ontology = "";
+        protected double sensorRange = 1.0;
+
+        public T spermStorage(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
+        public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
+        public T searchRadius(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            super.checkBuilder();
             checkState(spermBuffer != null, "Builder must define a valid spermBuffer.");
             if (sensorRange <= 0)
                 LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))
                 LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
-            return new MatingReceiverAction(this); }
-    }
-
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
-        protected EvaluatedGenomeStorage spermBuffer = null;
-        protected String ontology = "";
-        protected double sensorRange = 1.0;
-
-        public T storesSpermIn(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
-        public T fromMatesOfType(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
-        public T closerThan(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+        }
     }
 }

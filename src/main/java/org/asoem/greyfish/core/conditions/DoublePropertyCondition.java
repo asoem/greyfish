@@ -2,10 +2,9 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -43,7 +42,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
 	@Override
-	protected Double getCompareValue(ParallelizedSimulation simulation) {
+	protected Double getCompareValue(Simulation simulation) {
 		return doubleProperty.get();
 	}
 
@@ -56,20 +55,18 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
         this(new Builder());
     }
 
-    protected DoublePropertyCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected DoublePropertyCondition(AbstractBuilder<?,?> builder) {
         super(builder);
         this.doubleProperty = builder.doubleProperty;
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<DoublePropertyCondition> {
-        private Builder() {}
-
+    public static final class Builder extends AbstractBuilder<DoublePropertyCondition, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public DoublePropertyCondition build() { return new DoublePropertyCondition(this); }
+        @Override public DoublePropertyCondition checkedBuild() { return new DoublePropertyCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends DoubleCompareCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends DoublePropertyCondition, T extends AbstractBuilder<E,T>> extends DoubleCompareCondition.AbstractBuilder<E,T> {
         private DoubleProperty doubleProperty;
 
         public T valueOf(DoubleProperty doubleProperty) { this.doubleProperty = doubleProperty; return self(); }

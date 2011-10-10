@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ValueAdaptor;
 
 public abstract class DoubleCompareCondition extends CompareCondition<Double> {
@@ -26,9 +26,9 @@ public abstract class DoubleCompareCondition extends CompareCondition<Double> {
         });
 	}
 
-    protected DoubleCompareCondition(AbstractBuilder<?> builder) {
+    protected DoubleCompareCondition(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends CompareCondition.AbstractBuilder<T, Double> {}
+    protected static abstract class AbstractBuilder<E extends DoubleCompareCondition, T extends AbstractBuilder<E, T>> extends CompareCondition.AbstractBuilder<E, T, Double> {}
 }

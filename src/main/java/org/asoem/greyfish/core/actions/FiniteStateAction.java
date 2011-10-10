@@ -1,20 +1,16 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.DeepCloner;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 public abstract class FiniteStateAction extends AbstractGFAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
+    private int statefulExecutionCount;
 
-    protected FiniteStateAction(AbstractGFAction.AbstractBuilder<?> builder) {
+    protected FiniteStateAction(AbstractGFAction.AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
@@ -22,80 +18,82 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         super(cloneable, cloner);
     }
 
-    /* Immutable after freeze */
-    private ImmutableMap<Object, FSMState> states = ImmutableMap.of();
+    private Object currentStateKey = initialState();
+    private boolean endStateReached = false;
 
-    /* Always mutable */
-    private Object currentStateKey;
+    protected static class StateClass {
+        private StateClass() {
+        }
+    }
+    private static final StateClass INITIAL = new StateClass();
+    private static final StateClass INTERMEDIATE = new StateClass();
+    private static final StateClass END = new StateClass();
 
     @Override
-    protected final State executeUnconditioned(ParallelizedSimulation simulation) {
-        Preconditions.checkState(currentStateKey != null);
-        Preconditions.checkState(states.containsKey(currentStateKey));
+    protected final ActionState executeUnconditioned(Simulation simulation) {
 
-        StateAction stateActionToExecute = states.get(currentStateKey).getStateAction();
-        Object nextStateKey = stateActionToExecute.run(simulation);
+        if (endStateReached)
+            resetTransition(initialState());
 
-        LOGGER.debug("{}: Transition to {}", this, nextStateKey);
-        currentStateKey = nextStateKey;
+        Object nextStateKey = executeState(currentStateKey, simulation);
+        if (nextStateKey == null)
+            throw new NullPointerException("An implementation of executeState() must not return null");
 
-        return states.get(currentStateKey).getStateType();
+        ++statefulExecutionCount;
+
+        if (endStateReached)
+            return ActionState.END_SUCCESS;
+        else
+            return ActionState.ACTIVE;
+    }
+
+    protected abstract Object initialState();
+
+    protected abstract StateClass executeState(Object state, Simulation simulation);
+
+    protected final <T> StateClass resetTransition(T state) {
+        currentStateKey = state;
+        LOGGER.debug("{}: Reset to {}", this, state);
+        return INITIAL;
+    }
+
+    protected final <T> StateClass transition(T state) {
+        currentStateKey = state;
+        LOGGER.debug("{}: Transition to {}", this, state);
+        return INTERMEDIATE;
+    }
+
+    protected final <T> StateClass failure(T state) {
+        currentStateKey = state;
+        endStateReached = true;
+        LOGGER.debug("{}: Failure: {}", this, state);
+        return END;
+    }
+
+    protected final <T> StateClass endTransition(T state) {
+        currentStateKey = state;
+        endStateReached = true;
+        LOGGER.debug("{}: End transition: {}", this, state);
+        return END;
+    }
+
+    protected final AssertionError unknownState() {
+        LOGGER.error("{}: Unknown State: {}", this, currentStateKey);
+        return new AssertionError("The implementation of executeState() of " + this + " does not handle state '" + currentStateKey + "'");
     }
 
     @Override
     protected void reset() {
         super.reset();
-        LOGGER.debug("{}: EndTransition to {}", this, getInitialStateKey());
-        currentStateKey = getInitialStateKey();
-    }
-
-    private Object getInitialStateKey() {
-        if (states.size() == 0)
-            return null;
-
-        Object firstKey = states.keySet().asList().get(0);
-        if (states.get(firstKey).getStateType() != State.DORMANT)
-            return null;
-        else
-            return firstKey;
+        LOGGER.debug("{}: EndTransition to {}", this, initialState());
+        currentStateKey = initialState();
     }
 
     @Override
-    public void prepare(ParallelizedSimulation simulation) {
+    public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        currentStateKey = getInitialStateKey();
-    }
-
-    protected final void registerInitialState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.DORMANT);
-    }
-
-    protected final void registerIntermediateState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.ACTIVE);
-    }
-
-    protected final void registerEndState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.END_SUCCESS);
-    }
-
-    protected final void registerFailureState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.END_FAILED);
-    }
-
-    private void registerStateInternal(final Object stateKey, final StateAction action, final State stateType) {
-        checkNotNull(stateKey);
-        checkNotNull(action);
-        checkNotNull(stateType);
-        switch (stateType) {
-            case DORMANT:
-                // put in front of the map
-                states = ImmutableMap.<Object, FSMState>builder().put(stateKey, new FSMState(stateType, action)).putAll(states).build();
-                break;
-            default:
-                // put at the end of the map
-                states = ImmutableMap.<Object, FSMState>builder().putAll(states).put(stateKey, new FSMState(stateType, action)).build();
-                break;
-        }
+        currentStateKey = initialState();
+        statefulExecutionCount = 0;
     }
 
     @Override
@@ -103,40 +101,15 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getAgent();
     }
 
-    protected interface StateAction {
-        public Object run(ParallelizedSimulation simulation);
+    /**
+     * Won't report the number af actual invocations of this {@code FiniteStateAction}. Use {@link #getStatefulExecutionCount}
+     */
+    @Override
+    public int getExecutionCount() {
+        return super.getExecutionCount();
     }
 
-    protected static class EndStateAction implements StateAction {
-        private final Object stateKey;
-
-        public EndStateAction(Object stateKey) {
-            this.stateKey = stateKey;
-        }
-
-        @Override
-        final public Object run(ParallelizedSimulation simulation) {
-            return stateKey;
-        }
-    }
-
-    protected static class FSMState {
-        private final State stateType;
-        private final StateAction stateAction;
-
-        public FSMState(State stateType, StateAction stateAction) {
-            Preconditions.checkNotNull(stateType);
-            Preconditions.checkNotNull(stateAction);
-            this.stateType = stateType;
-            this.stateAction = stateAction;
-        }
-
-        public State getStateType() {
-            return stateType;
-        }
-
-        public StateAction getStateAction() {
-            return stateAction;
-        }
+    public int getStatefulExecutionCount() {
+        return statefulExecutionCount;
     }
 }

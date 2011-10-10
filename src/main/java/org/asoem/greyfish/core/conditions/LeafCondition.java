@@ -8,7 +8,9 @@ import java.util.List;
 
 public abstract class LeafCondition extends AbstractCondition {
 
-	protected LeafCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected LeafCondition() {}
+
+    protected LeafCondition(AbstractBuilder<?,?> builder) {
         super(builder);
 	}
 

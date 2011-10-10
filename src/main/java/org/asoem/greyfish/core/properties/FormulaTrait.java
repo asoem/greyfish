@@ -4,7 +4,6 @@ import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.asoem.greyfish.lang.ClassGroup;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloneable;
@@ -25,7 +24,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
 
     private GreyfishExpression<FormulaTrait> expression = compileExpression("0").forContext(FormulaTrait.class);
 
-    protected FormulaTrait(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected FormulaTrait(AbstractBuilder<? extends FormulaTrait, ? extends AbstractBuilder> builder) {
         super(builder);
         this.expression = builder.expression;
     }
@@ -55,7 +54,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
         }
     }
 
-    public static class Builder extends AbstractBuilder<Builder> implements BuilderInterface<FormulaTrait> {
+    public static class Builder extends AbstractBuilder<FormulaTrait, Builder> {
 
         @Override
         protected Builder self() {
@@ -63,12 +62,12 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
         }
 
         @Override
-        public FormulaTrait build() {
-            return new FormulaTrait(checkedSelf());
+        public FormulaTrait checkedBuild() {
+            return new FormulaTrait(this);
         }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends AbstractGFProperty.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends FormulaTrait, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         private GreyfishExpression<FormulaTrait> expression;
 
         public T expression(String expression) { this.expression = compileExpression(expression).forContext(FormulaTrait.class); return self(); }

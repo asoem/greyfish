@@ -8,10 +8,10 @@ package org.asoem.greyfish.core.io;
 public class LoggerFactory {
 
     public static Logger getLogger(Class<?> clazz) {
-        return new ForwardingLogger(org.slf4j.LoggerFactory.getLogger(clazz));
+        return new SLF4JLoggerAdaptor(org.slf4j.LoggerFactory.getLogger(clazz));
     }
 
     public static Logger getLogger(String name) {
-        return new ForwardingLogger(org.slf4j.LoggerFactory.getLogger(name));
+        return new SLF4JLoggerAdaptor(org.slf4j.LoggerFactory.getLogger(name));
     }
 }

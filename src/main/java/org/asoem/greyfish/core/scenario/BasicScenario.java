@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementArray;
@@ -126,16 +125,16 @@ public class BasicScenario implements Scenario {
     }
 
     /**
-     * Returns a new builder. The generated builder is equivalent to the builder created by the {@link BasicScenario.Builder} constructor.
+     * Returns a new builder. The generated builder is equivalent to the builder created by the {@link org.asoem.greyfish.core.scenario.BasicScenario.Builder} constructor.
      * @param name the name of this {@code Scenario}
      * @param space the {@code TiledSpace} for this {@code Scenario}
-     * @return a new {@link Builder} instance
+     * @return a new {@link org.asoem.greyfish.core.scenario.BasicScenario.Builder} instance
      */
     public static Builder builder(String name, TiledSpace space) {
         return new Builder(name, space);
     }
 
-    public static class Builder implements BuilderInterface<Scenario> {
+    public static class Builder implements org.asoem.greyfish.lang.Builder<Scenario> {
         private TiledSpace space;
         private final Multimap<Agent, Object2D> map = ArrayListMultimap.create();
         private String name;

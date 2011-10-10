@@ -3,10 +3,9 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -23,7 +22,7 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(ParallelizedSimulation simulation) {
+    public boolean apply(Simulation simulation) {
         return isSameAction(action, agent.get().getLastExecutedAction());
     }
 
@@ -61,20 +60,18 @@ public class LastExecutedActionCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected LastExecutedActionCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected LastExecutedActionCondition(AbstractBuilder<?,?> builder) {
         super(builder);
         this.action = builder.action;
     }
 
     public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<LastExecutedActionCondition> {
-        private Builder() {}
-
+    public static final class Builder extends AbstractBuilder<LastExecutedActionCondition, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public LastExecutedActionCondition build() { return new LastExecutedActionCondition(this); }
+        @Override public LastExecutedActionCondition checkedBuild() { return new LastExecutedActionCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends LastExecutedActionCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
         private GFAction action;
 
         public T theLastExecutedActionWas(GFAction action) { this.action = action; return self(); }

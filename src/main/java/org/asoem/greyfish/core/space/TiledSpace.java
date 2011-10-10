@@ -103,7 +103,8 @@ public class TiledSpace implements Iterable<TileLocation> {
 
     public boolean covers(Coordinates2D value) {
         checkNotNull(value);
-        return hasTileAt((int) Math.floor(value.getX()), (int) Math.floor(value.getY()));
+        return value.getX() == 0 && value.getY() == 0  // 0,0 is always covered
+                || hasTileAt((int) Math.floor(value.getX()), (int) Math.floor(value.getY()));
     }
 
     public boolean hasTileAt(int x, int y) {

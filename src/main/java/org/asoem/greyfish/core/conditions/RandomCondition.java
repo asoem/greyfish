@@ -1,9 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.DeepCloner;
 import org.asoem.greyfish.utils.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
@@ -20,7 +19,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(ParallelizedSimulation simulation) {
+    public boolean apply(Simulation simulation) {
         return Math.random() < probability;
     }
 
@@ -48,16 +47,16 @@ public class RandomCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected RandomCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    protected RandomCondition(AbstractBuilder<?,?> builder) {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<RandomCondition> {
+    public static final class Builder extends AbstractBuilder<RandomCondition, Builder> {
         @Override protected Builder self() { return this; }
-        public RandomCondition build() { return new RandomCondition(this); }
+        public RandomCondition checkedBuild() { return new RandomCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
+    protected static abstract class AbstractBuilder<E extends RandomCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
         private double probability;
 
         public T probability(double probability) { checkArgument(probability >= 0 && probability <= 1); this.probability = probability; return self(); }

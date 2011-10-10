@@ -1,9 +1,12 @@
-package org.asoem.greyfish.core.actions;
+package org.asoem.greyfish.core.agent_interaction;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import jdave.Specification;
 import jdave.junit4.JDaveRunner;
+import org.asoem.greyfish.core.actions.CompatibilityAwareResourceConsumptionAction;
+import org.asoem.greyfish.core.actions.CompatibilityAwareResourceProvisionAction;
+import org.asoem.greyfish.core.actions.ContractNetInitiatorAction;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
@@ -19,8 +22,6 @@ import org.asoem.greyfish.lang.ImmutableBitSet;
 import org.junit.runner.RunWith;
 
 import java.awt.*;
-
-import static org.asoem.greyfish.core.space.MutableObject2D.at;
 
 /**
  * User: christoph
@@ -41,8 +42,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .storesEnergyIn(energyStorage)
                         .similarityTrait(trait1)
                         .build();
-        final Agent consumer = ImmutableAgent.of(null)
-                        .population(Population.newPopulation("TestPop1", Color.black))
+        final Agent consumer = ImmutableAgent.of(Population.newPopulation("TestPop1", Color.black))
                         .addProperties(trait1, energyStorage)
                         .addActions(consumptionAction)
                         .build();
@@ -56,8 +56,7 @@ public class CompatibilityAwareResourceInteractionSpec extends Specification<Con
                         .resourceProperty(resourceProperty)
                         .similarityTrait(trait)
                         .build();
-        final Agent provider = ImmutableAgent.of(null)
-                        .population(Population.newPopulation("TestPop2", Color.black))
+        final Agent provider = ImmutableAgent.of(Population.newPopulation("TestPop2", Color.black))
                         .addProperties(trait, resourceProperty)
                         .addActions(provisionAction)
                         .build();

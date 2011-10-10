@@ -1,30 +1,32 @@
 package org.asoem.greyfish.core.acl;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import javolution.util.FastList;
+import jsr166y.ForkJoinPool;
+import jsr166y.RecursiveAction;
 import org.asoem.greyfish.core.individual.MessageReceiver;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Iterators.transform;
 import static com.google.common.collect.Iterators.unmodifiableIterator;
 
 public class PostOffice implements Iterable<ACLMessage> {
 
-    private static final int BINS = 64;
+    private static final int BINS = 64; // should be a power of 2
 
     private final List<List<MessageWrapper>> receiverLists = Lists.newArrayListWithCapacity(BINS);
 
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+
     private int messageCounter;
 
-    private PostOffice() {
+    public PostOffice() {
         for (int i = 0; i < BINS; i++) {
             receiverLists.add(FastList.<MessageWrapper>newInstance());
         }
@@ -34,39 +36,62 @@ public class PostOffice implements Iterable<ACLMessage> {
         for (List<MessageWrapper> messageWrappers : receiverLists) {
             messageWrappers.clear();
         }
+        messageCounter = 0;
     }
 
-    public void deliverOrDiscard(Iterable<? extends MessageReceiver> agents) {
-        checkNotNull(agents);
+    /**
+     * @param receiverFunction a {@code Function} to get a receiver for a given id. {@code PostOffice} will call this {@code Function} <b>asynchronously</b>,
+     * so you should take care of synchronization issues!
+     */
+    public void deliverOrDiscardAllMessages(final Function<Integer, ? extends MessageReceiver> receiverFunction) {
+        checkNotNull(receiverFunction);
 
-        final Map<Integer, MessageReceiver> agentMap = Maps.newHashMap();
-        for (int i = 0; i < BINS; i++) {
-            for (final MessageWrapper message : receiverLists.get(i)) {
-                if (!agentMap.containsKey(message.receiverId)) {
-                    MessageReceiver agent = Iterables.find(agents, new Predicate<MessageReceiver>() {
-                        @Override
-                        public boolean apply(MessageReceiver agent) {
-                            return agent.getId() == message.receiverId;
-                        }
-                    }, null);
-                    agentMap.put(message.receiverId, agent);
+        if (size() > 1000) { // TODO: Threshold set just by gut feeling. TEST IT!
+            forkJoinPool.invoke(new RecursiveAction() {
+                @Override
+                protected void compute() {
+                    invokeAll(
+                            new RecursiveAction() {
+                                @Override
+                                protected void compute() {
+                                    for (MessageWrapper message : concat(receiverLists.subList(0, (BINS / 2) - 1))) {
+                                        pushMessageToReceiver(receiverFunction.apply(message.receiverId), message);
+                                    }
+                                }
+                            },
+                            new RecursiveAction() {
+                                @Override
+                                protected void compute() {
+                                    for (MessageWrapper message : concat(receiverLists.subList((BINS / 2), BINS - 1))) {
+                                        pushMessageToReceiver(receiverFunction.apply(message.receiverId), message);
+                                    }
+                                }
+                            }
+                    );
                 }
-
-                MessageReceiver agent = agentMap.get(message.receiverId);
-                if (agent != null)
-                    agent.pushMessage(message.message);
-            }
-            agentMap.clear();
-            receiverLists.get(i).clear();
+            });
         }
+        else {
+            for (MessageWrapper message : concat(receiverLists)) {
+                pushMessageToReceiver(receiverFunction.apply(message.receiverId), message);
+            }
+        }
+
+        clear();
+    }
+
+    private static void pushMessageToReceiver(MessageReceiver receiver, ACLMessage message) {
+        assert receiver != null;
+        receiver.pushMessage(message);
     }
 
     /**
      *
+     *
      * @param message the message
      * @return the number of deliveries
      */
-    public synchronized int addMessage(ACLMessage message) {
+    public synchronized int dispatch(ACLMessage message) {
         checkNotNull(message);
 
         int added = 0;
@@ -84,11 +109,6 @@ public class PostOffice implements Iterable<ACLMessage> {
 
     public synchronized List<ACLMessage> pollMessages(final int receiverId) {
         int bin = id2bin(receiverId);
-        return pollMessagesInBin(bin, receiverId);
-
-    }
-
-    private List<ACLMessage> pollMessagesInBin(int bin, int receiverId) {
         if (receiverLists.get(bin).isEmpty())
             return ImmutableList.of();
 
@@ -98,7 +118,7 @@ public class PostOffice implements Iterable<ACLMessage> {
         while (iterator.hasNext()) {
             MessageWrapper messageWrapper = iterator.next();
             if (messageWrapper.receiverId == receiverId) {
-                ret.add(messageWrapper.message);
+                ret.add(messageWrapper);
                 iterator.remove();
             }
         }
@@ -109,7 +129,7 @@ public class PostOffice implements Iterable<ACLMessage> {
     private List<ACLMessage> pollMessagesInBin(final int bin, final MessageTemplate messageTemplate) {
         assert messageTemplate != null;
 
-        if (messageTemplate.equals(MessageTemplate.alwaysFalse()))
+        if (messageTemplate.equals(MessageTemplates.alwaysFalse()))
             return ImmutableList.of();
 
         final List<ACLMessage> ret = Lists.newArrayList();
@@ -137,7 +157,7 @@ public class PostOffice implements Iterable<ACLMessage> {
     }
 
     private static int id2bin(int id) {
-        return id & (63);
+        return id & (BINS-1);
     }
 
     public static PostOffice newInstance() {
@@ -146,6 +166,7 @@ public class PostOffice implements Iterable<ACLMessage> {
 
     public int size() {
         return messageCounter;
+
     }
 
     public synchronized void removeAll(int id) {
@@ -160,22 +181,26 @@ public class PostOffice implements Iterable<ACLMessage> {
 
     @Override
     public Iterator<ACLMessage> iterator() {
-        return unmodifiableIterator(transform(concat(receiverLists).iterator(), new Function<MessageWrapper, ACLMessage>() {
-            @Override
-            public ACLMessage apply(@Nullable MessageWrapper messageWrapper) {
-                assert messageWrapper != null;
-                return messageWrapper.message;
-            }
-        }));
+        return unmodifiableIterator(Iterables.<ACLMessage>concat(receiverLists).iterator());
     }
 
-    private final class MessageWrapper {
+    private final class MessageWrapper extends ForwardingACLMessage {
         private final int receiverId;
         private final ACLMessage message;
 
         private MessageWrapper(ACLMessage message, int receiverId) {
             this.message = message;
             this.receiverId = receiverId;
+        }
+
+        @Override
+        protected ACLMessage delegate() {
+            return message;
+        }
+
+        @Override
+        public List<Integer> getRecipients() {
+            return ImmutableList.of(receiverId);
         }
     }
 }
