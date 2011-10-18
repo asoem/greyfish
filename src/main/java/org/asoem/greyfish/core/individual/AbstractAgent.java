@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.ForwardingGene;
@@ -56,6 +55,8 @@ public abstract class AbstractAgent implements Agent {
     protected Population population;
 
     protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
+
+    private final AgentMessageBox inBox = new AgentMessageBox();
 
     @SimpleXMLConstructor
     protected AbstractAgent(@Element(name = "body", required = false) Body body,
@@ -226,17 +227,17 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void pushMessage(ACLMessage message) {
-        simulationContext.pushMessage(message);
+    public void receive(AgentMessage message) {
+        inBox.push(message);
     }
 
     @Override
-    public void pushMessages(Iterable<? extends ACLMessage> message) {
-        simulationContext.pushMessages(message);
+    public void receiveAll(Iterable<? extends AgentMessage> messages) {
+        inBox.pushAll(messages);
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return simulationContext.getId();
     }
 
@@ -271,18 +272,13 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void sendMessage(ACLMessage message) {
-        simulationContext.sendMessage(message);
-    }
-
-    @Override
-    public List<ACLMessage> pullMessages(MessageTemplate template) {
-        return simulationContext.pullMessages(template);
+    public List<AgentMessage> pullMessages(MessageTemplate template) {
+        return inBox.pull(template);
     }
 
     @Override
     public boolean hasMessages(MessageTemplate template) {
-        return simulationContext.hasMessages(template);
+        return Iterables.any(inBox, template);
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -59,21 +60,21 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
     }
 
     @Override
-    protected ImmutableACLMessage.Builder createCFP() {
-        ImmutableACLMessage.Builder builder = super.createCFP();
-        builder.objectContent(new CompatibilityAwareResourceConversation.CFPContent(amountPerRequest, similarityTrait));
+    protected ImmutableACLMessage.Builder<Agent> createCFP() {
+        ImmutableACLMessage.Builder<Agent> builder = super.createCFP();
+        builder.content(new CompatibilityAwareResourceConversation.CFPContent(amountPerRequest, similarityTrait), CompatibilityAwareResourceConversation.CFPContent.class);
         return builder;
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException {
 
         CompatibilityAwareResourceConversation.ProposeContent proposeContent =
-                message.getReferenceContent(CompatibilityAwareResourceConversation.ProposeContent.class);
+                message.getContent(CompatibilityAwareResourceConversation.ProposeContent.class);
 
-        return ImmutableACLMessage.replyTo(message, agent.get().getId())
+        return ImmutableACLMessage.<Agent>createReply(message, agent.get())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
-                .objectContent(proposeContent.getAmount());
+                .content(proposeContent.getAmount(), Double.class);
     }
 
     public static class Builder extends AbstractBuilder<CompatibilityAwareResourceConsumptionAction, Builder> {

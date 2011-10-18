@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genes;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.ConfigurationHandler;
 import org.asoem.greyfish.utils.DeepCloner;
@@ -39,12 +40,12 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
-        ImmutableACLMessage.Builder builder = ImmutableACLMessage.replyTo(message, this.getAgent().getId());
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) throws NotUnderstoodException {
+        ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, this.getAgent());
 
         final CompatibilityAwareResourceConversation.CFPContent cfpContent;
         try {
-            cfpContent = message.getReferenceContent(CompatibilityAwareResourceConversation.CFPContent.class);
+            cfpContent = message.getContent(CompatibilityAwareResourceConversation.CFPContent.class);
         } catch (IllegalArgumentException e) {
             throw unexpectedPayloadType(message, CompatibilityAwareResourceConversation.CFPContent.class);
         }
@@ -65,7 +66,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
         if (offer > 0) {
             builder.performative(ACLPerformative.PROPOSE);
-            builder.objectContent(new CompatibilityAwareResourceConversation.ProposeContent(offer));
+            builder.content(new CompatibilityAwareResourceConversation.ProposeContent(offer), CompatibilityAwareResourceConversation.ProposeContent.class);
         }
         else {
             builder.performative(ACLPerformative.REFUSE);

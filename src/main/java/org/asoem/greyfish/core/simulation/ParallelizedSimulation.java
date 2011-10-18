@@ -1,25 +1,21 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
+import com.google.common.base.*;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.*;
 import javolution.util.FastList;
 import jsr166y.ForkJoinPool;
-import jsr166y.RecursiveAction;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.PostOffice;
+import org.asoem.greyfish.core.concurrent.SingletonForkJoinPool;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
-import org.asoem.greyfish.core.individual.MessageReceiver;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
@@ -36,17 +32,16 @@ import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.PolarPoint;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
+import static org.asoem.greyfish.core.simulation.SimulationMessageType.*;
 import static org.asoem.greyfish.core.space.ImmutableCoordinates2D.sum;
+import static org.asoem.greyfish.utils.ParallelListTask.parallelApply;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -56,25 +51,39 @@ public class ParallelizedSimulation implements Simulation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelizedSimulation.class);
 
-    private final BiMap<Population, Agent> prototypeMap;
-    private final Map<Population, Counter> populationCounterMap;
-
-    private final PostOffice postOffice = PostOffice.newInstance();
-
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-    private enum CommandType {
-        MESSAGE,
-        AGENT_REMOVE,
-        AGENT_ADD
-    }
+    private final Multimap<SimulationMessageType, Command> commandListMap =
+            Multimaps.synchronizedMultimap(
+                    Multimaps.newListMultimap(
+                            Maps.<SimulationMessageType, Collection<Command>>newEnumMap(SimulationMessageType.class),
+                            new Supplier<List<Command>>() {
+                                @Override
+                                public List<Command> get() {
+                                    return new ArrayList<Command>();
+                                }
+                            }
+                    )
+            );
 
-    private final Multimap<CommandType, Command> commandListMap =
-            Multimaps.synchronizedMultimap(HashMultimap.<CommandType, Command>create());
+    private final BiMap<Population, Agent> populationPrototypeMap;
+    private final Map<Population, Counter> populationCounterMap;
 
     private final FastList<Agent> agents = FastList.newInstance();
-    private final Collection<Agent> threadSaveAgents = agents.shared();
+
+    private final Cache<Integer, Agent> agentCache = CacheBuilder.newBuilder()
+            .weakValues()
+            .build(new CacheLoader<Integer, Agent>() {
+                @Override
+                public Agent load(final Integer integer) throws Exception {
+                    return Iterables.find(getAgents(), new Predicate<Agent>() {
+                        @Override
+                        public boolean apply(Agent receiver) {
+                            return receiver.getId().equals(integer);
+                        }
+                    });
+                }
+            });
 
     private final ListenerSupport<SimulationListener> listenerSupport = ListenerSupport.newInstance();
 
@@ -87,7 +96,7 @@ public class ParallelizedSimulation implements Simulation {
                     assert key instanceof Population;
 
                     Population population = (Population) key;
-                    return ImmutableAgent.cloneOf(prototypeMap.get(population));
+                    return ImmutableAgent.cloneOf(populationPrototypeMap.get(population));
                 }
             },
             10000, 100);
@@ -107,7 +116,7 @@ public class ParallelizedSimulation implements Simulation {
 
         this.scenario = scenario;
 
-        this.prototypeMap = ImmutableBiMap.copyOf(ImmutableMapBuilder.<Population, Agent>newInstance().
+        this.populationPrototypeMap = ImmutableBiMap.copyOf(ImmutableMapBuilder.<Population, Agent>newInstance().
                 putAll(scenario.getPrototypes(),
                         new Function<Agent, Population>() {
                             @Override
@@ -120,7 +129,7 @@ public class ParallelizedSimulation implements Simulation {
                 build());
 
         this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
-                putAll(prototypeMap.keySet(),
+                putAll(populationPrototypeMap.keySet(),
                         Functions.<Population>identity(),
                         new Function<Population, Counter>() {
                             @Override
@@ -149,7 +158,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public int numberOfPopulations() {
-        return this.prototypeMap.size();
+        return this.populationPrototypeMap.size();
     }
 
     @Override
@@ -161,7 +170,7 @@ public class ParallelizedSimulation implements Simulation {
     public Iterable<Agent> getAgents(final Population population) {
         checkNotNull(population);
 
-        return Iterables.filter(threadSaveAgents, new Predicate<Agent>() {
+        return Iterables.filter(getAgents(), new Predicate<Agent>() {
             @Override
             public boolean apply(Agent agent) {
                 return agent.getPopulation().equals(population);
@@ -179,14 +188,14 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Collection<Agent> getAgents() {
-        return Collections.unmodifiableCollection(threadSaveAgents);
+        return agents;
     }
 
     private void addAgent(Agent agent, Coordinates2D coordinates) {
         checkNotNull(agent);
-        checkArgument(prototypeMap.containsKey(agent.getPopulation()),
+        checkArgument(populationPrototypeMap.containsKey(agent.getPopulation()),
                 "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
-        // populationCounterMap is guaranteed to contain exactly the same keys as prototypeMap
+        // populationCounterMap is guaranteed to contain exactly the same keys as populationPrototypeMap
 
         checkNotNull(coordinates);
         checkArgument(space.covers(coordinates),
@@ -198,20 +207,15 @@ public class ParallelizedSimulation implements Simulation {
         LOGGER.trace("{}: Adding Agent {}", this, agent);
 
         // following actions must be synchronized
-        threadSaveAgents.add(agent);
-        Counter counter = populationCounterMap.get(agent.getPopulation());
-        counter.increase(); // non-null verified by checkCanAddAgent();
-        space.addOccupant(agent);
+        synchronized (this) {
+            agents.add(agent);
+            Counter counter = populationCounterMap.get(agent.getPopulation());
+            counter.increase(); // non-null verified by checkCanAddAgent();
+        }
     }
 
     private void removeAgentInternal(Agent agent) {
         checkNotNull(agent);
-
-        if (!space.removeOccupant(agent))
-            throw new RuntimeException("Agent " + agent + " couldn't be removed from " + space);
-
-        if (!threadSaveAgents.remove(agent))
-            throw new RuntimeException("Agent " + agent + " couldn't be removed from " + threadSaveAgents);
 
         // save as populationCounterMap does not allow null elements
         populationCounterMap.get(agent.getPopulation()).decrease();
@@ -233,12 +237,7 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public void removeAgent(final Agent agent) {
         checkNotNull(agent);
-
-        /*
-           * TODO: removal could be implemented more efficiently.
-           * e.g. by marking agents and removal during a single iteration over all
-           */
-        commandListMap.put(CommandType.AGENT_REMOVE,
+        commandListMap.put(REMOVE_AGENT,
                 new Command() {
                     @Override
                     public void execute() {
@@ -258,7 +257,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public int countAgents() {
-        return threadSaveAgents.size();
+        return agents.size();
     }
 
     @Override
@@ -288,12 +287,12 @@ public class ParallelizedSimulation implements Simulation {
         checkNotNull(coordinates);
         checkNotNull(genome);
 
-        checkState(prototypeMap.containsKey(population));
+        checkState(populationPrototypeMap.containsKey(population));
 
         final Agent agent = newAgentFromPool(population);
         agent.injectGamete(genome);
 
-        commandListMap.put(CommandType.AGENT_ADD,
+        commandListMap.put(ADD_AGENT,
                 new Command() {
                     @Override
                     public void execute() {
@@ -323,7 +322,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Set<Agent> getPrototypes() {
-        return prototypeMap.values();
+        return populationPrototypeMap.values();
     }
 
     @Override
@@ -347,93 +346,46 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void processAgents() {
-        LOGGER.debug("{}: processing {} Agents", this, agents.size());
-        if (agents.size() > 0)
-            forkJoinPool.invoke(new ProcessAgentsForked(agents.head(), agents.size(), Math.max(agents.size(), 1000) / 2));
-    }
+        LOGGER.debug("{}: processing {} Agents", this, countAgents());
 
-    private class ProcessAgentsForked extends RecursiveAction {
-
-        private final FastList.Node<Agent> node;
-        private final int nNodes;
-        private final int forkThreshold;
-
-        private ProcessAgentsForked(final FastList.Node<Agent> node, final int nNodes, final int forkThreshold) {
-            assert node != null;
-            assert nNodes > 0;
-
-            this.node = node;
-            this.nNodes = nNodes;
-            this.forkThreshold = forkThreshold;
-        }
-
-        @Override
-        protected void compute() {
-            if (nNodes > forkThreshold) {
-
-                // split list
-                final int splitAtIndex = nNodes / 2;
-                FastList.Node<Agent> iterNode = node;
-                for (int i = splitAtIndex; i-- >= 0;) {
-                    iterNode = iterNode.getNext();
-                }
-
-                final FastList.Node<Agent> splitNode = iterNode;
-
-                // fork
-                final ProcessAgentsForked left = new ProcessAgentsForked(node, splitAtIndex, forkThreshold);
-                final ProcessAgentsForked right = new ProcessAgentsForked(splitNode.getPrevious(), nNodes - splitAtIndex, forkThreshold);
-                invokeAll(left, right);
-            }
-            else {
-                FastList.Node<Agent> currentNode = node;
-                for (int i = nNodes; i > 0; --i) {
-                    currentNode = currentNode.getNext();
-                    currentNode.getValue().execute();
-                }
-            }
-        }
+        SingletonForkJoinPool.execute(
+                parallelApply(new Functor<Agent>() {
+                    @Override
+                    public void apply(Agent agent) {
+                        agent.execute();
+                    }
+                })
+                        .squential(Math.max(countAgents(), 1000) / 2)
+                        .on(agents)
+        );
     }
 
     private void updateEnvironment() {
 
         final CountDownLatch doneSignal = new CountDownLatch(2);
 
-        // distribute messages
+        // distribute inter agent messages
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                Collection<Command> messageCommands = commandListMap.get(CommandType.MESSAGE);
+                Collection<Command> messageCommands = commandListMap.get(DELIVER_AGENT_MESSAGE);
                 if (messageCommands.size() > 0)
                     LOGGER.debug("{}: Delivering {} Messages", ParallelizedSimulation.this, messageCommands.size());
                 for (Command command : messageCommands) {
                     command.execute();
                 }
 
-                Cache<Integer, MessageReceiver> agentCache = CacheBuilder.newBuilder()
-                        .build(new CacheLoader<Integer, MessageReceiver>() {
-                            @Override
-                            public MessageReceiver load(final Integer integer) throws Exception {
-                                return Iterables.find(getAgents(), new Predicate<MessageReceiver>() {
-                                    @Override
-                                    public boolean apply(MessageReceiver receiver) {
-                                        return receiver.getId() == integer;
-                                    }
-                                });
-                            }
-                        });
-
-                postOffice.deliverOrDiscardAllMessages(agentCache);
+                //postOffice.deliverOrDiscardAllMessages(agentCache);
 
                 doneSignal.countDown();
             }
         });
 
-        // update kdtree
+        // update space
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                Collection<Command> removeCommands = commandListMap.get(CommandType.AGENT_REMOVE);
+                Collection<Command> removeCommands = commandListMap.get(REMOVE_AGENT);
                 if (removeCommands.size() > 0)
                     LOGGER.debug("{}: Removing {} Agents", ParallelizedSimulation.this, removeCommands.size());
                 for (Command command : removeCommands) {
@@ -446,14 +398,14 @@ public class ParallelizedSimulation implements Simulation {
                         getSpace().moveObject(agent, sum(agent.getCoordinates(), motion.toCartesian()));
                 }
 
-                Collection<Command> addCommands = commandListMap.get(CommandType.AGENT_ADD);
+                Collection<Command> addCommands = commandListMap.get(ADD_AGENT);
                 if (addCommands.size() > 0)
                     LOGGER.debug("{}: Adding {} Agents", ParallelizedSimulation.this, addCommands.size());
                 for (Command command : addCommands) {
                     command.execute();
                 }
 
-                space.updateTopo();
+                space.updateTopo(agents);
 
                 doneSignal.countDown();
             }
@@ -472,7 +424,7 @@ public class ParallelizedSimulation implements Simulation {
         listenerSupport.notifyListeners(new Functor<SimulationListener>() {
 
             @Override
-            public void update(SimulationListener listener) {
+            public void apply(SimulationListener listener) {
                 listener.eventFired(new SimulationEvent(ParallelizedSimulation.this, SimulationEvent.Event.STEP));
             }
         });
@@ -504,13 +456,15 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void deliverMessage(final ACLMessage message) {
+    public void deliverMessage(final ACLMessage<Agent> message) {
         checkNotNull(message);
-        commandListMap.put(CommandType.MESSAGE,
+        commandListMap.put(DELIVER_AGENT_MESSAGE,
                 new Command() {
                     @Override
                     public void execute() {
-                        postOffice.dispatch(message);
+                        for (Agent agent : message.getRecipients()) {
+                            agent.receive(new AgentMessage(message, getSteps()));
+                        }
                     }
                 });
     }

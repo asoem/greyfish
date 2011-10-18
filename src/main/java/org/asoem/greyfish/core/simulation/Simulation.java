@@ -70,5 +70,5 @@ public interface Simulation extends HasName {
 
     void setName(String name);
 
-    void deliverMessage(ACLMessage message);
+    void deliverMessage(ACLMessage<Agent> message);
 }

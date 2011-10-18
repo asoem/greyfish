@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.acl;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 
 import javax.annotation.Nullable;
 
@@ -56,33 +57,30 @@ public class MessageTemplates {
         };
     }
 
-    public static <T> MessageTemplate referenceContent(final Class<T> clazz, final Predicate<T> predicate) {
+    public static <T> MessageTemplate content(final Class<T> clazz, final Predicate<T> predicate) {
         return new MessageTemplate() {
             @Override
             public boolean apply(@Nullable ACLMessage aclMessage) {
-                ACLMessage message = checkNotNull(aclMessage);
-                try {
-                    if (message.getContentClass().isAssignableFrom(clazz))
-                        return predicate.apply(message.getReferenceContent(clazz));
-                } catch (NotUnderstoodException e) {
-                    assert false;
-                }
-                return false;
+                ACLMessage<?> message = checkNotNull(aclMessage);
+                return message.getContentClass().isAssignableFrom(clazz)
+                        && predicate.apply(message.getContent(clazz));
             }
         };
     }
 
-    public static MessageTemplate sentTo(final int receiverId) {
+    public static MessageTemplate sentTo(final Object receiverId) {
         return new MessageTemplate() {
             @Override
             public boolean apply(@Nullable ACLMessage aclMessage) {
-                return checkNotNull(aclMessage).getRecipients().contains(receiverId);
+                return Iterables.any(checkNotNull(aclMessage).getRecipients(),
+                        new Predicate<AgentIdentifier>(){
+                            @Override
+                            public boolean apply(@Nullable AgentIdentifier agentIdentifier) {
+                                return agentIdentifier.getId().equals(receiverId);
+                            }
+                        });
             }
         };
-    }
-
-    public static MessageTemplate content(String content) {
-        return new LiteralTemplate(content, ACLLiteralMessageField.CONTENT);
     }
 
     public static MessageTemplate and(MessageTemplate t1, MessageTemplate t2) {
@@ -127,7 +125,6 @@ public class MessageTemplates {
         IN_REPLY_TO,
         REPLY_WITH,
         ONTOLOGY,
-        CONTENT,
     }
 
     private static class LiteralTemplate implements MessageTemplate {
@@ -152,9 +149,6 @@ public class MessageTemplates {
                     break;
                 case REPLY_WITH:
                     compare = object.getReplyWith();
-                    break;
-                case CONTENT:
-                    compare = object.getStringContent();
                     break;
                 default:
                     break;

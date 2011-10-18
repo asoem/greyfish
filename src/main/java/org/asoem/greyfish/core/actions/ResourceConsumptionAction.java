@@ -51,32 +51,32 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder createCFP() {
-        return ImmutableACLMessage.with()
-                .sender(agent.get().getId())
+    protected ImmutableACLMessage.Builder<Agent> createCFP() {
+        return ImmutableACLMessage.<Agent>with()
+                .sender(agent.get())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
-                .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
-                .objectContent(amountPerRequest);
+                .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
+                .content(amountPerRequest, Double.class);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException {
 
-        final double offer = message.getReferenceContent(Double.class);
+        final double offer = message.getContent(Double.class);
 
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
-        return ImmutableACLMessage.replyTo(message, agent.get().getId())
+        return ImmutableACLMessage.createReply(message, agent.get())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
-                .objectContent(offer);
+                .content(offer, Double.class);
     }
 
     @Override
-    protected void handleInform(ACLMessage message) throws NotUnderstoodException {
+    protected void handleInform(ACLMessage<Agent> message) throws NotUnderstoodException {
         try {
-            final double offer = message.getReferenceContent(Double.class);
+            final double offer = message.getContent(Double.class);
             consumerProperty.add(transformationExpression.evaluateAsDouble(this, offer));
 
             LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);

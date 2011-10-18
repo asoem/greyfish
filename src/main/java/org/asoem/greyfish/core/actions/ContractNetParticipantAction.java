@@ -4,6 +4,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -53,21 +55,22 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         if (State.CHECK_CFP.equals(state)) {
             template = createCFPTemplate(getOntology());
 
-            final List<ACLMessage> cfpReplies = Lists.newArrayList();
-            for (ACLMessage message : agent.get().pullMessages(template)) {
+            final List<ACLMessage<Agent>> cfpReplies = Lists.newArrayList();
+            for (ACLMessage<Agent> message : agent.get().pullMessages(template)) {
 
-                ACLMessage cfpReply;
+                ACLMessage<Agent> cfpReply;
                 try {
                     cfpReply = checkNotNull(handleCFP(message)).build();
                 } catch (NotUnderstoodException e) {
-                    cfpReply = ImmutableACLMessage.replyTo(message, agent.get().getId())
+                    cfpReply = ImmutableACLMessage.createReply(message, agent.get())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
-                            .stringContent(e.getMessage()).build();
+                            .content(e.getMessage(), String.class).build();
                     LOGGER.debug("Message not understood", e);
                 }
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
-                agent.get().sendMessage(cfpReply);
+
+                simulation.deliverMessage(cfpReply);
 
                 if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE)))
                     ++nExpectedProposeAnswers;
@@ -80,23 +83,23 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     : endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT.equals(state)) {
-             Iterable<ACLMessage> receivedMessages = agent.get().pullMessages(getTemplate());
-                for (ACLMessage receivedMessage : receivedMessages) {
+             Iterable<AgentMessage> receivedMessages = agent.get().pullMessages(getTemplate());
+                for (ACLMessage<Agent> receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
                         case ACCEPT_PROPOSAL:
-                            ACLMessage response;
+                            ACLMessage<Agent> response;
                             try {
                                 response = handleAccept(receivedMessage).build();
                             } catch (NotUnderstoodException e) {
-                                response = ImmutableACLMessage.replyTo(receivedMessage, agent.get().getId())
+                                response = ImmutableACLMessage.createReply(receivedMessage, agent.get())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
-                                        .stringContent(e.getMessage()).build();
+                                        .content(e.getMessage(), String.class).build();
 
                                 LOGGER.debug("Message not understood", e);
                             }
                             checkAcceptReply(response);
-                            agent.get().sendMessage(response);
+                            simulation.deliverMessage(response);
                             break;
                         case REJECT_PROPOSAL:
                             handleReject(receivedMessage);
@@ -154,12 +157,11 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder handleAccept(ACLMessage message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message) throws NotUnderstoodException;
 
-    protected void handleReject(ACLMessage message) {
-    }
+    protected void handleReject(ACLMessage<Agent> message) {}
 
-    protected abstract ImmutableACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) throws NotUnderstoodException;
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         return MessageTemplates.and(

@@ -91,8 +91,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
             LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
         }
 
-        return ImmutableACLMessage.replyTo(message, agent.get().getId())
-                .objectContent(new EvaluatedGenome(sperm, fitness))
+        return ImmutableACLMessage.createReply(message, agent.get())
+                .content(new EvaluatedGenome(sperm, fitness), EvaluatedGenome.class)
                 .performative(ACLPerformative.PROPOSE);
     }
 
@@ -101,9 +101,9 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         // costs for mating define quality of the genome
 //        DoubleProperty doubleProperty = null;
 //        Genome sperm = null;
-//        doubleProperty.subtract(spermEvaluationFunction.apply(sperm));
+//        doubleProperty.subtract(spermEvaluationFunction.parallelApply(sperm));
 
-        return ImmutableACLMessage.replyTo(message, getAgent().getId())
+        return ImmutableACLMessage.createReply(message, getAgent())
                 .performative(ACLPerformative.INFORM);
     }
 

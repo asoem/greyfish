@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
@@ -165,7 +164,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public int getId() {
+    public Integer getId() {
         return delegate.getId();
     }
 
@@ -210,7 +209,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public List<ACLMessage> pullMessages(MessageTemplate template) {
+    public List<AgentMessage> pullMessages(MessageTemplate template) {
         return delegate.pullMessages(template);
     }
 
@@ -220,13 +219,13 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public void pushMessages(Iterable<? extends ACLMessage> messages) {
-        delegate.pushMessages(messages);
+    public void receiveAll(Iterable<? extends AgentMessage> messages) {
+        delegate.receiveAll(messages);
     }
 
     @Override
-    public void pushMessage(ACLMessage messages) {
-        delegate.pushMessage(messages);
+    public void receive(AgentMessage messages) {
+        delegate.receive(messages);
     }
 
     @Override
@@ -257,11 +256,6 @@ public abstract class AgentDecorator implements Agent {
     @Override
     public void execute() {
         delegate.execute();
-    }
-
-    @Override
-    public void sendMessage(ACLMessage message) {
-        delegate.sendMessage(message);
     }
 
     @Override

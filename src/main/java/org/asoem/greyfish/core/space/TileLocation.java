@@ -1,21 +1,18 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
-import javolution.util.FastList;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.asoem.greyfish.core.space.TileDirection.*;
 
 public class TileLocation implements Location2D {
 
-    private final List<MovingObject2D> occupants = FastList.newInstance();
+    // private final FastList<MovingObject2D> occupants = FastList.newInstance();
 
     private final TiledSpace space;
 
@@ -195,9 +192,11 @@ public class TileLocation implements Location2D {
         return space.hasTileAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
     }
 
+    /*
     public Iterable<MovingObject2D> getOccupants() {
-        return Iterables.unmodifiableIterable(occupants);
+        return occupants.unmodifiable();
     }
+     */
 
     /**
      * @param neighbourTile TileLocation 2
@@ -246,6 +245,7 @@ public class TileLocation implements Location2D {
         return hasBorder(computeDirection(this, location));
     }
 
+    /*
     public void removeAllOccupants() {
         occupants.clear();
     }
@@ -257,8 +257,14 @@ public class TileLocation implements Location2D {
     public boolean removeOccupant(MovingObject2D individual) {
         return occupants.remove(individual);
     }
+    */
 
     public void toggleBorder(TileDirection direction) {
         setBorder(direction, !hasBorder(direction));
+    }
+
+    public boolean covers(Coordinates2D coordinates) {
+        return (int) coordinates.getX() == x
+                && (int) coordinates.getY() == y;
     }
 }

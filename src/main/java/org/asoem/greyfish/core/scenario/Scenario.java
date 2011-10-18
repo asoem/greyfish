@@ -41,6 +41,8 @@ public interface Scenario {
      */
     Iterable<Placeholder> getPlaceholder(TileLocation location);
 
+    Iterable<Placeholder> getPlaceholder(Iterable<? extends TileLocation> locations);
+
     String getName();
 
     TiledSpace getSpace();

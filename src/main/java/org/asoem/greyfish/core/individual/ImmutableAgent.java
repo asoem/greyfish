@@ -13,9 +13,10 @@ import javax.annotation.Nullable;
 
 
 /**
- * User: christoph
- * Date: 19.09.11
- * Time: 10:42
+ * An {@code ImmutableAgent} is an implementation of an {@link Agent} which guarantees no structural changes during it's lifetime.
+ * This means, you cannot add or remove any {@link AgentComponent} to this {@code Agent}. If you try to, it will throw an {@link UnsupportedOperationException}.
+ * The {@code AgentComponent}s themselves are not restricted in their mutabilty, and they most certainly will always be mutable.
+ * Apart from the structure, other properties of the {@code Agent} will be modified during a {@link Simulation}.
  */
 public class ImmutableAgent extends AbstractAgent {
 
@@ -32,11 +33,11 @@ public class ImmutableAgent extends AbstractAgent {
         setPopulation(population);
     }
 
-    protected ImmutableAgent(ImmutableAgent agent, DeepCloner map) {
+    private ImmutableAgent(ImmutableAgent agent, DeepCloner map) {
         super(agent, map);
     }
 
-    public ImmutableAgent(Builder builder) {
+    private ImmutableAgent(Builder builder) {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),

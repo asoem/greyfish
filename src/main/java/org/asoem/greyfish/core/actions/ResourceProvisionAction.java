@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.lang.ClassGroup;
@@ -38,24 +39,24 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handleCFP(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) throws NotUnderstoodException {
         double requested;
         try {
-            requested = message.getReferenceContent(Double.class);
+            requested = message.getContent(Double.class);
         } catch (IllegalArgumentException e) {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }
 
-        ImmutableACLMessage.Builder ret = ImmutableACLMessage.replyTo(message, getAgent().getId());
+        ImmutableACLMessage.Builder<Agent> ret = ImmutableACLMessage.createReply(message, getAgent());
 
         double offer = Math.min(requested, resourceProperty.get());
 
         if (offer > 0) {
-            ret.performative(ACLPerformative.PROPOSE).objectContent(offer);
+            ret.performative(ACLPerformative.PROPOSE).content(offer, Double.class);
             LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Offering {}", offer);
         }
         else {
-            ret.performative(ACLPerformative.REFUSE).stringContent("Nothing to offer");
+            ret.performative(ACLPerformative.REFUSE).content("Nothing to offer", String.class);
             LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Nothing to offer");
         }
 
@@ -63,17 +64,17 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handleAccept(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message) throws NotUnderstoodException {
         try {
-            double offer = message.getReferenceContent(Double.class);
+            double offer = message.getContent(Double.class);
             assert resourceProperty.get() >= offer : "Values have changed unexpectedly";
 
             LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Subtracting {}", offer);
 
             resourceProperty.subtract(offer);
-            return ImmutableACLMessage.replyTo(message, getAgent().getId())
+            return ImmutableACLMessage.createReply(message, getAgent())
                     .performative(ACLPerformative.INFORM)
-                    .objectContent(offer);
+                    .content(offer, Double.class);
         } catch (IllegalArgumentException e) {
             throw new NotUnderstoodException("Double content expected, received " + message);
         }

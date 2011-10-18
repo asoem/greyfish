@@ -1,25 +1,21 @@
 package org.asoem.greyfish.core.scenario;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Placeholder;
-import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementArray;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
-import java.util.Arrays;
+import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,14 +31,18 @@ public class BasicScenario implements Scenario {
     @Attribute(name="name")
     private final String name;
 
+    @ElementList(name = "prototypes", entry = "prototype")
     private final Set<Agent> prototypes = Sets.newHashSet();
+
+    @ElementList(name="prototypes", entry="prototype")
+    private final List<Placeholder> placeholders = Lists.newArrayList();
 
     @SimpleXMLConstructor
     private BasicScenario(
             @Attribute(name = "name") String name,
-            @ElementArray(name = "prototypes", entry = "prototype") Agent[] prototypes,
+            @ElementList(name = "prototypes", entry = "prototype") List<Agent> prototypes,
             @Element(name = "space") TiledSpace space,
-            @ElementArray(name = "placeholders", entry = "placeholder") Placeholder[] placeholders) {
+            @ElementList(name = "placeholders", entry = "placeholder") List<Placeholder> placeholders) {
         assert name != null;
         assert prototypes != null;
         assert space != null;
@@ -50,10 +50,8 @@ public class BasicScenario implements Scenario {
 
         this.name = name;
         this.prototypeSpace = space;
-        this.prototypes.addAll(Arrays.asList(prototypes));
-        for (Agent placeholder : placeholders) {
-            prototypeSpace.addOccupant(placeholder);
-        }
+        this.prototypes.addAll(prototypes);
+        this.placeholders.addAll(placeholders);
     }
 
     private BasicScenario(Builder builder) {
@@ -73,19 +71,13 @@ public class BasicScenario implements Scenario {
             if (!prototypes.add(prototype))
                 return false;
 
-        prototypeSpace.addOccupant(Placeholder.newInstance(prototype, location));
+        placeholders.add(Placeholder.newInstance(prototype, location));
         return true;
     }
 
     @Override
     public boolean removePlaceholder(Placeholder ph) {
-        // TODO: keep prototypes in sync
-        return prototypeSpace.removeOccupant(ph);
-    }
-
-    @ElementArray(name="prototypes", entry="prototype")
-    private Agent[] getPrototypesArray() {
-        return Iterables.toArray(getPrototypes(), Agent.class);
+        return placeholders.remove(ph);
     }
 
     @Override
@@ -93,25 +85,29 @@ public class BasicScenario implements Scenario {
         return Collections.unmodifiableSet(prototypes);
     }
 
-    @ElementArray(name="placeholders", entry="placeholder")
-    private Placeholder[] getPlaceholderArray() {
-        return Iterables.toArray(getPlaceholder(), Placeholder.class);
-    }
-
     @Override
     public Iterable<Placeholder> getPlaceholder() {
-        return Iterables.unmodifiableIterable(Iterables.transform(prototypeSpace.getOccupants(),
-                new Function<MovingObject2D, Placeholder>() {
-                    @Override
-                    public Placeholder apply(MovingObject2D input) {
-                        return Placeholder.class.cast(input);
-                    }
-                }));
+        return placeholders;
     }
 
     @Override
     public Iterable<Placeholder> getPlaceholder(TileLocation location) {
         return Iterables.filter(prototypeSpace.getOccupants(location), Placeholder.class);
+    }
+
+    @Override
+    public Iterable<Placeholder> getPlaceholder(final Iterable<? extends TileLocation> locations) {
+        return Iterables.filter(placeholders, new Predicate<Placeholder>() {
+            @Override
+            public boolean apply(@Nullable final Placeholder placeholder) {
+                return Iterables.any(locations, new Predicate<TileLocation>() {
+                    @Override
+                    public boolean apply(@Nullable TileLocation o) {
+                        return o.covers(placeholder.getCoordinates());
+                    }
+                });
+            }
+        });
     }
 
     @Override

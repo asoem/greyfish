@@ -82,7 +82,7 @@ public class PrototypeManager extends ForwardingSet<Agent> {
 	private void firePrototypeAdded(final Agent individual, final Integer index) {
         listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
             @Override
-            public void update(PrototypeRegistryListener l) {
+            public void apply(PrototypeRegistryListener l) {
                 l.prototypeAdded(PrototypeManager.this, individual, index);
         }});
 	}
@@ -90,7 +90,7 @@ public class PrototypeManager extends ForwardingSet<Agent> {
 	private void firePrototypeRemoved(final Agent individual, final Integer index) {
 		listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
             @Override
-            public void update(PrototypeRegistryListener l) {
+            public void apply(PrototypeRegistryListener l) {
                 l.prototypeRemoved(PrototypeManager.this, individual, index);
         }});
 	}

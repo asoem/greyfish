@@ -122,22 +122,22 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
     }
 
     @Override
-    protected ImmutableACLMessage.Builder createCFP() {
+    protected ImmutableACLMessage.Builder<Agent> createCFP() {
         assert(!Iterables.isEmpty(sensedMates)); // see #evaluateCondition(Simulation)
 
-        return ImmutableACLMessage.with()
-                .sender(getAgent().getId())
+        return ImmutableACLMessage.<Agent>with()
+                .sender(getAgent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
-                .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId());
+                .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))));
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
-        ImmutableACLMessage.Builder builder = ImmutableACLMessage.replyTo(message, this.getAgent().getId());
+    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException {
+        ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, this.getAgent());
         try {
-            final EvaluatedGenome evaluatedGenome = message.getReferenceContent(EvaluatedGenome.class);
+            final EvaluatedGenome evaluatedGenome = message.getContent(EvaluatedGenome.class);
 
             double matingProbability = 0;
             if (compatibilityDefiningProperty != null) {

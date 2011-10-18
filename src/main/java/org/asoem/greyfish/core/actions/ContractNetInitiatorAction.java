@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -62,8 +63,8 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             if (!canInitiate(simulation))
                 return failure(State.NO_RECEIVERS);
 
-            ImmutableACLMessage cfpMessage = createCFP()
-                    .sender(agent.get().getId())
+            ImmutableACLMessage<Agent> cfpMessage = createCFP()
+                    .sender(agent.get())
                     .performative(ACLPerformative.CFP).build();
 
             simulation.deliverMessage(cfpMessage);
@@ -77,10 +78,10 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         }
         else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
              Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
+                for (ACLMessage<Agent> receivedMessage : agent.get().pullMessages(getTemplate())) {
                     assert (receivedMessage != null);
 
-                    ACLMessage proposeReply = null;
+                    ACLMessage<Agent> proposeReply;
                     switch (receivedMessage.getPerformative()) {
 
                         case PROPOSE:
@@ -90,13 +91,15 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 ++nProposalsReceived;
                                 LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
                             } catch (NotUnderstoodException e) {
-                                proposeReply = ImmutableACLMessage.replyTo(receivedMessage, agent.get().getId())
+                                proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent.get())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
-                                        .stringContent(e.getMessage()).build();
+                                        .content(e.getMessage(), String.class).build();
                                 LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
                             }
                             checkProposeReply(proposeReply);
-                            agent.get().sendMessage(proposeReply);
+
+                            simulation.deliverMessage(proposeReply);
+
                             break;
 
                         case REFUSE:
@@ -146,7 +149,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         else if (State.WAIT_FOR_INFORM.equals(state)) {
              assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                for (ACLMessage receivedMessage : agent.get().pullMessages(getTemplate())) {
+                for (ACLMessage<Agent> receivedMessage : agent.get().pullMessages(getTemplate())) {
                     assert receivedMessage != null;
 
                     switch (receivedMessage.getPerformative()) {
@@ -206,7 +209,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                             MessageTemplate.class));
     }
 
-    private static MessageTemplate createCFPReplyTemplate(final ImmutableACLMessage cfp) {
+    private static MessageTemplate createCFPReplyTemplate(final ImmutableACLMessage<Agent> cfp) {
         return MessageTemplates.isReplyTo(cfp);
     }
 
@@ -218,15 +221,15 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder createCFP();
+    protected abstract ImmutableACLMessage.Builder<Agent> createCFP();
 
-    protected abstract ImmutableACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException;
 
-    protected void handleRefuse(ACLMessage message) {}
+    protected void handleRefuse(ACLMessage<Agent> message) {}
 
-    protected void handleFailure(ACLMessage message) {}
+    protected void handleFailure(ACLMessage<Agent> message) {}
 
-    protected void handleInform(ACLMessage message) throws NotUnderstoodException {
+    protected void handleInform(ACLMessage<Agent> message) throws NotUnderstoodException {
     }
 
     protected abstract String getOntology();

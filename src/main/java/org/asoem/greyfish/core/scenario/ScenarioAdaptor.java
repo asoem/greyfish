@@ -43,6 +43,11 @@ public abstract class ScenarioAdaptor implements Scenario {
     }
 
     @Override
+    public Iterable<Placeholder> getPlaceholder(Iterable<? extends TileLocation> locations) {
+        return delegate().getPlaceholder(locations);
+    }
+
+    @Override
     public String getName() {
         return delegate().getName();
     }

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.space;
 
-public interface KDTree<T extends Object2D> {
+public interface KDTree<T extends Object2D> extends Iterable<T> {
 
     /**
      * Rebuild this {@code KDTree} with the given {@code elements}

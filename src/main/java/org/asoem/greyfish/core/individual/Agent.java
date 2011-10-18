@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.AgentIdentifier;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, MovingObject2D, MessageReceiver, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, MovingObject2D, AgentIdentifier, Preparable<Simulation> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -71,13 +71,17 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
 
     Simulation getSimulation();
     public void setSimulation(Simulation simulation);
-    int getId();
+    @Override
+    Integer getId();
     int getTimeOfBirth();
     int getAge();
     GFAction getLastExecutedAction();
-    void sendMessage(ACLMessage message);
-    List<ACLMessage> pullMessages(MessageTemplate template);
+
+    void receive(AgentMessage message);
+    void receiveAll(Iterable<? extends AgentMessage> message);
+    List<AgentMessage> pullMessages(MessageTemplate template);
     boolean hasMessages(MessageTemplate template);
+
     Iterable<MovingObject2D> findNeighbours(double range);
     void execute();
     void shutDown();

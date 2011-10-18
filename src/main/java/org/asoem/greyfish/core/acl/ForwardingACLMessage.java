@@ -1,16 +1,15 @@
 package org.asoem.greyfish.core.acl;
 
-import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 /**
  * User: christoph
  * Date: 10.10.11
  * Time: 13:57
  */
-public abstract class ForwardingACLMessage implements ACLMessage {
+public abstract class ForwardingACLMessage<T extends AgentIdentifier> implements ACLMessage<T> {
 
-    protected abstract ACLMessage delegate();
+    protected abstract ACLMessage<T> delegate();
     
     @Override
     public Class<?> getContentClass() {
@@ -18,48 +17,28 @@ public abstract class ForwardingACLMessage implements ACLMessage {
     }
 
     @Override
-    public ImmutableACLMessage.ContentType getContentType() {
-        return delegate().getContentType();
+    public <C> C getContent(Class<C> clazz) {
+        return delegate().getContent(clazz);
     }
 
     @Override
-    public Serializable getContentObject() throws UnreadableException {
-        return delegate().getContentObject();
-    }
-
-    @Override
-    public <T> T getReferenceContent(Class<T> clazz) throws NotUnderstoodException {
-        return delegate().getReferenceContent(clazz);
-    }
-
-    @Override
-    public List<Integer> getRecipients() {
+    public Set<T> getRecipients() {
         return delegate().getRecipients();
     }
 
     @Override
-    public List<Integer> getAllReplyTo() {
+    public Set<T> getAllReplyTo() {
         return delegate().getAllReplyTo();
     }
 
     @Override
-    public Integer getSender() {
+    public T getSender() {
         return delegate().getSender();
     }
 
     @Override
     public ACLPerformative getPerformative() {
         return delegate().getPerformative();
-    }
-
-    @Override
-    public String getStringContent() {
-        return delegate().getStringContent();
-    }
-
-    @Override
-    public byte[] getByteSequenceContent() {
-        return delegate().getByteSequenceContent();
     }
 
     @Override
@@ -105,5 +84,10 @@ public abstract class ForwardingACLMessage implements ACLMessage {
     @Override
     public boolean matches(MessageTemplate performative) {
         return delegate().matches(performative);
+    }
+
+    @Override
+    public <C> C userDefinedParameter(String key, Class<C> clazz) {
+        return delegate().userDefinedParameter(key, clazz);
     }
 }

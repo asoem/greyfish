@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.PolarPoint;
 import org.simpleframework.xml.Attribute;
@@ -13,7 +12,6 @@ import org.simpleframework.xml.ElementArray;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -32,14 +30,7 @@ public class TiledSpace implements Iterable<TileLocation> {
 
     private final TileLocation[][] tileMatrix;
 
-    private int nOccupants;
-
     private final KDTree<MovingObject2D> kdTree = AsoemScalaKDTree.newInstance();
-
-    /**
-     * marks the kdTree as outdated
-     */
-    private boolean dirty = true;
 
     public TiledSpace(TiledSpace pSpace) {
         this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
@@ -126,6 +117,7 @@ public class TiledSpace implements Iterable<TileLocation> {
         return tileMatrix[x][y];
     }
 
+    /*
     public void removeAllOccupants() {
         for (TileLocation location : this) {
             location.removeAllOccupants();
@@ -133,12 +125,14 @@ public class TiledSpace implements Iterable<TileLocation> {
         nOccupants = 0;
         dirty = true;
     }
+    */
 
     @Override
     public String toString() {
-        return "Tiled Space: dim="+width+"x"+height+"; oc="+nOccupants;
+        return "Tiled Space: dim="+width+"x"+height+"; oc="+Iterables.size(getOccupants());
     }
 
+    /*
     public void addOccupant(MovingObject2D object2d) {
         checkNotNull(object2d);
 
@@ -148,6 +142,7 @@ public class TiledSpace implements Iterable<TileLocation> {
         dirty = true;
     }
 
+    /*
     public boolean removeOccupant(MovingObject2D individual) {
         if (getTileAt(individual).removeOccupant(individual)) {
             --nOccupants;
@@ -156,18 +151,14 @@ public class TiledSpace implements Iterable<TileLocation> {
         }
         return false;
     }
+    */
 
     public Iterable<MovingObject2D> getOccupants() {
-        List<Iterable<MovingObject2D>> iterables = Lists.newArrayList();
-        for (TileLocation location : this) {
-            iterables.add(location.getOccupants());
-        }
-        return Iterables.concat(iterables);
+        return kdTree;
     }
 
-    public void updateTopo() {
-        kdTree.rebuild(getOccupants());
-        dirty = false;
+    public void updateTopo(Iterable<? extends MovingObject2D> objects) {
+        kdTree.rebuild(objects);
     }
 
     public TileLocation getTileAt(Coordinates2D coordinates2D) throws IndexOutOfBoundsException, IllegalArgumentException {
@@ -193,12 +184,13 @@ public class TiledSpace implements Iterable<TileLocation> {
             final TileLocation loc = getTileAt(object2d);
             final TileLocation new_loc = getTileAt(newCoordinates);
 
+            /*
             boolean result = loc.removeOccupant(object2d);
             assert(result);
             new_loc.addOccupant(object2d);
+            */
 
             object2d.setAnchorPoint(newCoordinates);
-            dirty = true;
         }
     }
 
@@ -218,8 +210,6 @@ public class TiledSpace implements Iterable<TileLocation> {
      * intersects with the circle defined by {@code coordinates} and {@code range}
      */
     public Iterable<MovingObject2D> findObjects(Coordinates2D coordinates, double range) {
-        if (dirty)
-            updateTopo();
         return kdTree.findObjects(coordinates, range);
     }
 
@@ -233,7 +223,13 @@ public class TiledSpace implements Iterable<TileLocation> {
         }));
     }
 
-    public Iterable<MovingObject2D> getOccupants(TileLocation location) {
-        return getTileAt(location).getOccupants();
+    public Iterable<MovingObject2D> getOccupants(final TileLocation location) {
+        return Iterables.filter(getOccupants(), new Predicate<MovingObject2D>() {
+            @Override
+            public boolean apply(@Nullable MovingObject2D movingObject2D) {
+                assert movingObject2D != null;
+                return location.covers(movingObject2D.getCoordinates());
+            }
+        });
     }
 }

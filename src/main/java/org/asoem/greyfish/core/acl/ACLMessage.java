@@ -1,50 +1,34 @@
 package org.asoem.greyfish.core.acl;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * User: christoph
  * Date: 10.10.11
  * Time: 13:56
  */
-public interface ACLMessage {
+public interface ACLMessage<T extends AgentIdentifier> {
     Class<?> getContentClass();
-
-    ImmutableACLMessage.ContentType getContentType();
-
-    java.io.Serializable getContentObject() throws UnreadableException;
-
     /**
      *
      * @param clazz The expected type of the content object
-     * @param <T> The class type
-     * @return The content object casted to type <code>T</code>
-     * @throws IllegalArgumentException if content has not type <code>T</code>
+     * @param <C> The class type
+     * @return The content object casted to type {@code C}
+     * @throws IllegalArgumentException if content has not type {@code C}
      */
-    <T> T getReferenceContent(Class<T> clazz) throws NotUnderstoodException;
+    <C> C getContent(Class<C> clazz);
 
-    List<Integer> getRecipients();
+    Set<T> getRecipients();
 
-    List<Integer> getAllReplyTo();
-
-    Integer getSender();
-
-    ACLPerformative getPerformative();
+    Set<T> getAllReplyTo();
 
     /**
-     * Reads <code>:StringContent</code> slot. <p>
-     * <p>Notice that, in general, setting a String StringContent and getting
-     * back a byte sequence StringContent - or viceversa - does not return
-     * the same to, i.e. the following relation does not hold
-     * <code>
-     * getByteSequenceContent(setByteSequenceContent(getStringContent().getBytes()))
-     * is equal to getByteSequenceContent()
-     * </code>
-     * @return The to of <code>:StringContent</code> slot. Guarantied to be not <code>null</code>
+     * It is possible to omit the sender parameter if, for example, the agent sending the ACL message wishes to remain anonymous.
+     * @return the sender of the message
      */
-    String getStringContent();
+    T getSender(); // TODO: Change to Optional<AgentIdentifier>
 
-    byte[] getByteSequenceContent();
+    ACLPerformative getPerformative();
 
     String getReplyWith();
 
@@ -63,4 +47,6 @@ public interface ACLMessage {
     void send(ACLMessageTransmitter transmitter);
 
     boolean matches(MessageTemplate performative);
+
+    <C> C userDefinedParameter(String key, Class<C> clazz);
 }
