@@ -33,7 +33,7 @@ public class ListenerSupport<T> {
 		for (Iterator<T> i=getListeners().iterator(); i.hasNext(); ) {
 			final T l = i.next();
 			try {
-				command.update(l);
+				command.apply(l);
 			}
 			catch (RuntimeException e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Unexpected exception in listener", e);
