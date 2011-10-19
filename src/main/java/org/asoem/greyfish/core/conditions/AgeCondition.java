@@ -25,7 +25,7 @@ public final class AgeCondition extends IntCompareCondition {
 
     @Override
 	protected Integer getCompareValue(Simulation simulation) {
-		return agent.get().getAge();
+		return agent().getAge();
 	}
 
     @SimpleXMLConstructor

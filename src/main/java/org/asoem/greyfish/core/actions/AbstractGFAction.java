@@ -64,7 +64,6 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     @Override
     public ExecutionResult execute(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
-        Preconditions.checkState(agent.isPresent());
 
         try {
             if (isDormant()) {
@@ -201,7 +200,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
     }

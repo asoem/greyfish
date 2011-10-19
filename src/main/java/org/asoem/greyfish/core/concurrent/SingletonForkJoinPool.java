@@ -3,8 +3,6 @@ package org.asoem.greyfish.core.concurrent;
 import com.google.common.base.Supplier;
 import jsr166y.ForkJoinPool;
 import jsr166y.ForkJoinTask;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.utils.ParallelListTask;
 
 /**
  * User: christoph
@@ -28,7 +26,7 @@ public enum SingletonForkJoinPool implements Supplier<ForkJoinPool> {
         return INSTANCE.get().invoke(task);
     }
 
-    public static void execute(ParallelListTask<Agent> task) {
+    public static void execute(ForkJoinTask<?> task) {
         INSTANCE.get().execute(task);
     }
 
@@ -37,6 +35,10 @@ public enum SingletonForkJoinPool implements Supplier<ForkJoinPool> {
     See Item 71 in EffectiveJava
     */
     private static class PoolHolder {
-        static final ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+        static final ForkJoinPool pool = new ForkJoinPool();
+    }
+
+    private static int parallelism() {
+        return forkJoinPool().getParallelism();
     }
 }

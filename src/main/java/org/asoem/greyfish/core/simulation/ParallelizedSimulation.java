@@ -27,6 +27,7 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.lang.Command;
 import org.asoem.greyfish.lang.Functor;
 import org.asoem.greyfish.lang.ImmutableMapBuilder;
+import org.asoem.greyfish.utils.ConcurrentIterables;
 import org.asoem.greyfish.utils.Counter;
 import org.asoem.greyfish.utils.ListenerSupport;
 import org.asoem.greyfish.utils.PolarPoint;
@@ -34,14 +35,11 @@ import org.asoem.greyfish.utils.PolarPoint;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.simulation.SimulationMessageType.*;
 import static org.asoem.greyfish.core.space.ImmutableCoordinates2D.sum;
-import static org.asoem.greyfish.utils.ParallelListTask.parallelApply;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -50,8 +48,6 @@ import static org.asoem.greyfish.utils.ParallelListTask.parallelApply;
 public class ParallelizedSimulation implements Simulation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelizedSimulation.class);
-
-    private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     private final Multimap<SimulationMessageType, Command> commandListMap =
             Multimaps.synchronizedMultimap(
@@ -338,86 +334,72 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public synchronized void step() {
         LOGGER.trace("{}: Entering step {}", this, steps);
-        updateEnvironment();
-        processAgents();
-
-        ++steps;
-        notifyStep();
-    }
-
-    private void processAgents() {
-        LOGGER.debug("{}: processing {} Agents", this, countAgents());
-
-        SingletonForkJoinPool.execute(
-                parallelApply(new Functor<Agent>() {
-                    @Override
-                    public void apply(Agent agent) {
-                        agent.execute();
-                    }
-                })
-                        .squential(Math.max(countAgents(), 1000) / 2)
-                        .on(agents)
-        );
-    }
-
-    private void updateEnvironment() {
-
-        final CountDownLatch doneSignal = new CountDownLatch(2);
-
-        // distribute inter agent messages
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                Collection<Command> messageCommands = commandListMap.get(DELIVER_AGENT_MESSAGE);
-                if (messageCommands.size() > 0)
-                    LOGGER.debug("{}: Delivering {} Messages", ParallelizedSimulation.this, messageCommands.size());
-                for (Command command : messageCommands) {
-                    command.execute();
-                }
-
-                //postOffice.deliverOrDiscardAllMessages(agentCache);
-
-                doneSignal.countDown();
-            }
-        });
-
-        // update space
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                Collection<Command> removeCommands = commandListMap.get(REMOVE_AGENT);
-                if (removeCommands.size() > 0)
-                    LOGGER.debug("{}: Removing {} Agents", ParallelizedSimulation.this, removeCommands.size());
-                for (Command command : removeCommands) {
-                    command.execute();
-                }
-
-                for (Agent agent : getAgents()) {
-                    final PolarPoint motion = agent.getMotionVector();
-                    if (motion.getDistance() != 0)
-                        getSpace().moveObject(agent, sum(agent.getCoordinates(), motion.toCartesian()));
-                }
-
-                Collection<Command> addCommands = commandListMap.get(ADD_AGENT);
-                if (addCommands.size() > 0)
-                    LOGGER.debug("{}: Adding {} Agents", ParallelizedSimulation.this, addCommands.size());
-                for (Command command : addCommands) {
-                    command.execute();
-                }
-
-                space.updateTopo(agents);
-
-                doneSignal.countDown();
-            }
-        });
 
         try {
-            doneSignal.await();
+
+            Collection<Command> deliverMessageCommands = commandListMap.get(DELIVER_AGENT_MESSAGE);
+            final CountDownLatch deliverMessageCommandsLatch = new CountDownLatch(deliverMessageCommands.size());
+            SingletonForkJoinPool.execute(
+                    ConcurrentIterables.create(deliverMessageCommands, new Functor<Command>() {
+                        @Override
+                        public void apply(@Nullable Command command) {
+                            command.execute();
+                            deliverMessageCommandsLatch.countDown();
+                        }
+                    }, 1000));
+            deliverMessageCommandsLatch.await();
+
+            Collection<Command> removeAgentCommands = commandListMap.get(REMOVE_AGENT);
+            final CountDownLatch removeAgentCommandsLatch = new CountDownLatch(deliverMessageCommands.size());
+            SingletonForkJoinPool.execute(
+                    ConcurrentIterables.create(removeAgentCommands, new Functor<Command>() {
+                        @Override
+                        public void apply(@Nullable Command command) {
+                            command.execute();
+                            removeAgentCommandsLatch.countDown();
+                        }
+                    }, 1000));
+            removeAgentCommandsLatch.await();
+
+            for (Agent agent : getAgents()) {
+                final PolarPoint motion = agent.getMotionVector();
+                if (motion.getDistance() != 0)
+                    getSpace().moveObject(agent, sum(agent.getCoordinates(), motion.toCartesian()));
+            }
+
+            Collection<Command> addAgentCommands = commandListMap.get(ADD_AGENT);
+            final CountDownLatch addAgentCommandsLatch = new CountDownLatch(deliverMessageCommands.size());
+            SingletonForkJoinPool.execute(
+                    ConcurrentIterables.create(addAgentCommands, new Functor<Command>() {
+                        @Override
+                        public void apply(@Nullable Command command) {
+                            command.execute();
+                            addAgentCommandsLatch.countDown();
+                        }
+                    }, 1000));
+            addAgentCommandsLatch.await();
+
+            space.updateTopo(agents);
+
+            final CountDownLatch processAgentsLatch = new CountDownLatch(agents.size());
+            SingletonForkJoinPool.execute(
+                    ConcurrentIterables.create(agents, new Functor<Agent>() {
+                        @Override
+                        public void apply(Agent agent) {
+                            agent.execute();
+                            processAgentsLatch.countDown();
+                        }
+                    }, 1000));
+            processAgentsLatch.await();
+
         } catch (InterruptedException ie) {
-            LOGGER.error("Error awaiting the the threads to finish their task in Simulation#updateEnvironment", ie);
+            LOGGER.error("Simulation was not able to wait for all processes to successfully execute", ie);
         }
 
         commandListMap.clear();
+
+        ++steps;
+        notifyStep();
     }
 
     private void notifyStep() {

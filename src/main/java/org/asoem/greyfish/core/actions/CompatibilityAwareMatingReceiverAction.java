@@ -69,7 +69,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return filter(agent.get().getProperties(), EvaluatedGenomeStorage.class);
+                return filter(agent().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
@@ -107,7 +107,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
             @Override
             public Iterable<GFProperty> values() {
-                return agent.get().getProperties();
+                return agent().getProperties();
             }
         });
     }
@@ -171,9 +171,9 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        final Iterable neighbours = agent.get().findNeighbours(sensorRange);
+        final Iterable neighbours = agent().findNeighbours(sensorRange);
         sensedMates = filter(neighbours, Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent.get())));
+        sensedMates = filter(sensedMates, not(equalTo(agent())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }

@@ -38,7 +38,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
 
             @Override
             public Iterable<IntProperty> values() {
-                return Iterables.filter(agent.get().getProperties(), IntProperty.class);
+                return Iterables.filter(agent().getProperties(), IntProperty.class);
             }
         });
     }

@@ -168,7 +168,7 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
                 generateColors(); }
             @Override public FiniteSetSupplier get() { return states; }
             @Override public Iterable<FiniteSetSupplier> values() {
-                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(agent.get().getProperties(), FiniteSetProperty.class));
+                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(agent().getProperties(), FiniteSetProperty.class));
             }
         };
         e.add(b);
@@ -189,7 +189,7 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
         e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
             @Override
             public Iterable<WellOrderedSetElement> values() {
-                return Iterables.filter(agent.get().getProperties(), WellOrderedSetElement.class);
+                return Iterables.filter(agent().getProperties(), WellOrderedSetElement.class);
             }
 
             @Override

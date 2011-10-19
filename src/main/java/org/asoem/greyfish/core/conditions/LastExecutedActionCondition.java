@@ -23,7 +23,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     @Override
     public boolean apply(Simulation simulation) {
-        return isSameAction(action, agent.get().getLastExecutedAction());
+        return isSameAction(action, agent().getLastExecutedAction());
     }
 
     private static boolean isSameAction(GFAction a1, GFAction a2) {
@@ -46,7 +46,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return Iterables.filter(agent.get().getProperties(), GFAction.class);
+                return Iterables.filter(agent().getProperties(), GFAction.class);
             }
         });
     }

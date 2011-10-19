@@ -73,7 +73,7 @@ public class ModifyQuantitativePropertyAction extends AbstractGFAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
         e.add(new ValueAdaptor<String>("Formula", String.class) {

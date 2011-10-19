@@ -13,9 +13,9 @@ import javax.annotation.Nullable;
 public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Attribute(name="name", required = false)
-    protected String name = "";
+    private String name = "";
 
-    protected Optional<Agent> agent = Optional.absent();
+    private Optional<Agent> agent = Optional.absent();
 
     protected AbstractAgentComponent() {}
 
@@ -39,6 +39,16 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     @Nullable
     public Agent getAgent() {
         return agent.orNull();
+    }
+
+    /**
+     *
+     * @return this components {@code Agent}
+     * @throws IllegalStateException if this components {@code Agent} is {@code null}
+     * @see #getAgent()
+     */
+    public final Agent agent() throws IllegalStateException {
+        return agent.get();
     }
 
     @Override

@@ -21,7 +21,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
-        pattern.apply(agent.get(), simulation);
+        pattern.apply(agent(), simulation);
         return ActionState.END_SUCCESS;
     }
 

@@ -56,13 +56,13 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<Agent>> cfpReplies = Lists.newArrayList();
-            for (ACLMessage<Agent> message : agent.get().pullMessages(template)) {
+            for (ACLMessage<Agent> message : agent().pullMessages(template)) {
 
                 ACLMessage<Agent> cfpReply;
                 try {
                     cfpReply = checkNotNull(handleCFP(message)).build();
                 } catch (NotUnderstoodException e) {
-                    cfpReply = ImmutableACLMessage.createReply(message, agent.get())
+                    cfpReply = ImmutableACLMessage.createReply(message, agent())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
                             .content(e.getMessage(), String.class).build();
                     LOGGER.debug("Message not understood", e);
@@ -83,7 +83,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     : endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT.equals(state)) {
-             Iterable<AgentMessage> receivedMessages = agent.get().pullMessages(getTemplate());
+             Iterable<AgentMessage> receivedMessages = agent().pullMessages(getTemplate());
                 for (ACLMessage<Agent> receivedMessage : receivedMessages) {
                     // TODO: turn into switch statement
                     switch (receivedMessage.getPerformative()) {
@@ -92,7 +92,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                             try {
                                 response = handleAccept(receivedMessage).build();
                             } catch (NotUnderstoodException e) {
-                                response = ImmutableACLMessage.createReply(receivedMessage, agent.get())
+                                response = ImmutableACLMessage.createReply(receivedMessage, agent())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .content(e.getMessage(), String.class).build();
 

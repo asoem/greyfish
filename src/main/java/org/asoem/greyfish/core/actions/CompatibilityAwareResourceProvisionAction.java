@@ -97,7 +97,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
             @Override
             public Iterable<GFProperty> values() {
-                return agent.get().getProperties();
+                return agent().getProperties();
             }
         });
     }

@@ -64,7 +64,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 return failure(State.NO_RECEIVERS);
 
             ImmutableACLMessage<Agent> cfpMessage = createCFP()
-                    .sender(agent.get())
+                    .sender(agent())
                     .performative(ACLPerformative.CFP).build();
 
             simulation.deliverMessage(cfpMessage);
@@ -78,7 +78,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         }
         else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
              Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage<Agent> receivedMessage : agent.get().pullMessages(getTemplate())) {
+                for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
                     assert (receivedMessage != null);
 
                     ACLMessage<Agent> proposeReply;
@@ -91,7 +91,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                                 ++nProposalsReceived;
                                 LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
                             } catch (NotUnderstoodException e) {
-                                proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent.get())
+                                proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent())
                                         .performative(ACLPerformative.NOT_UNDERSTOOD)
                                         .content(e.getMessage(), String.class).build();
                                 LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
@@ -149,7 +149,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         else if (State.WAIT_FOR_INFORM.equals(state)) {
              assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                for (ACLMessage<Agent> receivedMessage : agent.get().pullMessages(getTemplate())) {
+                for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
                     assert receivedMessage != null;
 
                     switch (receivedMessage.getPerformative()) {

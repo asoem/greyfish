@@ -41,9 +41,9 @@ public class SexualReproductionAction extends AbstractGFAction {
         for (int i = 0; i < nOffspring; i++) {
 
             simulation.createAgent(
-                    agent.get().getPopulation(),
-                    agent.get().getCoordinates(),
-                    agent.get().createGamete()/*.mutated().recombined(spermStorage.getRWS())*/
+                    agent().getPopulation(),
+                    agent().getCoordinates(),
+                    agent().createGamete()/*.mutated().recombined(spermStorage.getRWS())*/
             );
         }
 
@@ -78,7 +78,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return Iterables.filter(agent.get().getProperties(), EvaluatedGenomeStorage.class);
+                return Iterables.filter(agent().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
     }

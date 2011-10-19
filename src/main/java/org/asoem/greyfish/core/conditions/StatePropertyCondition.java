@@ -47,7 +47,7 @@ public class StatePropertyCondition extends LeafCondition {
 
             @Override
             public Iterable<FiniteSetProperty> values() {
-                return Iterables.filter(agent.get().getProperties(), FiniteSetProperty.class);
+                return Iterables.filter(agent().getProperties(), FiniteSetProperty.class);
             }
         };
         e.add(statesAdaptor);

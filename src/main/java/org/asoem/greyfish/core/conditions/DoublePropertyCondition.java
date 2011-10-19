@@ -36,7 +36,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
 	}

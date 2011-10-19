@@ -53,7 +53,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected ImmutableACLMessage.Builder<Agent> createCFP() {
         return ImmutableACLMessage.<Agent>with()
-                .sender(agent.get())
+                .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
@@ -68,7 +68,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
-        return ImmutableACLMessage.createReply(message, agent.get())
+        return ImmutableACLMessage.createReply(message, agent())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .content(offer, Double.class);
     }
@@ -93,8 +93,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = filter(agent.get().findNeighbours(sensorRange), Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent.get())));
+        sensedMates = filter(agent().findNeighbours(sensorRange), Agent.class);
+        sensedMates = filter(sensedMates, not(equalTo(agent())));
         return ! isEmpty(sensedMates);
     }
 
@@ -147,7 +147,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent.get().getProperties(), DoubleProperty.class);
+                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
         e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));

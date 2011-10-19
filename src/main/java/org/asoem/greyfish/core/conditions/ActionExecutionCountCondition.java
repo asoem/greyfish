@@ -42,7 +42,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
             @Override
             public Iterable<GFAction> values() {
-                return agent.get().getActions();
+                return agent().getActions();
             }
         });
 	}

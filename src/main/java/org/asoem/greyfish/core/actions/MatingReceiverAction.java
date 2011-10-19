@@ -65,7 +65,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
-                return filter(agent.get().getProperties(), EvaluatedGenomeStorage.class);
+                return filter(agent().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
         e.add(new ValueAdaptor<String>("Message Type", String.class) {
@@ -106,7 +106,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         assert(sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
         return ImmutableACLMessage.<Agent>with()
-                .sender(agent.get())
+                .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
@@ -119,7 +119,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException {
-        ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, this.agent.get());
+        ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             EvaluatedGenome evaluatedGenome = message.getContent(EvaluatedGenome.class);
             receiveGenome(evaluatedGenome);
@@ -138,9 +138,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        Iterable neighbours = agent.get().findNeighbours(sensorRange);
+        Iterable neighbours = agent().findNeighbours(sensorRange);
         sensedMates = filter(neighbours, Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent.get())));
+        sensedMates = filter(sensedMates, not(equalTo(agent())));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }

@@ -49,7 +49,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
 
             @Override
             public Iterable<GFProperty> values() {
-                return agent.get().getProperties();
+                return agent().getProperties();
             }
         });
     }
@@ -72,7 +72,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
         CompatibilityAwareResourceConversation.ProposeContent proposeContent =
                 message.getContent(CompatibilityAwareResourceConversation.ProposeContent.class);
 
-        return ImmutableACLMessage.<Agent>createReply(message, agent.get())
+        return ImmutableACLMessage.<Agent>createReply(message, agent())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .content(proposeContent.getAmount(), Double.class);
     }

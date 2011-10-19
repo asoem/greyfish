@@ -82,7 +82,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Override
     protected ImmutableACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = agent.get().createGamete();
+        final Genome sperm = agent().createGamete();
 
         double fitness = 0.0;
         try {
@@ -91,7 +91,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
             LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
         }
 
-        return ImmutableACLMessage.createReply(message, agent.get())
+        return ImmutableACLMessage.createReply(message, agent())
                 .content(new EvaluatedGenome(sperm, fitness), EvaluatedGenome.class)
                 .performative(ACLPerformative.PROPOSE);
     }
