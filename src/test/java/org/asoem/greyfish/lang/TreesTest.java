@@ -2,6 +2,8 @@ package org.asoem.greyfish.lang;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import org.asoem.greyfish.utils.collect.TreeNode;
+import org.asoem.greyfish.utils.collect.Trees;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
