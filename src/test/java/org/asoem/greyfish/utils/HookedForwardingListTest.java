@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils;
 
+import org.asoem.greyfish.utils.collect.HookedForwardingList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

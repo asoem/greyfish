@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
