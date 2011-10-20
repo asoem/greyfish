@@ -202,7 +202,7 @@ public class ImmutableACLMessage<T extends AgentIdentifier> implements ACLMessag
         return new Builder<T>();
     }
 
-    public static class Builder<T extends AgentIdentifier> implements org.asoem.greyfish.lang.Builder<ImmutableACLMessage<T>> {
+    public static class Builder<T extends AgentIdentifier> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>> {
         private ACLPerformative performative;
         private T sender;
         private final Set<T> dests = Sets.newHashSet();

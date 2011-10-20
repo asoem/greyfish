@@ -1,14 +1,16 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.collect.Range;
+import com.google.common.collect.Ranges;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.lang.ImmutableBitSet;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.ImmutableBitSet;
+import org.asoem.greyfish.utils.math.RandomUtils;
 
 /**
  * User: christoph
@@ -16,7 +18,7 @@ import org.asoem.greyfish.utils.RandomUtils;
  * Time: 11:28
  */
 @ClassGroup(tags = {"property"})
-public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetElementProperty<Double> {
+public class DoubleTrait extends AbstractGFProperty implements RangeElementProperty<Double> {
 
     private final Gene<Double> doubleGene;
     private static final Double LOWER_BOUND = 0.0;
@@ -35,7 +37,7 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
     protected DoubleTrait(AbstractBuilder<?,?> builder) {
         super(builder);
         doubleGene = registerGene(new ImmutableGene<Double>(
-                RandomUtils.RANDOM_DATA.nextUniform(getLowerBound(), getUpperBound()),
+                RandomUtils.uniform(getRange()),
                 Double.class,
                 new GeneControllerAdaptor<Double>() {
                     @Override
@@ -50,25 +52,20 @@ public class DoubleTrait extends AbstractGFProperty implements WellOrderedSetEle
 
                     @Override
                     public Double createInitialValue() {
-                        return RandomUtils.RANDOM_DATA.nextUniform(getLowerBound(), getUpperBound());
+                        return RandomUtils.uniform(getRange());
                     }
                 }
         ));
     }
 
     @Override
-    public Double getUpperBound() {
-        return UPPER_BOUND;
-    }
-
-    @Override
-    public Double getLowerBound() {
-        return LOWER_BOUND;
-    }
-
-    @Override
     public Double get() {
         return doubleGene.get();
+    }
+
+    @Override
+    public Range<Double> getRange() {
+        return Ranges.closed(LOWER_BOUND, UPPER_BOUND);
     }
 
     @Override

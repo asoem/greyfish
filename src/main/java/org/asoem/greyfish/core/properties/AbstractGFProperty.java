@@ -13,8 +13,8 @@ import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Root;
 
 import java.util.Collections;

@@ -1,47 +1,57 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
-import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.properties.WellOrderedSetElementProperty;
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.DefaultMovingObject2D;
-import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.gui.utils.Circle;
-import org.asoem.greyfish.lang.FiniteSetSupplier;
-import org.asoem.greyfish.lang.FiniteSetSuppliers;
-import org.asoem.greyfish.lang.MutableWellOrderedSetElement;
-import org.asoem.greyfish.lang.WellOrderedSetElement;
-import org.asoem.greyfish.utils.*;
+import org.asoem.greyfish.core.properties.FiniteStateProperty;
+import org.asoem.greyfish.core.properties.RangeElementProperty;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
+import org.asoem.greyfish.utils.collect.MutableRangeElement;
+import org.asoem.greyfish.utils.collect.RangeElement;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.MapValuesAdaptor;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.space.DefaultMovable;
+import org.asoem.greyfish.utils.space.MotionVector2D;
+import org.asoem.greyfish.utils.space.Movable;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.core.Commit;
 
+import javax.annotation.Nullable;
 import java.awt.*;
-import java.awt.geom.Arc2D;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.*;
 
-public class Body extends AbstractAgentComponent implements MovingObject2D {
+public class Body extends AbstractAgentComponent implements Movable {
 
-    private final DefaultMovingObject2D movingObject2D = new DefaultMovingObject2D();
+    private final DefaultMovable movingObject2D = new DefaultMovable();
+
     @Attribute(name="radius", required = false)
     private double radius = 0.1f;
-    private static final FiniteSetSupplier DEFAULT_SUPPLIER = FiniteSetSuppliers.of("Default");
+
     @Element(name="colorStateProperty", required = false)
-    private FiniteSetProperty property;
+    private FiniteStateProperty property;
+
     @ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false)
-    private final Map<Object, Color> stateColorMap;
-    private FiniteSetSupplier<?> states = DEFAULT_SUPPLIER;
-    private WellOrderedSetElement<?> outlineValueSupplier = new MutableWellOrderedSetElement<Double>(0.0, 1.0, 0.0);
+    private Map<Object, Color> stateColorMap;
+
+    private Object state;
+
+    private RangeElement<?> outlineValueSupplier = new MutableRangeElement<Double>(0.0, 1.0, 0.0);
 
     /**
      *
@@ -59,17 +69,12 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
      */
     private Body(Body body, DeepCloner cloner) {
         super(body, cloner);
-        this.property = cloner.cloneField(body.property, FiniteSetProperty.class);
+        this.property = cloner.cloneField(body.property, FiniteStateProperty.class);
         if (property != null)
-            states = property;
+            state = property;
         stateColorMap = body.stateColorMap;
-        if (body.outlineValueSupplier instanceof WellOrderedSetElementProperty)
-            outlineValueSupplier = cloner.cloneField((WellOrderedSetElementProperty) body.outlineValueSupplier, WellOrderedSetElementProperty.class);
-    }
-
-    @SimpleXMLConstructor
-    private Body(@ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false) Map<Object, Color> stateColorMap) {
-        this.stateColorMap = stateColorMap;
+        if (body.outlineValueSupplier instanceof RangeElementProperty)
+            outlineValueSupplier = cloner.cloneField((RangeElementProperty) body.outlineValueSupplier, RangeElementProperty.class);
     }
 
     /**
@@ -77,14 +82,13 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
      */
     public Body() {
         setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-        stateColorMap = Maps.newHashMap();
-        generateColors();
+        stateColorMap = ImmutableMap.of((Object)"Default", Color.BLACK);
     }
 
     @Commit
     private void commit() {
         if (property != null)
-            states = property;
+            state = property;
     }
 
     public double getRadius() {
@@ -92,25 +96,14 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
     }
 
     public Color getColor() {
-        return stateColorMap.get(states.get());
+        return stateColorMap.get(state);
     }
 
     public void setColor(Color color) {
-//        this.color = color;
-        generateColors();
     }
 
     public static Body newInstance(Agent owner) {
         return new Body(owner);
-    }
-
-    private void generateColors() {
-        stateColorMap.clear();
-        Color[] colors = generateColors(states.getSet().size());
-        int i = 0;
-        for (Object o : states.getSet()) {
-            stateColorMap.put(o, colors[i++]);
-        }
     }
 
     @Override
@@ -119,23 +112,13 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
     }
 
     @Override
-    public double getOrientation() {
-        return movingObject2D.getOrientation();
-    }
-
-    @Override
     public void setOrientation(double alpha) {
         movingObject2D.setOrientation(alpha);
     }
 
     @Override
-    public PolarPoint getMotionVector() {
+    public MotionVector2D getMotionVector() {
         return movingObject2D.getMotionVector();
-    }
-
-    @Override
-    public void setMotionVector(PolarPoint polarPoint) {
-        movingObject2D.setMotionVector(polarPoint);
     }
 
     @Override
@@ -149,26 +132,29 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
     }
 
     @Override
-    public Coordinates2D getCoordinates() {
-        return movingObject2D.getCoordinates();
-    }
-
-    @Override
-    public void setAnchorPoint(Coordinates2D coordinates2d) {
-        movingObject2D.setAnchorPoint(coordinates2d);
-    }
-
-    @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         e.add(ValueAdaptor.forField("Radius of the Circle", Double.class, this, "radius"));
-        FiniteSetValueAdaptor<FiniteSetSupplier> b = new FiniteSetValueAdaptor<FiniteSetSupplier>("StateProperty", FiniteSetSupplier.class) {
-            @Override protected void set(FiniteSetSupplier arg0) { states = checkNotNull(arg0);
-                if (!states.equals(DEFAULT_SUPPLIER)) property = FiniteSetProperty.class.cast(states);
-                generateColors(); }
-            @Override public FiniteSetSupplier get() { return states; }
-            @Override public Iterable<FiniteSetSupplier> values() {
-                return concat(ImmutableList.of(DEFAULT_SUPPLIER), filter(agent().getProperties(), FiniteSetProperty.class));
+        SetAdaptor<Object> b = new SetAdaptor<Object>("StateProperty", Object.class) {
+            @Override protected void set(Object arg0) {
+                state = checkNotNull(arg0);
+                if (!state.equals("Default")) {
+                    property = FiniteStateProperty.class.cast(state);
+                    stateColorMap = ImmutableMapBuilder.<Object, Color>newInstance()
+                            .putAll(((Set<Object>)property.getStates()),
+                                    Functions.identity(),
+                                    new Function<Object, Color>() {
+
+                                        @Override
+                                        public Color apply(@Nullable Object o) {
+                                            return Color.BLACK;
+                                        }
+                                    }).build();
+                }
+            }
+            @Override public Object get() { return state; }
+            @Override public Iterable<Object> values() {
+                return concat(ImmutableList.of("Default"), filter(agent().getProperties(), FiniteStateProperty.class));
             }
         };
         e.add(b);
@@ -186,19 +172,19 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
         b.addValueChangeListener(colorMultiValueAdaptor);
 //        e.sum(ValueAdaptor.forField("The color of the Body", Color.class, this, "color"));
 
-        e.add(new FiniteSetValueAdaptor<WellOrderedSetElement>("Outline", WellOrderedSetElement.class) {
+        e.add(new SetAdaptor<RangeElement>("Outline", RangeElement.class) {
             @Override
-            public Iterable<WellOrderedSetElement> values() {
-                return Iterables.filter(agent().getProperties(), WellOrderedSetElement.class);
+            public Iterable<RangeElement> values() {
+                return Iterables.filter(agent().getProperties(), RangeElement.class);
             }
 
             @Override
-            protected void set(WellOrderedSetElement arg0) {
+            protected void set(RangeElement arg0) {
                 outlineValueSupplier = arg0;
             }
 
             @Override
-            public WellOrderedSetElement get() {
+            public RangeElement get() {
                 return outlineValueSupplier;
             }
         });
@@ -211,19 +197,6 @@ public class Body extends AbstractAgentComponent implements MovingObject2D {
             cols[i] = Color.getHSBColor((float) i / (float) n, 0.85f, 1.0f);
         }
         return cols;
-    }
-
-    // TODO: Invert dependency
-    public void draw(Graphics2D g2d) {
-        Circle c = Circle.at(getCoordinates().getX(), getCoordinates().getY(), getRadius());
-
-        g2d.setColor(Color.BLACK);
-        g2d.setStroke(new BasicStroke(0.06f));
-        Arc2D.Double arc = new Arc2D.Double(c.getBounds2D(), 0, (int) (outlineValueSupplier.get().doubleValue() / outlineValueSupplier.getUpperBound().doubleValue() * 360), Arc2D.OPEN);
-        g2d.draw(arc);
-
-        g2d.setColor(getColor());
-        g2d.fill(c);
     }
 
     @Override

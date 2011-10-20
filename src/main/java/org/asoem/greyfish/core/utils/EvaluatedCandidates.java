@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.utils;
 
 import com.google.common.base.Preconditions;
-import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.greyfish.utils.math.RandomUtils;
 
 import java.util.List;
 

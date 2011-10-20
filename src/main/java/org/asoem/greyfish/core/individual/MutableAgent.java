@@ -6,8 +6,8 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Root;
 
 @Root

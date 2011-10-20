@@ -12,11 +12,11 @@ import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
-import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -60,7 +60,7 @@ public class ModifyQuantitativePropertyAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
+        e.add(new SetAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 parameterQuantitativeProperty = checkNotNull(arg0);

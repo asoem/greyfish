@@ -8,7 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND operator.

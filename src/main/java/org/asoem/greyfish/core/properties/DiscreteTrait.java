@@ -9,10 +9,10 @@ import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Set;
  * Time: 10:28
  */
 @ClassGroup(tags = {"property"})
-public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProperty<String> {
+public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProperty<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscreteTrait.class);
     private Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = ImmutableMap.of();
@@ -78,7 +78,7 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteSetProper
     }
 
     @Override
-    public Set<String> getSet() {
+    public Set<String> getStates() {
         return phenotypeConditionMap.keySet();
     }
 

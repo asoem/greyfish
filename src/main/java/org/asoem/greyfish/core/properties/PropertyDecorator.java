@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 public abstract class PropertyDecorator implements GFProperty {

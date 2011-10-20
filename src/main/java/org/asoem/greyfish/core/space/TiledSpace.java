@@ -5,16 +5,24 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Maps;
+import javolution.util.FastMap;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.PolarPoint;
+import org.asoem.greyfish.utils.math.PolarPoint2D;
+import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
+import java.util.Map;
 
+import static com.google.common.base.Functions.forMap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.space.Conversions.toCartesian;
+import static org.asoem.greyfish.utils.space.ImmutableCoordinates2D.sum;
 
 /**
  * @author christoph
@@ -30,7 +38,11 @@ public class TiledSpace implements Iterable<TileLocation> {
 
     private final TileLocation[][] tileMatrix;
 
-    private final KDTree<MovingObject2D> kdTree = AsoemScalaKDTree.newInstance();
+    private final Map<Movable, Coordinates2D> objectLocation2DMap = FastMap.newInstance();
+
+    private final TwoDimTree<Movable> twoDimTree = AsoemScalaTwoDimTree.newInstance();
+    private boolean twoDimTreeOutdated = false;
+
 
     public TiledSpace(TiledSpace pSpace) {
         this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
@@ -117,60 +129,35 @@ public class TiledSpace implements Iterable<TileLocation> {
         return tileMatrix[x][y];
     }
 
-    /*
-    public void removeAllOccupants() {
-        for (TileLocation location : this) {
-            location.removeAllOccupants();
-        }
-        nOccupants = 0;
-        dirty = true;
-    }
-    */
-
     @Override
     public String toString() {
         return "Tiled Space: dim="+width+"x"+height+"; oc="+Iterables.size(getOccupants());
     }
 
-    /*
-    public void addOccupant(MovingObject2D object2d) {
-        checkNotNull(object2d);
-
-        TileLocation loc = getTileAt(object2d);
-        loc.addOccupant(object2d);
-        ++nOccupants;
-        dirty = true;
+    public Iterable<Movable> getOccupants() {
+        return objectLocation2DMap.keySet();
     }
 
-    /*
-    public boolean removeOccupant(MovingObject2D individual) {
-        if (getTileAt(individual).removeOccupant(individual)) {
-            --nOccupants;
-            dirty = true;
-            return true;
-        }
-        return false;
-    }
-    */
-
-    public Iterable<MovingObject2D> getOccupants() {
-        return kdTree;
-    }
-
-    public void updateTopo(Iterable<? extends MovingObject2D> objects) {
-        kdTree.rebuild(objects);
+    private void updateTopo() {
+        twoDimTree.rebuild(getOccupants(), forMap(objectLocation2DMap));
     }
 
     public TileLocation getTileAt(Coordinates2D coordinates2D) throws IndexOutOfBoundsException, IllegalArgumentException {
         return getTileAt((int) coordinates2D.getX(), (int) coordinates2D.getY());
     }
 
-    public boolean canMove(MovingObject2D origin, Coordinates2D destination) {
-        if (!covers(origin)) {
-            throw new IllegalArgumentException(String.format("No TileLocation for origin '%s' in %s", origin.getCoordinates(), this));
-        }
+    /**
+     *
+     * @param object2D the object to check for validity of a move operation
+     * @param destination the destination of the move
+     * @return {@code true} if a move request using {@link #moveObject(org.asoem.greyfish.utils.space.Movable)}
+     * will be successful with the given parameters, {@code false} otherwise
+     * @throws IllegalArgumentException if the {@code object2D} is not managed by this {@code TiledSpace}
+     */
+    public boolean canMove(Movable object2D, Coordinates2D destination) {
+        checkArgument(objectLocation2DMap.containsKey(object2D));
 
-        final TileLocation originTile = getTileAt(origin);
+        final TileLocation originTile = getTileAt(objectLocation2DMap.get(object2D));
 
         if (covers(destination)) {
             final TileLocation destinationTile = getTileAt(destination);
@@ -179,38 +166,38 @@ public class TiledSpace implements Iterable<TileLocation> {
         return false;
     }
 
-    public void moveObject(MovingObject2D object2d, Coordinates2D newCoordinates) {
+    public void moveObject(Movable object2d) {
+        Coordinates2D newCoordinates = sum(objectLocation2DMap.get(object2d), toCartesian(object2d.getMotionVector()));
         if (canMove(object2d, newCoordinates)) {
-            final TileLocation loc = getTileAt(object2d);
-            final TileLocation new_loc = getTileAt(newCoordinates);
-
-            /*
-            boolean result = loc.removeOccupant(object2d);
-            assert(result);
-            new_loc.addOccupant(object2d);
-            */
-
-            object2d.setAnchorPoint(newCoordinates);
+            synchronized (this) {
+                objectLocation2DMap.put(object2d, ImmutableCoordinates2D.copyOf(newCoordinates));
+                twoDimTreeOutdated = true;
+            }
         }
     }
 
-    public boolean checkForBorderCollision(Coordinates2D origin, PolarPoint motionVector) {
-        checkArgument(this.covers(checkNotNull(origin)));
+    public boolean checkForBorderCollision(Agent origin, PolarPoint2D motionVector) {
+        Coordinates2D coordinates2D = objectLocation2DMap.get(checkNotNull(origin));
+        checkArgument(this.covers(coordinates2D));
         checkNotNull(motionVector);
 
-        final Coordinates2D coordinatesAfterMove = ImmutableCoordinates2D.at(origin, motionVector.toCartesian());
-        return !covers(coordinatesAfterMove) || getTileAt(origin).hasBorder(getTileAt(coordinatesAfterMove));
+        final Coordinates2D coordinatesAfterMove = ImmutableCoordinates2D.at(coordinates2D, toCartesian(motionVector));
+        return !covers(coordinatesAfterMove) || getTileAt(coordinates2D).hasBorder(getTileAt(coordinatesAfterMove));
 
     }
 
     /**
-     * @param coordinates the search point
+     *
+     * @param movable
      * @param range the radius of the circle around {@code coordinates}
-     * @return all objects whose anchor point ({@link org.asoem.greyfish.core.space.MovingObject2D#getCoordinates()})
+     * @return all objects whose location in this space
      * intersects with the circle defined by {@code coordinates} and {@code range}
      */
-    public Iterable<MovingObject2D> findObjects(Coordinates2D coordinates, double range) {
-        return kdTree.findObjects(coordinates, range);
+    public Iterable<Movable> findObjects(Movable movable, double range) {
+        checkArgument(objectLocation2DMap.containsKey(movable));
+        if (twoDimTreeOutdated)
+            updateTopo();
+        return twoDimTree.findObjects(objectLocation2DMap.get(movable), range);
     }
 
     @Override
@@ -223,13 +210,38 @@ public class TiledSpace implements Iterable<TileLocation> {
         }));
     }
 
-    public Iterable<MovingObject2D> getOccupants(final TileLocation location) {
-        return Iterables.filter(getOccupants(), new Predicate<MovingObject2D>() {
+    public Iterable<Movable> getOccupants(final TileLocation location) {
+        return Maps.filterValues(objectLocation2DMap, new Predicate<Coordinates2D>() {
             @Override
-            public boolean apply(@Nullable MovingObject2D movingObject2D) {
-                assert movingObject2D != null;
-                return location.covers(movingObject2D.getCoordinates());
+            public boolean apply(@Nullable Coordinates2D coordinates2D) {
+                return location.covers(coordinates2D);
             }
-        });
+        }).keySet();
+    }
+
+    public void addObject(Movable movable, Coordinates2D coordinates2D) {
+        checkArgument(this.covers(checkNotNull(coordinates2D)));
+        checkNotNull(movable);
+        synchronized (this) {
+            objectLocation2DMap.put(movable, coordinates2D);
+            twoDimTreeOutdated = true;
+        }
+    }
+
+    public void removeObject(Movable movable) {
+        checkNotNull(movable);
+        synchronized (this) {
+            if(objectLocation2DMap.remove(movable) == null) {
+                throw new IllegalArgumentException("Object not maintained by this space: " + movable);
+            }
+            twoDimTreeOutdated = true;
+        }
+    }
+
+    public Coordinates2D getCoordinates(Agent agent) {
+        Coordinates2D coordinates2D = objectLocation2DMap.get(agent);
+        if (coordinates2D == null)
+            throw new IllegalArgumentException("Space does not contain " + agent);
+        return coordinates2D;
     }
 }

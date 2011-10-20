@@ -10,9 +10,8 @@ import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.space.Movable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -59,7 +58,7 @@ public class MatingInteractionTest {
 
         Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.ofSize(0,0)).build()));
         given(simulationSpy.getAgents()).willReturn(ImmutableList.<Agent>of(male,female));
-        doReturn(ImmutableList.<MovingObject2D>builder().add(female, male).build()).when(simulationSpy).findObjects(Matchers.<Coordinates2D>any(), anyDouble());
+        doReturn(ImmutableList.<Movable>builder().add(female, male).build()).when(simulationSpy).findNeighbours(Matchers.<Agent>any(), anyDouble());
 
         receiverAction.setAgent(female);
         transmitterAction.setAgent(male);

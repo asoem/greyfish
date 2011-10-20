@@ -6,9 +6,9 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -36,7 +36,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        e.add(new FiniteSetValueAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
+        e.add(new SetAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
             @Override
             protected void set(GFProperty arg0) {
                 similarityTrait = checkNotNull(arg0);

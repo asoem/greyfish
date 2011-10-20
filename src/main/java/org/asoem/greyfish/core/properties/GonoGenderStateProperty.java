@@ -4,17 +4,17 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.genes.ImmutableGene;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.util.EnumSet;
 import java.util.Set;
 
-import static org.asoem.greyfish.utils.RandomUtils.nextBoolean;
-import static org.asoem.greyfish.utils.RandomUtils.trueWithProbability;
+import static org.asoem.greyfish.utils.math.RandomUtils.nextBoolean;
+import static org.asoem.greyfish.utils.math.RandomUtils.trueWithProbability;
 
 @ClassGroup(tags="property")
-public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteSetProperty<GonoGenderStateProperty.Gender> {
+public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteStateProperty<GonoGenderStateProperty.Gender> {
 
     // TODO: Add configurable matrix for state transition values. Alternative: A configurable "state" gene field
 
@@ -37,7 +37,7 @@ public class GonoGenderStateProperty extends AbstractGFProperty implements Finit
     }
 
     @Override
-    public Set<Gender> getSet() {
+    public Set<Gender> getStates() {
         return EnumSet.allOf(Gender.class);
     }
 

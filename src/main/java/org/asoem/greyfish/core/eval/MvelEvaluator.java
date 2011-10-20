@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
-import org.asoem.greyfish.utils.RandomDataGenerator;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
 import org.mvel2.integration.VariableResolverFactory;
@@ -25,8 +25,8 @@ public class MvelEvaluator implements Evaluator {
     static {
         PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
 
-        PARSER_CONTEXT.addImport("gaussian", MVEL.getStaticMethod(RandomDataGenerator.class, "gaussian", new Class[] {double.class, double.class}));
-        PARSER_CONTEXT.addImport("poisson", MVEL.getStaticMethod(RandomDataGenerator.class, "poisson", new Class[] {double.class}));
+        PARSER_CONTEXT.addImport("gaussian", MVEL.getStaticMethod(RandomUtils.class, "gaussian", new Class[] {double.class, double.class}));
+        PARSER_CONTEXT.addImport("poisson", MVEL.getStaticMethod(RandomUtils.class, "poisson", new Class[] {double.class}));
     }
 
     public MvelEvaluator() {

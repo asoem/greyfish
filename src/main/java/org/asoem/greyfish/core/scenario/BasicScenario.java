@@ -4,10 +4,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Placeholder;
-import org.asoem.greyfish.core.space.Object2D;
+import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -86,6 +87,16 @@ public class BasicScenario implements Scenario {
     }
 
     @Override
+    public Agent getPrototype(final Population population) { // TODO: would be faster if prototypes is a BiMap
+        return Iterables.find(prototypes, new Predicate<Agent>() {
+            @Override
+            public boolean apply(Agent agent) {
+                return agent.getPopulation().equals(population);
+            }
+        });
+    }
+
+    @Override
     public Iterable<Placeholder> getPlaceholder() {
         return placeholders;
     }
@@ -130,7 +141,7 @@ public class BasicScenario implements Scenario {
         return new Builder(name, space);
     }
 
-    public static class Builder implements org.asoem.greyfish.lang.Builder<Scenario> {
+    public static class Builder implements org.asoem.greyfish.utils.base.Builder<Scenario> {
         private TiledSpace space;
         private final Multimap<Agent, Object2D> map = ArrayListMultimap.create();
         private String name;

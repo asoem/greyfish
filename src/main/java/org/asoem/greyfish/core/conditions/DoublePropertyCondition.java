@@ -3,9 +3,9 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
 public class DoublePropertyCondition extends DoubleCompareCondition {
@@ -21,7 +21,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
     @Override
 	public void configure(ConfigurationHandler e) {
 		super.configure(e);
-		e.add(new FiniteSetValueAdaptor<DoubleProperty>("", DoubleProperty.class
+		e.add(new SetAdaptor<DoubleProperty>("", DoubleProperty.class
         ) {
 
             @Override

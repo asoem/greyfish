@@ -1,17 +1,21 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.collect.Range;
+import com.google.common.collect.Ranges;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneController;
 import org.asoem.greyfish.core.genes.GeneControllerAdaptor;
 import org.asoem.greyfish.core.genes.ImmutableGene;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.lang.ImmutableBitSet;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.RandomUtils;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.ImmutableBitSet;
+import org.asoem.greyfish.utils.math.RandomUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.collect.ImmutableBitSet.ones;
+import static org.asoem.greyfish.utils.collect.ImmutableBitSet.zeros;
 
 /**
  * User: christoph
@@ -19,7 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 14:20
  */
 @ClassGroup(tags = {"property"})
-public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetElementProperty<ImmutableBitSet> {
+public class BitSetTrait extends AbstractGFProperty implements RangeElementProperty<ImmutableBitSet> {
 
     private final static int DEFAULT_BITSET_LENGTH = 10;
 
@@ -47,13 +51,8 @@ public class BitSetTrait extends AbstractGFProperty implements WellOrderedSetEle
     }
 
     @Override
-    public ImmutableBitSet getUpperBound() {
-        return ImmutableBitSet.ones(bitStringGene.get().length());
-    }
-
-    @Override
-    public ImmutableBitSet getLowerBound() {
-        return ImmutableBitSet.zeros(bitStringGene.get().length());
+    public Range<ImmutableBitSet> getRange() {
+        return Ranges.closed(zeros(DEFAULT_BITSET_LENGTH), ones(DEFAULT_BITSET_LENGTH));
     }
 
     protected BitSetTrait(AbstractBuilder<?,?> builder) {

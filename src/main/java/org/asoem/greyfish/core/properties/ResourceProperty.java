@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.share.Consumer;
 import org.asoem.greyfish.core.share.ConsumerGroup;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 @ClassGroup(tags="property")
 public class ResourceProperty extends DoubleProperty {

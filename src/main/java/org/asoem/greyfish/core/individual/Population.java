@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import org.asoem.greyfish.lang.HasName;
+import org.asoem.greyfish.utils.base.HasName;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 

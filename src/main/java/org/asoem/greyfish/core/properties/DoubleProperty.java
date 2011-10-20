@@ -2,15 +2,15 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @ClassGroup(tags="property")
-public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double> implements ContinuousProperty<Double> {
+public class DoubleProperty extends AbstractRangeElementProperty<Double> implements ContinuousProperty<Double> {
 
     @SimpleXMLConstructor
     private DoubleProperty() {
@@ -66,6 +66,6 @@ public class DoubleProperty extends AbstractWellOrderedSetElementProperty<Double
             return new DoubleProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends DoubleProperty, T extends AbstractBuilder<E, T>> extends AbstractWellOrderedSetElementProperty.AbstractBuilder<E, T, Double> {
+    protected static abstract class AbstractBuilder<E extends DoubleProperty, T extends AbstractBuilder<E, T>> extends AbstractRangeElementProperty.AbstractBuilder<E, T, Double> {
     }
 }

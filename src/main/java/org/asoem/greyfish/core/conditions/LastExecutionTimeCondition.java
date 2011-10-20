@@ -4,11 +4,11 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
-import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -56,7 +56,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
             }
         });
 		
-		e.add(new FiniteSetValueAdaptor<GFAction>("Action", GFAction.class) {
+		e.add(new SetAdaptor<GFAction>("Action", GFAction.class) {
 
             @Override
             protected void set(GFAction arg0) {

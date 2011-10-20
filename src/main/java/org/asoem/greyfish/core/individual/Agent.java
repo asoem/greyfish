@@ -8,16 +8,17 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.genes.IncompatibleGenomeException;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.lang.TreeNode;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.Preparable;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.Preparable;
+import org.asoem.greyfish.utils.collect.TreeNode;
+import org.asoem.greyfish.utils.space.MotionVector2D;
+import org.asoem.greyfish.utils.space.Movable;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, MovingObject2D, AgentIdentifier, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, Movable, AgentIdentifier, Preparable<Simulation> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -68,6 +69,8 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
     Color getColor();
     void setColor(Color color);
     double getRadius();
+    @Override
+    MotionVector2D getMotionVector();
 
     Simulation getSimulation();
     public void setSimulation(Simulation simulation);
@@ -82,8 +85,6 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
     List<AgentMessage> pullMessages(MessageTemplate template);
     boolean hasMessages(MessageTemplate template);
 
-    Iterable<MovingObject2D> findNeighbours(double range);
     void execute();
     void shutDown();
-
 }

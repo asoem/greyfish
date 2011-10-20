@@ -5,10 +5,8 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
-import org.asoem.greyfish.lang.HasName;
+import org.asoem.greyfish.utils.base.HasName;
 
 import java.util.Collection;
 import java.util.Set;
@@ -21,7 +19,7 @@ import java.util.Set;
 public interface Simulation extends HasName {
     int numberOfPopulations();
 
-    Iterable<MovingObject2D> findObjects(Coordinates2D coordinates, double radius);
+    Iterable<Agent> findNeighbours(Agent agent, double radius);
 
     Iterable<Agent> getAgents(Population population);
 
@@ -50,10 +48,9 @@ public interface Simulation extends HasName {
      * Creates a new {@link org.asoem.greyfish.core.individual.Agent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
      * The {@link org.asoem.greyfish.core.individual.Agent} will get inserted and executed at the next step at given {@code location}.
      * @param population The {@code Population} of the {@code Prototype} the Agent will be cloned from.
-     * @param coordinates The coordinates where the {@link org.asoem.greyfish.core.individual.Agent} will be inserted in the {@link org.asoem.greyfish.core.space.TiledSpace}.
      * @param genome The {@link org.asoem.greyfish.core.genes.ImmutableGenome} for the new {@link org.asoem.greyfish.core.individual.Agent}.
      */
-    void createAgent(Population population, Coordinates2D coordinates, Genome genome);
+    void createAgent(Population population, Genome genome);
 
     Set<Agent> getPrototypes();
 

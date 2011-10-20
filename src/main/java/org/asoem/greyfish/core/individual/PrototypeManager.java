@@ -4,8 +4,8 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ForwardingSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.utils.ListenerSupport;
+import org.asoem.greyfish.utils.base.ListenerSupport;
+import org.asoem.greyfish.utils.base.VoidFunction;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -80,7 +80,7 @@ public class PrototypeManager extends ForwardingSet<Agent> {
 	}
 
 	private void firePrototypeAdded(final Agent individual, final Integer index) {
-        listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
+        listenerSupport.notifyListeners( new VoidFunction<PrototypeRegistryListener>() {
             @Override
             public void apply(PrototypeRegistryListener l) {
                 l.prototypeAdded(PrototypeManager.this, individual, index);
@@ -88,7 +88,7 @@ public class PrototypeManager extends ForwardingSet<Agent> {
 	}
 
 	private void firePrototypeRemoved(final Agent individual, final Integer index) {
-		listenerSupport.notifyListeners( new Functor<PrototypeRegistryListener>() {
+		listenerSupport.notifyListeners( new VoidFunction<PrototypeRegistryListener>() {
             @Override
             public void apply(PrototypeRegistryListener l) {
                 l.prototypeRemoved(PrototypeManager.this, individual, index);

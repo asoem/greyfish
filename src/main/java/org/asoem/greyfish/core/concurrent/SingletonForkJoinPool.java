@@ -22,6 +22,12 @@ public enum SingletonForkJoinPool implements Supplier<ForkJoinPool> {
         return INSTANCE.get();
     }
 
+    /**
+     * Delegates to {@link ForkJoinPool#invoke(jsr166y.ForkJoinTask)}
+     * @param task the task to invoke with the {@link ForkJoinPool} instance managed by this class
+     * @param <T> the task to invoke
+     * @return the value computed by the {@code task}
+     */
     public static <T> T invoke(ForkJoinTask<T> task) {
         return INSTANCE.get().invoke(task);
     }

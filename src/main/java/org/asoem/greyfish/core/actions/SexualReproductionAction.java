@@ -4,11 +4,11 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
-import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -42,7 +42,6 @@ public class SexualReproductionAction extends AbstractGFAction {
 
             simulation.createAgent(
                     agent().getPopulation(),
-                    agent().getCoordinates(),
                     agent().createGamete()/*.mutated().recombined(spermStorage.getRWS())*/
             );
         }
@@ -65,7 +64,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("ImmutableGenome storage", EvaluatedGenomeStorage.class) {
+        e.add(new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermStorage = checkNotNull(arg0);

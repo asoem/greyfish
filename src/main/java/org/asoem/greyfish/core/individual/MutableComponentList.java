@@ -3,9 +3,9 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.HookedForwardingList;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.HookedForwardingList;
 
 import javax.annotation.Nullable;
 import java.util.List;

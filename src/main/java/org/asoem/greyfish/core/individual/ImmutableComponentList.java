@@ -4,8 +4,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.util.List;

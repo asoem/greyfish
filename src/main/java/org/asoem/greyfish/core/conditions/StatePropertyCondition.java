@@ -3,11 +3,11 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.properties.FiniteSetProperty;
+import org.asoem.greyfish.core.properties.FiniteStateProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
-    private FiniteSetProperty stateProperty;
+    private FiniteStateProperty stateProperty;
     // TODO: The stateProperty might get modified during construction phase. Observe this!
 
     @Element(name="state",required=false)
@@ -23,7 +23,7 @@ public class StatePropertyCondition extends LeafCondition {
 
     public StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.stateProperty = map.cloneField(condition.stateProperty, FiniteSetProperty.class);
+        this.stateProperty = map.cloneField(condition.stateProperty, FiniteStateProperty.class);
         this.state = condition.state;
     }
 
@@ -40,23 +40,23 @@ public class StatePropertyCondition extends LeafCondition {
 
     @Override
     public void configure(ConfigurationHandler e) {
-        final FiniteSetValueAdaptor<FiniteSetProperty> statesAdaptor = new FiniteSetValueAdaptor<FiniteSetProperty>(
-                "Property", FiniteSetProperty.class) {
-            @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkNotNull(arg0); }
-            @Override public FiniteSetProperty get() { return stateProperty; }
+        final SetAdaptor<FiniteStateProperty> statesAdaptor = new SetAdaptor<FiniteStateProperty>(
+                "Property", FiniteStateProperty.class) {
+            @Override protected void set(FiniteStateProperty arg0) { stateProperty = checkNotNull(arg0); }
+            @Override public FiniteStateProperty get() { return stateProperty; }
 
             @Override
-            public Iterable<FiniteSetProperty> values() {
-                return Iterables.filter(agent().getProperties(), FiniteSetProperty.class);
+            public Iterable<FiniteStateProperty> values() {
+                return Iterables.filter(agent().getProperties(), FiniteStateProperty.class);
             }
         };
         e.add(statesAdaptor);
 
-        final FiniteSetValueAdaptor<Object> stateAdaptor = new FiniteSetValueAdaptor<Object>( "has state", Object.class) {
+        final SetAdaptor<Object> stateAdaptor = new SetAdaptor<Object>( "has state", Object.class) {
             @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
             @Override public Object get() { return state; }
             @Override public Iterable<Object> values() {
-                return (stateProperty == null) ? ImmutableList.of() : stateProperty.getSet();
+                return (stateProperty == null) ? ImmutableList.of() : stateProperty.getStates();
             }
         };
         statesAdaptor.addValueChangeListener(stateAdaptor);
@@ -80,10 +80,10 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     protected static abstract class AbstractBuilder<E extends StatePropertyCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
-        private FiniteSetProperty<?> property;
+        private FiniteStateProperty<?> property;
         private Object state;
 
-        public T property(FiniteSetProperty<?> property) { this.property = checkNotNull(property); return self(); }
+        public T property(FiniteStateProperty<?> property) { this.property = checkNotNull(property); return self(); }
         public T hasState(Object state) { this.state = checkNotNull(state); return self(); }
     }
 }

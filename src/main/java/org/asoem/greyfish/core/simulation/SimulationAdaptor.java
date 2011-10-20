@@ -5,8 +5,6 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
 
 import java.util.Collection;
@@ -27,8 +25,8 @@ public abstract class SimulationAdaptor implements Simulation {
     }
 
     @Override
-    public Iterable<MovingObject2D> findObjects(Coordinates2D coordinates, double radius) {
-        return delegate().findObjects(coordinates, radius);
+    public Iterable<Agent> findNeighbours(Agent agent, double radius) {
+        return delegate().findNeighbours(agent, radius);
     }
 
     @Override
@@ -72,8 +70,8 @@ public abstract class SimulationAdaptor implements Simulation {
     }
 
     @Override
-    public void createAgent(Population population, Coordinates2D coordinates, Genome genome) {
-        delegate().createAgent(population, coordinates, genome);
+    public void createAgent(Population population, Genome genome) {
+        delegate().createAgent(population, genome);
     }
 
     @Override

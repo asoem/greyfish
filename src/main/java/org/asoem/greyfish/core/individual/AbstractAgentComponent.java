@@ -4,8 +4,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
@@ -29,7 +29,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         this.name = builder.name;
     }
 
-    public static abstract class AbstractBuilder<E extends AbstractAgentComponent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.lang.AbstractBuilder<E, T> {
+    public static abstract class AbstractBuilder<E extends AbstractAgentComponent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
         private String name = "";
 
         public T name(String name) { this.name = name; return self(); }

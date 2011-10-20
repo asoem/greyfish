@@ -10,13 +10,11 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.TreeNode;
-import org.asoem.greyfish.lang.Trees;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.PolarPoint;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.TreeNode;
+import org.asoem.greyfish.utils.collect.Trees;
+import org.asoem.greyfish.utils.space.MotionVector2D;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.core.Commit;
@@ -282,11 +280,6 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterable<MovingObject2D> findNeighbours(double range) {
-        return simulationContext.findNeighbours(range);
-    }
-
-    @Override
     public void execute() {
         simulationContext.execute();
     }
@@ -328,13 +321,8 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public PolarPoint getMotionVector() {
+    public MotionVector2D getMotionVector() {
         return body.getMotionVector();
-    }
-
-    @Override
-    public void setMotionVector(PolarPoint polarPoint) {
-        body.setMotionVector(polarPoint);
     }
 
     @Override
@@ -345,21 +333,6 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void setMotion(double angle, double velocity) {
         body.setMotion(angle, velocity);
-    }
-
-    @Override
-    public Coordinates2D getCoordinates() {
-        return body.getCoordinates();
-    }
-
-    @Override
-    public void setAnchorPoint(Coordinates2D coordinates2d) {
-        body.setAnchorPoint(coordinates2d);
-    }
-
-    @Override
-    public double getOrientation() {
-        return body.getOrientation();
     }
 
     @Override
@@ -394,7 +367,7 @@ public abstract class AbstractAgent implements Agent {
         return body;
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E,T>> extends org.asoem.greyfish.lang.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E,T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E,T> {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
         protected final ComponentList<GFProperty> properties =  new MutableComponentList<GFProperty>();
         protected Population population;

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

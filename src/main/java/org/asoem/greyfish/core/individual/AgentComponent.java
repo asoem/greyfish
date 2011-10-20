@@ -2,11 +2,11 @@ package org.asoem.greyfish.core.individual;
 
 
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.Configurable;
-import org.asoem.greyfish.lang.HasName;
-import org.asoem.greyfish.lang.TreeNode;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.Preparable;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.HasName;
+import org.asoem.greyfish.utils.base.Preparable;
+import org.asoem.greyfish.utils.collect.TreeNode;
+import org.asoem.greyfish.utils.gui.Configurable;
 
 import javax.annotation.Nullable;
 

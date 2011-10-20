@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 

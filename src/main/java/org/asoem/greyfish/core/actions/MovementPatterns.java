@@ -4,7 +4,7 @@ import javolution.lang.MathLib;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
-import static org.asoem.greyfish.utils.RandomUtils.*;
+import static org.asoem.greyfish.utils.math.RandomUtils.*;
 
 /**
  * User: christoph
@@ -52,7 +52,7 @@ public class MovementPatterns {
 
                 // check Border
                 // TODO: LOD violation
-                if (simulation.getSpace().checkForBorderCollision(agent.getCoordinates(), agent.getMotionVector())) {
+                if (simulation.getSpace().checkForBorderCollision(agent, agent.getMotionVector())) {
                     agent.setMotion(angle + MathLib.PI / 4, speed);
                 }
             }

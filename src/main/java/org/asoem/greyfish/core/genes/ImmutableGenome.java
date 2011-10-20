@@ -10,8 +10,8 @@ import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.core.individual.ImmutableComponentList;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -83,7 +83,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
         return delegate.get(name, clazz);
     }
 
-    protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.lang.Builder<ImmutableGenome<E>> {
+    protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGenome<E>> {
         private final List<E> genes = Lists.newArrayList();
 
         public Builder add(E gene) { this.genes.add(gene); return this; }

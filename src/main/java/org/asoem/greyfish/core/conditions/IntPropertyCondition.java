@@ -3,9 +3,9 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.IntProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -23,7 +23,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new FiniteSetValueAdaptor<IntProperty>("", IntProperty.class
+        e.add(new SetAdaptor<IntProperty>("", IntProperty.class
         ) {
 
             @Override

@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.lang.AbstractBuilder;
+import org.asoem.greyfish.utils.base.AbstractBuilder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,13 +18,13 @@ public class AgentComponents {
     public static <T extends AgentComponent> T createNewInstance(Class<T> clazz) throws RuntimeException {
         try {
             if (GFAction.class.isAssignableFrom(clazz)) {
-                return clazz.cast(org.asoem.greyfish.lang.Builder.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
+                return clazz.cast(org.asoem.greyfish.utils.base.Builder.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
             }
             else if (GFProperty.class.isAssignableFrom(clazz)) {
-                return clazz.cast(org.asoem.greyfish.lang.Builder.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
+                return clazz.cast(org.asoem.greyfish.utils.base.Builder.class.cast(clazz.getDeclaredMethod("with").invoke(null)).build());
             }
             else if (GFCondition.class.isAssignableFrom(clazz)) {
-                return clazz.cast(org.asoem.greyfish.lang.Builder.class.cast(clazz.getDeclaredMethod("all").invoke(null)).build());
+                return clazz.cast(org.asoem.greyfish.utils.base.Builder.class.cast(clazz.getDeclaredMethod("all").invoke(null)).build());
             }
             else if (Gene.class.isAssignableFrom(clazz)) {
                 return clazz.getConstructor().newInstance();

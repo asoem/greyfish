@@ -12,10 +12,10 @@ import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
-import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -186,7 +186,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
             }
         });
 
-        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
+        e.add(new SetAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
         ) {
             @Override
             protected void set(DoubleProperty arg0) {

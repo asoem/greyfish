@@ -14,14 +14,16 @@ import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.*;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 
 /**
@@ -52,7 +54,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new FiniteSetValueAdaptor<EvaluatedGenomeStorage>("ImmutableGenome Storage", EvaluatedGenomeStorage.class) {
+        e.add(new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome Storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermBuffer = checkNotNull(arg0);
@@ -138,9 +140,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        Iterable neighbours = agent().findNeighbours(sensorRange);
-        sensedMates = filter(neighbours, Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent())));
+        sensedMates = simulation.findNeighbours(agent(), sensorRange);
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }

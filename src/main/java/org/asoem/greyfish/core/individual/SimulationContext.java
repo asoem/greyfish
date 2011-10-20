@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.MovingObject2D;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -51,10 +50,6 @@ class SimulationContext {
     public int getAge() {
         assert simulation.getSteps() >= timeOfBirth;
         return simulation.getSteps() - timeOfBirth;
-    }
-
-    public Iterable<MovingObject2D> findNeighbours(double range) {
-        return simulation.findObjects(agent.getCoordinates(), range);
     }
 
     public void execute() {
@@ -137,11 +132,6 @@ class SimulationContext {
 
         @Override
         public int getAge() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Iterable<MovingObject2D> findNeighbours(double range) {
             throw new UnsupportedOperationException();
         }
 

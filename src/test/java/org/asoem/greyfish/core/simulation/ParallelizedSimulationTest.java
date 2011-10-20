@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Collections.singleton;
-import static org.asoem.greyfish.core.space.MutableObject2D.locatedAt;
+import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 

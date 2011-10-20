@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.Comparator;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
+import org.asoem.greyfish.core.utils.Comparator;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
@@ -35,7 +35,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add(new FiniteSetValueAdaptor<Comparator>("", Comparator.class) {
+        e.add(new SetAdaptor<Comparator>("", Comparator.class) {
             @Override
             protected void set(Comparator arg0) {
                 comparator = checkNotNull(arg0);

@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 public final class AlwaysTrueCondition extends LeafCondition {
 

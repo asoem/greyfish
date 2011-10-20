@@ -12,15 +12,16 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.*;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
 
@@ -93,8 +94,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = filter(agent().findNeighbours(sensorRange), Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(agent())));
+        sensedMates = simulation.findNeighbours(agent(), sensorRange);
         return ! isEmpty(sensedMates);
     }
 
@@ -134,7 +134,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return amountPerRequest;
             }
         });
-        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
+        e.add(new SetAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 consumerProperty = checkNotNull(arg0);

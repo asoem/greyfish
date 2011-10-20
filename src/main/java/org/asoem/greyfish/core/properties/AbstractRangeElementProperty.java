@@ -1,13 +1,15 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
+import com.google.common.collect.Ranges;
 import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import java.util.Arrays;
@@ -16,9 +18,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 
-public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty implements WellOrderedSetElementProperty<E> {
+public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty implements RangeElementProperty<E> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWellOrderedSetElementProperty.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
     @Element(name="max")
     protected E upperBound;
 
@@ -30,7 +32,7 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
 
     protected E value;
 
-    protected AbstractWellOrderedSetElementProperty(AbstractWellOrderedSetElementProperty<E> property, DeepCloner cloner) {
+    protected AbstractRangeElementProperty(AbstractRangeElementProperty<E> property, DeepCloner cloner) {
         super(property, cloner);
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;
@@ -51,16 +53,6 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
             this.value = lowerBound;
             LOGGER.debug("{} #setValue({}): Out of range [{},{}]", this.getClass().getSimpleName(), amount, lowerBound, upperBound);
         }
-    }
-
-    @Override
-    public E getUpperBound() {
-        return upperBound;
-    }
-
-    @Override
-    public E getLowerBound() {
-        return lowerBound;
     }
 
     public E getInitialValue() {
@@ -103,14 +95,14 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
         });
     }
 
-    protected AbstractWellOrderedSetElementProperty(AbstractBuilder<?,?,E> builder) {
+    protected AbstractRangeElementProperty(AbstractBuilder<?, ?, E> builder) {
         super(builder);
         this.lowerBound = builder.lowerBound;
         this.upperBound = builder.upperBound;
         this.initialValue = builder.initialValue;
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractWellOrderedSetElementProperty<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<C,T> {
+    protected static abstract class AbstractBuilder<C extends AbstractRangeElementProperty<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<C,T> {
         protected E upperBound;
         protected E lowerBound;
         protected E initialValue;
@@ -128,5 +120,10 @@ public abstract class  AbstractWellOrderedSetElementProperty<E extends Number & 
             checkState(initialValue != null);
             checkState(Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)));
         }
+    }
+
+    @Override
+    public Range<E> getRange() {
+        return Ranges.closed(lowerBound, upperBound);
     }
 }

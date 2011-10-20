@@ -6,12 +6,10 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.MovingObject2D;
-import org.asoem.greyfish.lang.TreeNode;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.PolarPoint;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.TreeNode;
+import org.asoem.greyfish.utils.space.MotionVector2D;
 import org.simpleframework.xml.Element;
 
 import javax.annotation.Nonnull;
@@ -149,21 +147,6 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public void setAnchorPoint(Coordinates2D coordinates2d) {
-        delegate.setAnchorPoint(coordinates2d);
-    }
-
-    @Override
-    public Coordinates2D getCoordinates() {
-        return delegate.getCoordinates();
-    }
-
-    @Override
-    public double getOrientation() {
-        return delegate.getOrientation();
-    }
-
-    @Override
     public Integer getId() {
         return delegate.getId();
     }
@@ -234,13 +217,8 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public PolarPoint getMotionVector() {
+    public MotionVector2D getMotionVector() {
         return delegate.getMotionVector();
-    }
-
-    @Override
-    public void setMotionVector(PolarPoint polarPoint) {
-        delegate.setMotionVector(polarPoint);
     }
 
     @Override
@@ -256,11 +234,6 @@ public abstract class AgentDecorator implements Agent {
     @Override
     public void execute() {
         delegate.execute();
-    }
-
-    @Override
-    public Iterable<MovingObject2D> findNeighbours(double range) {
-        return delegate.findNeighbours(range);
     }
 
     @Override

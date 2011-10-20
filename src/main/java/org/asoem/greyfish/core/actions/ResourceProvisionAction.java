@@ -8,11 +8,11 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
-import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.simpleframework.xml.Element;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
                 return parameterMessageType;
             }
         });
-        e.add(new FiniteSetValueAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
+        e.add(new SetAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
             @Override
             protected void set(ResourceProperty arg0) {
                 resourceProperty = checkNotNull(arg0);

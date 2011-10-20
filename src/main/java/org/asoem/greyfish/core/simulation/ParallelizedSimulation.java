@@ -1,45 +1,46 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
-import com.google.common.collect.*;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import javolution.util.FastList;
 import jsr166y.ForkJoinPool;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.concurrent.SingletonForkJoinPool;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.AgentMessage;
-import org.asoem.greyfish.core.individual.ImmutableAgent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.scenario.Scenario;
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.ImmutableCoordinates2D;
-import org.asoem.greyfish.core.space.MovingObject2D;
 import org.asoem.greyfish.core.space.TiledSpace;
-import org.asoem.greyfish.lang.Command;
-import org.asoem.greyfish.lang.Functor;
-import org.asoem.greyfish.lang.ImmutableMapBuilder;
-import org.asoem.greyfish.utils.ConcurrentIterables;
-import org.asoem.greyfish.utils.Counter;
-import org.asoem.greyfish.utils.ListenerSupport;
-import org.asoem.greyfish.utils.PolarPoint;
+import org.asoem.greyfish.utils.base.Counter;
+import org.asoem.greyfish.utils.base.ListenerSupport;
+import org.asoem.greyfish.utils.base.VoidFunction;
+import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
+import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.Movable;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.not;
+import static org.asoem.greyfish.core.concurrent.SingletonForkJoinPool.invoke;
 import static org.asoem.greyfish.core.simulation.SimulationMessageType.*;
-import static org.asoem.greyfish.core.space.ImmutableCoordinates2D.sum;
+import static org.asoem.greyfish.utils.parallel.ParallelIterables.apply;
+import static org.asoem.greyfish.utils.parallel.ParallelIterables.executeAll;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -49,20 +50,19 @@ public class ParallelizedSimulation implements Simulation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelizedSimulation.class);
 
-    private final Multimap<SimulationMessageType, Command> commandListMap =
+    private final Multimap<SimulationMessageType, Runnable> commandListMap =
             Multimaps.synchronizedMultimap(
                     Multimaps.newListMultimap(
-                            Maps.<SimulationMessageType, Collection<Command>>newEnumMap(SimulationMessageType.class),
-                            new Supplier<List<Command>>() {
+                            Maps.<SimulationMessageType, Collection<Runnable>>newEnumMap(SimulationMessageType.class),
+                            new Supplier<List<Runnable>>() {
                                 @Override
-                                public List<Command> get() {
-                                    return new ArrayList<Command>();
+                                public List<Runnable> get() {
+                                    return new ArrayList<Runnable>();
                                 }
                             }
                     )
             );
 
-    private final BiMap<Population, Agent> populationPrototypeMap;
     private final Map<Population, Counter> populationCounterMap;
 
     private final FastList<Agent> agents = FastList.newInstance();
@@ -92,10 +92,14 @@ public class ParallelizedSimulation implements Simulation {
                     assert key instanceof Population;
 
                     Population population = (Population) key;
-                    return ImmutableAgent.cloneOf(populationPrototypeMap.get(population));
+                    return ImmutableAgent.cloneOf(getPrototype(population));
                 }
             },
             10000, 100);
+
+    private Agent getPrototype(Population population) {
+        return scenario.getPrototype(population);
+    }
 
     private AtomicInteger maxId = new AtomicInteger();
 
@@ -112,24 +116,17 @@ public class ParallelizedSimulation implements Simulation {
 
         this.scenario = scenario;
 
-        this.populationPrototypeMap = ImmutableBiMap.copyOf(ImmutableMapBuilder.<Population, Agent>newInstance().
-                putAll(scenario.getPrototypes(),
+        this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
+                putAll(getPrototypes(),
                         new Function<Agent, Population>() {
                             @Override
-                            public Population apply(@Nullable Agent agent) {
-                                assert agent != null;
+                            public Population apply(Agent agent) {
                                 return agent.getPopulation();
                             }
                         },
-                        Functions.<Agent>identity()).
-                build());
-
-        this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
-                putAll(populationPrototypeMap.keySet(),
-                        Functions.<Population>identity(),
-                        new Function<Population, Counter>() {
+                        new Function<Agent, Counter>() {
                             @Override
-                            public Counter apply(@Nullable Population population) {
+                            public Counter apply(Agent population) {
                                 return new Counter(0);
                             }
                         }).
@@ -154,12 +151,12 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public int numberOfPopulations() {
-        return this.populationPrototypeMap.size();
+        return getPrototypes().size();
     }
 
     @Override
-    public Iterable<MovingObject2D> findObjects(Coordinates2D coordinates, double radius) {
-        return space.findObjects(coordinates, radius);
+    public Iterable<Agent> findNeighbours(Agent agent, double radius) {
+        return Iterables.filter(Iterables.filter(space.findObjects(agent, radius), not(equalTo((Movable) agent))), Agent.class);
     }
 
     @Override
@@ -176,7 +173,7 @@ public class ParallelizedSimulation implements Simulation {
 
     private void initialize() {
         // convert each placeholder to a concrete object
-        for (Agent placeholder : scenario.getPlaceholder()) {
+        for (Placeholder placeholder : scenario.getPlaceholder()) {
             final Agent clone = newAgentFromPool(placeholder.getPopulation());
             addAgent(clone, placeholder.getCoordinates());
         }
@@ -189,7 +186,7 @@ public class ParallelizedSimulation implements Simulation {
 
     private void addAgent(Agent agent, Coordinates2D coordinates) {
         checkNotNull(agent);
-        checkArgument(populationPrototypeMap.containsKey(agent.getPopulation()),
+        checkArgument(getPrototype(agent.getPopulation()) != null,
                 "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
         // populationCounterMap is guaranteed to contain exactly the same keys as populationPrototypeMap
 
@@ -197,7 +194,6 @@ public class ParallelizedSimulation implements Simulation {
         checkArgument(space.covers(coordinates),
                 "Coordinates " + coordinates + " do not fall inside the area of this simulation's space: " + space);
 
-        agent.setAnchorPoint(ImmutableCoordinates2D.at(coordinates));
         agent.prepare(this);
 
         LOGGER.trace("{}: Adding Agent {}", this, agent);
@@ -205,15 +201,18 @@ public class ParallelizedSimulation implements Simulation {
         // following actions must be synchronized
         synchronized (this) {
             agents.add(agent);
+            space.addObject(agent, coordinates);
             Counter counter = populationCounterMap.get(agent.getPopulation());
             counter.increase(); // non-null verified by checkCanAddAgent();
         }
     }
 
     private void removeAgentInternal(Agent agent) {
-        checkNotNull(agent);
+        assert agent != null;
 
-        // save as populationCounterMap does not allow null elements
+        agents.remove(agent);
+        space.removeObject(agent);
+
         populationCounterMap.get(agent.getPopulation()).decrease();
 
         agent.shutDown();
@@ -234,9 +233,9 @@ public class ParallelizedSimulation implements Simulation {
     public void removeAgent(final Agent agent) {
         checkNotNull(agent);
         commandListMap.put(REMOVE_AGENT,
-                new Command() {
+                new Runnable() {
                     @Override
-                    public void execute() {
+                    public void run() {
                         removeAgentInternal(agent);
                     }
                 });
@@ -278,20 +277,22 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void createAgent(final Population population, final Coordinates2D coordinates, final Genome genome) {
+    public void createAgent(final Population population, final Genome genome) {
         checkNotNull(population);
-        checkNotNull(coordinates);
         checkNotNull(genome);
 
-        checkState(populationPrototypeMap.containsKey(population));
+        checkState(getPrototype(population) != null);
 
         final Agent agent = newAgentFromPool(population);
         agent.injectGamete(genome);
 
+
+        final Coordinates2D coordinates = space.getCoordinates(agent);
+
         commandListMap.put(ADD_AGENT,
-                new Command() {
+                new Runnable() {
                     @Override
-                    public void execute() {
+                    public void run() {
                         addAgent(agent, coordinates);
                     }
                 });
@@ -318,7 +319,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Set<Agent> getPrototypes() {
-        return populationPrototypeMap.values();
+        return scenario.getPrototypes();
     }
 
     @Override
@@ -335,75 +336,34 @@ public class ParallelizedSimulation implements Simulation {
     public synchronized void step() {
         LOGGER.trace("{}: Entering step {}", this, steps);
 
-        try {
+        invoke(executeAll(commandListMap.get(DELIVER_AGENT_MESSAGE), 1000));
 
-            Collection<Command> deliverMessageCommands = commandListMap.get(DELIVER_AGENT_MESSAGE);
-            final CountDownLatch deliverMessageCommandsLatch = new CountDownLatch(deliverMessageCommands.size());
-            SingletonForkJoinPool.execute(
-                    ConcurrentIterables.create(deliverMessageCommands, new Functor<Command>() {
-                        @Override
-                        public void apply(@Nullable Command command) {
-                            command.execute();
-                            deliverMessageCommandsLatch.countDown();
-                        }
-                    }, 1000));
-            deliverMessageCommandsLatch.await();
+        invoke(executeAll(commandListMap.get(REMOVE_AGENT), 1000));
 
-            Collection<Command> removeAgentCommands = commandListMap.get(REMOVE_AGENT);
-            final CountDownLatch removeAgentCommandsLatch = new CountDownLatch(deliverMessageCommands.size());
-            SingletonForkJoinPool.execute(
-                    ConcurrentIterables.create(removeAgentCommands, new Functor<Command>() {
-                        @Override
-                        public void apply(@Nullable Command command) {
-                            command.execute();
-                            removeAgentCommandsLatch.countDown();
-                        }
-                    }, 1000));
-            removeAgentCommandsLatch.await();
-
-            for (Agent agent : getAgents()) {
-                final PolarPoint motion = agent.getMotionVector();
-                if (motion.getDistance() != 0)
-                    getSpace().moveObject(agent, sum(agent.getCoordinates(), motion.toCartesian()));
+        invoke(apply(agents, new VoidFunction<Agent>() {
+            @Override
+            public void apply(Agent agent) {
+                space.moveObject(agent);
             }
+        }, 1000));
 
-            Collection<Command> addAgentCommands = commandListMap.get(ADD_AGENT);
-            final CountDownLatch addAgentCommandsLatch = new CountDownLatch(deliverMessageCommands.size());
-            SingletonForkJoinPool.execute(
-                    ConcurrentIterables.create(addAgentCommands, new Functor<Command>() {
-                        @Override
-                        public void apply(@Nullable Command command) {
-                            command.execute();
-                            addAgentCommandsLatch.countDown();
-                        }
-                    }, 1000));
-            addAgentCommandsLatch.await();
-
-            space.updateTopo(agents);
-
-            final CountDownLatch processAgentsLatch = new CountDownLatch(agents.size());
-            SingletonForkJoinPool.execute(
-                    ConcurrentIterables.create(agents, new Functor<Agent>() {
-                        @Override
-                        public void apply(Agent agent) {
-                            agent.execute();
-                            processAgentsLatch.countDown();
-                        }
-                    }, 1000));
-            processAgentsLatch.await();
-
-        } catch (InterruptedException ie) {
-            LOGGER.error("Simulation was not able to wait for all processes to successfully execute", ie);
-        }
+        invoke(executeAll(commandListMap.get(ADD_AGENT), 1000));
 
         commandListMap.clear();
+
+        invoke(apply(agents, new VoidFunction<Agent>() {
+            @Override
+            public void apply(Agent agent) {
+                agent.execute();
+            }
+        }, 1000));
 
         ++steps;
         notifyStep();
     }
 
     private void notifyStep() {
-        listenerSupport.notifyListeners(new Functor<SimulationListener>() {
+        listenerSupport.notifyListeners(new VoidFunction<SimulationListener>() {
 
             @Override
             public void apply(SimulationListener listener) {
@@ -441,9 +401,9 @@ public class ParallelizedSimulation implements Simulation {
     public void deliverMessage(final ACLMessage<Agent> message) {
         checkNotNull(message);
         commandListMap.put(DELIVER_AGENT_MESSAGE,
-                new Command() {
+                new Runnable() {
                     @Override
-                    public void execute() {
+                    public void run() {
                         for (Agent agent : message.getRecipients()) {
                             agent.receive(new AgentMessage(message, getSteps()));
                         }

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.utils.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloneable;
 
 import javax.annotation.Nullable;
 import java.util.List;

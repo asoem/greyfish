@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 public abstract class FiniteStateAction extends AbstractGFAction {
 
@@ -98,7 +98,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getAgent();
+        return this.getClass().getSimpleName() + "[" + getName() + "|" + currentStateKey + "]@" + getAgent();
     }
 
     /**

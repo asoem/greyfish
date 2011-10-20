@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="actions")
@@ -27,8 +27,8 @@ public class ConvertQuantityAction extends AbstractGFAction {
         if (parameterSource != null && parameterTarget != null) {
             double add_amount = Math.min(parameterSource.get(), parameterMax) * parameterFactor;
 
-            if (parameterTarget.get() + add_amount > parameterTarget.getUpperBound()) {
-                add_amount = parameterTarget.getUpperBound() - parameterTarget.get();
+            if (!parameterTarget.getRange().contains(parameterTarget.get() + add_amount)) {
+                add_amount = parameterTarget.getRange().upperEndpoint() - parameterTarget.get();
             }
 
             parameterTarget.setValue(parameterTarget.get() + add_amount);

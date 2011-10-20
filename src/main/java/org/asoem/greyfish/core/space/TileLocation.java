@@ -4,6 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.ImmutableCoordinates2D;
+import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;

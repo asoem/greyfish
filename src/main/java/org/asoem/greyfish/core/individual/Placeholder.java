@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.core.space.Coordinates2D;
-import org.asoem.greyfish.core.space.Object2D;
+import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Element;
 
 
@@ -10,7 +10,7 @@ import org.simpleframework.xml.Element;
  *
  * TODO: it is not enforced yet that the agent is unmodifiable!
  */
-public class Placeholder extends AgentDecorator {
+public class Placeholder extends AgentDecorator implements Object2D {
 
     @Element(name = "placeholderObject")
     private final Object2D placeholderObject;

@@ -2,9 +2,10 @@ package org.asoem.greyfish.core.scenario;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Placeholder;
-import org.asoem.greyfish.core.space.Object2D;
+import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Set;
 
@@ -28,6 +29,8 @@ public interface Scenario {
      * All elements are guaranteed to be non null;
      */
     Set<Agent> getPrototypes();
+
+    Agent getPrototype(Population population);
 
     /**
      * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Placeholder} agents created by this {@code Scenario}.

@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.scenario;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Placeholder;
-import org.asoem.greyfish.core.space.Object2D;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Set;
 

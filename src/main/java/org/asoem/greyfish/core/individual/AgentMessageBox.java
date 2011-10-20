@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.MessageTemplate;
-import org.asoem.greyfish.lang.CircularFifoBuffer;
+import org.asoem.greyfish.utils.collect.CircularFifoBuffer;
 
 import java.util.Iterator;
 import java.util.List;

@@ -4,9 +4,9 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -33,7 +33,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add(new FiniteSetValueAdaptor<GFAction>("Action", GFAction.class) {
+        e.add(new SetAdaptor<GFAction>("Action", GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
                 action = checkNotNull(arg0);

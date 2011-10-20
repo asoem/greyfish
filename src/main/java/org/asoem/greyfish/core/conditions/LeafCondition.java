@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.util.Collections;
 import java.util.List;

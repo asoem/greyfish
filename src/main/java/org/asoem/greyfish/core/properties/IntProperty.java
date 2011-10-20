@@ -1,11 +1,11 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
 @ClassGroup(tags="property")
-public class IntProperty extends AbstractWellOrderedSetElementProperty<Integer> {
+public class IntProperty extends AbstractRangeElementProperty<Integer> {
 
     private IntProperty() {
         this(new Builder());
@@ -44,5 +44,5 @@ public class IntProperty extends AbstractWellOrderedSetElementProperty<Integer> 
         @Override public IntProperty checkedBuild() { return new IntProperty(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends IntProperty, T extends AbstractBuilder<E,T>> extends AbstractWellOrderedSetElementProperty.AbstractBuilder<E, T, Integer> {}
+    protected static abstract class AbstractBuilder<E extends IntProperty, T extends AbstractBuilder<E,T>> extends AbstractRangeElementProperty.AbstractBuilder<E, T, Integer> {}
 }

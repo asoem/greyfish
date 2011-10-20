@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {

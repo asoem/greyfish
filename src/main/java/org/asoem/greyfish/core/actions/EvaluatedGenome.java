@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.genes.ForwardingGenome;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 public class EvaluatedGenome extends ForwardingGenome {
 

@@ -9,8 +9,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Set;
 
-import static org.asoem.greyfish.core.space.MutableObject2D.locatedAt;
 import static org.asoem.greyfish.core.space.TiledSpace.ofSize;
+import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
 import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)

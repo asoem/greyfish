@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
-import org.asoem.greyfish.utils.ConfigurationHandler;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;

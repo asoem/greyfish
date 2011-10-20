@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.io.Logger;
 import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.ElementList;
 
 import java.util.Arrays;
@@ -137,7 +137,7 @@ public abstract class LogicalOperatorCondition extends AbstractCondition impleme
         super.freeze();
         conditions = ImmutableList.copyOf(conditions);
         if (conditions.isEmpty())
-            LOGGER.debug("LogicalOperatorCondition '" + name + "' has no subconditions");
+            LOGGER.debug("LogicalOperatorCondition '" + getName() + "' has no subconditions");
     }
 
     protected static abstract class AbstractBuilder<E extends LogicalOperatorCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {

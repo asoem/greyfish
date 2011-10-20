@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.DeepCloneable;
-import org.asoem.greyfish.utils.DeepCloner;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 /**
  * User: christoph
