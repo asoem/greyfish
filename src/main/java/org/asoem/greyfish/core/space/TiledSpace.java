@@ -7,10 +7,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import javolution.util.FastMap;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.math.PolarPoint2D;
-import org.asoem.greyfish.utils.space.*;
+import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.ImmutableCoordinates2D;
+import org.asoem.greyfish.utils.space.Movable;
+import org.asoem.greyfish.utils.space.TwoDimTree;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
 
@@ -100,10 +101,6 @@ public class TiledSpace implements Iterable<TileLocation> {
         return width;
     }
 
-    public boolean covers(Location2D value) {
-        return covers(value.getCoordinates());
-    }
-
     public boolean covers(Coordinates2D value) {
         checkNotNull(value);
         return value.getX() == 0 && value.getY() == 0  // 0,0 is always covered
@@ -113,10 +110,6 @@ public class TiledSpace implements Iterable<TileLocation> {
     public boolean hasTileAt(int x, int y) {
         return x >= 0 && x < width &&
                 y >= 0 && y < height;
-    }
-
-    public TileLocation getTileAt(Location2D location) {
-        return getTileAt(location.getCoordinates());
     }
 
     public TileLocation getTileAt(TileLocation location) {
@@ -148,56 +141,51 @@ public class TiledSpace implements Iterable<TileLocation> {
 
     /**
      *
-     * @param object2D the object to check for validity of a move operation
-     * @param destination the destination of the move
-     * @return {@code true} if a move request using {@link #moveObject(org.asoem.greyfish.utils.space.Movable)}
-     * will be successful with the given parameters, {@code false} otherwise
+     * @param object2D the object to check for validity of the move operation defined by its {@link org.asoem.greyfish.utils.space.Movable#getMotionVector()}
+     * @return A {@code MovementPlan} which can be used to check if the move will succeed and to execute the movement
+     * if it does so using {@link #executeMovement(org.asoem.greyfish.core.space.TiledSpace.MovementPlan)}
      * @throws IllegalArgumentException if the {@code object2D} is not managed by this {@code TiledSpace}
      */
-    public boolean canMove(Movable object2D, Coordinates2D destination) {
-        checkArgument(objectLocation2DMap.containsKey(object2D));
+    public MovementPlan planMovement(Movable object2D) {
+        checkNotNull(object2D);
+        Coordinates2D currentCoordinates = objectLocation2DMap.get(object2D);
+        checkNotNull(currentCoordinates, "Given object is not managed by (has not yet been added to) this space: " + object2D);
+        final TileLocation originTile = getTileAt(currentCoordinates);
+        Coordinates2D newCoordinates = sum(currentCoordinates, toCartesian(object2D.getMotionVector()));
 
-        final TileLocation originTile = getTileAt(objectLocation2DMap.get(object2D));
-
-        if (covers(destination)) {
-            final TileLocation destinationTile = getTileAt(destination);
-            return originTile.hasReachableNeighbour(destinationTile);
-        }
-        return false;
+        return new MovementPlan(
+                object2D,
+                newCoordinates,
+                covers(newCoordinates) && ! originTile.hasBorder(TileDirection.forVector(currentCoordinates,newCoordinates))
+        );
     }
 
-    public void moveObject(Movable object2d) {
-        Coordinates2D newCoordinates = sum(objectLocation2DMap.get(object2d), toCartesian(object2d.getMotionVector()));
-        if (canMove(object2d, newCoordinates)) {
+    public void executeMovement(MovementPlan plan) {
+        checkNotNull(plan);
+        if (plan.willSucceed()) {
             synchronized (this) {
-                objectLocation2DMap.put(object2d, ImmutableCoordinates2D.copyOf(newCoordinates));
+                objectLocation2DMap.put(plan.movable, ImmutableCoordinates2D.copyOf(plan.coordinates2D));
                 twoDimTreeOutdated = true;
             }
         }
     }
 
-    public boolean checkForBorderCollision(Agent origin, PolarPoint2D motionVector) {
-        Coordinates2D coordinates2D = objectLocation2DMap.get(checkNotNull(origin));
-        checkArgument(this.covers(coordinates2D));
-        checkNotNull(motionVector);
-
-        final Coordinates2D coordinatesAfterMove = ImmutableCoordinates2D.at(coordinates2D, toCartesian(motionVector));
-        return !covers(coordinatesAfterMove) || getTileAt(coordinates2D).hasBorder(getTileAt(coordinatesAfterMove));
-
+    public void moveObject(Movable object2d) {
+        executeMovement(planMovement(object2d));
     }
 
     /**
      *
-     * @param movable
+     *
+     * @param coordinates the coordinates of the search point
      * @param range the radius of the circle around {@code coordinates}
      * @return all objects whose location in this space
      * intersects with the circle defined by {@code coordinates} and {@code range}
      */
-    public Iterable<Movable> findObjects(Movable movable, double range) {
-        checkArgument(objectLocation2DMap.containsKey(movable));
+    public Iterable<Movable> findObjects(Coordinates2D coordinates, double range) {
         if (twoDimTreeOutdated)
             updateTopo();
-        return twoDimTree.findObjects(objectLocation2DMap.get(movable), range);
+        return twoDimTree.findObjects(coordinates, range);
     }
 
     @Override
@@ -238,10 +226,32 @@ public class TiledSpace implements Iterable<TileLocation> {
         }
     }
 
-    public Coordinates2D getCoordinates(Agent agent) {
+    public Coordinates2D getCoordinates(Movable agent) {
         Coordinates2D coordinates2D = objectLocation2DMap.get(agent);
         if (coordinates2D == null)
             throw new IllegalArgumentException("Space does not contain " + agent);
         return coordinates2D;
+    }
+
+    public Iterable<Movable> findObjects(Movable agent, double radius) {
+        return findObjects(getCoordinates(agent), radius);
+    }
+
+    public static class MovementPlan {
+        private final Movable movable;
+        private final Coordinates2D coordinates2D;
+        private final boolean willSucceed;
+
+        private MovementPlan(Movable movable, Coordinates2D coordinates2D, boolean willSucceed) {
+            this.willSucceed = willSucceed;
+            assert movable != null;
+            assert coordinates2D != null;
+            this.movable = movable;
+            this.coordinates2D = coordinates2D;
+        }
+
+        public boolean willSucceed() {
+            return willSucceed;
+        }
     }
 }

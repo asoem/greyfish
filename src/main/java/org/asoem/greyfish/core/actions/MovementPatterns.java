@@ -50,9 +50,8 @@ public class MovementPatterns {
 
                 agent.setMotion(angle, speed);
 
-                // check Border
-                // TODO: LOD violation
-                if (simulation.getSpace().checkForBorderCollision(agent, agent.getMotionVector())) {
+                // TODO: LawOfDemeter violation
+                if (!simulation.getSpace().planMovement(agent).willSucceed()) {
                     agent.setMotion(angle + MathLib.PI / 4, speed);
                 }
             }

@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.space;
 
 
+import org.asoem.greyfish.utils.space.Coordinates2D;
+
 public enum TileDirection {
     CENTER      ( 0, 0),
     NORTH       (-1, 0),
@@ -33,6 +35,36 @@ public enum TileDirection {
             case NORTHWEST: return SOUTHEAST;
             default:
                 throw new AssertionError("Expected this to be unreachable code");
+        }
+    }
+
+    public static TileDirection forVector(Coordinates2D origin, Coordinates2D destination) {
+        return forDiff(
+                (int) destination.getX() - (int) origin.getX(),
+                (int) destination.getY() - (int) origin.getY());
+    }
+
+    public static TileDirection forTiles(TileLocation origin, TileLocation destination) {
+        return forDiff(
+                destination.getX() - origin.getX(),
+                destination.getY() - origin.getY());
+    }
+
+    private static TileDirection forDiff(int xDiff, int yDiff) {
+        if (xDiff == 0) {
+            if (yDiff == 0) return CENTER;
+            else if (yDiff < 0) return NORTH;
+            else return SOUTH;
+        }
+        else if (xDiff < 0) {
+            if (yDiff == 0) return WEST;
+            else if (yDiff < 0) return NORTHWEST;
+            else return SOUTHWEST;
+        }
+        else {
+            if (yDiff == 0) return EAST;
+            else if (yDiff < 0) return NORTHEAST;
+            else return SOUTHEAST;
         }
     }
 }

@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
@@ -30,6 +31,7 @@ public interface Scenario {
      */
     Set<Agent> getPrototypes();
 
+    @Nullable
     Agent getPrototype(Population population);
 
     /**

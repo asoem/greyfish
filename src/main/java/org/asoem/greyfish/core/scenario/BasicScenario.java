@@ -87,6 +87,7 @@ public class BasicScenario implements Scenario {
     }
 
     @Override
+    @Nullable
     public Agent getPrototype(final Population population) { // TODO: would be faster if prototypes is a BiMap
         return Iterables.find(prototypes, new Predicate<Agent>() {
             @Override
@@ -108,7 +109,7 @@ public class BasicScenario implements Scenario {
 
     @Override
     public Iterable<Placeholder> getPlaceholder(final Iterable<? extends TileLocation> locations) {
-        return Iterables.filter(placeholders, new Predicate<Placeholder>() {
+        return Iterables.filter(getPlaceholder(), new Predicate<Placeholder>() {
             @Override
             public boolean apply(@Nullable final Placeholder placeholder) {
                 return Iterables.any(locations, new Predicate<TileLocation>() {

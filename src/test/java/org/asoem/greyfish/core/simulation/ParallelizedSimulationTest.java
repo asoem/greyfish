@@ -16,6 +16,7 @@ import static java.util.Collections.singleton;
 import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParallelizedSimulationTest {
@@ -30,6 +31,7 @@ public class ParallelizedSimulationTest {
         Agent prototype = ImmutableAgent.of(population).build();
         given(scenario.getSpace()).willReturn(new TiledSpace(10, 10));
         given(scenario.getPrototypes()).willReturn(singleton(prototype));
+        given(scenario.getPrototype(any(Population.class))).willReturn(prototype);
         given(scenario.getPlaceholder()).willReturn(ImmutableList.of(
                 Placeholder.newInstance(prototype, locatedAt(0, 0)),
                 Placeholder.newInstance(prototype, locatedAt(0, 0)))

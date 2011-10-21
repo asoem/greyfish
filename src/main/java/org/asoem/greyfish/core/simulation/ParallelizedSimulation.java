@@ -91,12 +91,15 @@ public class ParallelizedSimulation implements Simulation {
                     assert key != null;
                     assert key instanceof Population;
 
-                    Population population = (Population) key;
-                    return ImmutableAgent.cloneOf(getPrototype(population));
+                    Agent prototype = getPrototype((Population) key);
+                    assert prototype != null : "Found no Prototype for " + key;
+
+                    return ImmutableAgent.cloneOf(prototype);
                 }
             },
             10000, 100);
 
+    @Nullable
     private Agent getPrototype(Population population) {
         return scenario.getPrototype(population);
     }
@@ -312,7 +315,6 @@ public class ParallelizedSimulation implements Simulation {
         } catch (Exception e) {
             LOGGER.error("Error getting Agent from objectPool for population {}", population.getName(), e);
         }
-
         assert ret != null : "Agent is null for population " + population.getName();
         return ret;
     }

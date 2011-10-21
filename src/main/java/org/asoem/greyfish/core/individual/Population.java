@@ -59,23 +59,27 @@ public class Population implements HasName, Comparable<Population> {
 	}
 
     @Override
+    public int compareTo(Population o) {
+        return name.compareTo(o.name);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         Population that = (Population) o;
 
-        return !(name != null ? !name.equals(that.name) : that.name != null);
+        if (!color.equals(that.color)) return false;
+        if (!name.equals(that.name)) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
-    }
-
-    @Override
-    public int compareTo(Population o) {
-        return name.compareTo(o.name);
+        int result = name.hashCode();
+        result = 31 * result + color.hashCode();
+        return result;
     }
 }

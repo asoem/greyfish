@@ -195,47 +195,6 @@ public class TileLocation implements Location2D {
         return space.hasTileAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
     }
 
-    /*
-    public Iterable<MovingObject2D> getOccupants() {
-        return occupants.unmodifiable();
-    }
-     */
-
-    /**
-     * @param neighbourTile TileLocation 2
-     * @return {@code true} if {@code neighbourTile} is adjacent to and reachable from this
-     */
-    public boolean hasReachableNeighbour(TileLocation neighbourTile) {
-        return isNeighbourTile(neighbourTile) && !this.hasBorder(computeDirection(this, neighbourTile));
-    }
-
-    private static TileDirection computeDirection(TileLocation location1, TileLocation location2) {
-        final int xDiff = location2.getX() - location1.getX();
-        final int yDiff = location2.getY() - location1.getY();
-
-        if (xDiff == 0) {
-            if (yDiff == 0) return CENTER;
-            else if (yDiff < 0) return NORTH;
-            else return SOUTH;
-        }
-        else if (xDiff < 0) {
-            if (yDiff == 0) return WEST;
-            else if (yDiff < 0) return NORTHWEST;
-            else return SOUTHWEST;
-        }
-        else if (xDiff > 0) {
-            if (yDiff == 0) return EAST;
-            else if (yDiff < 0) return NORTHEAST;
-            else return SOUTHEAST;
-        }
-
-        return null;
-    }
-
-    private boolean isNeighbourTile(TileLocation l2) {
-        return Math.abs(x - l2.x) <= 1 && Math.abs(y - l2.y) <= 1;
-    }
-
     public int getBorderFlags() {
         return borderFlags;
     }
@@ -243,24 +202,6 @@ public class TileLocation implements Location2D {
     public void setBorderFlags(int borderFlags) {
         this.borderFlags = borderFlags;
     }
-
-    public boolean hasBorder(TileLocation location) {
-        return hasBorder(computeDirection(this, location));
-    }
-
-    /*
-    public void removeAllOccupants() {
-        occupants.clear();
-    }
-
-    public void addOccupant(MovingObject2D object2d) {
-        occupants.add(object2d);
-    }
-
-    public boolean removeOccupant(MovingObject2D individual) {
-        return occupants.remove(individual);
-    }
-    */
 
     public void toggleBorder(TileDirection direction) {
         setBorder(direction, !hasBorder(direction));

@@ -11,6 +11,8 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 /**
  * An {@code ImmutableAgent} is an implementation of an {@link Agent} which guarantees no structural changes during it's lifetime.
@@ -83,6 +85,7 @@ public class ImmutableAgent extends AbstractAgent {
      * @return a new ImmutableAgent with components deep cloned from {@code agent}
      */
     public static ImmutableAgent cloneOf(Agent agent) {
+        checkNotNull(agent);
         Agent clone = DeepCloner.clone(agent, Agent.class);
 
         return new ImmutableAgent(
