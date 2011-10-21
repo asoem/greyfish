@@ -40,20 +40,10 @@ public class ImmutableCoordinates2D implements Coordinates2D {
 
     /**
      * Returns a new ImmutableCoordinates2D with coordinates equal to the sum of each dimension
-     * @param a The first location
-     * @param b The second location
-     * @return A new ImmutableCoordinates2D
-     */
-    public static ImmutableCoordinates2D at(Coordinates2D a, Coordinates2D b) {
-        return new ImmutableCoordinates2D(a.getX() + b.getX(), a.getY() + b.getY());
-    }
-
-    /**
-     * Returns a new ImmutableCoordinates2D with coordinates equal to the sum of each dimension
      * @param l2ds The locations to sum up
      * @return A new ImmutableCoordinates2D
      */
-    public static ImmutableCoordinates2D at(Coordinates2D... l2ds) {
+    public static ImmutableCoordinates2D sum(Coordinates2D... l2ds) {
         double xSum = 0;
         double ySum = 0;
 
@@ -65,6 +55,12 @@ public class ImmutableCoordinates2D implements Coordinates2D {
         return new ImmutableCoordinates2D(xSum, ySum);
     }
 
+    /**
+     * Returns a new ImmutableCoordinates2D with coordinates equal to the sum of each dimension
+     * @param a The first location
+     * @param b The second location
+     * @return A new ImmutableCoordinates2D
+     */
     public static ImmutableCoordinates2D sum(Coordinates2D a, Coordinates2D b) {
         return at(a.getX() + b.getX(), a.getY() + b.getY());
     }
