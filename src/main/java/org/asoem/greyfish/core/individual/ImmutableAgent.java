@@ -26,9 +26,9 @@ public class ImmutableAgent extends AbstractAgent {
         super(body,
                 ImmutableComponentList.copyOf(properties),
                 ImmutableComponentList.copyOf(actions),
-                ImmutableGenome.copyOf(Iterables.transform(genes, new Function<Gene<?>, Gene<?>>() {
+                ImmutableGenome.copyOf(Iterables.transform(genes, new Function<Gene<?>, ForwardingGene<?>>() {
                     @Override
-                    public Gene<?> apply(@Nullable Gene<?> gene) {
+                    public ForwardingGene<?> apply(@Nullable Gene<?> gene) {
                         return ForwardingGene.newInstance(gene);
                     }
                 })));
@@ -43,9 +43,9 @@ public class ImmutableAgent extends AbstractAgent {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                ImmutableGenome.copyOf(Iterables.transform(builder.genes, new Function<Gene<?>, Gene<?>>() {
+                ImmutableGenome.copyOf(Iterables.transform(builder.genes, new Function<Gene<?>, ForwardingGene<?>>() {
                     @Override
-                    public Gene<?> apply(@Nullable Gene<?> gene) {
+                    public ForwardingGene<?> apply(@Nullable Gene<?> gene) {
                         return ForwardingGene.newInstance(gene);
                     }
                 })));

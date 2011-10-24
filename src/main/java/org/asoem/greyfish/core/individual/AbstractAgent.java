@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.unmodifiableIterable;
 import static java.util.Arrays.asList;
 
 /**
@@ -43,7 +42,7 @@ public abstract class AbstractAgent implements Agent {
     protected final ComponentList<GFAction> actions;
 
     @Element(name="genome", required=false)
-    protected final Genome<Gene<?>> genome;
+    protected final Genome<ForwardingGene<?>> genome;
 
     @Element(name = "body", required = false)
     protected final Body body;
@@ -60,7 +59,7 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(@Element(name = "body", required = false) Body body,
                             @ElementList(name="properties", entry="property", required=false) ComponentList<GFProperty> properties,
                             @ElementList(name="actions", entry="action", required=false) ComponentList<GFAction> actions,
-                            @Element(name="genome", required=false) Genome<Gene<?>> genome) {
+                            @Element(name="genome", required=false) Genome<ForwardingGene<?>> genome) {
         this.body = checkNotNull(body);
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
@@ -189,12 +188,20 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Iterable<Gene<?>> getGenes() {
-        return unmodifiableIterable(genome);
+        return Collections.<Gene<?>>unmodifiableCollection(genome);
     }
 
     @Override
+    @Nullable
     public <T extends Gene> T getGene(String name, Class<T> clazz) {
-        return genome.get(name, clazz);
+        checkNotNull(clazz);
+
+        ForwardingGene forwardingGene = genome.get(name, ForwardingGene.class);
+        if (forwardingGene != null) {
+            return clazz.cast(forwardingGene.getDelegate());
+        }
+        else
+            return null;
     }
 
     @Override

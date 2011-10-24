@@ -29,7 +29,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
 
     private final ComponentList<E> delegate;
 
-    private ImmutableGenome(Builder builder) {
+    private ImmutableGenome(Builder<E> builder) {
         delegate = ImmutableComponentList.copyOf(builder.genes);
     }
 
@@ -75,7 +75,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
     }
 
     public static <E extends Gene<?>> ImmutableGenome<E> copyOf(Iterable<? extends E> genes) {
-        return new Builder().addAll(genes).build();
+        return new Builder<E>().addAll(genes).build();
     }
 
     @Override
@@ -86,9 +86,9 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
     protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGenome<E>> {
         private final List<E> genes = Lists.newArrayList();
 
-        public Builder add(E gene) { this.genes.add(gene); return this; }
-        public Builder add(E ... genes) { this.genes.addAll(Arrays.asList(genes)); return this; }
-        public Builder addAll(Iterable<? extends E> genes) { Iterables.addAll(this.genes, genes); return this; }
+        public Builder<E> add(E gene) { this.genes.add(gene); return this; }
+        public Builder<E> add(E ... genes) { this.genes.addAll(Arrays.asList(genes)); return this; }
+        public Builder<E> addAll(Iterable<? extends E> genes) { Iterables.addAll(this.genes, genes); return this; }
 
         @Override
         public ImmutableGenome<E> build() {
@@ -131,9 +131,8 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
 
         ImmutableGenome that = (ImmutableGenome) o;
 
-        if (!delegate.equals(that.delegate)) return false;
+        return delegate.equals(that.delegate);
 
-        return true;
     }
 
     @Override

@@ -156,7 +156,7 @@ public class TiledSpace implements Iterable<TileLocation> {
         return new MovementPlan(
                 object2D,
                 newCoordinates,
-                covers(newCoordinates) && ! originTile.hasBorder(TileDirection.forVector(currentCoordinates,newCoordinates))
+                covers(newCoordinates) && ! originTile.hasBorder(TileDirection.forTiles(getTileAt(currentCoordinates), getTileAt(newCoordinates)))
         );
     }
 
