@@ -51,7 +51,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     }
 
     @Override
-    protected StateClass executeState(Object state, Simulation simulation) {
+    protected void executeState(Object state, Simulation simulation) {
         if (State.CHECK_CFP.equals(state)) {
             template = createCFPTemplate(getOntology());
 
@@ -76,55 +76,58 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     ++nExpectedProposeAnswers;
             }
 
-            template = createProposalReplyTemplate(cfpReplies);
-            timeoutCounter = 0;
-            return nExpectedProposeAnswers > 0
-                    ? transition(State.WAIT_FOR_ACCEPT)
-                    : endTransition(State.NO_CFP);
+            if (nExpectedProposeAnswers > 0) {
+                template = createProposalReplyTemplate(cfpReplies);
+                timeoutCounter = 0;
+                transition(State.WAIT_FOR_ACCEPT);
+            }
+            else
+                endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT.equals(state)) {
-             Iterable<AgentMessage> receivedMessages = agent().pullMessages(getTemplate());
-                for (ACLMessage<Agent> receivedMessage : receivedMessages) {
-                    // TODO: turn into switch statement
-                    switch (receivedMessage.getPerformative()) {
-                        case ACCEPT_PROPOSAL:
-                            ACLMessage<Agent> response;
-                            try {
-                                response = handleAccept(receivedMessage).build();
-                            } catch (NotUnderstoodException e) {
-                                response = ImmutableACLMessage.createReply(receivedMessage, agent())
-                                        .performative(ACLPerformative.NOT_UNDERSTOOD)
-                                        .content(e.getMessage(), String.class).build();
+            Iterable<AgentMessage> receivedMessages = agent().pullMessages(getTemplate());
+            for (ACLMessage<Agent> receivedMessage : receivedMessages) {
+                // TODO: turn into switch statement
+                switch (receivedMessage.getPerformative()) {
+                    case ACCEPT_PROPOSAL:
+                        ACLMessage<Agent> informMessage;
+                        try {
+                            informMessage = handleAccept(receivedMessage).build();
+                        } catch (NotUnderstoodException e) {
+                            informMessage = ImmutableACLMessage.createReply(receivedMessage, agent())
+                                    .performative(ACLPerformative.NOT_UNDERSTOOD)
+                                    .content(e.getMessage(), String.class).build();
 
-                                LOGGER.debug("Message not understood", e);
-                            }
-                            checkAcceptReply(response);
-                            simulation.deliverMessage(response);
-                            break;
-                        case REJECT_PROPOSAL:
-                            handleReject(receivedMessage);
-                            break;
-                        case NOT_UNDERSTOOD:
-                            LOGGER.debug("Communication Error: Message not understood");
-                            break;
-                        default:
-                            LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD. Received {}", receivedMessage.getPerformative());
-                            break;
-                    }
-
-                    --nExpectedProposeAnswers;
+                            LOGGER.debug("Message not understood", e);
+                        }
+                        checkAcceptReply(informMessage);
+                        simulation.deliverMessage(informMessage);
+                        break;
+                    case REJECT_PROPOSAL:
+                        handleReject(receivedMessage);
+                        break;
+                    case NOT_UNDERSTOOD:
+                        LOGGER.debug("Communication Error: Message not understood");
+                        break;
+                    default:
+                        LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD. Received {}", receivedMessage.getPerformative());
+                        break;
                 }
 
-                ++timeoutCounter;
+                --nExpectedProposeAnswers;
+            }
 
-                return (nExpectedProposeAnswers == 0)
-                        ? endTransition(State.END)
-                        : (timeoutCounter > TIMEOUT_ACCEPT_STEPS)
-                                ? failure(State.ACCEPT_TIMEOUT)
-                                : transition(State.WAIT_FOR_ACCEPT);
+            ++timeoutCounter;
+
+            if (nExpectedProposeAnswers == 0)
+                endTransition(State.END);
+            else {
+                if (timeoutCounter > TIMEOUT_ACCEPT_STEPS)
+                    failure("Timeout for ACCEPT messages");
+                else
+                    transition(State.WAIT_FOR_ACCEPT);
+            }
         }
-
-        throw unknownState();
     }
 
     protected abstract String getOntology();

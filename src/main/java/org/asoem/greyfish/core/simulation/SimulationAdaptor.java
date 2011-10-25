@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.space.Coordinates2D;
 
 import java.util.Collection;
 import java.util.Set;
@@ -70,8 +71,8 @@ public abstract class SimulationAdaptor implements Simulation {
     }
 
     @Override
-    public void createAgent(Population population, Genome genome) {
-        delegate().createAgent(population, genome);
+    public void createAgent(Population population, Genome genome, Coordinates2D location) {
+        delegate().createAgent(population, genome, location);
     }
 
     @Override

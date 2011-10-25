@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.junit.Test;
@@ -75,7 +74,7 @@ public class ImmutableAgentTest {
 
         // then
         verify(gene).setAgent(agent);
-        assertThat(ret).isEqualTo(ForwardingGene.newInstance(gene));
+        assertThat(ret).isEqualTo(gene);
     }
 
     @Test

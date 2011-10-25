@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.HasName;
+import org.asoem.greyfish.utils.space.Coordinates2D;
 
 import java.util.Collection;
 import java.util.Set;
@@ -49,8 +50,9 @@ public interface Simulation extends HasName {
      * The {@link org.asoem.greyfish.core.individual.Agent} will get inserted and executed at the next step at given {@code location}.
      * @param population The {@code Population} of the {@code Prototype} the Agent will be cloned from.
      * @param genome The {@link org.asoem.greyfish.core.genes.ImmutableGenome} for the new {@link org.asoem.greyfish.core.individual.Agent}.
+     * @param location
      */
-    void createAgent(Population population, Genome genome);
+    void createAgent(Population population, Genome genome, Coordinates2D location);
 
     Set<Agent> getPrototypes();
 

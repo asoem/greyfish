@@ -18,26 +18,28 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         super(cloneable, cloner);
     }
 
-    private Object currentStateKey = initialState();
+    private Object nextStateKey = initialState();
     private boolean endStateReached = false;
 
     protected static class StateClass {
         private StateClass() {
         }
     }
-    private static final StateClass INITIAL = new StateClass();
-    private static final StateClass INTERMEDIATE = new StateClass();
-    private static final StateClass END = new StateClass();
 
     @Override
     protected final ActionState executeUnconditioned(Simulation simulation) {
 
         if (endStateReached)
-            resetTransition(initialState());
+            resetTransition();
 
-        Object nextStateKey = executeState(currentStateKey, simulation);
-        if (nextStateKey == null)
-            throw new NullPointerException("An implementation of executeState() must not return null");
+        try {
+            executeState(nextStateKey, simulation);
+        }
+        catch (RuntimeException e) {
+            endStateReached = true;
+            LOGGER.error("Caught exception during execution in state {} for simulation {}", nextStateKey, simulation, e);
+            return ActionState.END_FAILED;
+        }
 
         ++statefulExecutionCount;
 
@@ -49,56 +51,48 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     protected abstract Object initialState();
 
-    protected abstract StateClass executeState(Object state, Simulation simulation);
+    protected abstract void executeState(Object state, Simulation simulation);
 
-    protected final <T> StateClass resetTransition(T state) {
-        currentStateKey = state;
-        LOGGER.debug("{}: Reset to {}", this, state);
-        return INITIAL;
+    protected final void resetTransition() {
+        LOGGER.debug("{}: Reset to {}", this, initialState());
+        nextStateKey = initialState();
+        endStateReached = false;
     }
 
-    protected final <T> StateClass transition(T state) {
-        currentStateKey = state;
+    protected final <T> void transition(T state) {
         LOGGER.debug("{}: Transition to {}", this, state);
-        return INTERMEDIATE;
+        nextStateKey = state;
     }
 
-    protected final <T> StateClass failure(T state) {
-        currentStateKey = state;
+    protected final void failure(String message) {
         endStateReached = true;
-        LOGGER.debug("{}: Failure: {}", this, state);
-        return END;
+        LOGGER.debug("{}: Failure: {}", this, message);
     }
 
-    protected final <T> StateClass endTransition(T state) {
-        currentStateKey = state;
-        endStateReached = true;
+    protected final <T> void endTransition(T state) {
         LOGGER.debug("{}: End transition: {}", this, state);
-        return END;
+        nextStateKey = state;
+        endStateReached = true;
     }
 
     protected final AssertionError unknownState() {
-        LOGGER.error("{}: Unknown State: {}", this, currentStateKey);
-        return new AssertionError("The implementation of executeState() of " + this + " does not handle state '" + currentStateKey + "'");
-    }
-
-    @Override
-    protected void reset() {
-        super.reset();
-        LOGGER.debug("{}: EndTransition to {}", this, initialState());
-        currentStateKey = initialState();
+        LOGGER.error("{}: Unknown State: {}", this, nextStateKey);
+        return new AssertionError("The implementation of executeState() of " + this + " does not handle state '" + nextStateKey + "'");
     }
 
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        currentStateKey = initialState();
+        nextStateKey = initialState();
         statefulExecutionCount = 0;
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + getName() + "|" + currentStateKey + "]@" + getAgent();
+        return this.getClass().getSimpleName() +
+                "[" + getName() + "@" + nextStateKey + "]" +
+                "°<" + ((getAgent() == null) ? "null" : String.valueOf(agent().getId()) + "><"
+        );
     }
 
     /**

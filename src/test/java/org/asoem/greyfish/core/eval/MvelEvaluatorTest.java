@@ -1,14 +1,16 @@
 package org.asoem.greyfish.core.eval;
 
+import org.apache.commons.math.random.RandomData;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * User: christoph
@@ -58,15 +60,12 @@ public class MvelEvaluatorTest {
         // given
         MvelEvaluator evaluator = new MvelEvaluator();
         evaluator.setExpression("gaussian(0.0, 0.2)");
+        RandomData randomData = spy(RandomUtils.RANDOM_DATA);
 
         // when
-        double ret = 0.0;
-        for (int i = 0; i < 1000; i++) {
-              ret += evaluator.evaluateAsDouble();
-        }
-        ret = ret / 1000;
+        Double evaluated = evaluator.evaluateAsDouble();
 
         // then
-        assertEquals(0.0, ret, 0.01);
+        assertThat(evaluated).isNotNull();
     }
 }

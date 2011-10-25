@@ -84,10 +84,11 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
             switch (actionState) {
                 case ACTIVE:
                     return EXECUTED;
-                case END_SUCCESS:
                 case END_FAILED:
+                    actionState = ActionState.DORMANT;
+                    return ERROR;
+                case END_SUCCESS:
                     postExecutionTasks(simulation);
-                    reset();
                     actionState = ActionState.DORMANT;
                     return EXECUTED;
                 default:
@@ -117,12 +118,6 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
                 }
             }
     }
-
-    /**
-     * This method is called after this action was executed and caused a transition into an END_* state.
-     * If you overwrite this method make sure you call {@code super.reset()}.
-     */
-    protected void reset() {}
 
     /**
      * In this method the behaviour of this action is implemented. This method should not be called directly.

@@ -14,9 +14,9 @@ public interface ACLMessage<T extends AgentIdentifier> {
      * @param clazz The expected type of the content object
      * @param <C> The class type
      * @return The content object casted to type {@code C}
-     * @throws IllegalArgumentException if content has not type {@code C}
+     * @throws ClassCastException if content can not be cast to type {@code C}
      */
-    <C> C getContent(Class<C> clazz);
+    <C> C getContent(Class<C> clazz) throws ClassCastException;
 
     Set<T> getRecipients();
 

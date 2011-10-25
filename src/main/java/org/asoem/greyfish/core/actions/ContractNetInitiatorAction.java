@@ -58,138 +58,132 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     }
 
     @Override
-    protected StateClass executeState(Object state, Simulation simulation) {
+    protected void executeState(Object state, Simulation simulation) {
         if (State.SEND_CFP.equals(state)) {
-            if (!canInitiate(simulation))
-                return failure(State.NO_RECEIVERS);
+            if (!canInitiate(simulation)) {
+                endTransition(State.NO_RECEIVERS);
+            }
+            else {
+                ImmutableACLMessage<Agent> cfpMessage = createCFP()
+                        .sender(agent())
+                        .performative(ACLPerformative.CFP).build();
 
-            ImmutableACLMessage<Agent> cfpMessage = createCFP()
-                    .sender(agent())
-                    .performative(ACLPerformative.CFP).build();
+                simulation.deliverMessage(cfpMessage);
 
-            simulation.deliverMessage(cfpMessage);
+                nProposalsMax = cfpMessage.getRecipients().size();
+                timeoutCounter = 0;
+                nProposalsReceived = 0;
+                template = createCFPReplyTemplate(cfpMessage);
 
-            nProposalsMax = cfpMessage.getRecipients().size();
-            timeoutCounter = 0;
-            nProposalsReceived = 0;
-            template = createCFPReplyTemplate(cfpMessage);
-
-            return transition(State.WAIT_FOR_PROPOSALS);
+                transition(State.WAIT_FOR_PROPOSALS);
+            }
         }
         else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
-             Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
-                    assert (receivedMessage != null);
+            Collection<ACLMessage> proposeReplies = Lists.newArrayList();
+            for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
+                assert (receivedMessage != null);
 
-                    ACLMessage<Agent> proposeReply;
-                    switch (receivedMessage.getPerformative()) {
+                ACLMessage<Agent> proposeReply;
+                switch (receivedMessage.getPerformative()) {
 
-                        case PROPOSE:
-                            try {
-                                proposeReply = checkNotNull(handlePropose(receivedMessage)).build();
-                                proposeReplies.add(proposeReply);
-                                ++nProposalsReceived;
-                                LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
-                            } catch (NotUnderstoodException e) {
-                                proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent())
-                                        .performative(ACLPerformative.NOT_UNDERSTOOD)
-                                        .content(e.getMessage(), String.class).build();
-                                LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
-                            }
-                            checkProposeReply(proposeReply);
+                    case PROPOSE:
+                        try {
+                            proposeReply = checkNotNull(handlePropose(receivedMessage)).build();
+                            proposeReplies.add(proposeReply);
+                            ++nProposalsReceived;
+                            LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
+                        } catch (NotUnderstoodException e) {
+                            proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent())
+                                    .performative(ACLPerformative.NOT_UNDERSTOOD)
+                                    .content(e.getMessage(), String.class).build();
+                            LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
+                        }
+                        checkProposeReply(proposeReply);
 
-                            simulation.deliverMessage(proposeReply);
+                        simulation.deliverMessage(proposeReply);
+                        break;
 
-                            break;
+                    case REFUSE:
+                        LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
+                        handleRefuse(receivedMessage);
+                        --nProposalsMax;
+                        break;
 
-                        case REFUSE:
-                            LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
-                            handleRefuse(receivedMessage);
-                            --nProposalsMax;
-                            break;
+                    case NOT_UNDERSTOOD:
+                        LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatorAction.this);
+                        --nProposalsMax;
+                        break;
 
-                        case NOT_UNDERSTOOD:
-                            LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatorAction.this);
-                            --nProposalsMax;
-                            break;
-
-                        default:
-                            LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatorAction.this, receivedMessage.getPerformative());
-                            --nProposalsMax;
-                            break;
-
-                    }
+                    default:
+                        LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatorAction.this, receivedMessage.getPerformative());
+                        --nProposalsMax;
+                        break;
                 }
-                ++timeoutCounter;
+            }
 
+            ++timeoutCounter;
 
-                assert nProposalsMax >= 0;
+            assert nProposalsMax >= 0;
 
-                if (nProposalsMax == 0) {
-                    LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
-                    return endTransition(State.END);
-                }
-                else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
-                    if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
-                        LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
+            if (nProposalsMax == 0) {
+                LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
+                endTransition(State.END);
+            }
+            else if (nProposalsReceived == nProposalsMax) {
+                template = createAcceptReplyTemplate(proposeReplies);
+                nInformReceived = 0;
+                timeoutCounter = 0;
+                transition(State.WAIT_FOR_INFORM);
+            }
+            else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS) {
+                LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
 
-                    timeoutCounter = 0;
+                timeoutCounter = 0;
+                failure("Timeout for INFORM Messages");
+            }
 
-                    if (nProposalsReceived > 0) {
-                        template = createAcceptReplyTemplate(proposeReplies);
-                        nInformReceived = 0;
-                        return transition(State.WAIT_FOR_INFORM);
-                    } else
-                        return failure(State.TIMEOUT);
-                }
-                else {
-                    return transition(State.WAIT_FOR_PROPOSALS);
-                }
+            // else: No transition
         }
         else if (State.WAIT_FOR_INFORM.equals(state)) {
-             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
+            assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
-                    assert receivedMessage != null;
+            for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
+                assert receivedMessage != null;
 
-                    switch (receivedMessage.getPerformative()) {
+                switch (receivedMessage.getPerformative()) {
 
-                        case INFORM:
-                            try {
-                                handleInform(receivedMessage);
-                            } catch (NotUnderstoodException e) {
-                                LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatorAction.this, e);
-                            }
-                            break;
+                    case INFORM:
+                        try {
+                            handleInform(receivedMessage);
+                        } catch (NotUnderstoodException e) {
+                            LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatorAction.this, e);
+                        }
+                        break;
 
-                        case FAILURE:
-                            LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
-                            handleFailure(receivedMessage);
-                            break;
+                    case FAILURE:
+                        LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
+                        handleFailure(receivedMessage);
+                        break;
 
-                        case NOT_UNDERSTOOD:
-                            LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
-                            break;
+                    case NOT_UNDERSTOOD:
+                        LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
+                        break;
 
-                        default:
-                            LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
-                            break;
-                    }
-
-                    ++nInformReceived;
+                    default:
+                        LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
+                        break;
                 }
 
-                ++timeoutCounter;
+                ++nInformReceived;
+            }
 
-                if (nInformReceived == nProposalsReceived)
-                    return endTransition(State.END);
-                else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
-                    return failure(State.TIMEOUT);
-                else
-                    return transition(State.WAIT_FOR_INFORM);
+            ++timeoutCounter;
+
+            if (nInformReceived == nProposalsReceived)
+                endTransition(State.END);
+            else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
+                failure("Timeout for INFORM Messages");
         }
-
-        throw unknownState();
     }
 
     protected abstract boolean canInitiate(Simulation simulation);

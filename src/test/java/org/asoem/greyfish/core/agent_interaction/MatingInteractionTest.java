@@ -36,17 +36,17 @@ public class MatingInteractionTest {
         EvaluatedGenomeStorage genomeStorage = EvaluatedGenomeStorage.with().name("spermStorage").build();
 
         String messageClassifier = "mate";
-        MatingReceiverAction receiverAction = spy(MatingReceiverAction.with()
+        MatingReceiverAction receiverAction = MatingReceiverAction.with()
                 .name("receiveSperm")
                 .classification(messageClassifier)
                 .searchRadius(1.0)
                 .spermStorage(genomeStorage)
-                .build());
+                .build();
 
-        MatingTransmitterAction transmitterAction = spy(MatingTransmitterAction.with()
+        MatingTransmitterAction transmitterAction = MatingTransmitterAction.with()
                 .name("sendSperm")
                 .classification(messageClassifier)
-                .build());
+                .build();
 
         Agent female = spy(ImmutableAgent.of(population)
                 .addProperties(genomeStorage)

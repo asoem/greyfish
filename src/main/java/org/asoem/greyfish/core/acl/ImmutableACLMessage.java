@@ -76,11 +76,8 @@ public class ImmutableACLMessage<T extends AgentIdentifier> implements ACLMessag
     private final String inReplyTo;
 
     @Override
-    @SuppressWarnings("unchecked") // is checked
     public <C> C getContent(Class<C> clazz) {
-        if(checkNotNull(clazz).equals(getContentClass()))
-           throw new IllegalArgumentException("Requesting " + clazz + " content which has type " + content.getClass());
-        return (C) content;
+        return clazz.cast(content);
     }
 
     @Override

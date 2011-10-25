@@ -14,14 +14,14 @@
         </encoder>
     </appender>
 
-    <logger name="org.asoem.greyfish" additivity="false" level="INFO">
+    <logger name="org.asoem.greyfish" additivity="true" level="DEBUG">
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.asoem.greyfish.core" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.simulation" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.simulation" additivity="true" level="DEBUG">
         <!--
         <appender name="FILE" class="ch.qos.logback.core.FileAppender">
             <file>logs/Simulation.log</file>
@@ -33,7 +33,7 @@
         -->
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="DEBUG">
     </logger>
 
     <logger name="org.asoem.greyfish.core.actions.ContractNetInitiatorAction" additivity="true" level="DEBUG">

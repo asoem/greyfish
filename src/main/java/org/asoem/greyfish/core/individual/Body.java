@@ -18,9 +18,9 @@ import org.asoem.greyfish.utils.gui.MapValuesAdaptor;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.DefaultMovable;
 import org.asoem.greyfish.utils.space.MotionVector2D;
 import org.asoem.greyfish.utils.space.Movable;
+import org.asoem.greyfish.utils.space.MutableMovable;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
@@ -38,7 +38,7 @@ import static com.google.common.collect.Iterables.*;
 
 public class Body extends AbstractAgentComponent implements Movable {
 
-    private final DefaultMovable movingObject2D = new DefaultMovable();
+    private final MutableMovable movingObject2D = new MutableMovable();
 
     @Attribute(name="radius", required = false)
     private double radius = 0.1f;

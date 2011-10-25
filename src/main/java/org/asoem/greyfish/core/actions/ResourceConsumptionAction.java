@@ -76,15 +76,10 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Override
     protected void handleInform(ACLMessage<Agent> message) throws NotUnderstoodException {
-        try {
-            final double offer = message.getContent(Double.class);
-            consumerProperty.add(transformationExpression.evaluateAsDouble(this, offer));
-
-            LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
-        }
-        catch (Exception e) {
-            throw new NotUnderstoodException(e);
-        }
+        final double offer = message.getContent(Double.class);
+        //consumerProperty.add(transformationExpression.evaluateAsDouble(this, offer));
+        consumerProperty.add(offer);
+        LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
     }
 
     @Override
