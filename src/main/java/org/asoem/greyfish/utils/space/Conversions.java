@@ -10,7 +10,7 @@ import org.asoem.greyfish.utils.math.PolarPoint2D;
 public class Conversions {
 
     public static Coordinates2D toCartesian(PolarPoint2D polarPoint2D) {
-        return MutableCoordinates2D.at(
+        return ImmutableCoordinates2D.at(
                 polarPoint2D.getDistance() * Math.cos(polarPoint2D.getAngle()),
                 polarPoint2D.getDistance() * Math.sin(polarPoint2D.getAngle())
         );

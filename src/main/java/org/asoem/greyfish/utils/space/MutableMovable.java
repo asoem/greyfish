@@ -1,28 +1,14 @@
 package org.asoem.greyfish.utils.space;
 
 import javolution.lang.MathLib;
-import org.simpleframework.xml.Element;
 
-public class DefaultMovable implements Movable {
+public class MutableMovable implements Movable {
 
-    @Element(name="point")
-    protected final MutableCoordinates2D anchorPoint;
-
-    private double orientationAngle;
+    private double orientationAngle = 0;
 
     private ImmutableMotionVector motionVector = new ImmutableMotionVector(0, 0);
 
-    public DefaultMovable() {
-        anchorPoint = new MutableCoordinates2D();
-    }
-
-    protected DefaultMovable(@Element(name = "point") MutableCoordinates2D anchorPoint) {
-        this.anchorPoint = anchorPoint;
-    }
-
-    public Coordinates2D getCoordinates() {
-        return new MutableCoordinates2D(anchorPoint);
-    }
+    public MutableMovable() {}
 
     @Override
     public void setOrientation(double alpha) {
