@@ -18,12 +18,12 @@ public class GreyfishVariableResolverConverterAdaptor<T extends AgentComponent> 
     }
 
     @Override
-    public boolean canResolve(String name) {
+    protected boolean canResolveLocal(String name) {
         return converter.canConvert(name, contextClass);
     }
 
     @Override
-    public Object resolve(String varName) throws VariableResolutionException {
+    protected Object resolveLocal(String varName) {
         return converter.get(varName, contextClass).apply(context);
     }
 }

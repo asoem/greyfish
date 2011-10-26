@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.math.random.RandomData;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.junit.Test;
@@ -67,5 +68,19 @@ public class MvelEvaluatorTest {
 
         // then
         assertThat(evaluated).isNotNull();
+    }
+
+    @Test
+    public void testVariableResolution_forMap() throws Exception {
+        // given
+        MvelEvaluator evaluator = new MvelEvaluator();
+        evaluator.setExpression("test");
+        evaluator.setResolver(VariableResolvers.forMap(ImmutableMap.of("test", 5.0)));
+
+        // when
+        double evaluated = evaluator.evaluateAsDouble();
+
+        // then
+        assertThat(evaluated).isEqualTo(5.0);
     }
 }

@@ -33,7 +33,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Element(name="resourceTransformationFunction", required = false)
     private GreyfishExpression<ResourceConsumptionAction> transformationExpression =
-            compileExpression("#{x0}").forContext(ResourceConsumptionAction.class);
+            compileExpression("offer").forContext(ResourceConsumptionAction.class);
 
     @Element(name="messageType", required=false)
     private String parameterMessageType = "";
@@ -77,9 +77,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected void handleInform(ACLMessage<Agent> message) throws NotUnderstoodException {
         final double offer = message.getContent(Double.class);
-        //consumerProperty.add(transformationExpression.evaluateAsDouble(this, offer));
-        consumerProperty.add(offer);
-        LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
+        double transformedOffer = transformationExpression.evaluateAsDouble(this, "offer", offer);
+        consumerProperty.add(transformedOffer);
+        LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", transformedOffer, consumerProperty);
     }
 
     @Override
@@ -180,7 +180,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.amountPerRequest = builder.amountPerRequest;
         this.sensorRange = builder.sensorRange;
         this.transformationExpression = GreyfishExpressionFactory
-                .compileExpression( Optional.fromNullable(builder.transformationFunction).or("") )
+                .compileExpression( Optional.fromNullable(builder.transformationFunction).or("offer") )
                 .forContext(ResourceConsumptionAction.class);
     }
 

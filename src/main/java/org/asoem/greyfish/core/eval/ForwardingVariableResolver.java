@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
-import com.google.common.collect.ForwardingObject;
+import javax.annotation.Nullable;
 
 /**
  * User: christoph
@@ -19,5 +19,15 @@ public abstract class ForwardingVariableResolver implements VariableResolver {
     @Override
     public boolean canResolve(String name) {
         return delegate().canResolve(name);
+    }
+
+    @Override
+    public VariableResolver getNext() {
+        return delegate().getNext();
+    }
+
+    @Override
+    public void setNext(@Nullable VariableResolver next) {
+        delegate().setNext(next);
     }
 }

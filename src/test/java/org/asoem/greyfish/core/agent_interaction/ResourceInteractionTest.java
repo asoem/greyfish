@@ -39,7 +39,7 @@ public class ResourceInteractionTest {
         DoubleProperty energyStorage = DoubleProperty.with()
                 .name("resourceStorage")
                 .lowerBound(0.0)
-                .upperBound(1.0)
+                .upperBound(2.0)
                 .initialValue(0.0)
                 .build();
         ResourceConsumptionAction consumptionAction = ResourceConsumptionAction.with()
@@ -47,6 +47,7 @@ public class ResourceInteractionTest {
                 .classification(messageClassifier)
                 .requesting(1)
                 .energyStorage(energyStorage)
+                .transformationFunction("offer*2")
                 .build();
 
 
@@ -89,6 +90,6 @@ public class ResourceInteractionTest {
         }
 
         // then
-        assertThat(energyStorage.get()).isEqualTo(1);
+        assertThat(energyStorage.get()).isEqualTo(2);
     }
 }

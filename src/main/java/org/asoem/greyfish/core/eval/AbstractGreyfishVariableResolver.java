@@ -9,7 +9,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 14.09.11
  * Time: 21:57
  */
-abstract class AbstractGreyfishVariableResolver<T extends AgentComponent> implements GreyfishVariableResolver<T> {
+abstract class AbstractGreyfishVariableResolver<T extends AgentComponent> extends AbstractVariableResolver implements GreyfishVariableResolver<T> {
 
     protected T context;
 

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.individual.AgentComponent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,10 +25,9 @@ public class GreyfishExpression<T extends AgentComponent> {
         return evaluator.evaluateAsDouble();
     }
 
-    public double evaluateAsDouble(T context, Object ... args) throws EvaluationException {
+    public double evaluateAsDouble(T context, String n1, Object v1) throws EvaluationException {
         variableResolver.setContext(context);
-        // TODO: add argument parsing capability to GreyfishVariableResolver
-        // variableResolver.setArguments(args)
+        variableResolver.setNext(VariableResolvers.forMap(ImmutableMap.of(n1, v1)));
         return evaluator.evaluateAsDouble();
     }
 
