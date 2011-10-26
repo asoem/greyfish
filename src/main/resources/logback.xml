@@ -42,7 +42,8 @@
     <logger name="org.asoem.greyfish.core.actions.ContractNetParticipantAction" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.gui" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.gui" additivity="true" level="DEBUG
+    ">
     </logger>
 
     <root level="DEBUG">
