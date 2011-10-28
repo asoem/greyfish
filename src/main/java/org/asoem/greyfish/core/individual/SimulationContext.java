@@ -3,9 +3,9 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.ExecutionResult;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.io.Logger;
-import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

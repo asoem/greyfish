@@ -16,14 +16,14 @@ import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.*;
-import org.asoem.greyfish.core.io.Logger;
-import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.Counter;
 import org.asoem.greyfish.utils.base.ListenerSupport;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.Coordinates2D;
 import org.asoem.greyfish.utils.space.Movable;
 

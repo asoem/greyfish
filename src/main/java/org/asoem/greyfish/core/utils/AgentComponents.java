@@ -4,10 +4,10 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.io.Logger;
-import org.asoem.greyfish.core.io.LoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.base.AbstractBuilder;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
