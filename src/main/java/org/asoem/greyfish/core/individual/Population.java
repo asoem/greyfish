@@ -70,10 +70,8 @@ public class Population implements HasName, Comparable<Population> {
 
         Population that = (Population) o;
 
-        if (!color.equals(that.color)) return false;
-        if (!name.equals(that.name)) return false;
+        return color.equals(that.color) && name.equals(that.name);
 
-        return true;
     }
 
     @Override

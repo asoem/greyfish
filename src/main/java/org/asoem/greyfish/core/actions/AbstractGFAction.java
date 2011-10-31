@@ -177,7 +177,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                energyCosts = arg0;
+                energyCosts = compileExpression(arg0.getExpression()).forContext(AbstractGFAction.class);
             }
         });
 

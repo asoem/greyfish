@@ -63,9 +63,8 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
                         public Simulation apply(@Nullable T gfComponent) {
-                            if (gfComponent != null && gfComponent.getAgent() != null)
-                                return gfComponent.getAgent().getSimulation();
-                            return null;
+                            Agent agent = checkNotNull(gfComponent).getAgent();
+                            return checkNotNull(agent).getSimulation();
                             // TODO: We should have direct access to simulation object through a component
                         }
                     });
@@ -92,7 +91,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return agent(parts, Functions.compose(new Function<GFAction, Agent>() {
                     @Override
                     public Agent apply(@Nullable GFAction action) {
-                        return action.getAgent();
+                        return checkNotNull(action).getAgent();
                     }
                 }, ret));
             }
@@ -113,7 +112,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return agent(parts, Functions.compose(new Function<GFProperty, Agent>() {
                     @Override
                     public Agent apply(@Nullable GFProperty property) {
-                        return property.getAgent();
+                        return checkNotNull(property).getAgent();
                     }
                 }, ret));
             }
@@ -138,7 +137,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return agent(parts, Functions.compose(new Function<Simulation, Agent>() {
                     @Override
                     public Agent apply(@Nullable Simulation simulation) {
-                        return Iterables.find(simulation.getAgents(), new Predicate<Agent>() {
+                        return Iterables.find(checkNotNull(simulation).getAgents(), new Predicate<Agent>() {
                             @Override
                             public boolean apply(Agent agent) {
                                 return agent.getId() == 0; // TODO: get id from regex
@@ -174,7 +173,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return simulation(parts, Functions.compose( new Function<Agent, Simulation>() {
                     @Override
                     public Simulation apply(@Nullable Agent agent) {
-                        return agent.getSimulation();
+                        return checkNotNull(agent).getSimulation();
                     }
                 },ret));
             }
@@ -186,7 +185,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return property(parts, Functions.compose(new Function<Agent, GFProperty>() {
                     @Override
                     public GFProperty apply(@Nullable Agent agent) {
-                        return agent.getProperty(propertyName, GFProperty.class);
+                        return checkNotNull(agent).getProperty(propertyName, GFProperty.class);
                     }
                 }, ret));
             }
@@ -197,7 +196,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return action(parts, Functions.compose(new Function<Agent, GFAction>() {
                     @Override
                     public GFAction apply(@Nullable Agent agent) {
-                        return agent.getAction(actionName, GFAction.class);
+                        return checkNotNull(agent).getAction(actionName, GFAction.class);
                     }
                 }, ret));
             }
@@ -208,7 +207,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return gene(parts, Functions.compose(new Function<Agent, Gene>() {
                     @Override
                     public Gene apply(@Nullable Agent agent) {
-                        return agent.getGene(geneName, Gene.class);
+                        return checkNotNull(agent).getGene(geneName, Gene.class);
                     }
                 }, ret));
             }
@@ -217,7 +216,7 @@ public enum DefaultGreyfishResolverConverter implements ResolverConverter {
                 return Functions.compose( new Function<Agent, Object>() {
                     @Override
                     public Object apply(@Nullable Agent agent) {
-                        return agent.getAge();
+                        return checkNotNull(agent).getAge();
                     }
                 },ret);
             }

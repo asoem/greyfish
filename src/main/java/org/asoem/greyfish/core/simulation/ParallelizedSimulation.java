@@ -3,9 +3,6 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.util.FastList;
@@ -60,20 +57,6 @@ public class ParallelizedSimulation implements Simulation {
 
     private final FastList<Agent> agents = FastList.newInstance();
 
-    private final Cache<Integer, Agent> agentCache = CacheBuilder.newBuilder()
-            .weakValues()
-            .build(new CacheLoader<Integer, Agent>() {
-                @Override
-                public Agent load(final Integer integer) throws Exception {
-                    return Iterables.find(getAgents(), new Predicate<Agent>() {
-                        @Override
-                        public boolean apply(Agent receiver) {
-                            return receiver.getId().equals(integer);
-                        }
-                    });
-                }
-            });
-
     private final ListenerSupport<SimulationListener> listenerSupport = ListenerSupport.newInstance();
 
     private final KeyedObjectPool objectPool = new StackKeyedObjectPool(
@@ -88,12 +71,6 @@ public class ParallelizedSimulation implements Simulation {
                     assert prototype != null : "Found no Prototype for " + key;
 
                     return ImmutableAgent.cloneOf(prototype);
-                }
-
-                @Override
-                public void passivateObject(Object key, Object obj) throws Exception {
-                    Agent agent = Agent.class.cast(obj);
-
                 }
             },
             10000, 100);

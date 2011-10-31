@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.core.acl.AgentIdentifier;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
@@ -18,7 +17,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, Movable, AgentIdentifier, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, Movable, Preparable<Simulation> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -55,7 +54,7 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
      * Creates a new Genome with exact copies of this agents genes.
      * @return the new Genome
      */
-    Genome createGamete();
+    Genome<Gene<?>> createGamete();
 
     /**
      * Inject a copy of this agents genome so that this agents genes return the values of the genes in the given genome
@@ -74,8 +73,7 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
 
     Simulation getSimulation();
     public void setSimulation(Simulation simulation);
-    @Override
-    Integer getId();
+    int getId();
     int getTimeOfBirth();
     int getAge();
     GFAction getLastExecutedAction();

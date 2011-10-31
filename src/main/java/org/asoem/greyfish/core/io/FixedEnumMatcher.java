@@ -6,10 +6,10 @@ import org.simpleframework.xml.transform.Transform;
 import java.awt.*;
 
 /**
-* User: christoph
-* Date: 14.09.11
-* Time: 18:39
-*/
+ * User: christoph
+ * Date: 14.09.11
+ * Time: 18:39
+ */
 class FixedEnumMatcher implements Matcher {
 
     @Override
@@ -17,13 +17,14 @@ class FixedEnumMatcher implements Matcher {
         if(arg0.isEnum()
                 || arg0.getSuperclass() != null
                 && arg0.getSuperclass().isEnum()) { // This is a Workaround for a java bug. See: http://forums.oracle.com/forums/thread.jspa?threadID=1035332
-            return new Transform<Enum>() {
+            return new Transform<Enum<?>>() {
 
-                public Enum read(String value) throws Exception {
+                @SuppressWarnings({"unchecked"}) // valueOf() always returns a constant of Enum arg0
+                public Enum<?> read(String value) throws Exception {
                     return Enum.valueOf(arg0, value);
                 }
 
-                public String write(Enum value) throws Exception {
+                public String write(Enum<?> value) throws Exception {
                     return value.name();
                 }
             };

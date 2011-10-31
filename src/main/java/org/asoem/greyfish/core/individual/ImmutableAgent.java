@@ -53,7 +53,7 @@ public class ImmutableAgent extends AbstractAgent {
     }
 
     @Override
-    public Genome createGamete() {
+    public Genome<Gene<?>> createGamete() {
         return ImmutableGenome.copyOf(Iterables.transform(genome, new Function<Gene<?>, Gene<?>>() {
             @Override
             public Gene<?> apply(@Nullable Gene<?> gene) {

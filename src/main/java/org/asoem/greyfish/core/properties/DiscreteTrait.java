@@ -27,9 +27,8 @@ import java.util.Set;
 public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProperty<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscreteTrait.class);
+
     private Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = ImmutableMap.of();
-    private String currentState = null;
-    private boolean dirty = true;
 
     protected DiscreteTrait(AbstractBuilder<?,?> builder) {
         super(builder);
@@ -45,24 +44,18 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProp
 
     @Override
     public String get() {
-        if (dirty) {
-            // TODO: in a quick and dirty state. How to handle no match / empty map?
-            currentState = Iterables.find(phenotypeConditionMap.keySet(), new Predicate<String>() {
+        // TODO: Inefficient if called more than once during one simulation step. Should be cached.
+        return Iterables.find(phenotypeConditionMap.keySet(), new Predicate<String>() {
                 @Override
-                public boolean apply(@Nullable String expression) {
+                public boolean apply(@Nullable String phenotype) {
                     try {
-                        return phenotypeConditionMap.get(expression).evaluateAsBoolean(DiscreteTrait.this);
+                        return phenotypeConditionMap.get(phenotype).evaluateAsBoolean(DiscreteTrait.this);
                     } catch (EvaluationException e) {
-                        LOGGER.warn("Failed to evaluateAsBoolean expression {}", expression);
+                        LOGGER.error("Failed to evaluateAsBoolean expression {}", phenotype);
                         return false;
                     }
                 }
-            },null);
-            // TODO: currently dirty is never set to true again
-            //dirty = false;
-        }
-
-        return currentState;
+        });
     }
 
     @Override

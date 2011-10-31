@@ -7,7 +7,9 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -70,7 +72,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                spermFitnessExpression = arg0;
+                spermFitnessExpression = compileExpression(arg0.getExpression()).forContext(MatingTransmitterAction.class);
             }
 
             @Override
@@ -81,8 +83,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handleCFP(ACLMessage message) {
-        final Genome sperm = agent().createGamete();
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) {
+        final Genome<Gene<?>> sperm = agent().createGamete();
 
         double fitness = 0.0;
         try {
@@ -91,13 +93,13 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
             LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
         }
 
-        return ImmutableACLMessage.createReply(message, agent())
-                .content(new EvaluatedGenome(sperm, fitness), EvaluatedGenome.class)
+        return ImmutableACLMessage.<Agent>createReply(message, agent())
+                .content(new EvaluatedGenome<Gene<?>>(sperm, fitness), EvaluatedGenome.class)
                 .performative(ACLPerformative.PROPOSE);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder handleAccept(ACLMessage message) {
+    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message) {
         // costs for mating define quality of the genome
 //        DoubleProperty doubleProperty = null;
 //        Genome sperm = null;

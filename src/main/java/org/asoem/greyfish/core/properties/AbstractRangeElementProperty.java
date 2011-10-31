@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
@@ -11,8 +12,6 @@ import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
-
-import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -46,7 +45,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
     public void setValue(E amount) {
         checkNotNull(amount);
-        if (Ordering.natural().isOrdered(Arrays.asList(lowerBound, amount, upperBound))) {
+        if (Ordering.natural().isOrdered(ImmutableList.of(lowerBound, amount, upperBound))) {
             this.value = amount;
         }
         else {
@@ -87,7 +86,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
                 if (get() == null)
                     validationResult.addError(getName() + " must not be null");
 
-                if (!Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)))
+                if (!Ordering.natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)))
                     validationResult.addError("Value of `"+getName()+"' must not be smaller than `Min' and greater than `Max'");
 
                 return validationResult;
@@ -118,7 +117,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
             checkState(lowerBound != null);
             checkState(upperBound != null);
             checkState(initialValue != null);
-            checkState(Ordering.natural().isOrdered(Arrays.asList(lowerBound, initialValue, upperBound)));
+            checkState(Ordering.natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)));
         }
     }
 

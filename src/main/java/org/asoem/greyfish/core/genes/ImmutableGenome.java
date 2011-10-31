@@ -49,11 +49,11 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
         if (genome == null || this.size() != genome.size())
             return false;
 
-        final Iterator<? extends E> other_genome_iter = genome.iterator();
+        final Iterator<? extends E> other_genome_iterator = genome.iterator();
         return(Iterables.all(this, new Predicate<Gene<?>>() {
             @Override
             public boolean apply(Gene<?> gene) {
-                return other_genome_iter.hasNext() && other_genome_iter.next().isMutatedCopy(gene);
+                return other_genome_iterator.hasNext() && other_genome_iterator.next().isMutatedCopy(gene);
             }
         }));
     }

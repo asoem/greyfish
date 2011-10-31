@@ -106,7 +106,7 @@ public abstract class SimulationAdaptor implements Simulation {
     }
 
     @Override
-    public void deliverMessage(ACLMessage message) {
+    public void deliverMessage(ACLMessage<Agent> message) {
         delegate().deliverMessage(message);
     }
 

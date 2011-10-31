@@ -19,7 +19,7 @@ public class MessageTemplates {
     public static MessageTemplate performative(final ACLPerformative performative) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage aclMessage) {
+            public boolean apply(@Nullable ACLMessage<?> aclMessage) {
                 return checkNotNull(aclMessage).getPerformative().equals(performative);
             }
         };
@@ -32,7 +32,7 @@ public class MessageTemplates {
     public static MessageTemplate conversationId(final int conversationId) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(ACLMessage aclMessage) {
+            public boolean apply(ACLMessage<?> aclMessage) {
                 return aclMessage.getConversationId() == conversationId;
             }
         };
@@ -46,11 +46,11 @@ public class MessageTemplates {
         return new LiteralTemplate(replyWith, ACLLiteralMessageField.REPLY_WITH);
     }
 
-    public static MessageTemplate isReplyTo(final ACLMessage message) {
+    public static MessageTemplate isReplyTo(final ACLMessage<?> message) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage reply) {
-                ACLMessage replyNonNull = checkNotNull(reply);
+            public boolean apply(@Nullable ACLMessage<?> reply) {
+                ACLMessage<?> replyNonNull = checkNotNull(reply);
                 return replyNonNull.getConversationId() == message.getConversationId()
                         && message.getReplyWith().equals(replyNonNull.getInReplyTo());
             }
@@ -60,7 +60,7 @@ public class MessageTemplates {
     public static <T> MessageTemplate content(final Class<T> clazz, final Predicate<T> predicate) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage aclMessage) {
+            public boolean apply(@Nullable ACLMessage<?> aclMessage) {
                 ACLMessage<?> message = checkNotNull(aclMessage);
                 return message.getContentClass().isAssignableFrom(clazz)
                         && predicate.apply(message.getContent(clazz));
@@ -68,47 +68,41 @@ public class MessageTemplates {
         };
     }
 
-    public static MessageTemplate sentTo(final Object receiverId) {
+    public static MessageTemplate sentTo(final Object receiver) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage aclMessage) {
-                return Iterables.any(checkNotNull(aclMessage).getRecipients(),
-                        new Predicate<AgentIdentifier>(){
-                            @Override
-                            public boolean apply(@Nullable AgentIdentifier agentIdentifier) {
-                                return agentIdentifier.getId().equals(receiverId);
-                            }
-                        });
+            public boolean apply(@Nullable ACLMessage<?> aclMessage) {
+                return Iterables.any(checkNotNull(aclMessage).getRecipients(), Predicates.equalTo(receiver));
             }
         };
     }
 
     public static MessageTemplate and(MessageTemplate t1, MessageTemplate t2) {
-        return forPredicate(Predicates.<ACLMessage>and(t1, t2));
+        return forPredicate(Predicates.<ACLMessage<?>>and(t1, t2));
     }
 
-    public static MessageTemplate and(MessageTemplate... templates) {
-        return forPredicate(Predicates.<ACLMessage>and(templates));
+    public static MessageTemplate and(MessageTemplate ... templates) {
+        return forPredicate(Predicates.<ACLMessage<?>>and(templates));
     }
 
     public static MessageTemplate or(MessageTemplate t1, MessageTemplate t2) {
-        return forPredicate(Predicates.<ACLMessage>or(t1, t2));
+        return forPredicate(Predicates.<ACLMessage<?>>or(t1, t2));
     }
 
     public static MessageTemplate or(MessageTemplate... templates) {
-        return forPredicate(Predicates.<ACLMessage>or(templates));
+        return forPredicate(Predicates.<ACLMessage<?>>or(templates));
     }
 
     private static final MessageTemplate ALWAYS_FALSE_TEMPLATE = new MessageTemplate() {
         @Override
-        public boolean apply(@Nullable ACLMessage aclMessage) {
+        public boolean apply(@Nullable ACLMessage<?> aclMessage) {
             return false;
         }
     };
 
     private static final MessageTemplate ALWAYS_TRUE_TEMPLATE = new MessageTemplate() {
         @Override
-        public boolean apply(@Nullable ACLMessage aclMessage) {
+        public boolean apply(@Nullable ACLMessage<?> aclMessage) {
             return true;
         }
     };
@@ -137,7 +131,7 @@ public class MessageTemplates {
         }
 
         @Override
-        public boolean apply(ACLMessage object) {
+        public boolean apply(ACLMessage<?> object) {
 
             String compare = null;
             switch (field) {
@@ -159,10 +153,10 @@ public class MessageTemplates {
         }
     }
 
-    public static MessageTemplate forPredicate(final Predicate<ACLMessage> predicate) {
+    public static MessageTemplate forPredicate(final Predicate<ACLMessage<?>> predicate) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(ACLMessage aclMessage) {
+            public boolean apply(ACLMessage<?> aclMessage) {
                 return predicate.apply(aclMessage);
             }
         };

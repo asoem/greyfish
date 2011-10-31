@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,7 +43,7 @@ public class Body extends AbstractAgentComponent implements Movable {
     private double radius = 0.1f;
 
     @Element(name="colorStateProperty", required = false)
-    private FiniteStateProperty property;
+    private FiniteStateProperty<?> property;
 
     @ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false)
     private Map<Object, Color> stateColorMap;
@@ -141,7 +140,7 @@ public class Body extends AbstractAgentComponent implements Movable {
                 if (!state.equals("Default")) {
                     property = FiniteStateProperty.class.cast(state);
                     stateColorMap = ImmutableMapBuilder.<Object, Color>newInstance()
-                            .putAll(((Set<Object>)property.getStates()),
+                            .putAll(property.getStates(),
                                     Functions.identity(),
                                     new Function<Object, Color>() {
 
@@ -190,6 +189,7 @@ public class Body extends AbstractAgentComponent implements Movable {
         });
     }
 
+    /*
     private Color[] generateColors(int n) {
         Color[] cols = new Color[n];
         for(int i = 0; i < n; i++)
@@ -198,6 +198,7 @@ public class Body extends AbstractAgentComponent implements Movable {
         }
         return cols;
     }
+    */
 
     @Override
     public void accept(ComponentVisitor visitor) {

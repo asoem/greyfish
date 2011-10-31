@@ -11,7 +11,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ImmutableACLMessage<T extends AgentIdentifier> implements ACLMessage<T> {
+public class ImmutableACLMessage<T> implements ACLMessage<T> {
 
     private static int progressiveId;
 
@@ -40,7 +40,7 @@ public class ImmutableACLMessage<T extends AgentIdentifier> implements ACLMessag
         return contentType;
     }
 
-    public static <T extends AgentIdentifier> Builder<T> createReply(ACLMessage<T> message, T id) {
+    public static <T> Builder<T> createReply(ACLMessage<T> message, T id) {
         checkNotNull(message);
         checkArgument(message.getSender() != null, "Cannot reply to an anonymous sender");
         return new Builder<T>()
@@ -154,7 +154,7 @@ public class ImmutableACLMessage<T extends AgentIdentifier> implements ACLMessag
         return createReply(this, sender);
     }
 
-    private static String generateReplyWith(final AgentIdentifier source) {
+    private static String generateReplyWith(final Object source) {
         return String.valueOf(source) + java.lang.System.currentTimeMillis();
     }
 
@@ -195,11 +195,11 @@ public class ImmutableACLMessage<T extends AgentIdentifier> implements ACLMessag
         return str.toString();
     }
 
-    public static <T extends AgentIdentifier> Builder<T> with() {
+    public static <T> Builder<T> with() {
         return new Builder<T>();
     }
 
-    public static class Builder<T extends AgentIdentifier> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>> {
+    public static class Builder<T> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>> {
         private ACLPerformative performative;
         private T sender;
         private final Set<T> dests = Sets.newHashSet();

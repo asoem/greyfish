@@ -98,6 +98,7 @@ public class DefaultGreyfishResolverConverterTest {
         assertThat(ret).isEqualTo(23);
     }
 
+    @SuppressWarnings({"NullableProblems"})
     @Test(expected=NullPointerException.class)
     public void shouldScreamIfContextClassIsNull() {
         converter.get("this", null).apply(action);

@@ -355,7 +355,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Genome createGamete() {
+    public Genome<Gene<?>> createGamete() {
         return genome;
     }
 

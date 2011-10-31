@@ -94,12 +94,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         });
     }
 
-    private boolean receiveGenome(EvaluatedGenome genome) {
+    private void receiveGenome(EvaluatedGenome genome) {
         spermBuffer.addGenome(genome, genome.getFitness());
-
         LOGGER.trace(getAgent() + " received sperm: " + genome);
-
-        return true;
     }
 
     @Override

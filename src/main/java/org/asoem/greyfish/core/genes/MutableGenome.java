@@ -64,9 +64,8 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
 
         MutableGenome that = (MutableGenome) o;
 
-        if (!genes.equals(that.genes)) return false;
+        return genes.equals(that.genes);
 
-        return true;
     }
 
     @Override

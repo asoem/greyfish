@@ -172,7 +172,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public Genome createGamete() {
+    public Genome<Gene<?>> createGamete() {
         return delegate.createGamete();
     }
 

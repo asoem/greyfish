@@ -24,9 +24,10 @@ public class ForwardingGene<T> implements Gene<T> {
         setDelegate(gene);
     }
 
+    @SuppressWarnings({"unchecked"}) // cloning is safe
     public ForwardingGene(ForwardingGene<T> gene, DeepCloner map) {
         map.setAsCloned(gene, this);
-        delegate = map.cloneField(gene.delegate, Gene.class);
+        delegate = (Gene<T>) map.cloneField(gene.delegate, Gene.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -137,7 +138,7 @@ public class ForwardingGene<T> implements Gene<T> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new ForwardingGene(this, cloner);
+        return new ForwardingGene<T>(this, cloner);
     }
 
     @Override
@@ -152,9 +153,8 @@ public class ForwardingGene<T> implements Gene<T> {
 
         ForwardingGene that = (ForwardingGene) o;
 
-        if (!delegate.equals(that.delegate)) return false;
+        return delegate.equals(that.delegate);
 
-        return true;
     }
 
     @Override

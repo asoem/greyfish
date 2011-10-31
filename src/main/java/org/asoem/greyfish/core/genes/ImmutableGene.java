@@ -57,6 +57,7 @@ public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> 
     }
 
     public static <E> ImmutableGene<E> newMutatedCopy(Gene<E> gene) {
+        checkNotNull(gene);
         return new ImmutableGene<E>(
                 gene.getGeneController().mutate(gene.get()),
                 gene.getSupplierClass(),
@@ -64,6 +65,7 @@ public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> 
     }
 
     public static <E> ImmutableGene<E> newInitializedCopy(Gene<E> gene) {
+        checkNotNull(gene);
         return new ImmutableGene<E>(
                 gene.getGeneController().createInitialValue(),
                 gene.getSupplierClass(),
@@ -72,11 +74,13 @@ public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> 
 
     @Override
     public boolean isMutatedCopy(Gene<?> gene) {
+        checkNotNull(gene);
         return this.getGeneController().equals(gene.getGeneController());
     }
 
     @Override
     public final double distance(Gene<?> thatGene) {
+        checkNotNull(thatGene);
         checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
         return getGeneController().normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
     }

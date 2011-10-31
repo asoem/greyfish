@@ -1,8 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.math.random.RandomData;
-import org.asoem.greyfish.utils.math.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -11,7 +9,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * User: christoph
@@ -61,7 +60,6 @@ public class MvelEvaluatorTest {
         // given
         MvelEvaluator evaluator = new MvelEvaluator();
         evaluator.setExpression("gaussian(0.0, 0.2)");
-        RandomData randomData = spy(RandomUtils.RANDOM_DATA);
 
         // when
         Double evaluated = evaluator.evaluateAsDouble();

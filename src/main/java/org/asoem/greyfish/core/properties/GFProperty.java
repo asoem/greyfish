@@ -17,7 +17,7 @@ public interface GFProperty extends AgentComponent {
     <S> Gene<S> registerGene(final Gene<S> gene);
 
     /**
-     * @return All registered genes wrapped in an {@code IndexedGene}
+     * @return All registered genes
      * @see #registerGene(org.asoem.greyfish.core.genes.Gene)
      */
     public Iterable<Gene<?>> getGenes();

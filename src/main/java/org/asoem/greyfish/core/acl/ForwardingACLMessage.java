@@ -7,7 +7,7 @@ import java.util.Set;
  * Date: 10.10.11
  * Time: 13:57
  */
-public abstract class ForwardingACLMessage<T extends AgentIdentifier> implements ACLMessage<T> {
+public abstract class ForwardingACLMessage<T> implements ACLMessage<T> {
 
     protected abstract ACLMessage<T> delegate();
     

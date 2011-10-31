@@ -7,7 +7,7 @@ import java.util.Set;
  * Date: 10.10.11
  * Time: 13:56
  */
-public interface ACLMessage<T extends AgentIdentifier> {
+public interface ACLMessage<T> {
     Class<?> getContentClass();
     /**
      *
@@ -26,7 +26,7 @@ public interface ACLMessage<T extends AgentIdentifier> {
      * It is possible to omit the sender parameter if, for example, the agent sending the ACL message wishes to remain anonymous.
      * @return the sender of the message
      */
-    T getSender(); // TODO: Change to Optional<AgentIdentifier>
+    T getSender();
 
     ACLPerformative getPerformative();
 

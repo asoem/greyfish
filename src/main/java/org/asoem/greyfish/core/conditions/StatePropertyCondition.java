@@ -10,12 +10,14 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
+import java.util.Set;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
-    private FiniteStateProperty stateProperty;
+    private FiniteStateProperty<?> stateProperty;
     // TODO: The stateProperty might get modified during construction phase. Observe this!
 
     @Element(name="state",required=false)
@@ -52,11 +54,13 @@ public class StatePropertyCondition extends LeafCondition {
         };
         e.add(statesAdaptor);
 
-        final SetAdaptor<Object> stateAdaptor = new SetAdaptor<Object>( "has state", Object.class) {
+        final SetAdaptor<?> stateAdaptor = new SetAdaptor<Object>( "has state", Object.class) {
             @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
             @Override public Object get() { return state; }
             @Override public Iterable<Object> values() {
-                return (stateProperty == null) ? ImmutableList.of() : stateProperty.getStates();
+                // cast from Set<?> to Set<Object> is safe
+                // noinspection unchecked
+                return (stateProperty == null) ? ImmutableList.of() : (Set<Object>) stateProperty.getStates();
             }
         };
         statesAdaptor.addValueChangeListener(stateAdaptor);
