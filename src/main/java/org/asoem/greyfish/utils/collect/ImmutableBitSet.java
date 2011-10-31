@@ -23,7 +23,7 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
     private final BigInteger val;
 
     public ImmutableBitSet(BigInteger val) {
-        this.val = val;
+        this.val = checkNotNull(val);
     }
 
     public ImmutableBitSet(BitSet val) {
@@ -94,13 +94,19 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
     }
 
     @Override
-    public int hashCode() {
-        return val.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ImmutableBitSet that = (ImmutableBitSet) o;
+
+        return val.equals(that.val);
+
     }
 
     @Override
-    public boolean equals(Object x) {
-        return val.equals(x);
+    public int hashCode() {
+        return val.hashCode();
     }
 
     @Override

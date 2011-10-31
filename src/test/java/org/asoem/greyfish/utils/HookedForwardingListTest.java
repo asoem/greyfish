@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 import static org.mockito.Mockito.verify;
@@ -39,32 +38,32 @@ public class HookedForwardingListTest {
             private final List<ListElement> delegate = new ArrayList<ListElement>();
 
             @Override
-            protected void beforeAddition(@Nullable ListElement element) {
+            protected void beforeAddition(ListElement element) {
                 element.wasPassedToTheBeforeAdditionHook();
             }
 
             @Override
-            protected void afterAddition(@Nullable ListElement element) {
+            protected void afterAddition(ListElement element) {
                 element.wasPassedToTheAfterAdditionHook();
             }
 
             @Override
-            protected void beforeRemoval(@Nullable ListElement element) {
+            protected void beforeRemoval(ListElement element) {
                 element.wasPassedToTheBeforeRemovalHook();
             }
 
             @Override
-            protected void afterRemoval(@Nullable ListElement element) {
+            protected void afterRemoval(ListElement element) {
                 element.wasPassedToTheAfterRemovalHook();
             }
 
             @Override
-            protected void beforeReplacement(@Nullable ListElement oldElement, @Nullable ListElement newElement) {
+            protected void beforeReplacement(ListElement oldElement, ListElement newElement) {
                 oldElement.wasPassedToTheBeforeReplacementHook();
             }
 
             @Override
-            protected void afterReplacement(@Nullable ListElement oldElement, @Nullable ListElement newElement) {
+            protected void afterReplacement(ListElement oldElement, ListElement newElement) {
                 oldElement.wasPassedToTheAfterReplacementHook();
             }
 

@@ -3,6 +3,8 @@ package org.asoem.greyfish.utils.collect;
 import java.math.BigInteger;
 import java.util.BitSet;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class BitSets {
 
     public static BitSet copyOf(BigInteger bigInteger) {
@@ -23,6 +25,6 @@ public class BitSets {
     }
 
     public static BigInteger toBigInteger(BitSet bitSet) {
-        return new BigInteger(toByteArray(bitSet));
+        return new BigInteger(toByteArray(checkNotNull(bitSet)));
     }
 }
