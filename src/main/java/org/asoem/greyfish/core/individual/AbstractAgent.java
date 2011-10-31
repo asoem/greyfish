@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -242,7 +243,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Integer getId() {
+    public int getId() {
         return simulationContext.getId();
     }
 
@@ -356,7 +357,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Genome<Gene<?>> createGamete() {
-        return genome;
+        return ImmutableGenome.<Gene<?>>copyOf(genome);
     }
 
     @Override

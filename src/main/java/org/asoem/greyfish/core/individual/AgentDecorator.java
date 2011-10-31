@@ -31,6 +31,7 @@ public abstract class AgentDecorator implements Agent {
      * @param delegate the {@code Agent} to decorate
      */
     protected AgentDecorator(@Nonnull Agent delegate) {
+        super();
         this.delegate = checkNotNull(delegate);
         /*
         for (AgentComponent component : delegate.getComponents()) {
@@ -38,6 +39,11 @@ public abstract class AgentDecorator implements Agent {
             component.setAgent(this);
         }
         */
+    }
+
+    public AgentDecorator(AgentDecorator agentDecorator, DeepCloner cloner) {
+        cloner.setAsCloned(agentDecorator, this);
+        delegate = cloner.cloneField(agentDecorator.delegate, Agent.class);
     }
 
     protected Agent delegate() {
@@ -147,7 +153,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public Integer getId() {
+    public int getId() {
         return delegate.getId();
     }
 

@@ -154,6 +154,7 @@ public class ParallelizedSimulation implements Simulation {
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
             final Agent clone = newAgentFromPool(placeholder.getPopulation());
+            assert clone != null;
             addAgentInternal(clone, placeholder.getCoordinates());
         }
     }
@@ -266,15 +267,12 @@ public class ParallelizedSimulation implements Simulation {
      * @throws RuntimeException if no non-null {@code Agent} could be retrieved from the {@code objectPool}
      */
     private Agent newAgentFromPool(final Population population) {
-        Agent ret = null;
-
         try {
-            ret = (Agent) objectPool.borrowObject(population);
+            return Agent.class.cast(objectPool.borrowObject(population));
         } catch (Exception e) {
             LOGGER.error("Error getting Agent from objectPool for population {}", population.getName(), e);
+            throw new AssertionError(e);
         }
-        assert ret != null : "Agent is null for population " + population.getName();
-        return ret;
     }
 
     @Override

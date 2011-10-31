@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -15,7 +16,8 @@ public class RandomMovementAction extends AbstractGFAction {
 
     private MovementPattern pattern = MovementPatterns.noMovement();
 
-    private RandomMovementAction() {
+    @SimpleXMLConstructor
+    public RandomMovementAction() {
         this(new Builder());
     }
 
@@ -28,7 +30,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<Double>("", Double.class) {
+        e.add(new ValueAdaptor<Double>("Speed", Double.class) {
 
             @Override
             protected void set(Double arg0) {
@@ -63,7 +65,8 @@ public class RandomMovementAction extends AbstractGFAction {
         this.speed = builder.speed;
     }
 
-    public static Builder with() { return new Builder(); }
+    public static Builder builder() { return new Builder(); }
+
     public static final class Builder extends AbstractBuilder<RandomMovementAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }

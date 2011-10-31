@@ -4,6 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.individual.MutableComponentList;
+import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +24,10 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
 
     public MutableGenome(Iterable<? extends Gene<?>> genome) {
         Iterables.addAll(genes, genome);
+    }
+
+    protected MutableGenome(MutableGenome<E> es, DeepCloner cloner) {
+        super(es, cloner);
     }
 
     @Override
@@ -73,5 +79,10 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
         int result = super.hashCode();
         result = 31 * result + genes.hashCode();
         return result;
+    }
+
+    @Override
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new MutableGenome<E>(this, cloner);
     }
 }
