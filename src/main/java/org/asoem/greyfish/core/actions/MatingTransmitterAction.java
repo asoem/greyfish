@@ -56,7 +56,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<String>("Message Type", String.class) {
+        e.add("Message Type", new ValueAdaptor<String>(String.class) {
 
             @Override
             protected void set(String arg0) {
@@ -68,7 +68,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
                 return ontology;
             }
         });
-        e.add(new ValueAdaptor<GreyfishExpression>("Sperm Fitness", GreyfishExpression.class) {
+        e.add("Sperm Fitness", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
 
             @Override
             protected void set(GreyfishExpression arg0) {

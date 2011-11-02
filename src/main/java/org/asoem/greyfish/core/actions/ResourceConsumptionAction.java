@@ -107,7 +107,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<String>("Ontology", String.class) {
+        e.add("Ontology", new ValueAdaptor<String>(String.class) {
             @Override
             protected void set(String arg0) {
                 parameterMessageType = checkNotNull(arg0);
@@ -118,7 +118,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return parameterMessageType;
             }
         });
-        e.add(new ValueAdaptor<Double>("Requested Amount", Double.class) {
+        e.add("Requested Amount", new ValueAdaptor<Double>(Double.class) {
             @Override
             protected void set(Double arg0) {
                 amountPerRequest = checkNotNull(arg0);
@@ -129,7 +129,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return amountPerRequest;
             }
         });
-        e.add(new SetAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
+        e.add("Resource Storage", new SetAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 consumerProperty = checkNotNull(arg0);
@@ -145,8 +145,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
-        e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
-        e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
+        e.add("Resource Transformation Function: f(#{1})", ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
+        e.add("Sensor Range", new ValueAdaptor<Double>(Double.class) {
             @Override
             protected void set(Double arg0) {
                 sensorRange = checkNotNull(arg0);

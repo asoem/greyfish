@@ -15,7 +15,7 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<Integer>("Value", Integer.class) {
+        e.add("Value", new ValueAdaptor<Integer>(Integer.class) {
 
             @Override
             protected void set(Integer arg0) {

@@ -30,7 +30,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<Double>("Speed", Double.class) {
+        e.add("Speed", new ValueAdaptor<Double>(Double.class) {
 
             @Override
             protected void set(Double arg0) {

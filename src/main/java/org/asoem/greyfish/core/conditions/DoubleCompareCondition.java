@@ -13,7 +13,7 @@ public abstract class DoubleCompareCondition extends CompareCondition<Double> {
     @Override
 	public void configure(ConfigurationHandler e) {
 		super.configure(e);
-		e.add(new ValueAdaptor<Double>("", Double.class) {
+		e.add("", new ValueAdaptor<Double>(Double.class) {
             @Override
             protected void set(Double arg0) {
                 value = arg0;

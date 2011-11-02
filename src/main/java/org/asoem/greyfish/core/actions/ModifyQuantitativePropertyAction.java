@@ -60,7 +60,7 @@ public class ModifyQuantitativePropertyAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new SetAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
+        e.add("Property", new SetAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 parameterQuantitativeProperty = checkNotNull(arg0);
@@ -76,7 +76,7 @@ public class ModifyQuantitativePropertyAction extends AbstractGFAction {
                 return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
-        e.add(new ValueAdaptor<String>("Formula", String.class) {
+        e.add("Formula", new ValueAdaptor<String>(String.class) {
             @Override
             protected void set(String arg0) {
                 energyCostsFormula = checkNotNull(arg0);

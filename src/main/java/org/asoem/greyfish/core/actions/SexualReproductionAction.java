@@ -52,7 +52,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<Integer>("Number of offspring", Integer.class) {
+        e.add("Number of offspring", new ValueAdaptor<Integer>(Integer.class) {
             @Override
             protected void set(Integer arg0) {
                 nOffspring = checkNotNull(arg0);
@@ -64,7 +64,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.add(new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome storage", EvaluatedGenomeStorage.class) {
+        e.add("", new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermStorage = checkNotNull(arg0);

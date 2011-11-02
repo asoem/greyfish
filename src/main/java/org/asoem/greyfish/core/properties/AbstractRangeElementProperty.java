@@ -67,15 +67,15 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     public void configure(ConfigurationHandler e, Class<E> clazz) {
         super.configure(e);
 
-        e.add(new ValueAdaptor<E>("lowerBound", clazz) {
+        e.add("lowerBound", new ValueAdaptor<E>(clazz) {
             @Override protected void set(E arg0) { lowerBound = checkNotNull(arg0); }
             @Override public E get() { return lowerBound; }
         });
-        e.add(new ValueAdaptor<E>("upperBound", clazz) {
+        e.add("upperBound", new ValueAdaptor<E>(clazz) {
             @Override protected void set(E arg0) { upperBound = arg0; }
             @Override public E get() { return upperBound; }
         });
-        e.add(new ValueAdaptor<E>("Initial", clazz) {
+        e.add("Initial", new ValueAdaptor<E>(clazz) {
 
             @Override protected void set(E arg0) { initialValue = arg0; }
             @Override public E get() { return initialValue; }
@@ -84,10 +84,10 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
                 ValidationResult validationResult = new ValidationResult();
 
                 if (get() == null)
-                    validationResult.addError(getName() + " must not be null");
+                    validationResult.addError("Initial must not be null");
 
                 if (!Ordering.natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)))
-                    validationResult.addError("Value of `"+getName()+"' must not be smaller than `Min' and greater than `Max'");
+                    validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
 
                 return validationResult;
             }

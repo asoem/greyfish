@@ -43,7 +43,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	public void configure(ConfigurationHandler e) {
 		super.configure(e);
 		
-		e.add(new ValueAdaptor<Integer>("Steps", Integer.class) {
+		e.add("Steps", new ValueAdaptor<Integer>(Integer.class) {
 
             @Override
             protected void set(Integer arg0) {
@@ -56,7 +56,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
             }
         });
 		
-		e.add(new SetAdaptor<GFAction>("Action", GFAction.class) {
+		e.add("Action", new SetAdaptor<GFAction>("Action", GFAction.class) {
 
             @Override
             protected void set(GFAction arg0) {

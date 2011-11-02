@@ -133,7 +133,7 @@ public class Body extends AbstractAgentComponent implements Movable {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(ValueAdaptor.forField("Radius of the Circle", Double.class, this, "radius"));
+        e.add("Radius of the Circle", ValueAdaptor.forField("Radius of the Circle", Double.class, this, "radius"));
         SetAdaptor<Object> b = new SetAdaptor<Object>("StateProperty", Object.class) {
             @Override protected void set(Object arg0) {
                 state = checkNotNull(arg0);
@@ -156,7 +156,7 @@ public class Body extends AbstractAgentComponent implements Movable {
                 return concat(ImmutableList.of("Default"), filter(agent().getProperties(), FiniteStateProperty.class));
             }
         };
-        e.add(b);
+        e.add("StateProperty", b);
 
         MapValuesAdaptor<Color> colorMultiValueAdaptor = new MapValuesAdaptor<Color>("State Colors", Color.class) {
             @Override public Object[] keys() { return toArray(stateColorMap.keySet(), Object.class); }
@@ -171,7 +171,7 @@ public class Body extends AbstractAgentComponent implements Movable {
         b.addValueChangeListener(colorMultiValueAdaptor);
 //        e.sum(ValueAdaptor.forField("The color of the Body", Color.class, this, "color"));
 
-        e.add(new SetAdaptor<RangeElement>("Outline", RangeElement.class) {
+        e.add("Outline", new SetAdaptor<RangeElement>("Outline", RangeElement.class) {
             @Override
             public Iterable<RangeElement> values() {
                 return Iterables.filter(agent().getProperties(), RangeElement.class);

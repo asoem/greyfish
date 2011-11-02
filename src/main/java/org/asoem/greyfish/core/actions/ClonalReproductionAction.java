@@ -47,7 +47,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<Integer>("#clones", Integer.class) {
+        e.add("#clones", new ValueAdaptor<Integer>(Integer.class) {
             @Override
             protected void set(Integer arg0) {
                 parameterClones = arg0;

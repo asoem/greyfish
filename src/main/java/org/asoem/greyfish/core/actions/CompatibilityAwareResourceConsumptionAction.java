@@ -36,7 +36,7 @@ public class CompatibilityAwareResourceConsumptionAction extends ResourceConsump
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        e.add(new SetAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
+        e.add("Similarity Trait", new SetAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
             @Override
             protected void set(GFProperty arg0) {
                 similarityTrait = checkNotNull(arg0);

@@ -52,7 +52,7 @@ public class StatePropertyCondition extends LeafCondition {
                 return Iterables.filter(agent().getProperties(), FiniteStateProperty.class);
             }
         };
-        e.add(statesAdaptor);
+        e.add("Property", statesAdaptor);
 
         final SetAdaptor<?> stateAdaptor = new SetAdaptor<Object>( "has state", Object.class) {
             @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
@@ -64,7 +64,7 @@ public class StatePropertyCondition extends LeafCondition {
             }
         };
         statesAdaptor.addValueChangeListener(stateAdaptor);
-        e.add(stateAdaptor);
+        e.add("has state", stateAdaptor);
     }
 
     private StatePropertyCondition() {

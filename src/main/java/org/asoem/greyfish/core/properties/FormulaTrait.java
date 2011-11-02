@@ -41,7 +41,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add(ValueAdaptor.forField("expression", GreyfishExpression.class, this, "Formula"));
+        e.add("expression", ValueAdaptor.forField("expression", GreyfishExpression.class, this, "Formula"));
     }
 
     @Override

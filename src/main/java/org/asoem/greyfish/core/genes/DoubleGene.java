@@ -119,7 +119,7 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<GreyfishExpression>("Initial Value", GreyfishExpression.class) {
+        e.add("Initial Value", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
             @Override
             @SuppressWarnings("unchecked") // save because of contextClass verification
             protected void set(GreyfishExpression arg0) {
@@ -133,7 +133,7 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
             }
         });
 
-        e.add(new ValueAdaptor<GreyfishExpression>("Mutation", GreyfishExpression.class) {
+        e.add("Mutation", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
             @Override
             @SuppressWarnings("unchecked") // save because of contextClass verification
             protected void set(GreyfishExpression arg0) {

@@ -83,8 +83,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<String>(
-                "Ontology",
+        e.add("Ontology", new ValueAdaptor<String>(
                 String.class
         ) {
             @Override
@@ -97,7 +96,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
                 return parameterMessageType;
             }
         });
-        e.add(new SetAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
+        e.add("ResourceProperty", new SetAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
             @Override
             protected void set(ResourceProperty arg0) {
                 resourceProperty = checkNotNull(arg0);

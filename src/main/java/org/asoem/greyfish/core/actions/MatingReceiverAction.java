@@ -54,7 +54,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome Storage", EvaluatedGenomeStorage.class) {
+        e.add("ImmutableGenome Storage", new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome Storage", EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermBuffer = checkNotNull(arg0);
@@ -70,7 +70,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 return filter(agent().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
-        e.add(new ValueAdaptor<String>("Message Type", String.class) {
+        e.add("Message Type", new ValueAdaptor<String>(String.class) {
             @Override
             protected void set(String arg0) {
                 ontology = checkNotNull(arg0);
@@ -81,7 +81,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 return ontology;
             }
         });
-        e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
+        e.add("Sensor Range", new ValueAdaptor<Double>(Double.class) {
             @Override
             protected void set(Double arg0) {
                 sensorRange = checkNotNull(arg0);

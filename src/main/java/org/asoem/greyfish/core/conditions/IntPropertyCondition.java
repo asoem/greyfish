@@ -23,7 +23,7 @@ public final class IntPropertyCondition extends IntCompareCondition {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new SetAdaptor<IntProperty>("", IntProperty.class
+        e.add("", new SetAdaptor<IntProperty>("", IntProperty.class
         ) {
 
             @Override

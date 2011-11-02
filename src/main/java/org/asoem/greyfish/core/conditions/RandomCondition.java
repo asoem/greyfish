@@ -30,7 +30,7 @@ public class RandomCondition extends LeafCondition {
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add(new ValueAdaptor<Double>("", Double.class) {
+        e.add("", new ValueAdaptor<Double>(Double.class) {
             @Override
             protected void set(Double arg0) {
                 probability = arg0;

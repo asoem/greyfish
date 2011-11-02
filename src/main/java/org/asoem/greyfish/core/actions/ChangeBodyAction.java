@@ -41,7 +41,7 @@ public class ChangeBodyAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add(new ValueAdaptor<Color>("Color", Color.class) {
+        e.add("Color", new ValueAdaptor<Color>(Color.class) {
             @Override
             public Color get() {
                 return color;

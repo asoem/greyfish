@@ -169,7 +169,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        e.add(new ValueAdaptor<GreyfishExpression>("Energy Costs", GreyfishExpression.class) {
+        e.add("Energy Costs", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
             @Override
             public GreyfishExpression get() {
                 return energyCosts;
@@ -181,7 +181,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
             }
         });
 
-        e.add(new SetAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
+        e.add("Energy Source", new SetAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
         ) {
             @Override
             protected void set(DoubleProperty arg0) {
