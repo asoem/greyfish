@@ -19,8 +19,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class MvelEvaluator implements Evaluator {
 
     private String expression;
-    private Serializable compiledExpression;
     private @Nullable VariableResolverFactory factory;
+
+    private Serializable compiledExpression;
+
     private static final ParserContext PARSER_CONTEXT = new ParserContext();
     static {
         PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
@@ -196,5 +198,43 @@ public class MvelEvaluator implements Evaluator {
         public boolean isIndexedFactory() {
             return false;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            GreyfishMvelVariableResolverFactory that = (GreyfishMvelVariableResolverFactory) o;
+
+            return !(nextFactory != null ? !nextFactory.equals(that.nextFactory) : that.nextFactory != null)
+                    && variableResolver.equals(that.variableResolver);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = nextFactory != null ? nextFactory.hashCode() : 0;
+            result = 31 * result + variableResolver.hashCode();
+            return result;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MvelEvaluator that = (MvelEvaluator) o;
+
+        return expression.equals(that.expression)
+                && !(factory != null ? !factory.equals(that.factory) : that.factory != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = expression.hashCode();
+        result = 31 * result + (factory != null ? factory.hashCode() : 0);
+        return result;
     }
 }

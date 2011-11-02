@@ -44,13 +44,30 @@ public class GreyfishExpression<T extends AgentComponent> {
         return evaluator.getExpression();
     }
 
-    @SuppressWarnings("unchecked")
     public Class<T> getContextClass() {
-        return (Class<T>) variableResolver.getContext().getClass();
+        return variableResolver.getContextClass();
     }
 
     @Override
     public String toString() {
         return getExpression();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GreyfishExpression that = (GreyfishExpression) o;
+
+        return evaluator.equals(that.evaluator) && variableResolver.equals(that.variableResolver);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = evaluator.hashCode();
+        result = 31 * result + variableResolver.hashCode();
+        return result;
     }
 }

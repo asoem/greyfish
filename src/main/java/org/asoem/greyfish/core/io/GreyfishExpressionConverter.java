@@ -12,13 +12,13 @@ import org.simpleframework.xml.stream.OutputNode;
  * Date: 14.09.11
  * Time: 18:37
  */
-@SuppressWarnings("unchecked")
 class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
 
+    @SuppressWarnings({"unchecked"}) // It is not save to cast here, but we don't have other options
     public GreyfishExpression read(InputNode node) throws Exception {
         String expression = node.getAttribute("expression").getValue();
         String contextClassStr = node.getAttribute("context").getValue();
-        Class<? extends AgentComponent> contextClass = (Class<? extends AgentComponent>) Class.forName(contextClassStr);
+        Class<AgentComponent> contextClass = (Class<AgentComponent>) Class.forName(contextClassStr);
 
         return GreyfishExpressionFactory.compileExpression(expression).forContext(contextClass);
     }

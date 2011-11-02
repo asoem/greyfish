@@ -8,6 +8,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
@@ -71,5 +72,18 @@ public class GreyfishExpressionTest {
 
         // then
         assert(ret);
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        // given
+        String expression = "1+2";
+
+        // when
+        GreyfishExpression<AgentComponent> expression1 = GreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
+        GreyfishExpression<AgentComponent> expression2 = GreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
+
+        // than
+        assertThat(expression1).isEqualTo(expression2);
     }
 }

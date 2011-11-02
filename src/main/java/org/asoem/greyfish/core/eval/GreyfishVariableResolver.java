@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.eval;
 
 import org.asoem.greyfish.core.individual.AgentComponent;
 
+import javax.annotation.Nullable;
+
 /**
  * User: christoph
  * Date: 18.05.11
@@ -13,6 +15,7 @@ public interface GreyfishVariableResolver<T extends AgentComponent> extends Vari
      * @return the {@code AgentComponent} which serves as the context for this {@code GreyfishVariableResolver}.
      * The context will be used to resolve variable references made in an {@link GreyfishExpression} which are contextual (Commonly prefixed with 'this.')
      */
+    @Nullable
     T getContext();
 
     /**
@@ -20,5 +23,10 @@ public interface GreyfishVariableResolver<T extends AgentComponent> extends Vari
      * The context will be used to resolve variable references made in an {@link GreyfishExpression} which are contextual (Commonly prefixed with 'this.')
      * @param context the context object for this {@code GreyfishVariableResolver}.
      */
-    void setContext(T context);
+    void setContext(@Nullable T context);
+
+    /**
+     * @return The {@code Class} of the context for this {@code GreyfishVariableResolver}
+     */
+    Class<T> getContextClass();
 }
