@@ -1,15 +1,16 @@
 package org.asoem.greyfish.utils.base;
 
 import com.google.common.collect.Sets;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ListenerSupport<T> {
 
-	private Set<T> listeners = null;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListenerSupport.class);
+    private Set<T> listeners = null;
 
 	public ListenerSupport() {
 	}
@@ -35,7 +36,7 @@ public class ListenerSupport<T> {
 				command.apply(l);
 			}
 			catch (RuntimeException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Unexpected exception in listener", e);
+                LOGGER.error("Unexpected exception in listener", e);
 				i.remove();
 			}
 		}
