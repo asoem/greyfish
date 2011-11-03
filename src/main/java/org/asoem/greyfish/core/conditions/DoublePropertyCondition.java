@@ -21,7 +21,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
     @Override
 	public void configure(ConfigurationHandler e) {
 		super.configure(e);
-		e.add("", new SetAdaptor<DoubleProperty>("", DoubleProperty.class
+		e.add("", new SetAdaptor<DoubleProperty>(DoubleProperty.class
         ) {
 
             @Override

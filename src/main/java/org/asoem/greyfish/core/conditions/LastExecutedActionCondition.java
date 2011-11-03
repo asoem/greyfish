@@ -33,7 +33,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add("Action", new SetAdaptor<GFAction>("Action", GFAction.class) {
+        e.add("Action", new SetAdaptor<GFAction>(GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
                 action = checkNotNull(arg0);

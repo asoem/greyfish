@@ -129,7 +129,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return amountPerRequest;
             }
         });
-        e.add("Resource Storage", new SetAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
+        e.add("Resource Storage", new SetAdaptor<DoubleProperty>(DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 consumerProperty = checkNotNull(arg0);

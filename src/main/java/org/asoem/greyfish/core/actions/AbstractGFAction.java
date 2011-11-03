@@ -181,7 +181,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
             }
         });
 
-        e.add("Energy Source", new SetAdaptor<DoubleProperty>("Energy Source", DoubleProperty.class
+        e.add("Energy Source", new SetAdaptor<DoubleProperty>(DoubleProperty.class
         ) {
             @Override
             protected void set(DoubleProperty arg0) {

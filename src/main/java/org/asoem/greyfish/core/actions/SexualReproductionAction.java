@@ -64,7 +64,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.add("", new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome storage", EvaluatedGenomeStorage.class) {
+        e.add("", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermStorage = checkNotNull(arg0);

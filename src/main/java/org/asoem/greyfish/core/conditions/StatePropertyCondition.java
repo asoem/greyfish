@@ -43,7 +43,7 @@ public class StatePropertyCondition extends LeafCondition {
     @Override
     public void configure(ConfigurationHandler e) {
         final SetAdaptor<FiniteStateProperty> statesAdaptor = new SetAdaptor<FiniteStateProperty>(
-                "Property", FiniteStateProperty.class) {
+                FiniteStateProperty.class) {
             @Override protected void set(FiniteStateProperty arg0) { stateProperty = checkNotNull(arg0); }
             @Override public FiniteStateProperty get() { return stateProperty; }
 
@@ -54,7 +54,7 @@ public class StatePropertyCondition extends LeafCondition {
         };
         e.add("Property", statesAdaptor);
 
-        final SetAdaptor<?> stateAdaptor = new SetAdaptor<Object>( "has state", Object.class) {
+        final SetAdaptor<?> stateAdaptor = new SetAdaptor<Object>(Object.class) {
             @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
             @Override public Object get() { return state; }
             @Override public Iterable<Object> values() {

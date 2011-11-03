@@ -1,14 +1,12 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import org.asoem.greyfish.utils.base.HasName;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
 import java.awt.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -29,7 +27,7 @@ public class Population implements HasName, Comparable<Population> {
     public Population(
             @Attribute(name="name") String name,
             @Element(name="color") Color color) {
-        checkArgument(!Strings.isNullOrEmpty(name));
+        checkNotNull(name);
         this.name = name;
         this.color = checkNotNull(color);
     }

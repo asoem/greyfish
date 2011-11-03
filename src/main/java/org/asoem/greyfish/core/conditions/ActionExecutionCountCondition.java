@@ -29,7 +29,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 	public void configure(ConfigurationHandler e) {
 		super.configure(e);
 
-		e.add("", new SetAdaptor<GFAction>("", GFAction.class) {
+		e.add("", new SetAdaptor<GFAction>(GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
                 action = checkNotNull(arg0);

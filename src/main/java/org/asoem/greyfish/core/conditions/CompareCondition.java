@@ -35,7 +35,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add("", new SetAdaptor<Comparator>("", Comparator.class) {
+        e.add("", new SetAdaptor<Comparator>(Comparator.class) {
             @Override
             protected void set(Comparator arg0) {
                 comparator = checkNotNull(arg0);

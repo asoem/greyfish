@@ -96,7 +96,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
                 return parameterMessageType;
             }
         });
-        e.add("ResourceProperty", new SetAdaptor<ResourceProperty>("ResourceProperty", ResourceProperty.class) {
+        e.add("ResourceProperty", new SetAdaptor<ResourceProperty>(ResourceProperty.class) {
             @Override
             protected void set(ResourceProperty arg0) {
                 resourceProperty = checkNotNull(arg0);

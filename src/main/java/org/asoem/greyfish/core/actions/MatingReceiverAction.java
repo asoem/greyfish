@@ -54,7 +54,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("ImmutableGenome Storage", new SetAdaptor<EvaluatedGenomeStorage>("ImmutableGenome Storage", EvaluatedGenomeStorage.class) {
+        e.add("ImmutableGenome Storage", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermBuffer = checkNotNull(arg0);

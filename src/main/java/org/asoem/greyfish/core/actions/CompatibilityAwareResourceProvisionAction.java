@@ -84,7 +84,7 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        e.add("Similarity Trait", new SetAdaptor<GFProperty>("Similarity Trait", GFProperty.class) {
+        e.add("Similarity Trait", new SetAdaptor<GFProperty>(GFProperty.class) {
             @Override
             protected void set(GFProperty arg0) {
                 similarityTrait = checkNotNull(arg0);

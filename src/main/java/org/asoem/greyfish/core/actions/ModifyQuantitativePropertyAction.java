@@ -60,7 +60,7 @@ public class ModifyQuantitativePropertyAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Property", new SetAdaptor<DoubleProperty>("Property", DoubleProperty.class) {
+        e.add("Property", new SetAdaptor<DoubleProperty>(DoubleProperty.class) {
             @Override
             protected void set(DoubleProperty arg0) {
                 parameterQuantitativeProperty = checkNotNull(arg0);

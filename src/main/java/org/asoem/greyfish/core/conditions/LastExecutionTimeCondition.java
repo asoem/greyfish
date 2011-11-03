@@ -56,7 +56,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
             }
         });
 		
-		e.add("Action", new SetAdaptor<GFAction>("Action", GFAction.class) {
+		e.add("Action", new SetAdaptor<GFAction>(GFAction.class) {
 
             @Override
             protected void set(GFAction arg0) {
