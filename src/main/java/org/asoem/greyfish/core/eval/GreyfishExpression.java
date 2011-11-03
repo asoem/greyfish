@@ -15,25 +15,37 @@ public class GreyfishExpression<T extends AgentComponent> {
     private final Evaluator evaluator;
     private final GreyfishVariableResolver<T> variableResolver;
 
-    public GreyfishExpression(String expression, EvaluatorFactory evaluatorFactory, GreyfishVariableResolver<T> resolver) {
+    public GreyfishExpression(String expression, Evaluator evaluator, GreyfishVariableResolver<T> resolver) {
         this.variableResolver = checkNotNull(resolver);
-        this.evaluator = checkNotNull(evaluatorFactory).createEvaluator(expression, this.variableResolver);
+        this.evaluator = checkNotNull(evaluator);
+        setExpression(expression);
     }
 
     public double evaluateAsDouble(T context) throws EvaluationException {
         variableResolver.setContext(context);
-        return evaluator.evaluateAsDouble();
+        return evaluateAsDouble(variableResolver);
     }
 
     public double evaluateAsDouble(T context, String n1, Object v1) throws EvaluationException {
         variableResolver.setContext(context);
-        variableResolver.setNext(VariableResolvers.forMap(ImmutableMap.of(n1, v1)));
-        return evaluator.evaluateAsDouble();
+        VariableResolver resolver = VariableResolvers.forMap(ImmutableMap.of(n1, v1));
+        resolver.setNext(variableResolver);
+        return evaluateAsDouble(resolver);
     }
 
     public boolean evaluateAsBoolean(T context) throws EvaluationException {
         variableResolver.setContext(context);
+        return evaluateAsBoolean(variableResolver);
+    }
+
+    private boolean evaluateAsBoolean(VariableResolver resolver) {
+        evaluator.setResolver(resolver);
         return evaluator.evaluateAsBoolean();
+    }
+
+    private double evaluateAsDouble(VariableResolver resolver) {
+        evaluator.setResolver(resolver);
+        return evaluator.evaluateAsDouble();
     }
 
     public void setExpression(String expression) {

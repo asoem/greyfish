@@ -10,7 +10,7 @@ import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
-import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
+import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 /**
  * User: christoph

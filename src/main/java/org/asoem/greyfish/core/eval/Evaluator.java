@@ -15,4 +15,5 @@ public interface Evaluator {
     String getExpression();
 
     void setResolver(VariableResolver resolver);
+    VariableResolver getResolver();
 }

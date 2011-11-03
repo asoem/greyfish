@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class MvelEvaluator implements Evaluator {
 
     private String expression;
-    private @Nullable VariableResolverFactory factory;
+    private @Nullable GreyfishMvelVariableResolverFactory factory;
 
     private Serializable compiledExpression;
 
@@ -66,6 +66,11 @@ public class MvelEvaluator implements Evaluator {
     @Override
     public void setResolver(@Nullable VariableResolver resolver) {
         this.factory = new GreyfishMvelVariableResolverFactory(checkNotNull(resolver));
+    }
+
+    @Override
+    public VariableResolver getResolver() {
+        return factory == null ? null : factory.getVariableResolver();
     }
 
     private static class MvelVariableResolverAdaptor extends ForwardingVariableResolver implements org.mvel2.integration.VariableResolver {
@@ -158,6 +163,10 @@ public class MvelEvaluator implements Evaluator {
             return this.nextFactory = variableResolverFactory;
         }
 
+        public VariableResolver getVariableResolver() {
+            return variableResolver;
+        }
+
         @Override
         public org.mvel2.integration.VariableResolver getVariableResolver(String s) {
             return new MvelVariableResolverAdaptor(s, variableResolver);
@@ -181,7 +190,6 @@ public class MvelEvaluator implements Evaluator {
             } catch (VariableResolutionException e) {
                 return false;
             }
-
         }
 
         @Override

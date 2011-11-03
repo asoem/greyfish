@@ -24,17 +24,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 15:56
  */
-public enum DefaultGreyfishResolverConverter implements ResolverConverter {
+public enum SingletonGreyfishResolverConverter implements ResolverConverter {
     INSTANCE;
 
-    private static final Splitter GOM_SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
+    private static final Splitter SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
 
     @Override
     public <T extends AgentComponent> Function<T, ?> get(String varName, final Class<T> context) {
         checkNotNull(varName);
         checkNotNull(context);
 
-        Iterator<String> gomParts = GOM_SPLITTER.split(varName).iterator();
+        Iterator<String> gomParts = SPLITTER.split(varName).iterator();
 
         if (gomParts.hasNext()) {
 

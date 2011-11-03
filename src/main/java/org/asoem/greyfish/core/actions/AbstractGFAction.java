@@ -24,7 +24,7 @@ import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.actions.ExecutionResult.*;
-import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
+import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 @Root
 public abstract class AbstractGFAction extends AbstractAgentComponent implements GFAction {

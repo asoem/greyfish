@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.junit.Test;
 import org.simpleframework.xml.Serializer;
@@ -21,7 +21,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class GreyfishExpressionConverterTest {
 
     private static final String SERIALIZED_XML_STRING = "<greyfishExpression expression=\"sin(4.6)\" context=\"" + AgentComponent.class.getCanonicalName() + "\"/>";
-    private static final GreyfishExpression<AgentComponent> GREYFISH_EXPRESSION = GreyfishExpressionFactory.compileExpression("sin(4.6)").forContext(AgentComponent.class);
+    private static final GreyfishExpression<AgentComponent> GREYFISH_EXPRESSION = SingletonGreyfishExpressionFactory.compileExpression("sin(4.6)").forContext(AgentComponent.class);
 
     @Test
     public void testRead() throws Exception {

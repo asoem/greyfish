@@ -39,6 +39,11 @@ public class SeeEvaluator implements Evaluator {
     }
 
     @Override
+    public VariableResolver getResolver() {
+        return (VariableResolver) see.getParent();
+    }
+
+    @Override
     public double evaluateAsDouble() throws EvaluationException {
         synchronized(see) {
             try {

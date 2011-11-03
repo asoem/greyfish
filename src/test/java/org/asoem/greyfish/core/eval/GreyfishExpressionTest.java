@@ -23,8 +23,7 @@ public class GreyfishExpressionTest {
     @Mock EvaluatorFactory evaluatorFactory;
     @Mock GreyfishVariableResolver<AgentComponent> greyfishVariableResolver;
     @Mock Evaluator evaluator;
-    @Mock
-    AgentComponent context;
+    @Mock AgentComponent context;
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullEvaluatorFactory() {
@@ -33,7 +32,7 @@ public class GreyfishExpressionTest {
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullGreyfishVariableResolver() {
-        new GreyfishExpression<AgentComponent>("", evaluatorFactory, null);
+        new GreyfishExpression<AgentComponent>("", evaluator, null);
     }
 
     @Test
@@ -48,7 +47,7 @@ public class GreyfishExpressionTest {
         });
 
         // when
-        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluatorFactory, greyfishVariableResolver);
+        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluator, greyfishVariableResolver);
         double ret = expression.evaluateAsDouble(context);
 
         // then
@@ -67,7 +66,7 @@ public class GreyfishExpressionTest {
         });
 
         // when
-        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluatorFactory, greyfishVariableResolver);
+        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluator, greyfishVariableResolver);
         boolean ret = expression.evaluateAsBoolean(context);
 
         // then
@@ -80,8 +79,8 @@ public class GreyfishExpressionTest {
         String expression = "1+2";
 
         // when
-        GreyfishExpression<AgentComponent> expression1 = GreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
-        GreyfishExpression<AgentComponent> expression2 = GreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
+        GreyfishExpression<AgentComponent> expression1 = SingletonGreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
+        GreyfishExpression<AgentComponent> expression2 = SingletonGreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
 
         // than
         assertThat(expression1).isEqualTo(expression2);

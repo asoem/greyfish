@@ -2,8 +2,6 @@ package org.asoem.greyfish.core.eval;
 
 import net.sourceforge.jeval.function.FunctionException;
 
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -58,6 +56,11 @@ public class JEvalEvaluator implements Evaluator {
     @Override
     public void setResolver(VariableResolver resolver) {
         evaluator.setVariableResolver(new JEvalVariableResolverAdaptor(resolver));
+    }
+
+    @Override
+    public VariableResolver getResolver() {
+        return (VariableResolver) evaluator.getVariableResolver();
     }
 
     private static class JEvalVariableResolverAdaptor extends ForwardingVariableResolver implements net.sourceforge.jeval.VariableResolver {

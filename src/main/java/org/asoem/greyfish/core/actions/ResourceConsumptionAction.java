@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
-import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
+import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
@@ -179,8 +179,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.parameterMessageType = builder.parameterMessageType;
         this.amountPerRequest = builder.amountPerRequest;
         this.sensorRange = builder.sensorRange;
-        this.transformationExpression = GreyfishExpressionFactory
-                .compileExpression( Optional.fromNullable(builder.transformationFunction).or("offer") )
+        this.transformationExpression = SingletonGreyfishExpressionFactory
+                .compileExpression(Optional.fromNullable(builder.transformationFunction).or("offer"))
                 .forContext(ResourceConsumptionAction.class);
     }
 

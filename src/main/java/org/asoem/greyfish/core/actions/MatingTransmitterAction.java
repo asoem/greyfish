@@ -21,7 +21,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.eval.GreyfishExpressionFactory.compileExpression;
+import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags="actions")
 public class MatingTransmitterAction extends ContractNetParticipantAction {

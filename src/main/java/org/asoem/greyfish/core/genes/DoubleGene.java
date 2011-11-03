@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
@@ -27,9 +27,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ClassGroup(tags = "genes")
 public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
 
-    private GreyfishExpression<DoubleGene> initialValueGenerator = GreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
+    private GreyfishExpression<DoubleGene> initialValueGenerator = SingletonGreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
 
-    private GreyfishExpression<DoubleGene> mutationDistributionFunction = GreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
+    private GreyfishExpression<DoubleGene> mutationDistributionFunction = SingletonGreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
 
     private final GeneController<Double> geneController = new GeneController<Double>() {
 

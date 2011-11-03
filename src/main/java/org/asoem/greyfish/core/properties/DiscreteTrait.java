@@ -6,7 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -84,7 +84,7 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProp
     protected static abstract class AbstractBuilder<E extends DiscreteTrait,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         private final Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = Maps.newHashMap();
 
-        public T addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactory.compileExpression(when).forContext(DiscreteTrait.class)); return self();}
+        public T addState(String state, String when) { phenotypeConditionMap.put(state, SingletonGreyfishExpressionFactory.compileExpression(when).forContext(DiscreteTrait.class)); return self();}
     }
 
 }
