@@ -56,16 +56,6 @@ public abstract class SimulationAdaptor implements Simulation {
     }
 
     @Override
-    public void addSimulationListener(SimulationListener listener) {
-        delegate().addSimulationListener(listener);
-    }
-
-    @Override
-    public void removeSimulationListener(SimulationListener listener) {
-        delegate().removeSimulationListener(listener);
-    }
-
-    @Override
     public int generateAgentID() {
         return delegate().generateAgentID();
     }

@@ -7,6 +7,8 @@ import org.simpleframework.xml.convert.Converter;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * User: christoph
  * Date: 14.09.11
@@ -16,6 +18,7 @@ class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
 
     @SuppressWarnings({"unchecked"}) // It is not save to cast here, but we don't have other options
     public GreyfishExpression read(InputNode node) throws Exception {
+        checkNotNull(node);
         String expression = node.getAttribute("expression").getValue();
         String contextClassStr = node.getAttribute("context").getValue();
         Class<AgentComponent> contextClass = (Class<AgentComponent>) Class.forName(contextClassStr);
@@ -24,8 +27,8 @@ class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
     }
 
     public void write(OutputNode node, GreyfishExpression external) {
-        String expression = external.getExpression();
-        Class<?> context = external.getContextClass();
+        String expression = checkNotNull(external).getExpression();
+        Class<?> context = checkNotNull(external).getContextClass();
 
         node.setAttribute("expression", expression);
         node.setAttribute("context", context.getCanonicalName());

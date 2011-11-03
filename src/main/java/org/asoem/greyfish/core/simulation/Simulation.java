@@ -39,10 +39,6 @@ public interface Simulation extends HasName {
 
     int countAgents(Population population);
 
-    void addSimulationListener(SimulationListener listener);
-
-    void removeSimulationListener(SimulationListener listener);
-
     int generateAgentID();
 
     /**

@@ -16,7 +16,6 @@ import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.Counter;
-import org.asoem.greyfish.utils.base.ListenerSupport;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
@@ -56,8 +55,6 @@ public class ParallelizedSimulation implements Simulation {
     private final Map<Population, Counter> populationCounterMap;
 
     private final FastList<Agent> agents = FastList.newInstance();
-
-    private final ListenerSupport<SimulationListener> listenerSupport = ListenerSupport.newInstance();
 
     private final KeyedObjectPool objectPool = new StackKeyedObjectPool(
             new BaseKeyedPoolableObjectFactory() {
@@ -114,14 +111,6 @@ public class ParallelizedSimulation implements Simulation {
         this.space = new TiledSpace(scenario.getSpace());
 
         initialize();
-
-        if (LOGGER.isTraceEnabled())
-            listenerSupport.addListener(new SimulationListener() {
-                @Override
-                public void eventFired(SimulationEvent event) {
-                    LOGGER.trace("End of simulation step " + event.getSource().getSteps());
-                }
-            });
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -236,16 +225,6 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void addSimulationListener(SimulationListener listener) {
-        listenerSupport.addListener(listener);
-    }
-
-    @Override
-    public void removeSimulationListener(SimulationListener listener) {
-        listenerSupport.removeListener(listener);
-    }
-
-    @Override
     public int generateAgentID() {
         return maxId.incrementAndGet();
     }
@@ -303,8 +282,6 @@ public class ParallelizedSimulation implements Simulation {
         processRequestedAgentAdditions();
 
         ++steps;
-
-        fireStepEvent();
     }
 
     private void processAgentMessageDelivery() {
@@ -351,16 +328,6 @@ public class ParallelizedSimulation implements Simulation {
             }
         }));
         removeAgentMessages.clear();
-    }
-
-    private void fireStepEvent() {
-        listenerSupport.notifyListeners(new VoidFunction<SimulationListener>() {
-
-            @Override
-            public void apply(SimulationListener listener) {
-                listener.eventFired(new SimulationEvent(ParallelizedSimulation.this, SimulationEvent.Event.STEP));
-            }
-        });
     }
 
     @Override
