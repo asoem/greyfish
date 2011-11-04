@@ -10,6 +10,8 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -63,7 +65,12 @@ public class StatePropertyCondition extends LeafCondition {
                 return (stateProperty == null) ? ImmutableList.of() : (Set<Object>) stateProperty.getStates();
             }
         };
-        statesAdaptor.addValueChangeListener(stateAdaptor);
+        statesAdaptor.addValueChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                stateAdaptor.update();
+            }
+        });
         e.add("has state", stateAdaptor);
     }
 

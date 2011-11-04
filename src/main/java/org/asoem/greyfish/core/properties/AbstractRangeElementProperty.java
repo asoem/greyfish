@@ -79,7 +79,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
             @Override protected void set(E arg0) { initialValue = arg0; }
             @Override public E get() { return initialValue; }
-            @Override public ValidationResult validate() {
+            @Override public ValidationResult validateValue() {
 
                 ValidationResult validationResult = new ValidationResult();
 
