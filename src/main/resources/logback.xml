@@ -21,6 +21,9 @@
     <logger name="org.asoem.greyfish.core" additivity="true" level="DEBUG">
     </logger>
 
+    <logger name="org.asoem.greyfish.core.individual.SimulationContext" additivity="true" level="INFO">
+    </logger>
+
     <logger name="org.asoem.greyfish.core.simulation" additivity="true" level="DEBUG">
         <!--
         <appender name="FILE" class="ch.qos.logback.core.FileAppender">

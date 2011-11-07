@@ -68,8 +68,14 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
     Color getColor();
     void setColor(Color color);
     double getRadius();
+
     @Override
     MotionVector2D getMotionVector();
+
+    void changeMotion(double angle, double velocity);
+    void setMotion(double angle, double velocity);
+    void setOrientation(double alpha);
+    void setSpeed(double speed);
 
     Simulation getSimulation();
     public void setSimulation(Simulation simulation);
@@ -85,4 +91,5 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
 
     void execute();
     void shutDown();
+
 }

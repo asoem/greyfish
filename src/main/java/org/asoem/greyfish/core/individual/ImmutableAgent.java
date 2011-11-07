@@ -68,12 +68,6 @@ public class ImmutableAgent extends AbstractAgent {
     }
 
     @Override
-    public void prepare(Simulation context) {
-        super.prepare(context);
-        setSimulation(context);
-    }
-
-    @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new ImmutableAgent(this, cloner);
     }

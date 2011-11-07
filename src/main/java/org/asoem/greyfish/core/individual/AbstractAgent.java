@@ -349,7 +349,13 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
+    public void setSpeed(double speed) {
+        body.setSpeed(speed);
+    }
+
+    @Override
     public void prepare(Simulation context) {
+        setSimulation(context);
         for (AgentComponent component : getComponents()) {
             component.prepare(context);
         }

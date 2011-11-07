@@ -1,19 +1,27 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.ValueAdaptor;
-import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags = "actions")
 public class RandomMovementAction extends AbstractGFAction {
 
-    @Attribute(required=false)
-    private double speed;
+    @Nonnull
+    @Element(required=false)
+    private GreyfishExpression<RandomMovementAction> speedFunction;
 
+    @Nonnull
     private MovementPattern pattern = MovementPatterns.noMovement();
 
     @SimpleXMLConstructor
@@ -24,22 +32,24 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
         pattern.apply(agent(), simulation);
+        double speed = speedFunction.evaluateAsDouble(this);
+        agent().setSpeed(speed);
         return ActionState.END_SUCCESS;
     }
 
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Speed", new ValueAdaptor<Double>(Double.class) {
+        e.add("Speed", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
 
             @Override
-            protected void set(Double arg0) {
-                speed = arg0;
+            protected void set(GreyfishExpression arg0) {
+                speedFunction = compileExpression(arg0.getExpression()).forContext(RandomMovementAction.class);
             }
 
             @Override
-            public Double get() {
-                return speed;
+            public GreyfishExpression get() {
+                return speedFunction;
             }
         });
     }
@@ -47,7 +57,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        pattern = MovementPatterns.borderAvoidanceMovement(speed, 0.3);
+        pattern = MovementPatterns.borderAvoidanceMovement(speedFunction.evaluateAsDouble(this), 0.3);
     }
 
     @Override
@@ -57,12 +67,12 @@ public class RandomMovementAction extends AbstractGFAction {
 
     private RandomMovementAction(RandomMovementAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.speed = cloneable.speed;
+        this.speedFunction = cloneable.speedFunction;
     }
 
     protected RandomMovementAction(AbstractBuilder<?,?> builder) {
         super(builder);
-        this.speed = builder.speed;
+        this.speedFunction = builder.speedFunction;
     }
 
     public static Builder builder() { return new Builder(); }
@@ -73,9 +83,10 @@ public class RandomMovementAction extends AbstractGFAction {
         @Override public RandomMovementAction checkedBuild() { return new RandomMovementAction(this); }
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     protected static abstract class AbstractBuilder<E extends RandomMovementAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private double speed = 0.1;
+        private GreyfishExpression<RandomMovementAction> speedFunction = compileExpression("0").forContext(RandomMovementAction.class);
 
-        public T speed(double speed) { this.speed = speed; return self(); }
+        public T speed(GreyfishExpression<RandomMovementAction> speedFunction) { this.speedFunction = checkNotNull(speedFunction); return self(); }
     }
 }

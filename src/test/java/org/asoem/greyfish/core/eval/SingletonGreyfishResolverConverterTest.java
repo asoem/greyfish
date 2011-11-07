@@ -26,8 +26,7 @@ public class SingletonGreyfishResolverConverterTest {
     @Mock Agent agent;
     @Mock GFAction action;
     @Mock GFProperty property;
-    @Mock
-    ParallelizedSimulation simulation;
+    @Mock ParallelizedSimulation simulation;
 
     @Test
     public void shouldReturnTheContextItselfForAnAction() {

@@ -253,6 +253,11 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
+    public void setSpeed(double speed) {
+        delegate().setSpeed(speed);
+    }
+
+    @Override
     public Simulation getSimulation() {
         return delegate.getSimulation();
     }

@@ -40,8 +40,8 @@ public enum SingletonGreyfishResolverConverter implements ResolverConverter {
 
             String root = gomParts.next();
 
-            if ("this".equals(root)) {
-                if (GFAction.class.equals(context)) {
+            if ("this".equals(root) || "self".equals(root)) {
+                if (GFAction.class.isAssignableFrom(context)) {
                     return action(gomParts, new Function<T, GFAction>() {
                         @Override
                         public GFAction apply(@Nullable T gfComponent) {
@@ -49,7 +49,7 @@ public enum SingletonGreyfishResolverConverter implements ResolverConverter {
                         }
                     });
                 }
-                else if (GFProperty.class.equals(context)) {
+                else if (GFProperty.class.isAssignableFrom(context)) {
                     return property(gomParts, new Function<T, GFProperty>() {
                         @Override
                         public GFProperty apply(@Nullable T gfComponent) {
@@ -59,7 +59,7 @@ public enum SingletonGreyfishResolverConverter implements ResolverConverter {
                 }
             }
             else if ("sim".equals(root)) {
-                if (Simulation.class.equals(context)) {
+                if (Simulation.class.isAssignableFrom(context)) {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
                         public Simulation apply(@Nullable T gfComponent) {

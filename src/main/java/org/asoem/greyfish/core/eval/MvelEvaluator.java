@@ -26,6 +26,7 @@ public class MvelEvaluator implements Evaluator {
     private static final ParserContext PARSER_CONTEXT = new ParserContext();
     static {
         PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
+        PARSER_CONTEXT.addImport("log", MVEL.getStaticMethod(Math.class, "log", new Class[] {double.class}));
         PARSER_CONTEXT.addImport("gaussian", MVEL.getStaticMethod(RandomUtils.class, "gaussian", new Class[] {double.class, double.class}));
         PARSER_CONTEXT.addImport("poisson", MVEL.getStaticMethod(RandomUtils.class, "poisson", new Class[] {double.class}));
     }

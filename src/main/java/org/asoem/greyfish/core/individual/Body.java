@@ -110,9 +110,12 @@ public class Body extends AbstractAgentComponent implements Movable {
         return new Body(this, cloner);
     }
 
-    @Override
     public void setOrientation(double alpha) {
         movingObject2D.setOrientation(alpha);
+    }
+
+    public void setSpeed(double speed) {
+        movingObject2D.setSpeed(speed);
     }
 
     @Override
@@ -120,12 +123,10 @@ public class Body extends AbstractAgentComponent implements Movable {
         return movingObject2D.getMotionVector();
     }
 
-    @Override
     public void changeMotion(double angle, double velocity) {
         movingObject2D.changeMotion(angle, velocity);
     }
 
-    @Override
     public void setMotion(double angle, double velocity) {
         movingObject2D.setMotion(angle, velocity);
     }

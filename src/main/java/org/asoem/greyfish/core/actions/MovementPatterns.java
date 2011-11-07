@@ -48,11 +48,11 @@ public class MovementPatterns {
                     angle += (nextBoolean()) ?  0.3 : -0.3;
                 }
 
-                agent.setMotion(angle, speed);
+                agent.setOrientation(angle);
 
                 // TODO: LawOfDemeter violation
                 if (!simulation.getSpace().planMovement(agent).willSucceed()) {
-                    agent.setMotion(angle + MathLib.PI / 4, speed);
+                    agent.setOrientation(angle + MathLib.PI / 4);
                 }
             }
         };

@@ -59,9 +59,8 @@ public class StatePropertyCondition extends LeafCondition {
         final SetAdaptor<?> stateAdaptor = new SetAdaptor<Object>(Object.class) {
             @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
             @Override public Object get() { return state; }
+            @SuppressWarnings({"unchecked"}) // cast from Set<?> to Set<Object> is safe
             @Override public Iterable<Object> values() {
-                // cast from Set<?> to Set<Object> is safe
-                // noinspection unchecked
                 return (stateProperty == null) ? ImmutableList.of() : (Set<Object>) stateProperty.getStates();
             }
         };
