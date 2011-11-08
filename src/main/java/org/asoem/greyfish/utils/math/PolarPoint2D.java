@@ -7,5 +7,5 @@ package org.asoem.greyfish.utils.math;
  */
 public interface PolarPoint2D {
     double getAngle();
-    double getDistance();
+    double getRadius();
 }

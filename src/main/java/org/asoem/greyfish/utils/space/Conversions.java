@@ -9,10 +9,14 @@ import org.asoem.greyfish.utils.math.PolarPoint2D;
  */
 public class Conversions {
 
-    public static Coordinates2D toCartesian(PolarPoint2D polarPoint2D) {
+    public static Coordinates2D polarToCartesian(PolarPoint2D polarPoint2D) {
+        return polarToCartesian(polarPoint2D.getAngle(), polarPoint2D.getRadius());
+    }
+
+    public static Coordinates2D polarToCartesian(double angle, double radius) {
         return ImmutableCoordinates2D.at(
-                polarPoint2D.getDistance() * Math.cos(polarPoint2D.getAngle()),
-                polarPoint2D.getDistance() * Math.sin(polarPoint2D.getAngle())
+                radius * Math.cos(angle),
+                radius * Math.sin(angle)
         );
     }
 }

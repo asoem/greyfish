@@ -4,23 +4,26 @@ import javolution.lang.MathLib;
 
 public class MutableMovable implements Movable {
 
-    private double orientationAngle = 0;
-
     private ImmutableMotionVector motionVector = new ImmutableMotionVector(0, 0);
 
     public MutableMovable() {}
 
-    public void setOrientation(double alpha) {
-        orientationAngle = (orientationAngle + alpha) % MathLib.PI;
+    public void setRotation(double alpha) {
+        setMotion(alpha % MathLib.PI, getTranslation());
     }
 
-    public void setSpeed(double speed) {
-        setMotion(orientationAngle, speed);
+    public void setTranslation(double translation) {
+        setMotion(getRotation(), translation);
     }
 
     @Override
-    public MotionVector2D getMotionVector() {
-        return motionVector;
+    public double getTranslation() {
+        return motionVector.getRadius();
+    }
+
+    @Override
+    public double getRotation() {
+        return motionVector.getAngle();
     }
 
     /**

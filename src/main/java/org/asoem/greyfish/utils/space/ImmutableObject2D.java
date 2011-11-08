@@ -26,7 +26,7 @@ public class ImmutableObject2D implements Object2D {
         return coordinates;
     }
 
-    public static ImmutableObject2D of(Coordinates2D coordinates, int orientationAngle) {
+    public static ImmutableObject2D of(Coordinates2D coordinates, double orientationAngle) {
         checkNotNull(coordinates);
         return new ImmutableObject2D(coordinates, orientationAngle);
     }

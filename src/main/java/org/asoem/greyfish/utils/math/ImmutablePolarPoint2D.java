@@ -16,7 +16,7 @@ public class ImmutablePolarPoint2D implements PolarPoint2D {
     }
 
     @Override
-    public double getDistance() {
+    public double getRadius() {
         return distance;
     }
 

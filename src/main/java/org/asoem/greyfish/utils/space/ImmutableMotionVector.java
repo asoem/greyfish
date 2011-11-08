@@ -28,20 +28,20 @@ public class ImmutableMotionVector implements MotionVector2D {
     }
 
     @Override
-    public double getDistance() {
-        return polarPoint2D.getDistance();
+    public double getRadius() {
+        return polarPoint2D.getRadius();
     }
 
     public PolarPoint2D rotated(double phi) {
-        return new ImmutableMotionVector((getAngle() + phi) % MathLib.TWO_PI, getDistance());
+        return new ImmutableMotionVector((getAngle() + phi) % MathLib.TWO_PI, getRadius());
     }
 
     public PolarPoint2D translated(double distance) {
-        return new ImmutableMotionVector(getAngle(), getDistance() + distance);
+        return new ImmutableMotionVector(getAngle(), getRadius() + distance);
     }
 
     public ImmutableMotionVector moved(double phi, double distance) {
-        return new ImmutableMotionVector((getAngle() + phi) % MathLib.TWO_PI, getDistance() + distance);
+        return new ImmutableMotionVector((getAngle() + phi) % MathLib.TWO_PI, getRadius() + distance);
     }
 
     public static ImmutableMotionVector newInstance(double phi, double length) {
