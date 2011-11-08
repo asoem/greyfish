@@ -9,7 +9,6 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
-import org.asoem.greyfish.utils.space.MotionVector2D;
 import org.simpleframework.xml.Element;
 
 import javax.annotation.Nonnull;
@@ -223,11 +222,6 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public MotionVector2D getMotionVector() {
-        return delegate.getMotionVector();
-    }
-
-    @Override
     public void changeMotion(double angle, double velocity) {
         delegate.changeMotion(angle, velocity);
     }
@@ -248,13 +242,13 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public void setOrientation(double alpha) {
-        delegate.setOrientation(alpha);
+    public void setRotation(double alpha) {
+        delegate.setRotation(alpha);
     }
 
     @Override
-    public void setSpeed(double speed) {
-        delegate().setSpeed(speed);
+    public void setTranslation(double speed) {
+        delegate().setTranslation(speed);
     }
 
     @Override
@@ -305,5 +299,15 @@ public abstract class AgentDecorator implements Agent {
     @Override
     public TreeNode<AgentComponent> getRootComponent() {
         return delegate.getRootComponent();
+    }
+
+    @Override
+    public double getTranslation() {
+        return delegate.getTranslation();
+    }
+
+    @Override
+    public double getRotation() {
+        return delegate.getRotation();
     }
 }

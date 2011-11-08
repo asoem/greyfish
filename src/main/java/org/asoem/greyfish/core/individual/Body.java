@@ -18,7 +18,6 @@ import org.asoem.greyfish.utils.gui.MapValuesAdaptor;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.ValueAdaptor;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.MotionVector2D;
 import org.asoem.greyfish.utils.space.Movable;
 import org.asoem.greyfish.utils.space.MutableMovable;
 import org.simpleframework.xml.Attribute;
@@ -80,7 +79,7 @@ public class Body extends AbstractAgentComponent implements Movable {
      * Default Constructor.
      */
     public Body() {
-        setOrientation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
+        setRotation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
         stateColorMap = ImmutableMap.of((Object)"Default", Color.BLACK);
     }
 
@@ -110,17 +109,22 @@ public class Body extends AbstractAgentComponent implements Movable {
         return new Body(this, cloner);
     }
 
-    public void setOrientation(double alpha) {
-        movingObject2D.setOrientation(alpha);
+    public void setRotation(double alpha) {
+        movingObject2D.setRotation(alpha);
     }
 
-    public void setSpeed(double speed) {
-        movingObject2D.setSpeed(speed);
+    public void setTranslation(double speed) {
+        movingObject2D.setTranslation(speed);
     }
 
     @Override
-    public MotionVector2D getMotionVector() {
-        return movingObject2D.getMotionVector();
+    public double getTranslation() {
+        return movingObject2D.getTranslation();
+    }
+
+    @Override
+    public double getRotation() {
+        return movingObject2D.getRotation();
     }
 
     public void changeMotion(double angle, double velocity) {

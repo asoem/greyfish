@@ -10,7 +10,6 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
-import org.asoem.greyfish.utils.space.MotionVector2D;
 import org.asoem.greyfish.utils.space.Movable;
 
 import javax.annotation.Nullable;
@@ -69,13 +68,10 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
     void setColor(Color color);
     double getRadius();
 
-    @Override
-    MotionVector2D getMotionVector();
-
     void changeMotion(double angle, double velocity);
     void setMotion(double angle, double velocity);
-    void setOrientation(double alpha);
-    void setSpeed(double speed);
+    void setRotation(double alpha);
+    void setTranslation(double speed);
 
     Simulation getSimulation();
     public void setSimulation(Simulation simulation);

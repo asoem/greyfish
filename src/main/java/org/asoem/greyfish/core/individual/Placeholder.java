@@ -41,7 +41,7 @@ public class Placeholder extends AgentDecorator implements Object2D {
     }
 
     @Override
-    public void setOrientation(double alpha) {
+    public void setRotation(double alpha) {
         throw new UnsupportedOperationException();
     }
 }

@@ -44,10 +44,10 @@ public class TileLocation implements Location2D {
         this.y = y;
 
         int mask = 0;
-        if (x == 0) mask |= (1 << WEST.ordinal());
-        if (x == space.getWidth() -1) mask |= (1 << EAST.ordinal());
-        if (y == 0) mask |= (1 << NORTH.ordinal());
-        if (y == space.getHeight() -1) mask |= (1 << SOUTH.ordinal());
+        if (x == 0)                     mask |= (1 << WEST.ordinal());
+        if (x == space.getWidth() -1)   mask |= (1 << EAST.ordinal());
+        if (y == 0)                     mask |= (1 << NORTH.ordinal());
+        if (y == space.getHeight() -1)  mask |= (1 << SOUTH.ordinal());
         borderFlagsMask = mask;
     }
 
@@ -98,14 +98,15 @@ public class TileLocation implements Location2D {
     @Override
     public String toString() {
         ArrayList<String> borderList = Lists.newArrayList();
-        if (hasBorder(NORTH)) borderList.add("N");
-        if (hasBorder(NORTHEAST)) borderList.add("NE");
-        if (hasBorder(EAST)) borderList.add("E");
-        if (hasBorder(SOUTHEAST)) borderList.add("SE");
-        if (hasBorder(SOUTH)) borderList.add("S");
-        if (hasBorder(SOUTHWEST)) borderList.add("SW");
-        if (hasBorder(WEST)) borderList.add("W");
-        if (hasBorder(NORTHWEST)) borderList.add("NW");
+
+        if (hasBorder(NORTH))       borderList.add("N");
+        if (hasBorder(NORTHEAST))   borderList.add("NE");
+        if (hasBorder(EAST))        borderList.add("E");
+        if (hasBorder(SOUTHEAST))   borderList.add("SE");
+        if (hasBorder(SOUTH))       borderList.add("S");
+        if (hasBorder(SOUTHWEST))   borderList.add("SW");
+        if (hasBorder(WEST))        borderList.add("W");
+        if (hasBorder(NORTHWEST))   borderList.add("NW");
 
         return "[" + Doubles.join(",",x,y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
     }
@@ -133,22 +134,32 @@ public class TileLocation implements Location2D {
             case SOUTH:
             case WEST:
             case EAST:
-                return hasBorder(1 << direction.ordinal());
+                if (isBorderFlagSet(1 << direction.ordinal()))
+                    return true;
+                break;
 
             case NORTHEAST:
-                if (hasBorder(1 << NORTH.ordinal() | 1 << EAST.ordinal())) return true;
+                if (isBorderFlagSet(1 << NORTH.ordinal() | 1 << EAST.ordinal()))
+                    return true;
+                break;
             case SOUTHEAST:
-                if (hasBorder(1 << SOUTH.ordinal() | 1 << EAST.ordinal())) return true;
+                if (isBorderFlagSet(1 << SOUTH.ordinal() | 1 << EAST.ordinal()))
+                    return true;
+                break;
             case SOUTHWEST:
-                if (hasBorder(1 << SOUTH.ordinal() | 1 << WEST.ordinal())) return true;
+                if (isBorderFlagSet(1 << SOUTH.ordinal() | 1 << WEST.ordinal()))
+                    return true;
+                break;
             case NORTHWEST:
-                if (hasBorder(1 << NORTH.ordinal() | 1 << WEST.ordinal())) return true;
+                if (isBorderFlagSet(1 << NORTH.ordinal() | 1 << WEST.ordinal()))
+                    return true;
+                break;
         }
 
         return checkBorderAtDestination && getNeighbourTile(direction).hasBorder(direction.opposite(), false);
     }
 
-    private boolean hasBorder(int flags) {
+    private boolean isBorderFlagSet(int flags) {
         return ((borderFlags | borderFlagsMask) & flags) != 0;
     }
 

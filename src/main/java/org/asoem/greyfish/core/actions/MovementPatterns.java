@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import javolution.lang.MathLib;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
@@ -27,13 +26,13 @@ public class MovementPatterns {
         return new MovementPattern() {
             @Override
             public void apply(Agent agent, Simulation simulation) {
-                double angle = agent.getMotionVector().getAngle();
+                double rotationAngle = agent.getRotation();
 
                 if (trueWithProbability(rotationProbability)) {
-                    angle = nextDouble(0, 10);
+                    rotationAngle = nextDouble(0, 10);
                 }
 
-                agent.setMotion(angle, speed);
+                agent.setMotion(rotationAngle, speed);
             }
         };
     }
@@ -42,17 +41,16 @@ public class MovementPatterns {
         return new MovementPattern() {
             @Override
             public void apply(Agent agent, Simulation simulation) {
-                double angle = agent.getMotionVector().getAngle();
 
+                agent.setRotation(0);
                 if (trueWithProbability(rotationProbability)) {
-                    angle += (nextBoolean()) ?  0.3 : -0.3;
+                    agent.setRotation((nextBoolean()) ?  0.3 : -0.3);
                 }
 
-                agent.setOrientation(angle);
-
                 // TODO: LawOfDemeter violation
-                if (!simulation.getSpace().planMovement(agent).willSucceed()) {
-                    agent.setOrientation(angle + MathLib.PI / 4);
+                if (simulation.getSpace().planMovement(agent).willCollide()) {
+                    double rotation = agent.getRotation();
+                    agent.setRotation(rotation + (rotation > 0 ? 0.1 : -0.1));
                 }
             }
         };

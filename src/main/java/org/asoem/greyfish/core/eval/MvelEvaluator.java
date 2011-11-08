@@ -45,7 +45,7 @@ public class MvelEvaluator implements Evaluator {
 
     @Override
     public double evaluateAsDouble() throws EvaluationException {
-        return Double.class.cast(MVEL.executeExpression(compiledExpression, factory));
+        return Number.class.cast(MVEL.executeExpression(compiledExpression, factory)).doubleValue();
     }
 
     @Override
