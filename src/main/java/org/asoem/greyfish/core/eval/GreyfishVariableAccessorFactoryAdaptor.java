@@ -9,11 +9,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 14:40
  */
-public class GreyfishVariableResolverConverterAdaptor<T extends AgentComponent> extends AbstractGreyfishVariableResolver<T> {
+public class GreyfishVariableAccessorFactoryAdaptor<T extends AgentComponent> extends AbstractGreyfishVariableResolver<T> {
 
-    private final ResolverConverter converter;
+    private final GreyfishVariableAccessorFactory converter;
 
-    public GreyfishVariableResolverConverterAdaptor(ResolverConverter converter, final Class<T> contextClass) {
+    public GreyfishVariableAccessorFactoryAdaptor(GreyfishVariableAccessorFactory converter, final Class<T> contextClass) {
         super(contextClass);
         this.converter = checkNotNull(converter);
     }
@@ -34,7 +34,7 @@ public class GreyfishVariableResolverConverterAdaptor<T extends AgentComponent> 
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        GreyfishVariableResolverConverterAdaptor that = (GreyfishVariableResolverConverterAdaptor) o;
+        GreyfishVariableAccessorFactoryAdaptor that = (GreyfishVariableAccessorFactoryAdaptor) o;
 
         return converter.equals(that.converter);
     }

@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
  *
  *
  */
-public interface ResolverConverter {
+public interface GreyfishVariableAccessorFactory {
     /**
      * @param varName The name of a variable which is fed into a {@link GreyfishVariableResolver}
      * @param context The context of the variable definition.
@@ -22,7 +22,7 @@ public interface ResolverConverter {
     /**
      * @param name The name of a variable which is fed into a {@link GreyfishVariableResolver}
      * @param contextClass The class of the context object passed to the resolved function
-     * @return {@code true} if this ResolverConverter can convert name x contextClass, {@code false} otherwise
+     * @return {@code true} if this GreyfishVariableAccessorFactory can convert name x contextClass, {@code false} otherwise
      */
     <T extends AgentComponent> boolean canConvert(String name, Class<T> contextClass);
 }

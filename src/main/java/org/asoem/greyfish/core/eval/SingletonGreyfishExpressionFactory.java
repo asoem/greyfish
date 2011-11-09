@@ -20,11 +20,11 @@ public enum SingletonGreyfishExpressionFactory implements GreyfishExpressionFact
     };
 
     private GreyfishVariableResolverFactory variableResolverFactory = new GreyfishVariableResolverFactory() {
-        private final CachedResolverConverter cachedConverter = new CachedResolverConverter(SingletonGreyfishResolverConverter.INSTANCE);
+        private final CachedGreyfishVariableAccessorFactory cachedConverter = new CachedGreyfishVariableAccessorFactory(SingletonGreyfishGreyfishVariableAccessorFactory.INSTANCE);
 
         @Override
         public <T extends AgentComponent> GreyfishVariableResolver<T> create(Class<T> contextClass) {
-            return new GreyfishVariableResolverConverterAdaptor<T>(cachedConverter, contextClass);
+            return new GreyfishVariableAccessorFactoryAdaptor<T>(cachedConverter, contextClass);
         }
     };
 

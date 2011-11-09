@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mvel2.MVEL;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -80,5 +81,27 @@ public class MvelEvaluatorTest {
 
         // then
         assertThat(evaluated).isEqualTo(5.0);
+    }
+
+    @Test
+    public void testDollarFunction() throws Exception {
+        // given
+        MvelEvaluator evaluator = new MvelEvaluator();
+        MvelEvaluator.PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(MvelEvaluatorTest.class, "dollar", new Class[] {String.class, Object.class}));
+        evaluator.setExpression("$('a[\"b\"]', ctx)");
+        evaluator.setResolver(VariableResolvers.forMap(ImmutableMap.of("ctx", 5.0)));
+
+        // when
+        double evaluated = evaluator.evaluateAsDouble();
+
+        // then
+        assertThat(evaluated).isEqualTo(5.0);
+    }
+
+    public static Object dollar(String expression, Object ctx) {
+        if (expression.equals("a[\"b\"]")) {
+            return ctx;
+        }
+        else return 0;
     }
 }

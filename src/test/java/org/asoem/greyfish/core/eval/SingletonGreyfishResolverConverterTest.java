@@ -21,7 +21,7 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.class)
 public class SingletonGreyfishResolverConverterTest {
 
-    private final SingletonGreyfishResolverConverter converter = SingletonGreyfishResolverConverter.INSTANCE;
+    private final SingletonGreyfishGreyfishVariableAccessorFactory converter = SingletonGreyfishGreyfishVariableAccessorFactory.INSTANCE;
 
     @Mock Agent agent;
     @Mock GFAction action;

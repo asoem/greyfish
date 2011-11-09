@@ -11,13 +11,13 @@ import java.util.Map;
  * Date: 16.09.11
  * Time: 15:24
  */
-public class CachedResolverConverter implements ResolverConverter {
+public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
 
-    private final ResolverConverter delegate;
+    private final GreyfishVariableAccessorFactory delegate;
 
     private final Map<ResolverCacheKey, Function<? extends AgentComponent, ?>> resolverMap = Maps.newHashMap();
 
-    public CachedResolverConverter(ResolverConverter delegate) {
+    public CachedGreyfishVariableAccessorFactory(GreyfishVariableAccessorFactory delegate) {
         this.delegate = delegate;
     }
 

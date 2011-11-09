@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -36,7 +37,7 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
         @Override
         public Double mutate(Double original) {
             try {
-                return get() + mutationDistributionFunction.evaluateAsDouble(DoubleGene.this);
+                return mutationDistributionFunction.evaluateAsDouble(DoubleGene.this);
             } catch (EvaluationException e) {
                 LoggerFactory.getLogger(DoubleGene.class).error("Error in mutationDistributionFunction", e);
                 return original;
@@ -66,6 +67,7 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
 
     private Double value = 0.0;
 
+    @SimpleXMLConstructor
     public DoubleGene() {}
 
     protected DoubleGene(DoubleGene doubleMutableGene, DeepCloner cloner) {

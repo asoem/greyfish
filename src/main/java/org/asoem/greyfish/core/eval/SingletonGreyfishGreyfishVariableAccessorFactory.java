@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 15:56
  */
-public enum SingletonGreyfishResolverConverter implements ResolverConverter {
+public enum SingletonGreyfishGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
     INSTANCE;
 
     private static final Splitter SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
@@ -44,16 +44,24 @@ public enum SingletonGreyfishResolverConverter implements ResolverConverter {
                 if (GFAction.class.isAssignableFrom(context)) {
                     return action(gomParts, new Function<T, GFAction>() {
                         @Override
-                        public GFAction apply(@Nullable T gfComponent) {
-                            return GFAction.class.cast(gfComponent);
+                        public GFAction apply(@Nullable T agentComponent) {
+                            return GFAction.class.cast(agentComponent);
                         }
                     });
                 }
                 else if (GFProperty.class.isAssignableFrom(context)) {
                     return property(gomParts, new Function<T, GFProperty>() {
                         @Override
-                        public GFProperty apply(@Nullable T gfComponent) {
-                            return GFProperty.class.cast(gfComponent);
+                        public GFProperty apply(@Nullable T agentComponent) {
+                            return GFProperty.class.cast(agentComponent);
+                        }
+                    });
+                }
+                else if (Gene.class.isAssignableFrom(context)) {
+                    return gene(gomParts, new Function<T, Gene>() {
+                        @Override
+                        public Gene apply(@Nullable T agentComponent) {
+                            return Gene.class.cast(agentComponent);
                         }
                     });
                 }
@@ -157,6 +165,16 @@ public enum SingletonGreyfishResolverConverter implements ResolverConverter {
     private <T extends AgentComponent> Function<T, ?> gene(Iterator<String> parts, Function<T, Gene> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
+
+            if ("value".equals(nextPart)) {
+                return Functions.compose(new Function<Gene, Object>() {
+                    @Override
+                    public Object apply(@Nullable Gene gene) {
+                        return gene.get();
+                    }
+                }, ret);
+            }
+
             throw new RuntimeException("Gene has no member named " + nextPart);
         }
         else {

@@ -23,8 +23,10 @@ public class MvelEvaluator implements Evaluator {
 
     private Serializable compiledExpression;
 
-    private static final ParserContext PARSER_CONTEXT = new ParserContext();
+    public static final ParserContext PARSER_CONTEXT = new ParserContext();
     static {
+        PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
+
         PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
         PARSER_CONTEXT.addImport("log", MVEL.getStaticMethod(Math.class, "log", new Class[] {double.class}));
         PARSER_CONTEXT.addImport("gaussian", MVEL.getStaticMethod(RandomUtils.class, "gaussian", new Class[] {double.class, double.class}));

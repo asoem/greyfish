@@ -15,8 +15,6 @@ import static org.asoem.greyfish.core.space.TileDirection.*;
 
 public class TileLocation implements Location2D {
 
-    // private final FastList<MovingObject2D> occupants = FastList.newInstance();
-
     private final TiledSpace space;
 
     private final int borderFlagsMask;
@@ -72,43 +70,6 @@ public class TileLocation implements Location2D {
     @Override
     public Coordinates2D getCoordinates() {
         return ImmutableCoordinates2D.at(x, y);
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + x;
-        result = prime * result + y;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        TileLocation other = (TileLocation) obj;
-        return x == other.x && y == other.y;
-    }
-
-    @Override
-    public String toString() {
-        ArrayList<String> borderList = Lists.newArrayList();
-
-        if (hasBorder(NORTH))       borderList.add("N");
-        if (hasBorder(NORTHEAST))   borderList.add("NE");
-        if (hasBorder(EAST))        borderList.add("E");
-        if (hasBorder(SOUTHEAST))   borderList.add("SE");
-        if (hasBorder(SOUTH))       borderList.add("S");
-        if (hasBorder(SOUTHWEST))   borderList.add("SW");
-        if (hasBorder(WEST))        borderList.add("W");
-        if (hasBorder(NORTHWEST))   borderList.add("NW");
-
-        return "[" + Doubles.join(",",x,y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
     }
 
     /**
@@ -221,5 +182,42 @@ public class TileLocation implements Location2D {
     public boolean covers(Coordinates2D coordinates) {
         return (int) coordinates.getX() == x
                 && (int) coordinates.getY() == y;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + x;
+        result = prime * result + y;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TileLocation other = (TileLocation) obj;
+        return x == other.x && y == other.y;
+    }
+
+    @Override
+    public String toString() {
+        ArrayList<String> borderList = Lists.newArrayList();
+
+        if (hasBorder(NORTH))       borderList.add("N");
+        if (hasBorder(NORTHEAST))   borderList.add("NE");
+        if (hasBorder(EAST))        borderList.add("E");
+        if (hasBorder(SOUTHEAST))   borderList.add("SE");
+        if (hasBorder(SOUTH))       borderList.add("S");
+        if (hasBorder(SOUTHWEST))   borderList.add("SW");
+        if (hasBorder(WEST))        borderList.add("W");
+        if (hasBorder(NORTHWEST))   borderList.add("NW");
+
+        return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
     }
 }
