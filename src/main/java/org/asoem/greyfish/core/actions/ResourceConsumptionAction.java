@@ -32,8 +32,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     private DoubleProperty consumerProperty = null;
 
     @Element(name="resourceTransformationFunction", required = false)
-    private GreyfishExpression<ResourceConsumptionAction> transformationExpression =
-            compileExpression("offer").forContext(ResourceConsumptionAction.class);
+    private GreyfishExpression transformationExpression =
+            compileExpression("offer");
 
     @Element(name="messageType", required=false)
     private String parameterMessageType = "";
@@ -180,8 +180,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.amountPerRequest = builder.amountPerRequest;
         this.sensorRange = builder.sensorRange;
         this.transformationExpression = SingletonGreyfishExpressionFactory
-                .compileExpression(Optional.fromNullable(builder.transformationFunction).or("offer"))
-                .forContext(ResourceConsumptionAction.class);
+                .compileExpression(Optional.fromNullable(builder.transformationFunction).or("offer"));
     }
 
     public static Builder with() { return new Builder(); }

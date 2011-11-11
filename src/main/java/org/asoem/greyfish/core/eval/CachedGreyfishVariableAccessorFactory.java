@@ -15,28 +15,27 @@ public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAc
 
     private final GreyfishVariableAccessorFactory delegate;
 
-    private final Map<ResolverCacheKey, Function<? extends AgentComponent, ?>> resolverMap = Maps.newHashMap();
+    private final Map<ResolverCacheKey, Function<AgentComponent, ?>> resolverMap = Maps.newHashMap();
 
     public CachedGreyfishVariableAccessorFactory(GreyfishVariableAccessorFactory delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends AgentComponent> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException {
+    public Function<AgentComponent, ?> get(String varName, Class<? extends AgentComponent> context) throws VariableResolutionException {
         ResolverCacheKey key = new ResolverCacheKey(varName, context);
         if (resolverMap.containsKey(key)) {
-            return (Function<T, ?>) resolverMap.get(key);
+            return resolverMap.get(key);
         }
         else {
-            Function<T, ?> fun = delegate.get(varName, context);
+            Function<AgentComponent, ?> fun = delegate.get(varName, context);
             resolverMap.put(key, fun);
             return fun;
         }
     }
 
     @Override
-    public <T extends AgentComponent> boolean canConvert(String name, Class<T> contextClass) {
+    public boolean canConvert(String name, Class<? extends AgentComponent> contextClass) {
         ResolverCacheKey key = new ResolverCacheKey(name, contextClass);
         return resolverMap.containsKey(key) || delegate.canConvert(name, contextClass);
     }

@@ -3,6 +3,8 @@ package org.asoem.greyfish.core.eval;
 import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.individual.AgentComponent;
 
+import java.util.regex.Pattern;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -10,32 +12,29 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 14:09
  */
-public class GreyfishExpression<T extends AgentComponent> {
+public class GreyfishExpression {
 
     private final Evaluator evaluator;
-    private final GreyfishVariableResolver<T> variableResolver;
+    private static final Pattern DOLLAR_FUNCTION_PATTERN = Pattern.compile("\\$\\(([^\\)]+)\\)");
 
-    public GreyfishExpression(String expression, Evaluator evaluator, GreyfishVariableResolver<T> resolver) {
-        this.variableResolver = checkNotNull(resolver);
+    public GreyfishExpression(String expression, Evaluator evaluator) {
         this.evaluator = checkNotNull(evaluator);
         setExpression(expression);
     }
 
-    public double evaluateAsDouble(T context) throws EvaluationException {
-        variableResolver.setContext(context);
-        return evaluateAsDouble(variableResolver);
+    public double evaluateAsDouble(AgentComponent context) throws EvaluationException {
+        return evaluateAsDouble(createContextResolver(context));
     }
 
-    public double evaluateAsDouble(T context, String n1, Object v1) throws EvaluationException {
-        variableResolver.setContext(context);
+    public double evaluateAsDouble(AgentComponent context, String n1, Object v1) throws EvaluationException {
+        VariableResolver contextResolver = createContextResolver(context);
         VariableResolver resolver = VariableResolvers.forMap(ImmutableMap.of(n1, v1));
-        resolver.setNext(variableResolver);
+        contextResolver.setNext(resolver);
         return evaluateAsDouble(resolver);
     }
 
-    public boolean evaluateAsBoolean(T context) throws EvaluationException {
-        variableResolver.setContext(context);
-        return evaluateAsBoolean(variableResolver);
+    public boolean evaluateAsBoolean(AgentComponent context) throws EvaluationException {
+        return evaluateAsBoolean(createContextResolver(context));
     }
 
     private boolean evaluateAsBoolean(VariableResolver resolver) {
@@ -49,15 +48,19 @@ public class GreyfishExpression<T extends AgentComponent> {
     }
 
     public void setExpression(String expression) {
-        evaluator.setExpression(expression);
+        evaluator.setExpression(parameterizeDollarFunction(expression));
+    }
+
+    private static String parameterizeDollarFunction(String expression) {
+        return DOLLAR_FUNCTION_PATTERN.matcher(expression).replaceAll("\\$($1, _ctx_)");
     }
 
     public String getExpression() {
         return evaluator.getExpression();
     }
 
-    public Class<T> getContextClass() {
-        return variableResolver.getContextClass();
+    public VariableResolver createContextResolver(AgentComponent ctx) {
+        return VariableResolvers.forMap(ImmutableMap.of("_ctx_", ctx));
     }
 
     @Override
@@ -72,14 +75,12 @@ public class GreyfishExpression<T extends AgentComponent> {
 
         GreyfishExpression that = (GreyfishExpression) o;
 
-        return evaluator.equals(that.evaluator) && variableResolver.equals(that.variableResolver);
+        return evaluator.equals(that.evaluator);
 
     }
 
     @Override
     public int hashCode() {
-        int result = evaluator.hashCode();
-        result = 31 * result + variableResolver.hashCode();
-        return result;
+        return evaluator.hashCode();
     }
 }

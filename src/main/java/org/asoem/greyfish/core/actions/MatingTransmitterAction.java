@@ -30,8 +30,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     private String ontology;
 
     @Element(name="spermFitnessExpression", required = false)
-    private GreyfishExpression<MatingTransmitterAction> spermFitnessExpression =
-            compileExpression("").forContext(MatingTransmitterAction.class);
+    private GreyfishExpression spermFitnessExpression =
+            compileExpression("0");
 
     @SimpleXMLConstructor
     private MatingTransmitterAction() {
@@ -72,7 +72,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                spermFitnessExpression = compileExpression(arg0.getExpression()).forContext(MatingTransmitterAction.class);
+                spermFitnessExpression = compileExpression(arg0.getExpression());
             }
 
             @Override
@@ -136,10 +136,10 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
         private String ontology;
-        private GreyfishExpression<MatingTransmitterAction> spermFitnessExpression =
-                compileExpression("0.0").forContext(MatingTransmitterAction.class);
+        private GreyfishExpression spermFitnessExpression =
+                compileExpression("0.0");
 
-        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = compileExpression(spermFitnessExpression).forContext(MatingTransmitterAction.class); return self(); }
+        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = compileExpression(spermFitnessExpression); return self(); }
         public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         @Override

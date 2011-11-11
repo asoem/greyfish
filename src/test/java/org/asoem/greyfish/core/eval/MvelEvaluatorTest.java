@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.eval;
 
 import com.google.common.collect.ImmutableMap;
+import org.asoem.greyfish.core.genes.Gene;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mvel2.MVEL;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * User: christoph
@@ -86,22 +85,15 @@ public class MvelEvaluatorTest {
     @Test
     public void testDollarFunction() throws Exception {
         // given
-        MvelEvaluator evaluator = new MvelEvaluator();
-        MvelEvaluator.PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(MvelEvaluatorTest.class, "dollar", new Class[] {String.class, Object.class}));
-        evaluator.setExpression("$('a[\"b\"]', ctx)");
-        evaluator.setResolver(VariableResolvers.forMap(ImmutableMap.of("ctx", 5.0)));
+        GreyfishExpression expression = new GreyfishExpression("$('self.value')", new MvelEvaluator());
+        Gene gene = mock(Gene.class);
+        double value = 3.5;
+        given(gene.get()).willReturn(value);
 
         // when
-        double evaluated = evaluator.evaluateAsDouble();
+        double evaluated = expression.evaluateAsDouble(gene);
 
         // then
-        assertThat(evaluated).isEqualTo(5.0);
-    }
-
-    public static Object dollar(String expression, Object ctx) {
-        if (expression.equals("a[\"b\"]")) {
-            return ctx;
-        }
-        else return 0;
+        assertThat(evaluated).isEqualTo(value);
     }
 }

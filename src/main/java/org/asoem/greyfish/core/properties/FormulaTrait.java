@@ -22,7 +22,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FormulaTrait.class);
 
-    private GreyfishExpression<FormulaTrait> expression = compileExpression("0").forContext(FormulaTrait.class);
+    private GreyfishExpression expression = compileExpression("0");
 
     protected FormulaTrait(AbstractBuilder<? extends FormulaTrait, ? extends AbstractBuilder> builder) {
         super(builder);
@@ -68,8 +68,8 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
     }
 
     protected static abstract class AbstractBuilder<E extends FormulaTrait, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
-        private GreyfishExpression<FormulaTrait> expression;
+        private GreyfishExpression expression;
 
-        public T expression(String expression) { this.expression = compileExpression(expression).forContext(FormulaTrait.class); return self(); }
+        public T expression(String expression) { this.expression = compileExpression(expression); return self(); }
     }
 }

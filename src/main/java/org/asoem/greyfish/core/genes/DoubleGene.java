@@ -28,9 +28,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ClassGroup(tags = "genes")
 public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
 
-    private GreyfishExpression<DoubleGene> initialValueGenerator = SingletonGreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
+    private GreyfishExpression initialValueGenerator = SingletonGreyfishExpressionFactory.compileExpression("0.0");
 
-    private GreyfishExpression<DoubleGene> mutationDistributionFunction = SingletonGreyfishExpressionFactory.compileExpression("0.0").forContext(DoubleGene.class);
+    private GreyfishExpression mutationDistributionFunction = SingletonGreyfishExpressionFactory.compileExpression("0.0");
 
     private final GeneController<Double> geneController = new GeneController<Double>() {
 
@@ -123,10 +123,8 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
         super.configure(e);
         e.add("Initial Value", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
             @Override
-            @SuppressWarnings("unchecked") // save because of contextClass verification
             protected void set(GreyfishExpression arg0) {
-                checkArgument(arg0.getContextClass().equals(DoubleGene.class));
-                initialValueGenerator = (GreyfishExpression<DoubleGene>) arg0;
+                initialValueGenerator = arg0;
             }
 
             @Override
@@ -137,10 +135,8 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
 
         e.add("Mutation", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
             @Override
-            @SuppressWarnings("unchecked") // save because of contextClass verification
             protected void set(GreyfishExpression arg0) {
-                checkArgument(arg0.getContextClass().equals(DoubleGene.class));
-                mutationDistributionFunction = (GreyfishExpression<DoubleGene>) arg0;
+                mutationDistributionFunction = arg0;
             }
 
             @Override

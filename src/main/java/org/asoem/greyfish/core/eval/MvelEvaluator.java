@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
+import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
@@ -25,7 +26,7 @@ public class MvelEvaluator implements Evaluator {
 
     public static final ParserContext PARSER_CONTEXT = new ParserContext();
     static {
-        PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
+        PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(SingletonGreyfishVariableSelector.class, "apply", new Class[] {String.class, AgentComponent.class}));
 
         PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
         PARSER_CONTEXT.addImport("log", MVEL.getStaticMethod(Math.class, "log", new Class[] {double.class}));

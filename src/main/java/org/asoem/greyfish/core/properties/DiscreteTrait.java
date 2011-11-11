@@ -28,7 +28,7 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProp
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscreteTrait.class);
 
-    private Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = ImmutableMap.of();
+    private Map<String, GreyfishExpression> phenotypeConditionMap = ImmutableMap.of();
 
     protected DiscreteTrait(AbstractBuilder<?,?> builder) {
         super(builder);
@@ -82,9 +82,9 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProp
     }
 
     protected static abstract class AbstractBuilder<E extends DiscreteTrait,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
-        private final Map<String, GreyfishExpression<DiscreteTrait>> phenotypeConditionMap = Maps.newHashMap();
+        private final Map<String, GreyfishExpression> phenotypeConditionMap = Maps.newHashMap();
 
-        public T addState(String state, String when) { phenotypeConditionMap.put(state, SingletonGreyfishExpressionFactory.compileExpression(when).forContext(DiscreteTrait.class)); return self();}
+        public T addState(String state, String when) { phenotypeConditionMap.put(state, SingletonGreyfishExpressionFactory.compileExpression(when)); return self();}
     }
 
 }

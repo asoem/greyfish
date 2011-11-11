@@ -19,7 +19,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
     @Nonnull
     @Element(required=false)
-    private GreyfishExpression<RandomMovementAction> speedFunction;
+    private GreyfishExpression speedFunction;
 
     @Nonnull
     private MovementPattern pattern = MovementPatterns.noMovement();
@@ -44,7 +44,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                speedFunction = compileExpression(arg0.getExpression()).forContext(RandomMovementAction.class);
+                speedFunction = compileExpression(arg0.getExpression());
             }
 
             @Override
@@ -85,8 +85,8 @@ public class RandomMovementAction extends AbstractGFAction {
 
     @SuppressWarnings({"UnusedDeclaration"})
     protected static abstract class AbstractBuilder<E extends RandomMovementAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private GreyfishExpression<RandomMovementAction> speedFunction = compileExpression("0").forContext(RandomMovementAction.class);
+        private GreyfishExpression speedFunction = compileExpression("0");
 
-        public T speed(GreyfishExpression<RandomMovementAction> speedFunction) { this.speedFunction = checkNotNull(speedFunction); return self(); }
+        public T speed(GreyfishExpression speedFunction) { this.speedFunction = checkNotNull(speedFunction); return self(); }
     }
 }

@@ -27,18 +27,13 @@ public class GreyfishExpressionTest {
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullEvaluatorFactory() {
-        new GreyfishExpression<AgentComponent>("", null, greyfishVariableResolver);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testCreationWithNullGreyfishVariableResolver() {
-        new GreyfishExpression<AgentComponent>("", evaluator, null);
+        new GreyfishExpression("", null);
     }
 
     @Test
     public void testEvaluateAsDouble() throws Exception {
         // given
-        given(evaluatorFactory.createEvaluator("", greyfishVariableResolver)).willReturn(evaluator);
+        given(evaluatorFactory.createEvaluator("")).willReturn(evaluator);
         given(evaluator.evaluateAsDouble()).will(new Answer<Double>() {
             @Override
             public Double answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -47,7 +42,7 @@ public class GreyfishExpressionTest {
         });
 
         // when
-        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluator, greyfishVariableResolver);
+        GreyfishExpression expression = new GreyfishExpression("", evaluator);
         double ret = expression.evaluateAsDouble(context);
 
         // then
@@ -57,7 +52,7 @@ public class GreyfishExpressionTest {
     @Test
     public void testEvaluateAsBoolean() throws Exception {
         // given
-        given(evaluatorFactory.createEvaluator("", greyfishVariableResolver)).willReturn(evaluator);
+        given(evaluatorFactory.createEvaluator("")).willReturn(evaluator);
         given(evaluator.evaluateAsBoolean()).will(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -66,7 +61,7 @@ public class GreyfishExpressionTest {
         });
 
         // when
-        GreyfishExpression<AgentComponent> expression = new GreyfishExpression<AgentComponent>("", evaluator, greyfishVariableResolver);
+        GreyfishExpression expression = new GreyfishExpression("", evaluator);
         boolean ret = expression.evaluateAsBoolean(context);
 
         // then
@@ -79,8 +74,8 @@ public class GreyfishExpressionTest {
         String expression = "1+2";
 
         // when
-        GreyfishExpression<AgentComponent> expression1 = SingletonGreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
-        GreyfishExpression<AgentComponent> expression2 = SingletonGreyfishExpressionFactory.compileExpression(expression).forContext(AgentComponent.class);
+        GreyfishExpression expression1 = SingletonGreyfishExpressionFactory.compileExpression(expression);
+        GreyfishExpression expression2 = SingletonGreyfishExpressionFactory.compileExpression(expression);
 
         // than
         assertThat(expression1).isEqualTo(expression2);

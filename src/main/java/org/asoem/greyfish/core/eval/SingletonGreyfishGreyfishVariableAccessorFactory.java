@@ -30,9 +30,9 @@ public enum SingletonGreyfishGreyfishVariableAccessorFactory implements Greyfish
     private static final Splitter SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
 
     @Override
-    public <T extends AgentComponent> Function<T, ?> get(String varName, final Class<T> context) {
+    public Function<AgentComponent, ?> get(String varName, final Class<? extends AgentComponent> contextClass) {
         checkNotNull(varName);
-        checkNotNull(context);
+        checkNotNull(contextClass);
 
         Iterator<String> gomParts = SPLITTER.split(varName).iterator();
 
@@ -41,36 +41,36 @@ public enum SingletonGreyfishGreyfishVariableAccessorFactory implements Greyfish
             String root = gomParts.next();
 
             if ("this".equals(root) || "self".equals(root)) {
-                if (GFAction.class.isAssignableFrom(context)) {
-                    return action(gomParts, new Function<T, GFAction>() {
+                if (GFAction.class.isAssignableFrom(contextClass)) {
+                    return action(gomParts, new Function<AgentComponent, GFAction>() {
                         @Override
-                        public GFAction apply(@Nullable T agentComponent) {
+                        public GFAction apply(@Nullable AgentComponent agentComponent) {
                             return GFAction.class.cast(agentComponent);
                         }
                     });
                 }
-                else if (GFProperty.class.isAssignableFrom(context)) {
-                    return property(gomParts, new Function<T, GFProperty>() {
+                else if (GFProperty.class.isAssignableFrom(contextClass)) {
+                    return property(gomParts, new Function<AgentComponent, GFProperty>() {
                         @Override
-                        public GFProperty apply(@Nullable T agentComponent) {
+                        public GFProperty apply(@Nullable AgentComponent agentComponent) {
                             return GFProperty.class.cast(agentComponent);
                         }
                     });
                 }
-                else if (Gene.class.isAssignableFrom(context)) {
-                    return gene(gomParts, new Function<T, Gene>() {
+                else if (Gene.class.isAssignableFrom(contextClass)) {
+                    return gene(gomParts, new Function<AgentComponent, Gene>() {
                         @Override
-                        public Gene apply(@Nullable T agentComponent) {
+                        public Gene apply(@Nullable AgentComponent agentComponent) {
                             return Gene.class.cast(agentComponent);
                         }
                     });
                 }
             }
             else if ("sim".equals(root)) {
-                if (Simulation.class.isAssignableFrom(context)) {
-                    return simulation(gomParts, new Function<T, Simulation>() {
+                if (Simulation.class.isAssignableFrom(contextClass)) {
+                    return simulation(gomParts, new Function<AgentComponent, Simulation>() {
                         @Override
-                        public Simulation apply(@Nullable T gfComponent) {
+                        public Simulation apply(@Nullable AgentComponent gfComponent) {
                             Agent agent = checkNotNull(gfComponent).getAgent();
                             return checkNotNull(agent).getSimulation();
                             // TODO: We should have direct access to simulation object through a component
@@ -84,7 +84,7 @@ public enum SingletonGreyfishGreyfishVariableAccessorFactory implements Greyfish
     }
 
     @Override
-    public <T extends AgentComponent> boolean canConvert(String name, final Class<T> contextClass) {
+    public boolean canConvert(String name, final Class<? extends AgentComponent> contextClass) {
         try {
            return get(name, contextClass) != null;
         } catch (RuntimeException e) {
@@ -170,7 +170,7 @@ public enum SingletonGreyfishGreyfishVariableAccessorFactory implements Greyfish
                 return Functions.compose(new Function<Gene, Object>() {
                     @Override
                     public Object apply(@Nullable Gene gene) {
-                        return gene.get();
+                        return checkNotNull(gene).get();
                     }
                 }, ret);
             }
