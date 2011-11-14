@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Arrays.asList;
 
@@ -205,8 +206,16 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void injectGamete(Genome genome) {
-        throw new UnsupportedOperationException();
+    public void injectGamete(Genome<? extends Gene<?>> genome) {
+        checkArgument(this.genome.isCompatibleGenome(genome));
+
+        Iterator<ForwardingGene<?>> oldGenomeIterator = this.genome.iterator();
+        Iterator<? extends Gene<?>> newGenomeIterator = genome.iterator();
+        while (oldGenomeIterator.hasNext()) {
+            assert newGenomeIterator.hasNext(); // isCompatibleGenome should guaranty this
+            ForwardingGene<?> next = oldGenomeIterator.next();
+            next.setDelegate(newGenomeIterator.next());
+        }
     }
 
     /**

@@ -48,6 +48,21 @@ public class TreesTest {
         assertEquals(ImmutableList.of(a, c, e, d, b, h, i, g, f), ImmutableList.copyOf(postOrderView));
     }
 
+    @Test
+    public void preOrderViewTest() {
+        // when
+        Iterator<TreeNodeImpl> postOrderView = Trees.preOrderView(f, new Function<TreeNodeImpl, Iterator<? extends TreeNodeImpl>>() {
+            @Override
+            public Iterator<? extends TreeNodeImpl> apply(@Nullable TreeNodeImpl stringTreeNode) {
+                assert stringTreeNode != null;
+                return stringTreeNode.children().iterator();
+            }
+        });
+
+        // then
+        assertEquals(ImmutableList.of(f, b, a, d, c, e, g, i, h), ImmutableList.copyOf(postOrderView));
+    }
+
     private static TreeNodeImpl node(String name) {
         return new TreeNodeImpl(ImmutableList.<TreeNodeImpl>of(), name);
     }

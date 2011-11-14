@@ -63,11 +63,6 @@ public class ImmutableAgent extends AbstractAgent {
     }
 
     @Override
-    public void injectGamete(Genome genome) {
-
-    }
-
-    @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new ImmutableAgent(this, cloner);
     }

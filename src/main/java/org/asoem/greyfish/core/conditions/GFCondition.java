@@ -11,15 +11,16 @@ import java.util.List;
 
 @Root
 public interface GFCondition extends AgentComponent, Predicate<Simulation> {
-	public boolean isLeafCondition();
-	public boolean isRootCondition();
-	
-	public List<GFCondition> getChildConditions();
-	@Nullable
+
+    @Nullable
     public GFCondition getParentCondition();
+	public List<GFCondition> getChildConditions();
 	public GFCondition getRoot();
 	
 	public void setParent(@Nullable GFCondition parent);
-	public boolean add(GFCondition condition);
-	public boolean remove(GFCondition condition);
+	public void add(GFCondition condition);
+	public void remove(GFCondition condition);
+
+    public boolean isLeafCondition();
+	public boolean isRootCondition();
 }

@@ -4,6 +4,8 @@ import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
+import javax.annotation.Nullable;
+
 public interface GFAction extends AgentComponent {
 
 	public boolean evaluateCondition(Simulation simulation);
@@ -25,6 +27,7 @@ public interface GFAction extends AgentComponent {
 
     public void setRootCondition(GFCondition rootCondition);
 
+    @Nullable
     public GFCondition getRootCondition();
 
 	/*

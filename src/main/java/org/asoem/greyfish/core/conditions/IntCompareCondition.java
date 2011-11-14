@@ -8,6 +8,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class IntCompareCondition extends CompareCondition<Integer> {
 
+    protected IntCompareCondition() {}
+
     protected IntCompareCondition(IntCompareCondition condition, DeepCloner map) {
         super(condition, map);
     }

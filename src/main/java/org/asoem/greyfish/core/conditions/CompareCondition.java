@@ -20,6 +20,8 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     @Element(name="value")
     protected T value;
 
+    protected CompareCondition() {}
+
     protected CompareCondition(CompareCondition<T> condition, DeepCloner map) {
         super(condition, map);
         this.comparator = condition.comparator;

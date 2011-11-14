@@ -21,13 +21,25 @@ import static org.mockito.BDDMockito.given;
 public class GreyfishExpressionTest {
 
     @Mock EvaluatorFactory evaluatorFactory;
-    @Mock GreyfishVariableResolver<AgentComponent> greyfishVariableResolver;
     @Mock Evaluator evaluator;
     @Mock AgentComponent context;
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullEvaluatorFactory() {
         new GreyfishExpression("", null);
+    }
+
+    @Test
+    public void testGetExpression() throws Exception {
+        // given
+        String foobar = "1+2";
+        GreyfishExpression expression = new GreyfishExpression(foobar, evaluator);
+
+        // when
+        String expressionStr = expression.getExpression();
+
+        // then
+        assertThat(expressionStr).isEqualTo(foobar);
     }
 
     @Test

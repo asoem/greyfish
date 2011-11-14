@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 public class DeathAction extends AbstractGFAction {
 
     @SimpleXMLConstructor
-	private DeathAction() {
+	public DeathAction() {
         this(new Builder());
 	}
 

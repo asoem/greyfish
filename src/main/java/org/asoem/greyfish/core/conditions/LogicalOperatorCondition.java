@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Iterators.unmodifiableIterator;
 import static java.util.Arrays.asList;
 
@@ -107,24 +107,27 @@ public abstract class LogicalOperatorCondition extends AbstractCondition impleme
     }
 
     @Override
-    public boolean add(GFCondition newChild) {
+    public void add(GFCondition newChild) {
         checkNotNull(newChild);
         checkNotFrozen();
         integrate(newChild);
-        return conditions.add(newChild);
+        conditions.add(newChild);
     }
 
     public GFCondition remove(int index) {
         checkNotFrozen();
+        checkPositionIndex(index, conditions.size());
         GFCondition ret = conditions.remove(index);
         disintegrate(ret);
         return ret;
     }
 
     @Override
-    public boolean remove(GFCondition condition) {
+    public void remove(GFCondition condition) {
         checkNotFrozen();
-        return conditions.remove(condition);
+        checkArgument(conditions.contains(condition));
+        boolean remove = conditions.remove(condition);
+        assert remove;
     }
 
     protected LogicalOperatorCondition(AbstractBuilder<?,?> builder) {

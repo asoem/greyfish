@@ -45,17 +45,19 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
         }));
     }
 
-    public boolean isCompatibleGenome(Genome<? extends E> genome) {
+    public boolean isCompatibleGenome(Genome<? extends Gene<?>> genome) {
         if (genome == null || this.size() != genome.size())
             return false;
 
-        final Iterator<? extends E> other_genome_iterator = genome.iterator();
-        return(Iterables.all(this, new Predicate<Gene<?>>() {
-            @Override
-            public boolean apply(Gene<?> gene) {
-                return other_genome_iterator.hasNext() && other_genome_iterator.next().isMutatedCopy(gene);
+        final Iterator<E> this_genome_iterator = this.iterator();
+
+        for (Gene<?> aGenome : genome) {
+            if (!this_genome_iterator.next().isMutatedCopy(aGenome)) {
+                return false;
             }
-        }));
+        }
+
+        return true;
     }
 
     @Override

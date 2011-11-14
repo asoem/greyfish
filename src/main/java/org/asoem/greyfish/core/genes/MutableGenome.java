@@ -40,11 +40,12 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
         return Genes.normalizedDistance(this, genome);
     }
 
-    public boolean isCompatibleGenome(Genome<? extends E> genome) {
+    @Override
+    public boolean isCompatibleGenome(Genome<? extends Gene<?>> genome) {
         if (genome == null || this.size() != genome.size())
             return false;
 
-        final Iterator<? extends E> other_genome_iter = genome.iterator();
+        final Iterator<? extends Gene<?>> other_genome_iter = genome.iterator();
         return(Iterables.all(this, new Predicate<Gene<?>>() {
             @Override
             public boolean apply(Gene<?> gene) {

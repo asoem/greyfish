@@ -20,7 +20,7 @@ public final class AlwaysTrueCondition extends LeafCondition {
         return new AlwaysTrueCondition(this, cloner);
     }
 
-    private AlwaysTrueCondition() {
+    public AlwaysTrueCondition() {
         this(new Builder());
     }
 

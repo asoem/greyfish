@@ -34,12 +34,12 @@ public abstract class LeafCondition extends AbstractCondition {
     }
 
     @Override
-    public final boolean remove(GFCondition condition) {
+    public final void remove(GFCondition condition) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public final boolean add(GFCondition condition) {
+    public final void add(GFCondition condition) {
         throw new UnsupportedOperationException();
     }
 }

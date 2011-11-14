@@ -182,7 +182,7 @@ public abstract class AgentDecorator implements Agent {
     }
 
     @Override
-    public void injectGamete(Genome genome) {
+    public void injectGamete(Genome<? extends Gene<?>> genome) {
         delegate.injectGamete(genome);
     }
 

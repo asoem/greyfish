@@ -4,7 +4,6 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.IncompatibleGenomeException;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -57,11 +56,13 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
 
     /**
      * Inject a copy of this agents genome so that this agents genes return the values of the genes in the given genome
+     *
+     *
      * @param genome a copy of this agents genome
      * @throws org.asoem.greyfish.core.genes.IncompatibleGenomeException
      * if {@code genome} is not a copy of this agents genome as defined by {@link Genome#isCompatibleGenome}
      */
-    void injectGamete(Genome genome) throws IncompatibleGenomeException;
+    void injectGamete(Genome<? extends Gene<?>> genome);
 
     Body getBody();
     Color getColor();

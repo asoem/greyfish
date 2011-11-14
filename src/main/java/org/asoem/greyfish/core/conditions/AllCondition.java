@@ -17,11 +17,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
  */
 public class AllCondition extends LogicalOperatorCondition {
 
-
-    @Override
-    public AbstractAgentComponent deepClone(DeepCloner cloner) {
-        return new AllCondition(this, cloner);
-    }
+    public AllCondition() {}
 
     @SimpleXMLConstructor
     public AllCondition(GFCondition ... conditions) {
@@ -49,6 +45,11 @@ public class AllCondition extends LogicalOperatorCondition {
                 }
             });
         }
+    }
+
+    @Override
+    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+        return new AllCondition(this, cloner);
     }
 
     public static AllCondition all(GFCondition ... conditions) { return new AllCondition(conditions); }

@@ -28,6 +28,8 @@ public class MvelEvaluator implements Evaluator {
     static {
         PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(SingletonGreyfishVariableSelector.class, "apply", new Class[] {String.class, AgentComponent.class}));
 
+
+        PARSER_CONTEXT.addImport("min", MVEL.getStaticMethod(Math.class, "min", new Class[] {double.class, double.class}));
         PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
         PARSER_CONTEXT.addImport("log", MVEL.getStaticMethod(Math.class, "log", new Class[] {double.class}));
         PARSER_CONTEXT.addImport("gaussian", MVEL.getStaticMethod(RandomUtils.class, "gaussian", new Class[] {double.class, double.class}));

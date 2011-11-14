@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -13,8 +14,8 @@ public class ClonalReproductionAction extends AbstractGFAction {
     @Attribute(name = "nClones")
     private int parameterClones;
 
-    @SuppressWarnings("unused") // used in deserialization process
-    private ClonalReproductionAction() {
+    @SimpleXMLConstructor
+    public ClonalReproductionAction() {
         this(new Builder());
     }
 

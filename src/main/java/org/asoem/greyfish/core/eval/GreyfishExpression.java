@@ -14,12 +14,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class GreyfishExpression {
 
-    private final Evaluator evaluator;
     private static final Pattern DOLLAR_FUNCTION_PATTERN = Pattern.compile("\\$\\(([^\\)]+)\\)");
+
+    private final Evaluator evaluator;
+    private final String expression;
 
     public GreyfishExpression(String expression, Evaluator evaluator) {
         this.evaluator = checkNotNull(evaluator);
-        setExpression(expression);
+        this.expression = checkNotNull(expression);
+        this.evaluator.setExpression(parameterizeDollarFunction(expression));
     }
 
     public double evaluateAsDouble(AgentComponent context) throws EvaluationException {
@@ -47,16 +50,16 @@ public class GreyfishExpression {
         return evaluator.evaluateAsDouble();
     }
 
-    public void setExpression(String expression) {
-        evaluator.setExpression(parameterizeDollarFunction(expression));
-    }
-
     private static String parameterizeDollarFunction(String expression) {
         return DOLLAR_FUNCTION_PATTERN.matcher(expression).replaceAll("\\$($1, _ctx_)");
     }
 
     public String getExpression() {
-        return evaluator.getExpression();
+        return expression;
+    }
+
+    public Evaluator getEvaluator() {
+        return evaluator;
     }
 
     public VariableResolver createContextResolver(AgentComponent ctx) {
@@ -75,12 +78,14 @@ public class GreyfishExpression {
 
         GreyfishExpression that = (GreyfishExpression) o;
 
-        return evaluator.equals(that.evaluator);
+        return evaluator.equals(that.evaluator) && expression.equals(that.expression);
 
     }
 
     @Override
     public int hashCode() {
-        return evaluator.hashCode();
+        int result = evaluator.hashCode();
+        result = 31 * result + expression.hashCode();
+        return result;
     }
 }

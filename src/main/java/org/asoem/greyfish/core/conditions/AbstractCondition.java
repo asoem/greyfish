@@ -37,7 +37,7 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
 
     @Override
     public final boolean isRootCondition() {
-        return parentCondition != null;
+        return parentCondition == null;
     }
 
     @Override
