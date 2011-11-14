@@ -24,8 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 15:56
  */
-public enum SingletonGreyfishGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
-    INSTANCE;
+public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
 
     private static final Splitter SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
 

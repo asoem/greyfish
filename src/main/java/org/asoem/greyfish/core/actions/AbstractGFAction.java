@@ -24,7 +24,6 @@ import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.actions.ExecutionResult.*;
-import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 @Root
 public abstract class AbstractGFAction extends AbstractAgentComponent implements GFAction {
@@ -35,7 +34,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private GFCondition rootCondition = null;
 
     @Element(name="costs_formula", required = false)
-    private GreyfishExpression energyCosts = compileExpression("0");
+    private GreyfishExpression energyCosts = GreyfishExpression.compile("0");
 
     @Element(name="energy_source", required=false)
     private DoubleProperty energySource;
@@ -177,7 +176,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                energyCosts = compileExpression(arg0.getExpression());
+                energyCosts = GreyfishExpression.compile(arg0.getExpression());
             }
         });
 
@@ -232,11 +231,11 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     protected static abstract class AbstractBuilder<E extends AbstractGFAction, T extends AbstractBuilder<E,T>> extends AbstractAgentComponent.AbstractBuilder<E,T> {
         private GFCondition condition;
         private DoubleProperty source;
-        private GreyfishExpression formula = compileExpression("0");
+        private GreyfishExpression formula = GreyfishExpression.compile("0");
 
         public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
         private T source(DoubleProperty source) { this.source = source; return self(); }
-        private T formula(String formula) { this.formula = compileExpression(formula); return self(); }
+        private T formula(String formula) { this.formula = GreyfishExpression.compile(formula); return self(); }
         public T generatesCosts(DoubleProperty source, String formula) {
             return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
     }

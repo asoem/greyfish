@@ -12,7 +12,6 @@ import org.simpleframework.xml.Element;
 import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags = "actions")
 public class RandomMovementAction extends AbstractGFAction {
@@ -44,7 +43,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                speedFunction = compileExpression(arg0.getExpression());
+                speedFunction = GreyfishExpression.compile(arg0.getExpression());
             }
 
             @Override
@@ -85,7 +84,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
     @SuppressWarnings({"UnusedDeclaration"})
     protected static abstract class AbstractBuilder<E extends RandomMovementAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private GreyfishExpression speedFunction = compileExpression("0");
+        private GreyfishExpression speedFunction = GreyfishExpression.compile("0");
 
         public T speed(GreyfishExpression speedFunction) { this.speedFunction = checkNotNull(speedFunction); return self(); }
     }

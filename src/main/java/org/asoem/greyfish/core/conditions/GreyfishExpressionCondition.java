@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -21,7 +20,7 @@ import javax.annotation.Nullable;
 public class GreyfishExpressionCondition extends LeafCondition {
 
     @Element
-    private GreyfishExpression expression = SingletonGreyfishExpressionFactory.compileExpression("false");
+    private GreyfishExpression expression = GreyfishExpression.compile("false");
 
     public GreyfishExpressionCondition(GreyfishExpressionCondition greyfishExpressionCondition, DeepCloner cloner) {
         super(greyfishExpressionCondition, cloner);

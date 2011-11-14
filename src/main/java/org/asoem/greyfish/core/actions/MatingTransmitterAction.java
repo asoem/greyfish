@@ -21,7 +21,6 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory.compileExpression;
 
 @ClassGroup(tags="actions")
 public class MatingTransmitterAction extends ContractNetParticipantAction {
@@ -31,7 +30,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Element(name="spermFitnessExpression", required = false)
     private GreyfishExpression spermFitnessExpression =
-            compileExpression("0");
+            GreyfishExpression.compile("0");
 
     @SimpleXMLConstructor
     private MatingTransmitterAction() {
@@ -72,7 +71,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                spermFitnessExpression = compileExpression(arg0.getExpression());
+                spermFitnessExpression = GreyfishExpression.compile(arg0.getExpression());
             }
 
             @Override
@@ -137,9 +136,9 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
         private String ontology;
         private GreyfishExpression spermFitnessExpression =
-                compileExpression("0.0");
+                GreyfishExpression.compile("0.0");
 
-        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = compileExpression(spermFitnessExpression); return self(); }
+        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = GreyfishExpression.compile(spermFitnessExpression); return self(); }
         public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         @Override

@@ -19,9 +19,9 @@ import static org.mockito.BDDMockito.given;
  * Time: 12:03
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SingletonGreyfishResolverConverterTest {
+public class DefaultGreyfishVariableAccessorFactoryTest {
 
-    private final SingletonGreyfishGreyfishVariableAccessorFactory converter = SingletonGreyfishGreyfishVariableAccessorFactory.INSTANCE;
+    private final DefaultGreyfishVariableAccessorFactory converter = new DefaultGreyfishVariableAccessorFactory();
 
     @Mock Agent agent;
     @Mock GFAction action;

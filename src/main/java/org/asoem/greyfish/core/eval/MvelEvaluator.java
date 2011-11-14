@@ -26,7 +26,7 @@ public class MvelEvaluator implements Evaluator {
 
     public static final ParserContext PARSER_CONTEXT = new ParserContext();
     static {
-        PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(SingletonGreyfishVariableSelector.class, "apply", new Class[] {String.class, AgentComponent.class}));
+        PARSER_CONTEXT.addImport("$", MVEL.getStaticMethod(GreyfishVariables.class, "$", new Class[] {String.class, AgentComponent.class}));
 
 
         PARSER_CONTEXT.addImport("min", MVEL.getStaticMethod(Math.class, "min", new Class[] {double.class, double.class}));

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.SingletonGreyfishExpressionFactory;
 import org.simpleframework.xml.convert.Converter;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
@@ -19,7 +18,7 @@ class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
         checkNotNull(node);
         String expression = node.getAttribute("expression").getValue();
 
-        return SingletonGreyfishExpressionFactory.compileExpression(expression);
+        return GreyfishExpression.compile(expression);
     }
 
     public void write(OutputNode node, GreyfishExpression external) {

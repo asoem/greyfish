@@ -13,7 +13,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 public interface GreyfishVariableAccessorFactory {
     /**
      *
-     * @param varName The name of a variable which is fed into a {@link org.asoem.greyfish.core.eval.GreyfishVariableResolver}
+     * @param varName The name of a variable
      * @param context The context of the variable definition.
      * @return a {@link Function} of the {@code context} identified by {@code varName}
      * @throws VariableResolutionException if the variable identified by varName has wrong syntax or does not match any function.
@@ -22,7 +22,7 @@ public interface GreyfishVariableAccessorFactory {
 
     /**
      *
-     * @param name The name of a variable which is fed into a {@link org.asoem.greyfish.core.eval.GreyfishVariableResolver}
+     * @param name The name of a variable
      * @param contextClass The class of the context object passed to the resolved function
      * @return {@code true} if this GreyfishVariableAccessorFactory can convert name x contextClass, {@code false} otherwise
      */
