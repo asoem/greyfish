@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
+import com.google.inject.Inject;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -10,8 +10,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 11.11.11
  * Time: 09:16
  */
-public class GreyfishVariables {
-    private final static GreyfishVariableAccessorFactory FACTORY = CoreInjectorHolder.coreInjector().getInstance(GreyfishVariableAccessorFactory.class);
+public class GreyfishVariableFactory {
+    @Inject private static GreyfishVariableAccessorFactory FACTORY;
 
     @SuppressWarnings({"UnusedDeclaration"})
     public static Object $(String expression, AgentComponent ctx) {

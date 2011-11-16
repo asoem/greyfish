@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AgentDecorator implements Agent {
 
-    @Element(name="delegate")
+    @Element(name="getVisibleScenarioEditorPane")
     private final Agent delegate;
 
     /**
@@ -33,7 +33,7 @@ public abstract class AgentDecorator implements Agent {
         super();
         this.delegate = checkNotNull(delegate);
         /*
-        for (AgentComponent component : delegate.getComponents()) {
+        for (AgentComponent component : getVisibleScenarioEditorPane.getComponents()) {
 
             component.setAgent(this);
         }

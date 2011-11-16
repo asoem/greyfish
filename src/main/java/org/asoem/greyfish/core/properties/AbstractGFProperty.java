@@ -39,7 +39,7 @@ public abstract class AbstractGFProperty extends AbstractAgentComponent implemen
     /**
      * Set the delegates of the contained {@code IndexedGene}s and their index to the values provided by the given {@code geneIterator}
      *
-     * @param genes A {@code Genome}'s geneList ListIterator which provides the delegate genes
+     * @param genes A {@code Genome}'s geneList ListIterator which provides the getVisibleScenarioEditorPane genes
      * @see org.asoem.greyfish.core.genes.ImmutableGenome#listIterator()
      */
     public void setGenes(final Iterable<? extends Gene<?>> genes) {

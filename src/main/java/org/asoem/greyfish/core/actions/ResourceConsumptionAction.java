@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -31,7 +32,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Element(name="resourceTransformationFunction", required = false)
     private GreyfishExpression transformationExpression =
-            GreyfishExpression.compile("offer");
+            GreyfishExpressionFactory.compile("offer");
 
     @Element(name="messageType", required=false)
     private String parameterMessageType = "";
@@ -177,7 +178,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.parameterMessageType = builder.parameterMessageType;
         this.amountPerRequest = builder.amountPerRequest;
         this.sensorRange = builder.sensorRange;
-        this.transformationExpression = GreyfishExpression.compile(Optional.fromNullable(builder.transformationFunction).or("offer"));
+        this.transformationExpression = GreyfishExpressionFactory.compile(Optional.fromNullable(builder.transformationFunction).or("offer"));
     }
 
     public static Builder with() { return new Builder(); }

@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
@@ -30,7 +31,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Element(name="spermFitnessExpression", required = false)
     private GreyfishExpression spermFitnessExpression =
-            GreyfishExpression.compile("0");
+            GreyfishExpressionFactory.compile("0");
 
     @SimpleXMLConstructor
     private MatingTransmitterAction() {
@@ -71,7 +72,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                spermFitnessExpression = GreyfishExpression.compile(arg0.getExpression());
+                spermFitnessExpression = GreyfishExpressionFactory.compile(arg0.getExpression());
             }
 
             @Override
@@ -136,9 +137,9 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
         private String ontology;
         private GreyfishExpression spermFitnessExpression =
-                GreyfishExpression.compile("0.0");
+                GreyfishExpressionFactory.compile("0.0");
 
-        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = GreyfishExpression.compile(spermFitnessExpression); return self(); }
+        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = GreyfishExpressionFactory.compile(spermFitnessExpression); return self(); }
         public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         @Override

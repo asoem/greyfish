@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -20,7 +21,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FormulaTrait.class);
 
-    private GreyfishExpression expression = GreyfishExpression.compile("0");
+    private GreyfishExpression expression = GreyfishExpressionFactory.compile("0");
 
     protected FormulaTrait(AbstractBuilder<? extends FormulaTrait, ? extends AbstractBuilder> builder) {
         super(builder);
@@ -68,6 +69,6 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
     protected static abstract class AbstractBuilder<E extends FormulaTrait, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         private GreyfishExpression expression;
 
-        public T expression(String expression) { this.expression = GreyfishExpression.compile(expression); return self(); }
+        public T expression(String expression) { this.expression = GreyfishExpressionFactory.compile(expression); return self(); }
     }
 }

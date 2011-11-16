@@ -18,7 +18,7 @@ public class ForwardingGene<T> implements Gene<T> {
 
     /**
      * Copy Constructor
-     * @param gene the delegate to forward methods to
+     * @param gene the getVisibleScenarioEditorPane to forward methods to
      */
     public ForwardingGene(Gene<T> gene) {
         setDelegate(gene);

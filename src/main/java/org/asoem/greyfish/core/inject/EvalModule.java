@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.inject;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
+import com.google.inject.Provider;
 import org.asoem.greyfish.core.eval.*;
 
 /**
@@ -13,10 +13,13 @@ public class EvalModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(Evaluator.class).to(MvelEvaluator.class);
-    }
-
-    @Provides
-    GreyfishVariableAccessorFactory provideGreyfishVariableAccessorFactory() {
-        return new CachedGreyfishVariableAccessorFactory(new DefaultGreyfishVariableAccessorFactory());
+        bind(GreyfishVariableAccessorFactory.class).toProvider(new Provider<GreyfishVariableAccessorFactory>() {
+            @Override
+            public GreyfishVariableAccessorFactory get() {
+                return new CachedGreyfishVariableAccessorFactory(new DefaultGreyfishVariableAccessorFactory());
+            }
+        });
+        requestStaticInjection(GreyfishVariableFactory.class);
+        requestStaticInjection(GreyfishExpressionFactory.class);
     }
 }

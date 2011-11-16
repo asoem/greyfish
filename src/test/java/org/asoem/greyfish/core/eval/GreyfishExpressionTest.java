@@ -86,8 +86,8 @@ public class GreyfishExpressionTest {
         String expression = "1+2";
 
         // when
-        GreyfishExpression expression1 = GreyfishExpression.compile(expression);
-        GreyfishExpression expression2 = GreyfishExpression.compile(expression);
+        GreyfishExpression expression1 = GreyfishExpressionFactory.compile(expression);
+        GreyfishExpression expression2 = GreyfishExpressionFactory.compile(expression);
 
         // than
         assertThat(expression1).isEqualTo(expression2);

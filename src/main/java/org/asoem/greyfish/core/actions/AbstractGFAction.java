@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
@@ -34,7 +35,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private GFCondition rootCondition = null;
 
     @Element(name="costs_formula", required = false)
-    private GreyfishExpression energyCosts = GreyfishExpression.compile("0");
+    private GreyfishExpression energyCosts = GreyfishExpressionFactory.compile("0");
 
     @Element(name="energy_source", required=false)
     private DoubleProperty energySource;
@@ -176,7 +177,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                energyCosts = GreyfishExpression.compile(arg0.getExpression());
+                energyCosts = GreyfishExpressionFactory.compile(arg0.getExpression());
             }
         });
 
@@ -231,11 +232,11 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     protected static abstract class AbstractBuilder<E extends AbstractGFAction, T extends AbstractBuilder<E,T>> extends AbstractAgentComponent.AbstractBuilder<E,T> {
         private GFCondition condition;
         private DoubleProperty source;
-        private GreyfishExpression formula = GreyfishExpression.compile("0");
+        private GreyfishExpression formula = GreyfishExpressionFactory.compile("0");
 
         public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
         private T source(DoubleProperty source) { this.source = source; return self(); }
-        private T formula(String formula) { this.formula = GreyfishExpression.compile(formula); return self(); }
+        private T formula(String formula) { this.formula = GreyfishExpressionFactory.compile(formula); return self(); }
         public T generatesCosts(DoubleProperty source, String formula) {
             return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
     }

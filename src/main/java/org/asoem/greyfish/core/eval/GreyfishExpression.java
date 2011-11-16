@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.eval;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 
 import java.util.regex.Pattern;
 
@@ -21,7 +21,8 @@ public class GreyfishExpression {
     private final Evaluator evaluator;
     private final String expression;
 
-    public GreyfishExpression(String expression, Evaluator evaluator) {
+    @Inject
+    public GreyfishExpression(@Assisted String expression, Evaluator evaluator) {
         this.evaluator = checkNotNull(evaluator);
         this.expression = checkNotNull(expression);
         this.evaluator.setExpression(parameterizeDollarFunction(expression));
@@ -89,32 +90,5 @@ public class GreyfishExpression {
         int result = evaluator.hashCode();
         result = 31 * result + expression.hashCode();
         return result;
-    }
-
-    /**
-     * Uses the {@link Factory} to create a new {@code GreyfishExpression} based on the given {@code expression}
-     * and the injected {@link Evaluator} configured for {@link org.asoem.greyfish.core.inject.CoreInjectorHolder#coreInjector()}
-     * @param expression The expression string
-     * @return A new GreyfishExpression
-     */
-    public static GreyfishExpression compile(String expression) {
-        return CoreInjectorHolder.coreInjector().getInstance(Factory.class).compile(expression);
-    }
-
-    /**
-     *
-     */
-    public static class Factory {
-
-        private final Evaluator evaluator;
-
-        @Inject
-        public Factory(Evaluator evaluator) {
-            this.evaluator = checkNotNull(evaluator);
-        }
-
-        public GreyfishExpression compile(String expression) {
-            return new GreyfishExpression(expression, evaluator);
-        }
     }
 }

@@ -10,7 +10,7 @@ import org.simpleframework.xml.Element;
 
 public abstract class PropertyDecorator implements GFProperty {
 
-    @Element(name = "delegate")
+    @Element(name = "getVisibleScenarioEditorPane")
     protected abstract GFProperty getDelegate();
 
     @Override
