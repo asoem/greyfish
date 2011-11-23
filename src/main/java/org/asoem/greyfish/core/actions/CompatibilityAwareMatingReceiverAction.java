@@ -21,7 +21,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -81,7 +81,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
                 return filter(agent().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
-        e.add("Message Type", new ValueAdaptor<String>(String.class) {
+        e.add("Message Type", new TypedValueAdaptor<String>() {
             @Override
             protected void set(String arg0) {
                 ontology = checkNotNull(arg0);
@@ -92,7 +92,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
                 return ontology;
             }
         });
-        e.add("Sensor Range", new ValueAdaptor<Double>(Double.class) {
+        e.add("Sensor Range", new TypedValueAdaptor<Double>() {
             @Override
             protected void set(Double arg0) {
                 sensorRange = checkNotNull(arg0);

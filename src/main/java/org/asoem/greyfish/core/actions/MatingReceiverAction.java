@@ -16,7 +16,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
@@ -70,7 +70,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 return filter(agent().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
-        e.add("Message Type", new ValueAdaptor<String>(String.class) {
+        e.add("Message Type", new TypedValueAdaptor<String>() {
             @Override
             protected void set(String arg0) {
                 ontology = checkNotNull(arg0);
@@ -81,7 +81,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 return ontology;
             }
         });
-        e.add("Sensor Range", new ValueAdaptor<Double>(Double.class) {
+        e.add("Sensor Range", new TypedValueAdaptor<Double>() {
             @Override
             protected void set(Double arg0) {
                 sensorRange = checkNotNull(arg0);

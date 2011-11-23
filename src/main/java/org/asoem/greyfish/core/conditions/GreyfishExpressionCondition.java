@@ -7,7 +7,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
@@ -44,7 +44,7 @@ public class GreyfishExpressionCondition extends LeafCondition {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("bool expression", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
+        e.add("bool expression", new TypedValueAdaptor<GreyfishExpression>() {
             @Override
             protected void set(GreyfishExpression arg0) {
                 expression = arg0;

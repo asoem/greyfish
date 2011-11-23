@@ -8,7 +8,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -43,7 +43,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 	public void configure(ConfigurationHandler e) {
 		super.configure(e);
 		
-		e.add("Steps", new ValueAdaptor<Integer>(Integer.class) {
+		e.add("Steps", new TypedValueAdaptor<Integer>() {
 
             @Override
             protected void set(Integer arg0) {

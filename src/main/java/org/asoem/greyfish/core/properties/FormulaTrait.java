@@ -7,7 +7,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add("expression", ValueAdaptor.forField("expression", GreyfishExpression.class, this, "Formula"));
+        e.add("expression", TypedValueAdaptor.forField("expression", GreyfishExpression.class, this, "Formula"));
     }
 
     @Override

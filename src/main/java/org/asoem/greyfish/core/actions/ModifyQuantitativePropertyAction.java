@@ -14,7 +14,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
@@ -76,7 +76,7 @@ public class ModifyQuantitativePropertyAction extends AbstractGFAction {
                 return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
-        e.add("Formula", new ValueAdaptor<String>(String.class) {
+        e.add("Formula", new TypedValueAdaptor<String>() {
             @Override
             protected void set(String arg0) {
                 energyCostsFormula = checkNotNull(arg0);

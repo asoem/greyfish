@@ -8,7 +8,7 @@ import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
@@ -67,15 +67,15 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     public void configure(ConfigurationHandler e, Class<E> clazz) {
         super.configure(e);
 
-        e.add("lowerBound", new ValueAdaptor<E>(clazz) {
+        e.add("lowerBound", new TypedValueAdaptor<E>() {
             @Override protected void set(E arg0) { lowerBound = checkNotNull(arg0); }
             @Override public E get() { return lowerBound; }
         });
-        e.add("upperBound", new ValueAdaptor<E>(clazz) {
+        e.add("upperBound", new TypedValueAdaptor<E>() {
             @Override protected void set(E arg0) { upperBound = arg0; }
             @Override public E get() { return upperBound; }
         });
-        e.add("Initial", new ValueAdaptor<E>(clazz) {
+        e.add("Initial", new TypedValueAdaptor<E>() {
 
             @Override protected void set(E arg0) { initialValue = arg0; }
             @Override public E get() { return initialValue; }

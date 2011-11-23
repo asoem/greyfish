@@ -8,7 +8,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Number of offspring", new ValueAdaptor<Integer>(Integer.class) {
+        e.add("Number of offspring", new TypedValueAdaptor<Integer>() {
             @Override
             protected void set(Integer arg0) {
                 nOffspring = checkNotNull(arg0);

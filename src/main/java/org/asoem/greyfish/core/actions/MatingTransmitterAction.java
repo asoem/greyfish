@@ -16,7 +16,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.ValueAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
 
@@ -56,7 +56,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Message Type", new ValueAdaptor<String>(String.class) {
+        e.add("Message Type", new TypedValueAdaptor<String>() {
 
             @Override
             protected void set(String arg0) {
@@ -68,7 +68,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
                 return ontology;
             }
         });
-        e.add("Sperm Fitness", new ValueAdaptor<GreyfishExpression>(GreyfishExpression.class) {
+        e.add("Sperm Fitness", new TypedValueAdaptor<GreyfishExpression>() {
 
             @Override
             protected void set(GreyfishExpression arg0) {
