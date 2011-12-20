@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.simpleframework.xml.Attribute;
 
 @ClassGroup(tags="actions")
@@ -48,7 +48,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("#clones", new TypedValueAdaptor<Integer>() {
+        e.add("#clones", new AbstractTypedValueModel<Integer>() {
             @Override
             protected void set(Integer arg0) {
                 parameterClones = arg0;

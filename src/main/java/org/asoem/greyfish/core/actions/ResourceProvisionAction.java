@@ -12,7 +12,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.simpleframework.xml.Element;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +83,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Ontology", new TypedValueAdaptor<String>(
+        e.add("Ontology", new AbstractTypedValueModel<String>(
         ) {
             @Override
             protected void set(String arg0) {

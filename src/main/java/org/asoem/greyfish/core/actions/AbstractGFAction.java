@@ -12,9 +12,9 @@ import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
@@ -169,7 +169,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        e.add("Energy Costs", new TypedValueAdaptor<GreyfishExpression>() {
+        e.add("Energy Costs", new AbstractTypedValueModel<GreyfishExpression>() {
             @Override
             public GreyfishExpression get() {
                 return energyCosts;

@@ -14,9 +14,9 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 import org.slf4j.LoggerFactory;
@@ -106,7 +106,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Ontology", new TypedValueAdaptor<String>() {
+        e.add("Ontology", new AbstractTypedValueModel<String>() {
             @Override
             protected void set(String arg0) {
                 parameterMessageType = checkNotNull(arg0);
@@ -117,7 +117,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return parameterMessageType;
             }
         });
-        e.add("Requested Amount", new TypedValueAdaptor<Double>() {
+        e.add("Requested Amount", new AbstractTypedValueModel<Double>() {
             @Override
             protected void set(Double arg0) {
                 amountPerRequest = checkNotNull(arg0);
@@ -144,8 +144,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
-        e.add("Resource Transformation Function: f(#{1})", TypedValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
-        e.add("Sensor Range", new TypedValueAdaptor<Double>() {
+        e.add("Resource Transformation Function: f(#{1})", AbstractTypedValueModel.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
+        e.add("Sensor Range", new AbstractTypedValueModel<Double>() {
             @Override
             protected void set(Double arg0) {
                 sensorRange = checkNotNull(arg0);

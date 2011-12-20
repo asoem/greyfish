@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -30,7 +30,7 @@ public class RandomCondition extends LeafCondition {
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add("", new TypedValueAdaptor<Double>() {
+        e.add("", new AbstractTypedValueModel<Double>() {
             @Override
             protected void set(Double arg0) {
                 probability = arg0;

@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.simpleframework.xml.Element;
 
 import java.awt.*;
@@ -41,7 +41,7 @@ public class ChangeBodyAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Color", new TypedValueAdaptor<Color>() {
+        e.add("Color", new AbstractTypedValueModel<Color>() {
             @Override
             public Color get() {
                 return color;

@@ -11,7 +11,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueAdaptor;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import javax.annotation.Nullable;
@@ -121,7 +121,7 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Initial Value", new TypedValueAdaptor<GreyfishExpression>() {
+        e.add("Initial Value", new AbstractTypedValueModel<GreyfishExpression>() {
             @Override
             protected void set(GreyfishExpression arg0) {
                 initialValueGenerator = arg0;
@@ -133,7 +133,7 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
             }
         });
 
-        e.add("Mutation", new TypedValueAdaptor<GreyfishExpression>() {
+        e.add("Mutation", new AbstractTypedValueModel<GreyfishExpression>() {
             @Override
             protected void set(GreyfishExpression arg0) {
                 mutationDistributionFunction = arg0;

@@ -189,7 +189,12 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Iterable<Gene<?>> getGenes() {
-        return Collections.<Gene<?>>unmodifiableCollection(genome);
+        return Iterables.transform(genome, new Function<ForwardingGene<?>, Gene<?>>() {
+            @Override
+            public Gene<?> apply(ForwardingGene<?> forwardingGene) {
+                return forwardingGene.getDelegate();
+            }
+        });
     }
 
     @Override
