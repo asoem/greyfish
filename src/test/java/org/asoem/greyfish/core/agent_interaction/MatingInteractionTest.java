@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.actions.MatingTransmitterAction;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
@@ -28,6 +29,10 @@ import static org.mockito.Mockito.spy;
 public class MatingInteractionTest {
 
     @Mock Population population;
+
+    public MatingInteractionTest() {
+        CoreInjectorHolder.coreInjector();
+    }
 
     @Test
     public void testNormalInteraction() throws Exception {

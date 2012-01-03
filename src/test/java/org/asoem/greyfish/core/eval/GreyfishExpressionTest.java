@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
 import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -23,6 +24,10 @@ public class GreyfishExpressionTest {
     @Mock EvaluatorFactory evaluatorFactory;
     @Mock Evaluator evaluator;
     @Mock AgentComponent context;
+
+    public GreyfishExpressionTest() {
+        CoreInjectorHolder.coreInjector();
+    }
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullEvaluatorFactory() {

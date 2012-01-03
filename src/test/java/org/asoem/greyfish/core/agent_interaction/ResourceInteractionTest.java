@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
@@ -28,6 +29,10 @@ import static org.mockito.Mockito.spy;
 public class ResourceInteractionTest {
     @Mock
     Population population;
+
+    public ResourceInteractionTest() {
+        CoreInjectorHolder.coreInjector();
+    }
 
     @Test
     public void testNormalInteraction() throws Exception {

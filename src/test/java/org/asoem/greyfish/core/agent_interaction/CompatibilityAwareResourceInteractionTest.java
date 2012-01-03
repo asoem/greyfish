@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.core.properties.BitSetTrait;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.ResourceProperty;
@@ -36,6 +37,10 @@ import static org.mockito.Mockito.spy;
 public class CompatibilityAwareResourceInteractionTest {
     @Mock
     Population population;
+
+    public CompatibilityAwareResourceInteractionTest() {
+        CoreInjectorHolder.coreInjector();
+    }
 
     @Test
     public void testNormalInteraction() throws Exception {
