@@ -13,6 +13,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -124,10 +125,6 @@ public class TiledSpace implements Iterable<TileLocation> {
         return "Tiled Space: dim="+width+"x"+height+"; oc="+Iterables.size(getOccupants());
     }
 
-    public Iterable<Object2D> getOccupants() {
-        return objectLocation2DMap.values();
-    }
-
     private void updateTopo() {
         twoDimTree.rebuild(objectLocation2DMap.keySet(), forMap(Maps.<Movable, Object2D, Coordinates2D>transformValues(objectLocation2DMap,new Function<Object2D, Coordinates2D>() {
             @Override
@@ -213,13 +210,27 @@ public class TiledSpace implements Iterable<TileLocation> {
         }));
     }
 
-    public Iterable<Movable> getOccupants(final TileLocation location) {
-        return Maps.filterValues(objectLocation2DMap, new Predicate<Object2D>() {
+    public Iterable<Movable> getOccupants() {
+        return objectLocation2DMap.keySet();
+    }
+
+    public Iterable<Movable> getOccupants(final TileLocation tileLocation) {
+        return getOccupants(Collections.singleton(tileLocation));
+    }
+
+    public Iterable<Movable> getOccupants(Iterable<? extends TileLocation> tileLocations) {
+        return Iterables.concat(Iterables.transform(tileLocations, new Function<TileLocation, Iterable<Movable>>() {
             @Override
-            public boolean apply(Object2D coordinates2D) {
-                return location.covers(coordinates2D.getCoordinates());
+            public Iterable<Movable> apply(@Nullable final TileLocation tileLocation) {
+                return Maps.filterValues(objectLocation2DMap, new Predicate<Object2D>() {
+                    @Override
+                    public boolean apply(Object2D coordinates2D) {
+                        assert tileLocation != null;
+                        return tileLocation.covers(coordinates2D.getCoordinates());
+                    }
+                }).keySet();
             }
-        }).keySet();
+        }));
     }
 
     public void addObject(Movable movable, Coordinates2D coordinates2D) {
@@ -231,13 +242,15 @@ public class TiledSpace implements Iterable<TileLocation> {
         }
     }
 
-    public void removeObject(Movable movable) {
+    public boolean removeObject(Movable movable) {
         checkNotNull(movable);
         synchronized (this) {
-            if(objectLocation2DMap.remove(movable) == null) {
-                throw new IllegalArgumentException("Object not maintained by this space: " + movable);
+            if (objectLocation2DMap.remove(movable) != null) {
+                twoDimTreeOutdated = true;
+                return true;
             }
-            twoDimTreeOutdated = true;
+            else
+                return false;
         }
     }
 

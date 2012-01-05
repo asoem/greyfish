@@ -35,9 +35,6 @@ public class BasicScenario implements Scenario {
     @ElementList(name = "prototypes", entry = "prototype")
     private final Set<Agent> prototypes = Sets.newHashSet();
 
-    @ElementList(name="prototypes", entry="prototype")
-    private final List<Placeholder> placeholders = Lists.newArrayList();
-
     @SimpleXMLConstructor
     private BasicScenario(
             @Attribute(name = "name") String name,
@@ -52,7 +49,10 @@ public class BasicScenario implements Scenario {
         this.name = name;
         this.prototypeSpace = space;
         this.prototypes.addAll(prototypes);
-        this.placeholders.addAll(placeholders);
+
+        for (Placeholder prototype : placeholders) {
+            prototypeSpace.addObject(prototype, prototype.getCoordinates());
+        }
     }
 
     private BasicScenario(Builder builder) {
@@ -72,13 +72,13 @@ public class BasicScenario implements Scenario {
             if (!prototypes.add(prototype))
                 return false;
 
-        placeholders.add(Placeholder.newInstance(prototype, location));
+        prototypeSpace.addObject(Placeholder.newInstance(prototype, location), location.getCoordinates());
         return true;
     }
 
     @Override
     public boolean removePlaceholder(Placeholder ph) {
-        return placeholders.remove(ph);
+        return prototypeSpace.removeObject(ph);
     }
 
     @Override
@@ -97,9 +97,10 @@ public class BasicScenario implements Scenario {
         });
     }
 
+    @ElementList(name = "placeholders", entry = "placeholder")
     @Override
     public Iterable<Placeholder> getPlaceholder() {
-        return placeholders;
+        return Iterables.filter(prototypeSpace.getOccupants(), Placeholder.class);
     }
 
     @Override
