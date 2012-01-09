@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.TypedValueHolder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -17,7 +17,7 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Value", new AbstractTypedValueModel<Integer>() {
+        e.add("Value", new TypedValueHolder<Integer>(0) {
 
             @Override
             protected void set(Integer arg0) {

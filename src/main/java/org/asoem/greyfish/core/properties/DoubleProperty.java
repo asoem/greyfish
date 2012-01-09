@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
-@ClassGroup(tags="property")
+@ClassGroup(tags="properties")
 public class DoubleProperty extends AbstractRangeElementProperty<Double> implements ContinuousProperty<Double> {
 
     @SimpleXMLConstructor

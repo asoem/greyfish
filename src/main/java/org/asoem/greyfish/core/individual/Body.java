@@ -13,10 +13,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.collect.MutableRangeElement;
 import org.asoem.greyfish.utils.collect.RangeElement;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.MapValuesAdaptor;
-import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.*;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.Movable;
 import org.asoem.greyfish.utils.space.MutableMovable;
@@ -138,7 +135,7 @@ public class Body extends AbstractAgentComponent implements Movable {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Radius of the Circle", AbstractTypedValueModel.forField("Radius of the Circle", Double.class, this, "radius"));
+        e.add("Radius of the Circle", TypedValueModels.forField("radius", this, Double.class));
         SetAdaptor<Object> b = new SetAdaptor<Object>(Object.class) {
             @Override protected void set(Object arg0) {
                 state = checkNotNull(arg0);

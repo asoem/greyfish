@@ -17,7 +17,7 @@ import org.asoem.greyfish.utils.math.RandomUtils;
  * Date: 23.05.11
  * Time: 11:28
  */
-@ClassGroup(tags = {"property"})
+@ClassGroup(tags = {"properties"})
 public class DoubleTrait extends AbstractGFProperty implements RangeElementProperty<Double> {
 
     private final Gene<Double> doubleGene;

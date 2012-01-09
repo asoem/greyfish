@@ -13,7 +13,7 @@ import java.util.Set;
 import static org.asoem.greyfish.utils.math.RandomUtils.nextBoolean;
 import static org.asoem.greyfish.utils.math.RandomUtils.trueWithProbability;
 
-@ClassGroup(tags="property")
+@ClassGroup(tags="properties")
 public class GonoGenderStateProperty extends AbstractGFProperty implements FiniteStateProperty<GonoGenderStateProperty.Gender> {
 
     // TODO: Add configurable matrix for state transition values. Alternative: A configurable "state" gene field

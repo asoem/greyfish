@@ -4,7 +4,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
-@ClassGroup(tags="property")
+@ClassGroup(tags="properties")
 public class IntProperty extends AbstractRangeElementProperty<Integer> {
 
     private IntProperty() {

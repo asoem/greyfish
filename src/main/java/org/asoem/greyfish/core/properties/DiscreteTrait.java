@@ -23,7 +23,7 @@ import java.util.Set;
  * Date: 06.09.11
  * Time: 10:28
  */
-@ClassGroup(tags = {"property"})
+@ClassGroup(tags = {"properties"})
 public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProperty<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscreteTrait.class);

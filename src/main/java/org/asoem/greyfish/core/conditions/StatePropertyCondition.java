@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -25,7 +26,18 @@ public class StatePropertyCondition extends LeafCondition {
     @Element(name="state",required=false)
     private Object state;
 
-    public StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
+    @SimpleXMLConstructor
+    public StatePropertyCondition() {
+        this(new Builder());
+    }
+
+    protected StatePropertyCondition(AbstractBuilder<?,?> builder) {
+        super(builder);
+        this.state = builder.state;
+        this.stateProperty = builder.property;
+    }
+
+    protected StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
         this.stateProperty = map.cloneField(condition.stateProperty, FiniteStateProperty.class);
         this.state = condition.state;
@@ -71,16 +83,6 @@ public class StatePropertyCondition extends LeafCondition {
             }
         });
         e.add("has state", stateAdaptor);
-    }
-
-    private StatePropertyCondition() {
-        this(new Builder());
-    }
-
-    protected StatePropertyCondition(AbstractBuilder<?,?> builder) {
-        super(builder);
-        this.state = builder.state;
-        this.stateProperty = builder.property;
     }
 
     public static Builder trueIf() { return new Builder(); }

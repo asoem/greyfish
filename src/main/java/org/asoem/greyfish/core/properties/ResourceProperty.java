@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-@ClassGroup(tags="property")
+@ClassGroup(tags="properties")
 public class ResourceProperty extends DoubleProperty {
 
     private final ConsumerGroup<DoubleProperty> consumerGroup = new ConsumerGroup<DoubleProperty>(getName());

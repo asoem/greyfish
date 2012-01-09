@@ -17,6 +17,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 import org.slf4j.LoggerFactory;
@@ -144,7 +145,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
-        e.add("Resource Transformation Function: f(#{1})", AbstractTypedValueModel.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
+        e.add("Resource Transformation Function: f(#{1})", TypedValueModels.forField("transformationFunction", this, String.class));
         e.add("Sensor Range", new AbstractTypedValueModel<Double>() {
             @Override
             protected void set(Double arg0) {

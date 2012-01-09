@@ -19,7 +19,7 @@ import java.util.List;
  * @author christoph
  *
  */
-@ClassGroup(tags="property")
+@ClassGroup(tags="properties")
 public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedCandidate<Genome>>> {
 
     final private List<EvaluatedCandidate<Genome>> spermList = Lists.newArrayList();
