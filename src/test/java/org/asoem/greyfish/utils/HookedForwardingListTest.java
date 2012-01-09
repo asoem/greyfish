@@ -43,7 +43,7 @@ public class HookedForwardingListTest {
             }
 
             @Override
-            protected void afterAddition(ListElement element) {
+            protected void afterAddition(ListElement element, int index) {
                 element.wasPassedToTheAfterAdditionHook();
             }
 
@@ -53,7 +53,7 @@ public class HookedForwardingListTest {
             }
 
             @Override
-            protected void afterRemoval(ListElement element) {
+            protected void afterRemoval(ListElement element, int index) {
                 element.wasPassedToTheAfterRemovalHook();
             }
 

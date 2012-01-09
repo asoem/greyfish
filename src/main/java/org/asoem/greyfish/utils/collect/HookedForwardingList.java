@@ -16,9 +16,9 @@ import java.util.ListIterator;
 public abstract class HookedForwardingList<T> extends ForwardingList<T> {
 
     protected void beforeAddition(@Nullable T element) {}
-    protected void afterAddition(@Nullable T element) {}
+    protected void afterAddition(@Nullable T element, int index) {}
     protected void beforeRemoval(@Nullable T element) {}
-    protected void afterRemoval(@Nullable T element) {}
+    protected void afterRemoval(@Nullable T element, int index) {}
     protected void beforeReplacement(@Nullable T oldElement, @Nullable T newElement) {}
     protected void afterReplacement(@Nullable T oldElement, @Nullable T newElement) {}
 
@@ -36,7 +36,7 @@ public abstract class HookedForwardingList<T> extends ForwardingList<T> {
     public final void add(int index, T element) {
         beforeAddition(element);
         super.add(index, element);
-        afterAddition(element);
+        afterAddition(element, index);
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class HookedForwardingList<T> extends ForwardingList<T> {
             public void remove() {
                 beforeRemoval(current);
                 super.remove();
-                afterRemoval(current);
+                afterRemoval(current, this.previousIndex());
             }
         };
     }

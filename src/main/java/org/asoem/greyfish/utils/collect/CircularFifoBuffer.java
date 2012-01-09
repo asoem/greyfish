@@ -41,7 +41,7 @@ public class CircularFifoBuffer<E> extends HookedForwardingList<E> {
     }
 
     @Override
-    protected final void afterAddition(@Nullable E element) {
+    protected final void afterAddition(@Nullable E element, int index) {
         if (size() > maxSize)
             delegate.removeFirst();
     }
