@@ -13,6 +13,7 @@ public enum CoreInjectorHolder implements Supplier<Injector> {
     INSTANCE;
 
     private Injector injector = Guice.createInjector(
+            new CoreModule(),
             new EvalModule()
     );
 

@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-@ClassGroup(tags="condition")
+@ClassGroup(tags="conditions")
 public final class AgeCondition extends IntCompareCondition {
 
     @SimpleXMLConstructor

@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
  * Date: 11.11.11
  * Time: 11:42
  */
-@ClassGroup(tags="condition")
+@ClassGroup(tags="conditions")
 public class GreyfishExpressionCondition extends LeafCondition {
 
     @Element
