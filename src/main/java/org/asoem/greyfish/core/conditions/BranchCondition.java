@@ -24,24 +24,24 @@ import static java.util.Arrays.asList;
 
 
 /**
- * Implementations of <code>LogicalOperatorCondition</code> should logically concatenate two or more implementations of <code>Condition</code>.
+ * Implementations of <code>BranchCondition</code> should logically concatenate two or more implementations of <code>Condition</code>.
  * @author christoph
  *
  */
-public abstract class LogicalOperatorCondition extends AbstractCondition implements Iterable<GFCondition> {
+public abstract class BranchCondition extends AbstractCondition implements Iterable<GFCondition> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogicalOperatorCondition.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BranchCondition.class);
 
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
     protected List<GFCondition> conditions = Lists.newArrayList();
 
-    protected LogicalOperatorCondition(LogicalOperatorCondition cloneable, DeepCloner map) {
+    protected BranchCondition(BranchCondition cloneable, DeepCloner map) {
         super(cloneable, map);
         for (GFCondition condition : cloneable.getChildConditions())
             add(map.cloneField(condition, GFCondition.class));
     }
 
-    public LogicalOperatorCondition(GFCondition ... conditions) {
+    public BranchCondition(GFCondition... conditions) {
         addAll(Arrays.asList(conditions));
         integrate(conditions);
     }
@@ -130,7 +130,14 @@ public abstract class LogicalOperatorCondition extends AbstractCondition impleme
         assert remove;
     }
 
-    protected LogicalOperatorCondition(AbstractBuilder<?,?> builder) {
+    @Override
+    public void removeAll() {
+        for (GFCondition condition : conditions) {
+            remove(condition);
+        }
+    }
+
+    protected BranchCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         addAll(builder.conditions);
     }
@@ -140,10 +147,10 @@ public abstract class LogicalOperatorCondition extends AbstractCondition impleme
         super.freeze();
         conditions = ImmutableList.copyOf(conditions);
         if (conditions.isEmpty())
-            LOGGER.debug("LogicalOperatorCondition '" + getName() + "' has no subconditions");
+            LOGGER.debug("BranchCondition '" + getName() + "' has no subconditions");
     }
 
-    protected static abstract class AbstractBuilder<E extends LogicalOperatorCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {
         private final List<GFCondition> conditions = Lists.newArrayList();
 
         protected T add(GFCondition condition) { condition.add(checkNotNull(condition)); return self(); }

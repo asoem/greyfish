@@ -39,6 +39,11 @@ public abstract class LeafCondition extends AbstractCondition {
     }
 
     @Override
+    public final void removeAll() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public final void add(GFCondition condition) {
         throw new UnsupportedOperationException();
     }

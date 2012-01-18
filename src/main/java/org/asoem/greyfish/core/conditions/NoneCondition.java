@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-public class NoneCondition extends LogicalOperatorCondition {
+public class NoneCondition extends BranchCondition {
 
     public NoneCondition(NoneCondition condition, DeepCloner map) {
         super(condition, map);

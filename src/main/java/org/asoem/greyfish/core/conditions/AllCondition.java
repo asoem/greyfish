@@ -15,7 +15,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
  * @author christoph
  *
  */
-public class AllCondition extends LogicalOperatorCondition {
+public class AllCondition extends BranchCondition {
 
     public AllCondition() {}
 
@@ -64,6 +64,6 @@ public class AllCondition extends LogicalOperatorCondition {
         @Override public AllCondition checkedBuild() { return new AllCondition(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends AllCondition, T extends AbstractBuilder<E,T>> extends LogicalOperatorCondition.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends AllCondition, T extends AbstractBuilder<E,T>> extends BranchCondition.AbstractBuilder<E,T> {
     }
 }

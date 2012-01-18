@@ -14,7 +14,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
  * @author christoph
  *
  */
-public class AnyCondition extends LogicalOperatorCondition {
+public class AnyCondition extends BranchCondition {
 
     public AnyCondition(AnyCondition condition, DeepCloner map) {
         super(condition, map);
