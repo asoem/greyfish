@@ -39,7 +39,7 @@ public class ClassFinder {
             }
             /*
             else {
-				jar.add(classPathDirs[i].getAbsolutePath());
+				jar.createChildNode(classPathDirs[i].getAbsolutePath());
 			}
 			*/
         }

@@ -40,7 +40,7 @@ public class DeepCloner {
         checkNotNull(clazz);
         if (insertIsRequired())
             throw new IllegalStateException(
-                    "A clone should add an entry for itself first with cloner.setAsCloned(cloneable, this)");
+                    "A clone should createChildNode an entry for itself first with cloner.setAsCloned(cloneable, this)");
 
         if (cloneable == null)
             return null;

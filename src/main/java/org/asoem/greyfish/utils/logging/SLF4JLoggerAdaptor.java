@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import org.slf4j.Marker;
 
 /**
- * Instances of {@code SLF4JLoggerAdaptor} decorate instances of {@link org.slf4j.Logger} to add vararg support.
+ * Instances of {@code SLF4JLoggerAdaptor} decorate instances of {@link org.slf4j.Logger} to createChildNode vararg support.
  */
 public class SLF4JLoggerAdaptor implements Logger {
 
