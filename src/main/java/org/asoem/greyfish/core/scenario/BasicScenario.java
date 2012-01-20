@@ -159,7 +159,7 @@ public class BasicScenario implements Scenario {
         }
 
         /**
-         * Create and add a {@link Placeholder} of the given {@code prototype}
+         * Create and createChildNode a {@link Placeholder} of the given {@code prototype}
          * represented by the given {@code object2D} to the {@code Scenario}.
          * @param prototype the prototype
          * @param object2D an {@code Object2D} to be placed in the {@code TiledSpace} defined in the constructor of this {@code Builder}

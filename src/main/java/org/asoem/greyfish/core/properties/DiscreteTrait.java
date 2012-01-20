@@ -62,7 +62,7 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProp
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        // TODO: add map to exporter
+        // TODO: createChildNode map to exporter
     }
 
     @Override

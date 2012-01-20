@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * An {@code ImmutableAgent} is an implementation of an {@link Agent} which guarantees no structural changes during it's lifetime.
- * This means, you cannot add or remove any {@link AgentComponent} to this {@code Agent}. If you try to, it will throw an {@link UnsupportedOperationException}.
+ * This means, you cannot createChildNode or remove any {@link AgentComponent} to this {@code Agent}. If you try to, it will throw an {@link UnsupportedOperationException}.
  * The {@code AgentComponent}s themselves are not restricted in their mutabilty, and they most certainly will always be mutable.
  * Apart from the structure, other properties of the {@code Agent} will be modified during a {@link Simulation}.
  */
