@@ -8,6 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 /**
@@ -15,6 +16,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
  * @author christoph
  *
  */
+@ClassGroup(tags="conditions")
 public class AllCondition extends BranchCondition {
 
     public AllCondition() {}

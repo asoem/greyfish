@@ -4,8 +4,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
+@ClassGroup(tags="conditions")
 public class NoneCondition extends BranchCondition {
 
     public NoneCondition(NoneCondition condition, DeepCloner map) {
