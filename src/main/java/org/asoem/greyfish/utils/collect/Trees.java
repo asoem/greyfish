@@ -17,6 +17,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class Trees {
 
+    /**
+     * Create an iterator that traverses the tree from the given {@code root} node in postorder.
+     * @param root the root node
+     * @param childrenFunction a function that returns the children of a given node
+     * @param <T> the type of the nodes
+     * @return a {@code TreeIterator}
+     */
     public static <T> TreeIterator<T> postOrderView(@Nullable final T root, final Function<? super T, ? extends Iterator<? extends T>> childrenFunction) {
         checkNotNull(childrenFunction);
 
@@ -47,6 +54,13 @@ public class Trees {
         };
     }
 
+    /**
+     * Create an iterator that traverses the tree from the given {@code root} node in preorder.
+     * @param root the root node
+     * @param childrenFunction a function that returns the children of a given node
+     * @param <T> the type of the nodes
+     * @return a {@code TreeIterator}
+     */
     public static <T> TreeIterator<T> preOrderView(@Nullable final T root, final Function<? super T, ? extends Iterator<? extends T>> childrenFunction) {
         checkNotNull(childrenFunction);
 
