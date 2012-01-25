@@ -47,4 +47,9 @@ public abstract class LeafCondition extends AbstractCondition {
     public final void add(GFCondition condition) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void insert(GFCondition condition, int index) {
+        throw new UnsupportedOperationException();
+    }
 }

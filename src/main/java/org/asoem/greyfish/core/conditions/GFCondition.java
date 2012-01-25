@@ -18,10 +18,12 @@ public interface GFCondition extends AgentComponent, Predicate<Simulation> {
 	GFCondition getRoot();
 	
 	void setParent(@Nullable GFCondition parent);
-	void add(GFCondition condition);
+    void insert(GFCondition condition, int index);
+    void add(GFCondition condition);
 	void remove(GFCondition condition);
     void removeAll();
 
     boolean isLeafCondition();
 	boolean isRootCondition();
+
 }

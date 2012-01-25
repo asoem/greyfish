@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterators.unmodifiableIterator;
 import static java.util.Arrays.asList;
 
@@ -91,27 +92,20 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
         return conditions.indexOf(currentCondition);
     }
 
-    public GFCondition set(int indexOf, GFCondition newCondition) {
-        checkNotFrozen();
-        integrate(newCondition);
-        GFCondition ret = conditions.set(indexOf, newCondition);
-        disintegrate(ret);
-        return ret;
-    }
-
-    public void add(int index, GFCondition condition) {
-        checkNotNull(condition);
-        checkNotFrozen();
-        integrate(condition);
-        conditions.add(index, condition);
-    }
-
     @Override
     public void add(GFCondition newChild) {
         checkNotNull(newChild);
         checkNotFrozen();
         integrate(newChild);
         conditions.add(newChild);
+    }
+
+    @Override
+    public void insert(GFCondition condition, int index) {
+        checkNotNull(condition);
+        checkNotFrozen();
+        integrate(condition);
+        conditions.add(index, condition);
     }
 
     public GFCondition remove(int index) {
