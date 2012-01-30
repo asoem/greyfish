@@ -149,7 +149,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public <T extends GFAction> T getAction(String name, Class<T> clazz) {
-        return actions.get(name, clazz);
+        return actions.find(name, clazz);
     }
 
     @Override
@@ -169,7 +169,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public <T extends GFProperty> T getProperty(String name, Class<T> clazz) {
-        return properties.get(name, clazz);
+        return properties.find(name, clazz);
     }
 
     @Override
@@ -202,7 +202,7 @@ public abstract class AbstractAgent implements Agent {
     public <T extends Gene> T getGene(String name, Class<T> clazz) {
         checkNotNull(clazz);
 
-        ForwardingGene forwardingGene = genome.get(name, ForwardingGene.class);
+        ForwardingGene forwardingGene = genome.find(name, ForwardingGene.class);
         if (forwardingGene != null) {
             return clazz.cast(forwardingGene.getDelegate());
         }

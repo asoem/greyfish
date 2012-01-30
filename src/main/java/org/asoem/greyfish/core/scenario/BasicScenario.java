@@ -1,7 +1,10 @@
 package org.asoem.greyfish.core.scenario;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Placeholder;
 import org.asoem.greyfish.core.individual.Population;
@@ -30,14 +33,13 @@ public class BasicScenario implements Scenario {
     private final TiledSpace prototypeSpace;
 
     @Attribute(name="name")
-    private final String name;
+    private String name;
 
     @ElementList(name = "prototypes", entry = "prototype")
     private final Set<Agent> prototypes = Sets.newHashSet();
 
     @SimpleXMLConstructor
     private BasicScenario(
-            @Attribute(name = "name") String name,
             @ElementList(name = "prototypes", entry = "prototype") List<Agent> prototypes,
             @Element(name = "space") TiledSpace space,
             @ElementList(name = "placeholders", entry = "placeholder") List<Placeholder> placeholders) {
@@ -77,8 +79,8 @@ public class BasicScenario implements Scenario {
     }
 
     @Override
-    public boolean removePlaceholder(Placeholder ph) {
-        return prototypeSpace.removeObject(ph);
+    public boolean removePlaceholder(Placeholder placeholder) {
+        return prototypeSpace.removeObject(placeholder);
     }
 
     @Override
@@ -126,6 +128,11 @@ public class BasicScenario implements Scenario {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

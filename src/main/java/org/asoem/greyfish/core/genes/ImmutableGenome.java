@@ -81,8 +81,8 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
     }
 
     @Override
-    public <T extends E> T get(String name, Class<T> clazz) {
-        return delegate.get(name, clazz);
+    public <T extends E> T find(String name, Class<T> clazz) {
+        return delegate.find(name, clazz);
     }
 
     protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGenome<E>> {

@@ -41,7 +41,7 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
     }
 
     @Override
-    public <T extends E> T get(final String name, Class<T> clazz) {
+    public <T extends E> T find(final String name, Class<T> clazz) {
         return clazz.cast(Iterables.find(delegate, new Predicate<E>() {
             @Override
             public boolean apply(@Nullable E e) {

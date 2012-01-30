@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -20,32 +20,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ImmutableComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
 
-    private final ImmutableMap<String, E> delegate;
+    private final ImmutableList<E> listDelegate;
 
     private ImmutableComponentList(Iterable<E> components) {
-        delegate = Maps.uniqueIndex(components, new Function<E, String>() {
-            @Override
-            public String apply(@Nullable E component) {
-                return checkNotNull(component).getName();
-            }
-        });
+        listDelegate = ImmutableList.copyOf(components);
     }
 
     @SuppressWarnings("unchecked")
     private ImmutableComponentList(ImmutableComponentList<E> list, final DeepCloner cloner) {
         cloner.setAsCloned(list, this);
 
-        delegate = ImmutableMap.copyOf(Maps.transformValues(list.delegate, new Function<E, E>() {
-            @Override
-            public E apply(@Nullable E e) {
-                return (E) cloner.cloneField(e, DeepCloneable.class);
-            }
-        }));
+        listDelegate = ImmutableList.copyOf(list.listDelegate);
     }
 
     @Override
     protected List<E> delegate() {
-        return delegate.values().asList();
+        return listDelegate;
     }
 
     public static <E extends AgentComponent> ImmutableComponentList<E> copyOf(Iterable<E> components) {
@@ -53,9 +43,16 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
         return new ImmutableComponentList<E>(components);
     }
 
+    @Nullable
     @Override
-    public <T extends E> T get(final String name, Class<T> clazz) {
-        return clazz.cast(delegate.get(name));
+    public <T extends E> T find(final String name, final Class<T> clazz) {
+        return clazz.cast(Iterables.find(listDelegate, new Predicate<E>() {
+            @Override
+            public boolean apply(@Nullable E e) {
+                assert e != null;
+                return e.hasName(name) && clazz.isInstance(e);
+            }
+        }, null));
     }
 
     @Override

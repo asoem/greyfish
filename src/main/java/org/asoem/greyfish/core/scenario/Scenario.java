@@ -16,14 +16,21 @@ import java.util.Set;
  * Time: 12:39
  */
 public interface Scenario {
+
     /**
-     *
-     * @param prototype
-     * @param location
+     * Add a {@code Placeholder} for the given {@code Agent} and place it at the given {@code location}
+     * @param prototype the agent the created {@code Placeholder} will delegate to
+     * @param location the location at which the created {@code Placeholder} will be located at
+     * @return {@code true} if the {@code Placeholder} could be created, {@code false} otherwise
      */
     boolean addAgent(Agent prototype, Object2D location);
 
-    boolean removePlaceholder(Placeholder ph);
+    /**
+     * Remove the given {@code Placeholder} from this scenario
+     * @param placeholder the {@code Placeholder} to remove
+     * @return {@code true} if the {@code Placeholder} could be removed, {@code false} otherwise
+     */
+    boolean removePlaceholder(Placeholder placeholder);
 
     /**
      * @return an unmodifiable view of all prototype agents added to this scenario so far.
@@ -31,24 +38,49 @@ public interface Scenario {
      */
     Set<Agent> getPrototypes();
 
+    /**
+     * Get the {@code Agent} which acts as the prototype for the given {@code Population}
+     * @param population the population of the prototype
+     * @return the prototype for for the given {@code Population}
+     */
     @Nullable
     Agent getPrototype(Population population);
 
     /**
-     * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Placeholder} agents created by this {@code Scenario}.
+     * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Placeholder} agents
+     * created by this {@code Scenario}.
      */
     Iterable<Placeholder> getPlaceholder();
 
     /**
-     * @param location the {@code TileLocation} to query
-     * @return an unmodifiable view of all {@link org.asoem.greyfish.core.individual.Placeholder} agents created by this {@code Scenario} whose
-     *      {@link org.asoem.greyfish.core.individual.Agent#getCoordinates()} is covered by the given {@code location}.
+     * Get all placeholders which have been placed inside the given {@code location}
+     * @param location the location to which the search will be restricted to
+     * @return all {@code Placeholder} for given {@code location}
      */
     Iterable<Placeholder> getPlaceholder(TileLocation location);
 
+    /**
+     * Get all placeholders which have been placed inside the given {@code locations}
+     * @param locations the locations to which the search will be restricted to
+     * @return all {@code Placeholder} for given {@code locations}
+     */
     Iterable<Placeholder> getPlaceholder(Iterable<? extends TileLocation> locations);
 
+    /**
+     * Get the name of this scenario
+     * @return the name of this scenario
+     */
     String getName();
 
+    /**
+     * Get the {@code TiledSpace} associated with this scenario
+     * @return the {@code TiledSpace} associated with this scenario
+     */
     TiledSpace getSpace();
+
+    /**
+     * Change the name of this scenario
+     * @param name the new name of this scenario
+     */
+    void setName(String name);
 }

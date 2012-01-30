@@ -202,6 +202,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return property(parts, Functions.compose(new Function<Agent, GFProperty>() {
                     @Override
                     public GFProperty apply(@Nullable Agent agent) {
+                        // todo: access by name could be replaced by access by index if agent is frozen
                         return checkNotNull(agent).getProperty(propertyName, GFProperty.class);
                     }
                 }, ret));
@@ -213,6 +214,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return action(parts, Functions.compose(new Function<Agent, GFAction>() {
                     @Override
                     public GFAction apply(@Nullable Agent agent) {
+                        // todo: access by name could be replaced by access by index if agent is frozen
                         return checkNotNull(agent).getAction(actionName, GFAction.class);
                     }
                 }, ret));
@@ -224,6 +226,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return gene(parts, Functions.compose(new Function<Agent, Gene>() {
                     @Override
                     public Gene apply(@Nullable Agent agent) {
+                        // todo: access by name could be replaced by access by index if agent is frozen
                         return checkNotNull(agent).getGene(geneName, Gene.class);
                     }
                 }, ret));

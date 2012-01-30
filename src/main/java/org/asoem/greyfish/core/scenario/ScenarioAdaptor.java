@@ -23,8 +23,8 @@ public abstract class ScenarioAdaptor implements Scenario {
     }
 
     @Override
-    public boolean removePlaceholder(Placeholder ph) {
-        return delegate().removePlaceholder(ph);
+    public boolean removePlaceholder(Placeholder placeholder) {
+        return delegate().removePlaceholder(placeholder);
     }
 
     @Override
@@ -50,6 +50,11 @@ public abstract class ScenarioAdaptor implements Scenario {
     @Override
     public String getName() {
         return delegate().getName();
+    }
+
+    @Override
+    public void setName(String name) {
+        delegate().setName(name);
     }
 
     @Override

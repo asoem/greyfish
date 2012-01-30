@@ -12,8 +12,8 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 public abstract class ForwardingComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
 
     @Override
-    public <T extends E> T get(String name, Class<T> clazz) {
-        return delegate().get(name, clazz);
+    public <T extends E> T find(String name, Class<T> clazz) {
+        return delegate().find(name, clazz);
     }
 
     protected abstract ComponentList<E> delegate();
