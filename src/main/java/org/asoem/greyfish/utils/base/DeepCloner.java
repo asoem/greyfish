@@ -27,15 +27,28 @@ public class DeepCloner {
         return keyForExpectedPut != null;
     }
 
-    public <T extends DeepCloneable> void setAsCloned(T key, T value) {
-        checkNotNull(key);
-        checkNotNull(value);
-        checkArgument(key == keyForExpectedPut,
-                "key was expected to be == " + keyForExpectedPut);
+    /**
+     * Add the given {@code clone} as the clone of the {@code DeepCloneable} of the last
+     * {@link #clone(DeepCloneable, Class)} or {@link #cloneField(DeepCloneable, Class)} operation.
+     * This method must be called by the clone before the clone itself clones any of it's {@code DeepCloneable} fields.
+     * @param clone the clone to add
+     */
+    public void addClone(DeepCloneable clone) {
+        checkNotNull(clone);
+        assert keyForExpectedPut != null;
+        checkArgument(clone.getClass().equals(keyForExpectedPut.getClass()),
+                "Class of clone was expected to be " + keyForExpectedPut.getClass() +  ", but is of type " + clone.getClass());
+        map.put(keyForExpectedPut, clone);
         keyForExpectedPut = null;
-        map.put(key, value);
     }
 
+    /**
+     * Clone a {@code DeepCloneable} object and return the clone casted to {@code T}
+     * @param cloneable the object to clone
+     * @param clazz the class for type {@code T}
+     * @param <T> the type of the {@code DeepCloneable} object and it's clone
+     * @return a clone of {@code cloneable}
+     */
     public <T extends DeepCloneable> T cloneField(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
         if (insertIsRequired())
@@ -53,6 +66,13 @@ public class DeepCloner {
         }
     }
 
+    /**
+     * Clone a {@code DeepCloneable} object and return the clone casted to {@code T}
+     * @param cloneable the object to clone
+     * @param clazz the class for type {@code T}
+     * @param <T> the type of the {@code DeepCloneable} object and it's clone
+     * @return a clone of {@code cloneable}
+     */
     public static <T extends DeepCloneable> T clone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
         return new DeepCloner().cloneField(cloneable, clazz);
