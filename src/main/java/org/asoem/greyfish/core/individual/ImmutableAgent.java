@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.*;
@@ -33,6 +34,7 @@ public class ImmutableAgent extends AbstractAgent {
                     }
                 })));
         setPopulation(population);
+        freeze();
     }
 
     private ImmutableAgent(ImmutableAgent agent, DeepCloner map) {
@@ -50,6 +52,7 @@ public class ImmutableAgent extends AbstractAgent {
                     }
                 })));
         setPopulation(builder.population);
+        freeze();
     }
 
     @Override
@@ -87,6 +90,17 @@ public class ImmutableAgent extends AbstractAgent {
 
     public static Builder of(Population population) {
         return new Builder(population);
+    }
+
+    @Override
+    public void freeze() {
+        for(AgentComponent component : getComponents())
+            component.freeze();
+    }
+
+    @Override
+    public boolean isFrozen() {
+        return true;
     }
 
     public static final class Builder extends AbstractAgent.AbstractBuilder<ImmutableAgent, Builder> {

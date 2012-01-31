@@ -26,7 +26,7 @@ public class ForwardingGene<T> implements Gene<T> {
 
     @SuppressWarnings({"unchecked"}) // cloning is safe
     public ForwardingGene(ForwardingGene<T> gene, DeepCloner map) {
-        map.setAsCloned(gene, this);
+        map.addClone(this);
         delegate = (Gene<T>) map.cloneField(gene.delegate, Gene.class);
     }
 
@@ -119,11 +119,6 @@ public class ForwardingGene<T> implements Gene<T> {
     @Override
     public boolean isFrozen() {
         return delegate.isFrozen();
-    }
-
-    @Override
-    public void checkNotFrozen() throws IllegalStateException {
-        delegate.checkNotFrozen();
     }
 
     @Override

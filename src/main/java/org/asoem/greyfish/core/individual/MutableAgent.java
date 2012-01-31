@@ -49,11 +49,6 @@ public class MutableAgent extends AbstractAgent {
     }
 
     @Override
-    public boolean isFrozen() {
-        return false;
-    }
-
-    @Override
     public void prepare(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
 

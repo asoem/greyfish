@@ -18,7 +18,7 @@ public class EvaluatedGenome<E extends Gene<?>> extends ForwardingGenome<E> {
 
     @SuppressWarnings({"unchecked"}) // cloning is save
     public EvaluatedGenome(EvaluatedGenome<E> genome, DeepCloner cloner) {
-        cloner.setAsCloned(genome, this);
+        cloner.addClone(this);
         delegate = cloner.cloneField(genome.delegate, Genome.class);
         this.fitness = genome.fitness;
     }

@@ -23,7 +23,7 @@ public class AgentConditions {
 
             @Override
             public DeepCloneable deepClone(DeepCloner cloner) {
-                cloner.setAsCloned(this, this);
+                cloner.addClone(this);
                 return this;
             }
         };

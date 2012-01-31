@@ -28,7 +28,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
 
     @SuppressWarnings("unchecked")
     private ImmutableComponentList(ImmutableComponentList<E> list, final DeepCloner cloner) {
-        cloner.setAsCloned(list, this);
+        cloner.addClone(this);
 
         listDelegate = ImmutableList.copyOf(list.listDelegate);
     }

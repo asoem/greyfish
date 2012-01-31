@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
-public abstract class PropertyDecorator implements GFProperty {
+public abstract class ForwardingProperty implements GFProperty {
 
     @Element(name = "getVisibleScenarioEditorPane")
     protected abstract GFProperty getDelegate();
@@ -41,11 +41,6 @@ public abstract class PropertyDecorator implements GFProperty {
     @Override
     public boolean isFrozen() {
         return getDelegate().isFrozen();
-    }
-
-    @Override
-    public void checkNotFrozen() throws IllegalStateException {
-        getDelegate().checkNotFrozen();
     }
 
     @Override

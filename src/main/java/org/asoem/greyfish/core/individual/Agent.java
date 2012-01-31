@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.space.Movable;

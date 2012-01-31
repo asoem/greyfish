@@ -19,9 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterators.unmodifiableIterator;
 import static java.util.Arrays.asList;
+import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
 
 
 /**
@@ -83,7 +83,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     }
 
     public void addAll(Iterable<? extends GFCondition> childConditions) {
-        checkNotFrozen();
+        checkMutability(this);
         integrate(childConditions);
         Iterables.addAll(conditions, childConditions);
     }
@@ -95,7 +95,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void add(GFCondition newChild) {
         checkNotNull(newChild);
-        checkNotFrozen();
+        checkMutability(this);
         integrate(newChild);
         conditions.add(newChild);
     }
@@ -103,13 +103,13 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void insert(GFCondition condition, int index) {
         checkNotNull(condition);
-        checkNotFrozen();
+        checkMutability(this);
         integrate(condition);
         conditions.add(index, condition);
     }
 
     public GFCondition remove(int index) {
-        checkNotFrozen();
+        checkMutability(this);
         checkPositionIndex(index, conditions.size());
         GFCondition ret = conditions.remove(index);
         disintegrate(ret);
@@ -118,7 +118,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
 
     @Override
     public void remove(GFCondition condition) {
-        checkNotFrozen();
+        checkMutability(this);
         checkArgument(conditions.contains(condition));
         boolean remove = conditions.remove(condition);
         assert remove;

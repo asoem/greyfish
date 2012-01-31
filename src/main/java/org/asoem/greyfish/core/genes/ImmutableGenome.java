@@ -35,7 +35,7 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
 
     @SuppressWarnings("unchecked")
     private ImmutableGenome(ImmutableGenome immutableGenome, final DeepCloner cloner) {
-        cloner.setAsCloned(immutableGenome, this);
+        cloner.addClone(this);
 
         delegate = ImmutableComponentList.copyOf(Iterables.transform(immutableGenome, new Function<Gene<?>, Gene<?>>() {
             @Override

@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;

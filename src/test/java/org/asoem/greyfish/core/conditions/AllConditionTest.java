@@ -33,7 +33,7 @@ public class AllConditionTest {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 Object[] args = invocationOnMock.getArguments();
-                DeepCloner.class.cast(args[0]).setAsCloned(condition, condition);
+                DeepCloner.class.cast(args[0]).addClone(condition);
                 return condition;
             }
         });

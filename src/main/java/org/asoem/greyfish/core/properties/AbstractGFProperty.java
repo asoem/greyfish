@@ -12,6 +12,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.MorePreconditions;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -81,7 +82,7 @@ public abstract class AbstractGFProperty extends AbstractAgentComponent implemen
 
     @Override
     public final <S> Gene<S> registerGene(final Gene<S> gene) {
-        checkNotFrozen();
+        MorePreconditions.checkMutability(this);
 
         final ForwardingGene<S> ret = ForwardingGene.newInstance(gene);
         geneList = ImmutableList.<ForwardingGene<?>>builder().addAll(geneList).add( ret ).build();

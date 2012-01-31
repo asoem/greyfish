@@ -20,7 +20,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     protected AbstractAgentComponent() {}
 
     protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
-        map.setAsCloned(cloneable, this);
+        map.addClone(this);
         this.agent = Optional.fromNullable(map.cloneField(agent.orNull(), Agent.class));
         this.name = cloneable.name;
     }
@@ -80,10 +80,6 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Override
     public void freeze() {}
-
-    public final void checkNotFrozen() {
-        if (isFrozen()) throw new IllegalStateException("Component is frozen");
-    }
 
     @Override
     public boolean isFrozen() {

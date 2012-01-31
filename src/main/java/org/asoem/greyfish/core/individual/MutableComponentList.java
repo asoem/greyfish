@@ -23,7 +23,7 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
 
     @SuppressWarnings("unchecked")
     public MutableComponentList(MutableComponentList<E> list, DeepCloner cloner) {
-        cloner.setAsCloned(list, this);
+        cloner.addClone(this);
         for (E e : list)
             delegate.add((E) cloner.cloneField(e, DeepCloneable.class));
     }

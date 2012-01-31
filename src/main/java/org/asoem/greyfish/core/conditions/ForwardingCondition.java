@@ -103,11 +103,6 @@ public abstract class ForwardingCondition implements GFCondition {
     }
 
     @Override
-    public void checkNotFrozen() throws IllegalStateException {
-        delegate().checkNotFrozen();
-    }
-
-    @Override
     public String getName() {
         return delegate().getName();
     }

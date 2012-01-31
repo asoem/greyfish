@@ -83,7 +83,7 @@ public abstract class AbstractAgent implements Agent {
 
     @SuppressWarnings("unchecked")
     protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner map) {
-        map.setAsCloned(abstractAgent, this);
+        map.addClone(this);
         this.population = abstractAgent.population;
         this.actions = (ComponentList<GFAction>) map.cloneField(abstractAgent.actions, ComponentList.class);
         this.properties = (ComponentList<GFProperty>) map.cloneField(abstractAgent.properties, ComponentList.class);
@@ -307,7 +307,6 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void shutDown() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -328,12 +327,6 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public boolean isFrozen() {
         return false;
-    }
-
-    @Override
-    public void checkNotFrozen() {
-        if (isFrozen())
-            throw new IllegalStateException("MutableAgent is frozen");
     }
 
     @Override
