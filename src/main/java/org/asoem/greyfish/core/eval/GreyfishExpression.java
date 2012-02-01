@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.eval;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.asoem.greyfish.core.individual.AgentComponent;
 
+import javax.annotation.Nullable;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,18 +28,21 @@ public class GreyfishExpression {
         this.evaluator.setExpression(parameterizeDollarFunction(expression));
     }
 
-    public double evaluateAsDouble(AgentComponent context) throws EvaluationException {
+    public double evaluateAsDouble(Object context) throws EvaluationException {
+        checkNotNull(context, "Context must not be null");
         return evaluateAsDouble(createContextResolver(context));
     }
 
-    public double evaluateAsDouble(AgentComponent context, String n1, Object v1) throws EvaluationException {
+    public double evaluateAsDouble(Object context, String n1, Object v1) throws EvaluationException {
+        checkNotNull(context, "Context must not be null");
         VariableResolver contextResolver = createContextResolver(context);
         VariableResolver resolver = VariableResolvers.forMap(ImmutableMap.of(n1, v1));
         contextResolver.setNext(resolver);
         return evaluateAsDouble(resolver);
     }
 
-    public boolean evaluateAsBoolean(AgentComponent context) throws EvaluationException {
+    public boolean evaluateAsBoolean(Object context) throws EvaluationException {
+        checkNotNull(context, "Context must not be null");
         return evaluateAsBoolean(createContextResolver(context));
     }
 
@@ -65,7 +68,7 @@ public class GreyfishExpression {
         return evaluator;
     }
 
-    public VariableResolver createContextResolver(AgentComponent ctx) {
+    public VariableResolver createContextResolver(@Nullable Object ctx) {
         return VariableResolvers.forMap(ImmutableMap.of("_ctx_", ctx));
     }
 

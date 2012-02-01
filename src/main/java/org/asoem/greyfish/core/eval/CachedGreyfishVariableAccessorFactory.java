@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.eval;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import org.asoem.greyfish.core.individual.AgentComponent;
 
 import java.util.Map;
 
@@ -15,36 +14,37 @@ public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAc
 
     private final GreyfishVariableAccessorFactory delegate;
 
-    private final Map<ResolverCacheKey, Function<AgentComponent, ?>> resolverMap = Maps.newHashMap();
+    private final Map<ResolverCacheKey, Function<?, ?>> resolverMap = Maps.newHashMap();
 
     public CachedGreyfishVariableAccessorFactory(GreyfishVariableAccessorFactory delegate) {
         this.delegate = delegate;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Function<AgentComponent, ?> get(String varName, Class<? extends AgentComponent> context) throws VariableResolutionException {
+    public <T> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException {
         ResolverCacheKey key = new ResolverCacheKey(varName, context);
         if (resolverMap.containsKey(key)) {
-            return resolverMap.get(key);
+            return (Function<T, ?>) resolverMap.get(key);
         }
         else {
-            Function<AgentComponent, ?> fun = delegate.get(varName, context);
+            Function<T, ?> fun = delegate.get(varName, context);
             resolverMap.put(key, fun);
             return fun;
         }
     }
 
     @Override
-    public boolean canConvert(String name, Class<? extends AgentComponent> contextClass) {
+    public boolean canConvert(String name, Class<?> contextClass) {
         ResolverCacheKey key = new ResolverCacheKey(name, contextClass);
         return resolverMap.containsKey(key) || delegate.canConvert(name, contextClass);
     }
 
     private static class ResolverCacheKey {
         private final String varName;
-        private final Class<? extends AgentComponent> context;
+        private final Class<?> context;
 
-        public ResolverCacheKey(String varName, Class<? extends AgentComponent> context) {
+        public ResolverCacheKey(String varName, Class<?> context) {
             this.varName = varName;
             this.context = context;
         }

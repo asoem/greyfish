@@ -29,7 +29,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
     private static final Splitter SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
 
     @Override
-    public Function<AgentComponent, ?> get(String varName, final Class<? extends AgentComponent> contextClass) {
+    public <T> Function<T, ?> get(String varName, final Class<T> contextClass) {
         checkNotNull(varName);
         checkNotNull(contextClass);
 
@@ -41,57 +41,65 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
 
             if ("this".equals(root) || "self".equals(root)) {
                 if (GFAction.class.isAssignableFrom(contextClass)) {
-                    return action(gomParts, new Function<AgentComponent, GFAction>() {
+                    return action(gomParts, new Function<T, GFAction>() {
                         @Override
-                        public GFAction apply(@Nullable AgentComponent agentComponent) {
+                        public GFAction apply(@Nullable T agentComponent) {
                             return GFAction.class.cast(agentComponent);
                         }
                     });
                 }
                 else if (GFProperty.class.isAssignableFrom(contextClass)) {
-                    return property(gomParts, new Function<AgentComponent, GFProperty>() {
+                    return property(gomParts, new Function<T, GFProperty>() {
                         @Override
-                        public GFProperty apply(@Nullable AgentComponent agentComponent) {
+                        public GFProperty apply(@Nullable T agentComponent) {
                             return GFProperty.class.cast(agentComponent);
                         }
                     });
                 }
                 else if (Gene.class.isAssignableFrom(contextClass)) {
-                    return gene(gomParts, new Function<AgentComponent, Gene>() {
+                    return gene(gomParts, new Function<T, Gene>() {
                         @Override
-                        public Gene apply(@Nullable AgentComponent agentComponent) {
+                        public Gene apply(@Nullable T agentComponent) {
                             return Gene.class.cast(agentComponent);
                         }
                     });
                 }
             }
             else if ("sim".equals(root)) {
-                if (Simulation.class.isAssignableFrom(contextClass)) {
-                    return simulation(gomParts, new Function<AgentComponent, Simulation>() {
+                if (AgentComponent.class.isAssignableFrom(contextClass)) {
+                    return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
-                        public Simulation apply(@Nullable AgentComponent gfComponent) {
-                            Agent agent = checkNotNull(gfComponent).getAgent();
+                        public Simulation apply(@Nullable T gfComponent) {
+                            Agent agent = AgentComponent.class.cast(gfComponent).getAgent();
                             return checkNotNull(agent).getSimulation();
                             // TODO: We should have direct access to simulation object through a component
+                        }
+                    });
+                }
+                else if (Simulation.class.isAssignableFrom(contextClass)) {
+                    return simulation(gomParts, new Function<T, Simulation>() {
+                        @Override
+                        public Simulation apply(@Nullable T t) {
+                            return Simulation.class.cast(t);
                         }
                     });
                 }
             }
         }
 
-        throw new RuntimeException("");
+        throw new IllegalArgumentException("Key '"+ varName + "' with context of type '" + contextClass + "' is not handled");
     }
 
     @Override
-    public boolean canConvert(String name, final Class<? extends AgentComponent> contextClass) {
+    public boolean canConvert(String name, final Class<?> contextClass) {
         try {
-           return get(name, contextClass) != null;
+            return get(name, contextClass) != null;
         } catch (RuntimeException e) {
             return false;
         }
     }
 
-    private <T extends AgentComponent> Function<T, ?> action(Iterator<String> parts, Function<T, GFAction> ret) {
+    private <T> Function<T, ?> action(Iterator<String> parts, Function<T, GFAction> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
@@ -112,7 +120,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         }
     }
 
-    private <T extends AgentComponent> Function<T, ?> property(Iterator<String> parts, Function<T, GFProperty> ret) {
+    private <T> Function<T, ?> property(Iterator<String> parts, Function<T, GFProperty> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
@@ -124,17 +132,15 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 }, ret));
             }
 
-            if ("".equals(nextPart)) {
-
-            }
-            throw new RuntimeException("GFProperty has no member named " + nextPart);
+            else
+                throw new RuntimeException("GFProperty has no member named " + nextPart);
         }
         else {
             return ret;
         }
     }
 
-    private <T extends AgentComponent> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation> ret) {
+    private <T> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
@@ -154,14 +160,24 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 }, ret));
             }
 
-            throw new RuntimeException("Simulation has no member named " + nextPart);
+            else if ("agentCount".equals(nextPart)) {
+                return Functions.compose( new Function<Simulation, Object>() {
+                    @Override
+                    public Object apply(Simulation simulation) {
+                        return simulation.countAgents();
+                    }
+                },ret);
+            }
+
+            else
+                throw new RuntimeException("Simulation has no member named " + nextPart);
         }
         else {
             return ret;
         }
     }
 
-    private <T extends AgentComponent> Function<T, ?> gene(Iterator<String> parts, Function<T, Gene> ret) {
+    private <T> Function<T, ?> gene(Iterator<String> parts, Function<T, Gene> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
@@ -174,14 +190,15 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 }, ret);
             }
 
-            throw new RuntimeException("Gene has no member named " + nextPart);
+            else
+                throw new RuntimeException("Gene has no member named " + nextPart);
         }
         else {
             return ret;
         }
     }
 
-    private <T extends AgentComponent> Function<T, ?> agent(Iterator<String> parts, Function<T, Agent> ret) {
+    private <T> Function<T, ?> agent(Iterator<String> parts, Function<T, Agent> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             Matcher matcher;

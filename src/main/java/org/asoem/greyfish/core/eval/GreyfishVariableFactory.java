@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
 import com.google.inject.Inject;
-import org.asoem.greyfish.core.individual.AgentComponent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -14,8 +13,8 @@ public class GreyfishVariableFactory {
     @Inject private static GreyfishVariableAccessorFactory FACTORY;
 
     @SuppressWarnings({"UnusedDeclaration"})
-    public static Object $(String expression, AgentComponent ctx) {
+    public static <T> Object $(String expression, T ctx) {
         checkNotNull(ctx);
-        return FACTORY.get(expression, ctx.getClass()).apply(ctx);
+        return FACTORY.get(expression, (Class<T>) ctx.getClass()).apply(ctx);
     }
 }
