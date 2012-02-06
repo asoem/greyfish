@@ -21,11 +21,6 @@ public final class AgeCondition extends IntCompareCondition {
     }
 
     @Override
-    public boolean apply(Simulation simulation) {
-        return false;
-    }
-
-    @Override
     public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new AgeCondition(this, cloner);
     }
