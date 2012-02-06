@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
-import com.jgoodies.validation.ValidationResult;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.ValidationResultFunctions;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
@@ -75,11 +75,18 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
             @Override protected void set(E arg0) { upperBound = arg0; }
             @Override public E get() { return upperBound; }
         });
-        e.add("Initial", new AbstractTypedValueModel<E>() {
+        final AbstractTypedValueModel<E> model = new AbstractTypedValueModel<E>() {
 
-            @Override protected void set(E arg0) { initialValue = arg0; }
-            @Override public E get() { return initialValue; }
-            @Override public ValidationResult validateValue() {
+            @Override
+            protected void set(E arg0) {
+                initialValue = arg0;
+            }
+
+            @Override
+            public E get() {
+                return initialValue;
+            }
+            /*@Override public ValidationResult validateValue() {
 
                 ValidationResult validationResult = new ValidationResult();
 
@@ -90,8 +97,9 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
                     validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
 
                 return validationResult;
-            }
-        });
+            }*/
+        };
+        e.add("Initial", model, ValidationResultFunctions.notNull("Initial must not be null")); // todo: chain with min/max validation commented out above
     }
 
     protected AbstractRangeElementProperty(AbstractBuilder<?, ?, E> builder) {
