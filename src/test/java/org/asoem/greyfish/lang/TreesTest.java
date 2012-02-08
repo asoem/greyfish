@@ -23,15 +23,15 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class TreesTest {
 
-    TreeNodeImpl a = node("A");
-    TreeNodeImpl c = node("C");
-    TreeNodeImpl e = node("E");
-    TreeNodeImpl d = node("D", c, e);
-    TreeNodeImpl b = node("B", a, d);
-    TreeNodeImpl h = node("H");
-    TreeNodeImpl i = node("I", h);
-    TreeNodeImpl g = node("G", i);
-    TreeNodeImpl f = node("F", b, g);
+    final TreeNodeImpl a = node("A");
+    final TreeNodeImpl c = node("C");
+    final TreeNodeImpl e = node("E");
+    final TreeNodeImpl d = node("D", c, e);
+    final TreeNodeImpl b = node("B", a, d);
+    final TreeNodeImpl h = node("H");
+    final TreeNodeImpl i = node("I", h);
+    final TreeNodeImpl g = node("G", i);
+    final TreeNodeImpl f = node("F", b, g);
 
     @Test
     public void postOrderViewTest() {
