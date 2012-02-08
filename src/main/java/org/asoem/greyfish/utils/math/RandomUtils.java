@@ -56,6 +56,11 @@ public class RandomUtils {
             throw new IllegalArgumentException("Probability not in [0,1]: " + probability);
     }
 
+    /**
+     * Returns a pseudorandom, uniformly distributed int value between 0 (inclusive) and the specified value (exclusive), drawn from this random number generator's sequence.
+     * @param size the bound on the random number to be returned. Must be positive.
+     * @return a pseudorandom, uniformly distributed int value between 0 (inclusive) and n (exclusive).
+     */
     public static int nextInt(int size) {
         return RANDOM_GENERATOR.nextInt(size);
     }
