@@ -10,6 +10,7 @@ public interface Evaluator {
 
     double evaluateAsDouble() throws EvaluationException;
     boolean evaluateAsBoolean() throws EvaluationException;
+    String evaluateAsString() throws EvaluationException;
 
     void setExpression(String expression) throws SyntaxException;
     String getExpression();

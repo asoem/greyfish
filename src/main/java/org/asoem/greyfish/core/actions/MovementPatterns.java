@@ -12,7 +12,7 @@ import static org.asoem.greyfish.utils.math.RandomUtils.*;
  */
 public class MovementPatterns {
 
-    private static MovementPattern NO_MOVEMENT = new MovementPattern() {
+    private static final MovementPattern NO_MOVEMENT = new MovementPattern() {
         @Override
         public void apply(Agent agent, Simulation simulation) { /* DO NOTHING*/ }
     };

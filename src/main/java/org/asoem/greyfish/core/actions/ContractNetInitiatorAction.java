@@ -153,11 +153,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 switch (receivedMessage.getPerformative()) {
 
                     case INFORM:
-                        try {
-                            handleInform(receivedMessage);
-                        } catch (NotUnderstoodException e) {
-                            LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatorAction.this, e);
-                        }
+                        handleInform(receivedMessage);
                         break;
 
                     case FAILURE:
@@ -223,7 +219,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
     protected void handleFailure(ACLMessage<Agent> message) {}
 
-    protected void handleInform(ACLMessage<Agent> message) throws NotUnderstoodException {
+    protected void handleInform(ACLMessage<Agent> message) {
     }
 
     protected abstract String getOntology();

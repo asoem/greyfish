@@ -6,6 +6,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -41,6 +44,7 @@ public class MutableAgentTest {
         MutableAgent agent = new MutableAgent();
         given(gene.getName()).willReturn("foo");
         given(gene.hasName("foo")).willReturn(true);
+        given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
         agent.addGene(gene);
 
         // when

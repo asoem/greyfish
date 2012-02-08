@@ -8,14 +8,13 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
-import org.asoem.greyfish.core.properties.BitSetTrait;
 import org.asoem.greyfish.core.properties.DoubleProperty;
+import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.space.TiledSpace;
-import org.asoem.greyfish.utils.collect.ImmutableBitSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -55,7 +54,7 @@ public class CompatibilityAwareResourceInteractionTest {
                 .upperBound(1.0)
                 .initialValue(0.0)
                 .build();
-        BitSetTrait trait1 = BitSetTrait.with().name("Trait1").initialValue(ImmutableBitSet.valueOf("111111")).build();
+        GFProperty trait1 = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.3).build();
         ResourceConsumptionAction consumptionAction = new CompatibilityAwareResourceConsumptionAction.Builder()
                 .name("eat")
                 .classification(messageClassifier)
@@ -70,7 +69,7 @@ public class CompatibilityAwareResourceInteractionTest {
                 .upperBound(1.0)
                 .initialValue(1.0)
                 .build();
-        BitSetTrait trait = BitSetTrait.with().name("Trait2").initialValue(ImmutableBitSet.valueOf("111000")).build();
+        GFProperty trait = DoubleProperty.with().lowerBound(0.0).upperBound(1.0).initialValue(0.6).build();
         CompatibilityAwareResourceProvisionAction provisionAction = new CompatibilityAwareResourceProvisionAction.Builder()
                 .name("feed")
                 .classification(messageClassifier)

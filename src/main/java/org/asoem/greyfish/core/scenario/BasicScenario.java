@@ -43,12 +43,10 @@ public class BasicScenario implements Scenario {
             @ElementList(name = "prototypes", entry = "prototype") List<Agent> prototypes,
             @Element(name = "space") TiledSpace space,
             @ElementList(name = "placeholders", entry = "placeholder") List<Placeholder> placeholders) {
-        assert name != null;
         assert prototypes != null;
         assert space != null;
         assert placeholders != null;
 
-        this.name = name;
         this.prototypeSpace = space;
         this.prototypes.addAll(prototypes);
 

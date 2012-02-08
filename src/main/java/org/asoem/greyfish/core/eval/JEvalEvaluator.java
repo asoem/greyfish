@@ -39,6 +39,15 @@ public class JEvalEvaluator implements Evaluator {
     }
 
     @Override
+    public String evaluateAsString() throws EvaluationException {
+        try {
+            return evaluator.evaluate();
+        } catch (net.sourceforge.jeval.EvaluationException e) {
+            throw new EvaluationException("Expression could not be evaluated.", e);
+        }
+    }
+
+    @Override
     public void setExpression(String expression) {
         this.expression = checkNotNull(expression);
         try {

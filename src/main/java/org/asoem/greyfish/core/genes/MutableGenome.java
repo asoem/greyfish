@@ -2,13 +2,13 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.individual.MutableComponentList;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.util.Iterator;
-import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * User: christoph
@@ -17,22 +17,15 @@ import java.util.List;
  */
 public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> implements Genome<E> {
 
-    private List<Gene<?>> genes = Lists.newArrayList();
-
     public MutableGenome() {
     }
 
-    public MutableGenome(Iterable<? extends Gene<?>> genome) {
-        Iterables.addAll(genes, genome);
+    public MutableGenome(Iterable<? extends E> genome) {
+        Iterables.addAll(delegate(), genome);
     }
 
     protected MutableGenome(MutableGenome<E> es, DeepCloner cloner) {
         super(es, cloner);
-    }
-
-    @Override
-    public int size() {
-        return genes.size();
     }
 
     @Override
@@ -54,6 +47,14 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
         }));
     }
 
+    @Override
+    public void replaceGenes(Genome<? extends E> genome) {
+        checkArgument(isCompatibleGenome(genome));
+
+        clear();
+        addAll(genome);
+    }
+
     public Genome<E> unmodifiableView() {
         throw new RuntimeException("Not yet implemented"); // TODO: implement
     }
@@ -61,25 +62,6 @@ public class MutableGenome<E extends Gene<?>> extends MutableComponentList<E> im
     @Override
     public Iterable<E> findCopiesFor(Iterable<? extends E> thisGenes) {
         throw new RuntimeException("Not yet implemented"); // TODO: implement
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        MutableGenome that = (MutableGenome) o;
-
-        return genes.equals(that.genes);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + genes.hashCode();
-        return result;
     }
 
     @Override

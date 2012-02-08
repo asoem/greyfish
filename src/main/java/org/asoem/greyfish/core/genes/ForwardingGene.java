@@ -25,7 +25,7 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @SuppressWarnings({"unchecked"}) // cloning is safe
-    public ForwardingGene(ForwardingGene<T> gene, DeepCloner map) {
+    private ForwardingGene(ForwardingGene<T> gene, DeepCloner map) {
         map.addClone(this);
         delegate = (Gene<T>) map.cloneField(gene.delegate, Gene.class);
     }
@@ -69,11 +69,6 @@ public class ForwardingGene<T> implements Gene<T> {
     @Override
     public double distance(Gene<?> thatGene) {
         return delegate.distance(thatGene);
-    }
-
-    @Override
-    public void set(T value) {
-        delegate.set(value);
     }
 
     @Override

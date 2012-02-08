@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.ForwardingGene;
@@ -25,7 +26,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Arrays.asList;
 
@@ -43,7 +43,7 @@ public abstract class AbstractAgent implements Agent {
     protected final ComponentList<GFAction> actions;
 
     @Element(name="genome", required=false)
-    protected final Genome<ForwardingGene<?>> genome;
+    protected final Genome<Gene<?>> genome;
 
     @Element(name = "body", required = false)
     protected final Body body;
@@ -60,7 +60,7 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(@Element(name = "body", required = false) Body body,
                             @ElementList(name="properties", entry="property", required=false) ComponentList<GFProperty> properties,
                             @ElementList(name="actions", entry="action", required=false) ComponentList<GFAction> actions,
-                            @Element(name="genome", required=false) Genome<ForwardingGene<?>> genome) {
+                            @Element(name="genome", required=false) Genome<Gene<?>> genome) {
         this.body = checkNotNull(body);
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
@@ -82,13 +82,13 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @SuppressWarnings("unchecked")
-    protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner map) {
-        map.addClone(this);
+    protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner cloner) {
+        cloner.addClone(this);
         this.population = abstractAgent.population;
-        this.actions = (ComponentList<GFAction>) map.cloneField(abstractAgent.actions, ComponentList.class);
-        this.properties = (ComponentList<GFProperty>) map.cloneField(abstractAgent.properties, ComponentList.class);
-        this.genome = map.cloneField(abstractAgent.genome, Genome.class);
-        this.body = map.cloneField(abstractAgent.body, Body.class);
+        this.actions = (ComponentList<GFAction>) cloner.cloneField(abstractAgent.actions, ComponentList.class);
+        this.properties = (ComponentList<GFProperty>) cloner.cloneField(abstractAgent.properties, ComponentList.class);
+        this.genome = cloner.cloneField(abstractAgent.genome, Genome.class);
+        this.body = cloner.cloneField(abstractAgent.body, Body.class);
 
         rootComponent = new AgentComponentWrapper(Iterables.concat(
                 Collections.singleton(body),
@@ -174,7 +174,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public boolean addGene(Gene<?> gene) {
-        return addComponent(genome, ForwardingGene.newInstance(gene));
+        return addComponent(genome, gene);
     }
 
     @Override
@@ -189,12 +189,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Iterable<Gene<?>> getGenes() {
-        return Iterables.transform(genome, new Function<ForwardingGene<?>, Gene<?>>() {
-            @Override
-            public Gene<?> apply(ForwardingGene<?> forwardingGene) {
-                return forwardingGene.getDelegate();
-            }
-        });
+        return genome;
     }
 
     @Override
@@ -202,25 +197,12 @@ public abstract class AbstractAgent implements Agent {
     public <T extends Gene> T getGene(String name, Class<T> clazz) {
         checkNotNull(clazz);
 
-        ForwardingGene forwardingGene = genome.find(name, ForwardingGene.class);
-        if (forwardingGene != null) {
-            return clazz.cast(forwardingGene.getDelegate());
-        }
-        else
-            return null;
+        return genome.find(name, clazz);
     }
 
     @Override
     public void injectGamete(Genome<? extends Gene<?>> genome) {
-        checkArgument(this.genome.isCompatibleGenome(genome));
-
-        Iterator<ForwardingGene<?>> oldGenomeIterator = this.genome.iterator();
-        Iterator<? extends Gene<?>> newGenomeIterator = genome.iterator();
-        while (oldGenomeIterator.hasNext()) {
-            assert newGenomeIterator.hasNext(); // isCompatibleGenome should guaranty this
-            ForwardingGene<?> next = oldGenomeIterator.next();
-            next.setDelegate(newGenomeIterator.next());
-        }
+        this.genome.replaceGenes(genome);
     }
 
     /**
@@ -395,7 +377,7 @@ public abstract class AbstractAgent implements Agent {
     protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E,T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E,T> {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
         protected final ComponentList<GFProperty> properties =  new MutableComponentList<GFProperty>();
-        protected Population population;
+        protected final Population population;
         public final ComponentList<Gene<?>> genes = new MutableComponentList<Gene<?>>();
 
         protected AbstractBuilder(Population population) {
@@ -415,7 +397,7 @@ public abstract class AbstractAgent implements Agent {
                 return Trees.postOrderView(rootComponent, new Function<TreeNode<AgentComponent>, Iterator<AgentComponent>>() {
                     @Override
                     public Iterator<AgentComponent> apply(@Nullable TreeNode<AgentComponent> agentComponentTreeNode) {
-                        return checkNotNull(agentComponentTreeNode).children().iterator();
+                        return agentComponentTreeNode == null ? Iterators.<AgentComponent>emptyIterator() : agentComponentTreeNode.children().iterator();
                     }
                 });
             }

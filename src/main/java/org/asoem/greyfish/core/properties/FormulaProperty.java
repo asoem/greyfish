@@ -18,30 +18,30 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
  * Time: 18:25
  */
 @ClassGroup(tags = {"properties"})
-public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty<Double> {
+public class FormulaProperty extends AbstractGFProperty implements DiscreteProperty<Double> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FormulaTrait.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FormulaProperty.class);
 
-    private GreyfishExpression expression;
+    private final GreyfishExpression expression;
 
     @SimpleXMLConstructor
-    public FormulaTrait() {
+    public FormulaProperty() {
        this(new Builder());
     }
 
-    protected FormulaTrait(AbstractBuilder<? extends FormulaTrait, ? extends AbstractBuilder> builder) {
+    protected FormulaProperty(AbstractBuilder<? extends FormulaProperty, ? extends AbstractBuilder> builder) {
         super(builder);
         this.expression = builder.expression;
     }
 
-    protected FormulaTrait(FormulaTrait cloneable, DeepCloner map) {
+    protected FormulaProperty(FormulaProperty cloneable, DeepCloner map) {
         super(cloneable, map);
         this.expression = cloneable.expression;
     }
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new FormulaTrait(this, cloner);
+        return new FormulaProperty(this, cloner);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
         }
     }
 
-    public static class Builder extends AbstractBuilder<FormulaTrait, Builder> {
+    public static class Builder extends AbstractBuilder<FormulaProperty, Builder> {
 
         @Override
         protected Builder self() {
@@ -67,12 +67,12 @@ public class FormulaTrait extends AbstractGFProperty implements DiscreteProperty
         }
 
         @Override
-        public FormulaTrait checkedBuild() {
-            return new FormulaTrait(this);
+        public FormulaProperty checkedBuild() {
+            return new FormulaProperty(this);
         }
     }
 
-    protected static abstract class AbstractBuilder<E extends FormulaTrait, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends FormulaProperty, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         private GreyfishExpression expression = GreyfishExpressionFactory.compile("0");
 
         public T expression(String expression) { this.expression = GreyfishExpressionFactory.compile(expression); return self(); }

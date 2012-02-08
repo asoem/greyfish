@@ -41,4 +41,9 @@ public class EvaluatedGenome<E extends Gene<?>> extends ForwardingGenome<E> {
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new EvaluatedGenome<E>(this, cloner);
     }
+
+    @Override
+    public void replaceGenes(Genome<? extends E> es) {
+        delegate().replaceGenes(es);
+    }
 }

@@ -77,6 +77,20 @@ public class SeeEvaluator implements Evaluator {
     }
 
     @Override
+    public String evaluateAsString() throws EvaluationException {
+        try {
+            LOGGER.debug("Evaluating INode {}", inode);
+            String ret = see.evalAsString(inode);
+            LOGGER.debug("Result: {}", ret);
+            return ret;
+        }
+        catch (Exception ex) {
+            LOGGER.error("Evaluation failed", ex);
+            throw new EvaluationException(ex);
+        }
+    }
+
+    @Override
     public void setExpression(String expression) {
         this.expression = checkNotNull(expression);
         try {

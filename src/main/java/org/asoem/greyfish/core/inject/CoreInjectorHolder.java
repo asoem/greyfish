@@ -12,7 +12,7 @@ import com.google.inject.Injector;
 public enum CoreInjectorHolder implements Supplier<Injector> {
     INSTANCE;
 
-    private Injector injector = Guice.createInjector(
+    private final Injector injector = Guice.createInjector(
             new CoreModule(),
             new EvalModule()
     );

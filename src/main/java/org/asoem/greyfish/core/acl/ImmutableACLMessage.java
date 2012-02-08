@@ -213,7 +213,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
         private String ontology;
         private String protocol;
         private int conversationId = 0;
-        private Map<String, Object> userDefinedParameter = Maps.newHashMap();
+        private final Map<String, Object> userDefinedParameter = Maps.newHashMap();
 
         public Builder<T> performative(ACLPerformative performative) { this.performative = checkNotNull(performative); return this; }
         public Builder<T> sender(T source) { this.sender = source; return this; }

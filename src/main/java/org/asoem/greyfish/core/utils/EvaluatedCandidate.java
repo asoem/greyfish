@@ -6,8 +6,8 @@ package org.asoem.greyfish.core.utils;
  * Time: 15:17
  */
 public class EvaluatedCandidate<T> {
-    private T object;
-    private double fitness;
+    private final T object;
+    private final double fitness;
 
     public EvaluatedCandidate(T object, double fitness) {
         this.object = object;

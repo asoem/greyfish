@@ -4,8 +4,6 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -54,10 +52,13 @@ public class CompatibilityAwareResourceProvisionAction extends ResourceProvision
 
         double compatibility = 0;
         if (similarityTrait != null) {
+            /*
             final Iterable<Gene<?>> thisGenes = similarityTrait.getGenes();
             final Iterable<Gene<?>> thatGenes = cfpContent.getSimilatityTrait().getGenes();
             compatibility = 1 - Genes.normalizedDistance(thisGenes, thatGenes);
             LOGGER.debug("{}: Compatibility value of Resource and Consumer is {}", this, compatibility);
+             */
+            // todo: needs new implementation as properties don't have genes anymore
         }
         else {
             LOGGER.warn("{}: similarityTrait not defined", this);

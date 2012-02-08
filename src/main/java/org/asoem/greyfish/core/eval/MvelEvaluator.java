@@ -57,6 +57,11 @@ public class MvelEvaluator implements Evaluator {
     }
 
     @Override
+    public String evaluateAsString() throws EvaluationException {
+        return String.class.cast(MVEL.executeExpression(compiledExpression, factory));
+    }
+
+    @Override
     public void setExpression(String expression) throws SyntaxException {
         this.expression = expression;
         this.compiledExpression = MVEL.compileExpression(expression, PARSER_CONTEXT);

@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 09:37
  */
 @ClassGroup(tags = "genes")
-public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
+public class DoubleGene extends AbstractGene<Double> {
 
     private GreyfishExpression initialValueGenerator = GreyfishExpressionFactory.compile("0.0");
 
@@ -92,28 +92,6 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
     }
 
     @Override
-    public boolean isMutatedCopy(@Nullable Gene<?> gene) {
-        return gene instanceof DoubleGene &&
-                initialValueGenerator == ((DoubleGene) gene).initialValueGenerator;
-    }
-
-    @Override
-    public double distance(Gene<?> thatGene) {
-        checkArgument(this.isMutatedCopy(checkNotNull(thatGene)));
-        return getGeneController().normalizedDistance(get(), ((DoubleGene) thatGene).get());
-    }
-
-    @Override
-    public void set(Double value) {
-        this.value = value;
-    }
-
-    @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public Double get() {
         return value;
     }
@@ -144,10 +122,5 @@ public class DoubleGene extends AbstractAgentComponent implements Gene<Double> {
                 return mutationDistributionFunction;
             }
         });
-    }
-
-    @Override
-    public Iterable<AgentComponent> children() {
-        return Collections.emptyList();
     }
 }

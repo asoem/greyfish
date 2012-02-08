@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.ForwardingGene;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -17,7 +17,7 @@ public class MutableAgent extends AbstractAgent {
         super(new Body(),
                 new MutableComponentList<GFProperty>(),
                 new MutableComponentList<GFAction>(),
-                new MutableGenome<ForwardingGene<?>>());
+                new MutableGenome<Gene<?>>());
     }
 
     protected MutableAgent(MutableAgent mutableAgent, DeepCloner map) {
@@ -28,7 +28,7 @@ public class MutableAgent extends AbstractAgent {
         super(new Body(),
                 new MutableComponentList<GFProperty>(builder.properties),
                 new MutableComponentList<GFAction>(builder.actions),
-                new MutableGenome<ForwardingGene<?>>(builder.genes));
+                new MutableGenome<Gene<?>>(builder.genes));
         setPopulation(builder.population);
     }
 

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.*;
@@ -27,12 +26,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(body,
                 ImmutableComponentList.copyOf(properties),
                 ImmutableComponentList.copyOf(actions),
-                ImmutableGenome.copyOf(Iterables.transform(genes, new Function<Gene<?>, ForwardingGene<?>>() {
-                    @Override
-                    public ForwardingGene<?> apply(@Nullable Gene<?> gene) {
-                        return ForwardingGene.newInstance(gene);
-                    }
-                })));
+                new MutableGenome<Gene<?>>(genes));
         setPopulation(population);
         freeze();
     }
@@ -45,12 +39,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                ImmutableGenome.copyOf(Iterables.transform(builder.genes, new Function<Gene<?>, ForwardingGene<?>>() {
-                    @Override
-                    public ForwardingGene<?> apply(@Nullable Gene<?> gene) {
-                        return ForwardingGene.newInstance(gene);
-                    }
-                })));
+                new MutableGenome<Gene<?>>(builder.genes));
         setPopulation(builder.population);
         freeze();
     }
@@ -116,5 +105,10 @@ public class ImmutableAgent extends AbstractAgent {
         protected Builder self() {
             return this;
         }
+    }
+
+    @Override
+    public boolean addGene(Gene<?> gene) {
+        throw new UnsupportedOperationException();
     }
 }

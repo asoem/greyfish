@@ -11,7 +11,7 @@ import java.util.Collections;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> {
+public class ImmutableGene<T> extends AbstractGene<T> {
 
 	private final T representation;
     private final Class<T> clazz;
@@ -41,11 +41,6 @@ public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> 
 		return representation;
 	}
 
-	@Override
-	public String toString() {
-		return "Gene[" + getSupplierClass().getSimpleName() + "]=" + String.valueOf(representation);
-	}
-
     @Override
     public Class<T> getSupplierClass() {
         return clazz;
@@ -73,29 +68,6 @@ public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> 
     }
 
     @Override
-    public boolean isMutatedCopy(Gene<?> gene) {
-        checkNotNull(gene);
-        return this.getGeneController().equals(gene.getGeneController());
-    }
-
-    @Override
-    public final double distance(Gene<?> thatGene) {
-        checkNotNull(thatGene);
-        checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
-        return getGeneController().normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
-    }
-
-    @Override
-    public void set(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new ImmutableGene<T>(this, cloner);
     }
@@ -104,8 +76,4 @@ public class ImmutableGene<T> extends AbstractAgentComponent implements Gene<T> 
         return new ImmutableGene<T>(gene.get(), gene.getSupplierClass(), gene.getGeneController());
     }
 
-    @Override
-    public Iterable<AgentComponent> children() {
-        return Collections.emptyList();
-    }
 }

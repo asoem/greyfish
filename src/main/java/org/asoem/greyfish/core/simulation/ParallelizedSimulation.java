@@ -77,7 +77,7 @@ public class ParallelizedSimulation implements Simulation {
         return scenario.getPrototype(population);
     }
 
-    private AtomicInteger maxId = new AtomicInteger();
+    private final AtomicInteger maxId = new AtomicInteger();
 
     private final Scenario scenario;
 

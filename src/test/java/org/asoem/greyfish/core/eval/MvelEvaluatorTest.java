@@ -2,10 +2,15 @@ package org.asoem.greyfish.core.eval;
 
 import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mvel2.MVEL;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -95,5 +100,43 @@ public class MvelEvaluatorTest {
 
         // then
         assertThat(evaluated).isEqualTo(value);
+    }
+
+    @Test
+    public void testEvaluationToString() {
+        // given
+        MvelEvaluator evaluator = new MvelEvaluator();
+        evaluator.setExpression("if (true) { \"Hello World!\"; } else { \"FooBar\"; }");
+        
+        // when
+        String ret = evaluator.evaluateAsString();
+        
+        // then
+        assertThat(ret).isEqualTo("Hello World!");
+    }
+
+    @Test
+    public void testProbabilityMap() throws Exception {
+        // given
+        MvelEvaluator evaluator = new MvelEvaluator();
+        MvelEvaluator.PARSER_CONTEXT.addImport("rws", MVEL.getStaticMethod(MvelEvaluatorTest.class, "rws", new Class[]{List.class}));
+        evaluator.setExpression("rws([\"Male\",0.5,\"Female\",0.5])");
+
+        // when
+        String ret = evaluator.evaluateAsString();
+
+        // then
+        assertThat(ret).isEqualTo("Female");
+    }
+    
+    public static String rws(List<?> map) {
+        double rand = 0.6; // cont for testing purposes
+        double sum = 0;
+        for (int i = 0; i < map.size(); i = i+2) {
+            sum += (Double) map.get(i+1);
+            if (sum > rand)
+                return (String) map.get(i);
+        }
+        throw new AssertionError();
     }
 }

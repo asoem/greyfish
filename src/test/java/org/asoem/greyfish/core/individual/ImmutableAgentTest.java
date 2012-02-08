@@ -13,7 +13,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,7 +38,7 @@ public class ImmutableAgentTest {
         agent.addGene(gene);
 
         // then
-        assertTrue(false);
+        // UnsupportedOperationException
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -51,7 +50,7 @@ public class ImmutableAgentTest {
         agent.addAction(action);
 
         // then
-        assertTrue(false);
+        // UnsupportedOperationException
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -63,7 +62,7 @@ public class ImmutableAgentTest {
         agent.addProperty(property);
 
         // then
-        assertTrue(false);
+        // UnsupportedOperationException
     }
 
     @Test
@@ -71,6 +70,7 @@ public class ImmutableAgentTest {
         // given
         given(gene.getName()).willReturn("foo");
         given(gene.hasName("foo")).willReturn(true);
+        given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
         ImmutableAgent agent = ImmutableAgent.of(population).addGenes(gene).build();
 
         // when
@@ -101,7 +101,8 @@ public class ImmutableAgentTest {
         given(gene.getName()).willReturn("foo");
         given(gene.hasName("foo")).willReturn(true);
         given(gene.isMutatedCopy(mutatedGene)).willReturn(true);
-
+        given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
+        
         given(mutatedGene.getName()).willReturn("foo");
         given(mutatedGene.hasName("foo")).willReturn(true);
         given(mutatedGene.isMutatedCopy(gene)).willReturn(true);

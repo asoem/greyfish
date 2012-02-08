@@ -40,6 +40,7 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
         return delegate;
     }
 
+    @Nullable
     @Override
     public <T extends E> T find(final String name, Class<T> clazz) {
         return clazz.cast(Iterables.find(delegate, new Predicate<E>() {
@@ -64,5 +65,24 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
                 throw new IllegalArgumentException("A ComponentList preserves uniqueness of component names." +
                         "Cannot add a second element with name='" + name + "'");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        MutableComponentList that = (MutableComponentList) o;
+
+        return delegate.equals(that.delegate);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + delegate.hashCode();
+        return result;
     }
 }

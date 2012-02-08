@@ -14,11 +14,6 @@ public abstract class ForwardingProperty implements GFProperty {
     protected abstract GFProperty getDelegate();
 
     @Override
-    public Iterable<Gene<?>> getGenes() {
-        return getDelegate().getGenes();
-    }
-
-    @Override
     public Agent getAgent() {
         return getDelegate().getAgent();
     }
@@ -59,18 +54,8 @@ public abstract class ForwardingProperty implements GFProperty {
     }
 
     @Override
-    public void setGenes(Iterable<? extends Gene<?>> geneIterator) {
-        getDelegate().setGenes(geneIterator);
-    }
-
-    @Override
     public boolean hasName(String s) {
         return getDelegate().hasName(s);
-    }
-
-    @Override
-    public <S> Gene<S> registerGene(Gene<S> gene) {
-        return getDelegate().registerGene(gene);
     }
 
     @Override

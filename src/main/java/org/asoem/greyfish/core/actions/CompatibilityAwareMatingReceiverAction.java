@@ -151,6 +151,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
             double matingProbability = 0;
             if (compatibilityDefiningProperty != null) {
 
+                /*
                ImmutableMap<Gene<?>, Gene<?>> map = ImmutableMapBuilder.<Gene<?>, Gene<?>>newInstance().putAll(
                         compatibilityDefiningProperty.getGenes(),
                         Functions.<Gene<?>>identity(),
@@ -167,6 +168,8 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
                         }).build();
 
                 matingProbability = 1 - Genes.normalizedDistance(map.keySet(), map.values());
+                */
+                matingProbability = 1; // todo: needs a different implementation, as properties don't have genes anymore
             }
 
             if (trueWithProbability(matingProbability)) {

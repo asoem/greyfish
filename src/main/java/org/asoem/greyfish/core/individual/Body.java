@@ -36,7 +36,7 @@ public class Body extends AbstractAgentComponent implements Movable {
     private final MutableMovable movingObject2D = new MutableMovable();
 
     @Attribute(name="radius", required = false)
-    private double radius = 0.1f;
+    private final double radius = 0.1f;
 
     @Element(name="colorStateProperty", required = false)
     private FiniteStateProperty<?> property;

@@ -34,9 +34,4 @@ public interface Gene<T> extends AgentComponent, Supplier<T> {
      */
     double distance(Gene<?> thatGene);
 
-    /**
-     * Set this genes current value to {@code value}
-     * @param value the new value this gene will supply
-     */
-    void set(T value);
 }

@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * This is an immutable implementation of a Genome in the sense,
  * that it stores its Genes in an {@link ImmutableComponentList},
@@ -59,6 +61,17 @@ public class ImmutableGenome<E extends Gene<?>> extends ForwardingList<E> implem
 
         return true;
     }
+
+    @Override
+    public void replaceGenes(Genome<? extends E> genome) {
+        checkArgument(isCompatibleGenome(genome));
+
+        delegate.clear();
+
+        delegate.addAll(genome);
+    }
+
+
 
     @Override
     public String toString() {
