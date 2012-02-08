@@ -26,7 +26,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(body,
                 ImmutableComponentList.copyOf(properties),
                 ImmutableComponentList.copyOf(actions),
-                new MutableGenome<Gene<?>>(genes));
+                ImmutableGenome.copyOf(genes));
         setPopulation(population);
         freeze();
     }
@@ -39,7 +39,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                new MutableGenome<Gene<?>>(builder.genes));
+                ImmutableGenome.copyOf(builder.genes));
         setPopulation(builder.population);
         freeze();
     }

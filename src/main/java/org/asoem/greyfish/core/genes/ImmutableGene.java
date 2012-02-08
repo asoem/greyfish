@@ -1,14 +1,8 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-import java.util.Collections;
-
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ImmutableGene<T> extends AbstractGene<T> {
@@ -19,11 +13,13 @@ public class ImmutableGene<T> extends AbstractGene<T> {
 
     /**
      * Constructor
+     * @param name the name for this gene
      * @param element the initial value this gene will return using {@code get()}
      * @param clazz the Class of the supplied value
      * @param geneController the function which describes how to mutate the gene
      */
-    public ImmutableGene(T element, Class<T> clazz, GeneController<T> geneController) {
+    public ImmutableGene(String name, T element, Class<T> clazz, GeneController<T> geneController) {
+        super(name);
         this.geneController = checkNotNull(geneController);
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
@@ -51,9 +47,15 @@ public class ImmutableGene<T> extends AbstractGene<T> {
         return geneController;
     }
 
+    @Override
+    public void setValue(Object value) {
+        throw new UnsupportedOperationException();
+    }
+
     public static <E> ImmutableGene<E> newMutatedCopy(Gene<E> gene) {
         checkNotNull(gene);
         return new ImmutableGene<E>(
+                gene.getName(),
                 gene.getGeneController().mutate(gene.get()),
                 gene.getSupplierClass(),
                 gene.getGeneController());
@@ -62,6 +64,7 @@ public class ImmutableGene<T> extends AbstractGene<T> {
     public static <E> ImmutableGene<E> newInitializedCopy(Gene<E> gene) {
         checkNotNull(gene);
         return new ImmutableGene<E>(
+                gene.getName(),
                 gene.getGeneController().createInitialValue(),
                 gene.getSupplierClass(),
                 gene.getGeneController());
@@ -73,7 +76,10 @@ public class ImmutableGene<T> extends AbstractGene<T> {
     }
 
     public static <T> Gene<T> copyOf(Gene<T> gene) {
-        return new ImmutableGene<T>(gene.get(), gene.getSupplierClass(), gene.getGeneController());
+        return new ImmutableGene<T>(gene.getName(), gene.get(), gene.getSupplierClass(), gene.getGeneController());
     }
 
+    public static <T> ImmutableGene<T> of(String name, T element, Class<T> elementType, GeneController<T> geneController) {
+        return new ImmutableGene<T>(name, element, elementType, geneController);
+    }
 }

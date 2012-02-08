@@ -1,11 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-
-import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -39,6 +35,11 @@ public class MutableGene<E> extends AbstractGene<E> {
     @Override
     public final GeneController<E> getGeneController() {
         return this.geneController;
+    }
+
+    @Override
+    public void setValue(Object value) {
+        this.value = supplierClass.cast(value);
     }
 
     @Override

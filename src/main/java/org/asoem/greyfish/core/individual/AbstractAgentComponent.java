@@ -29,6 +29,10 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         this.name = builder.name;
     }
 
+    protected AbstractAgentComponent(String name) {
+        this.name = name;
+    }
+
     public static abstract class AbstractBuilder<E extends AbstractAgentComponent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
         private String name = "";
 

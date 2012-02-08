@@ -14,14 +14,11 @@ public interface Gene<T> extends AgentComponent, Supplier<T> {
     Class<T> getSupplierClass();
 
     /**
-     *
      * @return the controller for this gene
      */
     GeneController<T> getGeneController();
 
     /**
-     *
-     *
      * @param gene the gene to builderTest for
      * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
      */
@@ -34,4 +31,9 @@ public interface Gene<T> extends AgentComponent, Supplier<T> {
      */
     double distance(Gene<?> thatGene);
 
+    /**
+     * Set the new value for this {@code Gene}
+     * @param value the new value this gene will supply
+     */
+    void setValue(Object value);
 }

@@ -6,6 +6,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
@@ -64,6 +65,17 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         }
                     });
                 }
+                else if (GFCondition.class.isAssignableFrom(contextClass)) {
+                    return condition(gomParts, new Function<T, GFCondition>() {
+                        @Override
+                        public GFCondition apply(@Nullable T agentComponent) {
+                            return GFCondition.class.cast(agentComponent);
+                        }
+                    });
+                }
+                else {
+                    throw new IllegalArgumentException("Root keywords 'this' of 'self' are not implemented for context " + contextClass);
+                }
             }
             else if ("sim".equals(root)) {
                 if (AgentComponent.class.isAssignableFrom(contextClass)) {
@@ -84,10 +96,36 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         }
                     });
                 }
+                else {
+                    throw new IllegalArgumentException("Root keyword 'sim' is not implemented for context " + contextClass);
+                }
             }
+            else
+                throw new IllegalArgumentException("Key '"+ root + "'" + " is not handled");
         }
 
-        throw new IllegalArgumentException("Key '"+ varName + "' with context of type '" + contextClass + "' is not handled");
+        throw new IllegalArgumentException("Variable Name does not meet the syntax requirements: " + varName);
+    }
+
+    private <T> Function<T, ?> condition(Iterator<String> parts, Function<T, GFCondition> function) {
+        if (parts.hasNext()) {
+            String nextPart = parts.next();
+            if ("agent".equals(nextPart)) {
+                return agent(parts, Functions.compose(new Function<GFCondition, Agent>() {
+                    @Override
+                    public Agent apply(@Nullable GFCondition action) {
+                        return checkNotNull(action).getAgent();
+                    }
+                }, function));
+            }
+
+            if (nextPart.matches("conditions\\[.+\\]")) {
+            }
+            throw new RuntimeException("GFCondition has no member named " + nextPart);
+        }
+        else {
+            return function;
+        }
     }
 
     @Override

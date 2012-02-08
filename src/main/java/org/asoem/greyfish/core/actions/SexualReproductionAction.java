@@ -40,7 +40,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         for (int i = 0; i < nOffspring; i++) {
 
-            simulation.createAgent(
+            simulation.insertAgent(
                     agent().getPopulation(),
                     agent().createGamete()/*.mutated().recombined(spermStorage.getRWS())*/,
                     simulation.getSpace().getCoordinates(agent()));

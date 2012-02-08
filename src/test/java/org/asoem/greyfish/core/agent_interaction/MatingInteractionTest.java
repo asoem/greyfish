@@ -34,6 +34,7 @@ public class MatingInteractionTest {
         CoreInjectorHolder.coreInjector();
     }
 
+    // todo: there is a somewhere a stochastic process involved. The test fails only sometimes.
     @Test
     public void testNormalInteraction() throws Exception {
         // given

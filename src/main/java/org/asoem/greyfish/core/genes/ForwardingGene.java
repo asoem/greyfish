@@ -72,6 +72,11 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
+    public void setValue(Object value) {
+        delegate.setValue(value);
+    }
+
+    @Override
     public Agent getAgent() {
         return delegate.getAgent();
     }

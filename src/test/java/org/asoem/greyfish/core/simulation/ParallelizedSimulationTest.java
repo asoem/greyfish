@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Placeholder;
@@ -14,7 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Collections.singleton;
 import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 
@@ -41,6 +42,6 @@ public class ParallelizedSimulationTest {
         ParallelizedSimulation simulation = ParallelizedSimulation.newSimulation(scenario);
 
         // then
-        assertEquals(simulation.getAgents().size(), 2);
+        assertThat(Iterables.size(simulation.getAgents())).isEqualTo(2);
     }
 }

@@ -11,6 +11,7 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.Scenario;
@@ -32,7 +33,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static org.asoem.greyfish.core.concurrent.SingletonForkJoinPool.invoke;
-import static org.asoem.greyfish.core.simulation.SimulationMessageType.*;
 import static org.asoem.greyfish.utils.parallel.ParallelIterables.apply;
 
 /**
@@ -149,7 +149,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public Collection<Agent> getAgents() {
+    public Iterable<Agent> getAgents() {
         return agents;
     }
 
@@ -165,8 +165,6 @@ public class ParallelizedSimulation implements Simulation {
 
         agent.prepare(this);
 
-        LOGGER.trace("{}: Adding Agent {}", this, agent);
-
         // following actions must be synchronized
         synchronized (this) {
             agents.add(agent);
@@ -174,6 +172,8 @@ public class ParallelizedSimulation implements Simulation {
             Counter counter = populationCounterMap.get(agent.getPopulation());
             counter.increase(); // non-null verified by checkCanAddAgent();
         }
+
+        LOGGER.trace("{}: Agent added: {}", this, agent);
     }
 
     private void removeAgentsInternal(Collection<? extends Agent> agents) {
@@ -230,7 +230,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void createAgent(final Population population, final Genome genome, Coordinates2D location) {
+    public void insertAgent(final Population population, final Genome<? extends Gene<?>> genome, Coordinates2D location) {
         checkNotNull(population);
         checkArgument(getPrototype(population) != null);
         checkNotNull(genome);
@@ -367,6 +367,7 @@ public class ParallelizedSimulation implements Simulation {
      * @param stopTrigger the {@code Predicate} which will be asked before each simulation step if the simulation should stop.
      * @return the newly created simulation
      */
+    @SuppressWarnings("UnusedDeclaration")
     public static ParallelizedSimulation runScenario(Scenario scenario, Predicate<? super ParallelizedSimulation> stopTrigger) {
         checkNotNull(scenario);
         checkNotNull(stopTrigger);
@@ -380,29 +381,21 @@ public class ParallelizedSimulation implements Simulation {
         return simulation;
     }
 
-    private static interface SimulationMessage {
-        SimulationMessageType messageType();
-    }
-
-    private static class AddAgentMessage implements SimulationMessage {
+    private static class AddAgentMessage {
 
         private final Population population;
-        private final Genome genome;
+        private final Genome<? extends Gene<?>> genome;
         private final Coordinates2D location;
 
-        public AddAgentMessage(Population population, Genome genome, Coordinates2D location) {
+        public AddAgentMessage(Population population, Genome<? extends Gene<?>> genome, Coordinates2D location) {
             this.population = population;
             this.genome = genome;
             this.location = location;
         }
 
-        @Override
-        public SimulationMessageType messageType() {
-            return ADD_AGENT;
-        }
     }
 
-    private static class RemoveAgentMessage implements SimulationMessage {
+    private static class RemoveAgentMessage {
 
         private final Agent agent;
 
@@ -410,13 +403,9 @@ public class ParallelizedSimulation implements Simulation {
             this.agent = agent;
         }
 
-        @Override
-        public SimulationMessageType messageType() {
-            return REMOVE_AGENT;
-        }
     }
 
-    private static class DeliverAgentMessageMessage implements SimulationMessage {
+    private static class DeliverAgentMessageMessage {
 
         private final ACLMessage<Agent> message;
 
@@ -424,9 +413,5 @@ public class ParallelizedSimulation implements Simulation {
             this.message = message;
         }
 
-        @Override
-        public SimulationMessageType messageType() {
-            return DELIVER_AGENT_MESSAGE;
-        }
     }
 }

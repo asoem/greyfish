@@ -3,22 +3,13 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.Collections;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -89,6 +80,11 @@ public class DoubleGene extends AbstractGene<Double> {
     @Override
     public GeneController<Double> getGeneController() {
         return geneController;
+    }
+
+    @Override
+    public void setValue(Object value) {
+        this.value = Double.class.cast(value);
     }
 
     @Override

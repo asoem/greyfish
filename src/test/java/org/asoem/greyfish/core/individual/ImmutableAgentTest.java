@@ -2,8 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +13,6 @@ import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 /**
  * User: christoph
@@ -96,25 +94,17 @@ public class ImmutableAgentTest {
     @Test
     public void testInjectGamete() throws Exception {
         // given
-        Gene<?> mutatedGene = mock(Gene.class);
+        final GeneControllerAdaptor<String> geneController = new GeneControllerAdaptor<String>();
+        Gene<String> gene1 = new MutableGene<String>("Foo", String.class, geneController);
+        Gene<String> gene2 = ImmutableGene.of("DefaultName", "Bar", String.class, geneController);
+        Agent agent = ImmutableAgent.of(population).addGenes(gene1).build();
 
-        given(gene.getName()).willReturn("foo");
-        given(gene.hasName("foo")).willReturn(true);
-        given(gene.isMutatedCopy(mutatedGene)).willReturn(true);
-        given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
-        
-        given(mutatedGene.getName()).willReturn("foo");
-        given(mutatedGene.hasName("foo")).willReturn(true);
-        given(mutatedGene.isMutatedCopy(gene)).willReturn(true);
-
-        ImmutableGenome<? extends Gene<?>> genome = ImmutableGenome.copyOf(Collections.singleton(mutatedGene));
-
-        ImmutableAgent agent = ImmutableAgent.of(population).addGenes(gene).build();
+        Genome<Gene<String>> genome = ImmutableGenome.copyOf(Collections.singleton(gene2));
 
         // when
         agent.injectGamete(genome);
 
         // then
-        assertThat(agent.getGene("foo", Gene.class)).isEqualTo(mutatedGene);
+        assertThat(gene1.get()).isEqualTo(gene2.get());
     }
 }

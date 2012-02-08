@@ -1,18 +1,19 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
 
-    @Attribute(name = "nClones")
-    private int parameterClones;
+    @Attribute(name = "nOffspring")
+    private int nOffspring;
 
     @SimpleXMLConstructor
     public ClonalReproductionAction() {
@@ -21,10 +22,10 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
-        for (int i = 0; i < parameterClones; i++) {
-            simulation.createAgent(
+        for (int i = 0; i < nOffspring; i++) {
+            simulation.insertAgent(
                     agent().getPopulation(),
-                    agent().createGamete()/*.mutated()*/,
+                    ImmutableGenome.mutatedCopyOf(agent().getGenes()),
                     simulation.getSpace().getCoordinates(agent()));
         }
         return ActionState.END_SUCCESS;
@@ -37,12 +38,12 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     public ClonalReproductionAction(ClonalReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.parameterClones = cloneable.parameterClones;
+        this.nOffspring = cloneable.nOffspring;
     }
 
     protected ClonalReproductionAction(AbstractBuilder<?,?> builder) {
         super(builder);
-        this.parameterClones = builder.nClones;
+        this.nOffspring = builder.nOffspring;
     }
 
     @Override
@@ -51,12 +52,12 @@ public class ClonalReproductionAction extends AbstractGFAction {
         e.add("#clones", new AbstractTypedValueModel<Integer>() {
             @Override
             protected void set(Integer arg0) {
-                parameterClones = arg0;
+                nOffspring = arg0;
             }
 
             @Override
             public Integer get() {
-                return parameterClones;
+                return nOffspring;
             }
         });
     }
@@ -69,8 +70,8 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private int nClones = 1;
+        private int nOffspring = 1;
 
-        public T clones(int parameterClones) { this.nClones = parameterClones; return self(); }
+        public T nOffspring(int parameterClones) { this.nOffspring = parameterClones; return self(); }
     }
 }

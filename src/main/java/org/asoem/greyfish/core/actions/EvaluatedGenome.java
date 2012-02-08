@@ -43,7 +43,7 @@ public class EvaluatedGenome<E extends Gene<?>> extends ForwardingGenome<E> {
     }
 
     @Override
-    public void replaceGenes(Genome<? extends E> es) {
-        delegate().replaceGenes(es);
+    public void updateAllGenes(Genome<? extends E> genes) {
+        delegate().updateAllGenes(genes);
     }
 }

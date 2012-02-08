@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.ForwardingGene;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
@@ -202,7 +201,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void injectGamete(Genome<? extends Gene<?>> genome) {
-        this.genome.replaceGenes(genome);
+        this.genome.updateAllGenes(genome);
     }
 
     /**
@@ -356,7 +355,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Genome<Gene<?>> createGamete() {
-        return ImmutableGenome.<Gene<?>>copyOf(genome);
+        return ImmutableGenome.copyOf(genome);
     }
 
     @Override
@@ -384,6 +383,7 @@ public abstract class AbstractAgent implements Agent {
             this.population = checkNotNull(population, "Population must not be null");
         }
 
+        // todo: these builder methods are not able to control the mutability of the genes
         public T addGenes(Gene<?> ... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
         public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
         public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
