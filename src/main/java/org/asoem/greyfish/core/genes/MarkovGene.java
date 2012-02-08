@@ -1,12 +1,14 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.math.MarkovChain;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
@@ -36,6 +38,7 @@ public class MarkovGene extends AbstractGene<String> {
                 .put("Male", "Female", 0.5)
                 .put("Female", "Male", 0.5)
                 .build();
+        initialStateProvider = GreyfishExpressionFactory.compile("Male");
         geneController  = new GeneControllerAdaptor<String>() {
             @Override
             public String mutate(String original) {
@@ -86,7 +89,7 @@ public class MarkovGene extends AbstractGene<String> {
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         
-        e.add("Transition Matrix", new AbstractTypedValueModel<MarkovChain<String>>() {
+        e.add("Transition Rules", new AbstractTypedValueModel<MarkovChain<String>>() {
             @Override
             protected void set(MarkovChain<String> arg0) {
                 markovChain = arg0;
