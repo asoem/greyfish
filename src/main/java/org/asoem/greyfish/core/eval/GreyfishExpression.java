@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -41,6 +42,14 @@ public class GreyfishExpression {
         return evaluateAsDouble(resolver);
     }
 
+    public double evaluateAsDouble(Object context, Map<String, ?> localVariables) throws EvaluationException {
+        checkNotNull(context, "Context must not be null");
+        VariableResolver contextResolver = createContextResolver(context);
+        VariableResolver resolver = VariableResolvers.forMap(localVariables);
+        contextResolver.setNext(resolver);
+        return evaluateAsDouble(resolver);
+    }
+    
     public boolean evaluateAsBoolean(Object context) throws EvaluationException {
         checkNotNull(context, "Context must not be null");
         return evaluateAsBoolean(createContextResolver(context));

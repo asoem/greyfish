@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -20,14 +21,19 @@ import javax.annotation.Nullable;
 @ClassGroup(tags="conditions")
 public class GreyfishExpressionCondition extends LeafCondition {
 
+    // There is a potential performance increase.
+    // Some Expressions, that for example reference a gene,
+    // have functions that return a constant value over the lifetime of an Agent
     @Element
     private GreyfishExpression expression = GreyfishExpressionFactory.compile("false");
+
 
     public GreyfishExpressionCondition(GreyfishExpressionCondition greyfishExpressionCondition, DeepCloner cloner) {
         super(greyfishExpressionCondition, cloner);
         this.expression = greyfishExpressionCondition.expression;
     }
 
+    @SimpleXMLConstructor
     public GreyfishExpressionCondition() {
     }
 

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
@@ -23,6 +24,8 @@ public class DoubleGene extends AbstractGene<Double> {
 
     private GreyfishExpression mutationDistributionFunction = GreyfishExpressionFactory.compile("0.0");
 
+    private GreyfishExpression distanceMetric = GreyfishExpressionFactory.compile("abs(y - x)");
+
     private final GeneController<Double> geneController = new GeneController<Double>() {
 
         @Override
@@ -37,7 +40,7 @@ public class DoubleGene extends AbstractGene<Double> {
 
         @Override
         public double normalizedDistance(Double orig, Double copy) {
-            return Math.abs(orig - copy);
+            return distanceMetric.evaluateAsDouble(this, ImmutableMap.of("x", orig, "y", copy));
         }
 
         @Override
