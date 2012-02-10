@@ -8,9 +8,11 @@ import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.core.individual.ImmutableComponentList;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.math.RandomUtils;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -91,6 +93,30 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
                 return ImmutableGene.newMutatedCopy(o);
             }
         })).build();
+    }
+
+    /**
+     * Creates a new {@code ImmutableGenome} out of {@code genome1} and {@code genome2}
+     * by selecting with equal probability one gene of one genome per position.
+     * @param genome1 The first genome
+     * @param genome2 The second genome
+     * @return a new {@code ImmutableGenome}
+     */
+    public static ImmutableGenome<? extends Gene<?>> recombined(Iterable<Gene<?>> genome1, Genome genome2) {
+        final Builder<Gene<?>> builder = new Builder<Gene<?>>();
+
+        final Iterator<Gene<?>> genome1Iterator = genome1.iterator();
+        final Iterator genome2Iterator = genome2.iterator();
+
+        while (genome1Iterator.hasNext() && genome2Iterator.hasNext()) {
+            Gene<?> next1 =  genome1Iterator.next();
+            Gene<?> next2 =  genome1Iterator.next();
+            builder.add(RandomUtils.nextBoolean() ? next1 : next2);
+        }
+
+        assert ! (genome1Iterator.hasNext() || genome2Iterator.hasNext());
+
+        return builder.build();
     }
 
     protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGenome<E>> {

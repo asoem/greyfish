@@ -1,11 +1,16 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.EvaluatedCandidate;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
+import org.asoem.greyfish.utils.collect.RandomSelectionStrategy;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -15,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.collect.ElementSelectionStrategies.pickAndPutBack;
 
 @ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
@@ -26,6 +32,9 @@ public class SexualReproductionAction extends AbstractGFAction {
     private int nOffspring = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproductionAction.class);
 
+    private ElementSelectionStrategy<EvaluatedCandidate<Genome>> spermSelectionStrategy = new RandomSelectionStrategy<EvaluatedCandidate<Genome>>();
+
+
     @SimpleXMLConstructor
     public SexualReproductionAction() {
         this(new Builder());
@@ -36,13 +45,12 @@ public class SexualReproductionAction extends AbstractGFAction {
         if (nOffspring == 0 || spermStorage.isEmpty())
             return ActionState.END_FAILED;
 
-        LOGGER.debug("Producing {} offspring", nOffspring);
+        LOGGER.debug("Producing {} offspring ", nOffspring);
 
-        for (int i = 0; i < nOffspring; i++) {
-
+        for (EvaluatedCandidate<Genome> spermCandidate : pickAndPutBack(spermStorage.get(), spermSelectionStrategy, nOffspring)) {
             simulation.insertAgent(
                     agent().getPopulation(),
-                    agent().createGamete()/*.mutated().recombined(spermStorage.getRWS())*/,
+                    ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate.getObject())),
                     simulation.getSpace().getCoordinates(agent()));
         }
 
