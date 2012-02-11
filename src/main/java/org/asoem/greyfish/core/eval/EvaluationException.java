@@ -12,4 +12,8 @@ public class EvaluationException extends RuntimeException {
     public EvaluationException(Throwable throwable) {
         super(throwable);
     }
+
+    public EvaluationException(String s) {
+        super(s);
+    }
 }

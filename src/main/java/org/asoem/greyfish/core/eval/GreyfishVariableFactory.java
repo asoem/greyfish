@@ -14,7 +14,7 @@ public class GreyfishVariableFactory {
 
     @SuppressWarnings({"UnusedDeclaration"})
     public static <T> Object $(String expression, T ctx) {
-        checkNotNull(ctx);
+        checkNotNull(ctx, "Context must not be null");
         return FACTORY.get(expression, (Class<T>) ctx.getClass()).apply(ctx);
     }
 }

@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
 import javax.annotation.Nullable;
+import javax.script.Bindings;
 
 /**
  * User: christoph
@@ -8,6 +9,8 @@ import javax.annotation.Nullable;
  * Time: 11:09
  */
 public interface VariableResolver {
+
+    Bindings bindings();
 
     /**
      * Check if the variable {@code name} van be resolved by this {@code VariableResolver}

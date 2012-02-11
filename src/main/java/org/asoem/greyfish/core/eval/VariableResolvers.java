@@ -1,5 +1,10 @@
 package org.asoem.greyfish.core.eval;
 
+import com.google.common.collect.ForwardingMap;
+import com.google.common.collect.Maps;
+
+import javax.annotation.Nullable;
+import javax.script.Bindings;
 import java.util.Map;
 
 /**
@@ -8,7 +13,7 @@ import java.util.Map;
  * Time: 14:22
  */
 public class VariableResolvers {
-    public static VariableResolver forMap(final Map<? extends String, ?> map) {
+    public static VariableResolver forMap(final Map<String, ?> map) {
 
         return new AbstractVariableResolver() {
             @Override
@@ -20,6 +25,36 @@ public class VariableResolvers {
             public Object resolveLocal(String varName) throws VariableResolutionException {
                 return map.get(varName);
             }
+
+            @Override
+            public Bindings bindings() {
+                return new BindingsAdaptor(Maps.transformEntries(map, new Maps.EntryTransformer<String, Object, Object>() {
+                    @Override
+                    public Object transformEntry(@Nullable String s, @Nullable Object o) {
+                        return o;
+                    }
+                }));
+            }
+
+
         };
+    }
+
+    private static class BindingsAdaptor extends ForwardingMap<String, Object> implements Bindings {
+        private final Map<String, Object> map;
+
+        public BindingsAdaptor(Map<String,Object> map) {
+            this.map = map;
+        }
+
+        @Override
+        public Object put(String name, Object value) {
+            return new UnsupportedOperationException();
+        }
+
+        @Override
+        protected Map<String, Object> delegate() {
+            return map;
+        }
     }
 }

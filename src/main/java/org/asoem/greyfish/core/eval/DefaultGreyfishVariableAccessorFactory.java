@@ -100,6 +100,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                     throw new IllegalArgumentException("Root keyword 'sim' is not implemented for context " + contextClass);
                 }
             }
+            else if ("testVal".equals(root)) {
+                return new Function<T, Object>() {
+                    @Override
+                    public Object apply(@Nullable T t) {
+                        return 42.0;
+                    }
+                };
+            }
             else
                 throw new IllegalArgumentException("Key '"+ root + "'" + " is not handled");
         }

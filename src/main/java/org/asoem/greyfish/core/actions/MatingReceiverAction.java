@@ -94,8 +94,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         });
     }
 
-    private void receiveGenome(EvaluatedGenome genome) {
+    private void receiveGenome(EvaluatedGenome genome, Agent sender) {
         spermBuffer.addGenome(genome, genome.getFitness());
+        // todo: here we could save some property of the sender which could serve as a quality measure.
+        // CAVE! The sender itself might be a different agent in the future.
         LOGGER.trace(getAgent() + " received sperm: " + genome);
     }
 
@@ -121,9 +123,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             EvaluatedGenome evaluatedGenome = message.getContent(EvaluatedGenome.class);
-            receiveGenome(evaluatedGenome);
+            receiveGenome(evaluatedGenome, message.getSender());
             builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
-        } catch (IllegalArgumentException e) {
+        } catch (ClassCastException e) {
             throw new NotUnderstoodException("MessageContent is not a genome");
         }
 
