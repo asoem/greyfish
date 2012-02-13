@@ -1,14 +1,17 @@
 package org.asoem.greyfish.utils.collect;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import org.apache.commons.math.genetics.Fitness;
+import org.asoem.greyfish.utils.math.RandomUtils;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -16,59 +19,107 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Time: 12:56
  */
 public class ElementSelectionStrategies {
-    /**
-     * Get {@code n} elements of given {@code elements} which are chosen by the given {@code strategy}. The picked elements can be returned multiple times.
-     * @param elements The elements to choose from
-     * @param strategy The strategy to choose the elements
-     * @param n The number of elements to pick
-     * @param <E> The type of the elements to pick
-     * @return An Iterable over the picked elements
-     */
-    public static <E> Iterable<E> pickAndPutBack(final Iterable<? extends E> elements, final ElementSelectionStrategy<? super E> strategy, final int n) {
-        return new Iterable<E>() {
-            @Override
-            public Iterator<E> iterator() {
-                return new AbstractIterator<E>() {
-                    private int counter = n;
-                    @Override
-                    protected E computeNext() {
-                        return (counter-- > 0) ? strategy.pick(elements) : endOfData();
-                    }
-                };
-            }
-        };
+
+    @SuppressWarnings("unchecked")
+    public static <E extends Fitness> ElementSelectionStrategy<E> rouletteWheelSelection() {
+        return (ElementSelectionStrategy<E>) RouletteWheelSelection.INSTANCE;
     }
 
-    /**
-     * Get {@code n} elements of given {@code elements} which are chosen by the given {@code strategy}. Each element can be picked just once.
-     * @param elements The elements to choose from
-     * @param strategy The strategy to choose the elements
-     * @param n The number of elements to pick
-     * @param <E> The type of the elements to pick
-     * @return An Iterable over the picked elements
-     */
-    public static <E> Iterable<E> pickAndRemove(final Iterable<? extends E> elements, final ElementSelectionStrategy<? super E> strategy, final int n) {
-        final int size = Iterables.size(elements);
-        checkArgument(size >= n, "Given elements are less that desired picks: {} < {}", size, n);
-        return new Iterable<E>() {
-            @Override
-            public Iterator<E> iterator() {
-                return new AbstractIterator<E>() {
-                    
-                    private final List<E> removed = Lists.newArrayList();
-                    
-                    @Override
-                    protected E computeNext() {
-                        if (removed.size() == n)
-                            return endOfData();
-                        else {
-                            final E pick = strategy.pick(Iterables.filter(elements, Predicates.in(removed)));
-                            removed.add(pick);
-                            return pick;
+    private enum RouletteWheelSelection implements ElementSelectionStrategy<Fitness> {
+        INSTANCE;
+
+        private <T extends Fitness> double cumulative_fitness(Iterable<? extends T> elements) {
+            double sum = 0;
+            for (T element : elements)
+                sum += element.fitness();
+            return sum;
+        }
+
+        @Override
+        public <T extends Fitness> Iterable<T> pick(final List<? extends T> elements, int k) {
+            final double f_sum = cumulative_fitness(elements);
+            if (f_sum == 0)
+                return randomSelection().pick(elements, k);
+
+            return Iterables.limit(new Iterable<T>() {
+                @Override
+                public Iterator<T> iterator() {
+                    return new AbstractIterator<T>() {
+
+                        @Override
+                        protected T computeNext() {
+                            final double rand = RandomUtils.nextDouble(f_sum);
+                            double step_sum = 0;
+                            for (T element : elements) {
+                                step_sum += element.fitness();
+                                if (rand < step_sum)
+                                    return element;
+                            }
+                            throw new AssertionError();
                         }
-                    }
-                };
+                    };
+                }
+            }, k);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends Comparable<?>> ElementSelectionStrategy<E> elitistSelection() {
+        return (ElementSelectionStrategy<E>) ElitistSelection.INSTANCE;
+    }
+
+    private enum ElitistSelection implements ElementSelectionStrategy<Comparable<?>> {
+        INSTANCE;
+
+        @Override
+        public <T extends Comparable<?>> Iterable<T> pick(List<? extends T> elements, int k) {
+            return Ordering.natural().greatestOf(Collections.unmodifiableList(elements), k);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E> ElementSelectionStrategy<E> randomSelection() {
+        return (ElementSelectionStrategy<E>) RandomSelection.INSTANCE;
+    }
+
+    private enum RandomSelection implements ElementSelectionStrategy<Object> {
+        INSTANCE;
+
+        @Override
+        public <T> Iterable<T> pick(final List<? extends T> elements, int k) {
+            checkNotNull(elements);
+            checkArgument(k >= 0);
+            switch (k) {
+                case 0:
+                    return Collections.emptyList();
+                default:
+                    return Iterables.limit(new Iterable<T>() {
+                        @Override
+                        public Iterator<T> iterator() {
+                            return new AbstractIterator<T>() {
+
+                                @Override
+                                protected T computeNext() {
+                                    return elements.get(RandomUtils.nextInt(elements.size()));
+                                }
+                            };
+                        }
+                    }, k);
             }
-        };
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends Comparable<?>> ElementSelectionStrategy<E> bestSelection() {
+        return (ElementSelectionStrategy<E>) BestSelection.INSTANCE;
+    }
+
+    private enum BestSelection implements ElementSelectionStrategy<Comparable<?>> {
+        INSTANCE;
+
+        @Override
+        public <T extends Comparable<?>> Iterable<T> pick(List<? extends T> elements, int k) {
+            return Iterables.limit(Iterables.cycle(Collections.singleton(Ordering.natural().max(elements))), k);
+        }
     }
 }

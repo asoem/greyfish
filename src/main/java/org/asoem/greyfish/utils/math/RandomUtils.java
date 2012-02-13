@@ -2,15 +2,12 @@ package org.asoem.greyfish.utils.math;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Range;
-import org.apache.commons.math.random.RandomAdaptor;
-import org.apache.commons.math.random.RandomData;
-import org.apache.commons.math.random.RandomDataImpl;
-import org.apache.commons.math.random.RandomGenerator;
+import org.apache.commons.math.random.*;
 
 import java.util.Random;
 
 public class RandomUtils {
-    public static final RandomGenerator RANDOM_GENERATOR = new org.apache.commons.math.random.MersenneTwister();
+    public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
 
     public static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
 
@@ -31,9 +28,15 @@ public class RandomUtils {
         return minIncl + RANDOM_GENERATOR.nextInt(maxExcl - minIncl);
     }
 
-    public static double nextDouble(double minIncl, double maxExcl) {
-        Preconditions.checkArgument(maxExcl >= minIncl);
-        return RANDOM_DATA.nextUniform(minIncl, maxExcl);
+    /**
+     * Generates a uniformly distributed random value from the open interval (lower,upper) (i.e., endpoints excluded).
+     * @param minExcl the lower bound
+     * @param maxExcl the upper bound
+     * @return a uniformly distributed random value from the open interval (lower,upper)
+     */
+    public static double nextDouble(double minExcl, double maxExcl) {
+        Preconditions.checkArgument(maxExcl >= minExcl);
+        return RANDOM_DATA.nextUniform(minExcl, maxExcl);
     }
 
     public static float nextFloat(float minIncl, float maxExcl) {
@@ -65,6 +68,11 @@ public class RandomUtils {
         return RANDOM_GENERATOR.nextInt(size);
     }
 
+    /**
+     * Generates a uniformly distributed random value from the open interval (0,upper) (i.e., endpoints excluded).
+     * @param sum the upper bound
+     * @return a uniformly distributed random value from the open interval (0,upper)
+     */
     public static double nextDouble(double sum) {
         return nextDouble(0, sum);
     }
