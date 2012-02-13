@@ -1,16 +1,16 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.EvaluatedCandidate;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
-import org.asoem.greyfish.utils.collect.RandomSelectionStrategy;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.collect.ElementSelectionStrategies.pickAndPutBack;
 
 @ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
@@ -34,7 +33,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     private int clutch_size = 1;
     
     @Element
-    private ElementSelectionStrategy<EvaluatedCandidate<Genome>> spermSelectionStrategy = new RandomSelectionStrategy<EvaluatedCandidate<Genome>>();
+    private ElementSelectionStrategy<EvaluatedGenome<?>> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
 
     private int offspringCount = 0;
 
@@ -50,10 +49,10 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         LOGGER.debug("Producing {} offspring ", clutch_size);
 
-        for (EvaluatedCandidate<Genome> spermCandidate : pickAndPutBack(spermStorage.get(), spermSelectionStrategy, clutch_size)) {
+        for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), clutch_size)) {
             simulation.insertAgent(
                     agent().getPopulation(),
-                    ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate.getObject())),
+                    ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate)),
                     simulation.getSpace().getCoordinates(agent()));
         }
 
@@ -77,7 +76,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             }
         });
 
-        e.add("", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
+        e.add("SpermPool", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermStorage = checkNotNull(arg0);
@@ -91,6 +90,30 @@ public class SexualReproductionAction extends AbstractGFAction {
             @Override
             public Iterable<EvaluatedGenomeStorage> values() {
                 return Iterables.filter(agent().getProperties(), EvaluatedGenomeStorage.class);
+            }
+        });
+        
+        e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
+
+            private final BiMap<String, ElementSelectionStrategy<EvaluatedGenome<?>>> strategies =
+                    ImmutableBiMap.of(
+                            "Random", ElementSelectionStrategies.<EvaluatedGenome<?>>randomSelection(),
+                            "Roulette Wheel", ElementSelectionStrategies.<EvaluatedGenome<?>>rouletteWheelSelection(),
+                            "Best", ElementSelectionStrategies.<EvaluatedGenome<?>>bestSelection());
+            
+            @Override
+            public Iterable<String> values() {
+                return strategies.keySet();
+            }
+
+            @Override
+            protected void set(String arg0) {
+                spermSelectionStrategy = strategies.get(arg0);
+            }
+
+            @Override
+            public String get() {
+                return strategies.inverse().get(spermSelectionStrategy);
             }
         });
     }

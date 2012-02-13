@@ -1,33 +1,24 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genes;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.filter;
@@ -123,7 +114,7 @@ public class CompatibilityAwareMatingReceiverAction extends ContractNetInitiator
 
     private boolean receiveGenome(EvaluatedGenome genome) {
         if (spermBuffer != null) {
-            spermBuffer.addGenome(genome, genome.getFitness());
+            spermBuffer.addGenome(genome);
             LOGGER.trace("{} received sperm: {}", getAgent(), genome);
             return true;
         }

@@ -17,4 +17,8 @@ public class GreyfishVariableFactory {
         checkNotNull(ctx, "Context must not be null");
         return FACTORY.get(expression, (Class<T>) ctx.getClass()).apply(ctx);
     }
+    
+    public static <T> Object dollar(String expression, T ctx) {
+        return $(expression, ctx);
+    }
 }

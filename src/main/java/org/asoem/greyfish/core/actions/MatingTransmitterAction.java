@@ -15,9 +15,11 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,12 +28,16 @@ import static com.google.common.base.Preconditions.checkState;
 @ClassGroup(tags="actions")
 public class MatingTransmitterAction extends ContractNetParticipantAction {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatingTransmitterAction.class);
     @Element(name="messageType", required=false)
     private String ontology;
 
     @Element(name="spermFitnessExpression", required = false)
     private GreyfishExpression spermFitnessExpression =
             GreyfishExpressionFactory.compile("0");
+
+    @Element
+    private GreyfishExpression matingProbability = GreyfishExpressionFactory.compile("1");
 
     @SimpleXMLConstructor
     private MatingTransmitterAction() {
@@ -80,22 +86,38 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
                 return spermFitnessExpression;
             }
         });
+        e.add("matingProbability", new AbstractTypedValueModel<GreyfishExpression>() {
+            @Override
+            protected void set(GreyfishExpression arg0) {
+                matingProbability = arg0;
+            }
+
+            @Override
+            public GreyfishExpression get() {
+                return matingProbability;
+            }
+        });
     }
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) {
-        final Genome<Gene<?>> sperm = agent().createGamete();
+        final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, agent());
 
-        double fitness = 0.0;
-        try {
-            fitness = spermFitnessExpression.evaluateAsDouble(this);
-        } catch (EvaluationException e) {
-            LoggerFactory.getLogger(MatingTransmitterAction.class).error("Evaluation failed", e);
+        if (RandomUtils.trueWithProbability(matingProbability.evaluateAsDouble(this, "mate", message.getSender()))) {
+            final Genome<Gene<?>> sperm = agent().createGamete();
+            double fitness = 0.0;
+            try {
+                fitness = spermFitnessExpression.evaluateAsDouble(this);
+            } catch (EvaluationException e) {
+                LOGGER.error("Evaluation of spermFitnessExpression failed: {}", spermFitnessExpression, e);
+            }
+            reply.content(new EvaluatedGenome<Gene<?>>(sperm, fitness), EvaluatedGenome.class)
+                    .performative(ACLPerformative.PROPOSE);
         }
+        else
+            reply.performative(ACLPerformative.REFUSE);
 
-        return ImmutableACLMessage.<Agent>createReply(message, agent())
-                .content(new EvaluatedGenome<Gene<?>>(sperm, fitness), EvaluatedGenome.class)
-                .performative(ACLPerformative.PROPOSE);
+        return reply;
     }
 
     @Override
