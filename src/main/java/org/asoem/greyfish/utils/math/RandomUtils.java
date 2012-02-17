@@ -77,19 +77,42 @@ public class RandomUtils {
         return nextDouble(0, sum);
     }
 
-    public static double gaussian(double mu, double sigma) {
-        return RANDOM_DATA.nextGaussian(mu, sigma);
+    /**
+     * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
+     * @param mean the mean of the distribution
+     * @param sd the standard deviation of the distribution
+     * @return a random value for the given normal distribution
+     */
+    public static double rnorm(double mean, double sd) {
+        return RANDOM_DATA.nextGaussian(mean, sd);
     }
 
-    public static double poisson(double mean) {
+    /**
+     * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
+     * @param mean the mean for the distribution
+     * @return a random value for the given normal distribution
+     */
+    public static double rpois(double mean) {
         return RANDOM_DATA.nextPoisson(mean);
     }
 
-    public static double uniform(double lower, double upper) {
+    /**
+     * Generates a random value for the uniform distribution on the interval {@code lower} to {@code upper}.
+     * @param lower the lower bound for the distribution
+     * @param upper the upper bound for the distribution
+     * @return a random value for the given normal distribution
+     */
+    public static double runif(double lower, double upper) {
         return RANDOM_DATA.nextUniform(lower, upper);
     }
 
-    public static double uniform(Range<Double> range) {
-        return uniform(range.lowerEndpoint(), range.upperEndpoint());
+    /**
+     * Generates a random value for the uniform distribution on the interval {@code lower} to {@code upper}.
+     * Delegates to {@link #runif(double, double)}.
+     * @param range the range for the distribution
+     * @return a random value for the given normal distribution
+     */
+    public static double runif(Range<Double> range) {
+        return runif(range.lowerEndpoint(), range.upperEndpoint());
     }
 }

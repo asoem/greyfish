@@ -39,10 +39,7 @@
     <logger name="org.asoem.greyfish.core.actions" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions.ContractNetInitiatorAction" additivity="true" level="DEBUG">
-    </logger>
-
-    <logger name="org.asoem.greyfish.core.actions.ContractNetParticipantAction" additivity="true" level="DEBUG">
+    <logger name="org.asoem.greyfish.core.actions.FiniteStateAction" additivity="true" level="WARNING">
     </logger>
 
     <logger name="org.asoem.greyfish.gui" additivity="true" level="DEBUG
