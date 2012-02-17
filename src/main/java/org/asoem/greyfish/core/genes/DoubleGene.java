@@ -31,7 +31,7 @@ public class DoubleGene extends AbstractGene<Double> {
         @Override
         public Double mutate(Double original) {
             try {
-                return mutationDistributionFunction.evaluateAsDouble(DoubleGene.this);
+                return mutationDistributionFunction.evaluateForContext(DoubleGene.this).asDouble();
             } catch (EvaluationException e) {
                 LoggerFactory.getLogger(DoubleGene.class).error("Error in mutationDistributionFunction", e);
                 return original;
@@ -40,7 +40,7 @@ public class DoubleGene extends AbstractGene<Double> {
 
         @Override
         public double normalizedDistance(Double orig, Double copy) {
-            return distanceMetric.evaluateAsDouble(this, ImmutableMap.of("x", orig, "y", copy));
+            return distanceMetric.evaluateForContext(this, ImmutableMap.of("x", orig, "y", copy)).asDouble();
         }
 
         @Override
@@ -51,7 +51,7 @@ public class DoubleGene extends AbstractGene<Double> {
         @Override
         public Double createInitialValue() {
             try {
-                return initialValueGenerator.evaluateAsDouble(DoubleGene.this);
+                return initialValueGenerator.evaluateForContext(DoubleGene.this).asDouble();
             } catch (EvaluationException e) {
                 LoggerFactory.getLogger(DoubleGene.class).error("Error in initialValueGenerator", e);
                 return 0.0;

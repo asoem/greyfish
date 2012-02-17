@@ -49,9 +49,9 @@ public class DiscreteTrait extends AbstractGFProperty implements FiniteStateProp
                 @Override
                 public boolean apply(@Nullable String phenotype) {
                     try {
-                        return phenotypeConditionMap.get(phenotype).evaluateAsBoolean(DiscreteTrait.this);
+                        return phenotypeConditionMap.get(phenotype).evaluateForContext(DiscreteTrait.this).asBoolean();
                     } catch (EvaluationException e) {
-                        LOGGER.error("Failed to evaluateAsBoolean expression {}", phenotype);
+                        LOGGER.error("Failed to evaluate expression {}", phenotype);
                         return false;
                     }
                 }

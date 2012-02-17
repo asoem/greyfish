@@ -1,8 +1,11 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
 import com.google.common.collect.ImmutableMap;
+import org.asoem.greyfish.core.eval.EvaluationException;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.VariableResolver;
+import org.asoem.greyfish.core.eval.VariableResolvers;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.utils.math.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -10,7 +13,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mvel2.MVEL;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -38,8 +40,8 @@ public class MvelEvaluatorTest {
         given(resolver.resolve("a")).willReturn(3.0, 4.0);
 
         // when
-        double ret1 = evaluator.evaluateAsDouble();
-        double ret2 = evaluator.evaluateAsDouble();
+        double ret1 = evaluator.evaluate().asDouble();
+        double ret2 = evaluator.evaluate().asDouble();
 
         // then
         verify(resolver, times(2)).resolve("a");
@@ -54,7 +56,7 @@ public class MvelEvaluatorTest {
         evaluator.setExpression("max(4.0, 5.0)");
 
         // when
-        double ret = evaluator.evaluateAsDouble();
+        double ret = evaluator.evaluate().asDouble();
 
         // then
         assertEquals(5.0, ret, 0);
@@ -64,10 +66,10 @@ public class MvelEvaluatorTest {
     public void testCustomParserContext_gaussian() throws EvaluationException {
         // given
         MvelEvaluator evaluator = new MvelEvaluator();
-        evaluator.setExpression("gaussian(0.0, 0.2)");
+        evaluator.setExpression("rnorm(0.0, 0.2)");
 
         // when
-        Double evaluated = evaluator.evaluateAsDouble();
+        Double evaluated = evaluator.evaluate().asDouble();
 
         // then
         assertThat(evaluated).isNotNull();
@@ -81,7 +83,7 @@ public class MvelEvaluatorTest {
         evaluator.setResolver(VariableResolvers.forMap(ImmutableMap.of("test", 5.0)));
 
         // when
-        double evaluated = evaluator.evaluateAsDouble();
+        double evaluated = evaluator.evaluate().asDouble();
 
         // then
         assertThat(evaluated).isEqualTo(5.0);
@@ -96,7 +98,7 @@ public class MvelEvaluatorTest {
         given(gene.get()).willReturn(value);
 
         // when
-        double evaluated = expression.evaluateAsDouble(gene);
+        double evaluated = expression.evaluateForContext(gene).asDouble();
 
         // then
         assertThat(evaluated).isEqualTo(value);
@@ -109,7 +111,7 @@ public class MvelEvaluatorTest {
         evaluator.setExpression("if (true) { \"Hello World!\"; } else { \"FooBar\"; }");
         
         // when
-        String ret = evaluator.evaluateAsString();
+        String ret = evaluator.evaluate().asString();
         
         // then
         assertThat(ret).isEqualTo("Hello World!");
@@ -123,7 +125,7 @@ public class MvelEvaluatorTest {
         evaluator.setExpression("rws([\"Male\",0.5,\"Female\",0.5])");
 
         // when
-        String ret = evaluator.evaluateAsString();
+        String ret = evaluator.evaluate().asString();
 
         // then
         assertThat(ret).isEqualTo("Female");

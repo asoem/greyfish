@@ -52,7 +52,7 @@ public class FormulaProperty extends AbstractGFProperty implements DiscretePrope
     @Override
     public Double get() {
         try {
-            return expression.evaluateAsDouble(this);
+            return expression.evaluateForContext(this).asDouble();
         } catch (EvaluationException e) {
             LOGGER.warn("expression could not be evaluated. Returning 0.0");
             return 0.0;

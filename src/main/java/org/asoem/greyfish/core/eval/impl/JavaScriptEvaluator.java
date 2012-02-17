@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
 import javax.script.*;
 
@@ -7,7 +7,7 @@ import javax.script.*;
  * Date: 10.02.12
  * Time: 17:02
  */
-public class JavaScriptEvaluator extends ScriptEngineEvaluator {
+public class JavaScriptEvaluator extends JSR223Evaluator {
 
     private final ScriptEngine engine = manager.getEngineByName("JavaScript");
 
@@ -18,7 +18,7 @@ public class JavaScriptEvaluator extends ScriptEngineEvaluator {
     }
 
     @Override
-    protected String prependImports(String expression) {
+    protected String prepare(String expression) {
         String ret = "importClass(org.asoem.greyfish.core.eval.GreyfishVariableFactory);\n";
         ret += expression.replaceAll("\\$\\(([^\\)]+)\\)", "GreyfishVariableFactory.\\$($1)");
         return ret;

@@ -51,7 +51,7 @@ public class GreyfishExpressionTest {
     public void testEvaluateAsDouble() throws Exception {
         // given
         given(evaluatorFactory.createEvaluator("")).willReturn(evaluator);
-        given(evaluator.evaluateAsDouble()).will(new Answer<Double>() {
+        given(evaluator.evaluate().asDouble()).will(new Answer<Double>() {
             @Override
             public Double answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return 5.0;
@@ -60,7 +60,7 @@ public class GreyfishExpressionTest {
 
         // when
         GreyfishExpression expression = new GreyfishExpression("", evaluator);
-        double ret = expression.evaluateAsDouble(context);
+        double ret = expression.evaluateForContext(context).asDouble();
 
         // then
         assertEquals(ret, 5.0, 0);
@@ -70,7 +70,7 @@ public class GreyfishExpressionTest {
     public void testEvaluateAsBoolean() throws Exception {
         // given
         given(evaluatorFactory.createEvaluator("")).willReturn(evaluator);
-        given(evaluator.evaluateAsBoolean()).will(new Answer<Boolean>() {
+        given(evaluator.evaluate().asBoolean()).will(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return true;
@@ -79,7 +79,7 @@ public class GreyfishExpressionTest {
 
         // when
         GreyfishExpression expression = new GreyfishExpression("", evaluator);
-        boolean ret = expression.evaluateAsBoolean(context);
+        boolean ret = expression.evaluateForContext(context).asBoolean();
 
         // then
         assert(ret);

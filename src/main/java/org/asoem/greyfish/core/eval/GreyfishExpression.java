@@ -29,40 +29,30 @@ public class GreyfishExpression {
         this.evaluator.setExpression(parameterizeDollarFunction(expression));
     }
 
-    public double evaluateAsDouble(Object context) throws EvaluationException {
+    public EvaluationResult evaluateForContext(Object context) throws EvaluationException {
         checkNotNull(context, "Context must not be null");
-        return evaluateAsDouble(createContextResolver(context));
+        return evaluate(createContextResolver(context));
     }
 
-    public double evaluateAsDouble(Object context, String n1, Object v1) throws EvaluationException {
+    public EvaluationResult evaluateForContext(Object context, String n1, Object v1) throws EvaluationException {
         checkNotNull(context, "Context must not be null");
-        VariableResolver contextResolver = createContextResolver(context);
-        VariableResolver resolver = VariableResolvers.forMap(ImmutableMap.of(n1, v1));
+        final VariableResolver contextResolver = createContextResolver(context);
+        final VariableResolver resolver = VariableResolvers.forMap(ImmutableMap.of(n1, v1));
         contextResolver.setNext(resolver);
-        return evaluateAsDouble(resolver);
+        return evaluate(contextResolver);
     }
 
-    public double evaluateAsDouble(Object context, Map<String, ?> localVariables) throws EvaluationException {
+    public EvaluationResult evaluateForContext(Object context, Map<String, ?> localVariables) throws EvaluationException {
         checkNotNull(context, "Context must not be null");
-        VariableResolver contextResolver = createContextResolver(context);
-        VariableResolver resolver = VariableResolvers.forMap(localVariables);
+        final VariableResolver contextResolver = createContextResolver(context);
+        final VariableResolver resolver = VariableResolvers.forMap(localVariables);
         contextResolver.setNext(resolver);
-        return evaluateAsDouble(resolver);
-    }
-    
-    public boolean evaluateAsBoolean(Object context) throws EvaluationException {
-        checkNotNull(context, "Context must not be null");
-        return evaluateAsBoolean(createContextResolver(context));
+        return evaluate(contextResolver);
     }
 
-    private boolean evaluateAsBoolean(VariableResolver resolver) {
+    private EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
         evaluator.setResolver(resolver);
-        return evaluator.evaluateAsBoolean();
-    }
-
-    private double evaluateAsDouble(VariableResolver resolver) {
-        evaluator.setResolver(resolver);
-        return evaluator.evaluateAsDouble();
+        return evaluator.evaluate();
     }
 
     private static String parameterizeDollarFunction(String expression) {
@@ -71,10 +61,6 @@ public class GreyfishExpression {
 
     public String getExpression() {
         return expression;
-    }
-
-    public Evaluator getEvaluator() {
-        return evaluator;
     }
 
     public VariableResolver createContextResolver(@Nullable Object ctx) {

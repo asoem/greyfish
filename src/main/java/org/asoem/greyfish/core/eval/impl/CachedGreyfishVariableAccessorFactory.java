@@ -1,7 +1,9 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
+import org.asoem.greyfish.core.eval.VariableResolutionException;
 
 import java.util.Map;
 

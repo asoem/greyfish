@@ -46,7 +46,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     }
 
     @SimpleXMLConstructor
-    private EvaluatedGenomeStorage() {
+    public EvaluatedGenomeStorage() {
         this(new Builder());
     }
 

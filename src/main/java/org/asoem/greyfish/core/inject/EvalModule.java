@@ -3,6 +3,10 @@ package org.asoem.greyfish.core.inject;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import org.asoem.greyfish.core.eval.*;
+import org.asoem.greyfish.core.eval.impl.CachedGreyfishVariableAccessorFactory;
+import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
+import org.asoem.greyfish.core.eval.impl.JEXLEvaluator;
+import org.asoem.greyfish.core.eval.impl.MvelEvaluator;
 
 /**
  * User: christoph
@@ -12,13 +16,10 @@ import org.asoem.greyfish.core.eval.*;
 public class EvalModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(Evaluator.class).to(MvelEvaluator.class);
-        bind(GreyfishVariableAccessorFactory.class).toProvider(new Provider<GreyfishVariableAccessorFactory>() {
-            @Override
-            public GreyfishVariableAccessorFactory get() {
-                return new CachedGreyfishVariableAccessorFactory(new DefaultGreyfishVariableAccessorFactory());
-            }
-        });
+        bind(Evaluator.class).to(JEXLEvaluator.class);
+        bind(GreyfishVariableAccessorFactory.class).toInstance(
+                new CachedGreyfishVariableAccessorFactory(
+                        new DefaultGreyfishVariableAccessorFactory()));
         requestStaticInjection(GreyfishVariableFactory.class);
         requestStaticInjection(GreyfishExpressionFactory.class);
     }

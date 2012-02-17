@@ -47,13 +47,13 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Element(name="sensorRange", required=false)
     private double sensorRange;
 
-    @Element
-    private GreyfishExpression matingProbability = GreyfishExpressionFactory.compile("1");
+    @Element(name="matingProbabilityExpression", required = false)
+    private GreyfishExpression matingProbabilityExpression;
 
     private Iterable<Agent> sensedMates;
 
     @SimpleXMLConstructor
-    private MatingReceiverAction() {
+    public MatingReceiverAction() {
         this(new Builder());
     }
 
@@ -102,12 +102,12 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 new AbstractTypedValueModel<GreyfishExpression>() {
                     @Override
                     protected void set(GreyfishExpression arg0) {
-                        matingProbability = arg0;
+                        matingProbabilityExpression = arg0;
                     }
 
                     @Override
                     public GreyfishExpression get() {
-                        return matingProbability;
+                        return matingProbabilityExpression;
                     }
                 });
     }
@@ -135,12 +135,15 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             EvaluatedGenome evaluatedGenome = message.getContent(EvaluatedGenome.class);
-            if (RandomUtils.trueWithProbability(matingProbability.evaluateAsDouble(this, "mate", message.getSender()))) {
+            final double probability = matingProbabilityExpression.evaluateForContext(this, "mate", message.getSender()).asDouble();
+            if (RandomUtils.trueWithProbability(probability)) {
                 receiveGenome(evaluatedGenome, message.getSender());
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
+                LOGGER.debug("Accepted mating with p={}", probability);
             }
             else {
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
+                LOGGER.debug("Refused mating with p={}", probability);
             }
         } catch (ClassCastException e) {
             throw new NotUnderstoodException("Payload of message is not of type EvaluatedGenome: " + message.getContentClass(), e);
@@ -177,6 +180,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         this.spermBuffer = cloner.cloneField(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.sensorRange = cloneable.sensorRange;
+        this.matingProbabilityExpression = cloneable.matingProbabilityExpression;
     }
 
     protected MatingReceiverAction(AbstractBuilder<?extends MatingReceiverAction, ? extends AbstractBuilder> builder) {
@@ -184,6 +188,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         this.spermBuffer = builder.spermBuffer;
         this.ontology = builder.ontology;
         this.sensorRange = builder.sensorRange;
+        this.matingProbabilityExpression = builder.matingProbabilityExpression;
     }
 
     public static Builder with() { return new Builder(); }
@@ -199,9 +204,11 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
         protected EvaluatedGenomeStorage spermBuffer = null;
-        protected String ontology = "";
+        protected String ontology = "mate";
         protected double sensorRange = 1.0;
+        protected GreyfishExpression matingProbabilityExpression = GreyfishExpressionFactory.compile("1.0");
 
+        public T matingProbabilityExpression(String matingProbabilityExpression) { this.matingProbabilityExpression = GreyfishExpressionFactory.compile(matingProbabilityExpression); return self(); }
         public T spermStorage(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
         public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
         public T searchRadius(double sensorRange) { this.sensorRange = sensorRange; return self(); }

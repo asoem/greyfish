@@ -37,7 +37,7 @@ public abstract class AbstractVariableResolver implements VariableResolver {
         if (nextVariableResolver != null)
             return nextVariableResolver.resolve(varName);
 
-        throw new VariableResolutionException("Not match for variable " + varName);
+        throw new VariableResolutionException("No match for variable " + varName);
     }
 
     @Nullable

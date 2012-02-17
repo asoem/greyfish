@@ -1,5 +1,7 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
+import org.asoem.greyfish.core.eval.EvaluationException;
+import org.asoem.greyfish.core.eval.impl.SeeEvaluator;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -14,10 +16,10 @@ public class SeeEvaluatorTest {
     public void testEvaluateAsDouble() throws EvaluationException {
         // given
         SeeEvaluator evaluator = new SeeEvaluator();
-        evaluator.setExpression("3*2");
+        evaluator.setExpression("3.0 * 2");
 
         // when
-        double ret = evaluator.evaluateAsDouble();
+        double ret = evaluator.evaluate().asDouble();
 
         // then
         assertThat(ret).isEqualTo(6);

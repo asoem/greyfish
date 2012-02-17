@@ -1,5 +1,9 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
+import org.asoem.greyfish.core.eval.EvaluationException;
+import org.asoem.greyfish.core.eval.EvaluationResult;
+import org.asoem.greyfish.core.eval.ForwardingVariableResolver;
+import org.asoem.greyfish.core.eval.VariableResolver;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import see.INode;
@@ -16,21 +20,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 19.05.11
  * Time: 09:41
  */
-public class SeeEvaluator implements Evaluator {
+public class SeeEvaluator extends AbstractEvaluator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SeeEvaluator.class);
     private static final See see = See.create();
 
     private @Nullable INode inode;
-    private String expression = "";
-
-    public SeeEvaluator() {
-    }
-
-    public SeeEvaluator(String expression, @Nullable VariableResolver resolver) {
-        setExpression(expression);
-        setResolver(resolver);
-    }
 
     @Override
     public void setResolver(@Nullable VariableResolver resolver) {
@@ -39,50 +34,12 @@ public class SeeEvaluator implements Evaluator {
     }
 
     @Override
-    public VariableResolver getResolver() {
-        return (VariableResolver) see.getParent();
-    }
-
-    @Override
-    public double evaluateAsDouble() throws EvaluationException {
-        synchronized(see) {
-            try {
-
-                LOGGER.debug("Evaluating INode {}", inode);
-                double ret = see.evalAsDouble(inode);
-                LOGGER.debug("Result: {}", ret);
-                return ret;
-            }
-            catch (Exception ex) {
-                LOGGER.error("Evaluation failed", ex);
-                throw new EvaluationException(ex);
-            }
-        }
-    }
-
-    @Override
-    public boolean evaluateAsBoolean() throws EvaluationException {
-        synchronized(see) {
-            try {
-                LOGGER.debug("Evaluating INode {}", inode);
-                boolean ret = see.evalAsBoolean(inode);
-                LOGGER.debug("Result: {}", ret);
-                return ret;
-            }
-            catch (Exception ex) {
-                LOGGER.error("Evaluation failed", ex);
-                throw new EvaluationException(ex);
-            }
-        }
-    }
-
-    @Override
-    public String evaluateAsString() throws EvaluationException {
+    public EvaluationResult evaluate() throws EvaluationException {
         try {
             LOGGER.debug("Evaluating INode {}", inode);
-            String ret = see.evalAsString(inode);
+            Object ret = see.eval(inode).toJava();
             LOGGER.debug("Result: {}", ret);
-            return ret;
+            return new GenericEvaluationResult(ret);
         }
         catch (Exception ex) {
             LOGGER.error("Evaluation failed", ex);
@@ -92,7 +49,6 @@ public class SeeEvaluator implements Evaluator {
 
     @Override
     public void setExpression(String expression) {
-        this.expression = checkNotNull(expression);
         try {
             inode = see.parse(expression);
             LOGGER.debug("See parsed Expression {} to Node {}.", expression, inode);
@@ -100,11 +56,6 @@ public class SeeEvaluator implements Evaluator {
         catch (SeeException e) {
             throw new IllegalArgumentException(e);
         }
-    }
-
-    @Override
-    public String getExpression() {
-        return expression;
     }
 
     private static class SeeResolverAdaptor extends ForwardingVariableResolver implements Resolver {

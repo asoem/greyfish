@@ -140,7 +140,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     @Override
     public double evaluateFormula(Simulation simulation) {
         try {
-            return energyCosts.evaluateAsDouble(this);
+            return energyCosts.evaluateForContext(this).asDouble();
         } catch (EvaluationException e) {
             LOGGER.error("Costs formula could not be evaluated: {}.", energyCosts, e);
             return 0;

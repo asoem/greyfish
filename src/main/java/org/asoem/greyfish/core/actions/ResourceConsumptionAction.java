@@ -77,7 +77,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected void handleInform(ACLMessage<Agent> message) {
         final double offer = message.getContent(Double.class);
-        double transformedOffer = transformationExpression.evaluateAsDouble(this, "offer", offer);
+        double transformedOffer = transformationExpression.evaluateForContext(this, "offer", offer).asDouble();
         consumerProperty.add(transformedOffer);
         LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", transformedOffer, consumerProperty);
     }

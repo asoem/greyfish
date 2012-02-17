@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -7,6 +7,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;

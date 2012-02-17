@@ -32,7 +32,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
         pattern.apply(agent(), simulation);
-        double speed = speedFunction.evaluateAsDouble(this);
+        double speed = speedFunction.evaluateForContext(this).asDouble();
         agent().setTranslation(speed);
         return ActionState.END_SUCCESS;
     }
@@ -57,7 +57,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        pattern = MovementPatterns.borderAvoidanceMovement(speedFunction.evaluateAsDouble(this), 0.1);
+        pattern = MovementPatterns.borderAvoidanceMovement(speedFunction.evaluateForContext(this).asDouble(), 0.1);
     }
 
     @Override

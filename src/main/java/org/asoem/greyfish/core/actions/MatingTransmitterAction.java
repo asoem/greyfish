@@ -29,18 +29,18 @@ import static com.google.common.base.Preconditions.checkState;
 public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatingTransmitterAction.class);
+
     @Element(name="messageType", required=false)
     private String ontology;
 
     @Element(name="spermFitnessExpression", required = false)
-    private GreyfishExpression spermFitnessExpression =
-            GreyfishExpressionFactory.compile("0");
+    private GreyfishExpression spermFitnessExpression;
 
-    @Element
-    private GreyfishExpression matingProbability = GreyfishExpressionFactory.compile("1");
+    @Element(name="matingProbabilityExpression", required = false)
+    private GreyfishExpression matingProbabilityExpression;
 
     @SimpleXMLConstructor
-    private MatingTransmitterAction() {
+    public MatingTransmitterAction() {
         this(new Builder());
     }
 
@@ -86,15 +86,15 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
                 return spermFitnessExpression;
             }
         });
-        e.add("matingProbability", new AbstractTypedValueModel<GreyfishExpression>() {
+        e.add("matingProbabilityExpression", new AbstractTypedValueModel<GreyfishExpression>() {
             @Override
             protected void set(GreyfishExpression arg0) {
-                matingProbability = arg0;
+                matingProbabilityExpression = arg0;
             }
 
             @Override
             public GreyfishExpression get() {
-                return matingProbability;
+                return matingProbabilityExpression;
             }
         });
     }
@@ -103,19 +103,23 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) {
         final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, agent());
 
-        if (RandomUtils.trueWithProbability(matingProbability.evaluateAsDouble(this, "mate", message.getSender()))) {
+        final double probability = matingProbabilityExpression.evaluateForContext(this, "mate", message.getSender()).asDouble();
+        if (RandomUtils.trueWithProbability(probability)) {
             final Genome<Gene<?>> sperm = agent().createGamete();
             double fitness = 0.0;
             try {
-                fitness = spermFitnessExpression.evaluateAsDouble(this);
+                fitness = spermFitnessExpression.evaluateForContext(this).asDouble();
             } catch (EvaluationException e) {
                 LOGGER.error("Evaluation of spermFitnessExpression failed: {}", spermFitnessExpression, e);
             }
             reply.content(new EvaluatedGenome<Gene<?>>(sperm, fitness), EvaluatedGenome.class)
                     .performative(ACLPerformative.PROPOSE);
+            LOGGER.debug("Accepted mating with p={}", probability);
         }
-        else
+        else {
             reply.performative(ACLPerformative.REFUSE);
+            LOGGER.debug("Refused mating with p={}", probability);
+        }
 
         return reply;
     }
@@ -140,12 +144,14 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.spermFitnessExpression = cloneable.spermFitnessExpression;
+        this.matingProbabilityExpression = cloneable.matingProbabilityExpression;
     }
 
     protected MatingTransmitterAction(AbstractBuilder<? extends MatingTransmitterAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.spermFitnessExpression = builder.spermFitnessExpression;
+        this.matingProbabilityExpression = builder.matingProbabilityExpression;
     }
 
     public static Builder with() { return new Builder(); }
@@ -157,12 +163,15 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
-        private String ontology;
+        private String ontology = "mate";
         private GreyfishExpression spermFitnessExpression =
                 GreyfishExpressionFactory.compile("0.0");
+        public GreyfishExpression matingProbabilityExpression =
+                GreyfishExpressionFactory.compile("1.0");
 
+        public T matingProbabilityExpression(String matingProbabilityExpression) { this.matingProbabilityExpression = GreyfishExpressionFactory.compile(matingProbabilityExpression); return self(); }
         public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = GreyfishExpressionFactory.compile(spermFitnessExpression); return self(); }
-        public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
+        public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

@@ -1,6 +1,11 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
+import net.sourceforge.jeval.Evaluator;
 import net.sourceforge.jeval.function.FunctionException;
+import org.asoem.greyfish.core.eval.EvaluationException;
+import org.asoem.greyfish.core.eval.EvaluationResult;
+import org.asoem.greyfish.core.eval.ForwardingVariableResolver;
+import org.asoem.greyfish.core.eval.VariableResolver;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -9,11 +14,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 18.05.11
  * Time: 16:57
  */
-public class JEvalEvaluator implements Evaluator {
+public class JEvalEvaluator extends AbstractEvaluator {
 
-    private final net.sourceforge.jeval.Evaluator evaluator = new net.sourceforge.jeval.Evaluator();
-
-    private String expression;
+    private final Evaluator evaluator = new Evaluator();
 
     public JEvalEvaluator(String expression, VariableResolver resolver) {
         setExpression(expression);
@@ -21,35 +24,7 @@ public class JEvalEvaluator implements Evaluator {
     }
 
     @Override
-    public double evaluateAsDouble() throws EvaluationException {
-        try {
-            return Double.valueOf(evaluator.evaluate());
-        } catch (net.sourceforge.jeval.EvaluationException e) {
-            throw new EvaluationException("Expression could not be evaluated.", e);
-        }
-    }
-
-    @Override
-    public boolean evaluateAsBoolean() throws EvaluationException {
-        try {
-            return Boolean.valueOf(evaluator.evaluate());
-        } catch (net.sourceforge.jeval.EvaluationException e) {
-            throw new EvaluationException("Expression could not be evaluated.", e);
-        }
-    }
-
-    @Override
-    public String evaluateAsString() throws EvaluationException {
-        try {
-            return evaluator.evaluate();
-        } catch (net.sourceforge.jeval.EvaluationException e) {
-            throw new EvaluationException("Expression could not be evaluated.", e);
-        }
-    }
-
-    @Override
     public void setExpression(String expression) {
-        this.expression = checkNotNull(expression);
         try {
             evaluator.parse(expression);
         } catch (net.sourceforge.jeval.EvaluationException e) {
@@ -58,18 +33,17 @@ public class JEvalEvaluator implements Evaluator {
     }
 
     @Override
-    public String getExpression() {
-        return expression;
-    }
-
-    @Override
     public void setResolver(VariableResolver resolver) {
         evaluator.setVariableResolver(new JEvalVariableResolverAdaptor(resolver));
     }
 
     @Override
-    public VariableResolver getResolver() {
-        return (VariableResolver) evaluator.getVariableResolver();
+    public EvaluationResult evaluate() throws EvaluationException {
+        try {
+            return new GenericEvaluationResult(evaluator.evaluate());
+        } catch (net.sourceforge.jeval.EvaluationException e) {
+            throw new EvaluationException("Expression could not be evaluated.", e);
+        }
     }
 
     private static class JEvalVariableResolverAdaptor extends ForwardingVariableResolver implements net.sourceforge.jeval.VariableResolver {

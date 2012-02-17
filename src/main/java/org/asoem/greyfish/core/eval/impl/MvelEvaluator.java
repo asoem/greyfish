@@ -1,5 +1,6 @@
-package org.asoem.greyfish.core.eval;
+package org.asoem.greyfish.core.eval.impl;
 
+import org.asoem.greyfish.core.eval.*;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
@@ -16,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 22.09.11
  * Time: 13:27
  */
-public class MvelEvaluator implements Evaluator {
+public class MvelEvaluator extends AbstractEvaluator {
 
     private String expression;
     private @Nullable GreyfishMvelVariableResolverFactory factory;
@@ -30,35 +31,14 @@ public class MvelEvaluator implements Evaluator {
         PARSER_CONTEXT.addImport("min", MVEL.getStaticMethod(Math.class, "min", new Class[] {double.class, double.class}));
         PARSER_CONTEXT.addImport("max", MVEL.getStaticMethod(Math.class, "max", new Class[] {double.class, double.class}));
         PARSER_CONTEXT.addImport("log", MVEL.getStaticMethod(Math.class, "log", new Class[] {double.class}));
-        PARSER_CONTEXT.addImport("gaussian", MVEL.getStaticMethod(RandomUtils.class, "gaussian", new Class[] {double.class, double.class}));
-        PARSER_CONTEXT.addImport("poisson", MVEL.getStaticMethod(RandomUtils.class, "poisson", new Class[] {double.class}));
-    }
 
-    public MvelEvaluator() {
-    }
-
-    public MvelEvaluator(String expression) {
-        setExpression(expression);
-    }
-
-    public MvelEvaluator(String expression, VariableResolver resolver) {
-        setExpression(expression);
-        setResolver(resolver);
+        PARSER_CONTEXT.addImport("rnorm", MVEL.getStaticMethod(RandomUtils.class, "rnorm", new Class[] {double.class, double.class}));
+        PARSER_CONTEXT.addImport("rpois", MVEL.getStaticMethod(RandomUtils.class, "rpois", new Class[] {double.class}));
     }
 
     @Override
-    public double evaluateAsDouble() throws EvaluationException {
-        return Number.class.cast(MVEL.executeExpression(compiledExpression, factory)).doubleValue();
-    }
-
-    @Override
-    public boolean evaluateAsBoolean() throws EvaluationException {
-        return Boolean.class.cast(MVEL.executeExpression(compiledExpression, factory));
-    }
-
-    @Override
-    public String evaluateAsString() throws EvaluationException {
-        return String.class.cast(MVEL.executeExpression(compiledExpression, factory));
+    public EvaluationResult evaluate() throws EvaluationException {
+        return new GenericEvaluationResult(MVEL.executeExpression(compiledExpression, factory));
     }
 
     @Override
@@ -68,18 +48,8 @@ public class MvelEvaluator implements Evaluator {
     }
 
     @Override
-    public String getExpression() {
-        return expression;
-    }
-
-    @Override
     public void setResolver(@Nullable VariableResolver resolver) {
         this.factory = new GreyfishMvelVariableResolverFactory(checkNotNull(resolver));
-    }
-
-    @Override
-    public VariableResolver getResolver() {
-        return factory == null ? null : factory.getVariableResolver();
     }
 
     private static class MvelVariableResolverAdaptor extends ForwardingVariableResolver implements org.mvel2.integration.VariableResolver {

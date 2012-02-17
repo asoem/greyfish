@@ -8,13 +8,9 @@ package org.asoem.greyfish.core.eval;
  */
 public interface Evaluator {
 
-    double evaluateAsDouble() throws EvaluationException;
-    boolean evaluateAsBoolean() throws EvaluationException;
-    String evaluateAsString() throws EvaluationException;
-
+    EvaluationResult evaluate() throws EvaluationException;
+    
     void setExpression(String expression) throws SyntaxException;
-    String getExpression();
 
     void setResolver(VariableResolver resolver);
-    VariableResolver getResolver();
 }
