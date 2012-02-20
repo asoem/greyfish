@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.actions.ForwardingComponentList;
+import org.asoem.greyfish.core.actions.utils.ForwardingComponentList;
 
 /**
  * User: christoph
@@ -24,5 +24,10 @@ public abstract class ForwardingGenome<E extends Gene<?>> extends ForwardingComp
     @Override
     public boolean isCompatibleGenome(Genome<? extends Gene<?>> es) {
         return delegate().isCompatibleGenome(es);
+    }
+
+    @Override
+    public void initGenes() {
+        delegate().initGenes();
     }
 }

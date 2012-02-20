@@ -3,7 +3,14 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.genes.EvaluatedGenome;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
+import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.AgentEvent;
+import org.asoem.greyfish.core.io.AgentEventLogger;
+import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -14,6 +21,7 @@ import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.space.Coordinates2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
@@ -25,7 +33,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class SexualReproductionAction extends AbstractGFAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproductionAction.class);
-    
+
+    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
+
     @Element(name="property")
     private EvaluatedGenomeStorage spermStorage;
 
@@ -49,11 +59,15 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         LOGGER.debug("Producing {} offspring ", clutch_size);
 
+        final Population population = agent().getPopulation();
+        final Coordinates2D coordinates = simulation.getSpace().getCoordinates(agent());
+
         for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), clutch_size)) {
-            simulation.insertAgent(
-                    agent().getPopulation(),
-                    ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate)),
-                    simulation.getSpace().getCoordinates(agent()));
+            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate));
+
+            simulation.createAgent(population, gamete, coordinates);
+
+            AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", coordinates));
         }
 
         offspringCount += clutch_size;

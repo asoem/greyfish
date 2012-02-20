@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;

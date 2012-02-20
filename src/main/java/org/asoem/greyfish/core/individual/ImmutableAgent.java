@@ -1,15 +1,11 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-
-import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -42,16 +38,6 @@ public class ImmutableAgent extends AbstractAgent {
                 ImmutableGenome.copyOf(builder.genes));
         setPopulation(builder.population);
         freeze();
-    }
-
-    @Override
-    public Genome<Gene<?>> createGamete() {
-        return ImmutableGenome.copyOf(Iterables.transform(genome, new Function<Gene<?>, Gene<?>>() {
-            @Override
-            public Gene<?> apply(@Nullable Gene<?> gene) {
-                return ImmutableGene.copyOf(gene);
-            }
-        }));
     }
 
     @Override

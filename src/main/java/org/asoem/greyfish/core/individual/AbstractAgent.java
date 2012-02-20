@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -204,6 +203,11 @@ public abstract class AbstractAgent implements Agent {
         this.genome.updateAllGenes(genome);
     }
 
+    @Override
+    public void initGenome() {
+        genome.initGenes();
+    }
+
     /**
      * WARNING: This implementation just checks if {@code object} is an {@link Agent} and shares the same population with this agent.
      * It does not check if they are or have been derived from the same prototype via {@link #deepClone}.
@@ -311,11 +315,6 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterator<AgentComponent> iterator() {
-        return getComponents().iterator();
-    }
-
-    @Override
     public void changeMotion(double angle, double velocity) {
         body.changeMotion(angle, velocity);
     }
@@ -351,11 +350,6 @@ public abstract class AbstractAgent implements Agent {
         for (AgentComponent component : getComponents()) {
             component.prepare(context);
         }
-    }
-
-    @Override
-    public Genome<Gene<?>> createGamete() {
-        return ImmutableGenome.copyOf(genome);
     }
 
     @Override

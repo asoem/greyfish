@@ -1,5 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.actions.utils.MovementPattern;
+import org.asoem.greyfish.core.actions.utils.MovementPatterns;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.simulation.Simulation;

@@ -7,6 +7,7 @@ import com.google.common.collect.Iterables;
 import net.sourceforge.jeval.EvaluationConstants;
 import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
+import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;

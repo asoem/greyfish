@@ -3,12 +3,12 @@ package org.asoem.greyfish.core.agent_interaction;
 import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.properties.ResourceProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -49,21 +49,20 @@ public class ResourceInteractionTest {
                 .build();
         ResourceConsumptionAction consumptionAction = ResourceConsumptionAction.with()
                 .name("eat")
-                .classification(messageClassifier)
-                .requesting(1)
-                .energyStorage(energyStorage)
-                .transformationFunction("offer*2")
+                .ontology(messageClassifier)
+                .requestAmount(GreyfishExpressionFactory.compile("1.0"))
+                .utilizeUptake(GreyfishExpressionFactory.compile("$('this.agent.properties[\"resourceStorage\"]').add(offer * 2)"))
                 .build();
 
 
-        ResourceProperty resourceProperty = new ResourceProperty.Builder()
+        DoubleProperty resourceProperty = new DoubleProperty.Builder()
                 .lowerBound(0.0)
                 .upperBound(1.0)
                 .initialValue(1.0)
                 .build();
         ResourceProvisionAction provisionAction = ResourceProvisionAction.with()
                 .name("feed")
-                .classification(messageClassifier)
+                .ontology(messageClassifier)
                 .resourceProperty(resourceProperty)
                 .build();
 

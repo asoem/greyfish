@@ -25,6 +25,7 @@ public class MutableGene<E> extends AbstractGene<E> {
         super(mutableGene, cloner);
         this.supplierClass = mutableGene.supplierClass;
         this.geneController = mutableGene.geneController;
+        this.value = mutableGene.value;
     }
 
     @Override

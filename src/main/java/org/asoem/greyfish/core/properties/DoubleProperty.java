@@ -10,11 +10,15 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @ClassGroup(tags="properties")
-public class DoubleProperty extends AbstractRangeElementProperty<Double> implements ContinuousProperty<Double> {
+public class DoubleProperty extends AbstractRangeElementProperty<Double> implements MutableProperty<Double> {
 
     @SimpleXMLConstructor
-    private DoubleProperty() {
+    public DoubleProperty() {
         this(new Builder());
+    }
+
+    protected DoubleProperty(AbstractBuilder<?,?> builder) {
+        super(builder);
     }
 
     protected DoubleProperty(DoubleProperty property, DeepCloner cloner) {
@@ -39,12 +43,6 @@ public class DoubleProperty extends AbstractRangeElementProperty<Double> impleme
 		setValue(value + val);
 	}
 
-    protected DoubleProperty(AbstractBuilder<?,?> builder) {
-        super(builder);
-    }
-
-    public static Builder with() { return new Builder(); }
-
     @Override
     public void set(Double amount) {
         value = amount;
@@ -54,6 +52,8 @@ public class DoubleProperty extends AbstractRangeElementProperty<Double> impleme
     public Double get() {
         return value;
     }
+
+    public static Builder with() { return new Builder(); }
 
     public static final class Builder extends AbstractBuilder<DoubleProperty, Builder> {
         public Builder() {lowerBound(0.0).upperBound(0.0).initialValue(0.0);}

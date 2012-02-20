@@ -69,7 +69,7 @@ public class GreyfishExpression {
 
     @Override
     public String toString() {
-        return getExpression();
+        return getExpression() + " evaluated with " + evaluator;
     }
 
     @Override

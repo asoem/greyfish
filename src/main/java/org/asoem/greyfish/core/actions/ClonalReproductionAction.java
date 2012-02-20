@@ -1,16 +1,25 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
+import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.AgentEvent;
+import org.asoem.greyfish.core.io.AgentEventLogger;
+import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.space.Coordinates2D;
 import org.simpleframework.xml.Attribute;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
+
+    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
     @Attribute(name = "nOffspring")
     private int nOffspring;
@@ -22,11 +31,14 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
+        final Coordinates2D coordinates = simulation.getSpace().getCoordinates(agent());
+        final Population population = agent().getPopulation();
+
         for (int i = 0; i < nOffspring; i++) {
-            simulation.insertAgent(
-                    agent().getPopulation(),
-                    ImmutableGenome.mutatedCopyOf(agent().getGenes()),
-                    simulation.getSpace().getCoordinates(agent()));
+            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(agent().getGenes());
+            simulation.createAgent(population, gamete, coordinates);
+
+            AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", coordinates));
         }
         return ActionState.END_SUCCESS;
     }

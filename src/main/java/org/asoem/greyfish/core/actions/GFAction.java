@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -17,7 +19,7 @@ public interface GFAction extends AgentComponent {
     public ActionState getActionState();
 
     /**
-     * @return the number of times this {@code GFAction} was executed when in {@link ActionState#DORMANT}
+     * @return the number of times this {@code GFAction} was executed when in {@link org.asoem.greyfish.core.actions.utils.ActionState#DORMANT}
      */
 	public int getExecutionCount();
 	

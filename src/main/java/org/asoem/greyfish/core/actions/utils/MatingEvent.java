@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.actions;
+package org.asoem.greyfish.core.actions.utils;
 
 /**
  * User: christoph

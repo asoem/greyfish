@@ -39,10 +39,10 @@ public interface AgentComponent extends TreeNode<AgentComponent>, Preparable<Sim
     public void accept(ComponentVisitor visitor);
 
     /**
-     * Called by an {@code Agent} if it's {@code AgentComponent}s should prepare themselves for a new {@code Simulation} context.
+     * Called by an {@code Agent} if it's {@code AgentComponent}s should prepare themselves for a new {@code Simulation} simulation.
      * Implementations should reset their own fields to an initial state and their those of their {@code super} class if they have any.
-     * @param context the new {@code Simulation}
+     * @param simulation the new {@code Simulation}
      */
     @Override
-    void prepare(Simulation context);
+    void prepare(Simulation simulation);
 }

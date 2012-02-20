@@ -107,8 +107,8 @@ public class ForwardingGene<T> implements Gene<T> {
     }
 
     @Override
-    public void prepare(Simulation context) {
-        delegate.prepare(context);
+    public void prepare(Simulation simulation) {
+        delegate.prepare(simulation);
     }
 
     @Override

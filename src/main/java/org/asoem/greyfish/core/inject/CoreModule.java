@@ -1,6 +1,9 @@
 package org.asoem.greyfish.core.inject;
 
 import com.google.inject.AbstractModule;
+import org.asoem.greyfish.core.io.AgentEventLogger;
+import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
+import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
 import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
 
@@ -13,5 +16,8 @@ public class CoreModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(AgentComponentClassFinder.class).to(AnnotatedAgentComponentClassFinder.class).asEagerSingleton();
+        
+        bind(AgentEventLogger.class).to(ConsoleLogger.class);
+        requestStaticInjection(AgentEventLoggerFactory.class);
     }
 }

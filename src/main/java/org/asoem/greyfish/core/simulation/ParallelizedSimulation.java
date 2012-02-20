@@ -56,15 +56,14 @@ public class ParallelizedSimulation implements Simulation {
 
     private final FastList<Agent> agents = FastList.newInstance();
 
-    private final KeyedObjectPool objectPool = new StackKeyedObjectPool(
-            new BaseKeyedPoolableObjectFactory() {
+    private final KeyedObjectPool<Population, Agent> objectPool = new StackKeyedObjectPool<Population, Agent>(
+            new BaseKeyedPoolableObjectFactory<Population, Agent>() {
 
                 @Override
-                public Object makeObject(Object key) throws Exception {
+                public Agent makeObject(Population key) throws Exception {
                     assert key != null;
-                    assert key instanceof Population;
 
-                    Agent prototype = getPrototype((Population) key);
+                    final Agent prototype = getPrototype(key);
                     assert prototype != null : "Found no Prototype for " + key;
 
                     return ImmutableAgent.cloneOf(prototype);
@@ -142,8 +141,10 @@ public class ParallelizedSimulation implements Simulation {
     private void initialize() {
         // convert each placeholder to a concrete object
         for (Placeholder placeholder : scenario.getPlaceholder()) {
-            final Agent clone = newAgentFromPool(placeholder.getPopulation());
+            final Agent clone = borrowAgentFromPool(placeholder.getPopulation());
             assert clone != null;
+            clone.initGenome();
+            clone.prepare(this);
             addAgentInternal(clone, placeholder.getCoordinates());
         }
     }
@@ -162,8 +163,6 @@ public class ParallelizedSimulation implements Simulation {
         checkNotNull(coordinates);
         checkArgument(space.covers(coordinates),
                 "Coordinates " + coordinates + " do not fall inside the area of this simulation's space: " + space);
-
-        agent.prepare(this);
 
         // following actions must be synchronized
         synchronized (this) {
@@ -230,7 +229,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void insertAgent(final Population population, final Genome<? extends Gene<?>> genome, Coordinates2D location) {
+    public void createAgent(final Population population, final Genome<? extends Gene<?>> genome, Coordinates2D location) {
         checkNotNull(population);
         checkArgument(getPrototype(population) != null);
         checkNotNull(genome);
@@ -245,9 +244,9 @@ public class ParallelizedSimulation implements Simulation {
      * @return a new or recycled {@code Agent}
      * @throws RuntimeException if no non-null {@code Agent} could be retrieved from the {@code objectPool}
      */
-    private Agent newAgentFromPool(final Population population) {
+    private Agent borrowAgentFromPool(final Population population) {
         try {
-            return Agent.class.cast(objectPool.borrowObject(population));
+            return objectPool.borrowObject(population);
         } catch (Exception e) {
             LOGGER.error("Error getting Agent from objectPool for population {}", population.getName(), e);
             throw new AssertionError(e);
@@ -304,8 +303,9 @@ public class ParallelizedSimulation implements Simulation {
 
     private void processRequestedAgentAdditions() {
         for (AddAgentMessage addAgentMessage : addAgentMessages) {
-            Agent clone = newAgentFromPool(addAgentMessage.population);
+            final Agent clone = borrowAgentFromPool(addAgentMessage.population);
             clone.injectGamete(addAgentMessage.genome);
+            clone.prepare(this);
             addAgentInternal(clone, addAgentMessage.location);
         }
         addAgentMessages.clear();

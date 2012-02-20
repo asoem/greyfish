@@ -4,7 +4,7 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.actions.EvaluatedGenome;
+import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;

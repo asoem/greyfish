@@ -44,12 +44,12 @@ public interface Simulation extends HasName {
 
     /**
      * Creates a new {@link org.asoem.greyfish.core.individual.Agent} as clone of the prototype registered for given {@code population} with genome set to {@code genome}.
-     * The {@link org.asoem.greyfish.core.individual.Agent} will get inserted and executed at the next step at given {@code location}.
+     * The {@link org.asoem.greyfish.core.individual.Agent} will get inserted before and executed on the next step at given {@code location}.
      * @param population The {@code Population} of the {@code Prototype} the Agent will be cloned from.
      * @param genome The genome which will be injected into the inserted Agent ({@link Agent#injectGamete(Genome)}).
      * @param location the location where the {@code Agent} will enter the {@code Simulation}
      */
-    void insertAgent(Population population, Genome<? extends Gene<?>> genome, Coordinates2D location);
+    void createAgent(Population population, Genome<? extends Gene<?>> genome, Coordinates2D location);
 
     Set<Agent> getPrototypes();
 

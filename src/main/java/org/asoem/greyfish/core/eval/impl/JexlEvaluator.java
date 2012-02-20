@@ -7,12 +7,15 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.asoem.greyfish.core.eval.*;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 /**
  * User: christoph
  * Date: 17.02.12
  * Time: 12:14
  */
-public class JEXLEvaluator extends AbstractEvaluator {
+public class JEXLEvaluator implements Evaluator {
 
     private static final JexlEngine JEXL_ENGINE = new JexlEngine();
     static {
@@ -26,15 +29,17 @@ public class JEXLEvaluator extends AbstractEvaluator {
 
     @Override
     public EvaluationResult evaluate() {
+        checkState(expression != null, "No expression has been defined");
         return new GenericEvaluationResult(expression.evaluate(resolver));
     }
 
     @Override
     public void setExpression(String expression) throws SyntaxException {
+        checkNotNull(expression);
         this.expression = JEXL_ENGINE.createExpression(prepare(expression));
     }
 
-    private String prepare(String expression) {
+    private String prepare(String expression) {        
         // This will lift some function in the global namespace and allows users to write 'fun' instead of 'ns:fun'.
         return expression
                 .replaceAll("\\$\\(([^\\)]+)\\)", "fish:\\$($1)")
@@ -44,6 +49,7 @@ public class JEXLEvaluator extends AbstractEvaluator {
 
     @Override
     public void setResolver(VariableResolver resolver) {
+        checkNotNull(resolver);
         this.resolver = new JEXLResolverAdaptor(resolver);
     }
 

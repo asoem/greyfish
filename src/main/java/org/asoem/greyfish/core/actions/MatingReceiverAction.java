@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -44,7 +45,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Element(name="messageType", required=false)
     private String ontology;
 
-    @Element(name="sensorRange", required=false)
+    @Element(name="interactionRadius", required=false)
     private double sensorRange;
 
     @Element(name="matingProbabilityExpression", required = false)
@@ -218,7 +219,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
             super.checkBuilder();
             checkState(spermBuffer != null, "Builder must define a valid spermBuffer.");
             if (sensorRange <= 0)
-                LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": sensorRange is <= 0 '" + sensorRange + "'");
+                LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": interactionRadius is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))
                 LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
         }

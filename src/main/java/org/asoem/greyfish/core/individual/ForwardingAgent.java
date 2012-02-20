@@ -12,7 +12,6 @@ import org.asoem.greyfish.utils.collect.TreeNode;
 
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.util.Iterator;
 import java.util.List;
 
 public abstract class ForwardingAgent implements Agent {
@@ -112,11 +111,6 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public Iterator<AgentComponent> iterator() {
-        return delegate().iterator();
-    }
-
-    @Override
     public int getId() {
         return delegate().getId();
     }
@@ -142,13 +136,13 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public Genome<Gene<?>> createGamete() {
-        return delegate().createGamete();
+    public void injectGamete(Genome<? extends Gene<?>> genome) {
+        delegate().injectGamete(genome);
     }
 
     @Override
-    public void injectGamete(Genome<? extends Gene<?>> genome) {
-        delegate().injectGamete(genome);
+    public void initGenome() {
+        delegate().initGenome();
     }
 
     @Override

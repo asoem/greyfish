@@ -83,8 +83,8 @@ public abstract class ForwardingCondition implements GFCondition {
     }
 
     @Override
-    public void prepare(Simulation context) {
-        delegate().prepare(context);
+    public void prepare(Simulation simulation) {
+        delegate().prepare(simulation);
     }
 
     @Override

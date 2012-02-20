@@ -6,13 +6,13 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.properties.ResourceProperty;
+import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.simpleframework.xml.Element;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     @Element(name="resource")
-    private ResourceProperty resourceProperty;
+    private DoubleProperty resourceProperty;
 
     @Element(name="messageType", required=false)
     private String parameterMessageType;
@@ -95,20 +95,20 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
                 return parameterMessageType;
             }
         });
-        e.add("ResourceProperty", new SetAdaptor<ResourceProperty>(ResourceProperty.class) {
+        e.add("ResourceProperty", new SetAdaptor<DoubleProperty>(DoubleProperty.class) {
             @Override
-            protected void set(ResourceProperty arg0) {
+            protected void set(DoubleProperty arg0) {
                 resourceProperty = checkNotNull(arg0);
             }
 
             @Override
-            public ResourceProperty get() {
+            public DoubleProperty get() {
                 return resourceProperty;
             }
 
             @Override
-            public Iterable<ResourceProperty> values() {
-                return Iterables.filter(agent().getProperties(), ResourceProperty.class);
+            public Iterable<DoubleProperty> values() {
+                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
             }
         });
     }
@@ -120,13 +120,13 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.resourceProperty = cloner.cloneField(cloneable.resourceProperty, ResourceProperty.class);
+        this.resourceProperty = cloner.cloneField(cloneable.resourceProperty, DoubleProperty.class);
         this.parameterMessageType = cloneable.parameterMessageType;
     }
 
     protected ResourceProvisionAction(AbstractBuilder<?,?> builder) {
         super(builder);
-        this.parameterMessageType = builder.parameterMessageType;
+        this.parameterMessageType = builder.ontology;
         this.resourceProperty = builder.resourceProperty;
     }
 
@@ -138,16 +138,16 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
-        protected ResourceProperty resourceProperty;
-        protected String parameterMessageType;
+        protected DoubleProperty resourceProperty;
+        protected String ontology = "food";
 
-        public T resourceProperty(ResourceProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
-        public T classification(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
+        public T resourceProperty(DoubleProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
+        public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
             checkState(this.resourceProperty != null, "The ResourceProperty is mandatory");
-            checkState(this.parameterMessageType != null, "The messageType is mandatory");
+            checkState(this.ontology != null, "The messageType is mandatory");
             super.checkBuilder();
         }
     }

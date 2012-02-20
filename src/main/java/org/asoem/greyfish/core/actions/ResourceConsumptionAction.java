@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
@@ -9,18 +8,14 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
-import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
@@ -28,21 +23,17 @@ import static com.google.common.collect.Iterables.isEmpty;
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
-    @Element(name="property")
-    private DoubleProperty consumerProperty = null;
+    @Element(name="messageType", required=false)
+    private String ontology;
+
+    @Element(name="interactionRadius")
+    protected GreyfishExpression interactionRadius;
+
+    @Element(name="requestAmount", required=false)
+    protected GreyfishExpression requestAmount;
 
     @Element(name="resourceTransformationFunction", required = false)
-    private GreyfishExpression transformationExpression =
-            GreyfishExpressionFactory.compile("offer");
-
-    @Element(name="messageType", required=false)
-    private String parameterMessageType = "";
-
-    @Element(name="amountPerRequest", required=false)
-    protected double amountPerRequest = 0;
-
-    @Element(name="sensorRange")
-    private double sensorRange = 0;
+    protected GreyfishExpression utilizeUptake;
 
     private Iterable<Agent> sensedMates;
 
@@ -59,7 +50,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 .ontology(getOntology())
                         // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
                 .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
-                .content(amountPerRequest, Double.class);
+                .content(requestAmount.evaluateForContext(this).asDouble(), Double.class);
     }
 
     @Override
@@ -77,19 +68,17 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected void handleInform(ACLMessage<Agent> message) {
         final double offer = message.getContent(Double.class);
-        double transformedOffer = transformationExpression.evaluateForContext(this, "offer", offer).asDouble();
-        consumerProperty.add(transformedOffer);
-        LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", transformedOffer, consumerProperty);
+        utilizeUptake.evaluateForContext(this, "offer", offer);
     }
 
     @Override
     protected String getOntology() {
-        return parameterMessageType;
+        return ontology;
     }
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = simulation.findNeighbours(agent(), sensorRange);
+        sensedMates = simulation.findNeighbours(agent(), interactionRadius.evaluateForContext(this).asDouble());
         return ! isEmpty(sensedMates);
     }
 
@@ -100,63 +89,16 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     private void checkValidity() {
-        checkNotNull(consumerProperty);
-        checkNotNull(parameterMessageType);
+        checkNotNull(ontology);
     }
 
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Ontology", new AbstractTypedValueModel<String>() {
-            @Override
-            protected void set(String arg0) {
-                parameterMessageType = checkNotNull(arg0);
-            }
-
-            @Override
-            public String get() {
-                return parameterMessageType;
-            }
-        });
-        e.add("Requested Amount", new AbstractTypedValueModel<Double>() {
-            @Override
-            protected void set(Double arg0) {
-                amountPerRequest = checkNotNull(arg0);
-            }
-
-            @Override
-            public Double get() {
-                return amountPerRequest;
-            }
-        });
-        e.add("Resource Storage", new SetAdaptor<DoubleProperty>(DoubleProperty.class) {
-            @Override
-            protected void set(DoubleProperty arg0) {
-                consumerProperty = checkNotNull(arg0);
-            }
-
-            @Override
-            public DoubleProperty get() {
-                return consumerProperty;
-            }
-
-            @Override
-            public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
-            }
-        });
-        e.add("Resource Transformation Function: f(#{1})", TypedValueModels.forField("transformationFunction", this, String.class));
-        e.add("Sensor Range", new AbstractTypedValueModel<Double>() {
-            @Override
-            protected void set(Double arg0) {
-                sensorRange = checkNotNull(arg0);
-            }
-
-            @Override
-            public Double get() {
-                return sensorRange;
-            }
-        });
+        e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
+        e.add("Sensor Range", TypedValueModels.forField("interactionRadius", this, GreyfishExpression.class));
+        e.add("Requested Amount", TypedValueModels.forField("requestAmount", this, GreyfishExpression.class));
+        e.add("Uptake Utilization", TypedValueModels.forField("utilizeUptake", this, GreyfishExpression.class));
     }
 
     @Override
@@ -166,20 +108,18 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.consumerProperty = cloner.cloneField(cloneable.consumerProperty, DoubleProperty.class);
-        this.parameterMessageType = cloneable.parameterMessageType;
-        this.sensorRange = cloneable.sensorRange;
-        this.amountPerRequest = cloneable.amountPerRequest;
-        this.transformationExpression = cloneable.transformationExpression;
+        this.ontology = cloneable.ontology;
+        this.interactionRadius = cloneable.interactionRadius;
+        this.requestAmount = cloneable.requestAmount;
+        this.utilizeUptake = cloneable.utilizeUptake;
     }
 
     protected ResourceConsumptionAction(AbstractBuilder<?,?> builder) {
         super(builder);
-        this.consumerProperty = builder.consumerProperty;
-        this.parameterMessageType = builder.parameterMessageType;
-        this.amountPerRequest = builder.amountPerRequest;
-        this.sensorRange = builder.sensorRange;
-        this.transformationExpression = GreyfishExpressionFactory.compile(Optional.fromNullable(builder.transformationFunction).or("offer"));
+        this.ontology = builder.ontology;
+        this.requestAmount = builder.requestAmount;
+        this.interactionRadius = builder.interactionRadius;
+        this.utilizeUptake = builder.utilizeUptake;
     }
 
     public static Builder with() { return new Builder(); }
@@ -192,17 +132,16 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
-        private DoubleProperty consumerProperty = null;
-        private String parameterMessageType = "";
-        private double amountPerRequest = 0;
-        private double sensorRange = 0;
-        public String transformationFunction = null;
 
-        public T energyStorage(DoubleProperty consumerProperty) { this.consumerProperty = checkNotNull(consumerProperty); return self(); }
-        public T classification(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
-        public T requesting(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
-        public T inRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
-        public T transformationFunction(String transformationFunction) { this.transformationFunction = checkNotNull(transformationFunction); return self(); }
+        private String ontology = "food";
+        private GreyfishExpression requestAmount = GreyfishExpressionFactory.compile("1.0");
+        private GreyfishExpression interactionRadius = GreyfishExpressionFactory.compile("1.0");
+        private GreyfishExpression utilizeUptake = GreyfishExpressionFactory.compile("$('this.agent.properties[\"myEnergy\"]').add(offer)");
+
+        public T ontology(String parameterMessageType) { this.ontology = checkNotNull(parameterMessageType); return self(); }
+        public T requestAmount(GreyfishExpression amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
+        public T interactionRadius(GreyfishExpression sensorRange) { this.interactionRadius = sensorRange; return self(); }
+        public T utilizeUptake(GreyfishExpression transformationFunction) { this.utilizeUptake = checkNotNull(transformationFunction); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

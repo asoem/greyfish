@@ -1,9 +1,6 @@
-package org.asoem.greyfish.core.actions;
+package org.asoem.greyfish.core.genes;
 
 import org.apache.commons.math.genetics.Fitness;
-import org.asoem.greyfish.core.genes.ForwardingGenome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 

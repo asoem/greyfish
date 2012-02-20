@@ -61,8 +61,8 @@ public abstract class SimulationAdaptor implements Simulation {
     }
 
     @Override
-    public void insertAgent(Population population, Genome<? extends Gene<?>> genome, Coordinates2D location) {
-        delegate().insertAgent(population, genome, location);
+    public void createAgent(Population population, Genome<? extends Gene<?>> genome, Coordinates2D location) {
+        delegate().createAgent(population, genome, location);
     }
 
     @Override

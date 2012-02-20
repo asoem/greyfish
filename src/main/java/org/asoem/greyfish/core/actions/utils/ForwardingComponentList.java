@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.actions;
+package org.asoem.greyfish.core.actions.utils;
 
 import com.google.common.collect.ForwardingList;
 import org.asoem.greyfish.core.individual.ComponentList;

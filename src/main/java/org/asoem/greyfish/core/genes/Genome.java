@@ -7,4 +7,5 @@ public interface Genome<E extends Gene<?>> extends ComponentList<E> {
     public Iterable<E> findCopiesFor(final Iterable<? extends E> thisGenes);
     boolean isCompatibleGenome(Genome<? extends Gene<?>> genome);
     void updateAllGenes(Genome<? extends E> genome);
+    void initGenes();
 }

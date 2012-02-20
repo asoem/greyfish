@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.Logger;

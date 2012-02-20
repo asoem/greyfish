@@ -1,5 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.io.AgentEvent;
+import org.asoem.greyfish.core.io.AgentEventLogger;
+import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -7,6 +11,8 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
+
+    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
     @SimpleXMLConstructor
 	public DeathAction() {
@@ -16,6 +22,9 @@ public class DeathAction extends AbstractGFAction {
 	@Override
 	protected ActionState executeUnconditioned(Simulation simulation) {
 		simulation.removeAgent(agent());
+
+        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "died", "", simulation.getSpace().getCoordinates(agent())));
+
         return ActionState.END_SUCCESS;
 	}
 

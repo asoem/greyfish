@@ -55,6 +55,13 @@ public abstract class AbstractGenome<E extends Gene<?>> extends ForwardingList<E
     }
 
     @Override
+    public void initGenes() {
+        for(Gene<?> gene : this) {
+            gene.setValue(gene.getGeneController().createInitialValue());
+        }
+    }
+
+    @Override
     protected abstract ComponentList<E> delegate();
 
     @Override

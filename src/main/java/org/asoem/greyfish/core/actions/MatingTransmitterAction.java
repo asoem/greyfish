@@ -8,8 +8,10 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -105,7 +107,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
         final double probability = matingProbabilityExpression.evaluateForContext(this, "mate", message.getSender()).asDouble();
         if (RandomUtils.trueWithProbability(probability)) {
-            final Genome<Gene<?>> sperm = agent().createGamete();
+            final Genome<Gene<?>> sperm = ImmutableGenome.copyOf(agent().getGenes());
             double fitness = 0.0;
             try {
                 fitness = spermFitnessExpression.evaluateForContext(this).asDouble();

@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent>, Movable, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Movable, Preparable<Simulation> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -50,12 +50,6 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
     @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
 
     /**
-     * Creates a new Genome with exact copies of this agents genes.
-     * @return the new Genome
-     */
-    Genome<Gene<?>> createGamete();
-
-    /**
      * Inject a copy of this agents genome so that this agents genes return the values of the genes in the given genome
      *
      *
@@ -64,6 +58,7 @@ public interface Agent extends DeepCloneable, Freezable, Iterable<AgentComponent
      * if {@code genome} is not a copy of this agents genome as defined by {@link Genome#isCompatibleGenome}
      */
     void injectGamete(Genome<? extends Gene<?>> genome);
+    void initGenome();
 
     Body getBody();
     Color getColor();

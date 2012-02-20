@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
@@ -24,7 +26,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.actions.ExecutionResult.*;
+import static org.asoem.greyfish.core.actions.utils.ExecutionResult.*;
 
 @Root
 public abstract class AbstractGFAction extends AbstractAgentComponent implements GFAction {
@@ -43,6 +45,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private int executionCount;
 
     private int timeOfLastExecution;
+
     private double evaluatedCostsFormula;
 
     @Override
@@ -58,7 +61,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     /**
-     * Called by the individual to evaluateCondition the condition if set and trigger the actions
+     * Called by the {@code Agent} which contains this {@code GFAction}
      * @param simulation the simulation context
      */
     @Override

@@ -33,7 +33,7 @@ public class GreyfishExpressionConverterTest {
         GreyfishExpression success = serializer.read(GreyfishExpression.class, SERIALIZED_XML_STRING);
 
         // then
-        assertThat(success).isEqualTo(GREYFISH_EXPRESSION);
+        assertThat(success.getExpression()).isEqualTo(GREYFISH_EXPRESSION.getExpression());
     }
 
     @Test

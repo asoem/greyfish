@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.ExecutionResult;
+import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.logging.Logger;

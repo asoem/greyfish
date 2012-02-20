@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.actions;
+package org.asoem.greyfish.core.actions.utils;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;

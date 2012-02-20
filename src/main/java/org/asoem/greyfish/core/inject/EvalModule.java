@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.inject;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
 import org.asoem.greyfish.core.eval.*;
 import org.asoem.greyfish.core.eval.impl.CachedGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.eval.impl.JEXLEvaluator;
-import org.asoem.greyfish.core.eval.impl.MvelEvaluator;
 
 /**
  * User: christoph
