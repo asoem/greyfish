@@ -2,12 +2,12 @@ package org.asoem.greyfish.utils.base;
 
 /**
  * This interface is intended to assist objects that are able to switch into an immutable state.
- * The implementation is asked to intercept all write accessors of this object and prevent any modification from outside.
+ * The implementation is asked to intercept evaluates write accessors of this object and prevent any modification from outside.
  * It also shouldn't modify itself from inside.
  */
 public interface Freezable {
     /**
-     * Freeze this object. If an object is frozen, it should act as if all of its fields are immutable.
+     * Freeze this object. If an object is frozen, it should act as if evaluates of its fields are immutable.
      */
     void freeze();
 

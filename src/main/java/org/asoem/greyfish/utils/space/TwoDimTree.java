@@ -14,7 +14,7 @@ public interface TwoDimTree<T> extends Iterable<T> {
     /**
      * @param coordinates the search point
      * @param range the radius of the circle around {@code coordinates}
-     * @return all stored objects whose 2D index point intersects with the circle defined by {@code coordinates} and {@code range}
+     * @return evaluates stored objects whose 2D index point intersects with the circle defined by {@code coordinates} and {@code range}
      */
     Iterable<T> findObjects(Coordinates2D coordinates, final double range);
 }

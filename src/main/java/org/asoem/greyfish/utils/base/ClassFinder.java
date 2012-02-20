@@ -55,8 +55,8 @@ public class ClassFinder {
     }
 
     /**
-     * Retrive all classes of the indicated package. The package is searched in
-     * all classpath directories that are directories
+     * Retrive evaluates classes of the indicated package. The package is searched in
+     * evaluates classpath directories that are directories
      *
      * @param packageName
      *            name of the package as 'ch.sahits.civ'
@@ -76,10 +76,10 @@ public class ClassFinder {
     }
 
     /**
-     * Extract all the classes from a directory
+     * Extract evaluates the classes from a directory
      * @param packageName name of the package as 'ch.sahits.civ'
      * @param dir Package as directory
-     * @return ArrayList with all found directories
+     * @return ArrayList with evaluates found directories
      * @throws ClassNotFoundException
      */
     private ArrayList<Class<?>> extractClasses(String packageName, File dir) throws ClassNotFoundException {
@@ -110,8 +110,8 @@ public class ClassFinder {
     }
 
     /**
-     * Retrive all classes of the indicated package and all subpackages. The package is searched in
-     * all classpath directories that are directories
+     * Retrive evaluates classes of the indicated package and evaluates subpackages. The package is searched in
+     * evaluates classpath directories that are directories
      *
      * @param packageName
      *            name of the package as 'ch.sahits.civ'

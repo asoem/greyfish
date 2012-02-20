@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * The usual way is to use the static {@link #clone(DeepCloneable, Class)} method to clone a certain object.
  * This method calls the {@link DeepCloneable#deepClone(DeepCloner)} method of the object whose implementation should do nothing but call the "Cloner"-Constructor.
- * Here, the object should pass all fields to the {@link #cloneField(DeepCloneable, Class)} method, which are required for a deep copy.
+ * Here, the object should pass evaluates fields to the {@link #cloneField(DeepCloneable, Class)} method, which are required for a deep copy.
  */
 public class DeepCloner {
 
