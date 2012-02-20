@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.individual.Population;
@@ -11,8 +13,8 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.Coordinates2D;
 import org.simpleframework.xml.Attribute;
 
@@ -21,8 +23,8 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
-    @Attribute(name = "nOffspring")
-    private int nOffspring;
+    @Attribute(name = "nClones")
+    private GreyfishExpression nClones;
 
     @SimpleXMLConstructor
     public ClonalReproductionAction() {
@@ -34,7 +36,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
         final Coordinates2D coordinates = simulation.getSpace().getCoordinates(agent());
         final Population population = agent().getPopulation();
 
-        for (int i = 0; i < nOffspring; i++) {
+        for (int i = 0; i < nClones.evaluateForContext(this).asInt(); i++) {
             final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(agent().getGenes());
             simulation.createAgent(population, gamete, coordinates);
 
@@ -50,28 +52,18 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     public ClonalReproductionAction(ClonalReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.nOffspring = cloneable.nOffspring;
+        this.nClones = cloneable.nClones;
     }
 
     protected ClonalReproductionAction(AbstractBuilder<?,?> builder) {
         super(builder);
-        this.nOffspring = builder.nOffspring;
+        this.nClones = builder.nClones;
     }
 
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("#clones", new AbstractTypedValueModel<Integer>() {
-            @Override
-            protected void set(Integer arg0) {
-                nOffspring = arg0;
-            }
-
-            @Override
-            public Integer get() {
-                return nOffspring;
-            }
-        });
+        e.add("nClones", TypedValueModels.forField("nClones", this, GreyfishExpression.class));
     }
 
     public static Builder with() { return new Builder(); }
@@ -81,9 +73,10 @@ public class ClonalReproductionAction extends AbstractGFAction {
         @Override public ClonalReproductionAction checkedBuild() { return new ClonalReproductionAction(this); }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private int nOffspring = 1;
+        private GreyfishExpression nClones = GreyfishExpressionFactory.compile("1");
 
-        public T nOffspring(int parameterClones) { this.nOffspring = parameterClones; return self(); }
+        public T nClones(GreyfishExpression nClones) { this.nClones = nClones; return self(); }
     }
 }

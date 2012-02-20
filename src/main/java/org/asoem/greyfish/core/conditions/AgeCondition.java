@@ -7,7 +7,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 @ClassGroup(tags="conditions")
-public final class AgeCondition extends IntCompareCondition {
+public class AgeCondition extends IntCompareCondition {
 
     @SimpleXMLConstructor
     public AgeCondition() {}
@@ -32,7 +32,7 @@ public final class AgeCondition extends IntCompareCondition {
 
     public static final class Builder extends AbstractBuilder<AgeCondition, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public AgeCondition checkedBuild() { return new AgeCondition(this); }
+        @Override protected AgeCondition checkedBuild() { return new AgeCondition(this); }
     }
 
     protected static abstract class AbstractBuilder<E extends AgeCondition, T extends AbstractBuilder<E,T>> extends IntCompareCondition.AbstractBuilder<E,T> {}

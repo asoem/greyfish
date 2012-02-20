@@ -51,7 +51,7 @@ public class ResourceInteractionTest {
                 .name("eat")
                 .ontology(messageClassifier)
                 .requestAmount(GreyfishExpressionFactory.compile("1.0"))
-                .utilizeUptake(GreyfishExpressionFactory.compile("$('this.agent.properties[\"resourceStorage\"]').add(offer * 2)"))
+                .uptakeUtilization(GreyfishExpressionFactory.compile("$('this.agent.properties[\"resourceStorage\"]').add(offer * 2)"))
                 .build();
 
 

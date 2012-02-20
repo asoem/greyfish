@@ -25,8 +25,6 @@ public enum GreyfishSerialization {
     private final Registry registry = new Registry();
     private final Serializer serializer = new Persister(new RegistryStrategy(registry, new CycleStrategy("id", "ref")), MATCHER);
 
-    // TODO: explicit dependency to Serializer could be abstracted
-
     GreyfishSerialization() {
         try {
             registry.bind(GreyfishExpression.class, GreyfishExpressionConverter.class);

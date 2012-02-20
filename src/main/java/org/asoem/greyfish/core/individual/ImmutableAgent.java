@@ -47,7 +47,7 @@ public class ImmutableAgent extends AbstractAgent {
 
     /**
      * Create a "quasi" deep clone of {@code agent}.
-     * This means, that all components are deep cloned from {@code agent}, but the agent itself is a new ImmutableAgent.
+     * This means, that evaluates components are deep cloned from {@code agent}, but the agent itself is a new ImmutableAgent.
      * @param agent the prototype from which to clone the components
      * @return a new ImmutableAgent with components deep cloned from {@code agent}
      */

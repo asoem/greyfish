@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.eval.EvaluationResult;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -8,6 +9,7 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
+import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -17,8 +19,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 18:25
  */
 @ClassGroup(tags = {"properties"})
-public class ExpressionProperty extends AbstractGFProperty implements DiscreteProperty<Double> {
+public class ExpressionProperty extends AbstractGFProperty implements DiscreteProperty<EvaluationResult> {
 
+    @Element
     private final GreyfishExpression expression;
 
     @SimpleXMLConstructor
@@ -43,12 +46,12 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add("Formula", TypedValueModels.forField("expression", this, GreyfishExpression.class));
+        e.add("Expression", TypedValueModels.forField("expression", this, GreyfishExpression.class));
     }
 
     @Override
-    public Double get() {
-        return expression.evaluateForContext(this).asDouble();
+    public EvaluationResult get() {
+        return expression.evaluateForContext(this);
     }
 
     public static class Builder extends AbstractBuilder<ExpressionProperty, Builder> {

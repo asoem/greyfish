@@ -20,7 +20,7 @@ public class AllConditionTest {
     @Test
     public void testAll() throws Exception {
         // when
-        AllCondition allCondition = AllCondition.all(condition, condition);
+        AllCondition allCondition = AllCondition.evaluates(condition, condition);
 
         // then
         assertThat(allCondition).hasSize(2);
@@ -37,7 +37,7 @@ public class AllConditionTest {
                 return condition;
             }
         });
-        AllCondition allCondition = AllCondition.all(condition, condition);
+        AllCondition allCondition = AllCondition.evaluates(condition, condition);
 
         // when
         AllCondition clone = DeepCloner.clone(allCondition, AllCondition.class);

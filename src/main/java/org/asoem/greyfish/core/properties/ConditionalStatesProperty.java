@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -17,6 +18,7 @@ import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.simpleframework.xml.ElementMap;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -32,7 +34,13 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConditionalStatesProperty.class);
 
+    @ElementMap(entry="state", key="condition", attribute=true, inline=true)
     private Map<String, GreyfishExpression> conditionMap = ImmutableMap.of();
+
+    @SimpleXMLConstructor
+    public ConditionalStatesProperty() {
+        this(new Builder());
+    }
 
     protected ConditionalStatesProperty(AbstractBuilder<?, ?> builder) {
         super(builder);
@@ -43,13 +51,13 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
     protected ConditionalStatesProperty(ConditionalStatesProperty cloneable, DeepCloner map) {
         super(cloneable, map);
 
-        conditionMap = cloneable.conditionMap; // Independent of clone. All clones can share this map.
+        conditionMap = cloneable.conditionMap;
     }
 
     @Override
     public String get() {
         // TODO: Inefficient if called more than once during one simulation step. Could be cached.
-        // TODO: Compare performance to a version where all logic from below is inside an expression. Could be faster than evaluation multiple expression.
+        // TODO: Compare performance to a version where evaluates logic from below is inside an expression. Could be faster than evaluation multiple expression.
         return Iterables.find(conditionMap.keySet(), new Predicate<String>() {
             @Override
             public boolean apply(@Nullable String phenotype) {
@@ -110,6 +118,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
         @Override public ConditionalStatesProperty checkedBuild() { return new ConditionalStatesProperty(this); }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends ConditionalStatesProperty,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         private final Map<String, GreyfishExpression> phenotypeConditionMap = Maps.newHashMap();
 

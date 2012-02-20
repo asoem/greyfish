@@ -191,7 +191,7 @@ public class TiledSpace implements Iterable<TileLocation> {
      *
      * @param coordinates the coordinates of the search point
      * @param range the radius of the circle around {@code coordinates}
-     * @return all objects whose location in this space
+     * @return evaluates objects whose location in this space
      * intersects with the circle defined by {@code coordinates} and {@code range}
      */
     public Iterable<Movable> findObjects(Coordinates2D coordinates, double range) {

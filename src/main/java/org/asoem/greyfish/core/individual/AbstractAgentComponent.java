@@ -33,12 +33,6 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         this.name = name;
     }
 
-    public static abstract class AbstractBuilder<E extends AbstractAgentComponent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
-        private String name = "";
-
-        public T name(String name) { this.name = name; return self(); }
-    }
-
     @Override
     @Nullable
     public Agent getAgent() {
@@ -110,5 +104,11 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public static abstract class AbstractBuilder<E extends AbstractAgentComponent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
+        private String name = "";
+
+        public T name(String name) { this.name = name; return self(); }
     }
 }

@@ -13,6 +13,9 @@ import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.io.AgentEvent;
+import org.asoem.greyfish.core.io.AgentEventLogger;
+import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -39,16 +42,18 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatingReceiverAction.class);
 
-    @Element(name="property")
+    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
+    
+    @Element(name="spermBuffer")
     private EvaluatedGenomeStorage spermBuffer;
 
-    @Element(name="messageType", required=false)
+    @Element(name="ontology", required=false)
     private String ontology;
 
     @Element(name="interactionRadius", required=false)
     private double sensorRange;
 
-    @Element(name="matingProbabilityExpression", required = false)
+    @Element(name="matingProbability", required = false)
     private GreyfishExpression matingProbabilityExpression;
 
     private Iterable<Agent> sensedMates;
@@ -113,13 +118,14 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 });
     }
 
-    private void receiveGenome(EvaluatedGenome genome, Agent sender) {
+    private void receiveGenome(EvaluatedGenome genome, Agent sender, Simulation simulation) {
         spermBuffer.addGenome(genome);
+        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "spermReceived", String.valueOf(sender.getId()), simulation.getSpace().getCoordinates(agent())));
         LOGGER.trace(getAgent() + " received sperm: " + genome);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> createCFP() {
+    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
         int sensedMatesCount = Iterables.size(sensedMates);
         assert(sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
@@ -127,18 +133,18 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
-                        // Choose randomly one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+                        // Choose randomly one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
                 .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount)));
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
         ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             EvaluatedGenome evaluatedGenome = message.getContent(EvaluatedGenome.class);
             final double probability = matingProbabilityExpression.evaluateForContext(this, "mate", message.getSender()).asDouble();
             if (RandomUtils.trueWithProbability(probability)) {
-                receiveGenome(evaluatedGenome, message.getSender());
+                receiveGenome(evaluatedGenome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
                 LOGGER.debug("Accepted mating with p={}", probability);
             }
@@ -203,13 +209,14 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
         protected EvaluatedGenomeStorage spermBuffer = null;
         protected String ontology = "mate";
         protected double sensorRange = 1.0;
         protected GreyfishExpression matingProbabilityExpression = GreyfishExpressionFactory.compile("1.0");
 
-        public T matingProbabilityExpression(String matingProbabilityExpression) { this.matingProbabilityExpression = GreyfishExpressionFactory.compile(matingProbabilityExpression); return self(); }
+        public T matingProbability(GreyfishExpression matingProbabilityExpression) { this.matingProbabilityExpression = checkNotNull(matingProbabilityExpression); return self(); }
         public T spermStorage(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
         public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
         public T searchRadius(double sensorRange) { this.sensorRange = sensorRange; return self(); }

@@ -33,7 +33,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     private int nProposalsReceived;
     private int nInformReceived;
 
-    public ContractNetInitiatorAction(AbstractBuilder<? extends ContractNetInitiatorAction, ? extends AbstractBuilder> builder) {
+    protected ContractNetInitiatorAction(AbstractBuilder<? extends ContractNetInitiatorAction, ? extends AbstractBuilder> builder) {
         super(builder);
     }
 
@@ -43,10 +43,6 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
     private MessageTemplate getTemplate() {
         return template;
-    }
-
-    public void setTemplate(MessageTemplate template) {
-        this.template = template;
     }
 
     private MessageTemplate template = MessageTemplates.alwaysFalse();
@@ -64,7 +60,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 endTransition(State.NO_RECEIVERS);
             }
             else {
-                ImmutableACLMessage<Agent> cfpMessage = createCFP()
+                ImmutableACLMessage<Agent> cfpMessage = createCFP(simulation)
                         .sender(agent())
                         .performative(ACLPerformative.CFP).build();
 
@@ -88,7 +84,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
                     case PROPOSE:
                         try {
-                            proposeReply = checkNotNull(handlePropose(receivedMessage)).build();
+                            proposeReply = checkNotNull(handlePropose(receivedMessage, simulation)).build();
                             proposeReplies.add(proposeReply);
                             ++nProposalsReceived;
                             LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
@@ -105,7 +101,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
                     case REFUSE:
                         LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
-                        handleRefuse(receivedMessage);
+                        handleRefuse(receivedMessage, simulation);
                         --nProposalsMax;
                         break;
 
@@ -153,12 +149,12 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 switch (receivedMessage.getPerformative()) {
 
                     case INFORM:
-                        handleInform(receivedMessage);
+                        handleInform(receivedMessage, simulation);
                         break;
 
                     case FAILURE:
                         LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
-                        handleFailure(receivedMessage);
+                        handleFailure(receivedMessage, simulation);
                         break;
 
                     case NOT_UNDERSTOOD:
@@ -180,6 +176,8 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
                 failure("Timeout for INFORM Messages");
         }
+        else
+            throw unknownState();
     }
 
     protected abstract boolean canInitiate(Simulation simulation);
@@ -211,16 +209,17 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder<Agent> createCFP();
+    protected abstract ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation);
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException;
 
-    protected void handleRefuse(ACLMessage<Agent> message) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleRefuse(ACLMessage<Agent> message, Simulation simulation) {}
 
-    protected void handleFailure(ACLMessage<Agent> message) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleFailure(ACLMessage<Agent> message, Simulation simulation) {}
 
-    protected void handleInform(ACLMessage<Agent> message) {
-    }
+    protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {}
 
     protected abstract String getOntology();
 

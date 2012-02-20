@@ -33,7 +33,7 @@ public interface Scenario {
     boolean removePlaceholder(Placeholder placeholder);
 
     /**
-     * @return an unmodifiable view of all prototype agents added to this scenario so far.
+     * @return an unmodifiable view of evaluates prototype agents added to this scenario so far.
      * All elements are guaranteed to be non null;
      */
     Set<Agent> getPrototypes();
@@ -53,16 +53,16 @@ public interface Scenario {
     Iterable<Placeholder> getPlaceholder();
 
     /**
-     * Get all placeholders which have been placed inside the given {@code location}
+     * Get evaluates placeholders which have been placed inside the given {@code location}
      * @param location the location to which the search will be restricted to
-     * @return all {@code Placeholder} for given {@code location}
+     * @return evaluates {@code Placeholder} for given {@code location}
      */
     Iterable<Placeholder> getPlaceholder(TileLocation location);
 
     /**
-     * Get all placeholders which have been placed inside the given {@code locations}
+     * Get evaluates placeholders which have been placed inside the given {@code locations}
      * @param locations the locations to which the search will be restricted to
-     * @return all {@code Placeholder} for given {@code locations}
+     * @return evaluates {@code Placeholder} for given {@code locations}
      */
     Iterable<Placeholder> getPlaceholder(Iterable<? extends TileLocation> locations);
 

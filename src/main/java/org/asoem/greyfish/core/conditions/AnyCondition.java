@@ -18,6 +18,15 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 @ClassGroup(tags="conditions")
 public class AnyCondition extends BranchCondition {
 
+    @SimpleXMLConstructor
+    public AnyCondition() {
+        this(new Builder());
+    }
+
+    protected AnyCondition(AbstractBuilder<?,?> builder) {
+        super(builder);
+    }
+
     public AnyCondition(AnyCondition condition, DeepCloner map) {
         super(condition, map);
     }
@@ -42,19 +51,8 @@ public class AnyCondition extends BranchCondition {
         return new AnyCondition(this, cloner);
     }
 
-    @SimpleXMLConstructor
-    private AnyCondition() {
-        this(new Builder());
-    }
-
-    protected AnyCondition(AbstractBuilder<?,?> builder) {
-        super(builder);
-    }
-
-    public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<AnyCondition,Builder> {
         @Override protected Builder self() { return this; }
         @Override public AnyCondition checkedBuild() { return new AnyCondition(this); }
-        public Builder any(GFCondition ... conditions) { return super.add(conditions); }
     }
 }

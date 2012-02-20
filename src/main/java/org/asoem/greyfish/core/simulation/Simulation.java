@@ -26,7 +26,7 @@ public interface Simulation extends HasName {
     Iterable<Agent> getAgents(Population population);
 
     /**
-     * @return an unmodifiable view of all active {@code Agent}s
+     * @return an unmodifiable view of evaluates active {@code Agent}s
      */
     Iterable<Agent> getAgents();
 
@@ -58,7 +58,7 @@ public interface Simulation extends HasName {
     int getSteps();
 
     /**
-     * Proceed on step cycle and execute all agents & commands
+     * Proceed on step cycle and execute evaluates agents & commands
      */
     void step();
 

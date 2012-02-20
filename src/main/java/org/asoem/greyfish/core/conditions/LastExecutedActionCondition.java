@@ -4,6 +4,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -11,11 +13,21 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@ClassGroup(tags = "conditions")
 public class LastExecutedActionCondition extends LeafCondition {
 
     @Element(name="actions", required=false)
     private GFAction action;
 
+    @SimpleXMLConstructor
+    public LastExecutedActionCondition() {
+        this(new Builder());
+    }
+
+    protected LastExecutedActionCondition(AbstractBuilder<?,?> builder) {
+        super(builder);
+        this.action = builder.action;
+    }
     protected LastExecutedActionCondition(LastExecutedActionCondition condition, DeepCloner map) {
         super(condition, map);
         this.action = map.cloneField(condition.action, GFAction.class);
@@ -56,21 +68,14 @@ public class LastExecutedActionCondition extends LeafCondition {
         return new LastExecutedActionCondition(this, cloner);
     }
 
-    private LastExecutedActionCondition() {
-        this(new Builder());
-    }
+    public static Builder builder() { return new Builder(); }
 
-    protected LastExecutedActionCondition(AbstractBuilder<?,?> builder) {
-        super(builder);
-        this.action = builder.action;
-    }
-
-    public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<LastExecutedActionCondition, Builder> {
         @Override protected Builder self() { return this; }
         @Override public LastExecutedActionCondition checkedBuild() { return new LastExecutedActionCondition(this); }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends LastExecutedActionCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
         private GFAction action;
 

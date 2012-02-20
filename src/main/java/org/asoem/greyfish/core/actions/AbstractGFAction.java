@@ -34,6 +34,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGFAction.class);
 
     @Element(name="condition", required=false)
+    @Nullable
     private GFCondition rootCondition = null;
 
     @Element(name="costs_formula", required = false)
@@ -47,6 +48,20 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private int timeOfLastExecution;
 
     private double evaluatedCostsFormula;
+
+    protected AbstractGFAction(AbstractGFAction cloneable, DeepCloner map) {
+        super(cloneable, map);
+        this.rootCondition = map.cloneField(cloneable.getRootCondition(), GFCondition.class);
+        this.energySource = map.cloneField(cloneable.energySource, DoubleProperty.class);
+        this.energyCosts = cloneable.energyCosts;
+    }
+
+    protected AbstractGFAction(AbstractBuilder<? extends AbstractGFAction, ? extends AbstractBuilder> builder) {
+        super(builder);
+        this.energyCosts = builder.formula;
+        this.energySource = builder.source;
+        this.rootCondition = builder.condition;
+    }
 
     @Override
     public ActionState getActionState() {
@@ -150,6 +165,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         }
     }
 
+    @Nullable
     @Element(name="condition", required=false)
     public GFCondition getRootCondition() {
         return rootCondition;
@@ -218,20 +234,12 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         visitor.visit(this);
     }
 
-    protected AbstractGFAction(AbstractGFAction cloneable, DeepCloner map) {
-        super(cloneable, map);
-        this.rootCondition = map.cloneField(cloneable.getRootCondition(), GFCondition.class);
-        this.energySource = map.cloneField(cloneable.energySource, DoubleProperty.class);
-        this.energyCosts = cloneable.energyCosts;
+    @Override
+    public Iterable<AgentComponent> children() {
+        return rootCondition != null ? Collections.<AgentComponent>singletonList(getRootCondition()) : Collections.<AgentComponent>emptyList();
     }
 
-    protected AbstractGFAction(AbstractBuilder<? extends AbstractGFAction, ? extends AbstractBuilder> builder) {
-        super(builder);
-        this.energyCosts = builder.formula;
-        this.energySource = builder.source;
-        this.rootCondition = builder.condition;
-    }
-
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends AbstractGFAction, T extends AbstractBuilder<E,T>> extends AbstractAgentComponent.AbstractBuilder<E,T> {
         private GFCondition condition;
         private DoubleProperty source;
@@ -242,10 +250,5 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         private T formula(String formula) { this.formula = GreyfishExpressionFactory.compile(formula); return self(); }
         public T generatesCosts(DoubleProperty source, String formula) {
             return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
-    }
-
-    @Override
-    public Iterable<AgentComponent> children() {
-        return rootCondition != null ? Collections.<AgentComponent>singletonList(getRootCondition()) : Collections.<AgentComponent>emptyList();
     }
 }

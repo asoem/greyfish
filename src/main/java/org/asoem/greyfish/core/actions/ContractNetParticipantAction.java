@@ -60,7 +60,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
                 ACLMessage<Agent> cfpReply;
                 try {
-                    cfpReply = checkNotNull(handleCFP(message)).build();
+                    cfpReply = checkNotNull(handleCFP(message, simulation)).build();
                 } catch (NotUnderstoodException e) {
                     cfpReply = ImmutableACLMessage.createReply(message, agent())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
@@ -92,7 +92,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     case ACCEPT_PROPOSAL:
                         ACLMessage<Agent> informMessage;
                         try {
-                            informMessage = handleAccept(receivedMessage).build();
+                            informMessage = handleAccept(receivedMessage, simulation).build();
                         } catch (NotUnderstoodException e) {
                             informMessage = ImmutableACLMessage.createReply(receivedMessage, agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
@@ -104,7 +104,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                         simulation.deliverMessage(informMessage);
                         break;
                     case REJECT_PROPOSAL:
-                        handleReject(receivedMessage);
+                        handleReject(receivedMessage, simulation);
                         break;
                     case NOT_UNDERSTOOD:
                         LOGGER.debug("Communication Error: Message not understood");
@@ -128,6 +128,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     transition(State.WAIT_FOR_ACCEPT);
             }
         }
+        else
+            throw unknownState();
     }
 
     protected abstract String getOntology();
@@ -160,11 +162,12 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException;
 
-    protected void handleReject(ACLMessage<Agent> message) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleReject(ACLMessage<Agent> message, Simulation simulation) {}
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException;
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         return MessageTemplates.and(

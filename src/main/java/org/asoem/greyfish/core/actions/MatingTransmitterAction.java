@@ -32,13 +32,13 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatingTransmitterAction.class);
 
-    @Element(name="messageType", required=false)
+    @Element(name="ontology", required=false)
     private String ontology;
 
     @Element(name="spermFitnessExpression", required = false)
     private GreyfishExpression spermFitnessExpression;
 
-    @Element(name="matingProbabilityExpression", required = false)
+    @Element(name="matingProbability", required = false)
     private GreyfishExpression matingProbabilityExpression;
 
     @SimpleXMLConstructor
@@ -88,7 +88,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
                 return spermFitnessExpression;
             }
         });
-        e.add("matingProbabilityExpression", new AbstractTypedValueModel<GreyfishExpression>() {
+        e.add("matingProbability", new AbstractTypedValueModel<GreyfishExpression>() {
             @Override
             protected void set(GreyfishExpression arg0) {
                 matingProbabilityExpression = arg0;
@@ -102,7 +102,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) {
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) {
         final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, agent());
 
         final double probability = matingProbabilityExpression.evaluateForContext(this, "mate", message.getSender()).asDouble();
@@ -127,7 +127,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message) {
+    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
         // costs for mating define quality of the genome
 //        DoubleProperty doubleProperty = null;
 //        Genome sperm = null;

@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -14,6 +15,16 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
 	@Element(name="action")
 	private GFAction action;
+
+    @SimpleXMLConstructor
+    private ActionExecutionCountCondition() {
+        this(new Builder());
+    }
+
+    protected ActionExecutionCountCondition(AbstractBuilder<?,?> builder) {
+        super(builder);
+        this.action = builder.action;
+    }
 
     public ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
         super(condition, map);
@@ -52,23 +63,16 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
         return new ActionExecutionCountCondition(this, cloner);
     }
 
-    private ActionExecutionCountCondition() {
-        this(new Builder());
-    }
+    public static Builder builder() { return new Builder(); }
 
-    protected ActionExecutionCountCondition(AbstractBuilder<?,?> builder) {
-        super(builder);
-        this.action = builder.action;
-    }
-
-    public static Builder trueIf() { return new Builder(); }
     public static final class Builder extends AbstractBuilder<ActionExecutionCountCondition,Builder> {
         private Builder() {}
 
         @Override protected Builder self() { return this; }
-        @Override public ActionExecutionCountCondition checkedBuild() { return new ActionExecutionCountCondition(this); }
+        @Override protected ActionExecutionCountCondition checkedBuild() { return new ActionExecutionCountCondition(this); }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends ActionExecutionCountCondition, T extends AbstractBuilder<E, T>> extends IntCompareCondition.AbstractBuilder<E,T> {
         private GFAction action;
 

@@ -9,6 +9,7 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
 public abstract class FiniteStateAction extends AbstractGFAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
+
     private int statefulExecutionCount;
 
     protected FiniteStateAction(AbstractGFAction.AbstractBuilder<?,?> builder) {
@@ -21,11 +22,6 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     private Object nextStateKey = initialState();
     private boolean endStateReached = false;
-
-    protected static class StateClass {
-        private StateClass() {
-        }
-    }
 
     @Override
     protected final ActionState executeUnconditioned(Simulation simulation) {

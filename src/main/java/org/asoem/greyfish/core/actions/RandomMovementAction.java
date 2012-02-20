@@ -20,11 +20,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ClassGroup(tags = "actions")
 public class RandomMovementAction extends AbstractGFAction {
 
-    @Nonnull
     @Element(required=false)
     private GreyfishExpression speedFunction;
 
-    @Nonnull
+    @Element
     private MovementPattern pattern = MovementPatterns.noMovement();
 
     @SimpleXMLConstructor

@@ -3,12 +3,14 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 @ClassGroup(tags="actions")
 public class NullAction extends AbstractGFAction {
 
+    @SimpleXMLConstructor
     public NullAction() {
         this(new Builder());
     }

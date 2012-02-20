@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.DoubleProperty;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -25,8 +26,8 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     @Element(name="resource")
     private DoubleProperty resourceProperty;
 
-    @Element(name="messageType", required=false)
-    private String parameterMessageType;
+    @Element(name="ontology", required=false)
+    private String ontology;
 
     @SimpleXMLConstructor
     public ResourceProvisionAction() {
@@ -35,11 +36,11 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     @Override
     protected String getOntology() {
-        return parameterMessageType;
+        return ontology;
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
         double requested;
         try {
             requested = message.getContent(Double.class);
@@ -64,7 +65,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
         try {
             double offer = message.getContent(Double.class);
             assert resourceProperty.get() >= offer : "Values have changed unexpectedly";
@@ -87,12 +88,12 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         ) {
             @Override
             protected void set(String arg0) {
-                parameterMessageType = checkNotNull(arg0);
+                ontology = checkNotNull(arg0);
             }
 
             @Override
             public String get() {
-                return parameterMessageType;
+                return ontology;
             }
         });
         e.add("ResourceProperty", new SetAdaptor<DoubleProperty>(DoubleProperty.class) {
@@ -121,12 +122,12 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.resourceProperty = cloner.cloneField(cloneable.resourceProperty, DoubleProperty.class);
-        this.parameterMessageType = cloneable.parameterMessageType;
+        this.ontology = cloneable.ontology;
     }
 
     protected ResourceProvisionAction(AbstractBuilder<?,?> builder) {
         super(builder);
-        this.parameterMessageType = builder.ontology;
+        this.ontology = builder.ontology;
         this.resourceProperty = builder.resourceProperty;
     }
 

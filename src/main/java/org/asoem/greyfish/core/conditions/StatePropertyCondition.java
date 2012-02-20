@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@ClassGroup(tags = "conditions")
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
@@ -85,12 +87,14 @@ public class StatePropertyCondition extends LeafCondition {
         e.add("has state", stateAdaptor);
     }
 
-    public static Builder trueIf() { return new Builder(); }
+    public static Builder builder() { return new Builder(); }
+
     public static final class Builder extends AbstractBuilder<StatePropertyCondition,Builder> {
         @Override protected Builder self() { return this; }
-        @Override public StatePropertyCondition checkedBuild() { return new StatePropertyCondition(this); }
+        @Override protected StatePropertyCondition checkedBuild() { return new StatePropertyCondition(this); }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends StatePropertyCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
         private FiniteStateProperty<?> property;
         private Object state;

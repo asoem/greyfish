@@ -66,6 +66,17 @@ public class GenericEvaluationResult implements EvaluationResult {
         return result;
     }
 
+    @Override
+    public int asInt() throws EvaluationException {
+        switch (resultType) {
+            case INTEGER: return as(Integer.class);
+            case DOUBLE: return as(Double.class).intValue();
+            case FLOAT: return as(Double.class).intValue();
+            case STRING: return Integer.parseInt(as(String.class));
+            default: throw new EvaluationException("result of type " + result.getClass() + " cannot be converted to Integer");
+        }
+    }
+
     private enum RESULT_TYPE {
         DOUBLE,
         FLOAT,
@@ -82,8 +93,7 @@ public class GenericEvaluationResult implements EvaluationResult {
 
         GenericEvaluationResult that = (GenericEvaluationResult) o;
 
-        if (result != null ? !result.equals(that.result) : that.result != null) return false;
-        return resultType == that.resultType;
+        return !(result != null ? !result.equals(that.result) : that.result != null) && resultType == that.resultType;
 
     }
 

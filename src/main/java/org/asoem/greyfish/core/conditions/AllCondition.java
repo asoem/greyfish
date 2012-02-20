@@ -19,12 +19,8 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 @ClassGroup(tags="conditions")
 public class AllCondition extends BranchCondition {
 
-    public AllCondition() {}
-
     @SimpleXMLConstructor
-    public AllCondition(GFCondition ... conditions) {
-        super(conditions);
-    }
+    public AllCondition() {}
 
     protected AllCondition(AllCondition cloneable, DeepCloner map) {
         super(cloneable, map);
@@ -54,7 +50,7 @@ public class AllCondition extends BranchCondition {
         return new AllCondition(this, cloner);
     }
 
-    public static AllCondition all(GFCondition ... conditions) { return new AllCondition(conditions); }
+    public static AllCondition evaluates(GFCondition... conditions) { return new Builder().add(conditions).build(); }
 
     public static final class Builder extends AbstractBuilder<AllCondition, Builder> {
 
@@ -63,7 +59,7 @@ public class AllCondition extends BranchCondition {
         }
 
         @Override protected Builder self() { return this; }
-        @Override public AllCondition checkedBuild() { return new AllCondition(this); }
+        @Override protected AllCondition checkedBuild() { return new AllCondition(this); }
     }
 
     protected static abstract class AbstractBuilder<E extends AllCondition, T extends AbstractBuilder<E,T>> extends BranchCondition.AbstractBuilder<E,T> {

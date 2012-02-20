@@ -2,9 +2,10 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-public final class AlwaysTrueCondition extends LeafCondition {
+public class AlwaysTrueCondition extends LeafCondition {
 
     protected AlwaysTrueCondition(AlwaysTrueCondition condition, DeepCloner map) {
         super(condition, map);
@@ -20,6 +21,7 @@ public final class AlwaysTrueCondition extends LeafCondition {
         return new AlwaysTrueCondition(this, cloner);
     }
 
+    @SimpleXMLConstructor
     public AlwaysTrueCondition() {
         this(new Builder());
     }
@@ -28,7 +30,8 @@ public final class AlwaysTrueCondition extends LeafCondition {
         super(builder);
     }
 
-    public static Builder trueIf() { return new Builder(); }
+    public static Builder builder() { return new Builder(); }
+
     public static final class Builder extends AbstractBuilder<AlwaysTrueCondition, Builder> {
         private Builder() {}
 

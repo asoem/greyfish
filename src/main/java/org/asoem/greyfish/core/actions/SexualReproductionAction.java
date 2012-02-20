@@ -4,6 +4,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
@@ -21,6 +23,7 @@ import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.Coordinates2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -36,11 +39,11 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
-    @Element(name="property")
+    @Element(name="spermStorage")
     private EvaluatedGenomeStorage spermStorage;
 
-    @Attribute(name = "reproductive_value")
-    private int clutch_size = 1;
+    @Attribute(name="clutchSize")
+    private GreyfishExpression clutchSize;
     
     @Element
     private ElementSelectionStrategy<EvaluatedGenome<?>> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
@@ -54,15 +57,16 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
-        if (clutch_size == 0 || spermStorage.isEmpty())
+        if (spermStorage.isEmpty())
             return ActionState.END_FAILED;
 
-        LOGGER.debug("Producing {} offspring ", clutch_size);
+        LOGGER.debug("Producing {} offspring ", clutchSize);
 
         final Population population = agent().getPopulation();
         final Coordinates2D coordinates = simulation.getSpace().getCoordinates(agent());
 
-        for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), clutch_size)) {
+        final int eggCount = clutchSize.evaluateForContext(this).asInt();
+        for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
             final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate));
 
             simulation.createAgent(population, gamete, coordinates);
@@ -70,7 +74,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", coordinates));
         }
 
-        offspringCount += clutch_size;
+        offspringCount += eggCount;
 
         return ActionState.END_SUCCESS;
     }
@@ -78,17 +82,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Number of offspring", new AbstractTypedValueModel<Integer>() {
-            @Override
-            protected void set(Integer arg0) {
-                clutch_size = checkNotNull(arg0);
-            }
-
-            @Override
-            public Integer get() {
-                return clutch_size;
-            }
-        });
+        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, GreyfishExpression.class));
 
         e.add("SpermPool", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
             @Override
@@ -140,13 +134,13 @@ public class SexualReproductionAction extends AbstractGFAction {
     private SexualReproductionAction(SexualReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.spermStorage = map.cloneField(cloneable.spermStorage, EvaluatedGenomeStorage.class);
-        this.clutch_size = cloneable.clutch_size;
+        this.clutchSize = cloneable.clutchSize;
     }
 
     protected SexualReproductionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.spermStorage = builder.spermStorage;
-        this.clutch_size = builder.nOffspring;
+        this.clutchSize = builder.clutchSize;
     }
 
     @Override
@@ -167,11 +161,12 @@ public class SexualReproductionAction extends AbstractGFAction {
         @Override public SexualReproductionAction checkedBuild() { return new SexualReproductionAction(this); }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
         private EvaluatedGenomeStorage spermStorage;
-        private int nOffspring = 1;
+        private GreyfishExpression clutchSize = GreyfishExpressionFactory.compile("1");
 
         public T spermStorage(EvaluatedGenomeStorage spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
-        public T constantOffspringNumber(int nOffspring) { this.nOffspring = nOffspring; return self(); }
+        public T clutchSize(GreyfishExpression nOffspring) { this.clutchSize = nOffspring; return self(); }
     }
 }

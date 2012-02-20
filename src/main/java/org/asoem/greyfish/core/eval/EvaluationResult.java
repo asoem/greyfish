@@ -6,9 +6,10 @@ package org.asoem.greyfish.core.eval;
  * Time: 16:09
  */
 public interface EvaluationResult {
-    <T> T as(Class<T> resultType);
+    <T> T as(Class<T> resultType) throws EvaluationException;
     double asDouble() throws EvaluationException;
     boolean asBoolean() throws EvaluationException;
     String asString() throws EvaluationException;
-    Object asObject();
+    Object asObject() throws EvaluationException;
+    int asInt() throws EvaluationException;
 }

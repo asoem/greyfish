@@ -1,13 +1,16 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+@ClassGroup(tags = "conditions")
 public class RandomCondition extends LeafCondition {
 
     @Element(name="probability")
@@ -43,7 +46,8 @@ public class RandomCondition extends LeafCondition {
         });
     }
 
-    private RandomCondition() {
+    @SimpleXMLConstructor
+    public RandomCondition() {
         this(new Builder());
     }
 
@@ -56,9 +60,14 @@ public class RandomCondition extends LeafCondition {
         public RandomCondition checkedBuild() { return new RandomCondition(this); }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends RandomCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
         private double probability;
 
-        public T probability(double probability) { checkArgument(probability >= 0 && probability <= 1); this.probability = probability; return self(); }
+        public T probability(double probability) {
+            checkArgument(probability >= 0 && probability <= 1, "Value is not in open interval [0,1]: " + probability);
+            this.probability = probability;
+            return self();
+        }
     }
 }

@@ -23,7 +23,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
-    @Element(name="messageType", required=false)
+    @Element(name="ontology", required=false)
     private String ontology;
 
     @Element(name="interactionRadius")
@@ -32,29 +32,29 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Element(name="requestAmount", required=false)
     protected GreyfishExpression requestAmount;
 
-    @Element(name="resourceTransformationFunction", required = false)
-    protected GreyfishExpression utilizeUptake;
+    @Element(name="uptakeUtilization", required = false)
+    protected GreyfishExpression uptakeUtilization;
 
     private Iterable<Agent> sensedMates;
 
     @SimpleXMLConstructor
-    private ResourceConsumptionAction() {
+    public ResourceConsumptionAction() {
         this(new Builder());
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> createCFP() {
+    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
         return ImmutableACLMessage.<Agent>with()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
-                        // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
+                        // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
                 .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
                 .content(requestAmount.evaluateForContext(this).asDouble(), Double.class);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
 
         final double offer = message.getContent(Double.class);
 
@@ -66,9 +66,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected void handleInform(ACLMessage<Agent> message) {
+    protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {
         final double offer = message.getContent(Double.class);
-        utilizeUptake.evaluateForContext(this, "offer", offer);
+        uptakeUtilization.evaluateForContext(this, "offer", offer);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
         e.add("Sensor Range", TypedValueModels.forField("interactionRadius", this, GreyfishExpression.class));
         e.add("Requested Amount", TypedValueModels.forField("requestAmount", this, GreyfishExpression.class));
-        e.add("Uptake Utilization", TypedValueModels.forField("utilizeUptake", this, GreyfishExpression.class));
+        e.add("Uptake Utilization", TypedValueModels.forField("uptakeUtilization", this, GreyfishExpression.class));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
         this.requestAmount = cloneable.requestAmount;
-        this.utilizeUptake = cloneable.utilizeUptake;
+        this.uptakeUtilization = cloneable.uptakeUtilization;
     }
 
     protected ResourceConsumptionAction(AbstractBuilder<?,?> builder) {
@@ -119,7 +119,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.ontology = builder.ontology;
         this.requestAmount = builder.requestAmount;
         this.interactionRadius = builder.interactionRadius;
-        this.utilizeUptake = builder.utilizeUptake;
+        this.uptakeUtilization = builder.uptakeUtilization;
     }
 
     public static Builder with() { return new Builder(); }
@@ -131,17 +131,18 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
 
         private String ontology = "food";
         private GreyfishExpression requestAmount = GreyfishExpressionFactory.compile("1.0");
         private GreyfishExpression interactionRadius = GreyfishExpressionFactory.compile("1.0");
-        private GreyfishExpression utilizeUptake = GreyfishExpressionFactory.compile("$('this.agent.properties[\"myEnergy\"]').add(offer)");
+        private GreyfishExpression uptakeUtilization = GreyfishExpressionFactory.compile("$('this.agent.properties[\"myEnergy\"]').add(offer)");
 
         public T ontology(String parameterMessageType) { this.ontology = checkNotNull(parameterMessageType); return self(); }
         public T requestAmount(GreyfishExpression amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
         public T interactionRadius(GreyfishExpression sensorRange) { this.interactionRadius = sensorRange; return self(); }
-        public T utilizeUptake(GreyfishExpression transformationFunction) { this.utilizeUptake = checkNotNull(transformationFunction); return self(); }
+        public T uptakeUtilization(GreyfishExpression uptakeUtilization) { this.uptakeUtilization = checkNotNull(uptakeUtilization); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
