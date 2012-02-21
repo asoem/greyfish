@@ -33,7 +33,6 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGFAction.class);
 
-    @Element(name="condition", required=false)
     @Nullable
     private GFCondition rootCondition = null;
 
@@ -237,6 +236,41 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     @Override
     public Iterable<AgentComponent> children() {
         return rootCondition != null ? Collections.<AgentComponent>singletonList(getRootCondition()) : Collections.<AgentComponent>emptyList();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        AbstractGFAction that = (AbstractGFAction) o;
+
+        if (Double.compare(that.evaluatedCostsFormula, evaluatedCostsFormula) != 0) return false;
+        if (executionCount != that.executionCount) return false;
+        if (timeOfLastExecution != that.timeOfLastExecution) return false;
+        if (actionState != that.actionState) return false;
+        if (energyCosts != null ? !energyCosts.equals(that.energyCosts) : that.energyCosts != null) return false;
+        if (energySource != null ? !energySource.equals(that.energySource) : that.energySource != null) return false;
+        if (rootCondition != null ? !rootCondition.equals(that.rootCondition) : that.rootCondition != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        long temp;
+        result = 31 * result + (rootCondition != null ? rootCondition.hashCode() : 0);
+        result = 31 * result + (energyCosts != null ? energyCosts.hashCode() : 0);
+        result = 31 * result + (energySource != null ? energySource.hashCode() : 0);
+        result = 31 * result + executionCount;
+        result = 31 * result + timeOfLastExecution;
+        temp = evaluatedCostsFormula != +0.0d ? Double.doubleToLongBits(evaluatedCostsFormula) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (actionState != null ? actionState.hashCode() : 0);
+        return result;
     }
 
     @SuppressWarnings("UnusedDeclaration")

@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -10,18 +9,21 @@ import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Attribute(name="name", required = false)
     private String name = "";
 
-    private Optional<Agent> agent = Optional.absent();
+    @Nullable
+    private Agent agent;
 
     protected AbstractAgentComponent() {}
 
     protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
         map.addClone(this);
-        this.agent = Optional.fromNullable(map.cloneField(agent.orNull(), Agent.class));
+        this.agent = map.cloneField(agent, Agent.class);
         this.name = cloneable.name;
     }
 
@@ -36,7 +38,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     @Override
     @Nullable
     public Agent getAgent() {
-        return agent.orNull();
+        return agent;
     }
 
     /**
@@ -46,12 +48,13 @@ public abstract class AbstractAgentComponent implements AgentComponent {
      * @see #getAgent()
      */
     public final Agent agent() throws IllegalStateException {
-        return agent.get();
+        checkState(agent != null);
+        return agent;
     }
 
     @Override
     public void setAgent(@Nullable Agent agent) {
-        this.agent = Optional.fromNullable(agent);
+        this.agent = agent;
         for (AgentComponent component : children())
             component.setAgent(agent);
     }
@@ -81,7 +84,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Override
     public boolean isFrozen() {
-        return agent.isPresent() && agent.get().isFrozen();
+        return agent != null && agent.isFrozen();
     }
 
     @Override
@@ -90,8 +93,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Override
     public void configure(ConfigurationHandler e) {
-        if (!agent.isPresent())
-            throw new IllegalStateException();
+        checkState(agent != null);
 
         e.setWriteProtection(new Supplier<Boolean>() {
             @Override
@@ -99,6 +101,22 @@ public abstract class AbstractAgentComponent implements AgentComponent {
                 return isFrozen();
             }
         });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractAgentComponent that = (AbstractAgentComponent) o;
+
+        return name.equals(that.name);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
     @Override

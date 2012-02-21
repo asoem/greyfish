@@ -13,8 +13,6 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.simpleframework.xml.Element;
 
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @ClassGroup(tags = "actions")

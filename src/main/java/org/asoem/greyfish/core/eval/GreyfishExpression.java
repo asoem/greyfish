@@ -89,4 +89,8 @@ public class GreyfishExpression {
         result = 31 * result + expression.hashCode();
         return result;
     }
+
+    public Evaluator getEvaluator() {
+        return evaluator;
+    }
 }

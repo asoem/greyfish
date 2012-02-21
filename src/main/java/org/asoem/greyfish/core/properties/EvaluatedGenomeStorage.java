@@ -65,6 +65,22 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
         spermList.clear();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EvaluatedGenomeStorage storage = (EvaluatedGenomeStorage) o;
+
+        return spermList.equals(storage.spermList);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return spermList.hashCode();
+    }
+
     public static final class Builder extends AbstractBuilder<EvaluatedGenomeStorage, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }

@@ -17,6 +17,7 @@ public class GreyfishExpressionFactory {
      * @return A new GreyfishExpression
      */
     public static GreyfishExpression compile(String expression) {
+        assert evaluatorProvider != null;
         return new GreyfishExpression(expression, evaluatorProvider.get());
     }
 }

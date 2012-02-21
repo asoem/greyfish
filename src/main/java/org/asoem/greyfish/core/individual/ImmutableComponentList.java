@@ -4,8 +4,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -20,9 +23,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ImmutableComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
 
-    private final ImmutableList<E> listDelegate;
+    private static final ImmutableComponentList<AgentComponent> EMPTY_COMPONENT_LIST = new ImmutableComponentList<AgentComponent>(ImmutableList.<AgentComponent>of());
 
-    private ImmutableComponentList(Iterable<E> components) {
+    @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
+    private final List<E> listDelegate;
+
+    private ImmutableComponentList(@ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) List<E> components) {
         listDelegate = ImmutableList.copyOf(components);
     }
 
@@ -40,7 +46,10 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
 
     public static <E extends AgentComponent> ImmutableComponentList<E> copyOf(Iterable<E> components) {
         checkNotNull(components);
-        return new ImmutableComponentList<E>(components);
+        if (Iterables.size(components) == 0)
+            return of();
+        else
+            return new ImmutableComponentList<E>(ImmutableList.copyOf(components));
     }
 
     @Nullable
@@ -58,5 +67,10 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new ImmutableComponentList<E>(this, cloner);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends AgentComponent> ImmutableComponentList<E> of() {
+        return (ImmutableComponentList<E>) EMPTY_COMPONENT_LIST;
     }
 }

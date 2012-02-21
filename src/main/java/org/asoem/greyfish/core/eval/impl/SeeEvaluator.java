@@ -1,9 +1,6 @@
 package org.asoem.greyfish.core.eval.impl;
 
-import org.asoem.greyfish.core.eval.EvaluationException;
-import org.asoem.greyfish.core.eval.EvaluationResult;
-import org.asoem.greyfish.core.eval.ForwardingVariableResolver;
-import org.asoem.greyfish.core.eval.VariableResolver;
+import org.asoem.greyfish.core.eval.*;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import see.INode;
@@ -20,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 19.05.11
  * Time: 09:41
  */
-public class SeeEvaluator extends AbstractEvaluator {
+public class SeeEvaluator implements Evaluator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SeeEvaluator.class);
     private static final See see = See.create();

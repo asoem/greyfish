@@ -14,7 +14,8 @@ public enum CoreInjectorHolder implements Supplier<Injector> {
 
     private final Injector injector = Guice.createInjector(
             new CoreModule(),
-            new EvalModule()
+            new EvalModule(),
+            new PersistenceModule()
     );
 
     @Override

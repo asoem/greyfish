@@ -34,20 +34,21 @@ import static java.util.Arrays.asList;
  */
 public abstract class AbstractAgent implements Agent {
 
-    @ElementList(name="properties", entry="property", required=false)
+    @Element(name = "properties")
     protected final ComponentList<GFProperty> properties;
 
-    @ElementList(name="actions", entry="action", required=false)
+    @Element(name = "actions")
     protected final ComponentList<GFAction> actions;
 
-    @Element(name="genome", required=false)
+    @Element(name = "genome")
     protected final Genome<Gene<?>> genome;
 
-    @Element(name = "body", required = false)
+    @Element(name = "body")
     protected final Body body;
 
     private final AgentComponent rootComponent;
 
+    @Element(name = "population")
     protected Population population;
 
     protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
@@ -55,10 +56,10 @@ public abstract class AbstractAgent implements Agent {
     private final AgentMessageBox inBox = new AgentMessageBox();
 
     @SimpleXMLConstructor
-    protected AbstractAgent(@Element(name = "body", required = false) Body body,
-                            @ElementList(name="properties", entry="property", required=false) ComponentList<GFProperty> properties,
-                            @ElementList(name="actions", entry="action", required=false) ComponentList<GFAction> actions,
-                            @Element(name="genome", required=false) Genome<Gene<?>> genome) {
+    protected AbstractAgent(Body body,
+                            ComponentList<GFProperty> properties,
+                            ComponentList<GFAction> actions,
+                            Genome<Gene<?>> genome) {
         this.body = checkNotNull(body);
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
@@ -186,7 +187,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterable<Gene<?>> getGenes() {
+    public ComponentList<Gene<?>> getGenes() {
         return genome;
     }
 
@@ -353,12 +354,12 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterable<GFProperty> getProperties() {
+    public ComponentList<GFProperty> getProperties() {
         return properties;
     }
 
     @Override
-    public Iterable<GFAction> getActions() {
+    public ComponentList<GFAction> getActions() {
         return actions;
     }
 

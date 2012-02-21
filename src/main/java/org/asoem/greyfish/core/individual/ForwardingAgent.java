@@ -47,7 +47,7 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public Iterable<GFAction> getActions() {
+    public ComponentList<GFAction> getActions() {
         return delegate().getActions();
     }
 
@@ -70,7 +70,7 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public Iterable<GFProperty> getProperties() {
+    public ComponentList<GFProperty> getProperties() {
         return delegate().getProperties();
     }
 
@@ -251,7 +251,7 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public Iterable<Gene<?>> getGenes() {
+    public ComponentList<Gene<?>> getGenes() {
         return delegate().getGenes();
     }
 

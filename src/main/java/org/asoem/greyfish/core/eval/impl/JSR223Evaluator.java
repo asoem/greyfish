@@ -1,9 +1,6 @@
 package org.asoem.greyfish.core.eval.impl;
 
-import org.asoem.greyfish.core.eval.EvaluationException;
-import org.asoem.greyfish.core.eval.EvaluationResult;
-import org.asoem.greyfish.core.eval.SyntaxException;
-import org.asoem.greyfish.core.eval.VariableResolver;
+import org.asoem.greyfish.core.eval.*;
 
 import javax.script.*;
 
@@ -12,7 +9,7 @@ import javax.script.*;
  * Date: 13.02.12
  * Time: 16:44
  */
-public abstract class JSR223Evaluator extends AbstractEvaluator {
+public abstract class JSR223Evaluator implements Evaluator {
 
     private CompiledScript compiledScript;
     private Bindings bindings = new SimpleBindings();

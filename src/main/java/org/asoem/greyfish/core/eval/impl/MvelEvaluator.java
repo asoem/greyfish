@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 22.09.11
  * Time: 13:27
  */
-public class MvelEvaluator extends AbstractEvaluator {
+public class MvelEvaluator implements Evaluator {
 
     private String expression;
     private @Nullable GreyfishMvelVariableResolverFactory factory;

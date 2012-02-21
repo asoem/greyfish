@@ -9,6 +9,8 @@ import org.asoem.greyfish.core.individual.ImmutableComponentList;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.math.RandomUtils;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -22,8 +24,15 @@ import java.util.List;
  */
 public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
 
+    private static final Genome<Gene<?>> EMPTY_GENOME = new ImmutableGenome<Gene<?>>(ImmutableGenome.<Gene<?>>of());
+
+    @Element(name = "genes")
     private final ComponentList<E> delegate;
 
+    private ImmutableGenome(@Element(name = "genes") ComponentList<E> genes) {
+        delegate = genes;
+    }
+    
     private ImmutableGenome(Builder<E> builder) {
         delegate = ImmutableComponentList.copyOf(builder.genes);
     }
@@ -40,7 +49,6 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
             }
         }));
     }
-
 
     @Override
     public String toString() {
@@ -117,6 +125,11 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
         assert ! (genome1Iterator.hasNext() || genome2Iterator.hasNext());
 
         return builder.build();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends Gene<?>> Genome<E> of() {
+        return (Genome<E>) EMPTY_GENOME;
     }
 
     protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGenome<E>> {

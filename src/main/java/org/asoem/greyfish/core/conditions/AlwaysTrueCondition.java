@@ -7,8 +7,17 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 
 public class AlwaysTrueCondition extends LeafCondition {
 
-    protected AlwaysTrueCondition(AlwaysTrueCondition condition, DeepCloner map) {
+    @SimpleXMLConstructor
+    public AlwaysTrueCondition() {
+        this(new Builder());
+    }
+
+    private AlwaysTrueCondition(AlwaysTrueCondition condition, DeepCloner map) {
         super(condition, map);
+    }
+
+    private AlwaysTrueCondition(AbstractBuilder<?,?> builder) {
+        super(builder);
     }
 
     @Override
@@ -19,15 +28,6 @@ public class AlwaysTrueCondition extends LeafCondition {
     @Override
     public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new AlwaysTrueCondition(this, cloner);
-    }
-
-    @SimpleXMLConstructor
-    public AlwaysTrueCondition() {
-        this(new Builder());
-    }
-
-    private AlwaysTrueCondition(AbstractBuilder<?,?> builder) {
-        super(builder);
     }
 
     public static Builder builder() { return new Builder(); }

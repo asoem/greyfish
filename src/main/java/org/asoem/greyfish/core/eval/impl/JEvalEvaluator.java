@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 18.05.11
  * Time: 16:57
  */
-public class JEvalEvaluator extends AbstractEvaluator {
+public class JEvalEvaluator implements org.asoem.greyfish.core.eval.Evaluator {
 
     private final Evaluator evaluator = new Evaluator();
 

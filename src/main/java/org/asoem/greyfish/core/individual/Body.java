@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
 import org.asoem.greyfish.core.properties.RangeElementProperty;
@@ -13,11 +13,13 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.collect.MutableRangeElement;
 import org.asoem.greyfish.utils.collect.RangeElement;
-import org.asoem.greyfish.utils.gui.*;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.MapValuesAdaptor;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.Movable;
 import org.asoem.greyfish.utils.space.MutableMovable;
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.core.Commit;
@@ -35,13 +37,12 @@ public class Body extends AbstractAgentComponent implements Movable {
 
     private final MutableMovable movingObject2D = new MutableMovable();
 
-    @Attribute(name="radius", required = false)
     private final double radius = 0.1f;
 
     @Element(name="colorStateProperty", required = false)
     private FiniteStateProperty<?> property;
 
-    @ElementMap(name = "stateColorMap", entry = "entry", key = "state", value = "color",required = false)
+    @ElementMap(name="stateColorMap", entry = "stateColorMapping", key = "state", value = "color", required = false, inline = true)
     private Map<Object, Color> stateColorMap;
 
     private Object state;
@@ -76,8 +77,10 @@ public class Body extends AbstractAgentComponent implements Movable {
      * Default Constructor.
      */
     public Body() {
+        super("body");
         setRotation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-        stateColorMap = ImmutableMap.of((Object)"Default", Color.BLACK);
+        stateColorMap = Maps.newHashMap();
+        stateColorMap.put("Default", Color.BLACK);
     }
 
     @Commit
@@ -141,7 +144,8 @@ public class Body extends AbstractAgentComponent implements Movable {
                 state = checkNotNull(arg0);
                 if (!state.equals("Default")) {
                     property = FiniteStateProperty.class.cast(state);
-                    stateColorMap = ImmutableMapBuilder.<Object, Color>newInstance()
+                    stateColorMap.clear();
+                    stateColorMap.putAll(ImmutableMapBuilder.<Object, Color>newInstance()
                             .putAll(property.getStates(),
                                     Functions.identity(),
                                     new Function<Object, Color>() {
@@ -150,7 +154,7 @@ public class Body extends AbstractAgentComponent implements Movable {
                                         public Color apply(@Nullable Object o) {
                                             return Color.BLACK;
                                         }
-                                    }).build();
+                                    }).build());
                 }
             }
             @Override public Object get() { return state; }

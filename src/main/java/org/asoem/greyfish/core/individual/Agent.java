@@ -11,6 +11,7 @@ import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.space.Movable;
+import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -34,19 +35,19 @@ public interface Agent extends DeepCloneable, Freezable, Movable, Preparable<Sim
     boolean addAction(GFAction action);
     boolean removeAction(GFAction action);
     void removeAllActions();
-    Iterable<GFAction> getActions();
+    ComponentList<GFAction> getActions();
     @Nullable <T extends GFAction> T getAction(String name, Class<T> clazz);
 
     boolean addProperty(GFProperty property);
     boolean removeProperty(GFProperty property);
     void removeAllProperties();
-    Iterable<GFProperty> getProperties();
+    ComponentList<GFProperty> getProperties();
     @Nullable <T extends GFProperty> T getProperty(String name, Class<T> clazz);
 
     boolean addGene(Gene<?> gene);
     boolean removeGene(Gene<?> gene);
     void removeAllGenes();
-    Iterable<Gene<?>> getGenes();
+    ComponentList<Gene<?>> getGenes();
     @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
 
     /**

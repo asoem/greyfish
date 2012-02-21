@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
  */
 public abstract class AbstractCondition extends AbstractAgentComponent implements GFCondition {
 
+    @Nullable
     private GFCondition parentCondition;
 
     protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
@@ -42,7 +43,7 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
 
     @Override
     public final GFCondition getRoot() {
-        return (isRootCondition()) ? this : parentCondition.getRoot();
+        return (parentCondition == null) ? this : parentCondition.getRoot();
     }
 
     @Commit

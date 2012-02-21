@@ -1,11 +1,18 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,12 +25,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ImmutableAgent extends AbstractAgent {
 
-    private ImmutableAgent(Population population, Iterable<GFProperty> properties, Iterable<GFAction> actions, Iterable<Gene<?>> genes, Body body) {
+    @SimpleXMLConstructor
+    private ImmutableAgent(Population population,
+                           Iterable<GFProperty> properties,
+                           Iterable<GFAction> actions,
+                           Iterable<Gene<?>> genes,
+                           Body body) {
         super(body,
                 ImmutableComponentList.copyOf(properties),
                 ImmutableComponentList.copyOf(actions),
                 ImmutableGenome.copyOf(genes));
         setPopulation(population);
+        freeze();
+    }
+
+    @SimpleXMLConstructor
+    protected ImmutableAgent(@Element(name = "body") Body body,
+                             @Element(name = "properties") ComponentList<GFProperty> properties,
+                             @Element(name = "actions") ComponentList<GFAction> actions,
+                             @Element(name = "genome") Genome<Gene<?>> genome) {
+        super(body, properties, actions, genome);
         freeze();
     }
 
@@ -84,7 +105,7 @@ public class ImmutableAgent extends AbstractAgent {
         }
 
         @Override
-        public ImmutableAgent checkedBuild() {
+        protected ImmutableAgent checkedBuild() {
             return new ImmutableAgent(this);
         }
         @Override

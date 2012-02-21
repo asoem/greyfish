@@ -1,14 +1,21 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.Iterables;
+import com.google.inject.Inject;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.NullAction;
 import org.asoem.greyfish.core.genes.*;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.awt.*;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -26,6 +33,13 @@ public class ImmutableAgentTest {
     @Mock GFAction action;
     @Mock GFProperty property;
     @Mock Population population;
+
+    @Inject
+    private Persister persister;
+
+    public ImmutableAgentTest() {
+        CoreInjectorHolder.coreInjector().injectMembers(this);
+    }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testAddGene() throws Exception {
@@ -106,5 +120,61 @@ public class ImmutableAgentTest {
 
         // then
         assertThat(gene1.get()).isEqualTo(gene2.get());
+    }
+
+    @Test
+    public void testBasicPersistence() throws Exception {
+        // given
+        final Population population = Population.newPopulation("Test", Color.green);
+        final Agent agent = ImmutableAgent.of(population).build();
+
+        // when
+        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+
+        // then
+        assertThat(deserializedAgent.getPopulation()).isEqualTo(population);
+        assertThat(deserializedAgent.getBody()).isNotNull();
+    }
+
+    @Test
+    public void testPersistenceWithActions() throws Exception {
+        // given
+        final Population population = Population.newPopulation("Test", Color.green);
+        final GFAction action = new NullAction();
+        final Agent agent = ImmutableAgent.of(population).addActions(action).build();
+
+        // when
+        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+
+        // then
+        assertThat(deserializedAgent.getActions()).hasSize(1);
+    }
+
+    @Test
+    public void testPersistenceWithProperties() throws Exception {
+        // given
+        final Population population = Population.newPopulation("Test", Color.green);
+        final GFProperty property = new DoubleProperty();
+        final Agent agent = ImmutableAgent.of(population).addProperties(property).build();
+
+        // when
+        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+
+        // then
+        assertThat(deserializedAgent.getProperties()).hasSize(1);
+    }
+
+    @Test
+    public void testPersistenceWithGenes() throws Exception {
+        // given
+        final Population population = Population.newPopulation("Test", Color.green);
+        final Gene<?> gene = new DoubleGene();
+        final Agent agent = ImmutableAgent.of(population).addGenes(gene).build();
+
+        // when
+        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+
+        // then
+        assertThat(deserializedAgent.getGenes()).hasSize(1);
     }
 }

@@ -20,13 +20,13 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.Coordinates2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +39,12 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
-    @Element(name="spermStorage")
+    @Element(name = "spermStorage")
     private EvaluatedGenomeStorage spermStorage;
 
-    @Attribute(name="clutchSize")
+    @Element(name = "clutchSize")
     private GreyfishExpression clutchSize;
-    
-    @Element
+
     private ElementSelectionStrategy<EvaluatedGenome<?>> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
 
     private int offspringCount = 0;
@@ -155,10 +154,18 @@ public class SexualReproductionAction extends AbstractGFAction {
         return offspringCount;
     }
 
+    public GreyfishExpression getClutchSize() {
+        return clutchSize;
+    }
+
+    public EvaluatedGenomeStorage getSpermStorage() {
+        return spermStorage;
+    }
+
     public static final class Builder extends AbstractBuilder<SexualReproductionAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public SexualReproductionAction checkedBuild() { return new SexualReproductionAction(this); }
+        @Override protected SexualReproductionAction checkedBuild() { return new SexualReproductionAction(this); }
     }
 
     @SuppressWarnings("UnusedDeclaration")

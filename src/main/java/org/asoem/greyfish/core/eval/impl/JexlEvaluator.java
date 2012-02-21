@@ -53,6 +53,28 @@ public class JEXLEvaluator implements Evaluator {
         this.resolver = new JEXLResolverAdaptor(resolver);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JEXLEvaluator that = (JEXLEvaluator) o;
+
+        return !(expression != null ? !expressionsAreEqual(expression, that) : that.expression != null) && !(resolver != null ? !resolver.equals(that.resolver) : that.resolver != null);
+
+    }
+
+    private static boolean expressionsAreEqual(Expression expression, JEXLEvaluator that) {
+        return expression.getExpression().equals(that.expression.getExpression());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = expression != null ? expression.hashCode() : 0;
+        result = 31 * result + (resolver != null ? resolver.hashCode() : 0);
+        return result;
+    }
+
     private class JEXLResolverAdaptor extends ForwardingVariableResolver implements JexlContext {
         private final VariableResolver resolver;
 
@@ -78,6 +100,23 @@ public class JEXLEvaluator implements Evaluator {
         @Override
         public VariableResolver delegate() {
             return resolver;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            JEXLResolverAdaptor that = (JEXLResolverAdaptor) o;
+
+            if (!resolver.equals(that.resolver)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return resolver.hashCode();
         }
     }
 }

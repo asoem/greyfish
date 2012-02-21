@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.eval.impl;
 
 import org.asoem.greyfish.core.eval.Evaluator;
+import org.asoem.greyfish.core.eval.VariableResolver;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * User: christoph
@@ -30,4 +32,22 @@ public class JEXLEvaluatorTest {
         assertThat(ret).isEqualTo(42.0);
     }
 
+    @Test
+    public void testEquals() throws Exception {
+        // given
+        final VariableResolver resolver = mock(VariableResolver.class);
+        final String expression = "42.0";
+        final JEXLEvaluator evaluator1 = new JEXLEvaluator();
+        evaluator1.setExpression(expression);
+        evaluator1.setResolver(resolver);
+        final JEXLEvaluator evaluator2 = new JEXLEvaluator();
+        evaluator2.setExpression(expression);
+        evaluator2.setResolver(resolver);
+
+        // when
+        final boolean bothAreEqual = evaluator1.equals(evaluator2);
+
+        // then
+        assertThat(bothAreEqual).isTrue();
+    }
 }

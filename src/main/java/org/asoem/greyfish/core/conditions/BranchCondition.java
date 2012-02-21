@@ -161,4 +161,24 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     public final Iterator<GFCondition> iterator() {
         return unmodifiableIterator(conditions.iterator());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        BranchCondition that = (BranchCondition) o;
+
+        if (!conditions.equals(that.conditions)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + conditions.hashCode();
+        return result;
+    }
 }
