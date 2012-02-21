@@ -29,4 +29,22 @@ public class MutableRangeElement<T extends Number & Comparable<T>> implements Ra
     public Range<T> getRange() {
         return range;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MutableRangeElement that = (MutableRangeElement) o;
+
+        return range.equals(that.range) && value.equals(that.value);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = range.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
+    }
 }
