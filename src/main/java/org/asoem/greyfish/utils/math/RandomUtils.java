@@ -1,10 +1,15 @@
 package org.asoem.greyfish.utils.math;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import org.apache.commons.math.random.*;
 
+import java.util.Collection;
 import java.util.Random;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class RandomUtils {
     public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
@@ -114,5 +119,11 @@ public class RandomUtils {
      */
     public static double runif(Range<Double> range) {
         return runif(range.lowerEndpoint(), range.upperEndpoint());
+    }
+
+    public static <S> S sample(Collection<S> elements) {
+        checkNotNull(elements);
+        checkArgument(elements.isEmpty(), "Cannot take a sample out of 0 elements");
+        return Iterables.get(elements, nextInt(elements.size()));
     }
 }

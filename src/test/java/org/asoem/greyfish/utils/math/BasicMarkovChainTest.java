@@ -1,7 +1,5 @@
 package org.asoem.greyfish.utils.math;
 
-import com.google.common.base.Splitter;
-import org.asoem.greyfish.utils.math.MarkovChain;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -11,11 +9,11 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 08.02.12
  * Time: 13:11
  */
-public class MarkovChainTest {
+public class BasicMarkovChainTest {
 
     @Test
     public void testSimpleChain() throws Exception {
-        final MarkovChain<String> chain = MarkovChain.<String>builder()
+        final BasicMarkovChain<String> chain = BasicMarkovChain.<String>builder()
                 .put("A", "B", 1)
                 .put("B", "C", 1)
                 .build();
@@ -33,7 +31,7 @@ public class MarkovChainTest {
         final String rule = "A -> B : 1.0; B -> C : 1.0";
 
         // when
-        final MarkovChain<String> chain = MarkovChain.parse(rule);
+        final BasicMarkovChain<String> chain = BasicMarkovChain.parse(rule);
 
         // then
         final String endState = chain.apply(chain.apply("A"));
