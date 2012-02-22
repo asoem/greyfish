@@ -1,9 +1,6 @@
 package org.asoem.greyfish.utils.persistence;
 
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +40,13 @@ public class Persisters {
                 } catch (Exception e) {
                     Logger.getLogger(Persisters.class.getCanonicalName()).log(Level.SEVERE,
                             "Error in serialization thread (persister=" + persister + "; object=" + o + "; writer=" + writer + ")", e);
+                }
+                finally {
+                    try {
+                        writer.close();
+                    } catch (IOException e) {
+                        Logger.getLogger(Persisters.class.getCanonicalName()).warning("Failed to close writer");
+                    }
                 }
             }
         });

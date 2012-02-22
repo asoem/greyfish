@@ -1,5 +1,8 @@
 package org.asoem.greyfish.utils.space;
 
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.simpleframework.xml.Attribute;
+
 /**
  * User: christoph
  * Date: 03.03.11
@@ -7,13 +10,15 @@ package org.asoem.greyfish.utils.space;
  */
 public class ImmutableCoordinates2D implements Coordinates2D {
 
+    @Attribute(name = "x")
     private final double x;
+
+    @Attribute(name = "y")
     private final double y;
 
     public ImmutableCoordinates2D(Coordinates2D newCoordinates) {
         this(newCoordinates.getX(), newCoordinates.getY());
     }
-
 
     @Override
     public double getX() {
@@ -25,7 +30,9 @@ public class ImmutableCoordinates2D implements Coordinates2D {
         return y;
     }
 
-    private ImmutableCoordinates2D(double x, double y) {
+    @SimpleXMLConstructor
+    private ImmutableCoordinates2D(@Attribute(name = "x") double x,
+                                   @Attribute(name = "y") double y) {
         this.x = x;
         this.y = y;
     }
@@ -67,5 +74,27 @@ public class ImmutableCoordinates2D implements Coordinates2D {
 
     public static ImmutableCoordinates2D copyOf(Coordinates2D newCoordinates) {
         return new ImmutableCoordinates2D(newCoordinates);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ImmutableCoordinates2D that = (ImmutableCoordinates2D) o;
+
+        return Double.compare(that.x, x) == 0 && Double.compare(that.y, y) == 0;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = x != +0.0d ? Double.doubleToLongBits(x) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }
