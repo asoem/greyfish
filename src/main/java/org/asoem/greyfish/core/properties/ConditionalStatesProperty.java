@@ -9,7 +9,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -97,7 +97,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
         return Maps.transformValues(Splitter.on("\n").withKeyValueSeparator(":").split(arg0), new Function<String, GreyfishExpression>() {
             @Override
             public GreyfishExpression apply(@Nullable String s) {
-                return GreyfishExpressionFactory.compile(s);
+                return GreyfishExpressionFactoryHolder.compile(s);
             }
         });
     }
@@ -122,7 +122,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
     protected static abstract class AbstractBuilder<E extends ConditionalStatesProperty,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
         private final Map<String, GreyfishExpression> phenotypeConditionMap = Maps.newHashMap();
 
-        public T addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactory.compile(when)); return self();}
+        public T addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactoryHolder.compile(when)); return self();}
     }
 
 }

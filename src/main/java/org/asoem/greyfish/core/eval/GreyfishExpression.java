@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 14:09
  */
-public class GreyfishExpression {
+public class GreyfishExpression implements Expression {
 
     private static final Pattern DOLLAR_FUNCTION_PATTERN = Pattern.compile("\\$\\(([^\\)]+)\\)");
 
@@ -50,8 +50,14 @@ public class GreyfishExpression {
         return evaluate(contextResolver);
     }
 
-    private EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
+    @Override
+    public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
         evaluator.setResolver(resolver);
+        return evaluator.evaluate();
+    }
+
+    @Override
+    public EvaluationResult evaluate() throws EvaluationException {
         return evaluator.evaluate();
     }
 
@@ -59,17 +65,21 @@ public class GreyfishExpression {
         return DOLLAR_FUNCTION_PATTERN.matcher(expression).replaceAll("\\$($1, _ctx_)");
     }
 
+    @Override
     public String getExpression() {
         return expression;
     }
 
-    public VariableResolver createContextResolver(@Nullable Object ctx) {
+    public static VariableResolver createContextResolver(@Nullable Object ctx) {
         return VariableResolvers.forMap(ImmutableMap.of("_ctx_", ctx));
     }
 
     @Override
     public String toString() {
-        return getExpression() + " evaluated with " + evaluator;
+        return "GreyfishExpression{" +
+                "evaluator=" + evaluator +
+                ", expression='" + expression + '\'' +
+                '}';
     }
 
     @Override
@@ -90,6 +100,7 @@ public class GreyfishExpression {
         return result;
     }
 
+    @Override
     public Evaluator getEvaluator() {
         return evaluator;
     }

@@ -6,19 +6,19 @@ import com.google.inject.Provider;
 /**
  * User: christoph
  * Date: 22.02.12
- * Time: 12:08
+ * Time: 14:25
  */
-public class GreyfishExpressionFactory implements ExpressionFactory {
+public class VanillaExpressionFactory implements ExpressionFactory {
 
     private final Provider<Evaluator> evaluatorProvider;
 
     @Inject
-    public GreyfishExpressionFactory(Provider<Evaluator> evaluatorProvider) {
+    public VanillaExpressionFactory(Provider<Evaluator> evaluatorProvider) {
         this.evaluatorProvider = evaluatorProvider;
     }
 
     @Override
-    public GreyfishExpression compile(String expression) {
-        return new GreyfishExpression(expression, evaluatorProvider.get());
+    public Expression compile(String expression) {
+        return new VanillaExpression(expression, evaluatorProvider.get());
     }
 }

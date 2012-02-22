@@ -42,7 +42,7 @@ public class SexualReproductionActionTest {
                 .build();
 
         // when
-        SexualReproductionAction deserialized = Persisters.runThroughPersister(persister, action, SexualReproductionAction.class);
+        SexualReproductionAction deserialized = Persisters.createCopy(action, SexualReproductionAction.class, persister);
 
         // then
         assertThat(deserialized.getName()).isEqualTo("test");

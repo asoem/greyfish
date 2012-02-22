@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.eval.EvaluationResult;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -68,7 +68,7 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
     }
 
     protected static abstract class AbstractBuilder<E extends ExpressionProperty, T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
-        private GreyfishExpression expression = GreyfishExpressionFactory.compile("0");
+        private GreyfishExpression expression = GreyfishExpressionFactoryHolder.compile("0");
 
         public T expression(GreyfishExpression expression) { this.expression = checkNotNull(expression); return self(); }
     }

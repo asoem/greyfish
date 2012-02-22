@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -25,7 +25,7 @@ public class GreyfishExpressionCondition extends LeafCondition {
     // Some Expressions, that for example reference a gene,
     // have functions that return a constant value over the lifetime of an Agent
     @Element
-    private GreyfishExpression expression = GreyfishExpressionFactory.compile("false");
+    private GreyfishExpression expression = GreyfishExpressionFactoryHolder.compile("false");
 
 
     public GreyfishExpressionCondition(GreyfishExpressionCondition greyfishExpressionCondition, DeepCloner cloner) {

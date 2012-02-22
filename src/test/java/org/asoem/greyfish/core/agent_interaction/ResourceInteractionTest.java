@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.agent_interaction;
 import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
@@ -50,8 +50,8 @@ public class ResourceInteractionTest {
         ResourceConsumptionAction consumptionAction = ResourceConsumptionAction.with()
                 .name("eat")
                 .ontology(messageClassifier)
-                .requestAmount(GreyfishExpressionFactory.compile("1.0"))
-                .uptakeUtilization(GreyfishExpressionFactory.compile("$('this.agent.properties[\"resourceStorage\"]').add(offer * 2)"))
+                .requestAmount(GreyfishExpressionFactoryHolder.compile("1.0"))
+                .uptakeUtilization(GreyfishExpressionFactoryHolder.compile("$('this.agent.properties[\"resourceStorage\"]').add(offer * 2)"))
                 .build();
 
 

@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.io.persistence;
 
 import org.asoem.greyfish.core.eval.Evaluator;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.simpleframework.xml.convert.Converter;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;

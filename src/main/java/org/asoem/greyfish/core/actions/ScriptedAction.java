@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -64,7 +64,7 @@ public class ScriptedAction extends AbstractGFAction {
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends ScriptedAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
 
-        public GreyfishExpression script = GreyfishExpressionFactory.compile("");
+        public GreyfishExpression script = GreyfishExpressionFactoryHolder.compile("");
         
         public T executes(GreyfishExpression greyfishExpression) { this.script = checkNotNull(greyfishExpression); return self(); }
     }

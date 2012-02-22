@@ -129,7 +129,7 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).build();
 
         // when
-        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
         assertThat(deserializedAgent.getPopulation()).isEqualTo(population);
@@ -144,7 +144,7 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).addActions(action).build();
 
         // when
-        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
         assertThat(deserializedAgent.getActions()).hasSize(1);
@@ -158,7 +158,7 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).addProperties(property).build();
 
         // when
-        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
         assertThat(deserializedAgent.getProperties()).hasSize(1);
@@ -172,7 +172,7 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).addGenes(gene).build();
 
         // when
-        final Agent deserializedAgent = Persisters.runThroughPersister(persister, agent, ImmutableAgent.class);
+        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
         assertThat(deserializedAgent.getGenes()).hasSize(1);

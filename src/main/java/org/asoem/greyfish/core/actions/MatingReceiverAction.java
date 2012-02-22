@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.io.AgentEvent;
@@ -214,7 +214,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         protected EvaluatedGenomeStorage spermBuffer = null;
         protected String ontology = "mate";
         protected double sensorRange = 1.0;
-        protected GreyfishExpression matingProbabilityExpression = GreyfishExpressionFactory.compile("1.0");
+        protected GreyfishExpression matingProbabilityExpression = GreyfishExpressionFactoryHolder.compile("1.0");
 
         public T matingProbability(GreyfishExpression matingProbabilityExpression) { this.matingProbabilityExpression = checkNotNull(matingProbabilityExpression); return self(); }
         public T spermStorage(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }

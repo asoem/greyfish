@@ -84,7 +84,7 @@ public class GreyfishExpressionTest {
         final GreyfishExpression expression = new GreyfishExpression("42.0", new EvaluatorFake());
 
         // when
-        final GreyfishExpression deserialized = Persisters.runThroughPersister(persister, expression, GreyfishExpression.class);
+        final GreyfishExpression deserialized = Persisters.createCopy(expression, GreyfishExpression.class, persister);
 
         // then
         assertThat(deserialized).isEqualTo(expression);

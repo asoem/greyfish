@@ -19,6 +19,6 @@ public class EvalModule extends AbstractModule {
                 new CachedGreyfishVariableAccessorFactory(
                         new DefaultGreyfishVariableAccessorFactory()));
         requestStaticInjection(GreyfishVariableFactory.class);
-        requestStaticInjection(GreyfishExpressionFactory.class);
+        requestStaticInjection(GreyfishExpressionFactoryHolder.class);
     }
 }

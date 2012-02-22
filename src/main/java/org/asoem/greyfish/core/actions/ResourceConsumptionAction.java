@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -135,9 +135,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
 
         private String ontology = "food";
-        private GreyfishExpression requestAmount = GreyfishExpressionFactory.compile("1.0");
-        private GreyfishExpression interactionRadius = GreyfishExpressionFactory.compile("1.0");
-        private GreyfishExpression uptakeUtilization = GreyfishExpressionFactory.compile("$('this.agent.properties[\"myEnergy\"]').add(offer)");
+        private GreyfishExpression requestAmount = GreyfishExpressionFactoryHolder.compile("1.0");
+        private GreyfishExpression interactionRadius = GreyfishExpressionFactoryHolder.compile("1.0");
+        private GreyfishExpression uptakeUtilization = GreyfishExpressionFactoryHolder.compile("$('this.agent.properties[\"myEnergy\"]').add(offer)");
 
         public T ontology(String parameterMessageType) { this.ontology = checkNotNull(parameterMessageType); return self(); }
         public T requestAmount(GreyfishExpression amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }

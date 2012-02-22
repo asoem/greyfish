@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.genes;
 import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -20,11 +20,11 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
 @ClassGroup(tags = "genes")
 public class DoubleGene extends AbstractGene<Double> {
 
-    private GreyfishExpression initialValueGenerator = GreyfishExpressionFactory.compile("0.0");
+    private GreyfishExpression initialValueGenerator = GreyfishExpressionFactoryHolder.compile("0.0");
 
-    private GreyfishExpression mutationDistributionFunction = GreyfishExpressionFactory.compile("0.0");
+    private GreyfishExpression mutationDistributionFunction = GreyfishExpressionFactoryHolder.compile("0.0");
 
-    private GreyfishExpression distanceMetric = GreyfishExpressionFactory.compile("abs(y - x)");
+    private GreyfishExpression distanceMetric = GreyfishExpressionFactoryHolder.compile("abs(y - x)");
 
     private final GeneController<Double> geneController = new GeneController<Double>() {
 

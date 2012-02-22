@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.io.persistence;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.math.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.Registry;
@@ -31,6 +32,7 @@ public class SimpleXMLPersister implements Persister {
     public SimpleXMLPersister() {
         try {
             registry.bind(GreyfishExpression.class, GreyfishExpressionConverter.class);
+            registry.bind(EvaluatingMarkovChain.class, EvaluatingMarkovChainConverter.class);
         } catch (Exception e) {
             LOGGER.error("Binding converter to registry failed", e);
         }

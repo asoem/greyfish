@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.individual.Population;
@@ -75,7 +75,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private GreyfishExpression nClones = GreyfishExpressionFactory.compile("1");
+        private GreyfishExpression nClones = GreyfishExpressionFactoryHolder.compile("1");
 
         public T nClones(GreyfishExpression nClones) { this.nClones = nClones; return self(); }
     }

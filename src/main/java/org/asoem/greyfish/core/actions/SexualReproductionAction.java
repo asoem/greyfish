@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableGenome;
@@ -24,9 +24,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.Coordinates2D;
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +169,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
         private EvaluatedGenomeStorage spermStorage;
-        private GreyfishExpression clutchSize = GreyfishExpressionFactory.compile("1");
+        private GreyfishExpression clutchSize = GreyfishExpressionFactoryHolder.compile("1");
 
         public T spermStorage(EvaluatedGenomeStorage spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
         public T clutchSize(GreyfishExpression nOffspring) { this.clutchSize = nOffspring; return self(); }

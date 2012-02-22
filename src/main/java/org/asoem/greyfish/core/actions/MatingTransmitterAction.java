@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.EvaluatedGenome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
@@ -80,7 +80,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                spermFitnessExpression = GreyfishExpressionFactory.compile(arg0.getExpression());
+                spermFitnessExpression = GreyfishExpressionFactoryHolder.compile(arg0.getExpression());
             }
 
             @Override
@@ -167,12 +167,12 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
         private String ontology = "mate";
         private GreyfishExpression spermFitnessExpression =
-                GreyfishExpressionFactory.compile("0.0");
+                GreyfishExpressionFactoryHolder.compile("0.0");
         public GreyfishExpression matingProbabilityExpression =
-                GreyfishExpressionFactory.compile("1.0");
+                GreyfishExpressionFactoryHolder.compile("1.0");
 
-        public T matingProbabilityExpression(String matingProbabilityExpression) { this.matingProbabilityExpression = GreyfishExpressionFactory.compile(matingProbabilityExpression); return self(); }
-        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = GreyfishExpressionFactory.compile(spermFitnessExpression); return self(); }
+        public T matingProbabilityExpression(String matingProbabilityExpression) { this.matingProbabilityExpression = GreyfishExpressionFactoryHolder.compile(matingProbabilityExpression); return self(); }
+        public T spermFitnessExpression(String spermFitnessExpression) { this.spermFitnessExpression = GreyfishExpressionFactoryHolder.compile(spermFitnessExpression); return self(); }
         public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
 
         @Override

@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.actions.utils.MovementPattern;
 import org.asoem.greyfish.core.actions.utils.MovementPatterns;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -44,7 +44,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                speedFunction = GreyfishExpressionFactory.compile(arg0.getExpression());
+                speedFunction = GreyfishExpressionFactoryHolder.compile(arg0.getExpression());
             }
 
             @Override
@@ -85,7 +85,7 @@ public class RandomMovementAction extends AbstractGFAction {
 
     @SuppressWarnings({"UnusedDeclaration"})
     protected static abstract class AbstractBuilder<E extends RandomMovementAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private GreyfishExpression speedFunction = GreyfishExpressionFactory.compile("0");
+        private GreyfishExpression speedFunction = GreyfishExpressionFactoryHolder.compile("0");
 
         public T speed(GreyfishExpression speedFunction) { this.speedFunction = checkNotNull(speedFunction); return self(); }
     }
