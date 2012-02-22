@@ -2,3 +2,4 @@ target/
 logs/
 .idea/
 greyfish.iml
+.DS_Store
