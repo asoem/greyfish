@@ -11,6 +11,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.simpleframework.xml.Element;
 
 /**
  * User: christoph
@@ -20,10 +21,13 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
 @ClassGroup(tags = "genes")
 public class DoubleGene extends AbstractGene<Double> {
 
-    private GreyfishExpression initialValueGenerator = GreyfishExpressionFactoryHolder.compile("0.0");
+    @Element
+    private GreyfishExpression initialValue = GreyfishExpressionFactoryHolder.compile("0.0");
 
-    private GreyfishExpression mutationDistributionFunction = GreyfishExpressionFactoryHolder.compile("0.0");
+    @Element
+    private GreyfishExpression mutation = GreyfishExpressionFactoryHolder.compile("0.0");
 
+    @Element
     private GreyfishExpression distanceMetric = GreyfishExpressionFactoryHolder.compile("abs(y - x)");
 
     private final GeneController<Double> geneController = new GeneController<Double>() {
@@ -31,9 +35,9 @@ public class DoubleGene extends AbstractGene<Double> {
         @Override
         public Double mutate(Double original) {
             try {
-                return mutationDistributionFunction.evaluateForContext(DoubleGene.this).asDouble();
+                return get() + mutation.evaluateForContext(DoubleGene.this).asDouble();
             } catch (EvaluationException e) {
-                LoggerFactory.getLogger(DoubleGene.class).error("Error in mutationDistributionFunction", e);
+                LoggerFactory.getLogger(DoubleGene.class).error("Error in mutation", e);
                 return original;
             }
         }
@@ -51,9 +55,9 @@ public class DoubleGene extends AbstractGene<Double> {
         @Override
         public Double createInitialValue() {
             try {
-                return initialValueGenerator.evaluateForContext(DoubleGene.this).asDouble();
+                return initialValue.evaluateForContext(DoubleGene.this).asDouble();
             } catch (EvaluationException e) {
-                LoggerFactory.getLogger(DoubleGene.class).error("Error in initialValueGenerator", e);
+                LoggerFactory.getLogger(DoubleGene.class).error("Error in initialValue", e);
                 return 0.0;
             }
         }
@@ -66,8 +70,8 @@ public class DoubleGene extends AbstractGene<Double> {
 
     protected DoubleGene(DoubleGene doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
-        this.initialValueGenerator = doubleMutableGene.initialValueGenerator;
-        this.mutationDistributionFunction = doubleMutableGene.mutationDistributionFunction;
+        this.initialValue = doubleMutableGene.initialValue;
+        this.mutation = doubleMutableGene.mutation;
     }
 
     @Override
@@ -83,6 +87,30 @@ public class DoubleGene extends AbstractGene<Double> {
     @Override
     public GeneController<Double> getGeneController() {
         return geneController;
+    }
+
+    public GreyfishExpression getInitialValue() {
+        return initialValue;
+    }
+
+    public void setInitialValue(GreyfishExpression initialValue) {
+        this.initialValue = initialValue;
+    }
+
+    public GreyfishExpression getMutation() {
+        return mutation;
+    }
+
+    public void setMutation(GreyfishExpression mutation) {
+        this.mutation = mutation;
+    }
+
+    public GreyfishExpression getDistanceMetric() {
+        return distanceMetric;
+    }
+
+    public void setDistanceMetric(GreyfishExpression distanceMetric) {
+        this.distanceMetric = distanceMetric;
     }
 
     @Override
@@ -101,24 +129,24 @@ public class DoubleGene extends AbstractGene<Double> {
         e.add("Initial Value", new AbstractTypedValueModel<GreyfishExpression>() {
             @Override
             protected void set(GreyfishExpression arg0) {
-                initialValueGenerator = arg0;
+                initialValue = arg0;
             }
 
             @Override
             public GreyfishExpression get() {
-                return initialValueGenerator;
+                return initialValue;
             }
         });
 
         e.add("Mutation", new AbstractTypedValueModel<GreyfishExpression>() {
             @Override
             protected void set(GreyfishExpression arg0) {
-                mutationDistributionFunction = arg0;
+                mutation = arg0;
             }
 
             @Override
             public GreyfishExpression get() {
-                return mutationDistributionFunction;
+                return mutation;
             }
         });
     }

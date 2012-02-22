@@ -45,7 +45,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
     protected ConditionalStatesProperty(AbstractBuilder<?, ?> builder) {
         super(builder);
 
-        conditionMap = ImmutableMap.copyOf(builder.phenotypeConditionMap);
+        conditionMap = builder.phenotypeConditionMap;
     }
 
     protected ConditionalStatesProperty(ConditionalStatesProperty cloneable, DeepCloner map) {
@@ -56,7 +56,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
 
     @Override
     public String get() {
-        // TODO: Inefficient if called more than once during one simulation step. Could be cached.
+        // TODO: Inefficient if called more than once during one simulation step. Result should be cached.
         // TODO: Compare performance to a version where evaluates logic from below is inside an expression. Could be faster than evaluation multiple expression.
         return Iterables.find(conditionMap.keySet(), new Predicate<String>() {
             @Override
@@ -110,6 +110,15 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
     @Override
     public Set<String> getStates() {
         return conditionMap.keySet();
+    }
+
+    public Map<String, GreyfishExpression> getConditionMap() {
+        return conditionMap;
+    }
+
+    @Override
+    public void freeze() {
+        conditionMap = ImmutableMap.copyOf(conditionMap);
     }
 
     public static Builder with() { return new Builder(); }

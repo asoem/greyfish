@@ -17,13 +17,14 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.Coordinates2D;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
 
     private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
-    @Attribute(name = "nClones")
+    @Element(name = "nClones")
     private GreyfishExpression nClones;
 
     @SimpleXMLConstructor
@@ -64,6 +65,14 @@ public class ClonalReproductionAction extends AbstractGFAction {
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         e.add("nClones", TypedValueModels.forField("nClones", this, GreyfishExpression.class));
+    }
+
+    public GreyfishExpression getnClones() {
+        return nClones;
+    }
+
+    public void setnClones(GreyfishExpression nClones) {
+        this.nClones = nClones;
     }
 
     public static Builder with() { return new Builder(); }

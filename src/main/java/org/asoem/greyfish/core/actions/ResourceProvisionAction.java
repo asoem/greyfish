@@ -133,14 +133,18 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     public static Builder with() { return new Builder(); }
 
+    public DoubleProperty getResourceProperty() {
+        return resourceProperty;
+    }
+
     public static final class Builder extends AbstractBuilder<ResourceProvisionAction, Builder> {
         @Override protected Builder self() { return this; }
         @Override public ResourceProvisionAction checkedBuild() { return new ResourceProvisionAction(this); }
     }
 
     protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
-        protected DoubleProperty resourceProperty;
-        protected String ontology = "food";
+        private DoubleProperty resourceProperty;
+        private String ontology = "food";
 
         public T resourceProperty(DoubleProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
         public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }

@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -19,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ClassGroup(tags = "actions")
 public class ScriptedAction extends AbstractGFAction {
 
+    @Element
     private GreyfishExpression script;
 
     @SimpleXMLConstructor
@@ -46,6 +48,14 @@ public class ScriptedAction extends AbstractGFAction {
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new ScriptedAction(this, cloner);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public GreyfishExpression getScript() {
+        return script;
     }
 
     public static class Builder extends AbstractBuilder<ScriptedAction, Builder> {

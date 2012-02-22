@@ -1,8 +1,7 @@
-package org.asoem.greyfish.core.properties;
+package org.asoem.greyfish.core.actions;
 
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.genes.DoubleGene;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -12,30 +11,29 @@ import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * User: christoph
- * Date: 23.09.11
- * Time: 13:19
+ * Date: 22.02.12
+ * Time: 17:57
  */
-public class ExpressionPropertyTest {
+public class RandomMovementActionTest {
 
     @Inject
     private GreyfishExpressionFactory expressionFactory;
     @Inject
     private Persister persister;
 
-    public ExpressionPropertyTest() {
+    public RandomMovementActionTest() {
         CoreInjectorHolder.coreInjector().injectMembers(this);
     }
 
     @Test
     public void testPersistence() throws Exception {
         // given
-        final ExpressionProperty expressionProperty = new ExpressionProperty();
-        expressionProperty.setExpression(expressionFactory.compile("1.0"));
+        final RandomMovementAction action = RandomMovementAction.builder().speed(expressionFactory.compile("0.42")).build();
 
         // when
-        final ExpressionProperty persistentGene = Persisters.createCopy(expressionProperty, ExpressionProperty.class, persister);
+        final RandomMovementAction copy = Persisters.createCopy(action, RandomMovementAction.class, persister);
 
         // then
-        assertThat(persistentGene.getExpression().getExpression()).isEqualTo("1.0");
+        assertThat(copy.getSpeed().getExpression()).isEqualTo("0.42");
     }
 }

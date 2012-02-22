@@ -44,8 +44,8 @@ public class MatingInteractionTest {
         String messageClassifier = "mate";
         MatingReceiverAction receiverAction = MatingReceiverAction.with()
                 .name("receiveSperm")
-                .classification(messageClassifier)
-                .searchRadius(1.0)
+                .ontology(messageClassifier)
+                .interactionRadius(1.0)
                 .spermStorage(genomeStorage)
                 .build();
 

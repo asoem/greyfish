@@ -19,9 +19,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class RandomMovementAction extends AbstractGFAction {
 
     @Element(required=false)
-    private GreyfishExpression speedFunction;
+    private GreyfishExpression speed;
 
-    @Element
     private MovementPattern pattern = MovementPatterns.noMovement();
 
     @SimpleXMLConstructor
@@ -32,7 +31,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
         pattern.apply(agent(), simulation);
-        double speed = speedFunction.evaluateForContext(this).asDouble();
+        double speed = this.speed.evaluateForContext(this).asDouble();
         agent().setTranslation(speed);
         return ActionState.END_SUCCESS;
     }
@@ -44,12 +43,12 @@ public class RandomMovementAction extends AbstractGFAction {
 
             @Override
             protected void set(GreyfishExpression arg0) {
-                speedFunction = GreyfishExpressionFactoryHolder.compile(arg0.getExpression());
+                speed = GreyfishExpressionFactoryHolder.compile(arg0.getExpression());
             }
 
             @Override
             public GreyfishExpression get() {
-                return speedFunction;
+                return speed;
             }
         });
     }
@@ -57,7 +56,7 @@ public class RandomMovementAction extends AbstractGFAction {
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
-        pattern = MovementPatterns.borderAvoidanceMovement(speedFunction.evaluateForContext(this).asDouble(), 0.1);
+        pattern = MovementPatterns.borderAvoidanceMovement(speed.evaluateForContext(this).asDouble(), 0.1);
     }
 
     @Override
@@ -67,15 +66,19 @@ public class RandomMovementAction extends AbstractGFAction {
 
     private RandomMovementAction(RandomMovementAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.speedFunction = cloneable.speedFunction;
+        this.speed = cloneable.speed;
     }
 
     protected RandomMovementAction(AbstractBuilder<?,?> builder) {
         super(builder);
-        this.speedFunction = builder.speedFunction;
+        this.speed = builder.speed;
     }
 
     public static Builder builder() { return new Builder(); }
+
+    public GreyfishExpression getSpeed() {
+        return speed;
+    }
 
     public static final class Builder extends AbstractBuilder<RandomMovementAction, Builder> {
         private Builder() {}
@@ -85,8 +88,8 @@ public class RandomMovementAction extends AbstractGFAction {
 
     @SuppressWarnings({"UnusedDeclaration"})
     protected static abstract class AbstractBuilder<E extends RandomMovementAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
-        private GreyfishExpression speedFunction = GreyfishExpressionFactoryHolder.compile("0");
+        private GreyfishExpression speed = GreyfishExpressionFactoryHolder.compile("0");
 
-        public T speed(GreyfishExpression speedFunction) { this.speedFunction = checkNotNull(speedFunction); return self(); }
+        public T speed(GreyfishExpression speedFunction) { this.speed = checkNotNull(speedFunction); return self(); }
     }
 }

@@ -32,27 +32,21 @@ public class BasicScenario implements Scenario {
     @Element(name="space")
     private final TiledSpace prototypeSpace;
 
-    @Attribute(name="name")
-    private String name;
-
     @ElementList(name = "prototypes", entry = "prototype")
     private final Set<Agent> prototypes = Sets.newHashSet();
 
+    @Attribute(name="name")
+    private String name;
+
     @SimpleXMLConstructor
     private BasicScenario(
-            @ElementList(name = "prototypes", entry = "prototype") List<Agent> prototypes,
-            @Element(name = "space") TiledSpace space,
-            @ElementList(name = "placeholders", entry = "placeholder") List<Placeholder> placeholders) {
+            @ElementList(name = "prototypes", entry = "prototype") Set<Agent> prototypes,
+            @Element(name = "space") TiledSpace space) {
         assert prototypes != null;
         assert space != null;
-        assert placeholders != null;
 
         this.prototypeSpace = space;
         this.prototypes.addAll(prototypes);
-
-        for (Placeholder prototype : placeholders) {
-            prototypeSpace.addObject(prototype, prototype.getCoordinates());
-        }
     }
 
     private BasicScenario(Builder builder) {
@@ -97,7 +91,6 @@ public class BasicScenario implements Scenario {
         });
     }
 
-    @ElementList(name = "placeholders", entry = "placeholder")
     @Override
     public Iterable<Placeholder> getPlaceholder() {
         return Iterables.filter(prototypeSpace.getOccupants(), Placeholder.class);

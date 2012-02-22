@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.io.persistence;
 
+import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -52,6 +54,9 @@ public class SimpleXMLPersister implements Persister {
             LOGGER.error("Deserialization failed", e1);
             throw e1;
         }
+        finally {
+            reader.close();
+        }
     }
 
     @Override
@@ -71,12 +76,14 @@ public class SimpleXMLPersister implements Persister {
         LOGGER.debug("Serializing object of type {}", object.getClass().getName());
 
         try {
-            final File tempFile = File.createTempFile("Greyfish", "xml");
-            serializer.write(object, tempFile);
-            serializer.write(object, writer);
+            final StringWriter stringWriter = new StringWriter();
+            serializer.write(object, stringWriter);
+            CharStreams.copy(new StringReader(stringWriter.toString()), writer);
         } catch (Exception e) {
             LOGGER.error("Serialization failed", e);
             throw new RuntimeException("Object not serializable", e);
+        } finally {
+            writer.close();
         }
     }
 }

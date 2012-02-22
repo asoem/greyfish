@@ -124,6 +124,18 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     public static Builder with() { return new Builder(); }
 
+    public GreyfishExpression getInteractionRadius() {
+        return interactionRadius;
+    }
+
+    public GreyfishExpression getRequestAmount() {
+        return requestAmount;
+    }
+
+    public GreyfishExpression getUptakeUtilization() {
+        return uptakeUtilization;
+    }
+
     public static final class Builder extends AbstractBuilder<ResourceConsumptionAction, Builder> {
         @Override protected Builder self() { return this; }
         @Override public ResourceConsumptionAction checkedBuild() {

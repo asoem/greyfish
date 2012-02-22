@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ExpressionProperty extends AbstractGFProperty implements DiscreteProperty<EvaluationResult> {
 
     @Element
-    private final GreyfishExpression expression;
+    private GreyfishExpression expression;
 
     @SimpleXMLConstructor
     public ExpressionProperty() {
@@ -47,6 +47,14 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
     @Override
     public void configure(ConfigurationHandler e) {
         e.add("Expression", TypedValueModels.forField("expression", this, GreyfishExpression.class));
+    }
+
+    public GreyfishExpression getExpression() {
+        return expression;
+    }
+
+    public void setExpression(GreyfishExpression expression) {
+        this.expression = expression;
     }
 
     @Override

@@ -51,10 +51,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     private String ontology;
 
     @Element(name="interactionRadius", required=false)
-    private double sensorRange;
+    private double interactionRadius;
 
     @Element(name="matingProbability", required = false)
-    private GreyfishExpression matingProbabilityExpression;
+    private GreyfishExpression matingProbability;
 
     private Iterable<Agent> sensedMates;
 
@@ -96,24 +96,24 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         e.add("Sensor Range", new AbstractTypedValueModel<Double>() {
             @Override
             protected void set(Double arg0) {
-                sensorRange = checkNotNull(arg0);
+                interactionRadius = checkNotNull(arg0);
             }
 
             @Override
             public Double get() {
-                return sensorRange;
+                return interactionRadius;
             }
         });
         e.add("matingProbability", "Expected is an expression that returns a double between 0.0 and 1.0",
                 new AbstractTypedValueModel<GreyfishExpression>() {
                     @Override
                     protected void set(GreyfishExpression arg0) {
-                        matingProbabilityExpression = arg0;
+                        matingProbability = arg0;
                     }
 
                     @Override
                     public GreyfishExpression get() {
-                        return matingProbabilityExpression;
+                        return matingProbability;
                     }
                 });
     }
@@ -142,7 +142,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             EvaluatedGenome evaluatedGenome = message.getContent(EvaluatedGenome.class);
-            final double probability = matingProbabilityExpression.evaluateForContext(this, "mate", message.getSender()).asDouble();
+            final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
             if (RandomUtils.trueWithProbability(probability)) {
                 receiveGenome(evaluatedGenome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
@@ -172,7 +172,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = simulation.findNeighbours(agent(), sensorRange);
+        sensedMates = simulation.findNeighbours(agent(), interactionRadius);
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
@@ -186,19 +186,31 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         super(cloneable, cloner);
         this.spermBuffer = cloner.cloneField(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
-        this.sensorRange = cloneable.sensorRange;
-        this.matingProbabilityExpression = cloneable.matingProbabilityExpression;
+        this.interactionRadius = cloneable.interactionRadius;
+        this.matingProbability = cloneable.matingProbability;
     }
 
     protected MatingReceiverAction(AbstractBuilder<?extends MatingReceiverAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.spermBuffer = builder.spermBuffer;
         this.ontology = builder.ontology;
-        this.sensorRange = builder.sensorRange;
-        this.matingProbabilityExpression = builder.matingProbabilityExpression;
+        this.interactionRadius = builder.sensorRange;
+        this.matingProbability = builder.matingProbabilityExpression;
     }
 
     public static Builder with() { return new Builder(); }
+
+    public GreyfishExpression getMatingProbability() {
+        return matingProbability;
+    }
+
+    public double getInteractionRadius() {
+        return interactionRadius;
+    }
+
+    public EvaluatedGenomeStorage getSpermStorage() {
+        return spermBuffer;
+    }
 
     public static final class Builder extends AbstractBuilder<MatingReceiverAction, Builder> {
         @Override protected Builder self() { return this; }
@@ -218,8 +230,8 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
         public T matingProbability(GreyfishExpression matingProbabilityExpression) { this.matingProbabilityExpression = checkNotNull(matingProbabilityExpression); return self(); }
         public T spermStorage(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
-        public T classification(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
-        public T searchRadius(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+        public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
+        public T interactionRadius(double sensorRange) { this.sensorRange = sensorRange; return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
