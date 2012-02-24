@@ -39,4 +39,12 @@ public class ImmutableObject2D implements Object2D {
         checkNotNull(coordinates);
         return new ImmutableObject2D(coordinates, orientationAngle);
     }
+
+    public static ImmutableObject2D copyOf(Object2D object2D) {
+        return new ImmutableObject2D(object2D.getCoordinates(), object2D.getOrientation());
+    }
+
+    public static Object2D of(double v, double v1, double v2) {
+        return new ImmutableObject2D(ImmutableCoordinates2D.at(v, v1), v2);
+    }
 }

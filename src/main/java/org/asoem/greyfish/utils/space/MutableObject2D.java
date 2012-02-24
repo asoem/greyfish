@@ -33,6 +33,14 @@ public class MutableObject2D implements Object2D {
         this.orientation = angle;
     }
 
+    public MutableObject2D(Object2D object2D) {
+        this(object2D.getCoordinates(), object2D.getOrientation());
+    }
+
+    public MutableObject2D(Coordinates2D coordinates, double orientation) {
+        this(coordinates.getX(), coordinates.getY(), orientation);
+    }
+
     @Override
     public Coordinates2D getCoordinates() {
         return ImmutableCoordinates2D.at(x, y);
