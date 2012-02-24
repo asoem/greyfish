@@ -26,4 +26,24 @@ public class AgentMessage extends ForwardingACLMessage<Agent> {
     public int getReceivedTimestamp() {
         return receivedTimestamp;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgentMessage that = (AgentMessage) o;
+
+        if (receivedTimestamp != that.receivedTimestamp) return false;
+        if (!delegate.equals(that.delegate)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = delegate.hashCode();
+        result = 31 * result + receivedTimestamp;
+        return result;
+    }
 }

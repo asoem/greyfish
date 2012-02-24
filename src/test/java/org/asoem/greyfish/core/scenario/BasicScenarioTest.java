@@ -13,6 +13,7 @@ import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.asoem.greyfish.utils.space.ImmutableLocation2D;
+import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.fest.assertions.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,7 +99,7 @@ public class BasicScenarioTest {
                     public boolean apply(@Nullable Object o) {
                         return o != null
                                 && o instanceof Agent
-                                && ImmutableLocation2D.at(0.42, 1.42).equals(((Agent) o).getProjection());
+                                && locatedAt(0.42, 1.42).equals(((Agent) o).getProjection());
                     }
                 });
             }

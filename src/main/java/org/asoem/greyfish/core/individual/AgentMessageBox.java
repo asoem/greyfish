@@ -45,4 +45,21 @@ public class AgentMessageBox implements Iterable<AgentMessage> {
     public Iterator<AgentMessage> iterator() {
         return box.iterator();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgentMessageBox that = (AgentMessageBox) o;
+
+        if (!box.equals(that.box)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return box.hashCode();
+    }
 }

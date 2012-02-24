@@ -11,6 +11,7 @@ import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.Moving;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Projectable;
 
@@ -18,7 +19,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>, Projectable<Object2D> {
+public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>, Projectable<Object2D>, Moving<Motion2D> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -65,13 +66,6 @@ public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>,
     Body getBody();
     Color getColor();
     void setColor(Color color);
-    double getRadius();
-
-    Motion2D getMotion();
-    void changeMotion(double angle, double velocity);
-    void setMotion(double angle, double velocity);
-    void setRotation(double alpha);
-    void setTranslation(double speed);
 
     Simulation getSimulation();
     public void setSimulation(Simulation simulation);
@@ -87,6 +81,4 @@ public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>,
 
     void execute();
     void shutDown();
-
-
 }

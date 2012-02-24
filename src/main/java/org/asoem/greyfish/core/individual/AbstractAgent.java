@@ -14,6 +14,7 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
+import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Element;
@@ -58,8 +59,11 @@ public abstract class AbstractAgent implements Agent {
 
     private final AgentMessageBox inBox = new AgentMessageBox();
 
-    @Element(name = "projection")
+    @Element(name = "projection", required = false)
     private Object2D object2D;
+
+    @Element
+    private Motion2D motion = ImmutableMotion2D.noMotion();
 
     @SimpleXMLConstructor
     protected AbstractAgent(Body body,
@@ -269,12 +273,6 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void setColor(Color color) {
-        body.setColor(color);
-    }
-
-    @Override
-    public double getRadius() {
-        return body.getRadius();
     }
 
     @Override
@@ -322,28 +320,8 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void changeMotion(double angle, double velocity) {
-        body.changeMotion(angle, velocity);
-    }
-
-    @Override
-    public void setMotion(double angle, double velocity) {
-        body.setMotion(angle, velocity);
-    }
-
-    @Override
-    public void setRotation(double alpha) {
-        body.setRotation(alpha);
-    }
-
-    @Override
-    public void setTranslation(double speed) {
-        body.setTranslation(speed);
-    }
-
-    @Override
     public Motion2D getMotion() {
-        return body.getMotion2D();
+        return motion;
     }
 
     @Override
@@ -377,6 +355,45 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void setProjection(Object2D projection) {
         this.object2D = projection;
+    }
+
+    @Override
+    public void setMotion(Motion2D motion) {
+        this.motion = checkNotNull(motion);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractAgent that = (AbstractAgent) o;
+
+        if (actions != null ? !actions.equals(that.actions) : that.actions != null) return false;
+        if (body != null ? !body.equals(that.body) : that.body != null) return false;
+        if (genome != null ? !genome.equals(that.genome) : that.genome != null) return false;
+        if (inBox != null ? !inBox.equals(that.inBox) : that.inBox != null) return false;
+        if (motion != null ? !motion.equals(that.motion) : that.motion != null) return false;
+        if (object2D != null ? !object2D.equals(that.object2D) : that.object2D != null) return false;
+        if (population != null ? !population.equals(that.population) : that.population != null) return false;
+        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
+        if (simulationContext != null ? !simulationContext.equals(that.simulationContext) : that.simulationContext != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = properties != null ? properties.hashCode() : 0;
+        result = 31 * result + (actions != null ? actions.hashCode() : 0);
+        result = 31 * result + (genome != null ? genome.hashCode() : 0);
+        result = 31 * result + (body != null ? body.hashCode() : 0);
+        result = 31 * result + (population != null ? population.hashCode() : 0);
+        result = 31 * result + (simulationContext != null ? simulationContext.hashCode() : 0);
+        result = 31 * result + (inBox != null ? inBox.hashCode() : 0);
+        result = 31 * result + (motion != null ? motion.hashCode() : 0);
+        return result;
     }
 
     protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E,T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E,T> {

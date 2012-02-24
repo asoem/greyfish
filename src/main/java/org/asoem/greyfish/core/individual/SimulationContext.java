@@ -1,21 +1,26 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 class SimulationContext {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimulationContext.class);
+
     private final Simulation simulation;
     private final int timeOfBirth;
     private final int id;
     private final Agent agent;
+    @Nullable
     private GFAction lastExecutedAction;
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimulationContext.class);
 
     public SimulationContext(Simulation simulation, Agent agent) {
         this.simulation = checkNotNull(simulation);
@@ -35,6 +40,7 @@ class SimulationContext {
         return timeOfBirth;
     }
 
+    @Nullable
     public GFAction getLastExecutedAction() {
         return lastExecutedAction;
     }
@@ -107,6 +113,33 @@ class SimulationContext {
                 assert false : "Code should never be reached";
                 return false;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SimulationContext that = (SimulationContext) o;
+
+        if (id != that.id) return false;
+        if (timeOfBirth != that.timeOfBirth) return false;
+        if (agent != null ? !agent.equals(that.agent) : that.agent != null) return false;
+        if (lastExecutedAction != null ? !lastExecutedAction.equals(that.lastExecutedAction) : that.lastExecutedAction != null)
+            return false;
+        if (simulation != null ? !simulation.equals(that.simulation) : that.simulation != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = simulation != null ? simulation.hashCode() : 0;
+        result = 31 * result + timeOfBirth;
+        result = 31 * result + id;
+        result = 31 * result + (agent != null ? agent.hashCode() : 0);
+        result = 31 * result + (lastExecutedAction != null ? lastExecutedAction.hashCode() : 0);
+        return result;
     }
 
     static final SimulationContext NULL_CONTEXT = new SimulationContext() {

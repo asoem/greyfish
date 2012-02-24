@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.actions.utils;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.space.ImmutableMotion2D;
+import org.asoem.greyfish.utils.space.Motion2D;
 
 import static org.asoem.greyfish.utils.math.RandomUtils.*;
 
@@ -32,7 +34,7 @@ public class MovementPatterns {
                     rotationAngle = nextDouble(0, 10);
                 }
 
-                agent.setMotion(rotationAngle, speed);
+                agent.setMotion(ImmutableMotion2D.of(rotationAngle, speed));
             }
         };
     }
@@ -41,17 +43,22 @@ public class MovementPatterns {
         return new MovementPattern() {
             @Override
             public void apply(Agent agent, Simulation simulation) {
+                final Motion2D currentMotion = agent.getMotion();
 
-                agent.setRotation(0);
+                double newRotation = currentMotion.getRotation2D();
+                double newTranslation = currentMotion.getTranslation();
+
                 if (trueWithProbability(rotationProbability)) {
-                    agent.setRotation((nextBoolean()) ?  0.3 : -0.3);
+                    newRotation = (nextBoolean()) ?  0.3 : -0.3;
                 }
 
                 // TODO: LawOfDemeter violation
-                if (simulation.getSpace().planMovement(agent, agent.getMotion()).willCollide()) {
-                    double rotation = agent.getMotion().getRotation2D();
-                    agent.setRotation(rotation + (rotation > 0 ? 0.1 : -0.1));
+                if (simulation.getSpace().planMovement(agent, currentMotion).willCollide()) {
+                    double rotation = currentMotion.getRotation2D();
+                    newRotation = rotation + (rotation > 0 ? 0.1 : -0.1);
                 }
+
+                agent.setMotion(ImmutableMotion2D.of(newRotation, newTranslation));
             }
         };
     }

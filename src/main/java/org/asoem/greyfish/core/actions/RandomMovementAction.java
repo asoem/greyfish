@@ -11,6 +11,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -32,7 +33,7 @@ public class RandomMovementAction extends AbstractGFAction {
     protected ActionState executeUnconditioned(Simulation simulation) {
         pattern.apply(agent(), simulation);
         double speed = this.speed.evaluateForContext(this).asDouble();
-        agent().setTranslation(speed);
+        agent().setMotion(ImmutableMotion2D.translated(agent().getMotion(), speed));
         return ActionState.END_SUCCESS;
     }
 

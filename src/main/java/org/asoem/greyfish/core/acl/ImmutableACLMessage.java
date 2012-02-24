@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,33 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
     private static int progressiveId;
 
     private final static Object NULL_CONTENT = new Object();
+    
     private final Map<String, Object> userDefinedParameter;
+
+    private final ACLPerformative performative;
+
+    @Nullable
+    private final T sender;
+    private final Set<T> receiver;
+    private final Set<T> reply_to;
+
+    private final Object content;
+    private final Class<?> contentType;
+
+    @Nullable
+    private final String language;
+    @Nullable
+    private final String encoding;
+    @Nullable
+    private final String ontology;
+
+    @Nullable
+    private final String protocol;
+    private final int conversationId;
+    @Nullable
+    private final String reply_with;
+    @Nullable
+    private final String inReplyTo;
 
     private ImmutableACLMessage(Builder<T> builder) {
         this.reply_to = ImmutableSet.copyOf(builder.reply_to);
@@ -56,25 +83,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
                 .encoding(message.getEncoding())
                 .conversationId(message.getConversationId());
     }
-
-    private final ACLPerformative performative;
-
-    private final T sender;
-    private final Set<T> receiver;
-    private final Set<T> reply_to;
-
-    private final Object content;
-    private final Class<?> contentType;
-
-    private final String language;
-    private final String encoding;
-    private final String ontology;
-
-    private final String protocol;
-    private final int conversationId;
-    private final String reply_with;
-    private final String inReplyTo;
-
+    
     @Override
     public <C> C getContent(Class<C> clazz) {
         return clazz.cast(content);
@@ -91,6 +100,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
     }
 
     @Override
+    @Nullable
     public T getSender() {
         return sender;
     }
@@ -106,26 +116,31 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
     }
 
     @Override
+    @Nullable
     public String getInReplyTo() {
         return inReplyTo;
     }
 
     @Override
+    @Nullable
     public String getEncoding() {
         return encoding;
     }
 
     @Override
+    @Nullable
     public String getLanguage() {
         return language;
     }
 
     @Override
+    @Nullable
     public String getOntology() {
         return ontology;
     }
 
     @Override
+    @Nullable
     public String getProtocol() {
         return protocol;
     }
@@ -150,7 +165,8 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
      * @param sender the sender
      * @return the ACLMessage to send as a reply
      */
-    public Builder createReplyFrom(T sender) {
+    @SuppressWarnings("UnusedDeclaration")
+    public Builder replyTo(T sender) {
         return createReply(this, sender);
     }
 
@@ -194,11 +210,14 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
 
         return str.toString();
     }
+    
+    
 
     public static <T> Builder<T> with() {
         return new Builder<T>();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public static class Builder<T> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>> {
         private ACLPerformative performative;
         private T sender;
@@ -236,8 +255,8 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
         public Builder<T> addReplyTos(Iterable<? extends T> destinations) { Iterables.addAll(reply_to, checkNotNull(destinations)); return this; }
 
         public <C> Builder<T> content(C content, Class<C> contentType) {
-            this.content = content;
-            this.contentType = contentType;
+            this.content = checkNotNull(content);
+            this.contentType = checkNotNull(contentType);
             return this;
         }
 

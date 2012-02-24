@@ -102,7 +102,7 @@ public class ImmutableAgentTest {
         ImmutableAgent clone = ImmutableAgent.cloneOf(agent);
 
         // then
-        assertThat(clone.getComponents()).hasSize(Iterables.size(agent.getComponents()));
+        assertThat(clone).isEqualTo(agent);
     }
 
     @Test
@@ -129,11 +129,10 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).build();
 
         // when
-        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
+        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
-        assertThat(deserializedAgent.getPopulation()).isEqualTo(population);
-        assertThat(deserializedAgent.getBody()).isNotNull();
+        assertThat(copy).isEqualTo(agent);
     }
 
     @Test
@@ -144,10 +143,10 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).addActions(action).build();
 
         // when
-        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
+        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
-        assertThat(deserializedAgent.getActions()).hasSize(1);
+        assertThat(copy).isEqualTo(agent);
     }
 
     @Test
@@ -158,10 +157,10 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).addProperties(property).build();
 
         // when
-        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
+        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
-        assertThat(deserializedAgent.getProperties()).hasSize(1);
+        assertThat(copy).isEqualTo(agent);
     }
 
     @Test
@@ -172,9 +171,9 @@ public class ImmutableAgentTest {
         final Agent agent = ImmutableAgent.of(population).addGenes(gene).build();
 
         // when
-        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
+        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
-        assertThat(deserializedAgent.getGenome()).hasSize(1);
+        assertThat(copy).isEqualTo(agent);
     }
 }

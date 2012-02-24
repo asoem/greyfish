@@ -1,52 +1,13 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import javolution.lang.MathLib;
-import org.asoem.greyfish.core.properties.FiniteStateProperty;
-import org.asoem.greyfish.core.properties.RangeElementProperty;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
-import org.asoem.greyfish.utils.collect.MutableRangeElement;
-import org.asoem.greyfish.utils.collect.RangeElement;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.MapValuesAdaptor;
-import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.MutableMotion2D;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementMap;
-import org.simpleframework.xml.core.Commit;
 
-import javax.annotation.Nullable;
-import java.awt.*;
 import java.util.Collections;
-import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.*;
 
 public class Body extends AbstractAgentComponent {
-
-    private final MutableMotion2D motion2D = new MutableMotion2D();
-
-    private final double radius = 0.1f;
-
-    @Element(name="colorStateProperty", required = false)
-    private FiniteStateProperty<?> property;
-
-    @ElementMap(name="stateColorMap", entry = "stateColorMapping", key = "state", value = "color", required = false, inline = true)
-    private Map<Object, Color> stateColorMap;
-
-    private Object state;
-
-    private RangeElement<?> outlineValueSupplier = new MutableRangeElement<Double>(0.0, 1.0, 0.0);
 
     /**
      *
@@ -59,9 +20,6 @@ public class Body extends AbstractAgentComponent {
     
     public Body(Body body) {
         super(body.getName());
-        setRotation(body.getRotation());
-        setColor(body.getColor());
-        stateColorMap = Maps.newHashMap(body.stateColorMap);
     }
 
     /**
@@ -71,12 +29,6 @@ public class Body extends AbstractAgentComponent {
      */
     private Body(Body body, DeepCloner cloner) {
         super(body, cloner);
-        this.property = cloner.cloneField(body.property, FiniteStateProperty.class);
-        if (property != null)
-            state = property;
-        stateColorMap = body.stateColorMap;
-        if (body.outlineValueSupplier instanceof RangeElementProperty)
-            outlineValueSupplier = cloner.cloneField((RangeElementProperty) body.outlineValueSupplier, RangeElementProperty.class);
     }
 
     /**
@@ -84,26 +36,6 @@ public class Body extends AbstractAgentComponent {
      */
     public Body() {
         super("body");
-        setRotation(RandomUtils.nextFloat(0f, (float) MathLib.TWO_PI));
-        stateColorMap = Maps.newHashMap();
-        stateColorMap.put("Default", Color.BLACK);
-    }
-
-    @Commit
-    private void commit() {
-        if (property != null)
-            state = property;
-    }
-
-    public double getRadius() {
-        return radius; //(float) (radius + 0.01 * getAgent().getAge());
-    }
-
-    public Color getColor() {
-        return stateColorMap.get(state);
-    }
-
-    public void setColor(Color color) {
     }
 
     public static Body newInstance(Agent owner) {
@@ -115,97 +47,6 @@ public class Body extends AbstractAgentComponent {
         return new Body(this, cloner);
     }
 
-    public void setRotation(double alpha) {
-        motion2D.setRotation(alpha);
-    }
-
-    public void setTranslation(double speed) {
-        motion2D.setTranslation(speed);
-    }
-
-    public MutableMotion2D getMotion2D() {
-        return motion2D;
-    }
-
-    public void changeMotion(double angle, double velocity) {
-        motion2D.changeMotion(angle, velocity);
-    }
-
-    public void setMotion(double angle, double velocity) {
-        motion2D.setMotion(angle, velocity);
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Radius of the Circle", TypedValueModels.forField("radius", this, Double.class));
-        SetAdaptor<Object> b = new SetAdaptor<Object>(Object.class) {
-            @Override protected void set(Object arg0) {
-                state = checkNotNull(arg0);
-                if (!state.equals("Default")) {
-                    property = FiniteStateProperty.class.cast(state);
-                    stateColorMap.clear();
-                    stateColorMap.putAll(ImmutableMapBuilder.<Object, Color>newInstance()
-                            .putAll(property.getStates(),
-                                    Functions.identity(),
-                                    new Function<Object, Color>() {
-
-                                        @Override
-                                        public Color apply(@Nullable Object o) {
-                                            return Color.BLACK;
-                                        }
-                                    }).build());
-                }
-            }
-            @Override public Object get() { return state; }
-            @Override public Iterable<Object> values() {
-                return concat(ImmutableList.of("Default"), filter(agent().getProperties(), FiniteStateProperty.class));
-            }
-        };
-        e.add("StateProperty", b);
-
-        MapValuesAdaptor<Color> colorMultiValueAdaptor = new MapValuesAdaptor<Color>("State Colors", Color.class) {
-            @Override public Object[] keys() { return toArray(stateColorMap.keySet(), Object.class); }
-            @Override public Color[] get() { return toArray(stateColorMap.values(), Color.class); }
-            @Override public void set(Color[] list) {
-                checkArgument(list.length == stateColorMap.size());
-                int i = 0;
-                for (Object key : stateColorMap.keySet()) stateColorMap.put(key, list[i++]);
-            }
-        };
-        e.add(colorMultiValueAdaptor);
-        b.addValueChangeListener(colorMultiValueAdaptor);
-//        e.sum(ValueAdaptor.forField("The color of the Body", Color.class, this, "color"));
-
-        e.add("Outline", new SetAdaptor<RangeElement>(RangeElement.class) {
-            @Override
-            public Iterable<RangeElement> values() {
-                return Iterables.filter(agent().getProperties(), RangeElement.class);
-            }
-
-            @Override
-            protected void set(RangeElement arg0) {
-                outlineValueSupplier = arg0;
-            }
-
-            @Override
-            public RangeElement get() {
-                return outlineValueSupplier;
-            }
-        });
-    }
-
-    /*
-    private Color[] generateColors(int n) {
-        Color[] cols = new Color[n];
-        for(int i = 0; i < n; i++)
-        {
-            cols[i] = Color.getHSBColor((float) i / (float) n, 0.85f, 1.0f);
-        }
-        return cols;
-    }
-    */
-
     @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
@@ -216,7 +57,4 @@ public class Body extends AbstractAgentComponent {
         return Collections.emptyList();
     }
 
-    public double getRotation() {
-        return motion2D.getRotation2D();
-    }
 }

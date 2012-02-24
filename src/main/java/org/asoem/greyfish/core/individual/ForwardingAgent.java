@@ -126,11 +126,6 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public double getRadius() {
-        return delegate().getRadius();
-    }
-
-    @Override
     public void injectGamete(Genome<? extends Gene<?>> genome) {
         delegate().injectGamete(genome);
     }
@@ -176,16 +171,6 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public void changeMotion(double angle, double velocity) {
-        delegate().changeMotion(angle, velocity);
-    }
-
-    @Override
-    public void setMotion(double angle, double velocity) {
-        delegate().setMotion(angle, velocity);
-    }
-
-    @Override
     public void execute() {
         delegate().execute();
     }
@@ -193,16 +178,6 @@ public abstract class ForwardingAgent implements Agent {
     @Override
     public void shutDown() {
         delegate().shutDown();
-    }
-
-    @Override
-    public void setRotation(double alpha) {
-        delegate().setRotation(alpha);
-    }
-
-    @Override
-    public void setTranslation(double speed) {
-        delegate().setTranslation(speed);
     }
 
     @Override
@@ -258,6 +233,11 @@ public abstract class ForwardingAgent implements Agent {
     @Override
     public Motion2D getMotion() {
         return delegate().getMotion();
+    }
+
+    @Override
+    public void setMotion(Motion2D motion) {
+        delegate().setMotion(motion);
     }
 
     @Override

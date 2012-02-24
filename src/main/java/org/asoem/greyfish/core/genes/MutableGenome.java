@@ -51,24 +51,4 @@ public class MutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new MutableGenome<E>(this, cloner);
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        MutableGenome that = (MutableGenome) o;
-
-        if (!delegate.equals(that.delegate)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + delegate.hashCode();
-        return result;
-    }
 }

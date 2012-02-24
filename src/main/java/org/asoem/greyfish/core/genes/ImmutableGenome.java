@@ -69,25 +69,6 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
         return delegate;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        ImmutableGenome that = (ImmutableGenome) o;
-
-        return delegate.equals(that.delegate);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + delegate.hashCode();
-        return result;
-    }
-
     public static <E extends Gene<?>> ImmutableGenome<E> copyOf(Iterable<? extends E> genes) {
         return new Builder<E>().addAll(genes).build();
     }

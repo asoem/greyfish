@@ -9,6 +9,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class EvaluatedGenome<E extends Gene<?>> extends ForwardingGenome<E> implements Fitness, Comparable<EvaluatedGenome<E>> {
 
     private final double fitness;
+
     private final Genome<E> delegate;
 
     public EvaluatedGenome(Genome<E> sperm, double fitness) {

@@ -80,23 +80,4 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
                         "Cannot add a second element with name='" + name + "'");
         }
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        MutableComponentList that = (MutableComponentList) o;
-
-        return delegate.equals(that.delegate);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + delegate.hashCode();
-        return result;
-    }
 }

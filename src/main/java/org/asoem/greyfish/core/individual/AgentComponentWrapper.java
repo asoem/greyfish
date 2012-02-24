@@ -42,4 +42,23 @@ public class AgentComponentWrapper extends AbstractAgentComponent {
     public final Iterable<AgentComponent> children() {
         return children;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        AgentComponentWrapper that = (AgentComponentWrapper) o;
+
+        return children.equals(that.children);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + children.hashCode();
+        return result;
+    }
 }
