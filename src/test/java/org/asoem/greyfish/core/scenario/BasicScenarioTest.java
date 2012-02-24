@@ -13,7 +13,7 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.ImmutableCoordinates2D;
+import org.asoem.greyfish.utils.space.ImmutableLocatable2D;
 import org.fest.assertions.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,7 +92,7 @@ public class BasicScenarioTest {
                     public boolean apply(@Nullable Object o) {
                         return o != null
                                 && o instanceof Placeholder
-                                && copy.getSpace().getCoordinates((Placeholder) o).equals(ImmutableCoordinates2D.at(0.42, 1.42));
+                                && copy.getSpace().getCoordinates((Placeholder) o).equals(ImmutableLocatable2D.at(0.42, 1.42));
                     }
                 });
             }

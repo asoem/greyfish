@@ -4,16 +4,14 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.space.Coordinates2D;
-import org.asoem.greyfish.utils.space.ImmutableCoordinates2D;
-import org.asoem.greyfish.utils.space.Location2D;
+import org.asoem.greyfish.utils.space.Locatable2D;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
 
 import static org.asoem.greyfish.core.space.TileDirection.*;
 
-public class TileLocation implements Location2D {
+public class TileLocation {
 
     private final TiledSpace space;
 
@@ -61,15 +59,6 @@ public class TileLocation implements Location2D {
      */
     public int getY() {
         return y;
-    }
-
-    /**
-     * This method the same as calling {@link ImmutableCoordinates2D#at(double, double)} with arguments {@link #getX()} and {@link #getY()}
-     * @return the coordinates of the top left corner of this location in the tiledSpace.
-     */
-    @Override
-    public Coordinates2D getCoordinates() {
-        return ImmutableCoordinates2D.at(x, y);
     }
 
     /**
@@ -179,9 +168,9 @@ public class TileLocation implements Location2D {
         setBorder(direction, !hasBorder(direction));
     }
 
-    public boolean covers(Coordinates2D coordinates) {
-        return (int) coordinates.getX() == x
-                && (int) coordinates.getY() == y;
+    public boolean covers(Locatable2D locatable) {
+        return (int) locatable.getX() == x
+                && (int) locatable.getY() == y;
     }
 
     @Override

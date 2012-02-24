@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.Locatable2D;
 
 import java.util.Set;
 
@@ -49,7 +49,7 @@ public interface Simulation extends HasName {
      * @param genome The genome which will be injected into the inserted Agent ({@link Agent#injectGamete(Genome)}).
      * @param location the location where the {@code Agent} will enter the {@code Simulation}
      */
-    void createAgent(Population population, Genome<? extends Gene<?>> genome, Coordinates2D location);
+    void createAgent(Population population, Genome<? extends Gene<?>> genome, Locatable2D location);
 
     Set<Agent> getPrototypes();
 

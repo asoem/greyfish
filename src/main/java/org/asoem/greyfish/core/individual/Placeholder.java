@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
-import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Element;
 
@@ -39,17 +39,47 @@ public class Placeholder extends ForwardingAgent implements Object2D {
     }
 
     @Override
-    public Coordinates2D getCoordinates() {
-        return placeholderObject.getCoordinates();
+    public double getOrientationAngle() {
+        return placeholderObject.getOrientationAngle();
     }
 
     @Override
-    public double getOrientation() {
-        return placeholderObject.getOrientation();
+    public double[] getBoundingVolume() {
+        return placeholderObject.getBoundingVolume();
+    }
+
+    @Override
+    public Motion2D getMotion() {
+        return delegate.getMotion();
     }
 
     @Override
     public void setRotation(double alpha) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double getX() {
+        return placeholderObject.getX();
+    }
+
+    @Override
+    public double getY() {
+        return placeholderObject.getY();
+    }
+
+    @Override
+    public double[] getCoordinates() {
+        return placeholderObject.getCoordinates();
+    }
+
+    @Override
+    public int getDimensions() {
+        return placeholderObject.getDimensions();
+    }
+
+    @Override
+    public double[] getOrientation() {
+        return placeholderObject.getOrientation();
     }
 }

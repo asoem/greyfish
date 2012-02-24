@@ -14,8 +14,8 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
+import org.asoem.greyfish.utils.space.Motion2D;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
@@ -336,13 +336,8 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public double getRotation() {
-        return body.getRotation();
-    }
-
-    @Override
-    public double getTranslation() {
-        return body.getTranslation();
+    public Motion2D getMotion() {
+        return body.getMotion2D();
     }
 
     @Override

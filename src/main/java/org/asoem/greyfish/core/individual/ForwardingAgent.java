@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
+import org.asoem.greyfish.utils.space.Motion2D;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -261,12 +262,7 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public double getTranslation() {
-        return delegate().getTranslation();
-    }
-
-    @Override
-    public double getRotation() {
-        return delegate().getRotation();
+    public Motion2D getMotion() {
+        return delegate().getMotion();
     }
 }

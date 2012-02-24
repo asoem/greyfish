@@ -19,7 +19,6 @@ import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,15 +57,15 @@ public class BasicScenario implements Scenario {
     }
 
     @Override
-    public boolean addAgent(Agent prototype, Object2D location) {
+    public boolean addAgent(Agent prototype, Object2D object2D) {
         checkNotNull(prototype);
-        checkNotNull(location);
+        checkNotNull(object2D);
 
         if (!prototypes.contains(prototype))
             if (!prototypes.add(prototype))
                 return false;
 
-        prototypeSpace.addObject(Placeholder.newInstance(prototype, location), location.getCoordinates());
+        prototypeSpace.addObject(Placeholder.newInstance(prototype, object2D), object2D);
         return true;
     }
 
@@ -109,7 +108,7 @@ public class BasicScenario implements Scenario {
                 return Iterables.any(locations, new Predicate<TileLocation>() {
                     @Override
                     public boolean apply(TileLocation o) {
-                        return o.covers(placeholder.getCoordinates());
+                        return o.covers(placeholder);
                     }
                 });
             }
@@ -178,7 +177,7 @@ public class BasicScenario implements Scenario {
             checkState(Iterables.all(map.values(), new Predicate<Object2D>() {
                 @Override
                 public boolean apply(Object2D object2D) {
-                    return space.covers(object2D.getCoordinates());
+                    return space.covers(object2D);
                 }
             }));
             return new BasicScenario(this);

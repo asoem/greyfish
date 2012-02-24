@@ -18,8 +18,7 @@ import org.asoem.greyfish.utils.gui.MapValuesAdaptor;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.Movable;
-import org.asoem.greyfish.utils.space.MutableMovable;
+import org.asoem.greyfish.utils.space.MutableMotion2D;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementMap;
 import org.simpleframework.xml.core.Commit;
@@ -33,9 +32,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.*;
 
-public class Body extends AbstractAgentComponent implements Movable {
+public class Body extends AbstractAgentComponent {
 
-    private final MutableMovable movingObject2D = new MutableMovable();
+    private final MutableMotion2D motion2D = new MutableMotion2D();
 
     private final double radius = 0.1f;
 
@@ -110,29 +109,23 @@ public class Body extends AbstractAgentComponent implements Movable {
     }
 
     public void setRotation(double alpha) {
-        movingObject2D.setRotation(alpha);
+        motion2D.setRotation(alpha);
     }
 
     public void setTranslation(double speed) {
-        movingObject2D.setTranslation(speed);
+        motion2D.setTranslation(speed);
     }
 
-    @Override
-    public double getTranslation() {
-        return movingObject2D.getTranslation();
-    }
-
-    @Override
-    public double getRotation() {
-        return movingObject2D.getRotation();
+    public MutableMotion2D getMotion2D() {
+        return motion2D;
     }
 
     public void changeMotion(double angle, double velocity) {
-        movingObject2D.changeMotion(angle, velocity);
+        motion2D.changeMotion(angle, velocity);
     }
 
     public void setMotion(double angle, double velocity) {
-        movingObject2D.setMotion(angle, velocity);
+        motion2D.setMotion(angle, velocity);
     }
 
     @Override

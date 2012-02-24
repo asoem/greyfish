@@ -23,7 +23,7 @@ import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.Locatable2D;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,15 +60,15 @@ public class SexualReproductionAction extends AbstractGFAction {
         LOGGER.debug("Producing {} offspring ", clutchSize);
 
         final Population population = agent().getPopulation();
-        final Coordinates2D coordinates = simulation.getSpace().getCoordinates(agent());
+        final Locatable2D locatable = simulation.getSpace().getCoordinates(agent());
 
         final int eggCount = clutchSize.evaluateForContext(this).asInt();
         for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
             final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate));
 
-            simulation.createAgent(population, gamete, coordinates);
+            simulation.createAgent(population, gamete, locatable);
 
-            AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", coordinates));
+            AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", locatable));
         }
 
         offspringCount += eggCount;

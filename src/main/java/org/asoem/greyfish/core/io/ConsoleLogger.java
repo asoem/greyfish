@@ -13,7 +13,7 @@ public class ConsoleLogger implements AgentEventLogger {
                         event.getAgent().getId() + "\t" +
                         event.getStep() + "\t" +
                         event.getSource() + "\t" +
-                        event.getCoordinates2D() + "\t" +
+                        event.getLocatable2D() + "\t" +
                         event.getKey() + "\t" +
                         event.getValue() + "\n");
     }

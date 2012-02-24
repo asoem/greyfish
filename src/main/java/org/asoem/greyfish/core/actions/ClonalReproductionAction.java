@@ -15,8 +15,7 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.Coordinates2D;
-import org.simpleframework.xml.Attribute;
+import org.asoem.greyfish.utils.space.Locatable2D;
 import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="actions")
@@ -34,14 +33,14 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     @Override
     protected ActionState executeUnconditioned(Simulation simulation) {
-        final Coordinates2D coordinates = simulation.getSpace().getCoordinates(agent());
+        final Locatable2D locatable = simulation.getSpace().getCoordinates(agent());
         final Population population = agent().getPopulation();
 
         for (int i = 0; i < nClones.evaluateForContext(this).asInt(); i++) {
             final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(agent().getGenes());
-            simulation.createAgent(population, gamete, coordinates);
+            simulation.createAgent(population, gamete, locatable);
 
-            AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", coordinates));
+            AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", locatable));
         }
         return ActionState.END_SUCCESS;
     }

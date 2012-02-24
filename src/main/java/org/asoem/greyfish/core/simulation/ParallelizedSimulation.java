@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.util.FastList;
@@ -21,8 +22,7 @@ import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.asoem.greyfish.utils.space.Coordinates2D;
-import org.asoem.greyfish.utils.space.Movable;
+import org.asoem.greyfish.utils.space.Locatable2D;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static org.asoem.greyfish.core.concurrent.SingletonForkJoinPool.invoke;
 import static org.asoem.greyfish.utils.parallel.ParallelIterables.apply;
@@ -123,7 +122,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Iterable<Agent> findNeighbours(Agent agent, double radius) {
-        return Iterables.filter(Iterables.filter(space.findObjects(agent, radius), not(equalTo((Movable) agent))), Agent.class);
+        return Iterables.filter(Iterables.filter(space.findObjects(agent, radius), not(Predicates.<Object>equalTo(agent))), Agent.class);
     }
 
     @Override
@@ -145,7 +144,7 @@ public class ParallelizedSimulation implements Simulation {
             assert clone != null;
             clone.initGenome();
             clone.prepare(this);
-            addAgentInternal(clone, placeholder.getCoordinates());
+            addAgentInternal(clone, placeholder);
         }
     }
 
@@ -154,20 +153,20 @@ public class ParallelizedSimulation implements Simulation {
         return agents;
     }
 
-    private void addAgentInternal(Agent agent, Coordinates2D coordinates) {
+    private void addAgentInternal(Agent agent, Locatable2D locatable) {
         checkNotNull(agent);
         checkArgument(getPrototype(agent.getPopulation()) != null,
                 "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
         // populationCounterMap is guaranteed to contain exactly the same keys as populationPrototypeMap
 
-        checkNotNull(coordinates);
-        checkArgument(space.covers(coordinates),
-                "Coordinates " + coordinates + " do not fall inside the area of this simulation's space: " + space);
+        checkNotNull(locatable);
+        checkArgument(space.covers(locatable),
+                "Coordinates " + locatable + " do not fall inside the area of this simulation's space: " + space);
 
         // following actions must be synchronized
         synchronized (this) {
             agents.add(agent);
-            space.addObject(agent, coordinates);
+            space.addObject(agent, locatable);
             Counter counter = populationCounterMap.get(agent.getPopulation());
             counter.increase(); // non-null verified by checkCanAddAgent();
         }
@@ -229,7 +228,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void createAgent(final Population population, final Genome<? extends Gene<?>> genome, Coordinates2D location) {
+    public void createAgent(final Population population, final Genome<? extends Gene<?>> genome, Locatable2D location) {
         checkNotNull(population);
         checkArgument(getPrototype(population) != null);
         checkNotNull(genome);
@@ -315,7 +314,7 @@ public class ParallelizedSimulation implements Simulation {
         invoke(apply(agents, new VoidFunction<Agent>() {
             @Override
             public void apply(Agent agent) {
-                space.moveObject(agent);
+                space.moveObject(agent, agent.getMotion());
             }
         }, 1000));
     }
@@ -385,9 +384,9 @@ public class ParallelizedSimulation implements Simulation {
 
         private final Population population;
         private final Genome<? extends Gene<?>> genome;
-        private final Coordinates2D location;
+        private final Locatable2D location;
 
-        public AddAgentMessage(Population population, Genome<? extends Gene<?>> genome, Coordinates2D location) {
+        public AddAgentMessage(Population population, Genome<? extends Gene<?>> genome, Locatable2D location) {
             this.population = population;
             this.genome = genome;
             this.location = location;

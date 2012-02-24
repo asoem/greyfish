@@ -10,14 +10,13 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
-import org.asoem.greyfish.utils.space.Movable;
-import org.simpleframework.xml.Root;
+import org.asoem.greyfish.utils.space.Motion2D;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Movable, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -66,6 +65,7 @@ public interface Agent extends DeepCloneable, Freezable, Movable, Preparable<Sim
     void setColor(Color color);
     double getRadius();
 
+    Motion2D getMotion();
     void changeMotion(double angle, double velocity);
     void setMotion(double angle, double velocity);
     void setRotation(double alpha);

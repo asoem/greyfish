@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.Locatable2D;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,11 +18,11 @@ public class AgentEvent {
     private final String value;
     private final int step;
     private final Simulation simulation;
-    private final Coordinates2D coordinates2D;
+    private final Locatable2D locatable2D;
 
-    public AgentEvent(Simulation simulation, int step, Agent agent, Object source, String key, String value, Coordinates2D coordinates2D) {
+    public AgentEvent(Simulation simulation, int step, Agent agent, Object source, String key, String value, Locatable2D locatable2D) {
         this.simulation = simulation;
-        this.coordinates2D = checkNotNull(coordinates2D);
+        this.locatable2D = checkNotNull(locatable2D);
         this.value = checkNotNull(value);
         this.key = checkNotNull(key);
         this.source = checkNotNull(source);
@@ -54,7 +54,7 @@ public class AgentEvent {
         return simulation;
     }
 
-    public Coordinates2D getCoordinates2D() {
-        return coordinates2D;
+    public Locatable2D getLocatable2D() {
+        return locatable2D;
     }
 }
