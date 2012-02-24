@@ -96,11 +96,6 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
-        return delegate().deepClone(cloner);
-    }
-
-    @Override
     public void freeze() {
         delegate().freeze();
     }
@@ -251,8 +246,8 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public ComponentList<Gene<?>> getGenes() {
-        return delegate().getGenes();
+    public Genome<Gene<?>> getGenome() {
+        return delegate().getGenome();
     }
 
     @Override

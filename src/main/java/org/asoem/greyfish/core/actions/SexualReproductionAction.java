@@ -45,6 +45,12 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     private ElementSelectionStrategy<EvaluatedGenome<?>> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
 
+    private final static BiMap<String, ElementSelectionStrategy<EvaluatedGenome<?>>> strategies =
+            ImmutableBiMap.of(
+                    "Random", ElementSelectionStrategies.<EvaluatedGenome<?>>randomSelection(),
+                    "Roulette Wheel", ElementSelectionStrategies.<EvaluatedGenome<?>>rouletteWheelSelection(),
+                    "Best", ElementSelectionStrategies.<EvaluatedGenome<?>>bestSelection());
+
     private int offspringCount = 0;
 
     @SimpleXMLConstructor
@@ -64,7 +70,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         final int eggCount = clutchSize.evaluateForContext(this).asInt();
         for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
-            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate));
+            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenome(), spermCandidate));
 
             simulation.createAgent(population, gamete, coordinates);
 
@@ -99,12 +105,6 @@ public class SexualReproductionAction extends AbstractGFAction {
         });
         
         e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
-
-            private final BiMap<String, ElementSelectionStrategy<EvaluatedGenome<?>>> strategies =
-                    ImmutableBiMap.of(
-                            "Random", ElementSelectionStrategies.<EvaluatedGenome<?>>randomSelection(),
-                            "Roulette Wheel", ElementSelectionStrategies.<EvaluatedGenome<?>>rouletteWheelSelection(),
-                            "Best", ElementSelectionStrategies.<EvaluatedGenome<?>>bestSelection());
             
             @Override
             public Iterable<String> values() {

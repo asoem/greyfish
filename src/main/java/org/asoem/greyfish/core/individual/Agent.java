@@ -47,7 +47,7 @@ public interface Agent extends DeepCloneable, Freezable, Movable, Preparable<Sim
     boolean addGene(Gene<?> gene);
     boolean removeGene(Gene<?> gene);
     void removeAllGenes();
-    ComponentList<Gene<?>> getGenes();
+    Genome<Gene<?>> getGenome();
     @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
 
     /**

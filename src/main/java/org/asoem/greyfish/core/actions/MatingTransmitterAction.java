@@ -107,7 +107,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
         final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
         if (RandomUtils.trueWithProbability(probability)) {
-            final Genome<Gene<?>> sperm = ImmutableGenome.copyOf(agent().getGenes());
+            final Genome<Gene<?>> sperm = ImmutableGenome.copyOf(agent().getGenome());
             double fitness = 0.0;
             try {
                 fitness = spermFitness.evaluateForContext(this).asDouble();

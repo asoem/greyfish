@@ -16,7 +16,6 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.Coordinates2D;
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="actions")
@@ -38,7 +37,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
         final Population population = agent().getPopulation();
 
         for (int i = 0; i < nClones.evaluateForContext(this).asInt(); i++) {
-            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(agent().getGenes());
+            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(agent().getGenome());
             simulation.createAgent(population, gamete, coordinates);
 
             AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", coordinates));

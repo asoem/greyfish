@@ -28,7 +28,7 @@ import static org.asoem.greyfish.utils.space.ImmutableCoordinates2D.sum;
  * @author christoph
  * This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
-public class TiledSpace implements Iterable<TileLocation> {
+public class TiledSpace implements Iterable<TileLocation>, Function<Movable, Object2D> {
 
     @Attribute(name = "height")
     private final int height;
@@ -50,8 +50,8 @@ public class TiledSpace implements Iterable<TileLocation> {
         setBorderedTiles(pSpace.getBorderedTiles());
     }
 
-    public TiledSpace(@Attribute(name = "width") int width,
-                      @Attribute(name = "height") int height) {
+    public TiledSpace(int width,
+                      int height) {
         Preconditions.checkArgument(width >= 0);
         Preconditions.checkArgument(height >= 0);
 
@@ -64,6 +64,23 @@ public class TiledSpace implements Iterable<TileLocation> {
                 this.tileMatrix[i][j] = new TileLocation(this, i, j);
             }
         }
+    }
+
+    public TiledSpace(int width, int height, TileLocation[] borderedTiles) {
+        Preconditions.checkArgument(width >= 0);
+        Preconditions.checkArgument(height >= 0);
+
+        this.width = width;
+        this.height = height;
+
+        this.tileMatrix = new TileLocation[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                this.tileMatrix[i][j] = new TileLocation(this, i, j);
+            }
+        }
+        
+        setBorderedTiles(borderedTiles);
     }
 
     @SimpleXMLConstructor
@@ -242,11 +259,11 @@ public class TiledSpace implements Iterable<TileLocation> {
         }));
     }
 
-    public void addObject(Movable movable, Coordinates2D coordinates2D) {
-        checkArgument(this.covers(checkNotNull(coordinates2D)));
+    public void addObject(Movable movable, Object2D object2D) {
+        checkArgument(this.covers(checkNotNull(object2D).getCoordinates()));
         checkNotNull(movable);
         synchronized (this) {
-            spaceObjectMap.put(movable, ImmutableObject2D.of(coordinates2D, 0));
+            spaceObjectMap.put(movable, object2D);
             twoDimTreeOutdated = true;
         }
     }
@@ -274,6 +291,21 @@ public class TiledSpace implements Iterable<TileLocation> {
 
     public Iterable<Movable> findObjects(Movable agent, double radius) {
         return findObjects(getCoordinates(agent), radius);
+    }
+
+    /**
+     * Create a new {@code TiledSpace} which has the same dimensions and the same borders as the given {@code space},
+     * but with no objects.
+     * @param space The space to copy the information from
+     * @return a new space
+     */
+    public static TiledSpace createEmptySpace(TiledSpace space) {
+        return new TiledSpace(space.getWidth(), space.getHeight(), space.getBorderedTiles());
+    }
+
+    @Override
+    public Object2D apply(@Nullable Movable movable) {
+        return spaceObjectMap.get(movable);
     }
 
     public static class MovementPlan {

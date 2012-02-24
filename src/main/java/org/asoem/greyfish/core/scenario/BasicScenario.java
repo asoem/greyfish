@@ -1,12 +1,8 @@
 package org.asoem.greyfish.core.scenario;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Placeholder;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -19,7 +15,6 @@ import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,9 +44,17 @@ public class BasicScenario implements Scenario {
         this.prototypes.addAll(prototypes);
     }
 
+    public BasicScenario(Scenario scenario) {
+        this.name = scenario.getName();
+        this.prototypeSpace = new TiledSpace(scenario.getSpace());
+        for (Map.Entry<Object2D, Agent> entry : Maps.uniqueIndex(scenario.getPlaceholder(), scenario.getSpace()).entrySet()) {
+            addAgent(entry.getValue(), entry.getKey());
+        }
+    }
+    
     private BasicScenario(Builder builder) {
         this.name = builder.name;
-        this.prototypeSpace = TiledSpace.copyOf(builder.space);
+        this.prototypeSpace = builder.space;
         for (Map.Entry<Agent, Object2D> entry : builder.map.entries()) {
             addAgent(entry.getKey(), entry.getValue());
         }
@@ -62,16 +65,26 @@ public class BasicScenario implements Scenario {
         checkNotNull(prototype);
         checkNotNull(location);
 
-        if (!prototypes.contains(prototype))
-            if (!prototypes.add(prototype))
-                return false;
+        addAsPrototypeIfUnknown(prototype);
 
-        prototypeSpace.addObject(Placeholder.newInstance(prototype, location), location.getCoordinates());
+        prototypeSpace.addObject(prototype, location);
         return true;
     }
 
+    private void addAsPrototypeIfUnknown(final Agent prototype) {
+        if (Iterables.find(prototypes, new Predicate<Agent>() {
+            @Override
+            public boolean apply(@Nullable Agent agent) {
+                assert agent != null;
+                return agent.getPopulation().equals(prototype.getPopulation());
+            }
+        }, null) == null) {
+            prototypes.add(prototype);
+        }
+    }
+
     @Override
-    public boolean removePlaceholder(Placeholder placeholder) {
+    public boolean removePlaceholder(Agent placeholder) {
         return prototypeSpace.removeObject(placeholder);
     }
 
@@ -92,24 +105,24 @@ public class BasicScenario implements Scenario {
     }
 
     @Override
-    public Iterable<Placeholder> getPlaceholder() {
-        return Iterables.filter(prototypeSpace.getOccupants(), Placeholder.class);
+    public Iterable<Agent> getPlaceholder() {
+        return Iterables.filter(prototypeSpace.getOccupants(), Agent.class);
     }
 
     @Override
-    public Iterable<Placeholder> getPlaceholder(TileLocation location) {
-        return Iterables.filter(prototypeSpace.getOccupants(location), Placeholder.class);
+    public Iterable<Agent> getPlaceholder(TileLocation location) {
+        return Iterables.filter(prototypeSpace.getOccupants(location), Agent.class);
     }
 
     @Override
-    public Iterable<Placeholder> getPlaceholder(final Iterable<? extends TileLocation> locations) {
-        return Iterables.filter(getPlaceholder(), new Predicate<Placeholder>() {
+    public Iterable<Agent> getPlaceholder(final Iterable<? extends TileLocation> locations) {
+        return Iterables.filter(getPlaceholder(), new Predicate<Agent>() {
             @Override
-            public boolean apply(final Placeholder placeholder) {
+            public boolean apply(final Agent placeholder) {
                 return Iterables.any(locations, new Predicate<TileLocation>() {
                     @Override
                     public boolean apply(TileLocation o) {
-                        return o.covers(placeholder.getCoordinates());
+                        return o.covers(prototypeSpace.getCoordinates(placeholder));
                     }
                 });
             }
@@ -141,7 +154,7 @@ public class BasicScenario implements Scenario {
         return new Builder(name, space);
     }
 
-    public static class Builder implements org.asoem.greyfish.utils.base.Builder<Scenario> {
+    public static class Builder implements org.asoem.greyfish.utils.base.Builder<BasicScenario> {
         private final TiledSpace space;
         private final Multimap<Agent, Object2D> map = ArrayListMultimap.create();
         private final String name;
@@ -157,13 +170,13 @@ public class BasicScenario implements Scenario {
         }
 
         /**
-         * Create and createChildNode a {@link Placeholder} of the given {@code prototype}
+         * Create and createChildNode a {@link Agent} of the given {@code prototype}
          * represented by the given {@code object2D} to the {@code Scenario}.
          * @param prototype the prototype
          * @param object2D an {@code Object2D} to be placed in the {@code TiledSpace} defined in the constructor of this {@code Builder}
          * @return this {@code Builder} object
          */
-        public Builder addAgent(final Agent prototype, Object2D object2D) {
+        public Builder putAgent(final Agent prototype, Object2D object2D) {
             checkNotNull(prototype);
             checkNotNull(object2D);
             map.put(prototype, object2D);
@@ -174,7 +187,7 @@ public class BasicScenario implements Scenario {
          * Returns a newly-created {@code Scenario} based on the contents of the {@code Builder}.
          */
         @Override
-        public Scenario build() {
+        public BasicScenario build() {
             checkState(Iterables.all(map.values(), new Predicate<Object2D>() {
                 @Override
                 public boolean apply(Object2D object2D) {

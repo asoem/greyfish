@@ -15,7 +15,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
@@ -32,6 +32,7 @@ import static java.util.Arrays.asList;
  * Date: 19.09.11
  * Time: 16:20
  */
+@Root(name = "agent")
 public abstract class AbstractAgent implements Agent {
 
     @Element(name = "properties")
@@ -187,7 +188,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public ComponentList<Gene<?>> getGenes() {
+    public Genome<Gene<?>> getGenome() {
         return genome;
     }
 
@@ -258,7 +259,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Color getColor() {
-        return body.getColor();
+        return population.getColor();
     }
 
     @Override

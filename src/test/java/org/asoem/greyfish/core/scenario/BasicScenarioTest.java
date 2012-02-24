@@ -28,6 +28,7 @@ import java.util.Set;
 import static org.asoem.greyfish.core.space.TiledSpace.ofSize;
 import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,18 +46,24 @@ public class BasicScenarioTest {
     @Test
     public void builderTest() {
         // given
+
+        final Population population = mock(Population.class);
         final Agent prototype = mock(Agent.class);
+        given(prototype.getPopulation()).willReturn(population);
+        final Agent prototype2 = mock(Agent.class);
+        given(prototype2.getPopulation()).willReturn(population);
+
         Scenario scenario = BasicScenario.builder("TestScenario", ofSize(1, 1))
-                .addAgent(prototype, locatedAt(0.0, 0.0))
-                .addAgent(prototype, locatedAt(0.0, 0.0))
+                .putAgent(prototype, locatedAt(0.0, 0.0))
+                .putAgent(prototype2, locatedAt(0.0, 0.0))
                 .build();
         // when
         Set<Agent> prototypes = scenario.getPrototypes();
-        Iterable<Placeholder> agents = scenario.getPlaceholder();
+        Iterable<Agent> agents = scenario.getPlaceholder();
 
         // then
         assertThat(prototypes)
-                .containsOnly(prototype);
+                .hasSize(1);
         assertThat(agents)
                 .hasSize(2)
                 .excludes(new Object[] {null});
@@ -67,8 +74,8 @@ public class BasicScenarioTest {
         final Agent prototype = ImmutableAgent.of(Population.newPopulation("TestPopulation", Color.blue)).build();
         // given
         Scenario scenario = BasicScenario.builder("TestScenario", ofSize(3, 4))
-                .addAgent(prototype, locatedAt(0.42, 1.42))
-                .addAgent(prototype, locatedAt(0.42, 1.42))
+                .putAgent(Placeholder.newInstance(prototype), locatedAt(0.42, 1.42))
+                .putAgent(Placeholder.newInstance(prototype), locatedAt(0.42, 1.42))
                 .build();
 
         // when

@@ -3,22 +3,16 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.genes.MutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Element;
 
-@Root
 public class MutableAgent extends AbstractAgent {
-
-    public MutableAgent() {
-        super(new Body(),
-                new MutableComponentList<GFProperty>(),
-                new MutableComponentList<GFAction>(),
-                new MutableGenome<Gene<?>>());
-    }
 
     protected MutableAgent(MutableAgent mutableAgent, DeepCloner map) {
         super(mutableAgent, map);
@@ -30,6 +24,22 @@ public class MutableAgent extends AbstractAgent {
                 new MutableComponentList<GFAction>(builder.actions),
                 new MutableGenome<Gene<?>>(builder.genes));
         setPopulation(builder.population);
+    }
+
+    @SimpleXMLConstructor
+    private MutableAgent(@Element(name = "body") Body body,
+                           @Element(name = "properties") ComponentList<GFProperty> properties,
+                           @Element(name = "actions") ComponentList<GFAction> actions,
+                           @Element(name = "genome") Genome<Gene<?>> genome) {
+        super(body, properties, actions, genome);
+    }
+
+    public MutableAgent(Agent agent) {
+        super(new Body(agent.getBody()),
+                new MutableComponentList<GFProperty>(agent.getProperties()),
+                new MutableComponentList<GFAction>(agent.getActions()),
+                new MutableGenome<Gene<?>>(agent.getGenome()));
+        setPopulation(agent.getPopulation());
     }
 
     @Override
@@ -64,7 +74,7 @@ public class MutableAgent extends AbstractAgent {
         return new MutableAgent(this, cloner);
     }
 
-    public static Builder with(Population population) {
+    public static Builder of(Population population) {
         return new Builder(population);
     }
 
@@ -74,7 +84,7 @@ public class MutableAgent extends AbstractAgent {
         }
 
         @Override
-        public MutableAgent checkedBuild() {
+        protected MutableAgent checkedBuild() {
             return new MutableAgent(this);
         }
         @Override

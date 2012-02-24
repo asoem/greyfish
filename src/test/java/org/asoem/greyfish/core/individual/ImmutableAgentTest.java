@@ -175,6 +175,6 @@ public class ImmutableAgentTest {
         final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
 
         // then
-        assertThat(deserializedAgent.getGenes()).hasSize(1);
+        assertThat(deserializedAgent.getGenome()).hasSize(1);
     }
 }

@@ -5,7 +5,6 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Coordinates2D;
 
@@ -83,11 +82,6 @@ public abstract class SimulationAdaptor implements Simulation {
     @Override
     public void step() {
         delegate().step();
-    }
-
-    @Override
-    public Scenario getScenario() {
-        return delegate().getScenario();
     }
 
     @Override

@@ -6,16 +6,18 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.core.individual.ImmutableComponentList;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This is an immutable implementation of a Genome in the sense,
@@ -29,6 +31,7 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
     @Element(name = "genes")
     private final ComponentList<E> delegate;
 
+    @SimpleXMLConstructor
     private ImmutableGenome(@Element(name = "genes") ComponentList<E> genes) {
         delegate = genes;
     }
@@ -104,25 +107,40 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
     }
 
     /**
-     * Creates a new {@code ImmutableGenome} out of {@code genome1} and {@code genome2}
-     * by selecting with equal probability one gene of one genome per position.
+     * Creates a new {@code ImmutableGenome} out of {@code genome1} and {@code genome2}.
      * @param genome1 The first genome
      * @param genome2 The second genome
      * @return a new {@code ImmutableGenome}
      */
-    public static ImmutableGenome<? extends Gene<?>> recombined(Iterable<Gene<?>> genome1, Genome genome2) {
+    public static ImmutableGenome<? extends Gene<?>> recombined(Genome<? extends Gene<?>> genome1, Genome<? extends Gene<?>> genome2) {
+        checkNotNull(genome1);
+        checkNotNull(genome2);
+        if (genome1.size() != genome2.size())
+            throw new IllegalArgumentException("Genomes differ in size");
+
         final Builder<Gene<?>> builder = new Builder<Gene<?>>();
 
-        final Iterator<Gene<?>> genome1Iterator = genome1.iterator();
-        final Iterator genome2Iterator = genome2.iterator();
+        Iterator<? extends Gene<?>> focalIterator = genome1.iterator();
+        Iterator<? extends Gene<?>> nonFocalIterator = genome2.iterator();
 
-        while (genome1Iterator.hasNext() && genome2Iterator.hasNext()) {
-            Gene<?> next1 =  genome1Iterator.next();
-            Gene<?> next2 =  genome1Iterator.next();
-            builder.add(RandomUtils.nextBoolean() ? next1 : next2);
+        while (focalIterator.hasNext() && nonFocalIterator.hasNext()) {
+            Gene<?> next1 =  focalIterator.next();
+            Gene<?> next2 =  focalIterator.next();
+
+            final double recombinationProbability = next1.getRecombinationProbability();
+            if (recombinationProbability < 0 || recombinationProbability > 1)
+                throw new AssertionError("Recombination probability has an invalid value: " + recombinationProbability);
+
+            final boolean recombine = RandomUtils.trueWithProbability(recombinationProbability);
+            
+            builder.add(recombine ? next1 : next2);
+            
+            if (recombine) {
+                Iterator<? extends Gene<?>> newFocalIterator = nonFocalIterator;
+                nonFocalIterator = focalIterator;
+                focalIterator = newFocalIterator;
+            }
         }
-
-        assert ! (genome1Iterator.hasNext() || genome2Iterator.hasNext());
 
         return builder.build();
     }

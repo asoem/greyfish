@@ -4,8 +4,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.core.individual.MutableComponentList;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
@@ -16,18 +18,21 @@ import javax.annotation.Nullable;
  */
 public class MutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
 
-    private final ComponentList<E> delegate = new MutableComponentList<E>();
+    @Element(name = "genes")
+    private final ComponentList<E> delegate;
 
-    public MutableGenome() {
+    @SimpleXMLConstructor
+    private MutableGenome(@Element(name = "genes") ComponentList<E> genes) {
+        delegate = genes;
     }
 
     public MutableGenome(Iterable<? extends E> genome) {
-        Iterables.addAll(delegate(), genome);
+        delegate = new MutableComponentList<E>(genome);
     }
 
     protected MutableGenome(MutableGenome<E> parent, final DeepCloner cloner) {
         cloner.addClone(this);
-        Iterables.addAll(delegate, Iterables.transform(parent.delegate, new Function<E, E>() {
+        delegate = new MutableComponentList<E>(Iterables.transform(parent.delegate, new Function<E, E>() {
             @SuppressWarnings("unchecked") // its a save downcast
             @Override
             public E apply(@Nullable E e) {

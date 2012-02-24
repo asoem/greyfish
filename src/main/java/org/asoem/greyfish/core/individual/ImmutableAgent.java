@@ -1,18 +1,15 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.*;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.ImmutableGenome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,20 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Apart from the structure, other properties of the {@code Agent} will be modified during a {@link Simulation}.
  */
 public class ImmutableAgent extends AbstractAgent {
-
-    @SimpleXMLConstructor
-    private ImmutableAgent(Population population,
-                           Iterable<GFProperty> properties,
-                           Iterable<GFAction> actions,
-                           Iterable<Gene<?>> genes,
-                           Body body) {
-        super(body,
-                ImmutableComponentList.copyOf(properties),
-                ImmutableComponentList.copyOf(actions),
-                ImmutableGenome.copyOf(genes));
-        setPopulation(population);
-        freeze();
-    }
 
     @SimpleXMLConstructor
     protected ImmutableAgent(@Element(name = "body") Body body,
@@ -76,12 +59,13 @@ public class ImmutableAgent extends AbstractAgent {
         checkNotNull(agent);
         Agent clone = DeepCloner.clone(agent, Agent.class);
 
-        return new ImmutableAgent(
-                clone.getPopulation(),
+        final ImmutableAgent ret = new ImmutableAgent(
+                clone.getBody(),
                 clone.getProperties(),
                 clone.getActions(),
-                clone.getGenes(),
-                clone.getBody());
+                ImmutableGenome.copyOf(clone.getGenome()));
+        ret.setPopulation(clone.getPopulation());
+        return ret;
     }
 
     public static Builder of(Population population) {

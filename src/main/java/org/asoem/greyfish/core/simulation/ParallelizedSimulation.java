@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.util.FastList;
@@ -13,7 +14,10 @@ import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.individual.*;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AgentMessage;
+import org.asoem.greyfish.core.individual.ImmutableAgent;
+import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.Counter;
@@ -22,7 +26,9 @@ import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.Coordinates2D;
+import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.asoem.greyfish.utils.space.Movable;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -70,15 +76,22 @@ public class ParallelizedSimulation implements Simulation {
                 }
             },
             10000, 100);
+    
+    private final Set<Agent> prototypes;
 
     @Nullable
-    private Agent getPrototype(Population population) {
-        return scenario.getPrototype(population);
+    private Agent getPrototype(final Population population) {
+        return Iterables.find(prototypes, new Predicate<Agent>() {
+            @Override
+            public boolean apply(@Nullable Agent agent) {
+                assert agent != null;
+                return agent.getPopulation().equals(population);
+            }
+        }, null);
     }
 
     private final AtomicInteger maxId = new AtomicInteger();
 
-    private final Scenario scenario;
 
     private final TiledSpace space;
 
@@ -87,12 +100,24 @@ public class ParallelizedSimulation implements Simulation {
     private String title = "untitled";
 
     public ParallelizedSimulation(final Scenario scenario) {
-        checkNotNull(scenario);
+        this(TiledSpace.createEmptySpace(scenario.getSpace()),
+                scenario.getPrototypes(),
+                Iterables.transform(scenario.getPlaceholder(), new Function<Agent, Agent>() {
+                    @Override
+                    public Agent apply(@Nullable Agent agent) {
+                        return ImmutableAgent.cloneOf(agent);
+                    }
+                }), scenario.getSpace());
+    }
 
-        this.scenario = scenario;
-
+    public ParallelizedSimulation(TiledSpace space, Set<? extends Agent> prototypes, Iterable<? extends Agent> agents, Function<? super Agent, ? extends Object2D> function) {
+        checkNotNull(space);
+        checkNotNull(prototypes);
+        
+        this.space = space;
+        this.prototypes = ImmutableSet.copyOf(prototypes);
         this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
-                putAll(getPrototypes(),
+                putAll(prototypes,
                         new Function<Agent, Population>() {
                             @Override
                             public Population apply(Agent agent) {
@@ -106,10 +131,9 @@ public class ParallelizedSimulation implements Simulation {
                             }
                         }).
                 build();
-
-        this.space = new TiledSpace(scenario.getSpace());
-
-        initialize();
+        for (Agent agent : agents) {
+            addAgentInternal(agent, function.apply(agent));
+        }
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -138,36 +162,25 @@ public class ParallelizedSimulation implements Simulation {
         });
     }
 
-    private void initialize() {
-        // convert each placeholder to a concrete object
-        for (Placeholder placeholder : scenario.getPlaceholder()) {
-            final Agent clone = borrowAgentFromPool(placeholder.getPopulation());
-            assert clone != null;
-            clone.initGenome();
-            clone.prepare(this);
-            addAgentInternal(clone, placeholder.getCoordinates());
-        }
-    }
-
     @Override
     public Iterable<Agent> getAgents() {
         return agents;
     }
 
-    private void addAgentInternal(Agent agent, Coordinates2D coordinates) {
+    private void addAgentInternal(Agent agent, Object2D object2D) {
         checkNotNull(agent);
         checkArgument(getPrototype(agent.getPopulation()) != null,
                 "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
         // populationCounterMap is guaranteed to contain exactly the same keys as populationPrototypeMap
 
-        checkNotNull(coordinates);
-        checkArgument(space.covers(coordinates),
-                "Coordinates " + coordinates + " do not fall inside the area of this simulation's space: " + space);
+        checkNotNull(object2D);
+        checkArgument(space.covers(object2D.getCoordinates()),
+                "Coordinates " + object2D + " do not fall inside the area of this simulation's space: " + space);
 
         // following actions must be synchronized
         synchronized (this) {
             agents.add(agent);
-            space.addObject(agent, coordinates);
+            space.addObject(agent, object2D);
             Counter counter = populationCounterMap.get(agent.getPopulation());
             counter.increase(); // non-null verified by checkCanAddAgent();
         }
@@ -255,7 +268,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Set<Agent> getPrototypes() {
-        return scenario.getPrototypes();
+        return prototypes;
     }
 
     @Override
@@ -306,7 +319,7 @@ public class ParallelizedSimulation implements Simulation {
             final Agent clone = borrowAgentFromPool(addAgentMessage.population);
             clone.injectGamete(addAgentMessage.genome);
             clone.prepare(this);
-            addAgentInternal(clone, addAgentMessage.location);
+            addAgentInternal(clone, ImmutableObject2D.of(addAgentMessage.location, 0));
         }
         addAgentMessages.clear();
     }
@@ -328,11 +341,6 @@ public class ParallelizedSimulation implements Simulation {
             }
         }));
         removeAgentMessages.clear();
-    }
-
-    @Override
-    public Scenario getScenario() {
-        return scenario;
     }
 
     @Override

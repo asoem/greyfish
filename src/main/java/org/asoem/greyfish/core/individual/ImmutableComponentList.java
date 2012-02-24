@@ -28,6 +28,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
     private final List<E> listDelegate;
 
+    @SimpleXMLConstructor
     private ImmutableComponentList(@ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) List<E> components) {
         listDelegate = ImmutableList.copyOf(components);
     }

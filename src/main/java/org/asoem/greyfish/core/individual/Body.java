@@ -57,6 +57,13 @@ public class Body extends AbstractAgentComponent implements Movable {
         this();
         setAgent(checkNotNull(owner));
     }
+    
+    public Body(Body body) {
+        super(body.getName());
+        setRotation(body.getRotation());
+        setColor(body.getColor());
+        stateColorMap = Maps.newHashMap(body.stateColorMap);
+    }
 
     /**
      *
