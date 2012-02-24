@@ -2,28 +2,38 @@ package org.asoem.greyfish.utils.space;
 
 import javolution.lang.MathLib;
 
-public class MutableMovable implements Movable {
+public class MutableMotion2D implements Motion2D {
 
-    private ImmutableMotionVector motionVector = new ImmutableMotionVector(0, 0);
+    private ImmutableMotion2D motion2D = new ImmutableMotion2D(0, 0);
 
-    public MutableMovable() {}
+    public MutableMotion2D() {}
 
     public void setRotation(double alpha) {
         setMotion(alpha % MathLib.PI, getTranslation());
     }
 
     public void setTranslation(double translation) {
-        setMotion(getRotation(), translation);
+        setMotion(getRotation2D(), translation);
+    }
+
+    @Override
+    public int getDimension() {
+        return 2;
     }
 
     @Override
     public double getTranslation() {
-        return motionVector.getRadius();
+        return motion2D.getTranslation();
     }
 
     @Override
-    public double getRotation() {
-        return motionVector.getAngle();
+    public double[] getRotation() {
+        return motion2D.getRotation();
+    }
+
+    @Override
+    public double getRotation2D() {
+        return motion2D.getAngle();
     }
 
     /**
@@ -33,7 +43,7 @@ public class MutableMovable implements Movable {
      * @param velocity The value to sum to the length of this object's motion vector
      */
     public void changeMotion(double angle, double velocity) {
-        motionVector = motionVector.moved(angle, velocity);
+        motion2D = motion2D.moved(angle, velocity);
     }
 
     /**
@@ -43,6 +53,6 @@ public class MutableMovable implements Movable {
      * @param velocity The new value of the length of this object's motion vector
      */
     public void setMotion(double angle, double velocity) {
-        motionVector = ImmutableMotionVector.of(angle, velocity);
+        motion2D = ImmutableMotion2D.of(angle, velocity);
     }
 }

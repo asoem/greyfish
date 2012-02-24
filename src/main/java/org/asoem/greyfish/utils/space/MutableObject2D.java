@@ -14,38 +14,29 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class MutableObject2D implements Object2D {
 
-    @Attribute(name = "x")
-    private double x;
-
-    @Attribute(name = "y")
-    private double y;
-
     @Attribute(name = "orientation")
     private double orientation = 0;
+
+    private MutableLocatable2D locatable2D = new MutableLocatable2D();
 
     @SimpleXMLConstructor
     private MutableObject2D() {
     }
 
     public MutableObject2D(double x, double y, double angle) {
-        this.x = x;
-        this.y = y;
-        this.orientation = angle;
+        setX(x);
+        setY(y);
+        setOrientation(angle);
+    }
+
+    public void setCoordinates(Locatable2D locatable2d) {
+        checkNotNull(locatable2d);
+        setX(locatable2d.getX());
+        setY(locatable2d.getY());
     }
 
     @Override
-    public Coordinates2D getCoordinates() {
-        return ImmutableCoordinates2D.at(x, y);
-    }
-
-    public void setCoordinates(Coordinates2D coordinates2d) {
-        checkNotNull(coordinates2d);
-        x = coordinates2d.getX();
-        y = coordinates2d.getY();
-    }
-
-    @Override
-    public double getOrientation() {
+    public double getOrientationAngle() {
         return orientation;
     }
 
@@ -62,7 +53,45 @@ public class MutableObject2D implements Object2D {
         return new MutableObject2D(x, y, angle);
     }
 
-    public static MutableObject2D at(Coordinates2D coordinates2D, double angle) {
-        return new MutableObject2D(coordinates2D.getX(), coordinates2D.getY(), angle);
+    public static MutableObject2D at(Locatable2D locatable2D, double angle) {
+        return new MutableObject2D(locatable2D.getX(), locatable2D.getY(), angle);
+    }
+
+    @Override
+    public double getX() {
+        return locatable2D.getX();
+    }
+
+    public void setX(double x) {
+        locatable2D.setX(x);
+    }
+
+    @Override
+    public double getY() {
+        return locatable2D.getY();
+    }
+
+    public void setY(double y) {
+        locatable2D.setY(y);
+    }
+
+    @Override
+    public double[] getCoordinates() {
+        return locatable2D.getCoordinates();
+    }
+
+    @Override
+    public int getDimensions() {
+        return 2;
+    }
+
+    @Override
+    public double[] getOrientation() {
+        return new double[] {orientation};
+    }
+
+    @Override
+    public double[] getBoundingVolume() {
+        return new double[] {0, 0};
     }
 }

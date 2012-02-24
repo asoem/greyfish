@@ -15,28 +15,53 @@ public class ImmutableObject2D implements Object2D {
     @Element(name = "orientation")
     private final double orientation;
 
-    @Element(name = "coordinates")
-    private final Coordinates2D coordinates;
+    @Element(name = "locatable")
+    private final Locatable2D locatable;
 
     @SimpleXMLConstructor
-    private ImmutableObject2D(@Element(name = "coordinates") Coordinates2D coordinates,
+    private ImmutableObject2D(@Element(name = "locatable") Locatable2D locatable,
                               @Element(name = "orientation") double orientation) {
-        this.coordinates = coordinates;
+        this.locatable = locatable;
         this.orientation = orientation;
     }
 
     @Override
-    public double getOrientation() {
+    public double getOrientationAngle() {
         return orientation;
     }
 
-    @Override
-    public Coordinates2D getCoordinates() {
-        return coordinates;
+    public static ImmutableObject2D of(Locatable2D locatable, double orientationAngle) {
+        checkNotNull(locatable);
+        return new ImmutableObject2D(locatable, orientationAngle);
     }
 
-    public static ImmutableObject2D of(Coordinates2D coordinates, double orientationAngle) {
-        checkNotNull(coordinates);
-        return new ImmutableObject2D(coordinates, orientationAngle);
+    @Override
+    public double getX() {
+        return locatable.getX();
+    }
+
+    @Override
+    public double getY() {
+        return locatable.getY();
+    }
+
+    @Override
+    public double[] getCoordinates() {
+        return locatable.getCoordinates();
+    }
+
+    @Override
+    public int getDimensions() {
+        return 2;
+    }
+
+    @Override
+    public double[] getOrientation() {
+        return new double[] {orientation};
+    }
+
+    @Override
+    public double[] getBoundingVolume() {
+        return new double[] {0, 0}; // todo: implement
     }
 }
