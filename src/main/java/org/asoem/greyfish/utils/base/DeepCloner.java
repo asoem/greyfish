@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class DeepCloner {
 
-    private final Map<DeepCloneable, DeepCloneable> map = Maps.newHashMap();
+    private final Map<DeepCloneable, DeepCloneable> map = Maps.newIdentityHashMap();
     private DeepCloneable keyForExpectedPut = null;
 
     private DeepCloner() {

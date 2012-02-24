@@ -45,4 +45,26 @@ public class CircularFifoBuffer<E> extends HookedForwardingList<E> {
         if (size() > maxSize)
             delegate.removeFirst();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        CircularFifoBuffer that = (CircularFifoBuffer) o;
+
+        if (maxSize != that.maxSize) return false;
+        if (!delegate.equals(that.delegate)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + delegate.hashCode();
+        result = 31 * result + maxSize;
+        return result;
+    }
 }
