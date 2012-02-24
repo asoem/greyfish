@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.space;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -17,7 +18,8 @@ public class MutableObject2D implements Object2D {
     @Attribute(name = "orientation")
     private double orientation = 0;
 
-    private MutableLocatable2D locatable2D = new MutableLocatable2D();
+    @Element(name = "location")
+    private MutableLocation2D locatable2D = new MutableLocation2D();
 
     @SimpleXMLConstructor
     private MutableObject2D() {
@@ -29,7 +31,7 @@ public class MutableObject2D implements Object2D {
         setOrientation(angle);
     }
 
-    public void setCoordinates(Locatable2D locatable2d) {
+    public void setCoordinates(Location2D locatable2d) {
         checkNotNull(locatable2d);
         setX(locatable2d.getX());
         setY(locatable2d.getY());
@@ -41,7 +43,7 @@ public class MutableObject2D implements Object2D {
     }
 
     public void setOrientation(double alpha) {
-        checkArgument(alpha > 0 && alpha <= MathLib.PI);
+        checkArgument(alpha >= 0 && alpha <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]");
         this.orientation = alpha;
     }
 
@@ -53,7 +55,7 @@ public class MutableObject2D implements Object2D {
         return new MutableObject2D(x, y, angle);
     }
 
-    public static MutableObject2D at(Locatable2D locatable2D, double angle) {
+    public static MutableObject2D at(Location2D locatable2D, double angle) {
         return new MutableObject2D(locatable2D.getX(), locatable2D.getY(), angle);
     }
 
@@ -93,5 +95,28 @@ public class MutableObject2D implements Object2D {
     @Override
     public double[] getBoundingVolume() {
         return new double[] {0, 0};
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MutableObject2D)) return false;
+
+        MutableObject2D that = (MutableObject2D) o;
+
+        if (Double.compare(that.orientation, orientation) != 0) return false;
+        if (!locatable2D.equals(that.locatable2D)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = orientation != +0.0d ? Double.doubleToLongBits(orientation) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + locatable2D.hashCode();
+        return result;
     }
 }

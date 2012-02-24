@@ -5,7 +5,7 @@ package org.asoem.greyfish.utils.space;
  * Date: 03.03.11
  * Time: 11:18
  */
-public interface Object2D extends SpatialObject, Locatable2D {
+public interface Object2D extends SpatialObject, Location2D {
     /**
      * @return the orientation (angle difference from 0) of this object2D
      */

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-public interface Locatable2D extends Locatable {
+public interface Location2D extends Location {
 	public double getX();
 	public double getY();
 }

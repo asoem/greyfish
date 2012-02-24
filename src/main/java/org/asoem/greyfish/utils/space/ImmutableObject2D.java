@@ -1,8 +1,10 @@
 package org.asoem.greyfish.utils.space;
 
+import javolution.lang.MathLib;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.simpleframework.xml.Element;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -16,11 +18,13 @@ public class ImmutableObject2D implements Object2D {
     private final double orientation;
 
     @Element(name = "locatable")
-    private final Locatable2D locatable;
+    private final Location2D locatable;
 
     @SimpleXMLConstructor
-    private ImmutableObject2D(@Element(name = "locatable") Locatable2D locatable,
+    private ImmutableObject2D(@Element(name = "locatable") Location2D locatable,
                               @Element(name = "orientation") double orientation) {
+        checkNotNull(locatable);
+        checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]");
         this.locatable = locatable;
         this.orientation = orientation;
     }
@@ -30,7 +34,7 @@ public class ImmutableObject2D implements Object2D {
         return orientation;
     }
 
-    public static ImmutableObject2D of(Locatable2D locatable, double orientationAngle) {
+    public static ImmutableObject2D of(Location2D locatable, double orientationAngle) {
         checkNotNull(locatable);
         return new ImmutableObject2D(locatable, orientationAngle);
     }
@@ -63,5 +67,36 @@ public class ImmutableObject2D implements Object2D {
     @Override
     public double[] getBoundingVolume() {
         return new double[] {0, 0}; // todo: implement
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ImmutableObject2D)) return false;
+
+        ImmutableObject2D that = (ImmutableObject2D) o;
+
+        if (Double.compare(that.orientation, orientation) != 0) return false;
+        if (!locatable.equals(that.locatable)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = orientation != +0.0d ? Double.doubleToLongBits(orientation) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + locatable.hashCode();
+        return result;
+    }
+
+    public static ImmutableObject2D copyOf(Object2D object2D) {
+        return new ImmutableObject2D(ImmutableLocation2D.at(object2D.getX(), object2D.getY()), object2D.getOrientationAngle());
+    }
+
+    public static Object2D of(double v, double v1, double v2) {
+        return new ImmutableObject2D(ImmutableLocation2D.at(v, v1), v2);
     }
 }
