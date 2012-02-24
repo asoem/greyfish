@@ -41,6 +41,11 @@ public abstract class AbstractGene<T> extends AbstractAgentComponent implements 
     }
 
     @Override
+    public double getRecombinationProbability() {
+        return 0.5;
+    }
+
+    @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
     }

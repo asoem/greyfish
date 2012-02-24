@@ -23,7 +23,7 @@ public class DeathAction extends AbstractGFAction {
 	protected ActionState executeUnconditioned(Simulation simulation) {
 		simulation.removeAgent(agent());
 
-        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "died", "", simulation.getSpace().getCoordinates(agent())));
+        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "died", "", agent().getProjection()));
 
         return ActionState.END_SUCCESS;
 	}

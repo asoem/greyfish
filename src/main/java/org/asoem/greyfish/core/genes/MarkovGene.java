@@ -24,13 +24,13 @@ public class MarkovGene extends AbstractGene<String> {
 
     private static final GreyfishExpressionFactory EXPRESSION_FACTORY = GreyfishExpressionFactoryHolder.get();
 
-    @Element
+    @Element(required = false)
     private EvaluatingMarkovChain<String> markovChain;
 
-    @Element
+    @Element(required = false)
     private GreyfishExpression initialState;
 
-    @Element
+    @Element(required = false)
     private String currentState;
 
     private final GeneController<String> geneController = new GeneControllerAdaptor<String>() {
@@ -99,19 +99,19 @@ public class MarkovGene extends AbstractGene<String> {
 
             @Override
             public String get() {
-                return markovChain.toRule();
+                return markovChain == null ? "" : markovChain.toRule();
             }
         });
 
-        e.add("Initial State", new AbstractTypedValueModel<GreyfishExpression>() {
+        e.add("Initial State", new AbstractTypedValueModel<String>() {
             @Override
-            protected void set(GreyfishExpression arg0) {
-                initialState = arg0;
+            protected void set(String arg0) {
+                initialState = GreyfishExpressionFactoryHolder.compile(arg0);
             }
 
             @Override
-            public GreyfishExpression get() {
-                return initialState;
+            public String get() {
+                return initialState == null ? "" : initialState.getExpression();
             }
         });
     }

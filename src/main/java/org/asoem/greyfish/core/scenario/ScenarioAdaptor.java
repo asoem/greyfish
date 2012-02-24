@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.scenario;
 
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Placeholder;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -23,7 +22,7 @@ public abstract class ScenarioAdaptor implements Scenario {
     }
 
     @Override
-    public boolean removePlaceholder(Placeholder placeholder) {
+    public boolean removePlaceholder(Agent placeholder) {
         return delegate().removePlaceholder(placeholder);
     }
 
@@ -33,17 +32,17 @@ public abstract class ScenarioAdaptor implements Scenario {
     }
 
     @Override
-    public Iterable<Placeholder> getPlaceholder() {
+    public Iterable<Agent> getPlaceholder() {
         return delegate().getPlaceholder();
     }
 
     @Override
-    public Iterable<Placeholder> getPlaceholder(TileLocation location) {
+    public Iterable<Agent> getPlaceholder(TileLocation location) {
         return delegate().getPlaceholder(location);
     }
 
     @Override
-    public Iterable<Placeholder> getPlaceholder(Iterable<? extends TileLocation> locations) {
+    public Iterable<Agent> getPlaceholder(Iterable<? extends TileLocation> locations) {
         return delegate().getPlaceholder(locations);
     }
 

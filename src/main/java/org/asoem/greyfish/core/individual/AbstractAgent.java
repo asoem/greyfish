@@ -15,7 +15,9 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
@@ -32,6 +34,7 @@ import static java.util.Arrays.asList;
  * Date: 19.09.11
  * Time: 16:20
  */
+@Root(name = "agent")
 public abstract class AbstractAgent implements Agent {
 
     @Element(name = "properties")
@@ -54,6 +57,9 @@ public abstract class AbstractAgent implements Agent {
     protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
 
     private final AgentMessageBox inBox = new AgentMessageBox();
+
+    @Element(name = "projection")
+    private Object2D object2D;
 
     @SimpleXMLConstructor
     protected AbstractAgent(Body body,
@@ -187,7 +193,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public ComponentList<Gene<?>> getGenes() {
+    public Genome<Gene<?>> getGenome() {
         return genome;
     }
 
@@ -258,7 +264,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Color getColor() {
-        return body.getColor();
+        return population.getColor();
     }
 
     @Override
@@ -361,6 +367,16 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public Body getBody() {
         return body;
+    }
+
+    @Override
+    public Object2D getProjection() {
+        return object2D;
+    }
+
+    @Override
+    public void setProjection(Object2D projection) {
+        this.object2D = projection;
     }
 
     protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E,T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E,T> {

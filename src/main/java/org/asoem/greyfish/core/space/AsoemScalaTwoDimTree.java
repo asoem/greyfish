@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.utils.space.Locatable2D;
+import org.asoem.greyfish.utils.space.Location2D;
 import org.asoem.greyfish.utils.space.TwoDimTree;
 import org.asoem.kdtree.*;
 
@@ -27,11 +27,11 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
     }
 
     @Override
-    public void rebuild(Iterable<? extends T> elements, final Function<? super T, ? extends Locatable2D> coordinates2DFunction) {
+    public void rebuild(Iterable<? extends T> elements, final Function<? super T, ? extends Location2D> coordinates2DFunction) {
         kdtree = new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(Iterables.transform(elements, new Function<T, KDTuple<T>>() {
             @Override
             public KDTuple<T> apply(T t) {
-                final Locatable2D b = coordinates2DFunction.apply(t);
+                final Location2D b = coordinates2DFunction.apply(t);
                 return new KDTuple<T>(new HyperPoint2(b.getX(), b.getY()), t);
             }
         })));
@@ -39,7 +39,7 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Iterable<T> findObjects(Locatable2D p, double range) {
+    public Iterable<T> findObjects(Location2D p, double range) {
         checkNotNull(p);
 
         HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());

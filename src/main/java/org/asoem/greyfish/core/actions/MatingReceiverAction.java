@@ -120,7 +120,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private void receiveGenome(EvaluatedGenome genome, Agent sender, Simulation simulation) {
         spermBuffer.addGenome(genome);
-        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "spermReceived", String.valueOf(sender.getId()), simulation.getSpace().getCoordinates(agent())));
+        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "spermReceived", String.valueOf(sender.getId()), agent().getProjection()));
         LOGGER.trace(getAgent() + " received sperm: " + genome);
     }
 

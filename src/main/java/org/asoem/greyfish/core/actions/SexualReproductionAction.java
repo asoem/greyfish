@@ -23,7 +23,7 @@ import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.Locatable2D;
+import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +45,12 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     private ElementSelectionStrategy<EvaluatedGenome<?>> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
 
+    private final static BiMap<String, ElementSelectionStrategy<EvaluatedGenome<?>>> strategies =
+            ImmutableBiMap.of(
+                    "Random", ElementSelectionStrategies.<EvaluatedGenome<?>>randomSelection(),
+                    "Roulette Wheel", ElementSelectionStrategies.<EvaluatedGenome<?>>rouletteWheelSelection(),
+                    "Best", ElementSelectionStrategies.<EvaluatedGenome<?>>bestSelection());
+
     private int offspringCount = 0;
 
     @SimpleXMLConstructor
@@ -60,11 +66,11 @@ public class SexualReproductionAction extends AbstractGFAction {
         LOGGER.debug("Producing {} offspring ", clutchSize);
 
         final Population population = agent().getPopulation();
-        final Locatable2D locatable = simulation.getSpace().getCoordinates(agent());
+        final Location2D locatable = agent().getProjection();
 
         final int eggCount = clutchSize.evaluateForContext(this).asInt();
         for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
-            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenes(), spermCandidate));
+            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenome(), spermCandidate));
 
             simulation.createAgent(population, gamete, locatable);
 
@@ -99,12 +105,6 @@ public class SexualReproductionAction extends AbstractGFAction {
         });
         
         e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
-
-            private final BiMap<String, ElementSelectionStrategy<EvaluatedGenome<?>>> strategies =
-                    ImmutableBiMap.of(
-                            "Random", ElementSelectionStrategies.<EvaluatedGenome<?>>randomSelection(),
-                            "Roulette Wheel", ElementSelectionStrategies.<EvaluatedGenome<?>>rouletteWheelSelection(),
-                            "Best", ElementSelectionStrategies.<EvaluatedGenome<?>>bestSelection());
             
             @Override
             public Iterable<String> values() {

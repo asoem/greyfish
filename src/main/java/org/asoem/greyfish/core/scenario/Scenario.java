@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.scenario;
 
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Placeholder;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TileLocation;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -27,10 +26,11 @@ public interface Scenario {
 
     /**
      * Remove the given {@code Placeholder} from this scenario
+     *
      * @param placeholder the {@code Placeholder} to remove
      * @return {@code true} if the {@code Placeholder} could be removed, {@code false} otherwise
      */
-    boolean removePlaceholder(Placeholder placeholder);
+    boolean removePlaceholder(Agent placeholder);
 
     /**
      * @return an unmodifiable view of evaluates prototype agents added to this scenario so far.
@@ -47,24 +47,26 @@ public interface Scenario {
     Agent getPrototype(Population population);
 
     /**
-     * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Placeholder} agents
+     * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Agent} agents
      * created by this {@code Scenario}.
      */
-    Iterable<Placeholder> getPlaceholder();
+    Iterable<Agent> getPlaceholder();
 
     /**
      * Get evaluates placeholders which have been placed inside the given {@code location}
+     *
      * @param location the location to which the search will be restricted to
      * @return evaluates {@code Placeholder} for given {@code location}
      */
-    Iterable<Placeholder> getPlaceholder(TileLocation location);
+    Iterable<Agent> getPlaceholder(TileLocation location);
 
     /**
      * Get evaluates placeholders which have been placed inside the given {@code locations}
+     *
      * @param locations the locations to which the search will be restricted to
      * @return evaluates {@code Placeholder} for given {@code locations}
      */
-    Iterable<Placeholder> getPlaceholder(Iterable<? extends TileLocation> locations);
+    Iterable<Agent> getPlaceholder(Iterable<? extends TileLocation> locations);
 
     /**
      * Get the name of this scenario

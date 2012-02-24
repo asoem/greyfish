@@ -11,12 +11,14 @@ import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.Projectable;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation> {
+public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>, Projectable<Object2D> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -46,7 +48,7 @@ public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation> 
     boolean addGene(Gene<?> gene);
     boolean removeGene(Gene<?> gene);
     void removeAllGenes();
-    ComponentList<Gene<?>> getGenes();
+    Genome<Gene<?>> getGenome();
     @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
 
     /**

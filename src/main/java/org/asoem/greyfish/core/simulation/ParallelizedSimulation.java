@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.util.FastList;
@@ -14,7 +14,10 @@ import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.individual.*;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AgentMessage;
+import org.asoem.greyfish.core.individual.ImmutableAgent;
+import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.Counter;
@@ -22,7 +25,9 @@ import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.asoem.greyfish.utils.space.Locatable2D;
+import org.asoem.greyfish.utils.space.ImmutableObject2D;
+import org.asoem.greyfish.utils.space.Location2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -30,7 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.not;
 import static org.asoem.greyfish.core.concurrent.SingletonForkJoinPool.invoke;
 import static org.asoem.greyfish.utils.parallel.ParallelIterables.apply;
 
@@ -69,15 +73,22 @@ public class ParallelizedSimulation implements Simulation {
                 }
             },
             10000, 100);
+    
+    private final Set<Agent> prototypes;
 
     @Nullable
-    private Agent getPrototype(Population population) {
-        return scenario.getPrototype(population);
+    private Agent getPrototype(final Population population) {
+        return Iterables.find(prototypes, new Predicate<Agent>() {
+            @Override
+            public boolean apply(@Nullable Agent agent) {
+                assert agent != null;
+                return agent.getPopulation().equals(population);
+            }
+        }, null);
     }
 
     private final AtomicInteger maxId = new AtomicInteger();
 
-    private final Scenario scenario;
 
     private final TiledSpace space;
 
@@ -86,12 +97,30 @@ public class ParallelizedSimulation implements Simulation {
     private String title = "untitled";
 
     public ParallelizedSimulation(final Scenario scenario) {
-        checkNotNull(scenario);
+        this(TiledSpace.createEmptySpace(scenario.getSpace()),
+                scenario.getPrototypes(),
+                Iterables.transform(scenario.getPlaceholder(), new Function<Agent, Agent>() {
+                    @Override
+                    public Agent apply(@Nullable Agent agent) {
+                        return ImmutableAgent.cloneOf(agent);
+                    }
+                }), new Function<Agent, Object2D>() {
+            @Override
+            public Object2D apply(@Nullable Agent agent) {
+                assert agent != null;
+                return agent.getProjection();
+            }
+        });
+    }
 
-        this.scenario = scenario;
-
+    public ParallelizedSimulation(TiledSpace space, Set<? extends Agent> prototypes, Iterable<? extends Agent> agents, Function<? super Agent, ? extends Object2D> function) {
+        checkNotNull(space);
+        checkNotNull(prototypes);
+        
+        this.space = space;
+        this.prototypes = ImmutableSet.copyOf(prototypes);
         this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
-                putAll(getPrototypes(),
+                putAll(prototypes,
                         new Function<Agent, Population>() {
                             @Override
                             public Population apply(Agent agent) {
@@ -105,10 +134,9 @@ public class ParallelizedSimulation implements Simulation {
                             }
                         }).
                 build();
-
-        this.space = new TiledSpace(scenario.getSpace());
-
-        initialize();
+        for (Agent agent : agents) {
+            addAgentInternal(agent, function.apply(agent));
+        }
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -122,7 +150,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Iterable<Agent> findNeighbours(Agent agent, double radius) {
-        return Iterables.filter(Iterables.filter(space.findObjects(agent, radius), not(Predicates.<Object>equalTo(agent))), Agent.class);
+        return Iterables.filter(space.getNeighbours(agent, radius), Agent.class);
     }
 
     @Override
@@ -137,23 +165,12 @@ public class ParallelizedSimulation implements Simulation {
         });
     }
 
-    private void initialize() {
-        // convert each placeholder to a concrete object
-        for (Placeholder placeholder : scenario.getPlaceholder()) {
-            final Agent clone = borrowAgentFromPool(placeholder.getPopulation());
-            assert clone != null;
-            clone.initGenome();
-            clone.prepare(this);
-            addAgentInternal(clone, placeholder);
-        }
-    }
-
     @Override
     public Iterable<Agent> getAgents() {
         return agents;
     }
 
-    private void addAgentInternal(Agent agent, Locatable2D locatable) {
+    private void addAgentInternal(Agent agent, Location2D locatable) {
         checkNotNull(agent);
         checkArgument(getPrototype(agent.getPopulation()) != null,
                 "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
@@ -166,7 +183,7 @@ public class ParallelizedSimulation implements Simulation {
         // following actions must be synchronized
         synchronized (this) {
             agents.add(agent);
-            space.addObject(agent, locatable);
+            space.addObject(agent, ImmutableObject2D.of(locatable, 0));
             Counter counter = populationCounterMap.get(agent.getPopulation());
             counter.increase(); // non-null verified by checkCanAddAgent();
         }
@@ -228,7 +245,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void createAgent(final Population population, final Genome<? extends Gene<?>> genome, Locatable2D location) {
+    public void createAgent(final Population population, final Genome<? extends Gene<?>> genome, Location2D location) {
         checkNotNull(population);
         checkArgument(getPrototype(population) != null);
         checkNotNull(genome);
@@ -254,7 +271,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Set<Agent> getPrototypes() {
-        return scenario.getPrototypes();
+        return prototypes;
     }
 
     @Override
@@ -305,7 +322,7 @@ public class ParallelizedSimulation implements Simulation {
             final Agent clone = borrowAgentFromPool(addAgentMessage.population);
             clone.injectGamete(addAgentMessage.genome);
             clone.prepare(this);
-            addAgentInternal(clone, addAgentMessage.location);
+            addAgentInternal(clone, ImmutableObject2D.of(addAgentMessage.location, 0));
         }
         addAgentMessages.clear();
     }
@@ -327,11 +344,6 @@ public class ParallelizedSimulation implements Simulation {
             }
         }));
         removeAgentMessages.clear();
-    }
-
-    @Override
-    public Scenario getScenario() {
-        return scenario;
     }
 
     @Override
@@ -384,9 +396,9 @@ public class ParallelizedSimulation implements Simulation {
 
         private final Population population;
         private final Genome<? extends Gene<?>> genome;
-        private final Locatable2D location;
+        private final Location2D location;
 
-        public AddAgentMessage(Population population, Genome<? extends Gene<?>> genome, Locatable2D location) {
+        public AddAgentMessage(Population population, Genome<? extends Gene<?>> genome, Location2D location) {
             this.population = population;
             this.genome = genome;
             this.location = location;

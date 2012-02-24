@@ -1,11 +1,14 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.HookedForwardingList;
+import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -19,20 +22,31 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class MutableComponentList<E extends AgentComponent> extends HookedForwardingList<E> implements ComponentList<E> {
 
-    private final List<E> delegate = Lists.newArrayList();
+    @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
+    private final List<E> delegate;
+
+    @SimpleXMLConstructor
+    public MutableComponentList(@ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) List<E> components) {
+        delegate = Lists.newArrayList(components);
+    }
 
     @SuppressWarnings("unchecked")
-    public MutableComponentList(MutableComponentList<E> list, DeepCloner cloner) {
+    public MutableComponentList(MutableComponentList<E> list, final DeepCloner cloner) {
         cloner.addClone(this);
-        for (E e : list)
-            delegate.add((E) cloner.cloneField(e, DeepCloneable.class));
+        delegate = Lists.newArrayList(Iterables.transform(list, new Function<E, E>() {
+            @Override
+            public E apply(@Nullable E e) {
+                return (E) cloner.cloneField(e, DeepCloneable.class);
+            }
+        }));
     }
 
-    public MutableComponentList() {
+    public MutableComponentList(E ... elements) {
+        delegate = Lists.newArrayList(elements);
     }
 
-    public MutableComponentList(Iterable<E> elements) {
-        Iterables.addAll(delegate, elements);
+    public MutableComponentList(Iterable<? extends E> components) {
+        delegate = Lists.newArrayList(components);
     }
 
     @Override

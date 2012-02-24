@@ -6,10 +6,9 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -94,11 +93,6 @@ public abstract class ForwardingAgent implements Agent {
     @Override
     public void changeActionExecutionOrder(GFAction object, GFAction object2) {
         delegate().changeActionExecutionOrder(object, object2);
-    }
-
-    @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
-        return delegate().deepClone(cloner);
     }
 
     @Override
@@ -252,8 +246,8 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public ComponentList<Gene<?>> getGenes() {
-        return delegate().getGenes();
+    public Genome<Gene<?>> getGenome() {
+        return delegate().getGenome();
     }
 
     @Override
@@ -264,5 +258,15 @@ public abstract class ForwardingAgent implements Agent {
     @Override
     public Motion2D getMotion() {
         return delegate().getMotion();
+    }
+
+    @Override
+    public Object2D getProjection() {
+        return delegate().getProjection();
+    }
+
+    @Override
+    public void setProjection(Object2D projection) {
+        delegate().setProjection(projection);
     }
 }

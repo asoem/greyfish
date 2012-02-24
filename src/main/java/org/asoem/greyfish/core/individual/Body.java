@@ -56,6 +56,13 @@ public class Body extends AbstractAgentComponent {
         this();
         setAgent(checkNotNull(owner));
     }
+    
+    public Body(Body body) {
+        super(body.getName());
+        setRotation(body.getRotation());
+        setColor(body.getColor());
+        stateColorMap = Maps.newHashMap(body.stateColorMap);
+    }
 
     /**
      *
@@ -207,5 +214,9 @@ public class Body extends AbstractAgentComponent {
     @Override
     public Iterable<AgentComponent> children() {
         return Collections.emptyList();
+    }
+
+    public double getRotation() {
+        return motion2D.getRotation2D();
     }
 }

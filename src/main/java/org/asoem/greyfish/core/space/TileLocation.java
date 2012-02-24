@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.space.Locatable2D;
+import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
@@ -168,7 +168,7 @@ public class TileLocation {
         setBorder(direction, !hasBorder(direction));
     }
 
-    public boolean covers(Locatable2D locatable) {
+    public boolean covers(Location2D locatable) {
         return (int) locatable.getX() == x
                 && (int) locatable.getY() == y;
     }
