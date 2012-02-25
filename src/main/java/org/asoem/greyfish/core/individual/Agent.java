@@ -67,8 +67,8 @@ public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>,
     Color getColor();
     void setColor(Color color);
 
-    Simulation getSimulation();
-    public void setSimulation(Simulation simulation);
+    SimulationContext getSimulationContext();
+    public void setSimulationContext(SimulationContext context);
     int getId();
     int getTimeOfBirth();
     int getAge();

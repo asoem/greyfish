@@ -11,20 +11,19 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-class SimulationContext {
+public class SimulationContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationContext.class);
 
     private final Simulation simulation;
     private final int timeOfBirth;
     private final int id;
-    private final Agent agent;
+
     @Nullable
     private GFAction lastExecutedAction;
 
     public SimulationContext(Simulation simulation, Agent agent) {
         this.simulation = checkNotNull(simulation);
-        this.agent = checkNotNull(agent);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();
     }
@@ -33,7 +32,6 @@ class SimulationContext {
         simulation = null;
         timeOfBirth = 0;
         id = 0;
-        agent = null;
     }
 
     public int getTimeOfBirth() {
@@ -58,7 +56,7 @@ class SimulationContext {
         return simulation.getSteps() - timeOfBirth;
     }
 
-    public void execute() {
+    public void execute(Agent agent) {
         if (lastExecutedAction != null &&
                 !lastExecutedAction.isDormant()) {
             LOGGER.debug("{}: Resuming {}", this, lastExecutedAction);
@@ -124,7 +122,6 @@ class SimulationContext {
 
         if (id != that.id) return false;
         if (timeOfBirth != that.timeOfBirth) return false;
-        if (agent != null ? !agent.equals(that.agent) : that.agent != null) return false;
         if (lastExecutedAction != null ? !lastExecutedAction.equals(that.lastExecutedAction) : that.lastExecutedAction != null)
             return false;
         if (simulation != null ? !simulation.equals(that.simulation) : that.simulation != null) return false;
@@ -137,7 +134,6 @@ class SimulationContext {
         int result = simulation != null ? simulation.hashCode() : 0;
         result = 31 * result + timeOfBirth;
         result = 31 * result + id;
-        result = 31 * result + (agent != null ? agent.hashCode() : 0);
         result = 31 * result + (lastExecutedAction != null ? lastExecutedAction.hashCode() : 0);
         return result;
     }
@@ -169,7 +165,7 @@ class SimulationContext {
         }
 
         @Override
-        public void execute() {
+        public void execute(Agent agent) {
             throw new UnsupportedOperationException();
         }
     };

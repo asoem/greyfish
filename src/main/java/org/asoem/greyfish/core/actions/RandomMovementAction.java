@@ -33,7 +33,7 @@ public class RandomMovementAction extends AbstractGFAction {
     protected ActionState executeUnconditioned(Simulation simulation) {
         pattern.apply(agent(), simulation);
         double speed = this.speed.evaluateForContext(this).asDouble();
-        agent().setMotion(ImmutableMotion2D.translated(agent().getMotion(), speed));
+        agent().setMotion(ImmutableMotion2D.of(agent().getMotion().getRotation2D(), speed));
         return ActionState.END_SUCCESS;
     }
 

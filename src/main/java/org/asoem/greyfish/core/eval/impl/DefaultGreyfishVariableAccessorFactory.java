@@ -84,7 +84,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         @Override
                         public Simulation apply(@Nullable T gfComponent) {
                             Agent agent = AgentComponent.class.cast(gfComponent).getAgent();
-                            return checkNotNull(agent).getSimulation();
+                            return checkNotNull(agent).getSimulationContext().getSimulation();
                             // TODO: We should have direct access to simulation object through a component
                         }
                     });
@@ -254,7 +254,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return simulation(parts, Functions.compose( new Function<Agent, Simulation>() {
                     @Override
                     public Simulation apply(@Nullable Agent agent) {
-                        return checkNotNull(agent).getSimulation();
+                        return checkNotNull(agent).getSimulationContext().getSimulation();
                     }
                 },ret));
             }

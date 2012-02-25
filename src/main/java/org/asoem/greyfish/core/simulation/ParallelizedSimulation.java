@@ -27,7 +27,6 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.asoem.greyfish.utils.space.Location2D;
-import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -73,7 +72,7 @@ public class ParallelizedSimulation implements Simulation {
                 }
             },
             10000, 100);
-    
+
     private final Set<Agent> prototypes;
 
     @Nullable
@@ -104,19 +103,14 @@ public class ParallelizedSimulation implements Simulation {
                     public Agent apply(@Nullable Agent agent) {
                         return ImmutableAgent.cloneOf(agent);
                     }
-                }), new Function<Agent, Object2D>() {
-            @Override
-            public Object2D apply(@Nullable Agent agent) {
-                assert agent != null;
-                return agent.getProjection();
-            }
-        });
+                })
+        );
     }
 
-    public ParallelizedSimulation(TiledSpace space, Set<? extends Agent> prototypes, Iterable<? extends Agent> agents, Function<? super Agent, ? extends Object2D> function) {
+    public ParallelizedSimulation(TiledSpace space, Set<? extends Agent> prototypes, Iterable<? extends Agent> agents) {
         checkNotNull(space);
         checkNotNull(prototypes);
-        
+
         this.space = space;
         this.prototypes = ImmutableSet.copyOf(prototypes);
         this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
@@ -135,7 +129,7 @@ public class ParallelizedSimulation implements Simulation {
                         }).
                 build();
         for (Agent agent : agents) {
-            addAgentInternal(agent, function.apply(agent));
+            addAgentInternal(agent, agent.getProjection());
         }
     }
 
@@ -176,12 +170,13 @@ public class ParallelizedSimulation implements Simulation {
                 "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
         // populationCounterMap is guaranteed to contain exactly the same keys as populationPrototypeMap
 
-        checkNotNull(locatable);
+        checkNotNull(locatable, "You have to provide a location for the Agent");
         checkArgument(space.covers(locatable),
                 "Coordinates " + locatable + " do not fall inside the area of this simulation's space: " + space);
 
         // following actions must be synchronized
         synchronized (this) {
+            agent.prepare(this);
             agents.add(agent);
             space.addObject(agent, ImmutableObject2D.of(locatable, 0));
             Counter counter = populationCounterMap.get(agent.getPopulation());
@@ -215,7 +210,7 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public void removeAgent(final Agent agent) {
         checkNotNull(agent);
-        checkArgument(agent.getSimulation().equals(this));
+        checkArgument(agent.getSimulationContext().getSimulation().equals(this));
         removeAgentMessages.add(new RemoveAgentMessage(agent));
     }
 

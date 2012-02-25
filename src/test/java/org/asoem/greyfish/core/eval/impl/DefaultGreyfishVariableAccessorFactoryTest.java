@@ -1,10 +1,11 @@
 package org.asoem.greyfish.core.eval.impl;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.SimulationContext;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,7 +28,16 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Mock Agent agent;
     @Mock GFAction action;
     @Mock GFProperty property;
-    @Mock ParallelizedSimulation simulation;
+    @Mock Simulation simulation;
+    @Mock SimulationContext simulationContext;
+
+    @Before
+    public void setUp() throws Exception {
+        given(action.getAgent()).willReturn(agent);
+        given(property.getAgent()).willReturn(agent);
+        given(agent.getSimulationContext()).willReturn(simulationContext);
+        given(simulationContext.getSimulation()).willReturn(simulation);
+    }
 
     @Test
     public void shouldReturnTheContextItselfForAnAction() {
@@ -40,9 +50,6 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test
     public void shouldReturnTheAgentForAnAction() {
-        // given
-        given(action.getAgent()).willReturn(agent);
-
         // when
         Object ret = converter.get("this.agent", GFAction.class).apply(action);
 
@@ -52,10 +59,6 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test
     public void shouldReturnTheSimulationForAnAction() {
-        // given
-        given(action.getAgent()).willReturn(agent);
-        given(agent.getSimulation()).willReturn(simulation);
-
         // when
         Object ret = converter.get("this.agent.simulation", GFAction.class).apply(action);
 
@@ -74,9 +77,6 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test
     public void shouldReturnTheAgentForAProperty() {
-        // given
-        given(property.getAgent()).willReturn(agent);
-
         // when
         Object ret = converter.get("this.agent", GFProperty.class).apply(property);
 
@@ -87,7 +87,6 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnAgentsAgeForAnAction() {
         // given
-        given(action.getAgent()).willReturn(agent);
         given(agent.getAge()).willReturn(23);
 
         // when

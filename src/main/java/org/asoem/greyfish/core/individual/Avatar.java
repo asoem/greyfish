@@ -24,9 +24,10 @@ public class Avatar extends ForwardingAgent {
         this.delegate = checkNotNull(delegate);
     }
 
-    public Avatar(Avatar avatar, DeepCloner cloner) {
+    private Avatar(Avatar avatar, DeepCloner cloner) {
         cloner.addClone(this);
         this.delegate = cloner.cloneField(avatar.delegate, Agent.class);
+        this.projection = avatar.projection;
     }
 
     @Override

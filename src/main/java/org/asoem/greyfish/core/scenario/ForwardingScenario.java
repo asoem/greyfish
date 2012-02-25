@@ -12,7 +12,7 @@ import java.util.Set;
  * Date: 07.10.11
  * Time: 12:41
  */
-public abstract class ScenarioAdaptor implements Scenario {
+public abstract class ForwardingScenario implements Scenario {
 
     protected abstract Scenario delegate();
 

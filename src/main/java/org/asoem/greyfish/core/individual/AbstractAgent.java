@@ -52,12 +52,12 @@ public abstract class AbstractAgent implements Agent {
 
     private final AgentComponent rootComponent;
 
+    private final AgentMessageBox inBox = new AgentMessageBox();
+
     @Element(name = "population")
     protected Population population;
 
     protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
-
-    private final AgentMessageBox inBox = new AgentMessageBox();
 
     @Element(name = "projection", required = false)
     private Object2D object2D;
@@ -84,6 +84,14 @@ public abstract class AbstractAgent implements Agent {
         rootComponent.setAgent(this);
     }
 
+    public AbstractAgent(AbstractAgent agent) {
+        this(agent.getBody(), agent.getProperties(), agent.getActions(), agent.getGenome());
+        this.population = agent.population;
+        this.simulationContext = agent.simulationContext;
+        this.object2D = agent.object2D;
+        this.motion = agent.motion;
+    }
+
     @Commit
     private void commit() {
         for (AgentComponent component : getComponents())
@@ -98,6 +106,8 @@ public abstract class AbstractAgent implements Agent {
         this.properties = (ComponentList<GFProperty>) cloner.cloneField(abstractAgent.properties, ComponentList.class);
         this.genome = cloner.cloneField(abstractAgent.genome, Genome.class);
         this.body = cloner.cloneField(abstractAgent.body, Body.class);
+        this.object2D = abstractAgent.object2D;
+        this.motion = abstractAgent.motion;
 
         rootComponent = new AgentComponentWrapper(Iterables.concat(
                 Collections.singleton(body),
@@ -292,7 +302,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void execute() {
-        simulationContext.execute();
+        simulationContext.execute(this);
     }
 
     @Override
@@ -300,13 +310,13 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Simulation getSimulation() {
-        return simulationContext.getSimulation();
+    public SimulationContext getSimulationContext() {
+        return simulationContext;
     }
 
     @Override
-    public void setSimulation(Simulation simulation) {
-        this.simulationContext = new SimulationContext(simulation, this);
+    public void setSimulationContext(SimulationContext simulationContext) {
+        this.simulationContext = simulationContext;
     }
 
     @Override
@@ -325,10 +335,10 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void prepare(Simulation context) {
-        setSimulation(context);
+    public void prepare(Simulation simulation) {
+        setSimulationContext(new SimulationContext(simulation, this));
         for (AgentComponent component : getComponents()) {
-            component.prepare(context);
+            component.prepare(simulation);
         }
     }
 

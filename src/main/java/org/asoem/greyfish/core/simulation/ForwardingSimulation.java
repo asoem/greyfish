@@ -15,7 +15,7 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class SimulationAdaptor implements Simulation {
+public abstract class ForwardingSimulation implements Simulation {
     
     protected abstract Simulation delegate();
 

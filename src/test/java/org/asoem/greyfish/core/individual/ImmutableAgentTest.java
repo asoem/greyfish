@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.actions.NullAction;
@@ -8,8 +7,11 @@ import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -20,6 +22,7 @@ import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 /**
  * User: christoph
@@ -94,9 +97,27 @@ public class ImmutableAgentTest {
     }
 
     @Test
+    public void testDeepClone() throws Exception {
+        // given
+        ImmutableAgent agent = ImmutableAgent.of(population).build();
+        agent.setPopulation(mock(Population.class));
+        agent.setProjection(mock(Object2D.class));
+        agent.setMotion(mock(Motion2D.class));
+
+        // when
+        ImmutableAgent clone = DeepCloner.clone(agent, ImmutableAgent.class);
+
+        // then
+        assertThat(clone).isEqualTo(agent);
+    }
+
+    @Test
     public void testCloneOf() {
         // given
-        Agent agent = ImmutableAgent.of(population).build();
+        ImmutableAgent agent = ImmutableAgent.of(population).build();
+        agent.setPopulation(mock(Population.class));
+        agent.setProjection(mock(Object2D.class));
+        agent.setMotion(mock(Motion2D.class));
 
         // when
         ImmutableAgent clone = ImmutableAgent.cloneOf(agent);

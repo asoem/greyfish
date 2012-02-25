@@ -41,7 +41,7 @@ public enum TileDirection {
         int yDiff = destination.getY() - origin.getY();
 
         if (Math.abs(xDiff) > 1 || Math.abs(yDiff) > 1)
-            throw new IllegalArgumentException("Only direct neighbouring tiles are supported: origin=" + origin + ", destination=" + destination);
+            throw new IllegalArgumentException("Cannot calculate direction for non adjacent tiles: origin=" + origin + ", destination=" + destination);
 
         if (xDiff == 0) {
             if (yDiff == 0) return CENTER;

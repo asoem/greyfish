@@ -31,6 +31,10 @@ public class ImmutableAgent extends AbstractAgent {
         freeze();
     }
 
+    public ImmutableAgent(ImmutableAgent agent) {
+        super(agent);
+    }
+    
     private ImmutableAgent(ImmutableAgent agent, DeepCloner map) {
         super(agent, map);
     }
@@ -50,10 +54,10 @@ public class ImmutableAgent extends AbstractAgent {
     }
 
     /**
-     * Create a "quasi" deep clone of {@code agent}.
-     * This means, that evaluates components are deep cloned from {@code agent}, but the agent itself is a new ImmutableAgent.
-     * @param agent the prototype from which to clone the components
-     * @return a new ImmutableAgent with components deep cloned from {@code agent}
+     * Create a new Immutable Agent which is a copy of a deep clone of {@code agent}.
+     * This means, that the Agent is deeply cloned first and the clone is used as the template for a flat copy.
+     * @param agent the agent to clone
+     * @return a new ImmutableAgent initialized from a deep clone of {@code agent}
      */
     public static ImmutableAgent cloneOf(Agent agent) {
         checkNotNull(agent);
@@ -65,6 +69,11 @@ public class ImmutableAgent extends AbstractAgent {
                 clone.getActions(),
                 ImmutableGenome.copyOf(clone.getGenome()));
         ret.setPopulation(clone.getPopulation());
+        ret.setMotion(clone.getMotion());
+        ret.setProjection(clone.getProjection());
+        ret.setSimulationContext(agent.getSimulationContext());
+        ret.setColor(clone.getColor());
+
         return ret;
     }
 

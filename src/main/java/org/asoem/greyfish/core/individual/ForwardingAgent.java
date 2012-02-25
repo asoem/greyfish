@@ -181,13 +181,13 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public Simulation getSimulation() {
-        return delegate().getSimulation();
+    public SimulationContext getSimulationContext() {
+        return delegate().getSimulationContext();
     }
 
     @Override
-    public void setSimulation(Simulation simulation) {
-        delegate().setSimulation(simulation);
+    public void setSimulationContext(SimulationContext context) {
+        delegate().setSimulationContext(context);
     }
 
     @Override
