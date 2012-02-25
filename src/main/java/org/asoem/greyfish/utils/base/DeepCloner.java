@@ -47,8 +47,9 @@ public class DeepCloner {
      * @param cloneable the object to clone
      * @param clazz the class for type {@code T}
      * @param <T> the type of the {@code DeepCloneable} object and it's clone
-     * @return a clone of {@code cloneable}
+     * @return a deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
      */
+    @Nullable
     public <T extends DeepCloneable> T cloneField(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
         if (insertIsRequired())
@@ -62,7 +63,9 @@ public class DeepCloner {
         }
         else {
             keyForExpectedPut = cloneable;
-            return clazz.cast(cloneable.deepClone(this));
+            final DeepCloneable clone = cloneable.deepClone(this);
+            checkNotNull(clone, "Deep clone of a non-null cloneable must not be null: " + cloneable);
+            return clazz.cast(clone);
         }
     }
 

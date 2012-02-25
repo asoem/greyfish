@@ -24,7 +24,7 @@ public class ImmutableObject2D implements Object2D {
     private ImmutableObject2D(@Element(name = "locatable") Location2D locatable,
                               @Element(name = "orientation") double orientation) {
         checkNotNull(locatable);
-        checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]");
+        checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]: " + orientation);
         this.locatable = locatable;
         this.orientation = orientation;
     }
@@ -66,7 +66,7 @@ public class ImmutableObject2D implements Object2D {
 
     @Override
     public double[] getBoundingVolume() {
-        return new double[] {0, 0}; // todo: implement
+        return new double[] {0.1f, 0.1f}; // todo: implement
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ImmutableObject2D implements Object2D {
         return new ImmutableObject2D(ImmutableLocation2D.at(object2D.getX(), object2D.getY()), object2D.getOrientationAngle());
     }
 
-    public static Object2D of(double v, double v1, double v2) {
-        return new ImmutableObject2D(ImmutableLocation2D.at(v, v1), v2);
+    public static Object2D of(double x, double y, double orientationAngle) {
+        return new ImmutableObject2D(ImmutableLocation2D.at(x, y), orientationAngle);
     }
 }
