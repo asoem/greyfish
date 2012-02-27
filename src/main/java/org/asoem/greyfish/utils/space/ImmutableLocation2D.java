@@ -82,14 +82,22 @@ public class ImmutableLocation2D implements Location2D {
     }
 
     @Override
+    public String toString() {
+        return "ImmutableLocation2D{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ImmutableLocation2D)) return false;
 
         ImmutableLocation2D that = (ImmutableLocation2D) o;
 
-        if (Double.compare(that.x, x) != 0) return false;
-        if (Double.compare(that.y, y) != 0) return false;
+        if (that.x != x) return false;
+        if (that.y != y) return false;
 
         return true;
     }
