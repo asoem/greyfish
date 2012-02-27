@@ -16,6 +16,7 @@ import org.simpleframework.xml.ElementArray;
 import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
+import java.awt.geom.Line2D;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -195,11 +196,109 @@ public class TiledSpace implements Iterable<TileLocation> {
 
         return new MovementPlan(
                 agent,
-                newProjection,
-                ! covers(newProjection) ||
-                        getTileAt(currentProjection).hasBorder(
-                                TileDirection.forTiles(getTileAt(currentProjection), getTileAt(newProjection))));
+                newProjection, collision(currentProjection, newProjection));
     }
+
+    @Nullable
+    public Location2D collision(Object2D currentProjection, Object2D newProjection) {
+        return collision(getTileAt(currentProjection),
+                new Line2D.Double(currentProjection.getX(), currentProjection.getY(), newProjection.getX(), newProjection.getY()),
+                new boolean[] {
+                        newProjection.getY() < currentProjection.getY(),
+                        newProjection.getX() > currentProjection.getX(),
+                        newProjection.getY() > currentProjection.getY(),
+                        newProjection.getX() < currentProjection.getX()
+                });
+    }
+
+    @Nullable
+    private static Location2D collision(@Nullable TileLocation location, Line2D line2D, boolean [] movementDirection) {
+        assert movementDirection.length == 4;
+        assert line2D != null;
+
+        Location2D ret = null;
+        
+        if (location != null && line2D.intersects(location.getX(), location.getY(), 1, 1)) {
+            if (movementDirection[0]) { // north
+                final ImmutableLocation2D intersection = intersection(
+                        location.getX(), location.getY(), location.getX() + 1, location.getY(),
+                        line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
+                if (intersection != null) {
+                    // collision ? return collision : collision at adjacent tile?
+                    ret = (location.hasBorder(TileDirection.NORTH)) ? intersection
+                            : collision(location.getAdjacent(TileDirection.NORTH), line2D, movementDirection);
+                }
+            }
+
+            if (ret == null && movementDirection[1]) { // east
+                final ImmutableLocation2D intersection = intersection(
+                        location.getX() + 1, location.getY(), location.getX() + 1, location.getY() + 1,
+                        line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
+                if (intersection != null) {
+                    // collision ? return collision : collision at adjacent tile?
+                    ret = (location.hasBorder(TileDirection.EAST)) ? intersection
+                            : collision(location.getAdjacent(TileDirection.EAST), line2D, movementDirection);
+                }
+            }
+
+            if (ret == null && movementDirection[2]) { // south
+                final ImmutableLocation2D intersection = intersection(
+                        location.getX() + 1, location.getY() + 1, location.getX(), location.getY() + 1,
+                        line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
+                if (intersection != null) {
+                    // collision ? return collision : collision at adjacent tile?
+                    ret = (location.hasBorder(TileDirection.SOUTH)) ? intersection
+                            : collision(location.getAdjacent(TileDirection.SOUTH), line2D, movementDirection);
+                }
+            }
+
+            if (movementDirection[3]) { // west
+                final ImmutableLocation2D intersection = intersection(
+                        location.getX(), location.getY() + 1, location.getX(), location.getY(),
+                        line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
+                if (intersection != null) {
+                    // collision ? return collision : collision at adjacent tile?
+                    ret = (location.hasBorder(TileDirection.WEST)) ? intersection
+                            : collision(location.getAdjacent(TileDirection.WEST), line2D, movementDirection);
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    @Nullable
+    public static ImmutableLocation2D intersection(double l1x1, double l1y1, double l1x2, double l1y2,
+                                          double l2x1, double l2y1, double l2x2, double l2y2) {
+        double dx1 = l1x2 - l1x1;
+        double dx2 = l2x2 - l2x1;
+        double dy1 = l1y2 - l1y1;
+        double dy2 = l2y2 - l2y1;
+        double denom = (dy2 * dx1) - (dx2 * dy1);
+
+        if (denom == 0) {
+            return null;
+        }
+
+        double ua = (dx2 * (l1y1 - l2y1))
+                - (dy2 * (l1x1 - l2x1));
+        ua /= denom;
+        double ub = (dx1 * (l1y1 - l2y1))
+                - (dy1 * (l1x1 - l2x1));
+        ub /= denom;
+
+        if (((ua < 0) || (ua > 1) || (ub < 0) || (ub > 1))) {
+            return null;
+        }
+
+        double u = ua;
+
+        double ix = l1x1 + (u * (l1x2 - l1x1));
+        double iy = l1y1 + (u * (l1y2 - l1y1));
+
+        return ImmutableLocation2D.at(ix, iy);
+    }
+    
 
     /**
      * Execute the {@code plan}. If the plan will result in a collision, than subject of the {@code plan} will just get rotated, but not translated
@@ -213,6 +312,7 @@ public class TiledSpace implements Iterable<TileLocation> {
             assert(covers(plan.projection));
             plan.projectable.setProjection(plan.projection);
         }
+
         twoDimTreeOutdated = true;
     }
 
@@ -307,10 +407,10 @@ public class TiledSpace implements Iterable<TileLocation> {
     public static class MovementPlan {
         private final Projectable<Object2D> projectable;
         private final Object2D projection;
-        private final boolean willSucceed;
+        private final Location2D collisionPoint;
 
-        private MovementPlan(Projectable<Object2D> projectable, Object2D projection, boolean collision) {
-            this.willSucceed = collision;
+        private MovementPlan(Projectable<Object2D> projectable, Object2D projection, @Nullable Location2D collisionPoint) {
+            this.collisionPoint = collisionPoint;
             assert projectable != null;
             assert projection != null;
             this.projectable = projectable;
@@ -318,7 +418,7 @@ public class TiledSpace implements Iterable<TileLocation> {
         }
 
         public boolean willCollide() {
-            return willSucceed;
+            return collisionPoint != null;
         }
     }
 }

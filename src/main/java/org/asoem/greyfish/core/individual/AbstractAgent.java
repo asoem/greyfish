@@ -6,8 +6,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -44,8 +44,8 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "actions")
     protected final ComponentList<GFAction> actions;
 
-    @Element(name = "genome")
-    protected final Genome<Gene<?>> genome;
+    @Element(name = "chromosome")
+    protected final Chromosome<Gene<?>> chromosome;
 
     @Element(name = "body")
     protected final Body body;
@@ -69,23 +69,23 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(Body body,
                             ComponentList<GFProperty> properties,
                             ComponentList<GFAction> actions,
-                            Genome<Gene<?>> genome) {
+                            Chromosome<Gene<?>> chromosome) {
         this.body = checkNotNull(body);
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
-        this.genome = checkNotNull(genome);
+        this.chromosome = checkNotNull(chromosome);
 
         rootComponent = new AgentComponentWrapper(Iterables.concat(
                 Collections.singleton(body),
                 properties,
                 actions,
-                genome
+                chromosome
         ));
         rootComponent.setAgent(this);
     }
 
     public AbstractAgent(AbstractAgent agent) {
-        this(agent.getBody(), agent.getProperties(), agent.getActions(), agent.getGenome());
+        this(agent.getBody(), agent.getProperties(), agent.getActions(), agent.getChromosome());
         this.population = agent.population;
         this.simulationContext = agent.simulationContext;
         this.object2D = agent.object2D;
@@ -104,7 +104,7 @@ public abstract class AbstractAgent implements Agent {
         this.population = abstractAgent.population;
         this.actions = (ComponentList<GFAction>) cloner.cloneField(abstractAgent.actions, ComponentList.class);
         this.properties = (ComponentList<GFProperty>) cloner.cloneField(abstractAgent.properties, ComponentList.class);
-        this.genome = cloner.cloneField(abstractAgent.genome, Genome.class);
+        this.chromosome = cloner.cloneField(abstractAgent.chromosome, Chromosome.class);
         this.body = cloner.cloneField(abstractAgent.body, Body.class);
         this.object2D = abstractAgent.object2D;
         this.motion = abstractAgent.motion;
@@ -113,7 +113,7 @@ public abstract class AbstractAgent implements Agent {
                 Collections.singleton(body),
                 properties,
                 actions,
-                genome
+                chromosome
         ));
         rootComponent.setAgent(this);
     }
@@ -193,22 +193,22 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public boolean addGene(Gene<?> gene) {
-        return addComponent(genome, gene);
+        return addComponent(chromosome, gene);
     }
 
     @Override
     public boolean removeGene(Gene<?> gene) {
-        return removeComponent(genome, gene);
+        return removeComponent(chromosome, gene);
     }
 
     @Override
     public void removeAllGenes() {
-        clearComponentList(genome);
+        clearComponentList(chromosome);
     }
 
     @Override
-    public Genome<Gene<?>> getGenome() {
-        return genome;
+    public Chromosome<Gene<?>> getChromosome() {
+        return chromosome;
     }
 
     @Override
@@ -216,17 +216,17 @@ public abstract class AbstractAgent implements Agent {
     public <T extends Gene> T getGene(String name, Class<T> clazz) {
         checkNotNull(clazz);
 
-        return genome.find(name, clazz);
+        return chromosome.find(name, clazz);
     }
 
     @Override
-    public void injectGamete(Genome<? extends Gene<?>> genome) {
-        this.genome.updateAllGenes(genome);
+    public void injectGamete(Chromosome<? extends Gene<?>> chromosome) {
+        this.chromosome.updateAllGenes(chromosome);
     }
 
     @Override
     public void initGenome() {
-        genome.initGenes();
+        chromosome.initGenes();
     }
 
     /**
@@ -381,7 +381,7 @@ public abstract class AbstractAgent implements Agent {
 
         if (actions != null ? !actions.equals(that.actions) : that.actions != null) return false;
         if (body != null ? !body.equals(that.body) : that.body != null) return false;
-        if (genome != null ? !genome.equals(that.genome) : that.genome != null) return false;
+        if (chromosome != null ? !chromosome.equals(that.chromosome) : that.chromosome != null) return false;
         if (inBox != null ? !inBox.equals(that.inBox) : that.inBox != null) return false;
         if (motion != null ? !motion.equals(that.motion) : that.motion != null) return false;
         if (object2D != null ? !object2D.equals(that.object2D) : that.object2D != null) return false;
@@ -397,7 +397,7 @@ public abstract class AbstractAgent implements Agent {
     public int hashCode() {
         int result = properties != null ? properties.hashCode() : 0;
         result = 31 * result + (actions != null ? actions.hashCode() : 0);
-        result = 31 * result + (genome != null ? genome.hashCode() : 0);
+        result = 31 * result + (chromosome != null ? chromosome.hashCode() : 0);
         result = 31 * result + (body != null ? body.hashCode() : 0);
         result = 31 * result + (population != null ? population.hashCode() : 0);
         result = 31 * result + (simulationContext != null ? simulationContext.hashCode() : 0);

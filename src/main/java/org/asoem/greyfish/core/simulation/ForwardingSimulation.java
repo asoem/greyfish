@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -60,8 +60,8 @@ public abstract class ForwardingSimulation implements Simulation {
     }
 
     @Override
-    public void createAgent(Population population, Genome<? extends Gene<?>> genome, Location2D location) {
-        delegate().createAgent(population, genome, location);
+    public void createAgent(Population population, Chromosome<? extends Gene<?>> chromosome, Location2D location) {
+        delegate().createAgent(population, chromosome, location);
     }
 
     @Override

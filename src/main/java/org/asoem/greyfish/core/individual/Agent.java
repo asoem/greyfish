@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.individual;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -49,18 +49,18 @@ public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>,
     boolean addGene(Gene<?> gene);
     boolean removeGene(Gene<?> gene);
     void removeAllGenes();
-    Genome<Gene<?>> getGenome();
+    Chromosome<Gene<?>> getChromosome();
     @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
 
     /**
-     * Inject a copy of this agents genome so that this agents genes return the values of the genes in the given genome
+     * Inject a copy of this agents chromosome so that this agents genes return the values of the genes in the given chromosome
      *
      *
-     * @param genome a copy of this agents genome
+     * @param chromosome a copy of this agents chromosome
      * @throws org.asoem.greyfish.core.genes.IncompatibleGenomeException
-     * if {@code genome} is not a copy of this agents genome as defined by {@link Genome#isCompatibleGenome}
+     * if {@code chromosome} is not a copy of this agents chromosome as defined by {@link org.asoem.greyfish.core.genes.Chromosome#isCompatibleGenome}
      */
-    void injectGamete(Genome<? extends Gene<?>> genome);
+    void injectGamete(Chromosome<? extends Gene<?>> chromosome);
     void initGenome();
 
     Body getBody();

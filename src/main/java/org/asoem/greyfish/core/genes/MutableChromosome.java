@@ -16,21 +16,21 @@ import javax.annotation.Nullable;
  * Date: 09.09.11
  * Time: 15:21
  */
-public class MutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
+public class MutableChromosome<E extends Gene<?>> extends AbstractChromosome<E> {
 
     @Element(name = "genes")
     private final ComponentList<E> delegate;
 
     @SimpleXMLConstructor
-    private MutableGenome(@Element(name = "genes") ComponentList<E> genes) {
+    private MutableChromosome(@Element(name = "genes") ComponentList<E> genes) {
         delegate = genes;
     }
 
-    public MutableGenome(Iterable<? extends E> genome) {
+    public MutableChromosome(Iterable<? extends E> genome) {
         delegate = new MutableComponentList<E>(genome);
     }
 
-    protected MutableGenome(MutableGenome<E> parent, final DeepCloner cloner) {
+    protected MutableChromosome(MutableChromosome<E> parent, final DeepCloner cloner) {
         cloner.addClone(this);
         delegate = new MutableComponentList<E>(Iterables.transform(parent.delegate, new Function<E, E>() {
             @SuppressWarnings("unchecked") // its a save downcast
@@ -49,6 +49,6 @@ public class MutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new MutableGenome<E>(this, cloner);
+        return new MutableChromosome<E>(this, cloner);
     }
 }

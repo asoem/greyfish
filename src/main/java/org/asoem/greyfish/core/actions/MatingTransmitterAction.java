@@ -8,10 +8,9 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.EvaluatedGenome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
+import org.asoem.greyfish.core.genes.*;
+import org.asoem.greyfish.core.genes.EvaluatedChromosome;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -107,14 +106,14 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
         final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
         if (RandomUtils.trueWithProbability(probability)) {
-            final Genome<Gene<?>> sperm = ImmutableGenome.copyOf(agent().getGenome());
+            final Chromosome<Gene<?>> sperm = ImmutableChromosome.copyOf(agent().getChromosome());
             double fitness = 0.0;
             try {
                 fitness = spermFitness.evaluateForContext(this).asDouble();
             } catch (EvaluationException e) {
                 LOGGER.error("Evaluation of spermFitness failed: {}", spermFitness, e);
             }
-            reply.content(new EvaluatedGenome<Gene<?>>(sperm, fitness), EvaluatedGenome.class)
+            reply.content(new EvaluatedChromosome<Gene<?>>(sperm, fitness), EvaluatedChromosome.class)
                     .performative(ACLPerformative.PROPOSE);
             LOGGER.debug("Accepted mating with p={}", probability);
         }
@@ -128,9 +127,9 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
-        // costs for mating define quality of the genome
+        // costs for mating define quality of the chromosome
 //        DoubleProperty doubleProperty = null;
-//        Genome sperm = null;
+//        Chromosome sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.parallelApply(sperm));
 
         return ImmutableACLMessage.createReply(message, getAgent())

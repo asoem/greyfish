@@ -39,8 +39,8 @@ public interface Gene<T> extends AgentComponent, Supplier<T> {
 
     /**
      * Get the recombination probability for this gene.
-     * The values is uses as the probability that, if this gene is on the focal genome,
-     * the gene on the non-focal genome. If the non-focal is taken, at the next gene, the focal genome will be the currently non-focal.
+     * The values is uses as the probability that, if this gene is on the focal chromosome,
+     * the gene on the non-focal chromosome. If the non-focal is taken, at the next gene, the focal chromosome will be the currently non-focal.
      */
     double getRecombinationProbability();
 }

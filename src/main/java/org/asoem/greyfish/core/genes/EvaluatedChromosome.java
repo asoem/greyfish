@@ -6,21 +6,21 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class EvaluatedGenome<E extends Gene<?>> extends ForwardingGenome<E> implements Fitness, Comparable<EvaluatedGenome<E>> {
+public class EvaluatedChromosome<E extends Gene<?>> extends ForwardingChromosome<E> implements Fitness, Comparable<EvaluatedChromosome<E>> {
 
     private final double fitness;
 
-    private final Genome<E> delegate;
+    private final Chromosome<E> delegate;
 
-    public EvaluatedGenome(Genome<E> sperm, double fitness) {
+    public EvaluatedChromosome(Chromosome<E> sperm, double fitness) {
         delegate = checkNotNull(sperm);
         this.fitness = fitness;
     }
 
     @SuppressWarnings({"unchecked"}) // cloning is save
-    public EvaluatedGenome(EvaluatedGenome<E> genome, DeepCloner cloner) {
+    public EvaluatedChromosome(EvaluatedChromosome<E> genome, DeepCloner cloner) {
         cloner.addClone(this);
-        delegate = cloner.cloneField(genome.delegate, Genome.class);
+        delegate = cloner.cloneField(genome.delegate, Chromosome.class);
         this.fitness = genome.fitness;
     }
 
@@ -30,22 +30,22 @@ public class EvaluatedGenome<E extends Gene<?>> extends ForwardingGenome<E> impl
     }
 
     @Override
-    protected Genome<E> delegate() {
+    protected Chromosome<E> delegate() {
         return delegate;
     }
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new EvaluatedGenome<E>(this, cloner);
+        return new EvaluatedChromosome<E>(this, cloner);
     }
 
     @Override
-    public void updateAllGenes(Genome<? extends E> genes) {
+    public void updateAllGenes(Chromosome<? extends E> genes) {
         delegate().updateAllGenes(genes);
     }
 
     @Override
-    public int compareTo(EvaluatedGenome<E> o) {
+    public int compareTo(EvaluatedChromosome<E> o) {
         return Double.compare(this.fitness(), o.fitness());
     }
 
@@ -60,7 +60,7 @@ public class EvaluatedGenome<E extends Gene<?>> extends ForwardingGenome<E> impl
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        EvaluatedGenome that = (EvaluatedGenome) o;
+        EvaluatedChromosome that = (EvaluatedChromosome) o;
 
         return Double.compare(that.fitness, fitness) == 0 && delegate.equals(that.delegate);
 

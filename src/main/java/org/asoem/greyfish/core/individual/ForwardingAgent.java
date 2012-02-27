@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.individual;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.collect.TreeNode;
@@ -126,8 +126,8 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public void injectGamete(Genome<? extends Gene<?>> genome) {
-        delegate().injectGamete(genome);
+    public void injectGamete(Chromosome<? extends Gene<?>> chromosome) {
+        delegate().injectGamete(chromosome);
     }
 
     @Override
@@ -221,8 +221,8 @@ public abstract class ForwardingAgent implements Agent {
     }
 
     @Override
-    public Genome<Gene<?>> getGenome() {
-        return delegate().getGenome();
+    public Chromosome<Gene<?>> getChromosome() {
+        return delegate().getChromosome();
     }
 
     @Override

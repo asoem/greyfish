@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.MutableGenome;
+import org.asoem.greyfish.core.genes.MutableChromosome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -22,7 +22,7 @@ public class MutableAgent extends AbstractAgent {
         super(new Body(),
                 new MutableComponentList<GFProperty>(builder.properties),
                 new MutableComponentList<GFAction>(builder.actions),
-                new MutableGenome<Gene<?>>(builder.genes));
+                new MutableChromosome<Gene<?>>(builder.genes));
         setPopulation(builder.population);
     }
 
@@ -30,15 +30,15 @@ public class MutableAgent extends AbstractAgent {
     private MutableAgent(@Element(name = "body") Body body,
                            @Element(name = "properties") ComponentList<GFProperty> properties,
                            @Element(name = "actions") ComponentList<GFAction> actions,
-                           @Element(name = "genome") Genome<Gene<?>> genome) {
-        super(body, properties, actions, genome);
+                           @Element(name = "chromosome") Chromosome<Gene<?>> chromosome) {
+        super(body, properties, actions, chromosome);
     }
 
     public MutableAgent(Agent agent) {
         super(new Body(agent.getBody()),
                 new MutableComponentList<GFProperty>(agent.getProperties()),
                 new MutableComponentList<GFAction>(agent.getActions()),
-                new MutableGenome<Gene<?>>(agent.getGenome()));
+                new MutableChromosome<Gene<?>>(agent.getChromosome()));
         setPopulation(agent.getPopulation());
     }
 

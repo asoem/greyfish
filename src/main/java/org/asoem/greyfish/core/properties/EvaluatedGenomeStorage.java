@@ -4,7 +4,7 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.genes.EvaluatedGenome;
+import org.asoem.greyfish.core.genes.EvaluatedChromosome;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -18,15 +18,15 @@ import java.util.List;
  *
  */
 @ClassGroup(tags="properties")
-public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedGenome<?>>> {
+public class EvaluatedGenomeStorage extends AbstractGFProperty implements DiscreteProperty<List<EvaluatedChromosome<?>>> {
 
-    final private List<EvaluatedGenome<?>> spermList = Lists.newArrayList();
+    final private List<EvaluatedChromosome<?>> spermList = Lists.newArrayList();
 
     public EvaluatedGenomeStorage(EvaluatedGenomeStorage storage, DeepCloner cloner) {
         super(storage, cloner);
     }
 
-    public void addGenome(EvaluatedGenome<?> genome) {
+    public void addGenome(EvaluatedChromosome<?> genome) {
         spermList.add(genome);
     }
 
@@ -57,7 +57,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     public static Builder with() { return new Builder(); }
 
     @Override
-    public List<EvaluatedGenome<?>> get() {
+    public List<EvaluatedChromosome<?>> get() {
         return Collections.unmodifiableList(spermList);
     }
 

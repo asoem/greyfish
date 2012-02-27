@@ -13,7 +13,7 @@ import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
@@ -240,13 +240,13 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void createAgent(final Population population, final Genome<? extends Gene<?>> genome, Location2D location) {
+    public void createAgent(final Population population, final Chromosome<? extends Gene<?>> chromosome, Location2D location) {
         checkNotNull(population);
         checkArgument(getPrototype(population) != null);
-        checkNotNull(genome);
+        checkNotNull(chromosome);
         checkNotNull(location);
 
-        addAgentMessages.add(new AddAgentMessage(population, genome, location));
+        addAgentMessages.add(new AddAgentMessage(population, chromosome, location));
     }
 
     /**
@@ -315,7 +315,7 @@ public class ParallelizedSimulation implements Simulation {
     private void processRequestedAgentAdditions() {
         for (AddAgentMessage addAgentMessage : addAgentMessages) {
             final Agent clone = borrowAgentFromPool(addAgentMessage.population);
-            clone.injectGamete(addAgentMessage.genome);
+            clone.injectGamete(addAgentMessage.chromosome);
             clone.prepare(this);
             addAgentInternal(clone, ImmutableObject2D.of(addAgentMessage.location, 0));
         }
@@ -390,12 +390,12 @@ public class ParallelizedSimulation implements Simulation {
     private static class AddAgentMessage {
 
         private final Population population;
-        private final Genome<? extends Gene<?>> genome;
+        private final Chromosome<? extends Gene<?>> chromosome;
         private final Location2D location;
 
-        public AddAgentMessage(Population population, Genome<? extends Gene<?>> genome, Location2D location) {
+        public AddAgentMessage(Population population, Chromosome<? extends Gene<?>> chromosome, Location2D location) {
             this.population = population;
-            this.genome = genome;
+            this.chromosome = chromosome;
             this.location = location;
         }
 

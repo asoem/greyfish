@@ -134,10 +134,10 @@ public class ImmutableAgentTest {
         Gene<String> gene2 = ImmutableGene.of("DefaultName", "Bar", String.class, geneController);
         Agent agent = ImmutableAgent.of(population).addGenes(gene1).build();
 
-        Genome<Gene<String>> genome = ImmutableGenome.copyOf(Collections.singleton(gene2));
+        Chromosome<Gene<String>> chromosome = ImmutableChromosome.copyOf(Collections.singleton(gene2));
 
         // when
-        agent.injectGamete(genome);
+        agent.injectGamete(chromosome);
 
         // then
         assertThat(gene1.get()).isEqualTo(gene2.get());

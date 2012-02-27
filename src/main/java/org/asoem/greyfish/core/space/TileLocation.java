@@ -7,8 +7,10 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Attribute;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.space.TileDirection.*;
 
 public class TileLocation {
@@ -208,5 +210,28 @@ public class TileLocation {
         if (hasBorder(NORTHWEST))   borderList.add("NW");
 
         return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
+    }
+
+    @Nullable
+    public TileLocation getAdjacent(TileDirection direction) {
+        checkNotNull(direction);
+
+        int xAdj = -1;
+        int yAdj = -1;
+        
+        switch (direction) {
+            case CENTER: xAdj = x; yAdj = y; break;
+            case NORTH: xAdj = x; yAdj = y - 1; break;
+            case NORTHEAST: xAdj = x + 1; yAdj = y - 1; break;
+            case EAST: xAdj = x + 1; yAdj = y; break;
+            case SOUTHEAST: xAdj = x + 1; yAdj = y + 1; break;
+            case SOUTH: xAdj = x; yAdj = y + 1; break;
+            case SOUTHWEST: xAdj = x - 1; yAdj = y + 1; break;
+            case WEST: xAdj = x - 1; yAdj = y; break;
+            case NORTHWEST: xAdj = x - 1; yAdj = y - 1; break;
+        }
+
+        assert xAdj != -1 && yAdj != -1 || xAdj == -1 && yAdj == -1;
+        return (xAdj != -1) ? space.getTileAt(xAdj, yAdj) : null;
     }
 }

@@ -7,12 +7,12 @@ import org.asoem.greyfish.core.actions.utils.ForwardingComponentList;
  * Date: 19.09.11
  * Time: 15:59
  */
-public abstract class ForwardingGenome<E extends Gene<?>> extends ForwardingComponentList<E> implements Genome<E> {
+public abstract class ForwardingChromosome<E extends Gene<?>> extends ForwardingComponentList<E> implements Chromosome<E> {
 
-    protected abstract Genome<E> delegate();
+    protected abstract Chromosome<E> delegate();
 
     @Override
-    public double distance(Genome<? extends E> es) {
+    public double distance(Chromosome<? extends E> es) {
         return delegate().distance(es);
     }
 
@@ -22,7 +22,7 @@ public abstract class ForwardingGenome<E extends Gene<?>> extends ForwardingComp
     }
 
     @Override
-    public boolean isCompatibleGenome(Genome<? extends Gene<?>> es) {
+    public boolean isCompatibleGenome(Chromosome<? extends Gene<?>> es) {
         return delegate().isCompatibleGenome(es);
     }
 

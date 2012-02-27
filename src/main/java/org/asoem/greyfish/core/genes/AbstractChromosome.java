@@ -17,20 +17,20 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Date: 08.02.12
  * Time: 11:08
  */
-public abstract class AbstractGenome<E extends Gene<?>> extends ForwardingList<E> implements Genome<E> {
+public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingList<E> implements Chromosome<E> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AbstractGenome.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AbstractChromosome.class);
     
-    protected AbstractGenome() {
+    protected AbstractChromosome() {
     }
 
-    public boolean isCompatibleGenome(Genome<? extends Gene<?>> genome) {
-        if (genome == null || this.size() != genome.size())
+    public boolean isCompatibleGenome(Chromosome<? extends Gene<?>> chromosome) {
+        if (chromosome == null || this.size() != chromosome.size())
             return false;
 
         final Iterator<E> this_genome_iterator = this.iterator();
 
-        for (Gene<?> aGenome : genome) {
+        for (Gene<?> aGenome : chromosome) {
             if (!this_genome_iterator.next().isMutatedCopy(aGenome)) {
                 return false;
             }
@@ -40,10 +40,10 @@ public abstract class AbstractGenome<E extends Gene<?>> extends ForwardingList<E
     }
 
     @Override
-    public void updateAllGenes(Genome<? extends E> genome) {
-        checkArgument(isCompatibleGenome(genome), "Given genome %s is not compatible to this genome %s.", genome, this);
+    public void updateAllGenes(Chromosome<? extends E> chromosome) {
+        checkArgument(isCompatibleGenome(chromosome), "Given chromosome %s is not compatible to this chromosome %s.", chromosome, this);
 
-        final Iterator<? extends E> sourceIterator = genome.iterator();
+        final Iterator<? extends E> sourceIterator = chromosome.iterator();
         final Iterator<E> destinationIterator = this.iterator();
 
         while (sourceIterator.hasNext() && destinationIterator.hasNext()) {
@@ -70,7 +70,7 @@ public abstract class AbstractGenome<E extends Gene<?>> extends ForwardingList<E
     }
 
     @Override
-    public double distance(Genome<? extends E> that) {
+    public double distance(Chromosome<? extends E> that) {
         return Genes.normalizedDistance(this, that);
     }
 
@@ -88,7 +88,7 @@ public abstract class AbstractGenome<E extends Gene<?>> extends ForwardingList<E
                     });
                 } catch (Exception e) {
                     final String message = "Could not find a match for all genes defined by " + thisGenes +
-                            " in the genome '" + this + "'";
+                            " in the chromosome '" + this + "'";
                     LOGGER.error(message, e);
                     throw new IllegalArgumentException(message, e);
                 }

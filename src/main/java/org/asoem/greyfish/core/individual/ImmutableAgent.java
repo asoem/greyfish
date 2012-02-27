@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.Genome;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
+import org.asoem.greyfish.core.genes.ImmutableChromosome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -26,8 +26,8 @@ public class ImmutableAgent extends AbstractAgent {
     protected ImmutableAgent(@Element(name = "body") Body body,
                              @Element(name = "properties") ComponentList<GFProperty> properties,
                              @Element(name = "actions") ComponentList<GFAction> actions,
-                             @Element(name = "genome") Genome<Gene<?>> genome) {
-        super(body, properties, actions, genome);
+                             @Element(name = "chromosome") Chromosome<Gene<?>> chromosome) {
+        super(body, properties, actions, chromosome);
         freeze();
     }
 
@@ -43,7 +43,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                ImmutableGenome.copyOf(builder.genes));
+                ImmutableChromosome.copyOf(builder.genes));
         setPopulation(builder.population);
         freeze();
     }
@@ -67,7 +67,7 @@ public class ImmutableAgent extends AbstractAgent {
                 clone.getBody(),
                 clone.getProperties(),
                 clone.getActions(),
-                ImmutableGenome.copyOf(clone.getGenome()));
+                ImmutableChromosome.copyOf(clone.getChromosome()));
         ret.setPopulation(clone.getPopulation());
         ret.setMotion(clone.getMotion());
         ret.setProjection(clone.getProjection());

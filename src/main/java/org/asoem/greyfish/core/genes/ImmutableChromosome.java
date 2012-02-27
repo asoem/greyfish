@@ -20,27 +20,27 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * This is an immutable implementation of a Genome in the sense,
+ * This is an immutable implementation of a Chromosome in the sense,
  * that it stores its Genes in an {@link ImmutableComponentList},
  * but makes no guarantees about the immutability of the stored genes.
  */
-public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
+public class ImmutableChromosome<E extends Gene<?>> extends AbstractChromosome<E> {
 
-    private static final Genome<Gene<?>> EMPTY_GENOME = new ImmutableGenome<Gene<?>>(ImmutableGenome.<Gene<?>>of());
+    private static final Chromosome<Gene<?>> EMPTY_CHROMOSOME = new ImmutableChromosome<Gene<?>>(ImmutableChromosome.<Gene<?>>of());
 
     @Element(name = "genes")
     private final ComponentList<E> delegate;
 
     @SimpleXMLConstructor
-    private ImmutableGenome(@Element(name = "genes") ComponentList<E> genes) {
+    private ImmutableChromosome(@Element(name = "genes") ComponentList<E> genes) {
         delegate = genes;
     }
     
-    private ImmutableGenome(Builder<E> builder) {
+    private ImmutableChromosome(Builder<E> builder) {
         delegate = ImmutableComponentList.copyOf(builder.genes);
     }
 
-    private ImmutableGenome(ImmutableGenome<E> immutableGenome, final DeepCloner cloner) {
+    private ImmutableChromosome(ImmutableChromosome<E> immutableGenome, final DeepCloner cloner) {
         cloner.addClone(this);
 
         delegate = ImmutableComponentList.copyOf(Iterables.transform(immutableGenome, new Function<E, E>() {
@@ -61,7 +61,7 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new ImmutableGenome<E>(this, cloner);
+        return new ImmutableChromosome<E>(this, cloner);
     }
 
     @Override
@@ -69,16 +69,16 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
         return delegate;
     }
 
-    public static <E extends Gene<?>> ImmutableGenome<E> copyOf(Iterable<? extends E> genes) {
+    public static <E extends Gene<?>> ImmutableChromosome<E> copyOf(Iterable<? extends E> genes) {
         return new Builder<E>().addAll(genes).build();
     }
 
     /**
-     * Creates a new {@code ImmutableGenome} which contains {@code ImmutableGene} copies of the geiven {@code genes}
+     * Creates a new {@code ImmutableChromosome} which contains {@code ImmutableGene} copies of the geiven {@code genes}
      * @param genes the genes which will used to create new mutated copies from
-     * @return a new {@code ImmutableGenome} with muted copies of the given {@code genes}
+     * @return a new {@code ImmutableChromosome} with muted copies of the given {@code genes}
      */
-    public static ImmutableGenome<Gene<?>> mutatedCopyOf(Iterable<? extends Gene<?>> genes) {
+    public static ImmutableChromosome<Gene<?>> mutatedCopyOf(Iterable<? extends Gene<?>> genes) {
         return new Builder<Gene<?>>().addAll(Iterables.transform(genes, new Function<Gene<?>, Gene<?>>() {
             @Override
             public Gene<?> apply(@Nullable Gene<?> o) {
@@ -88,21 +88,21 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
     }
 
     /**
-     * Creates a new {@code ImmutableGenome} out of {@code genome1} and {@code genome2}.
-     * @param genome1 The first genome
-     * @param genome2 The second genome
-     * @return a new {@code ImmutableGenome}
+     * Creates a new {@code ImmutableChromosome} out of {@code chromosome1} and {@code chromosome2}.
+     * @param chromosome1 The first chromosome
+     * @param chromosome2 The second chromosome
+     * @return a new {@code ImmutableChromosome}
      */
-    public static ImmutableGenome<? extends Gene<?>> recombined(Genome<? extends Gene<?>> genome1, Genome<? extends Gene<?>> genome2) {
-        checkNotNull(genome1);
-        checkNotNull(genome2);
-        if (genome1.size() != genome2.size())
+    public static ImmutableChromosome<? extends Gene<?>> recombined(Chromosome<? extends Gene<?>> chromosome1, Chromosome<? extends Gene<?>> chromosome2) {
+        checkNotNull(chromosome1);
+        checkNotNull(chromosome2);
+        if (chromosome1.size() != chromosome2.size())
             throw new IllegalArgumentException("Genomes differ in size");
 
         final Builder<Gene<?>> builder = new Builder<Gene<?>>();
 
-        Iterator<? extends Gene<?>> focalIterator = genome1.iterator();
-        Iterator<? extends Gene<?>> nonFocalIterator = genome2.iterator();
+        Iterator<? extends Gene<?>> focalIterator = chromosome1.iterator();
+        Iterator<? extends Gene<?>> nonFocalIterator = chromosome2.iterator();
 
         while (focalIterator.hasNext() && nonFocalIterator.hasNext()) {
             Gene<?> next1 =  focalIterator.next();
@@ -127,11 +127,11 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <E extends Gene<?>> Genome<E> of() {
-        return (Genome<E>) EMPTY_GENOME;
+    public static <E extends Gene<?>> Chromosome<E> of() {
+        return (Chromosome<E>) EMPTY_CHROMOSOME;
     }
 
-    protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGenome<E>> {
+    protected static class Builder<E extends Gene<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableChromosome<E>> {
         private final List<E> genes = Lists.newArrayList();
 
         public Builder<E> add(E gene) { this.genes.add(gene); return this; }
@@ -139,8 +139,8 @@ public class ImmutableGenome<E extends Gene<?>> extends AbstractGenome<E> {
         public Builder<E> addAll(Iterable<? extends E> genes) { Iterables.addAll(this.genes, genes); return this; }
 
         @Override
-        public ImmutableGenome<E> build() {
-            return new ImmutableGenome<E>(this);
+        public ImmutableChromosome<E> build() {
+            return new ImmutableChromosome<E>(this);
         }
     }
 }

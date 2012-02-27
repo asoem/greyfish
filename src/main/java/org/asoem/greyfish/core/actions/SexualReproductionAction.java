@@ -6,9 +6,9 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.EvaluatedGenome;
+import org.asoem.greyfish.core.genes.EvaluatedChromosome;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.ImmutableGenome;
+import org.asoem.greyfish.core.genes.ImmutableChromosome;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.AgentEvent;
 import org.asoem.greyfish.core.io.AgentEventLogger;
@@ -43,13 +43,13 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Element(name = "clutchSize")
     private GreyfishExpression clutchSize;
 
-    private ElementSelectionStrategy<EvaluatedGenome<?>> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
+    private ElementSelectionStrategy<EvaluatedChromosome<?>> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
 
-    private final static BiMap<String, ElementSelectionStrategy<EvaluatedGenome<?>>> strategies =
+    private final static BiMap<String, ElementSelectionStrategy<EvaluatedChromosome<?>>> strategies =
             ImmutableBiMap.of(
-                    "Random", ElementSelectionStrategies.<EvaluatedGenome<?>>randomSelection(),
-                    "Roulette Wheel", ElementSelectionStrategies.<EvaluatedGenome<?>>rouletteWheelSelection(),
-                    "Best", ElementSelectionStrategies.<EvaluatedGenome<?>>bestSelection());
+                    "Random", ElementSelectionStrategies.<EvaluatedChromosome<?>>randomSelection(),
+                    "Roulette Wheel", ElementSelectionStrategies.<EvaluatedChromosome<?>>rouletteWheelSelection(),
+                    "Best", ElementSelectionStrategies.<EvaluatedChromosome<?>>bestSelection());
 
     private int offspringCount = 0;
 
@@ -69,8 +69,8 @@ public class SexualReproductionAction extends AbstractGFAction {
         final Location2D locatable = agent().getProjection();
 
         final int eggCount = clutchSize.evaluateForContext(this).asInt();
-        for (EvaluatedGenome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
-            final ImmutableGenome<Gene<?>> gamete = ImmutableGenome.mutatedCopyOf(ImmutableGenome.recombined(agent().getGenome(), spermCandidate));
+        for (EvaluatedChromosome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
+            final ImmutableChromosome<Gene<?>> gamete = ImmutableChromosome.mutatedCopyOf(ImmutableChromosome.recombined(agent().getChromosome(), spermCandidate));
 
             simulation.createAgent(population, gamete, locatable);
 
