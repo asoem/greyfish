@@ -1,9 +1,7 @@
 package org.asoem.greyfish.core.space;
 
 import org.asoem.greyfish.utils.space.ImmutableLocation2D;
-import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.asoem.greyfish.utils.space.Location2D;
-import org.asoem.greyfish.utils.space.Object2D;
 import org.junit.Test;
 
 import static com.google.common.base.Predicates.instanceOf;
@@ -33,17 +31,91 @@ public class TiledSpaceTest {
     }
 
     @Test
-    public void testCollision() throws Exception {
+    public void testmaxTransitionWithNorthernWall() throws Exception {
         // given
-        Object2D object1 = ImmutableObject2D.of(0.0, 0.0, 0.0);
-        Object2D object2 = ImmutableObject2D.of(2.0, 2.0, 0.0);
+        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
+        Location2D destination = ImmutableLocation2D.at(0.0, -1.0);
         TiledSpace space = new TiledSpace(3, 3);
-        space.getTileAt(0, 0).setBorder(TileDirection.SOUTH, true);
+        space.getTileAt(0, 0).setBorder(TileDirection.NORTH, true);
         
         // when
-        final Location2D collision = space.collision(object1, object2);
+        final Location2D maxTransition = space.maxTransition(origin, destination);
         
         // then
-        assertThat(collision).isEqualTo(ImmutableLocation2D.at(1.0, 1.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 0.0));
+    }
+
+    @Test
+    public void testmaxTransitionWithEasternWall() throws Exception {
+        // given
+        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
+        Location2D destination = ImmutableLocation2D.at(2.0, 0.0);
+        TiledSpace space = new TiledSpace(3, 3);
+        space.getTileAt(0, 0).setBorder(TileDirection.EAST, true);
+
+        // when
+        final Location2D maxTransition = space.maxTransition(origin, destination);
+
+        // then
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0, 0.0));
+    }
+
+    @Test
+    public void testmaxTransitionWithSouthernWall() throws Exception {
+        // given
+        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
+        Location2D destination = ImmutableLocation2D.at(0.0, 2.0);
+        TiledSpace space = new TiledSpace(3, 3);
+        space.getTileAt(0, 0).setBorder(TileDirection.SOUTH, true);
+
+        // when
+        final Location2D maxTransition = space.maxTransition(origin, destination);
+
+        // then
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 1.0));
+    }
+
+    @Test
+    public void testmaxTransitionWithWesternWall() throws Exception {
+        // given
+        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
+        Location2D destination = ImmutableLocation2D.at(-1.0, 0.0);
+        TiledSpace space = new TiledSpace(3, 3);
+        space.getTileAt(0, 0).setBorder(TileDirection.WEST, true);
+
+        // when
+        final Location2D maxTransition = space.maxTransition(origin, destination);
+
+        // then
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 0.0));
+    }
+
+    @Test
+    public void testmaxTransitionWithAtEdge() throws Exception {
+        // given
+        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
+        Location2D destination = ImmutableLocation2D.at(2.0, 2.0);
+        TiledSpace space = new TiledSpace(3, 3);
+        space.getTileAt(0, 0).setBorder(TileDirection.SOUTH, true);
+
+        // when
+        final Location2D maxTransition = space.maxTransition(origin, destination);
+
+        // then
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0, 1.0));
+    }
+
+    @Test
+    public void testNomaxTransition() throws Exception {
+        // given
+        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
+        Location2D destination = ImmutableLocation2D.at(0.5, 0.5);
+        TiledSpace space = new TiledSpace(1, 1);
+
+        // when
+        final Location2D maxTransition = space.maxTransition(origin, destination);
+
+        // then
+        assertThat(maxTransition).isEqualTo(destination);
     }
 }

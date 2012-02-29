@@ -1,15 +1,10 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import javolution.util.FastList;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
@@ -25,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javolution.lang.MathLib.TWO_PI;
 import static org.asoem.greyfish.utils.space.Conversions.polarToCartesian;
+import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
 import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
 
 /**
@@ -33,7 +29,6 @@ import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
  */
 public class TiledSpace implements Iterable<TileLocation> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TiledSpace.class);
     @Attribute(name = "height")
     private final int height;
 
@@ -196,19 +191,27 @@ public class TiledSpace implements Iterable<TileLocation> {
 
         return new MovementPlan(
                 agent,
-                newProjection, collision(currentProjection, newProjection));
+                newProjection, maxTransition(currentProjection, newProjection));
     }
 
-    @Nullable
-    public Location2D collision(Object2D currentProjection, Object2D newProjection) {
-        return collision(getTileAt(currentProjection),
-                new Line2D.Double(currentProjection.getX(), currentProjection.getY(), newProjection.getX(), newProjection.getY()),
+    /**
+     * Get the location of the transition from {@code origin} to {@code destination} respecting collision with walls.
+     * So, if there is no wall between {@code origin} and {@code destination} that this method returns {@code destination}.
+     * Otherwise it returns the first {@code Location2D} at which the line from {@code origin} to {@code destination}
+     * intersects with a wall of any crossing tile.
+     * @param origin The origin of the transition
+     * @param destination The destination of the transition
+     * @return The point of the first collision, or {@code destination} if none occurs
+     */
+    public Location2D maxTransition(Location2D origin, Location2D destination) {
+        return Optional.fromNullable(collision(getTileAt(origin),
+                new Line2D.Double(origin.getX(), origin.getY(), destination.getX(), destination.getY()),
                 new boolean[] {
-                        newProjection.getY() < currentProjection.getY(),
-                        newProjection.getX() > currentProjection.getX(),
-                        newProjection.getY() > currentProjection.getY(),
-                        newProjection.getX() < currentProjection.getX()
-                });
+                        destination.getY() < origin.getY(),
+                        destination.getX() > origin.getX(),
+                        destination.getY() > origin.getY(),
+                        destination.getX() < origin.getX()
+                })).or(destination);
     }
 
     @Nullable
@@ -224,7 +227,7 @@ public class TiledSpace implements Iterable<TileLocation> {
                         location.getX(), location.getY(), location.getX() + 1, location.getY(),
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
-                    // collision ? return collision : collision at adjacent tile?
+                    // maxTransition ? return maxTransition : maxTransition at adjacent tile?
                     ret = (location.hasBorder(TileDirection.NORTH)) ? intersection
                             : collision(location.getAdjacent(TileDirection.NORTH), line2D, movementDirection);
                 }
@@ -235,7 +238,7 @@ public class TiledSpace implements Iterable<TileLocation> {
                         location.getX() + 1, location.getY(), location.getX() + 1, location.getY() + 1,
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
-                    // collision ? return collision : collision at adjacent tile?
+                    // maxTransition ? return maxTransition : maxTransition at adjacent tile?
                     ret = (location.hasBorder(TileDirection.EAST)) ? intersection
                             : collision(location.getAdjacent(TileDirection.EAST), line2D, movementDirection);
                 }
@@ -246,7 +249,7 @@ public class TiledSpace implements Iterable<TileLocation> {
                         location.getX() + 1, location.getY() + 1, location.getX(), location.getY() + 1,
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
-                    // collision ? return collision : collision at adjacent tile?
+                    // maxTransition ? return maxTransition : maxTransition at adjacent tile?
                     ret = (location.hasBorder(TileDirection.SOUTH)) ? intersection
                             : collision(location.getAdjacent(TileDirection.SOUTH), line2D, movementDirection);
                 }
@@ -257,7 +260,7 @@ public class TiledSpace implements Iterable<TileLocation> {
                         location.getX(), location.getY() + 1, location.getX(), location.getY(),
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
-                    // collision ? return collision : collision at adjacent tile?
+                    // maxTransition ? return maxTransition : maxTransition at adjacent tile?
                     ret = (location.hasBorder(TileDirection.WEST)) ? intersection
                             : collision(location.getAdjacent(TileDirection.WEST), line2D, movementDirection);
                 }
@@ -266,42 +269,10 @@ public class TiledSpace implements Iterable<TileLocation> {
 
         return ret;
     }
-
-    @Nullable
-    public static ImmutableLocation2D intersection(double l1x1, double l1y1, double l1x2, double l1y2,
-                                          double l2x1, double l2y1, double l2x2, double l2y2) {
-        double dx1 = l1x2 - l1x1;
-        double dx2 = l2x2 - l2x1;
-        double dy1 = l1y2 - l1y1;
-        double dy2 = l2y2 - l2y1;
-        double denom = (dy2 * dx1) - (dx2 * dy1);
-
-        if (denom == 0) {
-            return null;
-        }
-
-        double ua = (dx2 * (l1y1 - l2y1))
-                - (dy2 * (l1x1 - l2x1));
-        ua /= denom;
-        double ub = (dx1 * (l1y1 - l2y1))
-                - (dy1 * (l1x1 - l2x1));
-        ub /= denom;
-
-        if (((ua < 0) || (ua > 1) || (ub < 0) || (ub > 1))) {
-            return null;
-        }
-
-        double u = ua;
-
-        double ix = l1x1 + (u * (l1x2 - l1x1));
-        double iy = l1y1 + (u * (l1y2 - l1y1));
-
-        return ImmutableLocation2D.at(ix, iy);
-    }
     
 
     /**
-     * Execute the {@code plan}. If the plan will result in a collision, than subject of the {@code plan} will just get rotated, but not translated
+     * Execute the {@code plan}. If the plan will result in a maxTransition, than subject of the {@code plan} will just get rotated, but not translated
      * @param plan the planed movement
      */
     public void executeMovement(MovementPlan plan) {
