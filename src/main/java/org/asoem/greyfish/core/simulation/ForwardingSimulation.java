@@ -70,7 +70,7 @@ public abstract class ForwardingSimulation implements Simulation {
     }
 
     @Override
-    public TiledSpace getSpace() {
+    public TiledSpace<Agent> getSpace() {
         return delegate().getSpace();
     }
 

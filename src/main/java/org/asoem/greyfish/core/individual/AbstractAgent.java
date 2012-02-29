@@ -336,7 +336,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void prepare(Simulation simulation) {
-        setSimulationContext(new SimulationContext(simulation, this));
+        setSimulationContext(new SimulationContext(simulation));
         for (AgentComponent component : getComponents()) {
             component.prepare(simulation);
         }

@@ -2,24 +2,19 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Simulatable2D;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
-import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
-import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.Moving;
-import org.asoem.greyfish.utils.space.Object2D;
-import org.asoem.greyfish.utils.space.Projectable;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>, Projectable<Object2D>, Moving<Motion2D> {
+public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
@@ -79,6 +74,4 @@ public interface Agent extends DeepCloneable, Freezable, Preparable<Simulation>,
     List<AgentMessage> pullMessages(MessageTemplate template);
     boolean hasMessages(MessageTemplate template);
 
-    void execute();
-    void shutDown();
 }

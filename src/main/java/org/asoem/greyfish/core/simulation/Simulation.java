@@ -52,7 +52,7 @@ public interface Simulation extends HasName {
 
     Set<Agent> getPrototypes();
 
-    TiledSpace getSpace();
+    TiledSpace<Agent> getSpace();
 
     int getSteps();
 

@@ -22,7 +22,7 @@ public class SimulationContext {
     @Nullable
     private GFAction lastExecutedAction;
 
-    public SimulationContext(Simulation simulation, Agent agent) {
+    public SimulationContext(Simulation simulation) {
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
         this.timeOfBirth = simulation.getSteps();

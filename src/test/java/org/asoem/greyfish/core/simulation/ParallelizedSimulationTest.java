@@ -2,16 +2,21 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.inject.Inject;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.scenario.BasicScenario;
+import org.asoem.greyfish.core.space.TileDirection;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.utils.persistence.Persisters;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static java.util.Collections.singleton;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -20,6 +25,14 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class ParallelizedSimulationTest {
 
+    @Inject
+    private Persister persister;
+
+    public ParallelizedSimulationTest() {
+        CoreInjectorHolder.coreInjector().injectMembers(this);
+    }
+    
+    @SuppressWarnings("unchecked")
     @Test
     public void newSimulationTest() {
         // given
@@ -29,13 +42,30 @@ public class ParallelizedSimulationTest {
 
         final Agent prototype = ImmutableAgent.of(population).build();
         
-        final TiledSpace tiledSpace = mock(TiledSpace.class);
+        final TiledSpace<Agent> tiledSpace = mock(TiledSpace.class);
         given(tiledSpace.covers(any(Location2D.class))).willReturn(true);
+        given(tiledSpace.getOccupants()).willReturn(ImmutableList.of(prototype, prototype));
 
         // when
-        ParallelizedSimulation simulation = new ParallelizedSimulation(tiledSpace, singleton(prototype), ImmutableList.of(prototype, prototype));
+        ParallelizedSimulation simulation = new ParallelizedSimulation(tiledSpace);
 
         // then
         assertThat(Iterables.size(simulation.getAgents())).isEqualTo(2);
+    }
+
+    @Test
+    public void testBasicPersistence() throws Exception {
+        // given
+        final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1)
+                .addBorder(0,0, TileDirection.NORTH)
+                .build();
+        final BasicScenario scenario = BasicScenario.builder("TestScenario", space).build();
+        final ParallelizedSimulation simulation = ParallelizedSimulation.newSimulation(scenario);
+
+        // when
+        final ParallelizedSimulation copy = Persisters.createCopy(simulation, ParallelizedSimulation.class, persister);
+
+        // then
+        assertThat(copy).isEqualTo(simulation);
     }
 }

@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class BasicScenario implements Scenario {
 
     @Element(name="space")
-    private final TiledSpace space;
+    private final TiledSpace<Agent> space;
 
     @ElementList(name = "prototypes", entry = "prototype")
     private final Set<Agent> prototypes = Sets.newHashSet();
@@ -38,7 +38,7 @@ public class BasicScenario implements Scenario {
     @SimpleXMLConstructor
     private BasicScenario(
             @ElementList(name = "prototypes", entry = "prototype") Set<Agent> prototypes,
-            @Element(name = "space") TiledSpace space) {
+            @Element(name = "space") TiledSpace<Agent> space) {
         assert prototypes != null;
         assert space != null;
 
@@ -46,9 +46,10 @@ public class BasicScenario implements Scenario {
         this.prototypes.addAll(prototypes);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public BasicScenario(Scenario scenario) {
         this.name = scenario.getName();
-        this.space = new TiledSpace(scenario.getSpace());
+        this.space = new TiledSpace<Agent>(scenario.getSpace());
         for (Agent agent : scenario.getPlaceholder()) {
             addAgent(agent, agent.getProjection());
         }
@@ -142,7 +143,7 @@ public class BasicScenario implements Scenario {
     }
 
     @Override
-    public TiledSpace getSpace() {
+    public TiledSpace<Agent> getSpace() {
         return space; // TODO: should return an immutable view of space
     }
 
@@ -152,12 +153,12 @@ public class BasicScenario implements Scenario {
      * @param space the {@code TiledSpace} for this {@code Scenario}
      * @return a new {@link org.asoem.greyfish.core.scenario.BasicScenario.Builder} instance
      */
-    public static Builder builder(String name, TiledSpace space) {
+    public static Builder builder(String name, TiledSpace<Agent> space) {
         return new Builder(name, space);
     }
 
     public static class Builder implements org.asoem.greyfish.utils.base.Builder<BasicScenario> {
-        private final TiledSpace space;
+        private final TiledSpace<Agent> space;
         private final List<AgentProjectionPair> projections = Lists.newArrayList();
         private final String name;
 
@@ -166,7 +167,7 @@ public class BasicScenario implements Scenario {
          * @param name the name of this {@code Scenario}
          * @param space the {@code TiledSpace} for this {@code Scenario}
          */
-        public Builder(String name, TiledSpace space) {
+        public Builder(String name, TiledSpace<Agent> space) {
             this.space = checkNotNull(space);
             this.name = checkNotNull(name);
         }

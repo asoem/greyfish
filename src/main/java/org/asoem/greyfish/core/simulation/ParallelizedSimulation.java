@@ -6,20 +6,21 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import javolution.util.FastList;
+import com.google.common.collect.Maps;
 import jsr166y.ForkJoinPool;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.Counter;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
@@ -27,6 +28,9 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.asoem.greyfish.utils.space.Location2D;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -45,18 +49,28 @@ public class ParallelizedSimulation implements Simulation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelizedSimulation.class);
 
+    @Element(name = "space")
+    private final TiledSpace<Agent> space;
+
+    @Attribute
+    private int steps = 0;
+
+    @Attribute
+    private String title = "untitled";
+
+    @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true)
     private final List<AddAgentMessage> addAgentMessages =
             Collections.synchronizedList(Lists.<AddAgentMessage>newArrayList());
 
+    @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true)
     private final List<RemoveAgentMessage> removeAgentMessages =
             Collections.synchronizedList(Lists.<RemoveAgentMessage>newArrayList());
 
+    @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true)
     private final List<DeliverAgentMessageMessage> deliverAgentMessageMessages =
             Collections.synchronizedList(Lists.<DeliverAgentMessageMessage>newArrayList());
 
     private final Map<Population, Counter> populationCounterMap;
-
-    private final FastList<Agent> agents = FastList.newInstance();
 
     private final KeyedObjectPool<Population, Agent> objectPool = new StackKeyedObjectPool<Population, Agent>(
             new BaseKeyedPoolableObjectFactory<Population, Agent>() {
@@ -88,31 +102,46 @@ public class ParallelizedSimulation implements Simulation {
 
     private final AtomicInteger maxId = new AtomicInteger();
 
-
-    private final TiledSpace space;
-
-    private int steps = 0;
-
-    private String title = "untitled";
-
+    /**
+     * 
+     * @param scenario the scenario
+     */
     public ParallelizedSimulation(final Scenario scenario) {
-        this(TiledSpace.createEmptySpace(scenario.getSpace()),
-                scenario.getPrototypes(),
-                Iterables.transform(scenario.getPlaceholder(), new Function<Agent, Agent>() {
-                    @Override
-                    public Agent apply(@Nullable Agent agent) {
-                        return ImmutableAgent.cloneOf(agent);
-                    }
-                })
-        );
+        this(new TiledSpace<Agent>(scenario.getSpace(), new Function<Agent, Agent>() {
+            @Override
+            public Agent apply(@Nullable Agent agent) {
+                return ImmutableAgent.cloneOf(agent);
+            }
+        }));
     }
 
-    public ParallelizedSimulation(TiledSpace space, Set<? extends Agent> prototypes, Iterable<? extends Agent> agents) {
-        checkNotNull(space);
-        checkNotNull(prototypes);
+    @SimpleXMLConstructor
+    public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space,
+                                  @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true) List<AddAgentMessage> addAgentMessages,
+                                  @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true) List<RemoveAgentMessage> removeAgentMessages,
+                                  @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true) List<DeliverAgentMessageMessage> deliverAgentMessageMessages) {
+        this(space);
+        this.addAgentMessages.addAll(addAgentMessages);
+        this.removeAgentMessages.addAll(removeAgentMessages);
+        this.deliverAgentMessageMessages.addAll(deliverAgentMessageMessages);
+    }
 
+    public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space) {
+        checkNotNull(space);
         this.space = space;
-        this.prototypes = ImmutableSet.copyOf(prototypes);
+
+        this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getOccupants(), new Function<Agent, Agent>() {
+            final Map<Population, Agent> populationAgentMap = Maps.newHashMap();
+            @Override
+            public Agent apply(@Nullable Agent agent) {
+                assert agent != null;
+                final Population population = agent.getPopulation();
+                if (! populationAgentMap.containsKey(population))
+                    populationAgentMap.put(population, agent);
+                return populationAgentMap.get(population);
+            }
+        }));
+
         this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
                 putAll(prototypes,
                         new Function<Agent, Population>() {
@@ -128,9 +157,9 @@ public class ParallelizedSimulation implements Simulation {
                             }
                         }).
                 build();
-        for (Agent agent : agents) {
-            addAgentInternal(agent, agent.getProjection());
-        }
+
+        for (Agent agent : getAgents())
+            agent.prepare(this);
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -161,7 +190,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Iterable<Agent> getAgents() {
-        return agents;
+        return space.getOccupants();
     }
 
     private void addAgentInternal(Agent agent, Location2D locatable) {
@@ -177,7 +206,6 @@ public class ParallelizedSimulation implements Simulation {
         // following actions must be synchronized
         synchronized (this) {
             agent.prepare(this);
-            agents.add(agent);
             space.addObject(agent, ImmutableObject2D.of(locatable, 0));
             Counter counter = populationCounterMap.get(agent.getPopulation());
             counter.increase(); // non-null verified by checkCanAddAgent();
@@ -187,8 +215,6 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void removeAgentsInternal(Collection<? extends Agent> agents) {
-        this.agents.removeAll(agents);
-
         for (Agent agent : agents) {
             space.removeObject(agent);
             populationCounterMap.get(agent.getPopulation()).decrease();
@@ -225,7 +251,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public int countAgents() {
-        return agents.size();
+        return space.countOccupants();
     }
 
     @Override
@@ -304,9 +330,9 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void executeAllAgents() {
-        invoke(apply(agents, new VoidFunction<Agent>() {
+        invoke(apply(getAgents(), new VoidFunction<Simulatable>() {
             @Override
-            public void apply(Agent agent) {
+            public void apply(Simulatable agent) {
                 agent.execute();
             }
         }, 1000));
@@ -323,7 +349,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void processAgentsMovement() {
-        invoke(apply(agents, new VoidFunction<Agent>() {
+        invoke(apply(getAgents(), new VoidFunction<Agent>() {
             @Override
             public void apply(Agent agent) {
                 space.moveObject(agent, agent.getMotion());
@@ -343,7 +369,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public String toString() {
-        return "Simulation[" + getName() + "]#" + getSteps();
+        return "Simulation['" + getName() + "']@" + getSteps();
     }
 
     @Override
@@ -365,6 +391,38 @@ public class ParallelizedSimulation implements Simulation {
     public void deliverMessage(final ACLMessage<Agent> message) {
         checkNotNull(message);
         deliverAgentMessageMessages.add(new DeliverAgentMessageMessage(message));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ParallelizedSimulation)) return false;
+
+        ParallelizedSimulation that = (ParallelizedSimulation) o;
+
+        if (steps != that.steps) return false;
+        if (!addAgentMessages.equals(that.addAgentMessages)) return false;
+        if (!deliverAgentMessageMessages.equals(that.deliverAgentMessageMessages)) return false;
+        if (!populationCounterMap.equals(that.populationCounterMap)) return false;
+        if (!prototypes.equals(that.prototypes)) return false;
+        if (!removeAgentMessages.equals(that.removeAgentMessages)) return false;
+        if (!space.equals(that.space)) return false;
+        if (!title.equals(that.title)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = space.hashCode();
+        result = 31 * result + steps;
+        result = 31 * result + title.hashCode();
+        result = 31 * result + addAgentMessages.hashCode();
+        result = 31 * result + removeAgentMessages.hashCode();
+        result = 31 * result + deliverAgentMessageMessages.hashCode();
+        result = 31 * result + populationCounterMap.hashCode();
+        result = 31 * result + prototypes.hashCode();
+        return result;
     }
 
     /**

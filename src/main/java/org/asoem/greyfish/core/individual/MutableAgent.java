@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutableChromosome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -56,17 +55,6 @@ public class MutableAgent extends AbstractAgent {
         int index1 = actions.indexOf(object);
         int index2 = actions.indexOf(object2);
         actions.add(index2, actions.remove(index1));
-    }
-
-    @Override
-    public void prepare(Simulation simulation) {
-        Preconditions.checkNotNull(simulation);
-
-        this.simulationContext = new SimulationContext(simulation, this);
-
-        for (AgentComponent component : getComponents()) {
-            component.prepare(simulation);
-        }
     }
 
     @Override

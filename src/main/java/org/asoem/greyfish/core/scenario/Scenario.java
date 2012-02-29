@@ -78,7 +78,7 @@ public interface Scenario {
      * Get the {@code TiledSpace} associated with this scenario
      * @return the {@code TiledSpace} associated with this scenario
      */
-    TiledSpace getSpace();
+    TiledSpace<Agent> getSpace();
 
     /**
      * Change the name of this scenario
