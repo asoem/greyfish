@@ -112,4 +112,8 @@ public class ImmutableLocation2D implements Location2D {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
+
+    public Location2D add(double i, double v) {
+        return ImmutableLocation2D.at(x + i, y + v);
+    }
 }
