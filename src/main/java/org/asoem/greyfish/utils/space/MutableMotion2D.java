@@ -33,7 +33,7 @@ public class MutableMotion2D implements Motion2D {
 
     @Override
     public double getRotation2D() {
-        return motion2D.getAngle();
+        return motion2D.getRotation2D();
     }
 
     /**

@@ -25,26 +25,16 @@ public class ImmutableMotion2D implements Motion2D {
         this.polarPoint2D = ImmutablePolarPoint2D.of(angle, v);
     }
 
-    @Deprecated
-    public double getAngle() {
-        return polarPoint2D.getAngle();
-    }
-
-    @Deprecated
-    public double getRadius() {
-        return polarPoint2D.getRadius();
-    }
-
     public ImmutableMotion2D rotated(double phi) {
-        return new ImmutableMotion2D((getAngle() + phi) % MathLib.TWO_PI, getRadius());
+        return new ImmutableMotion2D((getRotation2D() + phi) % MathLib.TWO_PI, getTranslation());
     }
 
     public ImmutableMotion2D translated(double distance) {
-        return new ImmutableMotion2D(getAngle(), getRadius() + distance);
+        return new ImmutableMotion2D(getRotation2D(), getTranslation() + distance);
     }
 
     public ImmutableMotion2D moved(double phi, double distance) {
-        return new ImmutableMotion2D((getAngle() + phi) % MathLib.TWO_PI, getRadius() + distance);
+        return new ImmutableMotion2D((getRotation2D() + phi) % MathLib.TWO_PI, getTranslation() + distance);
     }
 
     public static ImmutableMotion2D newInstance(double phi, double length) {

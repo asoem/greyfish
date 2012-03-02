@@ -32,6 +32,7 @@ public class ParallelIterables {
         }
     };
 
+    @SuppressWarnings("UnusedDeclaration")
     public static RecursiveAction executeAll(Iterable<? extends Runnable> commands, final int threshold) {
         return apply(commands, COMMAND_EXECUTOR, threshold);
     }

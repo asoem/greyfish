@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 import javax.annotation.Nullable;
+import java.awt.geom.Rectangle2D;
 
 /**
  * User: christoph
@@ -8,6 +9,9 @@ import javax.annotation.Nullable;
  * Time: 10:23
  */
 public class Geometry2D {
+
+    public static final double CLOSEST_TO_ZERO_RIGHT = 0.0000000000000001;
+    public static final double CLOSEST_TO_ONE_LEFT = 0.9999999999999999;
 
     /**
      * Adapted from {@code org.newdawn.slick.geom.Line.java}
@@ -45,5 +49,12 @@ public class Geometry2D {
         final double iy = l1y1 + (ua * (l1y2 - l1y1));
 
         return ImmutableLocation2D.at(ix, iy);
+    }
+
+    public static boolean rectangleContains(int x, int y, int w, int h, double x1, double y1) {
+        return (x1 >= x &&
+                y1 >= y &&
+                x1 < x + w &&
+                y1 < y + h);
     }
 }
