@@ -21,7 +21,7 @@ public class JEXLEvaluatorTest {
 
     @Test
     public void testDollarFunction() throws Exception {
-        Evaluator evaluator = new JEXLEvaluator();
+        Evaluator evaluator = new JexlEvaluator();
 
         evaluator.setExpression("$('testVal', 'hello')");
 
@@ -37,10 +37,10 @@ public class JEXLEvaluatorTest {
         // given
         final VariableResolver resolver = mock(VariableResolver.class);
         final String expression = "42.0";
-        final JEXLEvaluator evaluator1 = new JEXLEvaluator();
+        final JexlEvaluator evaluator1 = new JexlEvaluator();
         evaluator1.setExpression(expression);
         evaluator1.setResolver(resolver);
-        final JEXLEvaluator evaluator2 = new JEXLEvaluator();
+        final JexlEvaluator evaluator2 = new JexlEvaluator();
         evaluator2.setExpression(expression);
         evaluator2.setResolver(resolver);
 

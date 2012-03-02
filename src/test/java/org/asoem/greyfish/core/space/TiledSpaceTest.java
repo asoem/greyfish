@@ -5,11 +5,11 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.Geometry2D;
 import org.asoem.greyfish.utils.space.ImmutableLocation2D;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.junit.Test;
 
+import static org.asoem.greyfish.core.space.TiledSpace.CLOSEST_TO_ZERO_RIGHT;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
@@ -66,7 +66,7 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT, 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - CLOSEST_TO_ZERO_RIGHT, 0.0));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 1.0 - CLOSEST_TO_ZERO_RIGHT));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT, 1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - CLOSEST_TO_ZERO_RIGHT, 1.0 - CLOSEST_TO_ZERO_RIGHT));
     }
 
     @Test
@@ -154,6 +154,6 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT, 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(10.0 - CLOSEST_TO_ZERO_RIGHT, 0.0));
     }
 }

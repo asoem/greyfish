@@ -16,13 +16,13 @@ import org.simpleframework.xml.ElementList;
 import javax.annotation.Nullable;
 import java.awt.geom.Line2D;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javolution.lang.MathLib.TWO_PI;
 import static org.asoem.greyfish.utils.space.Conversions.polarToCartesian;
-import static org.asoem.greyfish.utils.space.Geometry2D.CLOSEST_TO_ONE_LEFT;
 import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
 import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
 
@@ -31,6 +31,10 @@ import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
  * This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
 public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, Tiled<BorderedTile> {
+
+    public static final double CLOSEST_TO_ZERO_RIGHT = 0.000000000001;
+
+    public static final double CLOSEST_TO_ONE_LEFT = 0.999999999999;
 
     @Attribute(name = "height")
     private final int height;
@@ -43,9 +47,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     private final BorderedTile[][] tileMatrix;
 
-    private final TwoDimTree<T> twoDimTree = AsoemScalaTwoDimTree.newInstance();
-
-    private boolean twoDimTreeOutdated = false;
+    private final SelfUpdatingTree twoDimTree = new SelfUpdatingTree();
 
     public TiledSpace(TiledSpace pSpace) {
         this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
@@ -148,16 +150,6 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
     @Override
     public String toString() {
         return "Tiled Space: dim="+width+"x"+height+"; oc="+Iterables.size(getObjects());
-    }
-
-    private void updateTopo() {
-        twoDimTree.rebuild(projectables, new Function<Projectable<Object2D>, Location2D>() {
-            @Override
-            public Location2D apply(@Nullable Projectable<Object2D> o) {
-                assert o != null;
-                return o.getProjection();
-            }
-        });
     }
 
     public BorderedTile getTileAt(Location2D location2D) throws IndexOutOfBoundsException, IllegalArgumentException {
@@ -283,7 +275,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
         final ImmutableObject2D projection = ImmutableObject2D.of(plan.getMaxLocation(), plan.getNewOrientation());
         plan.projectable.setProjection(projection);
-        twoDimTreeOutdated = true;
+        twoDimTree.setOutdated();
 
         return projection;
     }
@@ -295,8 +287,6 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     @Override
     public Iterable<T> findObjects(Location2D point, double range) {
-        if (twoDimTreeOutdated)
-            updateTopo();
         return twoDimTree.findObjects(point, range);
     }
 
@@ -334,7 +324,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         synchronized (this) {
             projectables.add(projectable);
             projectable.setProjection(projection);
-            twoDimTreeOutdated = true;
+            twoDimTree.setOutdated();
         }
     }
 
@@ -343,7 +333,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         checkNotNull(object);
         synchronized (this) {
             if (projectables.remove(object)) {
-                twoDimTreeOutdated = true;
+                twoDimTree.setOutdated();
                 return true;
             }
             else
@@ -484,6 +474,45 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
                 this.y = y;
                 this.direction = direction;
             }
+        }
+    }
+
+    private class SelfUpdatingTree implements TwoDimTree<T> {
+
+            private final TwoDimTree<T> delegate = AsoemScalaTwoDimTree.newInstance();
+            private boolean outdated = false;
+
+            @Override
+            public void rebuild(Iterable<? extends T> elements, Function<? super T, ? extends Location2D> function) {
+                delegate.rebuild(elements, function);
+            }
+
+            @Override
+            public Iterable<T> findObjects(Location2D locatable, double range) {
+                if (outdated)
+                    rebuild();
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+        private void rebuild() {
+            rebuild(projectables, new Function<Projectable<Object2D>, Location2D>() {
+                @Override
+                public Location2D apply(@Nullable Projectable<Object2D> o) {
+                    assert o != null;
+                    return o.getProjection();
+                }
+            });
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            if(outdated)
+                rebuild();
+            return delegate.iterator();
+        }
+
+        public void setOutdated() {
+            outdated = true;
         }
     }
 }
