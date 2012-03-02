@@ -145,14 +145,14 @@ public class TiledSpaceTest {
     @Test
     public void testMaxTransitionWithEasternSpaceBorder() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(9.9999, 0.0);
-        Location2D destination = ImmutableLocation2D.at(10.1, 0.0);
-        TiledSpace space = new TiledSpace(10, 1);
+        Location2D origin = ImmutableLocation2D.at(4.835470690262208, 9.9999999997506);
+        Location2D destination = ImmutableLocation2D.at(4.9251314448644665, 10.044282607873617);
+        TiledSpace space = new TiledSpace(10, 10);
 
         // when
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(9.9999 + (10.0 - 9.9999) * TiledSpace.COLLISION_SCALE, 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(4.835470690767177, Math.nextAfter(10.0, -Double.MIN_VALUE)));
     }
 }

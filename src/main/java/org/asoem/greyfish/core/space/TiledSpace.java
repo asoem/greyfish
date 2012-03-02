@@ -201,6 +201,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             return destination;
         
         final Location2D collision = collision(tileAtOrigin, origin.getX(), origin.getY(), destination.getX(), destination.getY());
+        assert collision == null || contains(collision) : "Calculated maxTransition from " + origin + " to " + destination + " is " + collision + ", which not contained by this space " + this;
 
         return collision != null ? collision : destination;
     }
@@ -228,12 +229,12 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         if (yd < yo) { // north
             final ImmutableLocation2D intersection = intersection(
                     tile.getX(), tile.getY(),
-                    tile.getX() + 1, tile.getY(),
+                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE), tile.getY(),
                     xo, yo, xd, yd);
 
             if (intersection != null) {
                 if (tile.hasBorder(TileDirection.NORTH))
-                    return ImmutableLocation2D.at(xo + (intersection.getX() - xo) * COLLISION_SCALE, yo + (intersection.getY() - yo) * COLLISION_SCALE);
+                    return intersection;
                 else
                     follow1 = TileDirection.NORTH;
             }
@@ -241,14 +242,13 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
         if (xd > xo) { // east
             final ImmutableLocation2D intersection = intersection(
-                    tile.getX() + 1, tile.getY(),
-                    tile.getX() + 1, tile.getY() + 1,
+                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE), tile.getY(),
+                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE), Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
                     xo, yo, xd, yd);
 
             if (intersection != null) {
                 if (tile.hasBorder(TileDirection.EAST)) {
-                    return ImmutableLocation2D.at(xo + (intersection.getX() - xo) * COLLISION_SCALE,
-                            yo + (intersection.getY() - yo) * COLLISION_SCALE);
+                    return intersection;
                 }
                 else { if (follow1 == null) follow1 = TileDirection.EAST; else follow2 = TileDirection.EAST; }
             }
@@ -256,28 +256,26 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
         if (yd > yo) { // south
             final ImmutableLocation2D intersection = intersection(
-                    tile.getX(), tile.getY() + 1,
-                    tile.getX() + 1, tile.getY() + 1,
+                    tile.getX(), Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
+                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE), Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
                     xo, yo, xd, yd);
 
             if (intersection != null) {
                 if (tile.hasBorder(TileDirection.SOUTH))
-                    return ImmutableLocation2D.at(xo + (intersection.getX() - xo) * COLLISION_SCALE,
-                            yo + (intersection.getY() - yo) * COLLISION_SCALE);
+                    return intersection;
                 else { if (follow1 == null) follow1 = TileDirection.SOUTH; else follow2 = TileDirection.SOUTH; }
             }
         }
 
         if (xd < xo) { // west
             final ImmutableLocation2D intersection = intersection(
-                    tile.getX(), tile.getY() + 1,
+                    tile.getX(), Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
                     tile.getX(), tile.getY(),
                     xo, yo, xd, yd);
 
             if (intersection != null) {
                 if (tile.hasBorder(TileDirection.WEST))
-                    return ImmutableLocation2D.at(xo + (intersection.getX() - xo) * COLLISION_SCALE,
-                            yo + (intersection.getY() - yo) * COLLISION_SCALE);
+                    return intersection;
                 else { if (follow1 == null) follow1 = TileDirection.WEST; else follow2 = TileDirection.WEST; }
             }
         }
