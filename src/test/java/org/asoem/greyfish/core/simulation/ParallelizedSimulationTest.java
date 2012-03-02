@@ -43,8 +43,8 @@ public class ParallelizedSimulationTest {
         final Agent prototype = ImmutableAgent.of(population).build();
         
         final TiledSpace<Agent> tiledSpace = mock(TiledSpace.class);
-        given(tiledSpace.covers(any(Location2D.class))).willReturn(true);
-        given(tiledSpace.getOccupants()).willReturn(ImmutableList.of(prototype, prototype));
+        given(tiledSpace.contains(any(Location2D.class))).willReturn(true);
+        given(tiledSpace.getObjects()).willReturn(ImmutableList.of(prototype, prototype));
 
         // when
         ParallelizedSimulation simulation = new ParallelizedSimulation(tiledSpace);

@@ -7,15 +7,11 @@ import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Attribute;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.space.TileDirection.*;
 
-public class TileLocation {
-
-    private final TiledSpace space;
+public class BorderedTile implements Tile {
 
     private final int borderFlagsMask;
 
@@ -29,15 +25,13 @@ public class TileLocation {
     private int borderFlags = 0;
 
     @SimpleXMLConstructor
-    private TileLocation(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
+    private BorderedTile(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
         this.x = x;
         this.y = y;
         this.borderFlagsMask = 0;
-        this.space = null;
     }
 
-    TileLocation(TiledSpace space, int x, int y) {
-        this.space = space;
+    BorderedTile(TiledSpace<?> space, int x, int y) {
         this.x = x;
         this.y = y;
 
@@ -49,16 +43,12 @@ public class TileLocation {
         borderFlagsMask = mask;
     }
 
-    /**
-     * @return the x
-     */
+    @Override
     public int getX() {
         return x;
     }
 
-    /**
-     * @return the y
-     */
+    @Override
     public int getY() {
         return y;
     }
@@ -73,10 +63,6 @@ public class TileLocation {
      * {@code false} otherwise.
      */
     public boolean hasBorder(TileDirection direction) {
-        return hasBorder(direction, true);
-    }
-
-    private boolean hasBorder(TileDirection direction, boolean checkBorderAtDestination) {
 
         switch (direction) {
             case CENTER:
@@ -108,7 +94,7 @@ public class TileLocation {
                 break;
         }
 
-        return checkBorderAtDestination && getNeighbourTile(direction).hasBorder(direction.opposite(), false);
+        return false;
     }
 
     private boolean isBorderFlagSet(int flags) {
@@ -141,21 +127,9 @@ public class TileLocation {
 
         if (b) {
             borderFlags |= (1 << direction.ordinal());
-            if (hasNeighbourTile(direction))
-                getNeighbourTile(direction).borderFlags |= (1 << direction.opposite().ordinal());
         } else {
             borderFlags &= (~(1 << direction.ordinal()));
-            if (hasNeighbourTile(direction))
-                getNeighbourTile(direction).borderFlags &= (~(1 << direction.opposite().ordinal()));
         }
-    }
-
-    TileLocation getNeighbourTile(TileDirection direction) {
-        return space.getTileAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
-    }
-
-    boolean hasNeighbourTile(TileDirection direction) {
-        return space.hasTileAt(getX() + direction.xTranslation, getY() + direction.yTranslation);
     }
 
     public int getBorderFlags() {
@@ -192,7 +166,7 @@ public class TileLocation {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        TileLocation other = (TileLocation) obj;
+        BorderedTile other = (BorderedTile) obj;
         return x == other.x && y == other.y;
     }
 
@@ -210,28 +184,5 @@ public class TileLocation {
         if (hasBorder(NORTHWEST))   borderList.add("NW");
 
         return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
-    }
-
-    @Nullable
-    public TileLocation getAdjacent(TileDirection direction) {
-        checkNotNull(direction);
-
-        int xAdj = -1;
-        int yAdj = -1;
-        
-        switch (direction) {
-            case CENTER: xAdj = x; yAdj = y; break;
-            case NORTH: xAdj = x; yAdj = y - 1; break;
-            case NORTHEAST: xAdj = x + 1; yAdj = y - 1; break;
-            case EAST: xAdj = x + 1; yAdj = y; break;
-            case SOUTHEAST: xAdj = x + 1; yAdj = y + 1; break;
-            case SOUTH: xAdj = x; yAdj = y + 1; break;
-            case SOUTHWEST: xAdj = x - 1; yAdj = y + 1; break;
-            case WEST: xAdj = x - 1; yAdj = y; break;
-            case NORTHWEST: xAdj = x - 1; yAdj = y - 1; break;
-        }
-
-        assert xAdj != -1 && yAdj != -1 || xAdj == -1 && yAdj == -1;
-        return (xAdj != -1) ? space.getTileAt(xAdj, yAdj) : null;
     }
 }

@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.scenario;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.space.TileLocation;
+import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -58,7 +58,7 @@ public interface Scenario {
      * @param location the location to which the search will be restricted to
      * @return evaluates {@code Placeholder} for given {@code location}
      */
-    Iterable<Agent> getPlaceholder(TileLocation location);
+    Iterable<Agent> getPlaceholder(Tile location);
 
     /**
      * Get evaluates placeholders which have been placed inside the given {@code locations}
@@ -66,7 +66,7 @@ public interface Scenario {
      * @param locations the locations to which the search will be restricted to
      * @return evaluates {@code Placeholder} for given {@code locations}
      */
-    Iterable<Agent> getPlaceholder(Iterable<? extends TileLocation> locations);
+    Iterable<Agent> getPlaceholder(Iterable<? extends Tile> locations);
 
     /**
      * Get the name of this scenario

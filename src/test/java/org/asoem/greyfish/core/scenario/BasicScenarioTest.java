@@ -10,6 +10,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.asoem.greyfish.utils.space.ImmutableLocation2D;
@@ -53,7 +54,7 @@ public class BasicScenarioTest {
         final Agent prototype2 = mock(Agent.class);
         given(prototype2.getPopulation()).willReturn(population);
 
-        Scenario scenario = BasicScenario.builder("TestScenario", ofSize(1, 1))
+        Scenario scenario = BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(1, 1))
                 .addAgent(prototype, locatedAt(0.0, 0.0))
                 .addAgent(prototype2, locatedAt(0.0, 0.0))
                 .build();
@@ -73,7 +74,7 @@ public class BasicScenarioTest {
     public void testPersistence() throws Exception {
         final Agent prototype = ImmutableAgent.of(Population.newPopulation("TestPopulation", Color.blue)).build();
         // given
-        Scenario scenario = BasicScenario.builder("TestScenario", ofSize(3, 4))
+        Scenario scenario = BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(3, 4))
                 .addAgent(prototype, locatedAt(0.42, 1.42))
                 .addAgent(prototype, locatedAt(0.42, 1.42))
                 .build();

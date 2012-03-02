@@ -26,6 +26,7 @@ import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Attribute;
@@ -130,7 +131,7 @@ public class ParallelizedSimulation implements Simulation {
         checkNotNull(space);
         this.space = space;
 
-        this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getOccupants(), new Function<Agent, Agent>() {
+        this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
             final Map<Population, Agent> populationAgentMap = Maps.newHashMap();
             @Override
             public Agent apply(@Nullable Agent agent) {
@@ -190,7 +191,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Iterable<Agent> getAgents() {
-        return space.getOccupants();
+        return space.getObjects();
     }
 
     private void addAgentInternal(Agent agent, Location2D locatable) {
@@ -200,7 +201,7 @@ public class ParallelizedSimulation implements Simulation {
         // populationCounterMap is guaranteed to contain exactly the same keys as populationPrototypeMap
 
         checkNotNull(locatable, "You have to provide a location for the Agent");
-        checkArgument(space.covers(locatable),
+        checkArgument(space.contains(locatable),
                 "Coordinates " + locatable + " do not fall inside the area of this simulation's space: " + space);
 
         // following actions must be synchronized
@@ -251,7 +252,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public int countAgents() {
-        return space.countOccupants();
+        return space.countObjects();
     }
 
     @Override
@@ -296,7 +297,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public TiledSpace getSpace() {
+    public TiledSpace<Agent> getSpace() {
         return space;
     }
 
@@ -308,7 +309,7 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public synchronized void step() {
 
-        LOGGER.trace("{}: Entering step {}", this, steps);
+        LOGGER.debug("{}: Entering step {}", this, steps);
 
         executeAllAgents();
 
@@ -352,7 +353,8 @@ public class ParallelizedSimulation implements Simulation {
         invoke(apply(getAgents(), new VoidFunction<Agent>() {
             @Override
             public void apply(Agent agent) {
-                space.moveObject(agent, agent.getMotion());
+                if (agent.getMotion() != ImmutableMotion2D.noMotion())
+                    space.moveObject(agent, agent.getMotion());
             }
         }, 1000));
     }
@@ -393,6 +395,7 @@ public class ParallelizedSimulation implements Simulation {
         deliverAgentMessageMessages.add(new DeliverAgentMessageMessage(message));
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -38,7 +38,7 @@ public class GreyfishExpression implements Expression {
         checkNotNull(context, "Context must not be null");
         final VariableResolver contextResolver = createContextResolver(context);
         final VariableResolver resolver = VariableResolvers.forMap(ImmutableMap.of(n1, v1));
-        contextResolver.setNext(resolver);
+        contextResolver.append(resolver);
         return evaluate(contextResolver);
     }
 
@@ -46,7 +46,7 @@ public class GreyfishExpression implements Expression {
         checkNotNull(context, "Context must not be null");
         final VariableResolver contextResolver = createContextResolver(context);
         final VariableResolver resolver = VariableResolvers.forMap(localVariables);
-        contextResolver.setNext(resolver);
+        contextResolver.append(resolver);
         return evaluate(contextResolver);
     }
 

@@ -75,7 +75,7 @@ public class ResourceInteractionTest {
                 .addActions(provisionAction)
                 .build());
 
-        Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.ofSize(0,0)).build()));
+        Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(0,0)).build()));
         given(simulationSpy.getAgents()).willReturn(ImmutableList.<Agent>of(provisioner, consumer));
         doReturn(ImmutableList.of(consumer)).when(simulationSpy).findNeighbours(eq(provisioner), anyDouble());
         doReturn(ImmutableList.of(provisioner)).when(simulationSpy).findNeighbours(eq(consumer), anyDouble());
@@ -88,8 +88,6 @@ public class ResourceInteractionTest {
 
         // when
         for (int i = 0; i < 5; ++i) {
-            consumer.execute();
-            provisioner.execute();
             simulationSpy.step();
         }
 

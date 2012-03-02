@@ -14,24 +14,24 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 22.02.12
  * Time: 17:57
  */
-public class RandomMovementActionTest {
+public class SimpleMovementActionTest {
 
     @Inject
     private GreyfishExpressionFactory expressionFactory;
     @Inject
     private Persister persister;
 
-    public RandomMovementActionTest() {
+    public SimpleMovementActionTest() {
         CoreInjectorHolder.coreInjector().injectMembers(this);
     }
 
     @Test
     public void testPersistence() throws Exception {
         // given
-        final RandomMovementAction action = RandomMovementAction.builder().speed(expressionFactory.compile("0.42")).build();
+        final SimpleMovementAction action = SimpleMovementAction.builder().speed(expressionFactory.compile("0.42")).build();
 
         // when
-        final RandomMovementAction copy = Persisters.createCopy(action, RandomMovementAction.class, persister);
+        final SimpleMovementAction copy = Persisters.createCopy(action, SimpleMovementAction.class, persister);
 
         // then
         assertThat(copy.getSpeed().getExpression()).isEqualTo("0.42");

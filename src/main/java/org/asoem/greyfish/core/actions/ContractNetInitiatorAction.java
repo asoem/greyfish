@@ -63,7 +63,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 ImmutableACLMessage<Agent> cfpMessage = createCFP(simulation)
                         .sender(agent())
                         .performative(ACLPerformative.CFP).build();
-
+                LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
                 simulation.deliverMessage(cfpMessage);
 
                 nProposalsMax = cfpMessage.getRecipients().size();
@@ -87,20 +87,20 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                             proposeReply = checkNotNull(handlePropose(receivedMessage, simulation)).build();
                             proposeReplies.add(proposeReply);
                             ++nProposalsReceived;
-                            LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
+                            LOGGER.debug("{}: Received proposal", this, receivedMessage);
                         } catch (NotUnderstoodException e) {
                             proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage(), String.class).build();
-                            LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
+                            LOGGER.debug("{}: Message not understood", this, e);
                         }
                         checkProposeReply(proposeReply);
-
+                        LOGGER.debug("{}: Replying to proposal", this, proposeReply);
                         simulation.deliverMessage(proposeReply);
                         break;
 
                     case REFUSE:
-                        LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
+                        LOGGER.debug("{}: CFP was refused: ", this, receivedMessage);
                         handleRefuse(receivedMessage, simulation);
                         --nProposalsMax;
                         break;
@@ -122,7 +122,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             assert nProposalsMax >= 0;
 
             if (nProposalsMax == 0) {
-                LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
+                LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsMax);
                 endTransition(State.END);
             }
             else if (nProposalsReceived == nProposalsMax) {
@@ -132,7 +132,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 transition(State.WAIT_FOR_INFORM);
             }
             else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS) {
-                LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
+                LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals", this, nProposalsReceived);
 
                 timeoutCounter = 0;
                 failure("Timeout for INFORM Messages");

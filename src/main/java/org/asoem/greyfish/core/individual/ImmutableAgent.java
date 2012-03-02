@@ -31,10 +31,6 @@ public class ImmutableAgent extends AbstractAgent {
         freeze();
     }
 
-    public ImmutableAgent(ImmutableAgent agent) {
-        super(agent);
-    }
-    
     private ImmutableAgent(ImmutableAgent agent, DeepCloner map) {
         super(agent, map);
     }

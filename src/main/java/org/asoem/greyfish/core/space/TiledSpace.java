@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import javolution.lang.MathLib;
 import javolution.util.FastList;
 import org.asoem.greyfish.core.simulation.Simulatable2D;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -15,14 +16,13 @@ import org.simpleframework.xml.ElementList;
 import javax.annotation.Nullable;
 import java.awt.geom.Line2D;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javolution.lang.MathLib.TWO_PI;
 import static org.asoem.greyfish.utils.space.Conversions.polarToCartesian;
+import static org.asoem.greyfish.utils.space.Geometry2D.CLOSEST_TO_ONE_LEFT;
 import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
 import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
 
@@ -30,7 +30,7 @@ import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
  * @author christoph
  * This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
-public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<TileLocation> {
+public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, Tiled<BorderedTile> {
 
     @Attribute(name = "height")
     private final int height;
@@ -41,9 +41,9 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
     @ElementList(name = "projectables")
     private final List<T> projectables = FastList.newInstance();
 
-    private final TileLocation[][] tileMatrix;
+    private final BorderedTile[][] tileMatrix;
 
-    private final TwoDimTree<Projectable<Object2D>> twoDimTree = AsoemScalaTwoDimTree.newInstance();
+    private final TwoDimTree<T> twoDimTree = AsoemScalaTwoDimTree.newInstance();
 
     private boolean twoDimTreeOutdated = false;
 
@@ -52,22 +52,21 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
         setBorderedTiles(pSpace.getBorderedTiles());
     }
 
-    public TiledSpace(int width,
-                      int height) {
-        this(width, height, new TileLocation[0]);
+    public TiledSpace(int width, int height) {
+        this(width, height, new BorderedTile[0]);
     }
 
-    public TiledSpace(int width, int height, TileLocation[] borderedTiles) {
+    public TiledSpace(int width, int height, BorderedTile[] borderedTiles) {
         Preconditions.checkArgument(width >= 0);
         Preconditions.checkArgument(height >= 0);
 
         this.width = width;
         this.height = height;
 
-        this.tileMatrix = new TileLocation[width][height];
+        this.tileMatrix = new BorderedTile[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                this.tileMatrix[i][j] = new TileLocation(this, i, j);
+                this.tileMatrix[i][j] = new BorderedTile(this, i, j);
             }
         }
 
@@ -78,7 +77,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
     private TiledSpace(@Attribute(name = "width") int width,
                        @Attribute(name = "height") int height,
                        @ElementList(name = "projectables") List<T> projectables,
-                       @ElementArray(name = "borderedTiles", entry = "tile", required = false) TileLocation[] borderedTiles) {
+                       @ElementArray(name = "borderedTiles", entry = "tile", required = false) BorderedTile[] borderedTiles) {
         this(width, height, borderedTiles);
         this.projectables.addAll(projectables);
     }
@@ -91,7 +90,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
      */
     public TiledSpace(TiledSpace<T> space, Function<T, T> function) {
         this(space.getWidth(), space.getHeight(), space.getBorderedTiles());
-        Iterables.addAll(projectables, Iterables.transform(space.getOccupants(), function));
+        Iterables.addAll(projectables, Iterables.transform(space.getObjects(), function));
     }
 
     public TiledSpace(TiledSpaceBuilder<T> builder) {
@@ -102,64 +101,53 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
     }
 
     @ElementArray(name = "borderedTiles", entry = "tile", required = false)
-    private TileLocation[] getBorderedTiles() {
-        return Iterables.toArray(Iterables.filter(this, new Predicate<TileLocation>() {
+    private BorderedTile[] getBorderedTiles() {
+        return Iterables.toArray(Iterables.filter(getTiles(), new Predicate<BorderedTile>() {
             @Override
-            public boolean apply(TileLocation tileLocation) {
+            public boolean apply(BorderedTile tileLocation) {
                 return checkNotNull(tileLocation).getBorderFlags() != 0;
             }
-        }), TileLocation.class);
+        }), BorderedTile.class);
     }
 
-    private void setBorderedTiles(TileLocation[] tiles) {
+    private void setBorderedTiles(BorderedTile[] tiles) {
         if (tiles != null) {
-            for (TileLocation location : tiles)
-                getTileAt(location).setBorderFlags(location.getBorderFlags());
+            for (BorderedTile location : tiles)
+                getTileAt(location.getX(), location.getY()).setBorderFlags(location.getBorderFlags());
         }
     }
 
-    public static TiledSpace copyOf(TiledSpace space) {
-        return new TiledSpace(space);
-    }
-
-    public static <T extends Projectable<Object2D>> TiledSpace<T> ofSize(int width, int height) {
-        return new TiledSpace<T>(width, height);
-    }
-
-    public static <T extends Projectable<Object2D>> TiledSpaceBuilder<T> builder(int width, int height) {
-        return new TiledSpaceBuilder<T>(width, height);
-    }
-    
+    @Override
     public int getHeight() {
         return height;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
 
-    public boolean covers(Location2D location) {
+    @Override
+    public boolean contains(Location2D location) {
         checkNotNull(location);
-        return hasTileAt((int) Math.floor(location.getX()), (int) Math.floor(location.getY()));
+        return Geometry2D.rectangleContains(0, 0, getWidth(), getHeight(), location.getX(), location.getY());
     }
 
+    @Override
     public boolean hasTileAt(int x, int y) {
         return x >= 0 && x < width &&
                 y >= 0 && y < height;
     }
 
-    public TileLocation getTileAt(TileLocation location) {
-        return getTileAt(location.getX(), location.getY());
-    }
-
-    public TileLocation getTileAt(final int x, final int y) {
+    @Override
+    public BorderedTile getTileAt(final int x, final int y) {
         Preconditions.checkArgument(hasTileAt(x, y));
         return tileMatrix[x][y];
     }
 
     @Override
     public String toString() {
-        return "Tiled Space: dim="+width+"x"+height+"; oc="+Iterables.size(getOccupants());
+        return "Tiled Space: dim="+width+"x"+height+"; oc="+Iterables.size(getObjects());
     }
 
     private void updateTopo() {
@@ -172,12 +160,12 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
         });
     }
 
-    public TileLocation getTileAt(Location2D location2D) throws IndexOutOfBoundsException, IllegalArgumentException {
-        checkArgument(covers(location2D), "There is no tile for location [%s, %s]", location2D.getX(), location2D.getY());
+    public BorderedTile getTileAt(Location2D location2D) throws IndexOutOfBoundsException, IllegalArgumentException {
+        checkArgument(contains(location2D), "There is no tile for location [%s, %s]", location2D.getX(), location2D.getY());
         return getTileAt(location2D.getX(), location2D.getY());
     }
 
-    private TileLocation getTileAt(double x, double y) {
+    private BorderedTile getTileAt(double x, double y) {
         return getTileAt((int) Math.floor(x), (int) Math.floor(y));
     }
 
@@ -200,12 +188,10 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
 
         final double newOrientation = ((currentProjection.getOrientationAngle() + motion2D.getRotation2D()) % TWO_PI + TWO_PI) % TWO_PI;
         final double translation = motion2D.getTranslation();
-        final ImmutableLocation2D newLocation = sum(currentProjection, polarToCartesian(newOrientation, translation));
-        final Object2D newProjection = ImmutableObject2D.of(newLocation, newOrientation);
+        final Location2D preferredLocation = sum(currentProjection, polarToCartesian(newOrientation, translation));
+        final Location2D maxLocation = maxTransition(currentProjection, preferredLocation);
 
-        return new MovementPlan<T>(
-                agent,
-                newProjection, maxTransition(currentProjection, newProjection));
+        return new MovementPlan<T>(agent, preferredLocation, maxLocation, newOrientation);
     }
 
     /**
@@ -229,126 +215,121 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
     }
 
     @Nullable
-    private static Location2D collision(@Nullable TileLocation location, Line2D line2D, boolean [] movementDirection) {
+    private Location2D collision(@Nullable BorderedTile tile, Line2D line2D, boolean [] movementDirection) {
         assert movementDirection.length == 4;
         assert line2D != null;
 
         Location2D ret = null;
-        
-        if (location != null && line2D.intersects(location.getX(), location.getY(), 1, 1)) {
+
+        if (tile != null && line2D.intersects(tile.getX(), tile.getY(), CLOSEST_TO_ONE_LEFT, CLOSEST_TO_ONE_LEFT)) {
             if (movementDirection[0]) { // north
                 final ImmutableLocation2D intersection = intersection(
-                        location.getX(), location.getY(), location.getX() + 1, location.getY(),
+                        tile.getX(), tile.getY(), tile.getX() + CLOSEST_TO_ONE_LEFT, tile.getY(),
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
                     // maxTransition ? return maxTransition : maxTransition at adjacent tile?
-                    ret = (location.hasBorder(TileDirection.NORTH)) ? intersection
-                            : collision(location.getAdjacent(TileDirection.NORTH), line2D, movementDirection);
+                    ret = (tile.hasBorder(TileDirection.NORTH)) ? intersection
+                            : collision(getAdjacentTile(tile, TileDirection.NORTH), line2D, movementDirection);
                 }
             }
 
             if (ret == null && movementDirection[1]) { // east
                 final ImmutableLocation2D intersection = intersection(
-                        location.getX() + 1, location.getY(), location.getX() + 1, location.getY() + 1,
+                        tile.getX() + CLOSEST_TO_ONE_LEFT, tile.getY(), tile.getX() + CLOSEST_TO_ONE_LEFT, tile.getY() + CLOSEST_TO_ONE_LEFT,
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
                     // maxTransition ? return maxTransition : maxTransition at adjacent tile?
-                    ret = (location.hasBorder(TileDirection.EAST)) ? intersection
-                            : collision(location.getAdjacent(TileDirection.EAST), line2D, movementDirection);
+                    ret = (tile.hasBorder(TileDirection.EAST)) ? intersection
+                            : collision(getAdjacentTile(tile, TileDirection.EAST), line2D, movementDirection);
                 }
             }
 
             if (ret == null && movementDirection[2]) { // south
                 final ImmutableLocation2D intersection = intersection(
-                        location.getX() + 1, location.getY() + 1, location.getX(), location.getY() + 1,
+                        tile.getX() + CLOSEST_TO_ONE_LEFT, tile.getY() + CLOSEST_TO_ONE_LEFT, tile.getX(), tile.getY() + CLOSEST_TO_ONE_LEFT,
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
                     // maxTransition ? return maxTransition : maxTransition at adjacent tile?
-                    ret = (location.hasBorder(TileDirection.SOUTH)) ? intersection
-                            : collision(location.getAdjacent(TileDirection.SOUTH), line2D, movementDirection);
+                    ret = (tile.hasBorder(TileDirection.SOUTH)) ? intersection
+                            : collision(getAdjacentTile(tile, TileDirection.SOUTH), line2D, movementDirection);
                 }
             }
 
             if (movementDirection[3]) { // west
                 final ImmutableLocation2D intersection = intersection(
-                        location.getX(), location.getY() + 1, location.getX(), location.getY(),
+                        tile.getX(), tile.getY() + CLOSEST_TO_ONE_LEFT, tile.getX(), tile.getY(),
                         line2D.getX1(), line2D.getY1(), line2D.getX2(), line2D.getY2());
                 if (intersection != null) {
                     // maxTransition ? return maxTransition : maxTransition at adjacent tile?
-                    ret = (location.hasBorder(TileDirection.WEST)) ? intersection
-                            : collision(location.getAdjacent(TileDirection.WEST), line2D, movementDirection);
+                    ret = (tile.hasBorder(TileDirection.WEST)) ? intersection
+                            : collision(getAdjacentTile(tile, TileDirection.WEST), line2D, movementDirection);
                 }
             }
         }
 
         return ret;
     }
-    
 
     /**
      * Execute the {@code plan}. If the plan will result in a maxTransition, than subject of the {@code plan} will just get rotated, but not translated
      * @param plan the planed movement
+     * @return the projection after the movement
      */
-    public void executeMovement(MovementPlan<T> plan) {
+    private Object2D executeMovement(MovementPlan<T> plan) {
         checkNotNull(plan);
         checkArgument(projectables.contains(plan.projectable));
 
-        if (!plan.willCollide()) {
-            assert(covers(plan.projection));
-            plan.projectable.setProjection(plan.projection);
-        }
+        assert contains(plan.getMaxLocation()) : plan.getMaxLocation();
 
+        final ImmutableObject2D projection = ImmutableObject2D.of(plan.getMaxLocation(), plan.getNewOrientation());
+        plan.projectable.setProjection(projection);
         twoDimTreeOutdated = true;
-    }
 
-    public void moveObject(T object2d, Motion2D motion) {
-        executeMovement(planMovement(object2d, motion));
-    }
-
-    /**
-     *
-     *
-     * @param locatable the locatable of the search point
-     * @param range the radius of the circle around {@code locatable}
-     * @return evaluates objects whose location in this space
-     * intersects with the circle defined by {@code locatable} and {@code range}
-     */
-    public Iterable<Projectable<Object2D>> findObjects(Location2D locatable, double range) {
-        if (twoDimTreeOutdated)
-            updateTopo();
-        return twoDimTree.findObjects(locatable, range);
+        return projection;
     }
 
     @Override
-    public Iterator<TileLocation> iterator() {
-        return getTiles().iterator();
+    public Object2D moveObject(T object2d, Motion2D motion) {
+        return executeMovement(planMovement(object2d, motion));
     }
 
-    public Iterable<T> getOccupants() {
+    @Override
+    public Iterable<T> findObjects(Location2D point, double range) {
+        if (twoDimTreeOutdated)
+            updateTopo();
+        return twoDimTree.findObjects(point, range);
+    }
+
+    public Iterable<T> getNeighbours(T agent, double radius) {
+        return Iterables.filter(findObjects(agent.getProjection(), radius), Predicates.not(Predicates.<Projectable<? extends Object2D>>equalTo(agent)));
+    }
+
+    @Override
+    public Iterable<T> getObjects() {
         return projectables;
     }
 
-    public Iterable<T> getOccupants(final TileLocation tileLocation) {
-        return getOccupants(Collections.singleton(tileLocation));
-    }
-
-    public Iterable<T> getOccupants(Iterable<? extends TileLocation> tileLocations) {
-        return Iterables.concat(Iterables.transform(tileLocations, new Function<TileLocation, Iterable<T>>() {
+    public Iterable<T> getObjects(Iterable<? extends Tile> tileLocations) {
+        return Iterables.concat(Iterables.transform(tileLocations, new Function<Tile, Iterable<T>>() {
             @Override
-            public Iterable<T> apply(@Nullable final TileLocation tileLocation) {
-                return Iterables.filter(projectables, new Predicate<T>() {
+            public Iterable<T> apply(@Nullable Tile tile) {
+                final Tile checkedTile = checkNotNull(tile);
+                return Iterables.filter(findObjects(ImmutableLocation2D.at(checkedTile.getX() + 0.5, checkedTile.getY() + 0.5), MathLib.SQRT2 / 2), new Predicate<T>() {
                     @Override
-                    public boolean apply(T coordinates2D) {
-                        assert tileLocation != null;
-                        return tileLocation.covers(coordinates2D.getProjection());
+                    public boolean apply(@Nullable T t) {
+                        assert t != null;
+                        final Object2D projection = t.getProjection();
+                        assert projection != null;
+                        return Geometry2D.rectangleContains(checkedTile.getX(), checkedTile.getY(), 1, 1, projection.getX(), projection.getY());
                     }
                 });
             }
         }));
     }
 
+    @Override
     public void addObject(T projectable, Object2D projection) {
-        checkArgument(this.covers(checkNotNull(projection)));
+        checkArgument(this.contains(checkNotNull(projection)));
         checkNotNull(projectable);
         synchronized (this) {
             projectables.add(projectable);
@@ -357,10 +338,11 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
         }
     }
 
-    public boolean removeObject(T motion2D) {
-        checkNotNull(motion2D);
+    @Override
+    public boolean removeObject(T object) {
+        checkNotNull(object);
         synchronized (this) {
-            if (projectables.remove(motion2D)) {
+            if (projectables.remove(object)) {
                 twoDimTreeOutdated = true;
                 return true;
             }
@@ -369,38 +351,31 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
         }
     }
 
-    public Iterable<Projectable<Object2D>> getNeighbours(Projectable<Object2D> agent, double radius) {
-        return Iterables.filter(findObjects(agent.getProjection(), radius), Predicates.not(Predicates.<Projectable<? extends Object2D>>equalTo(agent)));
-    }
-
-    /**
-     * Create a new {@code TiledSpace} which has the same dimensions and the same borders as the given {@code space},
-     * but with no objects.
-     * @param space The space to copy the information from
-     * @return a new space
-     */
-    @SuppressWarnings("UnusedDeclaration")
-    public static <T extends Simulatable2D> TiledSpace<T> createEmptyCopy(TiledSpace<?> space) {
-        return new TiledSpace<T>(space.getWidth(), space.getHeight(), space.getBorderedTiles());
-    }
-
-    public int countOccupants() {
+    @Override
+    public int countObjects() {
         return projectables.size();
     }
 
-    public Iterable<TileLocation> getTiles() {
-        return Iterables.concat(Iterables.transform(Arrays.asList(tileMatrix), new Function<TileLocation[], Iterable<TileLocation>>() {
+    @Override
+    public Iterable<BorderedTile> getTiles() {
+        return Iterables.concat(Iterables.transform(Arrays.asList(tileMatrix), new Function<BorderedTile[], Iterable<BorderedTile>>() {
             @Override
-            public Iterable<TileLocation> apply(@Nullable TileLocation[] tileLocations) {
+            public Iterable<BorderedTile> apply(@Nullable BorderedTile[] tileLocations) {
                 return Arrays.asList(tileLocations);
             }
         }));
     }
 
     @Override
+    public BorderedTile getAdjacentTile(BorderedTile borderedTile, TileDirection direction) {
+        return getTileAt(borderedTile.getX() + direction.xTranslation, borderedTile.getY() + direction.yTranslation);
+    }
+
+    @SuppressWarnings("RedundantIfStatement")
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TiledSpace)) return false;
+        if (!(o instanceof Tiled)) return false;
 
         TiledSpace space = (TiledSpace) o;
 
@@ -421,21 +396,57 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Iterable<Til
         return result;
     }
 
+    public static Tiled copyOf(TiledSpace space) {
+        return new TiledSpace(space);
+    }
+
+    public static <T extends Projectable<Object2D>> TiledSpace<T> ofSize(int width, int height) {
+        return new TiledSpace<T>(width, height);
+    }
+
+    public static <T extends Projectable<Object2D>> TiledSpaceBuilder<T> builder(int width, int height) {
+        return new TiledSpaceBuilder<T>(width, height);
+    }
+
+    /**
+     * Create a new {@code TiledSpace} which has the same dimensions and the same borders as the given {@code space},
+     * but with no objects.
+     * @param space The space to copy the information from
+     * @return a new space
+     */
+    @SuppressWarnings("UnusedDeclaration")
+    public static <T extends Simulatable2D> TiledSpace<T> createEmptyCopy(TiledSpace<?> space) {
+        return new TiledSpace<T>(space.getWidth(), space.getHeight(), space.getBorderedTiles());
+    }
+
     public static class MovementPlan<T extends Projectable<Object2D>> {
         private final T projectable;
-        private final Object2D projection;
-        private final Location2D collisionPoint;
+        private final Location2D preferredLocation;
+        private final Location2D maxLocation;
+        private final double newOrientation;
 
-        private MovementPlan(T projectable, Object2D projection, @Nullable Location2D collisionPoint) {
-            this.collisionPoint = collisionPoint;
-            assert projectable != null;
-            assert projection != null;
-            this.projectable = projectable;
-            this.projection = projection;
+        public MovementPlan(T agent, Location2D preferredLocation, Location2D maxLocation, double newOrientation) {
+            this.projectable = agent;
+            this.preferredLocation = preferredLocation;
+            this.maxLocation = maxLocation;
+            this.newOrientation = newOrientation;
         }
 
         public boolean willCollide() {
-            return collisionPoint != null;
+            return preferredLocation != maxLocation;
+        }
+
+        @SuppressWarnings("UnusedDeclaration")
+        public Location2D getPreferredLocation() {
+            return preferredLocation;
+        }
+
+        public Location2D getMaxLocation() {
+            return maxLocation;
+        }
+
+        public double getNewOrientation() {
+            return newOrientation;
         }
     }
 

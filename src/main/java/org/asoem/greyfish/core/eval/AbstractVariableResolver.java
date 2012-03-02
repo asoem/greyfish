@@ -18,8 +18,11 @@ public abstract class AbstractVariableResolver implements VariableResolver {
     }
 
     @Override
-    public void setNext(@Nullable VariableResolver next) {
-        this.nextVariableResolver = next;
+    public void append(@Nullable VariableResolver next) {
+        if (nextVariableResolver == null)
+            this.nextVariableResolver = next;
+        else
+            nextVariableResolver.append(next);
     }
 
     @Override

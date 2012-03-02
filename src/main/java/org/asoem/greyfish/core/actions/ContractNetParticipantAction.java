@@ -69,7 +69,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 }
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
-
+                LOGGER.debug("{}: Replying to CFP with {}", this, cfpReply);
                 simulation.deliverMessage(cfpReply);
 
                 if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE)))
@@ -101,6 +101,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                             LOGGER.debug("Message not understood", e);
                         }
                         checkAcceptReply(informMessage);
+                        LOGGER.debug("{}: Accepting proposal", this);
                         simulation.deliverMessage(informMessage);
                         break;
                     case REJECT_PROPOSAL:

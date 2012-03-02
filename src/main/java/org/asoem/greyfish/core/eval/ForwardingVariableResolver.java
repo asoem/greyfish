@@ -33,7 +33,7 @@ public abstract class ForwardingVariableResolver implements VariableResolver {
     }
 
     @Override
-    public void setNext(@Nullable VariableResolver next) {
-        delegate().setNext(next);
+    public void append(@Nullable VariableResolver next) {
+        delegate().append(next);
     }
 }

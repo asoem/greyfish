@@ -1,14 +1,16 @@
 package org.asoem.greyfish.core.space;
 
+import com.google.inject.Inject;
+import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.utils.persistence.Persisters;
+import org.asoem.greyfish.utils.space.Geometry2D;
 import org.asoem.greyfish.utils.space.ImmutableLocation2D;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.junit.Test;
 
-import static com.google.common.base.Predicates.instanceOf;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 /**
  * User: christoph
@@ -17,6 +19,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class TiledSpaceTest {
 
+    @Inject
+    private Persister persister;
+
+    public TiledSpaceTest() {
+        CoreInjectorHolder.coreInjector().injectMembers(this);
+    }
+
     @Test
     public void testOfSize() throws Exception {
         // given
@@ -24,14 +33,14 @@ public class TiledSpaceTest {
         int height = 3;
 
         // when
-        TiledSpace tiledSpace = TiledSpace.ofSize(width, height);
+        Tiled tiledSpace = TiledSpace.ofSize(width, height);
 
         // then
-        assertEquals(size(filter(tiledSpace, instanceOf(TileLocation.class))), width * height);
+        assertThat(tiledSpace.getTiles()).hasSize(width * height);
     }
 
     @Test
-    public void testmaxTransitionWithNorthernWall() throws Exception {
+    public void testMaxTransitionWithNorthernWall() throws Exception {
         // given
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(0.0, -1.0);
@@ -46,7 +55,7 @@ public class TiledSpaceTest {
     }
 
     @Test
-    public void testmaxTransitionWithEasternWall() throws Exception {
+    public void testMaxTransitionWithEasternWall() throws Exception {
         // given
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(2.0, 0.0);
@@ -57,11 +66,11 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0, 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT, 0.0));
     }
 
     @Test
-    public void testmaxTransitionWithSouthernWall() throws Exception {
+    public void testMaxTransitionWithSouthernWall() throws Exception {
         // given
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(0.0, 2.0);
@@ -72,11 +81,11 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 1.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT));
     }
 
     @Test
-    public void testmaxTransitionWithWesternWall() throws Exception {
+    public void testMaxTransitionWithWesternWall() throws Exception {
         // given
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(-1.0, 0.0);
@@ -91,7 +100,7 @@ public class TiledSpaceTest {
     }
 
     @Test
-    public void testmaxTransitionWithAtEdge() throws Exception {
+    public void testMaxTransitionWithAtEdge() throws Exception {
         // given
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(2.0, 2.0);
@@ -102,11 +111,11 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0, 1.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT, 1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT));
     }
 
     @Test
-    public void testNomaxTransition() throws Exception {
+    public void testNoMaxTransition() throws Exception {
         // given
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(0.5, 0.5);
@@ -117,5 +126,34 @@ public class TiledSpaceTest {
 
         // then
         assertThat(maxTransition).isEqualTo(destination);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBasicPersistence() throws Exception {
+        // given
+        final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1)
+                .addBorder(0, 0, TileDirection.NORTH)
+                .build();
+
+        // when
+        final TiledSpace<Agent> copy = Persisters.createCopy(space, TiledSpace.class, persister);
+
+        // then
+        assertThat(copy).isEqualTo(space);
+    }
+
+    @Test
+    public void testMaxTransitionWithEasternSpaceBorder() throws Exception {
+        // given
+        Location2D origin = ImmutableLocation2D.at(9.9999, 0.0);
+        Location2D destination = ImmutableLocation2D.at(10.1, 0.0);
+        TiledSpace space = new TiledSpace(10, 1);
+
+        // when
+        final Location2D maxTransition = space.maxTransition(origin, destination);
+
+        // then
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 - Geometry2D.CLOSEST_TO_ZERO_RIGHT, 0.0));
     }
 }

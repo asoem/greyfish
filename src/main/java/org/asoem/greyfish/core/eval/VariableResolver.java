@@ -39,6 +39,6 @@ public interface VariableResolver {
      * Add a {@code VariableResolver} to this resolver to build a chain of resolvers which will be queried for a variable.
      * @param next the resolver to append to this resolver
      */
-    void setNext(@Nullable VariableResolver next);
+    void append(@Nullable VariableResolver next);
 
 }

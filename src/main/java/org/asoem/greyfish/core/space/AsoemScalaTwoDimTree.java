@@ -8,6 +8,7 @@ import org.asoem.greyfish.utils.space.TwoDimTree;
 import org.asoem.kdtree.*;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -41,6 +42,9 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
     @Override
     public Iterable<T> findObjects(Location2D p, double range) {
         checkNotNull(p);
+
+        if (kdtree.size() == 0)
+            return Collections.emptyList();
 
         HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
 

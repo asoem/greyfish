@@ -42,38 +42,25 @@ public class VariableResolvers {
     }
 
     public static VariableResolver emptyResolver() {
-        return EmptyVariableResolver.INSTANCE;
-    }
+        return new AbstractVariableResolver() {
 
-    private enum EmptyVariableResolver implements VariableResolver {
-        INSTANCE;
+            private final Bindings bindings = new SimpleBindings();
 
-        private Bindings bindings = new SimpleBindings();
+            @Override
+            public Bindings bindings() {
+                return bindings;
+            }
 
-        @Override
-        public Bindings bindings() {
-            return bindings;
-        }
+            @Override
+            public boolean canResolveLocal(String name) {
+                return false;
+            }
 
-        @Override
-        public boolean canResolve(String name) {
-            return false;
-        }
-
-        @Override
-        public Object resolve(String varName) throws VariableResolutionException {
-            throw new VariableResolutionException("No variable can be resolved by " + this + " and therefore also not variable " + varName);
-        }
-
-        @Override
-        public VariableResolver getNext() {
-            return null;
-        }
-
-        @Override
-        public void setNext(@Nullable VariableResolver next) {
-            throw new UnsupportedOperationException();
-        }
+            @Override
+            public Object resolveLocal(String varName) throws VariableResolutionException {
+                throw new VariableResolutionException("No variable can be resolved by " + this + " and therefore also not variable " + varName);
+            }
+        };
     }
 
     private static class BindingsAdaptor extends ForwardingMap<String, Object> implements Bindings {

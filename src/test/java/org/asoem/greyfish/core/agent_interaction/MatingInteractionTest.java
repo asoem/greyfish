@@ -60,7 +60,7 @@ public class MatingInteractionTest {
                 .addActions(transmitterAction)
                 .build());
 
-        Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.ofSize(0,0)).build()));
+        Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(0,0)).build()));
         given(simulationSpy.getAgents()).willReturn(ImmutableList.<Agent>of(male,female));
         doReturn(ImmutableList.builder().add(female, male).build()).when(simulationSpy).findNeighbours(Matchers.<Agent>any(), anyDouble());
 
@@ -72,8 +72,6 @@ public class MatingInteractionTest {
 
         // when
         for (int i = 0; i < 3; ++i) {
-            female.execute();
-            male.execute();
             simulationSpy.step();
         }
 

@@ -36,7 +36,7 @@ public enum TileDirection {
         }
     }
 
-    public static TileDirection forTiles(TileLocation origin, TileLocation destination) {
+    public static TileDirection forTiles(Tile origin, Tile destination) {
         int xDiff = destination.getX() - origin.getX();
         int yDiff = destination.getY() - origin.getY();
 

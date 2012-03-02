@@ -16,7 +16,7 @@ public class MovementPatterns {
 
     private static final MovementPattern NO_MOVEMENT = new MovementPattern() {
         @Override
-        public void apply(Agent agent, Simulation simulation) { /* DO NOTHING*/ }
+        public Motion2D createMotion(Agent agent, Simulation simulation) { return ImmutableMotion2D.noMotion(); }
     };
 
     public static MovementPattern noMovement() {
@@ -27,22 +27,22 @@ public class MovementPatterns {
     public static MovementPattern randomMovement(final double speed, final double rotationProbability) {
         return new MovementPattern() {
             @Override
-            public void apply(Agent agent, Simulation simulation) {
+            public Motion2D createMotion(Agent agent, Simulation simulation) {
                 double rotationAngle = agent.getMotion().getRotation2D();
 
                 if (trueWithProbability(rotationProbability)) {
                     rotationAngle = nextDouble(0, 10);
                 }
 
-                agent.setMotion(ImmutableMotion2D.of(rotationAngle, speed));
+                return ImmutableMotion2D.of(rotationAngle, speed);
             }
         };
     }
 
-    public static MovementPattern borderAvoidanceMovement(final double speed, final double rotationProbability) {
+    public static MovementPattern borderAvoidanceMovement(final double rotationProbability) {
         return new MovementPattern() {
             @Override
-            public void apply(Agent agent, Simulation simulation) {
+            public Motion2D createMotion(Agent agent, Simulation simulation) {
                 final Motion2D currentMotion = agent.getMotion();
 
                 double newRotation = currentMotion.getRotation2D();
@@ -58,7 +58,7 @@ public class MovementPatterns {
                     newRotation = rotation + (rotation > 0 ? 0.1 : -0.1);
                 }
 
-                agent.setMotion(ImmutableMotion2D.of(newRotation, newTranslation));
+                return ImmutableMotion2D.of(newRotation, newTranslation);
             }
         };
     }

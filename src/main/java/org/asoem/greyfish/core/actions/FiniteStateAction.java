@@ -51,7 +51,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     protected abstract void executeState(Object state, Simulation simulation);
 
     protected final void resetTransition() {
-        LOGGER.debug("{}: Reset to {}", this, initialState());
+        LOGGER.debug("{}: Reset state to {}", this, initialState());
         nextStateKey = initialState();
         endStateReached = false;
     }
@@ -63,11 +63,11 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     protected final void failure(String message) {
         endStateReached = true;
-        LOGGER.debug("{}: Failure: {}", this, message);
+        LOGGER.debug("{}: End Transition to ERROR state: {}", this, message);
     }
 
     protected final <T> void endTransition(T state) {
-        LOGGER.debug("{}: End transition: {}", this, state);
+        LOGGER.debug("{}: End transition to {}", this, state);
         nextStateKey = state;
         endStateReached = true;
     }
