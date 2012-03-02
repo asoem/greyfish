@@ -1,11 +1,9 @@
 package org.asoem.greyfish.utils.space;
 
-import javolution.lang.MathLib;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.math.ImmutablePolarPoint2D;
 import org.asoem.greyfish.utils.math.PolarPoint2D;
 import org.simpleframework.xml.Element;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -17,24 +15,27 @@ public class ImmutableMotion2D implements Motion2D {
     @Element
     private final PolarPoint2D polarPoint2D;
 
-    public ImmutableMotion2D(PolarPoint2D polarPoint2D) {
-        this.polarPoint2D = checkNotNull(polarPoint2D);
+    @SimpleXMLConstructor
+    private ImmutableMotion2D(PolarPoint2D polarPoint2D) {
+        this.polarPoint2D = polarPoint2D;
     }
 
     public ImmutableMotion2D(double angle, double v) {
         this.polarPoint2D = ImmutablePolarPoint2D.of(angle, v);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public ImmutableMotion2D rotated(double phi) {
-        return new ImmutableMotion2D((getRotation2D() + phi) % MathLib.TWO_PI, getTranslation());
+        return new ImmutableMotion2D(getRotation() + phi, getTranslation());
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public ImmutableMotion2D translated(double distance) {
-        return new ImmutableMotion2D(getRotation2D(), getTranslation() + distance);
+        return new ImmutableMotion2D(getRotation(), getTranslation() + distance);
     }
 
-    public ImmutableMotion2D moved(double phi, double distance) {
-        return new ImmutableMotion2D((getRotation2D() + phi) % MathLib.TWO_PI, getTranslation() + distance);
+    public ImmutableMotion2D modified(double phi, double distance) {
+        return new ImmutableMotion2D(getRotation() + phi, getTranslation() + distance);
     }
 
     public static ImmutableMotion2D newInstance(double phi, double length) {
@@ -46,7 +47,7 @@ public class ImmutableMotion2D implements Motion2D {
     }
 
     @Override
-    public double getRotation2D() {
+    public double getRotation() {
         return polarPoint2D.getAngle();
     }
 
@@ -61,7 +62,7 @@ public class ImmutableMotion2D implements Motion2D {
     }
 
     @Override
-    public double[] getRotation() {
+    public double[] getRotationAngles() {
         return new double[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -86,18 +87,13 @@ public class ImmutableMotion2D implements Motion2D {
         return NoMotion.INSTANCE;
     }
 
-    public static ImmutableMotion2D translated(Motion2D motion, double speed) {
-        checkNotNull(motion);
-        return new ImmutableMotion2D(motion.getRotation2D(), motion.getTranslation() + speed);
-    }
-
     private enum NoMotion implements Motion2D {
         INSTANCE;
 
         private final static double[] rotationVector = new double[0];
 
         @Override
-        public double getRotation2D() {
+        public double getRotation() {
             return 0;
         }
 
@@ -112,7 +108,7 @@ public class ImmutableMotion2D implements Motion2D {
         }
 
         @Override
-        public double[] getRotation() {
+        public double[] getRotationAngles() {
             return rotationVector;
         }
     }

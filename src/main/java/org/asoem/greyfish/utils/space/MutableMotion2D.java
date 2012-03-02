@@ -13,7 +13,7 @@ public class MutableMotion2D implements Motion2D {
     }
 
     public void setTranslation(double translation) {
-        setMotion(getRotation2D(), translation);
+        setMotion(getRotation(), translation);
     }
 
     @Override
@@ -27,13 +27,13 @@ public class MutableMotion2D implements Motion2D {
     }
 
     @Override
-    public double[] getRotation() {
-        return motion2D.getRotation();
+    public double[] getRotationAngles() {
+        return motion2D.getRotationAngles();
     }
 
     @Override
-    public double getRotation2D() {
-        return motion2D.getRotation2D();
+    public double getRotation() {
+        return motion2D.getRotation();
     }
 
     /**
@@ -43,7 +43,7 @@ public class MutableMotion2D implements Motion2D {
      * @param velocity The value to sum to the length of this object's motion vector
      */
     public void changeMotion(double angle, double velocity) {
-        motion2D = motion2D.moved(angle, velocity);
+        motion2D = motion2D.modified(angle, velocity);
     }
 
     /**

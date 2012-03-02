@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.utils.base.Builder;
 import org.simpleframework.xml.Attribute;
 
 /**
@@ -111,5 +112,21 @@ public class ImmutableLocation2D implements Location2D {
         temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
+    }
+
+    public ImmutableLocation2D add(double i, double v) {
+        return ImmutableLocation2D.at(x + i, y + v);
+    }
+
+    public ImmutableLocation2D subtract(double xo, double yo) {
+        return new ImmutableLocation2D(x - xo, y - yo);
+    }
+
+    public ImmutableLocation2D scale(double v) {
+        return new ImmutableLocation2D(x * v, y * v);
+    }
+
+    public ImmutableLocation2D add(ImmutableLocation2D scale) {
+        return add(scale.getX(), scale.getY());
     }
 }

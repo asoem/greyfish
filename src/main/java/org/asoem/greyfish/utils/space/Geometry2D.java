@@ -1,7 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
 import javax.annotation.Nullable;
-import java.awt.geom.Rectangle2D;
 
 /**
  * User: christoph
@@ -9,9 +8,6 @@ import java.awt.geom.Rectangle2D;
  * Time: 10:23
  */
 public class Geometry2D {
-
-    public static final double CLOSEST_TO_ZERO_RIGHT = 0.0000000000000001;
-    public static final double CLOSEST_TO_ONE_LEFT = 0.9999999999999999;
 
     /**
      * Adapted from {@code org.newdawn.slick.geom.Line.java}
