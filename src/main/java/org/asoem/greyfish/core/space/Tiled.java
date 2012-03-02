@@ -1,11 +1,9 @@
 package org.asoem.greyfish.core.space;
 
-import javax.annotation.Nullable;
-
 /**
  * User: christoph
- * Date: 29.02.12
- * Time: 18:52
+ * Date: 02.03.12
+ * Time: 10:08
  */
 public interface Tiled<T extends Tile> {
     int getHeight();
@@ -18,6 +16,5 @@ public interface Tiled<T extends Tile> {
 
     Iterable<T> getTiles();
 
-    @Nullable
-    T getAdjacentTile(BorderedTile borderedTile, TileDirection direction);
+    T getAdjacentTile(T borderedTile, TileDirection direction);
 }

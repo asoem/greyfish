@@ -16,9 +16,19 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 17.02.12
  * Time: 12:14
  */
-public class JEXLEvaluator implements Evaluator {
+public class CommonsJEXLEvaluator implements Evaluator {
 
     private static final JexlEngine JEXL_ENGINE = new JexlEngine();
+
+    private static final ImmutableMap<String, Object> GLOBAL_VARIABLES = ImmutableMap.<String, Object>builder()
+            .put("PI", MathLib.PI)
+            .put("HALF_PI", MathLib.HALF_PI)
+            .put("PI_SQUARE", MathLib.PI_SQUARE)
+            .put("TWO_PI", MathLib.TWO_PI)
+            .put("FOUR_PI", MathLib.FOUR_PI)
+            .put("E", MathLib.E)
+            .build();
+
     static {
         JEXL_ENGINE.setFunctions(ImmutableMap.<String, Object>of(
                 "fish", GreyfishVariableFactory.class,
@@ -40,7 +50,7 @@ public class JEXLEvaluator implements Evaluator {
         this.expression = JEXL_ENGINE.createExpression(prepare(expression));
     }
 
-    private String prepare(String expression) {
+    private String prepare(String expression) {        
         // This will lift some function in the global namespace and allows users to write 'fun' instead of 'ns:fun'.
         return expression
                 .replaceAll("\\$\\(([^\\)]+)\\)", "fish:\\$($1)")
@@ -51,8 +61,11 @@ public class JEXLEvaluator implements Evaluator {
     @Override
     public void setResolver(VariableResolver resolver) {
         checkNotNull(resolver);
-        resolver.append(MATH_CONSTANTS);
-        this.resolver = new JEXLResolverAdaptor(resolver);
+
+        final VariableResolver variableResolver = VariableResolvers.forMap(GLOBAL_VARIABLES);
+        variableResolver.append(resolver);
+
+        this.resolver = new JEXLResolverAdaptor(variableResolver);
     }
 
     @Override
@@ -60,13 +73,13 @@ public class JEXLEvaluator implements Evaluator {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        JEXLEvaluator that = (JEXLEvaluator) o;
+        CommonsJEXLEvaluator that = (CommonsJEXLEvaluator) o;
 
         return !(expression != null ? !expressionsAreEqual(expression, that) : that.expression != null) && !(resolver != null ? !resolver.equals(that.resolver) : that.resolver != null);
 
     }
 
-    private static boolean expressionsAreEqual(Expression expression, JEXLEvaluator that) {
+    private static boolean expressionsAreEqual(Expression expression, CommonsJEXLEvaluator that) {
         return expression.getExpression().equals(that.expression.getExpression());
     }
 
@@ -77,17 +90,6 @@ public class JEXLEvaluator implements Evaluator {
         return result;
     }
 
-    private static final VariableResolver MATH_CONSTANTS = VariableResolvers.forMap(ImmutableMap.<String, Object>builder()
-
-            .put("PI", Math.PI)
-            .put("HALF_PI", MathLib.HALF_PI)
-            .put("TWO_PI", MathLib.TWO_PI)
-            .put("PI_SQUARE", MathLib.PI_SQUARE)
-            .put("SQRT2", MathLib.SQRT2)
-            .put("E", Math.E)
-
-            .build());
-
     private class JEXLResolverAdaptor extends ForwardingVariableResolver implements JexlContext {
         private final VariableResolver resolver;
 
@@ -97,7 +99,7 @@ public class JEXLEvaluator implements Evaluator {
 
         @Override
         public Object get(String s) {
-            return resolve(s);
+                return resolve(s);
         }
 
         @Override

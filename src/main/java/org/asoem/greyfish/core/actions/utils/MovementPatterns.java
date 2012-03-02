@@ -28,7 +28,7 @@ public class MovementPatterns {
         return new MovementPattern() {
             @Override
             public Motion2D createMotion(Agent agent, Simulation simulation) {
-                double rotationAngle = agent.getMotion().getRotation2D();
+                double rotationAngle = agent.getMotion().getRotation();
 
                 if (trueWithProbability(rotationProbability)) {
                     rotationAngle = nextDouble(0, 10);
@@ -45,7 +45,7 @@ public class MovementPatterns {
             public Motion2D createMotion(Agent agent, Simulation simulation) {
                 final Motion2D currentMotion = agent.getMotion();
 
-                double newRotation = currentMotion.getRotation2D();
+                double newRotation = currentMotion.getRotation();
                 double newTranslation = currentMotion.getTranslation();
 
                 if (trueWithProbability(rotationProbability)) {
@@ -54,7 +54,7 @@ public class MovementPatterns {
 
                 // TODO: LawOfDemeter violation
                 if (simulation.getSpace().planMovement(agent, currentMotion).willCollide()) {
-                    double rotation = currentMotion.getRotation2D();
+                    double rotation = currentMotion.getRotation();
                     newRotation = rotation + (rotation > 0 ? 0.1 : -0.1);
                 }
 
