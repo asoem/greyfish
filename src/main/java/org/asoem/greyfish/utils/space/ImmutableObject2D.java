@@ -18,14 +18,14 @@ public class ImmutableObject2D implements Object2D {
     private final double orientation;
 
     @Element(name = "locatable")
-    private final Location2D locatable;
+    private final Location2D location2D;
 
     @SimpleXMLConstructor
-    private ImmutableObject2D(@Element(name = "locatable") Location2D locatable,
+    private ImmutableObject2D(@Element(name = "locatable") Location2D location2D,
                               @Element(name = "orientation") double orientation) {
-        checkNotNull(locatable);
+        checkNotNull(location2D);
         checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]: " + orientation);
-        this.locatable = locatable;
+        this.location2D = location2D;
         this.orientation = orientation;
     }
 
@@ -41,17 +41,17 @@ public class ImmutableObject2D implements Object2D {
 
     @Override
     public double getX() {
-        return locatable.getX();
+        return location2D.getX();
     }
 
     @Override
     public double getY() {
-        return locatable.getY();
+        return location2D.getY();
     }
 
     @Override
     public double[] getCoordinates() {
-        return locatable.getCoordinates();
+        return location2D.getCoordinates();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ImmutableObject2D implements Object2D {
         ImmutableObject2D that = (ImmutableObject2D) o;
 
         if (Double.compare(that.orientation, orientation) != 0) return false;
-        if (!locatable.equals(that.locatable)) return false;
+        if (!location2D.equals(that.location2D)) return false;
 
         return true;
     }
@@ -88,8 +88,16 @@ public class ImmutableObject2D implements Object2D {
         long temp;
         temp = orientation != +0.0d ? Double.doubleToLongBits(orientation) : 0L;
         result = (int) (temp ^ (temp >>> 32));
-        result = 31 * result + locatable.hashCode();
+        result = 31 * result + location2D.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableObject2D{" +
+                "orientation=" + orientation +
+                ", location2D=" + location2D +
+                '}';
     }
 
     public static ImmutableObject2D copyOf(Object2D object2D) {
