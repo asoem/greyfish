@@ -12,8 +12,8 @@ public enum TileDirection {
     WEST        ( 0,-1),
     NORTHWEST   (-1,-1);
 
-    final int xTranslation;
-    final int yTranslation;
+    private final int xTranslation;
+    private final int yTranslation;
 
     TileDirection(int yTranslation, int xTranslation) {
         this.xTranslation = xTranslation;
@@ -58,5 +58,13 @@ public enum TileDirection {
             else if (yDiff == -1) return NORTHEAST;
             else return SOUTHEAST;
         }
+    }
+
+    public int getXTranslation() {
+        return xTranslation;
+    }
+
+    public int getYTranslation() {
+        return yTranslation;
     }
 }

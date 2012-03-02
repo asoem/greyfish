@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.eval.impl;
 
 import com.google.common.collect.ImmutableMap;
+import javolution.lang.MathLib;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -19,6 +20,16 @@ public class
         JexlEvaluator implements Evaluator {
 
     private static final JexlEngine JEXL_ENGINE = new JexlEngine();
+
+    private static final ImmutableMap<String, Object> GLOBAL_VARIABLES = ImmutableMap.<String, Object>builder()
+            .put("PI", MathLib.PI)
+            .put("HALF_PI", MathLib.HALF_PI)
+            .put("PI_SQUARE", MathLib.PI_SQUARE)
+            .put("TWO_PI", MathLib.TWO_PI)
+            .put("FOUR_PI", MathLib.FOUR_PI)
+            .put("E", MathLib.E)
+            .build();
+
     static {
         JEXL_ENGINE.setFunctions(ImmutableMap.<String, Object>of(
                 "fish", GreyfishVariableFactory.class,
@@ -51,7 +62,11 @@ public class
     @Override
     public void setResolver(VariableResolver resolver) {
         checkNotNull(resolver);
-        this.resolver = new JEXLResolverAdaptor(resolver);
+
+        final VariableResolver variableResolver = VariableResolvers.forMap(GLOBAL_VARIABLES);
+        variableResolver.append(resolver);
+
+        this.resolver = new JEXLResolverAdaptor(variableResolver);
     }
 
     @Override

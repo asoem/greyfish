@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.utils.space.Geometry2D;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Attribute;
 
@@ -11,7 +12,11 @@ import java.util.ArrayList;
 
 import static org.asoem.greyfish.core.space.TileDirection.*;
 
-public class BorderedTile implements Tile {
+public class WalledTile implements Tile {
+
+    public static final double CLOSEST_TO_ZERO_RIGHT = 0.000000000001;
+
+    public static final double CLOSEST_TO_ONE_LEFT = 0.999999999999;
 
     private final int borderFlagsMask;
 
@@ -25,13 +30,13 @@ public class BorderedTile implements Tile {
     private int borderFlags = 0;
 
     @SimpleXMLConstructor
-    private BorderedTile(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
+    private WalledTile(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
         this.x = x;
         this.y = y;
         this.borderFlagsMask = 0;
     }
 
-    BorderedTile(TiledSpace<?> space, int x, int y) {
+    WalledTile(TiledSpace<?> space, int x, int y) {
         this.x = x;
         this.y = y;
 
@@ -145,8 +150,7 @@ public class BorderedTile implements Tile {
     }
 
     public boolean covers(Location2D locatable) {
-        return (int) locatable.getX() == x
-                && (int) locatable.getY() == y;
+        return covers(locatable.getX(), locatable.getY());
     }
 
     @Override
@@ -166,7 +170,7 @@ public class BorderedTile implements Tile {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        BorderedTile other = (BorderedTile) obj;
+        WalledTile other = (WalledTile) obj;
         return x == other.x && y == other.y;
     }
 
@@ -184,5 +188,9 @@ public class BorderedTile implements Tile {
         if (hasBorder(NORTHWEST))   borderList.add("NW");
 
         return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
+    }
+
+    public boolean covers(double x, double y) {
+        return Geometry2D.rectangleContains(getX(), getY(), 1, 1, x, y);
     }
 }

@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.space.ImmutableLocation2D;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.junit.Test;
 
-import static org.asoem.greyfish.core.space.TiledSpace.CLOSEST_TO_ZERO_RIGHT;
+import static org.asoem.greyfish.core.space.WalledTile.CLOSEST_TO_ZERO_RIGHT;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
