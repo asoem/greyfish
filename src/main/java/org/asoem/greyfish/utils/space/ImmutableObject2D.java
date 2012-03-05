@@ -24,7 +24,7 @@ public class ImmutableObject2D implements Object2D {
     private ImmutableObject2D(@Element(name = "locatable") Location2D location2D,
                               @Element(name = "orientation") double orientation) {
         checkNotNull(location2D);
-        checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]: " + orientation);
+        checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]: %s", orientation);
         this.location2D = location2D;
         this.orientation = orientation;
     }
