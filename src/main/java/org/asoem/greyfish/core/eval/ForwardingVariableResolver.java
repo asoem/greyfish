@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
+import com.google.common.collect.ForwardingObject;
+
 import javax.annotation.Nullable;
 import javax.script.Bindings;
 
@@ -8,9 +10,10 @@ import javax.script.Bindings;
  * Date: 22.09.11
  * Time: 17:06
  */
-public abstract class ForwardingVariableResolver implements VariableResolver {
+public abstract class ForwardingVariableResolver extends ForwardingObject implements VariableResolver {
 
-    public abstract VariableResolver delegate();
+    @Override
+    protected abstract VariableResolver delegate();
 
     @Override
     public Object resolve(String varName) throws VariableResolutionException {

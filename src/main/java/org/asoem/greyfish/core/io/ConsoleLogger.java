@@ -9,8 +9,8 @@ public class ConsoleLogger implements AgentEventLogger {
     @Override
     public void addEvent(AgentEvent event) {
         System.out.println(
-                event.getSimulation().getName() + "\t" +
-                        event.getAgent().getId() + "\t" +
+                event.getSimulationId() + "\t" +
+                        event.getAgentId() + "\t" +
                         event.getStep() + "\t" +
                         event.getSource() + "\t" +
                         event.getLocatable2D() + "\t" +

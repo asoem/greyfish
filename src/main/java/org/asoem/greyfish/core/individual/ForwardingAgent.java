@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Gene;
@@ -14,8 +15,9 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
-public abstract class ForwardingAgent implements Agent {
+public abstract class ForwardingAgent extends ForwardingObject implements Agent {
 
+    @Override
     protected abstract Agent delegate();
 
     @Override
@@ -153,6 +155,11 @@ public abstract class ForwardingAgent implements Agent {
     @Override
     public boolean hasMessages(MessageTemplate template) {
         return delegate().hasMessages(template);
+    }
+
+    @Override
+    public void logEvent(Object eventOrigin, String title, String message) {
+        delegate().logEvent(eventOrigin, title, message);
     }
 
     @Override

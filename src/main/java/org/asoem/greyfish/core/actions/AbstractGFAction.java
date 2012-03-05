@@ -37,7 +37,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private GFCondition rootCondition = null;
 
     @Element(name="costs_formula", required = false)
-    private GreyfishExpression energyCosts = GreyfishExpressionFactoryHolder.compile("0");
+    private GreyfishExpression energyCosts;
 
     @Element(name="energy_source", required=false)
     private DoubleProperty energySource;

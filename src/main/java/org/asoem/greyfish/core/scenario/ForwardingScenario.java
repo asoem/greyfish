@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.scenario;
 
+import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -12,8 +13,9 @@ import java.util.Set;
  * Date: 07.10.11
  * Time: 12:41
  */
-public abstract class ForwardingScenario implements Scenario {
+public abstract class ForwardingScenario extends ForwardingObject implements Scenario {
 
+    @Override
     protected abstract Scenario delegate();
 
     @Override

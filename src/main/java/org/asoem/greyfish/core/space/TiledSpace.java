@@ -157,7 +157,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
     }
 
     private WalledTile getTileAt(double x, double y) {
-        return getTileAt((int) Math.floor(x), (int) Math.floor(y));
+        assert x >= 0 && y >= 0; // than we can simply cast the values to int, rather than using Math.floor
+        return getTileAt((int) x, (int) y);
     }
 
     /**
@@ -305,7 +306,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
      */
     private Object2D executeMovement(MovementPlan<T> plan) {
         checkNotNull(plan);
-        checkArgument(projectables.contains(plan.projectable));
+        //checkArgument(projectables.contains(plan.projectable)); // todo: the call to 'contains' is a CPU hotspot because agents have a complex equals method
 
         assert contains(plan.getMaxLocation()) : plan.getMaxLocation();
 

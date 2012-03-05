@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Chromosome;
@@ -15,8 +16,9 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class ForwardingSimulation implements Simulation {
-    
+public abstract class ForwardingSimulation extends ForwardingObject implements Simulation {
+
+    @Override
     protected abstract Simulation delegate();
 
     @Override

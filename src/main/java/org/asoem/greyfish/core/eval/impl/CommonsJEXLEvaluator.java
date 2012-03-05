@@ -98,8 +98,13 @@ public class CommonsJEXLEvaluator implements Evaluator {
         }
 
         @Override
+        protected VariableResolver delegate() {
+            return resolver;
+        }
+
+        @Override
         public Object get(String s) {
-                return resolve(s);
+            return resolve(s);
         }
 
         @Override
@@ -110,11 +115,6 @@ public class CommonsJEXLEvaluator implements Evaluator {
         @Override
         public boolean has(String s) {
             return canResolve(s);
-        }
-
-        @Override
-        public VariableResolver delegate() {
-            return resolver;
         }
 
         @Override

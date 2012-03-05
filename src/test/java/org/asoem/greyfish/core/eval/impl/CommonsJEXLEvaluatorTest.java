@@ -13,9 +13,9 @@ import static org.mockito.Mockito.mock;
  * Date: 17.02.12
  * Time: 15:52
  */
-public class JEXLEvaluatorTest {
+public class CommonsJEXLEvaluatorTest {
 
-    public JEXLEvaluatorTest() {
+    public CommonsJEXLEvaluatorTest() {
         CoreInjectorHolder.coreInjector();
     }
 
@@ -37,17 +37,17 @@ public class JEXLEvaluatorTest {
         // given
         final VariableResolver resolver = mock(VariableResolver.class);
         final String expression = "42.0";
+
+        // when
         final CommonsJEXLEvaluator evaluator1 = new CommonsJEXLEvaluator();
         evaluator1.setExpression(expression);
         evaluator1.setResolver(resolver);
+
         final CommonsJEXLEvaluator evaluator2 = new CommonsJEXLEvaluator();
         evaluator2.setExpression(expression);
         evaluator2.setResolver(resolver);
 
-        // when
-        final boolean bothAreEqual = evaluator1.equals(evaluator2);
-
         // then
-        assertThat(bothAreEqual).isTrue();
+        assertThat(evaluator1).isEqualTo(evaluator2);
     }
 }

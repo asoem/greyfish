@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.EvaluatedChromosome;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.io.AgentEvent;
 import org.asoem.greyfish.core.io.AgentEventLogger;
 import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
@@ -42,8 +41,6 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatingReceiverAction.class);
 
-    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
-    
     @Element(name="spermBuffer")
     private EvaluatedGenomeStorage spermBuffer;
 
@@ -120,7 +117,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private void receiveGenome(EvaluatedChromosome genome, Agent sender, Simulation simulation) {
         spermBuffer.addGenome(genome);
-        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "spermReceived", String.valueOf(sender.getId()), agent().getProjection()));
+        agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
         LOGGER.trace(getAgent() + " received sperm: " + genome);
     }
 

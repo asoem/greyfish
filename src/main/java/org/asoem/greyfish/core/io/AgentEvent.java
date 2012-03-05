@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Location2D;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -12,25 +11,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 12:54
  */
 public class AgentEvent {
-    private final Agent agent;
+    private final int agent;
     private final Object source;
     private final String key;
     private final String value;
     private final int step;
-    private final Simulation simulation;
+    private final String simulation;
     private final Location2D locatable2D;
 
-    public AgentEvent(Simulation simulation, int step, Agent agent, Object source, String key, String value, Location2D locatable2D) {
-        this.simulation = simulation;
+    public AgentEvent(String simulationId, int step, int agentId, Object source, String key, String value, Location2D locatable2D) {
+        this.simulation = simulationId;
         this.locatable2D = checkNotNull(locatable2D);
         this.value = checkNotNull(value);
         this.key = checkNotNull(key);
         this.source = checkNotNull(source);
-        this.agent = checkNotNull(agent);
+        this.agent = checkNotNull(agentId);
         this.step = step;
     }
 
-    public Agent getAgent() {
+    public int getAgentId() {
         return agent;
     }
 
@@ -50,7 +49,7 @@ public class AgentEvent {
         return step;
     }
 
-    public Simulation getSimulation() {
+    public String getSimulationId() {
         return simulation;
     }
 

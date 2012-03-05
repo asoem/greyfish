@@ -8,6 +8,9 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.io.AgentEvent;
+import org.asoem.greyfish.core.io.AgentEventLogger;
+import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
@@ -28,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
 
 /**
@@ -37,6 +41,8 @@ import static java.util.Arrays.asList;
  */
 @Root(name = "agent")
 public abstract class AbstractAgent implements Agent {
+
+    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
     @Element(name = "properties")
     protected final ComponentList<GFProperty> properties;
@@ -301,6 +307,21 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
+    public void logEvent(Object eventOrigin, String title, String message) {
+        checkState(simulationContext != SimulationContext.NULL_CONTEXT, "Agents can only log events in a simulation context");
+        checkState(object2D != null, "The Agent must have a projection present");
+        checkNotNull(eventOrigin);
+        checkNotNull(title);
+        checkNotNull(message);
+
+        final Simulation simulation = simulationContext.getSimulation();
+        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(
+                simulation.getName(),
+                simulation.getSteps(),
+                getId(), eventOrigin, title, message, object2D));
+    }
+
+    @Override
     public void execute() {
         simulationContext.execute(this);
     }
@@ -379,16 +400,16 @@ public abstract class AbstractAgent implements Agent {
 
         AbstractAgent that = (AbstractAgent) o;
 
+        if (simulationContext != null ? !simulationContext.equals(that.simulationContext) : that.simulationContext != null)
+            return false;
+        if (population != null ? !population.equals(that.population) : that.population != null) return false;
+        if (object2D != null ? !object2D.equals(that.object2D) : that.object2D != null) return false;
         if (actions != null ? !actions.equals(that.actions) : that.actions != null) return false;
         if (body != null ? !body.equals(that.body) : that.body != null) return false;
         if (chromosome != null ? !chromosome.equals(that.chromosome) : that.chromosome != null) return false;
         if (inBox != null ? !inBox.equals(that.inBox) : that.inBox != null) return false;
         if (motion != null ? !motion.equals(that.motion) : that.motion != null) return false;
-        if (object2D != null ? !object2D.equals(that.object2D) : that.object2D != null) return false;
-        if (population != null ? !population.equals(that.population) : that.population != null) return false;
         if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
-        if (simulationContext != null ? !simulationContext.equals(that.simulationContext) : that.simulationContext != null)
-            return false;
 
         return true;
     }

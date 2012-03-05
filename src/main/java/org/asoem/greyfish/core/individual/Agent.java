@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.SexualReproductionAction;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -74,4 +75,5 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
     List<AgentMessage> pullMessages(MessageTemplate template);
     boolean hasMessages(MessageTemplate template);
 
+    void logEvent(Object eventOrigin, String title, String message);
 }

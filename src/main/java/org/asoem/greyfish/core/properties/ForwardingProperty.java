@@ -1,61 +1,60 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.genes.Gene;
+import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.simpleframework.xml.Element;
 
-public abstract class ForwardingProperty implements GFProperty {
+public abstract class ForwardingProperty extends ForwardingObject implements GFProperty {
 
-    @Element(name = "getVisibleScenarioEditorPane")
-    protected abstract GFProperty getDelegate();
+    @Override
+    protected abstract GFProperty delegate();
 
     @Override
     public Agent getAgent() {
-        return getDelegate().getAgent();
+        return delegate().getAgent();
     }
 
     @Override
     public void setAgent(Agent agent) {
-        getDelegate().setAgent(agent);
+        delegate().setAgent(agent);
     }
 
     @Override
     public void prepare(Simulation simulation) {
-        getDelegate().prepare(simulation);
+        delegate().prepare(simulation);
     }
 
     @Override
     public void freeze() {
-        getDelegate().freeze();
+        delegate().freeze();
     }
 
     @Override
     public boolean isFrozen() {
-        return getDelegate().isFrozen();
+        return delegate().isFrozen();
     }
 
     @Override
     public String getName() {
-        return getDelegate().getName();
+        return delegate().getName();
     }
 
     @Override
     public void setName(String name) {
-        getDelegate().setName(name);
+        delegate().setName(name);
     }
 
     @Override
     public void configure(ConfigurationHandler e) {
-        getDelegate().configure(e);
+        delegate().configure(e);
     }
 
     @Override
     public boolean hasName(String s) {
-        return getDelegate().hasName(s);
+        return delegate().hasName(s);
     }
 
     @Override
@@ -65,6 +64,6 @@ public abstract class ForwardingProperty implements GFProperty {
 
     @Override
     public Iterable<AgentComponent> children() {
-        return getDelegate().children();
+        return delegate().children();
     }
 }

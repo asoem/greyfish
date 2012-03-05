@@ -65,7 +65,7 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 * TiledSpace.COLLISION_SCALE, 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), 0.0));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 1.0 * TiledSpace.COLLISION_SCALE));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, Math.nextAfter(1.0, -Double.MIN_VALUE)));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(1.0 * TiledSpace.COLLISION_SCALE, 1.0 * TiledSpace.COLLISION_SCALE));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), Math.nextAfter(1.0, -Double.MIN_VALUE)));
     }
 
     @Test
@@ -153,6 +153,6 @@ public class TiledSpaceTest {
         final Location2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(4.835470690767177, Math.nextAfter(10.0, -Double.MIN_VALUE)));
+        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE)));
     }
 }

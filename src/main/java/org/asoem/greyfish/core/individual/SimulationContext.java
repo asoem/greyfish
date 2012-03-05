@@ -113,31 +113,6 @@ public class SimulationContext {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SimulationContext that = (SimulationContext) o;
-
-        if (id != that.id) return false;
-        if (timeOfBirth != that.timeOfBirth) return false;
-        if (lastExecutedAction != null ? !lastExecutedAction.equals(that.lastExecutedAction) : that.lastExecutedAction != null)
-            return false;
-        if (simulation != null ? !simulation.equals(that.simulation) : that.simulation != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = simulation != null ? simulation.hashCode() : 0;
-        result = 31 * result + timeOfBirth;
-        result = 31 * result + id;
-        result = 31 * result + (lastExecutedAction != null ? lastExecutedAction.hashCode() : 0);
-        return result;
-    }
-
     static final SimulationContext NULL_CONTEXT = new SimulationContext() {
         @Override
         public int getTimeOfBirth() {

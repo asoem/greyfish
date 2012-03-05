@@ -6,9 +6,6 @@ import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableChromosome;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.io.AgentEvent;
-import org.asoem.greyfish.core.io.AgentEventLogger;
-import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -20,8 +17,6 @@ import org.simpleframework.xml.Element;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
-
-    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
     @Element(name = "nClones")
     private GreyfishExpression nClones;
@@ -40,7 +35,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
             final ImmutableChromosome<Gene<?>> gamete = ImmutableChromosome.mutatedCopyOf(agent().getChromosome());
             simulation.createAgent(population, gamete, locatable);
 
-            AGENT_EVENT_LOGGER.addEvent(new AgentEvent(simulation, simulation.getSteps(), agent(), this, "offspringProduced", "", locatable));
+            agent().logEvent(this, "offspringProduced", "");
         }
         return ActionState.END_SUCCESS;
     }

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
@@ -16,8 +17,9 @@ import java.util.List;
  * Date: 13.11.11
  * Time: 19:17
  */
-public abstract class ForwardingCondition implements GFCondition {
-    
+public abstract class ForwardingCondition extends ForwardingObject implements GFCondition {
+
+    @Override
     protected abstract GFCondition delegate();
 
     @Override
