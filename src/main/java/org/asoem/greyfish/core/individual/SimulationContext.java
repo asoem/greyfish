@@ -4,8 +4,11 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
@@ -15,8 +18,13 @@ public class SimulationContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationContext.class);
 
+    @Element
     private final Simulation simulation;
-    private final int timeOfBirth;
+
+    @Attribute
+    private final int firstStep;
+
+    @Attribute
     private final int id;
 
     @Nullable
@@ -25,17 +33,24 @@ public class SimulationContext {
     public SimulationContext(Simulation simulation) {
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
-        this.timeOfBirth = simulation.getSteps();
+        this.firstStep = simulation.getSteps() + 1;
+    }
+
+    @SimpleXMLConstructor
+    public SimulationContext(Simulation simulation, int firstStep, int id) {
+        this.simulation = checkNotNull(simulation);
+        this.id = id;
+        this.firstStep = firstStep;
     }
 
     private SimulationContext() {
         simulation = null;
-        timeOfBirth = 0;
+        firstStep = 0;
         id = 0;
     }
 
-    public int getTimeOfBirth() {
-        return timeOfBirth;
+    public int getFirstStep() {
+        return firstStep;
     }
 
     @Nullable
@@ -52,8 +67,8 @@ public class SimulationContext {
     }
 
     public int getAge() {
-        assert simulation.getSteps() >= timeOfBirth;
-        return simulation.getSteps() - timeOfBirth;
+        assert simulation.getSteps() >= firstStep;
+        return simulation.getSteps() - firstStep;
     }
 
     public void execute(Agent agent) {
@@ -115,7 +130,7 @@ public class SimulationContext {
 
     static final SimulationContext NULL_CONTEXT = new SimulationContext() {
         @Override
-        public int getTimeOfBirth() {
+        public int getFirstStep() {
             throw new UnsupportedOperationException();
         }
 

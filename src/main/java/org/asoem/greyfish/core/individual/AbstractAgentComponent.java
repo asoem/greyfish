@@ -70,13 +70,8 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     @Override
-    public boolean hasName(String s) {
-        return name.equals(s);
-    }
-
-    @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + ']' + "@" + agent;
+        return this.getClass().getSimpleName() + "[" + name + ']';
     }
 
     @Override

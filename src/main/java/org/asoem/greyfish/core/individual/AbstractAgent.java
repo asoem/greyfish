@@ -63,6 +63,7 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "population")
     protected Population population;
 
+    @Element
     protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
 
     @Element(name = "projection", required = false)
@@ -71,7 +72,6 @@ public abstract class AbstractAgent implements Agent {
     @Element
     private Motion2D motion = ImmutableMotion2D.noMotion();
 
-    @SimpleXMLConstructor
     protected AbstractAgent(Body body,
                             ComponentList<GFProperty> properties,
                             ComponentList<GFAction> actions,
@@ -274,7 +274,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public int getTimeOfBirth() {
-        return simulationContext.getTimeOfBirth();
+        return simulationContext.getFirstStep();
     }
 
     @Override
@@ -318,7 +318,7 @@ public abstract class AbstractAgent implements Agent {
         AGENT_EVENT_LOGGER.addEvent(new AgentEvent(
                 simulation.getName(),
                 simulation.getSteps(),
-                getId(), eventOrigin, title, message, object2D));
+                getId(), population.toString(), eventOrigin, title, message, object2D));
     }
 
     @Override
@@ -456,5 +456,10 @@ public abstract class AbstractAgent implements Agent {
                 });
             }
         };
+    }
+
+    @Override
+    public String toString() {
+        return "Agent[" + population + ']';
     }
 }

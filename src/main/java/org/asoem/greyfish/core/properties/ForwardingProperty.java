@@ -53,11 +53,6 @@ public abstract class ForwardingProperty extends ForwardingObject implements GFP
     }
 
     @Override
-    public boolean hasName(String s) {
-        return delegate().hasName(s);
-    }
-
-    @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
     }

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
@@ -60,7 +61,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
             @Override
             public boolean apply(@Nullable E e) {
                 assert e != null;
-                return e.hasName(name) && clazz.isInstance(e);
+                return Objects.equal(e.getName(), name) && clazz.isInstance(e);
             }
         }, null));
     }

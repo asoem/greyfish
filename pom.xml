@@ -53,13 +53,21 @@
             <name>Laughing Panda</name>
             <url>http://maven.laughingpanda.org/maven2/</url>
         </repository>
-
+        <repository>
+            <id>tmate</id>
+            <url>http://maven.tmatesoft.com/content/repositories/releases</url>
+        </repository>
         <repository>
             <id>Codehaus</id>
             <name>Codehaus Repository</name>
             <url>http://repository.codehaus.org/</url>
         </repository>
-
+        <repository>
+            <id>oracleReleases</id>
+            <name>Oracle Released Java Packages</name>
+            <url>http://download.oracle.com/maven</url>
+            <layout>default</layout>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -122,7 +130,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>[11.0.1,)</version>
+            <version>11.0.2</version>
         </dependency>
 
         <dependency>

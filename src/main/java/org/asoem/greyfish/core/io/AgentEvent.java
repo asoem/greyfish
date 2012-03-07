@@ -11,22 +11,28 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 12:54
  */
 public class AgentEvent {
-    private final int agent;
-    private final Object source;
-    private final String key;
-    private final String value;
-    private final int step;
-    private final String simulation;
-    private final Location2D locatable2D;
 
-    public AgentEvent(String simulationId, int step, int agentId, Object source, String key, String value, Location2D locatable2D) {
+    private int agent;
+    private Object source;
+    private String key;
+    private String value;
+    private int step;
+    private String simulation;
+    private String populationName;
+    private Location2D locatable2D;
+
+    public AgentEvent(String simulationId, int step, int agentId, String populationName, Object source, String key, String value, Location2D locatable2D) {
         this.simulation = simulationId;
+        this.populationName = populationName;
         this.locatable2D = checkNotNull(locatable2D);
         this.value = checkNotNull(value);
         this.key = checkNotNull(key);
         this.source = checkNotNull(source);
         this.agent = checkNotNull(agentId);
         this.step = step;
+    }
+
+    private AgentEvent() {
     }
 
     public int getAgentId() {
@@ -55,5 +61,9 @@ public class AgentEvent {
 
     public Location2D getLocatable2D() {
         return locatable2D;
+    }
+
+    public String getPopulationName() {
+        return populationName;
     }
 }

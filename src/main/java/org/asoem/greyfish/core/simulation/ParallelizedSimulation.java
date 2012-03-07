@@ -1,8 +1,9 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
+import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -54,7 +55,7 @@ public class ParallelizedSimulation implements Simulation {
     private final TiledSpace<Agent> space;
 
     @Attribute
-    private int steps = 0;
+    private int steps = -1;
 
     @Attribute
     private String title = "untitled";
@@ -151,16 +152,13 @@ public class ParallelizedSimulation implements Simulation {
                                 return agent.getPopulation();
                             }
                         },
-                        new Function<Agent, Counter>() {
+                        Functions.forSupplier(new Supplier<Counter>() {
                             @Override
-                            public Counter apply(Agent population) {
+                            public Counter get() {
                                 return new Counter(0);
                             }
-                        }).
+                        })).
                 build();
-
-        for (Agent agent : getAgents())
-            agent.prepare(this);
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -207,7 +205,7 @@ public class ParallelizedSimulation implements Simulation {
         // following actions must be synchronized
         synchronized (this) {
             agent.prepare(this);
-            space.addObject(agent, ImmutableObject2D.of(locatable, 0));
+            space.addObject(agent, ImmutableObject2D.of(locatable.getX(), locatable.getY(), 0));
             Counter counter = populationCounterMap.get(agent.getPopulation());
             counter.increase(); // non-null verified by checkCanAddAgent();
         }
@@ -308,6 +306,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public synchronized void step() {
+        ++steps;
 
         LOGGER.debug("{}: Entering step {}", this, steps);
 
@@ -318,7 +317,6 @@ public class ParallelizedSimulation implements Simulation {
         processAgentsMovement();
         processRequestedAgentAdditions();
 
-        ++steps;
     }
 
     private void processAgentMessageDelivery() {
@@ -343,8 +341,7 @@ public class ParallelizedSimulation implements Simulation {
         for (AddAgentMessage addAgentMessage : addAgentMessages) {
             final Agent clone = borrowAgentFromPool(addAgentMessage.population);
             clone.injectGamete(addAgentMessage.chromosome);
-            clone.prepare(this);
-            addAgentInternal(clone, ImmutableObject2D.of(addAgentMessage.location, 0));
+            addAgentInternal(clone, ImmutableObject2D.of(addAgentMessage.location.getX(), addAgentMessage.location.getY(), 0));
         }
         addAgentMessages.clear();
     }
@@ -377,11 +374,6 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public String getName() {
         return title;
-    }
-
-    @Override
-    public boolean hasName(@Nullable String s) {
-        return Objects.equal(title, s);
     }
 
     @Override

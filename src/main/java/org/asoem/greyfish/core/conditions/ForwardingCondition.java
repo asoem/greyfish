@@ -110,11 +110,6 @@ public abstract class ForwardingCondition extends ForwardingObject implements GF
     }
 
     @Override
-    public boolean hasName(String s) {
-        return delegate().hasName(s);
-    }
-
-    @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return delegate().deepClone(cloner);
     }

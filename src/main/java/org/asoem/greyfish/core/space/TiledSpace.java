@@ -308,9 +308,10 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         checkNotNull(plan);
         //checkArgument(projectables.contains(plan.projectable)); // todo: the call to 'contains' is a CPU hotspot because agents have a complex equals method
 
-        assert contains(plan.getMaxLocation()) : plan.getMaxLocation();
+        final Location2D maxLocation = plan.getMaxLocation();
+        assert contains(maxLocation) : maxLocation;
 
-        final ImmutableObject2D projection = ImmutableObject2D.of(plan.getMaxLocation(), plan.getNewOrientation());
+        final ImmutableObject2D projection = ImmutableObject2D.of(maxLocation.getX(), maxLocation.getY(), plan.getNewOrientation());
         plan.projectable.setProjection(projection);
         tree.setOutdated();
 

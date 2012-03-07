@@ -101,8 +101,4 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
         return delegate().getName();
     }
 
-    @Override
-    public boolean hasName(String s) {
-        return delegate().hasName(s);
-    }
 }

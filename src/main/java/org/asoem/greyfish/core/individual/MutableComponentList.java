@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -13,6 +14,7 @@ import org.simpleframework.xml.ElementList;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -61,7 +63,7 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
             @Override
             public boolean apply(@Nullable E e) {
                 assert e != null;
-                return e.hasName(name);
+                return Objects.equal(e.getName(), name);
             }
         }, null));
     }
@@ -69,15 +71,5 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new MutableComponentList<E>(this, cloner);
-    }
-
-    @Override
-    protected void beforeAddition(@Nullable E element) {
-        String name = checkNotNull(element).getName();
-        for (E e : delegate) {
-            if (e.hasName(name))
-                throw new IllegalArgumentException("A ComponentList preserves uniqueness of component names." +
-                        "Cannot add a second element with name='" + name + "'");
-        }
     }
 }

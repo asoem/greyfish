@@ -84,7 +84,6 @@ public class ImmutableAgentTest {
     public void testGetGene() throws Exception {
         // given
         given(gene.getName()).willReturn("foo");
-        given(gene.hasName("foo")).willReturn(true);
         given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
         ImmutableAgent agent = ImmutableAgent.of(population).addGenes(gene).build();
 

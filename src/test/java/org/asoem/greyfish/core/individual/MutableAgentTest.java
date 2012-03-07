@@ -53,7 +53,6 @@ public class MutableAgentTest {
         final Gene gene = mock(Gene.class);
         MutableAgent agent = MutableAgent.of(mock(Population.class)).build();
         given(gene.getName()).willReturn("foo");
-        given(gene.hasName("foo")).willReturn(true);
         given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
         agent.addGene(gene);
 

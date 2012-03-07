@@ -10,8 +10,9 @@ public class ConsoleLogger implements AgentEventLogger {
     public void addEvent(AgentEvent event) {
         System.out.println(
                 event.getSimulationId() + "\t" +
-                        event.getAgentId() + "\t" +
                         event.getStep() + "\t" +
+                        event.getPopulationName() + "\t" +
+                        event.getAgentId() + "\t" +
                         event.getSource() + "\t" +
                         event.getLocatable2D() + "\t" +
                         event.getKey() + "\t" +
