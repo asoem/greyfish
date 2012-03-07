@@ -7,10 +7,4 @@ public interface HasName {
      */
 	public String getName();
 
-    /**
-     *
-     * @param s the name to compare to
-     * @return {@code true} if this components name equals {@code name}.
-     */
-    public boolean hasName(String s);
 }

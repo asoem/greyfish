@@ -1,9 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.math.ImmutablePolarPoint2D;
-import org.asoem.greyfish.utils.math.PolarPoint2D;
-import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Attribute;
 
 /**
  * User: christoph
@@ -12,16 +9,16 @@ import org.simpleframework.xml.Element;
  */
 public class ImmutableMotion2D implements Motion2D {
 
-    @Element
-    private final PolarPoint2D polarPoint2D;
+    @Attribute(name = "translation")
+    private final double translation;
 
-    @SimpleXMLConstructor
-    private ImmutableMotion2D(PolarPoint2D polarPoint2D) {
-        this.polarPoint2D = polarPoint2D;
-    }
+    @Attribute(name = "rotation")
+    private final double rotation;
 
-    public ImmutableMotion2D(double angle, double v) {
-        this.polarPoint2D = ImmutablePolarPoint2D.of(angle, v);
+    public ImmutableMotion2D(@Attribute(name = "rotation") double angle,
+                             @Attribute(name = "translation") double v) {
+        this.translation = v;
+        this.rotation = angle;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -48,7 +45,7 @@ public class ImmutableMotion2D implements Motion2D {
 
     @Override
     public double getRotation() {
-        return polarPoint2D.getAngle();
+        return rotation;
     }
 
     @Override
@@ -58,7 +55,7 @@ public class ImmutableMotion2D implements Motion2D {
 
     @Override
     public double getTranslation() {
-        return polarPoint2D.getRadius();
+        return translation;
     }
 
     @Override
@@ -66,6 +63,7 @@ public class ImmutableMotion2D implements Motion2D {
         return new double[0];  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -73,14 +71,21 @@ public class ImmutableMotion2D implements Motion2D {
 
         ImmutableMotion2D that = (ImmutableMotion2D) o;
 
-        if (!polarPoint2D.equals(that.polarPoint2D)) return false;
+        if (Double.compare(that.rotation, rotation) != 0) return false;
+        if (Double.compare(that.translation, translation) != 0) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return polarPoint2D.hashCode();
+        int result;
+        long temp;
+        temp = translation != +0.0d ? Double.doubleToLongBits(translation) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        temp = rotation != +0.0d ? Double.doubleToLongBits(rotation) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 
     public static Motion2D noMotion() {
