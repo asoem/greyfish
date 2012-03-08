@@ -1,7 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
 import javolution.lang.MathLib;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
@@ -21,9 +20,8 @@ public class MutableObject2D implements Object2D {
     @Element(name = "location")
     private MutableLocation2D locatable2D = new MutableLocation2D();
 
-    @SimpleXMLConstructor
-    private MutableObject2D() {
-    }
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
+    private MutableObject2D() {}
 
     public MutableObject2D(double x, double y, double angle) {
         setX(x);

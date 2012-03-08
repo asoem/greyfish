@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.math;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.VanillaExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

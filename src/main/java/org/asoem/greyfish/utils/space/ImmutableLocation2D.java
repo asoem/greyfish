@@ -1,7 +1,5 @@
 package org.asoem.greyfish.utils.space;
 
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.base.Builder;
 import org.simpleframework.xml.Attribute;
 
 /**
@@ -31,7 +29,6 @@ public class ImmutableLocation2D implements Location2D {
         return y;
     }
 
-    @SimpleXMLConstructor
     private ImmutableLocation2D(@Attribute(name = "x") double x,
                                 @Attribute(name = "y") double y) {
         this.x = x;

@@ -1,9 +1,9 @@
 package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Preconditions;
-import javolution.util.FastList;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -13,14 +13,14 @@ import java.util.List;
  */
 public class CircularFifoBuffer<E> extends HookedForwardingList<E> {
 
-	private final FastList<E> delegate;
-	
+	private final LinkedList<E> delegate;
+
 	private final int maxSize;
-	
+
 	public CircularFifoBuffer(final int size) {
 		Preconditions.checkArgument(size > 0);
 		this.maxSize = size;
-		delegate = new FastList<E>(maxSize);
+		delegate = new LinkedList<E>();
 	}
 	
 	@SuppressWarnings("UnusedDeclaration")

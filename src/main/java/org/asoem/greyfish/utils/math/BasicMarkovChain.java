@@ -7,8 +7,6 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.asoem.greyfish.utils.base.Builder;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -23,8 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 11:30
  */
 public class BasicMarkovChain<S> implements MarkovChain<S> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicMarkovChain.class);
 
     private final Table<S, S, Double> markovMatrix;
 
@@ -43,7 +39,6 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
 
         if (!markovMatrix.containsRow(state)) {
             if (markovMatrix.containsColumn(state)) {
-                LOGGER.debug("State is (implicitly) just self referent: {}", state);
                 return state;
             }
             else
@@ -54,7 +49,6 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
         final Map<S, Double> row = markovMatrix.row(state);
 
         if (row.isEmpty()) {
-            LOGGER.debug("No outgoing transition has been defined for state '{}'", state);
             return state;
         }
 
@@ -65,15 +59,6 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
             if (sum > rand) {
                 return cell.getKey();
             }
-        }
-
-        if (sum < 1) {
-            LOGGER.debug("The sum of transition probabilities for state {} are < 1: {}." +
-                    "Reminding fraction will be used by the identity transition", state, sum);
-        }
-        else if (sum > 1) {
-            LOGGER.warn("The sum of transition probabilities for state {} are > 1: {}." +
-                    "Some states might never be reached.", state, sum);
         }
 
         return state;
@@ -123,6 +108,15 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
 
         @Override
         public BasicMarkovChain<S> build() throws IllegalStateException {
+            // todo: check if sum of transition probabilities in rows are <= 1
+            for (S state : table.rowKeySet()) {
+                double sum = 0.0;
+                for (Double value : table.row(state).values()) {
+                    sum += value;
+                }
+                if (sum < 0 || sum > 1)
+                    throw new IllegalArgumentException("Sum of transition probabilities from state " + state + " must be in >= 0 and <= 1");
+            }
             return new BasicMarkovChain<S>(ImmutableTable.copyOf(table));
         }
     }

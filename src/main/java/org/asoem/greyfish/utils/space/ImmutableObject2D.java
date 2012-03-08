@@ -1,7 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
 import javolution.lang.MathLib;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.simpleframework.xml.Attribute;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -22,8 +21,6 @@ public class ImmutableObject2D implements Object2D {
     @Attribute(name = "orientation")
     private final double orientation;
 
-
-    @SimpleXMLConstructor
     private ImmutableObject2D(@Attribute(name = "x") double x,
                               @Attribute(name = "y") double y,
                               @Attribute(name = "orientation") double orientation) {
