@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.core.individual.MutableComponentList;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
@@ -21,7 +20,7 @@ public class MutableChromosome<E extends Gene<?>> extends AbstractChromosome<E> 
     @Element(name = "genes")
     private final ComponentList<E> delegate;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private MutableChromosome(@Element(name = "genes") ComponentList<E> genes) {
         delegate = genes;
     }

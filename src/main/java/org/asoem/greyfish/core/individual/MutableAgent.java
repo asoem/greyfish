@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.MutableChromosome;
 import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
@@ -25,7 +24,7 @@ public class MutableAgent extends AbstractAgent {
         setPopulation(builder.population);
     }
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private MutableAgent(@Element(name = "body") Body body,
                            @Element(name = "properties") ComponentList<GFProperty> properties,
                            @Element(name = "actions") ComponentList<GFAction> actions,

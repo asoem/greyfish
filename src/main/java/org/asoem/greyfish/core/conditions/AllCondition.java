@@ -7,7 +7,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -19,7 +18,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 @ClassGroup(tags="conditions")
 public class AllCondition extends BranchCondition {
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AllCondition() {}
 
     protected AllCondition(AllCondition cloneable, DeepCloner map) {

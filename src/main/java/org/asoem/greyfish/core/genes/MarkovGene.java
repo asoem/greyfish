@@ -3,13 +3,12 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
+import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.math.EvaluatingMarkovChain;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -45,7 +44,7 @@ public class MarkovGene extends AbstractGene<String> {
         }
     };
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public MarkovGene() {
     }
     

@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.actions.SexualReproductionAction;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.GFProperty;

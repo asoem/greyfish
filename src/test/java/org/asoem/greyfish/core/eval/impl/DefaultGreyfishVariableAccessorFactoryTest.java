@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.eval.impl;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.SimulationContext;
+import org.asoem.greyfish.core.individual.ActiveSimulationContext;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Mock GFAction action;
     @Mock GFProperty property;
     @Mock Simulation simulation;
-    @Mock SimulationContext simulationContext;
+    @Mock ActiveSimulationContext simulationContext;
 
     @Before
     public void setUp() throws Exception {

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -12,7 +11,7 @@ import static com.google.common.primitives.Doubles.asList;
 @ClassGroup(tags="properties")
 public class DoubleProperty extends AbstractRangeElementProperty<Double> implements MutableProperty<Double> {
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public DoubleProperty() {
         this(new Builder());
     }

@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -35,7 +34,7 @@ public class BasicScenario implements Scenario {
     @Attribute(name="name")
     private String name;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private BasicScenario(
             @ElementList(name = "prototypes", entry = "prototype") Set<Agent> prototypes,
             @Element(name = "space") TiledSpace<Agent> space) {

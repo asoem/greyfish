@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.ImmutableChromosome;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
@@ -22,8 +21,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ImmutableAgent extends AbstractAgent {
 
-    @SimpleXMLConstructor
-    protected ImmutableAgent(@Element(name = "body") Body body,
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
+    private ImmutableAgent(@Element(name = "body") Body body,
                              @Element(name = "properties") ComponentList<GFProperty> properties,
                              @Element(name = "actions") ComponentList<GFAction> actions,
                              @Element(name = "chromosome") Chromosome<Gene<?>> chromosome) {

@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.eval.EvaluationResult;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -24,7 +23,7 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
     @Element
     private GreyfishExpression expression;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ExpressionProperty() {
        this(new Builder());
     }

@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.io.persistence;
 
 import com.google.common.io.CharStreams;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.asoem.greyfish.utils.math.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.Registry;

@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreInjectorHolder;
-import org.asoem.greyfish.utils.math.EvaluatingMarkovChain;
+import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;

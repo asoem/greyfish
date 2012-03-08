@@ -13,11 +13,8 @@ import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.EvaluatedChromosome;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.io.AgentEventLogger;
-import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
@@ -55,7 +52,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private Iterable<Agent> sensedMates;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public MatingReceiverAction() {
         this(new Builder());
     }

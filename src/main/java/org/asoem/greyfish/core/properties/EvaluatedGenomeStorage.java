@@ -6,7 +6,6 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.genes.EvaluatedChromosome;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -45,7 +44,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
         return new EvaluatedGenomeStorage(this, cloner);
     }
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public EvaluatedGenomeStorage() {
         this(new Builder());
     }

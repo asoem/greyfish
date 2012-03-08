@@ -8,12 +8,12 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.*;
-import org.asoem.greyfish.core.genes.EvaluatedChromosome;
 import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.EvaluatedChromosome;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.ImmutableChromosome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
@@ -40,7 +40,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     @Element(name="matingProbability", required = false)
     private GreyfishExpression matingProbability;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public MatingTransmitterAction() {
         this(new Builder());
     }

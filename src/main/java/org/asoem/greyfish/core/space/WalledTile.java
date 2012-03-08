@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.space.Geometry2D;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Attribute;
@@ -29,7 +28,7 @@ public class WalledTile implements Tile {
     @Attribute(name = "border", required = false)
     private int borderFlags = 0;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private WalledTile(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
         this.x = x;
         this.y = y;

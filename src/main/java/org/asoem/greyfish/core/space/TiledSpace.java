@@ -9,7 +9,6 @@ import com.google.common.collect.Lists;
 import javolution.lang.MathLib;
 import javolution.util.FastList;
 import org.asoem.greyfish.core.simulation.Simulatable2D;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
@@ -74,7 +73,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         setBorderedTiles(walledTiles);
     }
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private TiledSpace(@Attribute(name = "width") int width,
                        @Attribute(name = "height") int height,
                        @ElementList(name = "projectables") List<T> projectables,

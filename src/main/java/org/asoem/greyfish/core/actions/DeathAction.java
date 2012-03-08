@@ -2,15 +2,14 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
 
-    @SimpleXMLConstructor
-	public DeathAction() {
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
+    public DeathAction() {
         this(new Builder());
 	}
 

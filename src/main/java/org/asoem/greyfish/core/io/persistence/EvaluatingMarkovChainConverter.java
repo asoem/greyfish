@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.io.persistence;
 
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.utils.math.EvaluatingMarkovChain;
+import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.simpleframework.xml.convert.Converter;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;

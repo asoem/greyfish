@@ -5,7 +5,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.HookedForwardingList;
@@ -13,9 +12,6 @@ import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -27,7 +23,7 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
     private final List<E> delegate;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     public MutableComponentList(@ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) List<E> components) {
         delegate = Lists.newArrayList(components);
     }

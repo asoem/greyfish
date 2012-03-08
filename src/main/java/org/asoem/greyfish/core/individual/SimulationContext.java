@@ -1,162 +1,26 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class SimulationContext {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimulationContext.class);
-
-    @Element
-    private final Simulation simulation;
-
-    @Attribute
-    private final int firstStep;
-
-    @Attribute
-    private final int id;
+/**
+ * User: christoph
+ * Date: 08.03.12
+ * Time: 13:07
+ */
+public interface SimulationContext {
+    int getFirstStep();
 
     @Nullable
-    private GFAction lastExecutedAction;
+    GFAction getLastExecutedAction();
 
-    public SimulationContext(Simulation simulation) {
-        this.simulation = checkNotNull(simulation);
-        this.id = simulation.generateAgentID();
-        this.firstStep = simulation.getSteps() + 1;
-    }
+    int getId();
 
-    @SimpleXMLConstructor
-    public SimulationContext(Simulation simulation, int firstStep, int id) {
-        this.simulation = checkNotNull(simulation);
-        this.id = id;
-        this.firstStep = firstStep;
-    }
+    Simulation getSimulation();
 
-    private SimulationContext() {
-        simulation = null;
-        firstStep = 0;
-        id = 0;
-    }
+    int getAge();
 
-    public int getFirstStep() {
-        return firstStep;
-    }
-
-    @Nullable
-    public GFAction getLastExecutedAction() {
-        return lastExecutedAction;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public Simulation getSimulation() {
-        return simulation;
-    }
-
-    public int getAge() {
-        assert simulation.getSteps() >= firstStep;
-        return simulation.getSteps() - firstStep;
-    }
-
-    public void execute(Agent agent) {
-        if (lastExecutedAction != null &&
-                !lastExecutedAction.isDormant()) {
-            LOGGER.debug("{}: Resuming {}", this, lastExecutedAction);
-            if (tryToExecute(lastExecutedAction)) {
-                return;
-            } else {
-                LOGGER.debug("{}: Resume failed", this);
-                lastExecutedAction = null;
-                // TODO: should the method return here?
-            }
-        }
-
-        LOGGER.trace("{}: Processing " + Iterables.size(agent.getActions()) + " actions in order", this);
-
-        for (GFAction action : agent.getActions()) {
-            assert action.isDormant() : "There should be no action in resuming state";
-
-            if (tryToExecute(action)) {
-                LOGGER.debug("{}: Executed {}", this, action);
-                lastExecutedAction = action;
-                return;
-            }
-        }
-
-        LOGGER.trace("{}: Nothing to execute", this);
-    }
-
-    private boolean tryToExecute(GFAction action) {
-        assert action != null;
-
-        LOGGER.trace("{}: Trying to execute {}", this, action);
-
-        final ExecutionResult result = action.execute(simulation);
-
-        switch (result) {
-            case CONDITIONS_FAILED:
-                LOGGER.trace("FAILED: Attached conditions evaluated to false.");
-                return false;
-            case INSUFFICIENT_ENERGY:
-                LOGGER.trace("FAILED: Not enough energy.");
-                return false;
-            case ERROR:
-                LOGGER.trace("FAILED: Internal error.");
-                return false;
-            case EXECUTED:
-                LOGGER.trace("SUCCESS");
-                return true;
-            case FAILED:
-                LOGGER.trace("SUCCESS");
-                return true;
-            default:
-                assert false : "Code should never be reached";
-                return false;
-        }
-    }
-
-    static final SimulationContext NULL_CONTEXT = new SimulationContext() {
-        @Override
-        public int getFirstStep() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public GFAction getLastExecutedAction() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int getId() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Simulation getSimulation() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int getAge() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void execute(Agent agent) {
-            throw new UnsupportedOperationException();
-        }
-    };
+    void execute(Agent agent);
 }

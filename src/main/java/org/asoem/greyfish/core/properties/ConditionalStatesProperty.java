@@ -10,7 +10,6 @@ import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -37,7 +36,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty implements Fin
     @ElementMap(entry="state", key="condition", attribute=true, inline=true)
     private Map<String, GreyfishExpression> conditionMap = ImmutableMap.of();
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ConditionalStatesProperty() {
         this(new Builder());
     }

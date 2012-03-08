@@ -5,8 +5,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.ElementList;
@@ -29,7 +27,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
     private final List<E> listDelegate;
 
-    @SimpleXMLConstructor
+    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private ImmutableComponentList(@ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) List<E> components) {
         listDelegate = ImmutableList.copyOf(components);
     }

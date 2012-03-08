@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.io.AgentEventLogger;
 import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
@@ -63,8 +62,8 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "population")
     protected Population population;
 
-    @Element
-    protected SimulationContext simulationContext = SimulationContext.NULL_CONTEXT;
+    @Element(required = false)
+    protected SimulationContext simulationContext = PassiveSimulationContext.instance();
 
     @Element(name = "projection", required = false)
     private Object2D object2D;
@@ -308,7 +307,8 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void logEvent(Object eventOrigin, String title, String message) {
-        checkState(simulationContext != SimulationContext.NULL_CONTEXT, "Agents can only log events in a simulation context");
+        checkState(!simulationContext.equals(PassiveSimulationContext.instance()),
+                "Agents can only log events in an active simulation context");
         checkState(object2D != null, "The Agent must have a projection present");
         checkNotNull(eventOrigin);
         checkNotNull(title);
@@ -357,7 +357,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void prepare(Simulation simulation) {
-        setSimulationContext(new SimulationContext(simulation));
+        setSimulationContext(new ActiveSimulationContext(simulation));
         for (AgentComponent component : getComponents()) {
             component.prepare(simulation);
         }
