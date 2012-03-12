@@ -21,7 +21,7 @@
     <logger name="org.asoem.greyfish.core" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.individual.ActiveSimulationContext" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.individual.ActiveSimulationContext" additivity="true" level="DEBUG">
     </logger>
 
     <logger name="org.asoem.greyfish.core.simulation" additivity="false" level="WARNING">
