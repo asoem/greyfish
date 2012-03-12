@@ -33,7 +33,6 @@ import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
  */
 public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, Tiled<WalledTile> {
 
-    public static final double COLLISION_SCALE = 0.99999999;
     @Attribute(name = "height")
     private final int height;
 

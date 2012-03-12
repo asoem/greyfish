@@ -19,9 +19,9 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.SimulationLoggerProvider;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
-import org.asoem.greyfish.utils.base.Counter;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
@@ -71,7 +71,7 @@ public class ParallelizedSimulation implements Simulation {
     private final List<DeliverAgentMessageMessage> deliverAgentMessageMessages =
             Collections.synchronizedList(Lists.<DeliverAgentMessageMessage>newArrayList());
 
-    private final Map<Population, Counter> populationCounterMap;
+    private final Map<Population, AtomicInteger> populationCounterMap;
 
     private final KeyedObjectPool<Population, Agent> objectPool = new StackKeyedObjectPool<Population, Agent>(
             new BaseKeyedPoolableObjectFactory<Population, Agent>() {
@@ -143,7 +143,7 @@ public class ParallelizedSimulation implements Simulation {
             }
         }));
 
-        this.populationCounterMap = ImmutableMapBuilder.<Population,Counter>newInstance().
+        this.populationCounterMap = ImmutableMapBuilder.<Population, AtomicInteger>newInstance().
                 putAll(prototypes,
                         new Function<Agent, Population>() {
                             @Override
@@ -151,13 +151,17 @@ public class ParallelizedSimulation implements Simulation {
                                 return agent.getPopulation();
                             }
                         },
-                        Functions.forSupplier(new Supplier<Counter>() {
+                        Functions.forSupplier(new Supplier<AtomicInteger>() {
                             @Override
-                            public Counter get() {
-                                return new Counter(0);
+                            public AtomicInteger get() {
+                                return new AtomicInteger(0);
                             }
                         })).
                 build();
+        
+        for (Agent agent : space.getObjects()) {
+            agentAdded(agent);
+        }
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -202,20 +206,21 @@ public class ParallelizedSimulation implements Simulation {
                 "Coordinates " + locatable + " do not fall inside the area of this simulation's space: " + space);
 
         // following actions must be synchronized
-        synchronized (this) {
-            agent.prepare(this);
-            space.addObject(agent, ImmutableObject2D.of(locatable.getX(), locatable.getY(), 0));
-            Counter counter = populationCounterMap.get(agent.getPopulation());
-            counter.increase(); // non-null verified by checkCanAddAgent();
-        }
+        space.addObject(agent, ImmutableObject2D.of(locatable.getX(), locatable.getY(), 0));
+        agentAdded(agent);
+    }
 
+    private void agentAdded(Agent agent) {
+        agent.prepare(this);
+        AtomicInteger counter = populationCounterMap.get(agent.getPopulation());
+        counter.incrementAndGet(); // non-null verified by checkCanAddAgent();
         LOGGER.trace("{}: Agent added: {}", this, agent);
     }
 
     private void removeAgentsInternal(Collection<? extends Agent> agents) {
         for (Agent agent : agents) {
             space.removeObject(agent);
-            populationCounterMap.get(agent.getPopulation()).decrease();
+            populationCounterMap.get(agent.getPopulation()).decrementAndGet();
             agent.shutDown();
             putCloneInPool(agent);
         }
@@ -386,37 +391,9 @@ public class ParallelizedSimulation implements Simulation {
         deliverAgentMessageMessages.add(new DeliverAgentMessageMessage(message));
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ParallelizedSimulation)) return false;
-
-        ParallelizedSimulation that = (ParallelizedSimulation) o;
-
-        if (steps != that.steps) return false;
-        if (!addAgentMessages.equals(that.addAgentMessages)) return false;
-        if (!deliverAgentMessageMessages.equals(that.deliverAgentMessageMessages)) return false;
-        if (!populationCounterMap.equals(that.populationCounterMap)) return false;
-        if (!prototypes.equals(that.prototypes)) return false;
-        if (!removeAgentMessages.equals(that.removeAgentMessages)) return false;
-        if (!space.equals(that.space)) return false;
-        if (!title.equals(that.title)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = space.hashCode();
-        result = 31 * result + steps;
-        result = 31 * result + title.hashCode();
-        result = 31 * result + addAgentMessages.hashCode();
-        result = 31 * result + removeAgentMessages.hashCode();
-        result = 31 * result + deliverAgentMessageMessages.hashCode();
-        result = 31 * result + populationCounterMap.hashCode();
-        result = 31 * result + prototypes.hashCode();
-        return result;
+    public void shutdown() {
+        SimulationLoggerProvider.getLogger(this).close();
     }
 
     /**

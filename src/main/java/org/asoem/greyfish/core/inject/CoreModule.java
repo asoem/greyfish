@@ -1,10 +1,11 @@
 package org.asoem.greyfish.core.inject;
 
 import com.google.inject.AbstractModule;
-import org.asoem.greyfish.core.io.AgentEventLogger;
-import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import org.asoem.greyfish.core.io.BerkeleyLogger;
-import org.asoem.greyfish.core.io.ConsoleLogger;
+import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.io.SimulationLoggerFactory;
+import org.asoem.greyfish.core.io.SimulationLoggerProvider;
 import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
 import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
 
@@ -17,8 +18,11 @@ public class CoreModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(AgentComponentClassFinder.class).to(AnnotatedAgentComponentClassFinder.class).asEagerSingleton();
-        
-        bind(AgentEventLogger.class).to(BerkeleyLogger.class);
-        requestStaticInjection(AgentEventLoggerFactory.class);
+
+        install(new FactoryModuleBuilder()
+                .implement(SimulationLogger.class, BerkeleyLogger.class)
+                .build(SimulationLoggerFactory.class));
+
+        requestStaticInjection(SimulationLoggerProvider.class);
     }
 }

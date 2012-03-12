@@ -1,6 +1,9 @@
 package org.asoem.greyfish.core.io;
 
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * User: christoph
@@ -8,10 +11,11 @@ import org.junit.Test;
  * Time: 16:46
  */
 public class BerkeleyLoggerTest {
+
     @Test
     public void testAddEvent() throws Exception {
         // given
-        BerkeleyLogger berkeleyLogger = new BerkeleyLogger();
+        BerkeleyLogger berkeleyLogger = new BerkeleyLogger(mock(Simulation.class));
         AgentEvent agentEvent = new AgentEvent("TestSimulation", 42, 1, "TestPopulation", "BerkeleyLoggerTest", "TestEvent", "Lorem ipsum", new double[] {2.5435, 0.54534});
 
         // when

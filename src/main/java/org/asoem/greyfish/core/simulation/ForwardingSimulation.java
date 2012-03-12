@@ -97,6 +97,11 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
+    public void shutdown() {
+        delegate().shutdown();
+    }
+
+    @Override
     public String getName() {
         return delegate().getName();
     }

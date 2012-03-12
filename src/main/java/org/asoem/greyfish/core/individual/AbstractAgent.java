@@ -9,8 +9,6 @@ import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.io.AgentEvent;
-import org.asoem.greyfish.core.io.AgentEventLogger;
-import org.asoem.greyfish.core.io.AgentEventLoggerFactory;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -40,8 +38,6 @@ import static java.util.Arrays.asList;
  */
 @Root(name = "agent")
 public abstract class AbstractAgent implements Agent {
-
-    private static final AgentEventLogger AGENT_EVENT_LOGGER = AgentEventLoggerFactory.getLogger();
 
     @Element(name = "properties")
     protected final ComponentList<GFProperty> properties;
@@ -315,14 +311,16 @@ public abstract class AbstractAgent implements Agent {
         checkNotNull(message);
 
         final Simulation simulation = simulationContext.getSimulation();
-        AGENT_EVENT_LOGGER.addEvent(new AgentEvent(
+        final AgentEvent event = new AgentEvent(
                 simulation.getName(),
                 simulation.getSteps(),
                 getId(), population.toString(),
                 eventOrigin.getClass().getSimpleName(),
                 title,
                 message,
-                object2D.getCoordinates()));
+                object2D.getCoordinates());
+
+        simulationContext.logEvent(event);
     }
 
     @Override

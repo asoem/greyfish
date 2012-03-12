@@ -64,4 +64,6 @@ public interface Simulation extends HasName {
     void setName(String name);
 
     void deliverMessage(ACLMessage<Agent> message);
+
+    void shutdown();
 }

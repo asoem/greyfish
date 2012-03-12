@@ -5,7 +5,7 @@ package org.asoem.greyfish.core.io;
  * Date: 20.02.12
  * Time: 13:47
  */
-public class ConsoleLogger implements AgentEventLogger {
+public class ConsoleLogger implements SimulationLogger {
     @Override
     public void addEvent(AgentEvent event) {
         System.out.println(

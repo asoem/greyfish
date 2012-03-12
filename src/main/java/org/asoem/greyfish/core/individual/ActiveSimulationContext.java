@@ -3,6 +3,9 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.actions.utils.ExecutionResult;
+import org.asoem.greyfish.core.io.AgentEvent;
+import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.io.SimulationLoggerProvider;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -29,10 +32,13 @@ public class ActiveSimulationContext implements SimulationContext {
     @Nullable
     private GFAction lastExecutedAction;
 
+    private final SimulationLogger simulationLogger;
+
     public ActiveSimulationContext(Simulation simulation) {
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
         this.firstStep = simulation.getSteps() + 1;
+        this.simulationLogger = SimulationLoggerProvider.getLogger(simulation);
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
@@ -40,6 +46,7 @@ public class ActiveSimulationContext implements SimulationContext {
         this.simulation = checkNotNull(simulation);
         this.id = id;
         this.firstStep = firstStep;
+        this.simulationLogger = SimulationLoggerProvider.getLogger(simulation);
     }
 
     @Override
@@ -96,6 +103,12 @@ public class ActiveSimulationContext implements SimulationContext {
         }
 
         LOGGER.trace("{}: Nothing to execute", this);
+    }
+
+    @Override
+    public void logEvent(AgentEvent event) {
+        simulationLogger.addEvent(event);
+        LOGGER.debug("Event sent to logger: {}", event);
     }
 
     private boolean tryToExecute(GFAction action) {

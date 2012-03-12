@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.io.AgentEvent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.simpleframework.xml.Root;
 
@@ -41,6 +42,11 @@ public enum PassiveSimulationContext implements SimulationContext {
 
     @Override
     public void execute(Agent agent) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void logEvent(AgentEvent event) {
         throw new UnsupportedOperationException();
     }
 
