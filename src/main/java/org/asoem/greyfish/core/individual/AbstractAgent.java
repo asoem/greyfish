@@ -318,7 +318,11 @@ public abstract class AbstractAgent implements Agent {
         AGENT_EVENT_LOGGER.addEvent(new AgentEvent(
                 simulation.getName(),
                 simulation.getSteps(),
-                getId(), population.toString(), eventOrigin, title, message, object2D));
+                getId(), population.toString(),
+                eventOrigin.getClass().getSimpleName(),
+                title,
+                message,
+                object2D.getCoordinates()));
     }
 
     @Override

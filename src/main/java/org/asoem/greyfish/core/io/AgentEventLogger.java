@@ -7,4 +7,5 @@ package org.asoem.greyfish.core.io;
  */
 public interface AgentEventLogger {
     void addEvent(AgentEvent event);
+    void close();
 }
