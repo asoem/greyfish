@@ -1,0 +1,74 @@
+apply plugin: 'java'
+
+repositories {
+    flatDir { dirs 'lib' }
+    mavenLocal()
+    mavenCentral()
+    maven { url "http://scala-tools.org/repo-releases" }
+    maven { url "http://download.oracle.com/maven" }
+    maven { url "http://mirrors.ibiblio.org/pub/mirrors/maven2/" }
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.9.1-1',
+            'org.codehaus.jsr166-mirror:jsr166y:1.7.0',
+            'org.apache.commons:commons-math:2.2',
+            'commons-pool:commons-pool:1.6',
+            'com.google.inject.extensions:guice-assistedinject:3.0',
+            'org.jdesktop.bsaf:bsaf:1.9.2',
+            'jfree:jfreechart:1.0.13',
+            'org.slf4j:slf4j-api:1.6.4',
+            'org.simpleframework:simple-xml:2.6.2',
+            'com.sleepycat:je:5.0.34',
+            'javolution:javolution:5.5.1',
+            'org.asoem:kdtree:1.0.0',
+            'com.explodingpixels:macwidgets:0.9.5-SNAPSHOT',
+            jgoodies_dependency("binding", "2.6.0"),
+            jgoodies_dependency("forms", "1.5.0"),
+            jgoodies_dependency("validation", "2.4.0"),
+            jgoodies_dependency("common", "1.3.0")
+
+    compile (
+            [group: 'com.google.guava', name: 'guava', version: '11.0.2', transitive: true],
+            [group: 'com.google.inject', name: 'guice', version: '3.0', transitive: true],
+            [group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1', transitive: true],
+            [group: 'jfree', name: 'jfreechart', version: '1.0.13', transitive: true]
+    )
+
+    runtime group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.0', transitive: true
+
+    testCompile "org.easytesting:fest-assert:1.4", "junit:junit:4.10", "org.mockito:mockito-all:1.9.0"
+}
+
+String jgoodies_dependency(String name, String version) {
+
+    artifactId = "com.jgoodies:${name}:${version}"
+    libFileName = "jgoodies-${name}-${version}.jar"
+
+    libraryFile = new File('lib/' + artifactId.toString());
+
+    if (! libraryFile.exists()) {
+        remoteZipUrl = "http://www.jgoodies.com/download/libraries/${name}/jgoodies-${name}-${version.replaceAll(/\./, '_')}.zip"
+        localTempZipFile = new File("build/jgoodies-${name}-${version}.zip".toString())
+
+        if (! localTempZipFile.exists() ) {
+            ant.get(src: remoteZipUrl, dest: localTempZipFile.toString())
+        }
+
+        assert localTempZipFile.exists()
+
+        dir = new File("lib")
+        if (!dir.isDirectory()) {
+            dir.mkdirs()
+        }
+
+        copy {
+            from zipTree(localTempZipFile).matching{ include '**/*.jar' }.getFiles()
+            into 'lib'
+        }
+
+        localTempZipFile.delete()
+    }
+
+    return artifactId
+}
