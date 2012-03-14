@@ -42,31 +42,34 @@ dependencies {
 
 String jgoodies_dependency(String name, String version) {
 
-    artifactId = "com.jgoodies:${name}:${version}"
-    libFileName = "jgoodies-${name}-${version}.jar"
+    String artifactId = "com.jgoodies:${name}:${version}"
+    String libFileName = "jgoodies-${name}-${version}.jar"
 
-    libraryFile = new File('lib/' + artifactId.toString());
+    File libraryFile = new File('lib/' + libFileName.toString());
 
     if (! libraryFile.exists()) {
-        remoteZipUrl = "http://www.jgoodies.com/download/libraries/${name}/jgoodies-${name}-${version.replaceAll(/\./, '_')}.zip"
-        localTempZipFile = new File("build/jgoodies-${name}-${version}.zip".toString())
+        String remoteZipUrl = "http://www.jgoodies.com/download/libraries/${name}/jgoodies-${name}-${version.replaceAll(/\./, '_')}.zip"
+        File localTempZipFile = new File(rootDir, "jgoodies-${name}-${version}.zip".toString())
 
         if (! localTempZipFile.exists() ) {
-            ant.get(src: remoteZipUrl, dest: localTempZipFile.toString())
+            logger.debug "Downloading ${remoteZipUrl} to ${localTempZipFile.getAbsolutePath()}"
+            ant.get(src: remoteZipUrl, dest: localTempZipFile.getPath())
         }
 
-        assert localTempZipFile.exists()
+        assert localTempZipFile.exists() : "Could not download ${remoteZipUrl} to ${localTempZipFile.getAbsolutePath()}"
 
-        dir = new File("lib")
+        File dir = new File("lib")
         if (!dir.isDirectory()) {
             dir.mkdirs()
         }
 
+        logger.debug "Copying all jars in ${localTempZipFile} to './lib'"
         copy {
             from zipTree(localTempZipFile).matching{ include '**/*.jar' }.getFiles()
             into 'lib'
         }
 
+        logger.debug "Removing ${localTempZipFile}"
         localTempZipFile.delete()
     }
 
