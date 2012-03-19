@@ -3,3 +3,8 @@ logs/
 .idea/
 greyfish.iml
 .DS_Store
+.gradle/
+build/
+lib/
+out/
+reports/

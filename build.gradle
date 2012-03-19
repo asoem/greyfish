@@ -1,12 +1,21 @@
 apply plugin: 'java'
 
+sourceCompatibility = 1.6
+version = '1.0'
+
 repositories {
     flatDir { dirs 'lib' }
     mavenLocal()
     mavenCentral()
-    maven { url "http://scala-tools.org/repo-releases" }
-    maven { url "http://download.oracle.com/maven" }
+    maven { url "http://scala-tools.org/repo-releases" } // for org.scala-lang:scala-library
+    maven { url "http://download.oracle.com/maven" } // for com.sleepycat:je
     maven { url "http://mirrors.ibiblio.org/pub/mirrors/maven2/" }
+
+    // repos for kundera cassandra client
+    maven { url "http://kundera.googlecode.com/svn/maven2/maven-missing-resources" }
+    maven { url "http://mvn.riptano.com/content/repositories/public" }
+    maven { url "https://github.com/s7/mvnrepo/raw/master" } // for scale7-pelops-1.3-1.0.x
+    maven { url "http://www.terracotta.org/download/reflector/releases" } // for terracotta libs
 }
 
 dependencies {
@@ -32,7 +41,8 @@ dependencies {
             [group: 'com.google.guava', name: 'guava', version: '11.0.2', transitive: true],
             [group: 'com.google.inject', name: 'guice', version: '3.0', transitive: true],
             [group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1', transitive: true],
-            [group: 'jfree', name: 'jfreechart', version: '1.0.13', transitive: true]
+            [group: 'jfree', name: 'jfreechart', version: '1.0.13', transitive: true],
+            [group: 'com.impetus.client', name: 'kundera-cassandra', version: '2.0.5', transitive: true]
     )
 
     runtime group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.0', transitive: true
