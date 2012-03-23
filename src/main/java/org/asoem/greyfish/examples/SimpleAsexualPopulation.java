@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Avatar;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.inject.CoreInjectorHolder;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -27,14 +28,17 @@ import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
  */
 public class SimpleAsexualPopulation {
     public SimpleAsexualPopulation() {
+
+        CoreInjectorHolder.coreInjector();
+
         Agent prototype = ImmutableAgent.of(Population.named("AsexualPopulation"))
                 .addActions(
                         ClonalReproductionAction.with()
                                 .name("clone")
                                 .nClones(compile("1"))
                                 .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("rand:nextDouble() < 1 - $('simulation.agentCount') / 1000")),
-                                        evaluate(compile("$('this.agent.actions[\"clone\"].stepsSinceLastExecution') >= 10"))))
+                                        evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 1000.0")),
+                                        evaluate(compile("$('#clone.stepsSinceLastExecution') >= 10"))))
                                 .build(),
                         DeathAction.with()
                                 .name("die")
