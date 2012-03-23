@@ -39,6 +39,6 @@ public class DeathAction extends AbstractGFAction {
     public static final class Builder extends AbstractBuilder<DeathAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public DeathAction checkedBuild() { return new DeathAction(this); }
+        @Override protected DeathAction checkedBuild() { return new DeathAction(this); }
     }
 }

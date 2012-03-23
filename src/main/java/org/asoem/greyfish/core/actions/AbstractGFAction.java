@@ -229,6 +229,11 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
+    public int stepsSinceLastExecution() {
+        return agent().getSimulationContext().getSimulation().getSteps() - timeOfLastExecution;
+    }
+
+    @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
     }

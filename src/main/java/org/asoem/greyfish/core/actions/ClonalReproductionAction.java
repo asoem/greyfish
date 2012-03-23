@@ -72,7 +72,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     public static final class Builder extends AbstractBuilder<ClonalReproductionAction,Builder>  {
         @Override protected Builder self() { return this; }
-        @Override public ClonalReproductionAction checkedBuild() { return new ClonalReproductionAction(this); }
+        @Override protected ClonalReproductionAction checkedBuild() { return new ClonalReproductionAction(this); }
     }
 
     @SuppressWarnings("UnusedDeclaration")

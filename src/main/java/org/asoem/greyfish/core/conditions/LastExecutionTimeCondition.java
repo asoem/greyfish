@@ -90,7 +90,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
         private Builder() {}
 
         @Override protected Builder self() { return this; }
-        @Override public LastExecutionTimeCondition checkedBuild() { return new LastExecutionTimeCondition(this); }
+        @Override protected LastExecutionTimeCondition checkedBuild() { return new LastExecutionTimeCondition(this); }
     }
 
     protected static abstract class AbstractBuilder<E extends LastExecutionTimeCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {

@@ -127,7 +127,6 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                     }
                 }, function));
             }
-
             if (nextPart.matches("conditions\\[.+\\]")) {
             }
             throw new RuntimeException("GFCondition has no member named " + nextPart);
@@ -159,6 +158,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             }
 
             if (nextPart.matches("conditions\\[.+\\]")) {
+            }
+            else if (nextPart.equals("stepsSinceLastExecution")) {
+                return Functions.compose(new Function<GFAction, Integer>() {
+                    @Override
+                    public Integer apply(@Nullable GFAction o) {
+                        return checkNotNull(o).stepsSinceLastExecution();
+                    }
+                }, ret);
             }
             throw new RuntimeException("GFAction has no member named " + nextPart);
         }

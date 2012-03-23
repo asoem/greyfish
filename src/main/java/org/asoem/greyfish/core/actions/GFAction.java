@@ -36,4 +36,6 @@ public interface GFAction extends AgentComponent {
 	 * Check if the Action has completed its task.
 	 */
 	public boolean isDormant();
+
+    int stepsSinceLastExecution();
 }

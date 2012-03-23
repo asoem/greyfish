@@ -17,7 +17,7 @@ public class CoreModule extends AbstractModule {
         bind(AgentComponentClassFinder.class).to(AnnotatedAgentComponentClassFinder.class).asEagerSingleton();
 
         install(new FactoryModuleBuilder()
-                .implement(SimulationLogger.class, CassandraLogger.class)
+                .implement(SimulationLogger.class, BerkeleyLogger.class)
                 .build(SimulationLoggerFactory.class));
 
         requestStaticInjection(SimulationLoggerProvider.class);

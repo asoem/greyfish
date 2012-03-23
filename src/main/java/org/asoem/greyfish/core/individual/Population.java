@@ -72,4 +72,8 @@ public class Population implements HasName, Comparable<Population> {
         result = 31 * result + color.hashCode();
         return result;
     }
+
+    public static Population named(String asexualPopulation) {
+        return newPopulation(asexualPopulation, Color.black);
+    }
 }

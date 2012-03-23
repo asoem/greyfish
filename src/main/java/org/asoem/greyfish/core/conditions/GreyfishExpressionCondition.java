@@ -61,4 +61,10 @@ public class GreyfishExpressionCondition extends LeafCondition {
             }
         });
     }
+
+    public static GreyfishExpressionCondition evaluate(GreyfishExpression compile) {
+        final GreyfishExpressionCondition greyfishExpressionCondition = new GreyfishExpressionCondition();
+        greyfishExpressionCondition.expression = compile;
+        return greyfishExpressionCondition;
+    }
 }

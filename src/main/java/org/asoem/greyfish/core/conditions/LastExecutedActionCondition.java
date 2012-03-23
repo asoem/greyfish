@@ -71,7 +71,7 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     public static final class Builder extends AbstractBuilder<LastExecutedActionCondition, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public LastExecutedActionCondition checkedBuild() { return new LastExecutedActionCondition(this); }
+        @Override protected LastExecutedActionCondition checkedBuild() { return new LastExecutedActionCondition(this); }
     }
 
     @SuppressWarnings("UnusedDeclaration")
