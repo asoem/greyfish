@@ -13,6 +13,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.utils.AgentComponents;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -35,11 +36,11 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         checkNotNull(varName);
         checkNotNull(contextClass);
 
-        Iterator<String> gomParts = SPLITTER.split(varName).iterator();
+        final Iterator<String> gomParts = SPLITTER.split(varName).iterator();
 
         if (gomParts.hasNext()) {
 
-            String root = gomParts.next();
+            final String root = gomParts.next();
 
             if ("this".equals(root) || "self".equals(root)) {
                 if (GFAction.class.isAssignableFrom(contextClass)) {
@@ -78,7 +79,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                     throw new IllegalArgumentException("Root keywords 'this' of 'self' are not implemented for context " + contextClass);
                 }
             }
-            else if ("sim".equals(root)) {
+            else if ("sim".equals(root) || "simulation".equals(root)) {
                 if (AgentComponent.class.isAssignableFrom(contextClass)) {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
@@ -108,6 +109,78 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         return 42.0;
                     }
                 };
+            }
+            else if (root.matches("#\\w+")) {
+                if (AgentComponent.class.isAssignableFrom(contextClass)) {
+                    // search for component with name equal to given identifier
+
+                    return new Function<T, Object>() {
+
+                        private final String componentName = root.substring(1);
+                        private Function<T, ?> cachedFunction = null;
+
+                        @Override
+                        public Object apply(@Nullable T t) {
+
+                            if (cachedFunction == null) {
+                                cachedFunction = composeFunction(t);
+                            }
+
+                            assert cachedFunction != null;
+
+                            return cachedFunction.apply(t);
+                        }
+
+                        private Function<T, ?> composeFunction(T t) {
+                            final AgentComponent component = AgentComponent.class.cast(t);
+                            Agent agent = component.getAgent();
+                            if (agent == null)
+                                throw new AssertionError("Agent must not be null at this point");
+                            final Iterable<AgentComponent> components = agent.getComponents();
+                            AgentComponent target = AgentComponents.findByName(components, componentName);
+
+                            if (target == null)
+                                throw new IllegalArgumentException("Cannot find component with name equal to " + componentName);
+
+                            if (GFAction.class.isInstance(target)) {
+                                return action(gomParts, new Function<T, GFAction>() {
+                                    @Override
+                                    public GFAction apply(@Nullable T t) {
+                                        final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
+                                        if (agent1 == null)
+                                            throw new AssertionError("Agent must not be null at this point");
+                                        return agent1.getAction(componentName, GFAction.class);
+                                    }
+                                });
+                            }
+                            else if (GFProperty.class.isInstance(target)) {
+                                return property(gomParts, new Function<T, GFProperty>() {
+                                    @Override
+                                    public GFProperty apply(@Nullable T t) {
+                                        final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
+                                        if (agent1 == null)
+                                            throw new AssertionError("Agent must not be null at this point");
+                                        return agent1.getProperty(componentName, GFProperty.class);
+                                    }
+                                });
+                            }
+                            else if (Gene.class.isInstance(target)) {
+                                return gene(gomParts, new Function<T, Gene>() {
+                                    @Override
+                                    public Gene apply(@Nullable T t) {
+                                        final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
+                                        if (agent1 == null)
+                                            throw new AssertionError("Agent must not be null at this point");
+                                        return agent1.getGene(componentName, Gene.class);
+                                    }
+                                });
+                            }
+                            else
+                                throw new UnsupportedOperationException("Component of class " + target.getClass() + " is not supported");
+                        }
+                    };
+                }
+
             }
             else
                 throw new IllegalArgumentException("Key '"+ root + "'" + " is not handled");

@@ -1,8 +1,14 @@
 package org.asoem.greyfish.core.utils;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class AgentComponents {
 
@@ -22,5 +28,18 @@ public class AgentComponents {
         T ret = createNewInstance(clazz);
         ret.setName(name);
         return ret;
+    }
+
+    @Nullable
+    public static AgentComponent findByName(Iterable<? extends AgentComponent> components, final String s) {
+        checkNotNull(components);
+        checkNotNull(s);
+
+        return Iterables.find(components, new Predicate<AgentComponent>() {
+            @Override
+            public boolean apply(AgentComponent agentComponent) {
+                return agentComponent.getName().equals(s);
+            }
+        }, null);
     }
 }
