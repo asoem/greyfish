@@ -1,7 +1,9 @@
 package org.asoem.greyfish.examples;
 
 import com.google.common.base.Predicate;
+import com.google.common.primitives.Doubles;
 import javolution.lang.MathLib;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.actions.ClonalReproductionAction;
 import org.asoem.greyfish.core.actions.DeathAction;
 import org.asoem.greyfish.core.conditions.AllCondition;
@@ -27,6 +29,10 @@ import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
  * Time: 14:14
  */
 public class SimpleAsexualPopulation {
+
+    DescriptiveStatistics populationCountStatistics = new DescriptiveStatistics();
+    DescriptiveStatistics stepsPerSecondStatistics = new DescriptiveStatistics();
+
     public SimpleAsexualPopulation() {
 
         CoreInjectorHolder.coreInjector();
@@ -52,17 +58,35 @@ public class SimpleAsexualPopulation {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 
-        ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
+        final ParallelizedSimulation simulation = ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
+
+            private long millies = System.currentTimeMillis();
+            int steps = 0;
+
             @Override
             public boolean apply(@Nullable ParallelizedSimulation parallelizedSimulation) {
                 assert parallelizedSimulation != null;
-                System.out.println(parallelizedSimulation.countAgents());
-                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getSteps() == 100000;
+
+                //System.out.println(parallelizedSimulation.countAgents());
+                final long l = System.currentTimeMillis();
+                if (l > millies + 1000) {
+                    populationCountStatistics.addValue(parallelizedSimulation.countAgents());
+                    stepsPerSecondStatistics.addValue(parallelizedSimulation.getSteps() - steps);
+                    millies = l;
+                    steps = parallelizedSimulation.getSteps();
+                }
+                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getSteps() == 20000;
             }
         });
+
+        simulation.shutdown();
+
+        System.out.println(Doubles.join(" ", populationCountStatistics.getValues()));
+        System.out.println(Doubles.join(" ", stepsPerSecondStatistics.getValues()));
     }
 
     public static void main(String[] args) {
         new SimpleAsexualPopulation();
+
     }
 }
