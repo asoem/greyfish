@@ -15,7 +15,7 @@ repositories {
 dependencies {
     compile 'org.scala-lang:scala-library:2.9.1-1',
             'org.codehaus.jsr166-mirror:jsr166y:1.7.0',
-            'org.apache.commons:commons-math:2.2',
+            'org.apache.commons:commons-math:3.0',
             'commons-pool:commons-pool:1.6',
             'com.google.inject.extensions:guice-assistedinject:3.0',
             'org.jdesktop.bsaf:bsaf:1.9.2',
