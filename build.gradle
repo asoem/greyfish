@@ -29,15 +29,13 @@ dependencies {
             jgoodies_dependency("binding", "2.6.0"),
             jgoodies_dependency("forms", "1.5.0"),
             jgoodies_dependency("validation", "2.4.0"),
-            jgoodies_dependency("common", "1.3.0"),
-            'redis.clients:jedis:2.0.0'
+            jgoodies_dependency("common", "1.3.0")
 
     compile (
             [group: 'com.google.guava', name: 'guava', version: '11.0.2', transitive: true],
             [group: 'com.google.inject', name: 'guice', version: '3.0', transitive: true],
             [group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1', transitive: true],
-            [group: 'jfree', name: 'jfreechart', version: '1.0.13', transitive: true],
-            [group: 'edu.ucar', name: 'netcdf', version: '4.2.20', transitive: true]
+            [group: 'jfree', name: 'jfreechart', version: '1.0.13', transitive: true]
     )
 
     runtime group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.0', transitive: true
