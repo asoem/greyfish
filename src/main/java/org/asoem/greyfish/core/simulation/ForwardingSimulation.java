@@ -2,14 +2,15 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Location2D;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * User: christoph
@@ -99,6 +100,11 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     @Override
     public void shutdown() {
         delegate().shutdown();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return delegate().getUUID();
     }
 
     @Override

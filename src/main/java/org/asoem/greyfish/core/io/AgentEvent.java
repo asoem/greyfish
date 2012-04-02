@@ -1,10 +1,11 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.base.Strings;
 import com.google.common.primitives.Doubles;
-import com.sleepycat.persist.model.*;
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
 
 import java.util.Date;
+import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -17,11 +18,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Entity
 public class AgentEvent {
 
-    @PrimaryKey(sequence = "agent_event_id")
+    @PrimaryKey
     private int eventId;
-    
-    @SecondaryKey(relate = Relationship.MANY_TO_ONE)
-    private EventKey eventKey;
+
+    private long simulationUUID_upper;
+
+    private long simulationUUID_lower;
+
+    private int agentId;
 
     private Date createdAt;
 
@@ -37,14 +41,17 @@ public class AgentEvent {
 
     private String eventMessage;
 
-    public AgentEvent(String simulationId, int simulationStep, int agentId, String agentPopulationName, String sourceOfEvent, String eventTitle, String eventMessage, double[] locatable2D) {
+    public AgentEvent(int eventId, UUID simulationId, int simulationStep, int agentId, String agentPopulationName, double[] locatable2D, String sourceOfEvent, String eventTitle, String eventMessage) {
+        this.eventId = eventId;
         this.agentPopulationName = agentPopulationName;
         this.locationInSpace = checkNotNull(locatable2D);
         this.eventMessage = checkNotNull(eventMessage);
         this.eventTitle = checkNotNull(eventTitle);
         this.sourceOfEvent = checkNotNull(sourceOfEvent);
         this.simulationStep = simulationStep;
-        this.eventKey = new EventKey(checkNotNull(simulationId), checkNotNull(agentId));
+        this.simulationUUID_lower = simulationId.getLeastSignificantBits();
+        this.simulationUUID_upper = simulationId.getMostSignificantBits();
+        this.agentId = checkNotNull(agentId);
         this.createdAt = new Date();
     }
 
@@ -53,7 +60,7 @@ public class AgentEvent {
     }
 
     public int getAgentId() {
-        return eventKey.agentId;
+        return agentId;
     }
 
     public Object getSourceOfEvent() {
@@ -72,8 +79,8 @@ public class AgentEvent {
         return simulationStep;
     }
 
-    public String getSimulationId() {
-        return eventKey.simulationId;
+    public UUID getSimulationId() {
+        return new UUID(simulationUUID_upper, simulationUUID_lower);
     }
 
     public double[] getLocatable2D() {
@@ -88,7 +95,7 @@ public class AgentEvent {
         return createdAt;
     }
 
-    public int getEventId() {
+    public long getEventId() {
         return eventId;
     }
 
@@ -96,7 +103,8 @@ public class AgentEvent {
     public String toString() {
         return "AgentEvent{" +
                 "eventId=" + eventId +
-                ", eventKey=" + eventKey +
+                ", simulationUUID =" + getSimulationId() +
+                ", agentId =" + agentId +
                 ", createdAt=" + createdAt +
                 ", simulationStep=" + simulationStep +
                 ", sourceOfEvent='" + sourceOfEvent + '\'' +
@@ -105,33 +113,5 @@ public class AgentEvent {
                 ", eventTitle='" + eventTitle + '\'' +
                 ", eventMessage='" + eventMessage + '\'' +
                 '}';
-    }
-
-    @Persistent
-    private static class EventKey {
-
-
-        @KeyField(1)
-        private String simulationId;
-
-        @KeyField(2)
-        private int agentId;
-
-        private EventKey(String simulationId, int agentId) {
-            this.simulationId = simulationId;
-            this.agentId = agentId;
-        }
-
-        @SuppressWarnings("UnusedDeclaration") // used for deserialization
-        private EventKey() {
-        }
-
-        @Override
-        public String toString() {
-            return "EventKey{" +
-                    "simulationId='" + simulationId + '\'' +
-                    ", agentId=" + agentId +
-                    '}';
-        }
     }
 }

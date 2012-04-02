@@ -3,12 +3,10 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.actions.utils.ExecutionResult;
-import org.asoem.greyfish.core.io.AgentEvent;
-import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggerProvider;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
@@ -32,13 +30,10 @@ public class ActiveSimulationContext implements SimulationContext {
     @Nullable
     private GFAction lastExecutedAction;
 
-    private final SimulationLogger simulationLogger;
-
     public ActiveSimulationContext(Simulation simulation) {
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
         this.firstStep = simulation.getSteps() + 1;
-        this.simulationLogger = SimulationLoggerProvider.getLogger(simulation);
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
@@ -46,7 +41,6 @@ public class ActiveSimulationContext implements SimulationContext {
         this.simulation = checkNotNull(simulation);
         this.id = id;
         this.firstStep = firstStep;
-        this.simulationLogger = SimulationLoggerProvider.getLogger(simulation);
     }
 
     @Override
@@ -106,9 +100,10 @@ public class ActiveSimulationContext implements SimulationContext {
     }
 
     @Override
-    public void logEvent(AgentEvent event) {
-        simulationLogger.addEvent(event);
-        LOGGER.debug("Event sent to logger: {}", event);
+    public void logEvent(Agent agent, Object eventOrigin, String title, String message) {
+        final Object2D projection = agent.getProjection();
+        assert projection != null;
+        simulation.createEvent(id, agent.getPopulation().getName(), projection.getCoordinates(), eventOrigin, title, message);
     }
 
     private boolean tryToExecute(GFAction action) {

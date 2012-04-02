@@ -3,6 +3,8 @@ package org.asoem.greyfish.core.io;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static org.mockito.Mockito.mock;
 
 /**
@@ -16,7 +18,7 @@ public class BerkeleyLoggerTest {
     public void testAddEvent() throws Exception {
         // given
         BerkeleyLogger berkeleyLogger = new BerkeleyLogger(mock(Simulation.class));
-        AgentEvent agentEvent = new AgentEvent("TestSimulation", 42, 1, "TestPopulation", "BerkeleyLoggerTest", "TestEvent", "Lorem ipsum", new double[] {2.5435, 0.54534});
+        AgentEvent agentEvent = new AgentEvent(0, UUID.randomUUID(), 42, 1, "TestPopulation", new double[] {2.5435, 0.54534}, "BerkeleyLoggerTest", "TestEvent", "Lorem ipsum");
 
         // when
         berkeleyLogger.addEvent(agentEvent);

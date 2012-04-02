@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -10,6 +10,7 @@ import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.space.Location2D;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * User: christoph
@@ -66,4 +67,8 @@ public interface Simulation extends HasName {
     void deliverMessage(ACLMessage<Agent> message);
 
     void shutdown();
+
+    UUID getUUID();
+
+    void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
 }

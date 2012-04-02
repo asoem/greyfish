@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.io.AgentEvent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
 import javax.annotation.Nullable;
@@ -25,5 +24,5 @@ public interface SimulationContext {
 
     void execute(Agent agent);
 
-    void logEvent(AgentEvent event);
+    void logEvent(Agent agent, Object eventOrigin, String title, String message);
 }

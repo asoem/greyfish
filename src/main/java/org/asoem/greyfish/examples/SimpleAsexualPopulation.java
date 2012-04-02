@@ -54,10 +54,10 @@ public class SimpleAsexualPopulation {
 
         ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
             @Override
-            public boolean apply(@Nullable ParallelizedSimulation parallelizedSimulation) {
-                assert parallelizedSimulation != null;
-                System.out.println(parallelizedSimulation.countAgents());
-                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getSteps() == 100000;
+            public boolean apply(@Nullable ParallelizedSimulation simulation) {
+                assert simulation != null;
+                System.out.println(simulation.countAgents());
+                return simulation.countAgents() == 0 || simulation.getSteps() == 100000;
             }
         });
     }

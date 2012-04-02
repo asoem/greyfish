@@ -19,6 +19,8 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.AgentEvent;
+import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggerProvider;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -90,6 +92,10 @@ public class ParallelizedSimulation implements Simulation {
 
     private final Set<Agent> prototypes;
 
+    private final UUID uuid = UUID.randomUUID();
+
+    private final SimulationLogger simulationLogger = SimulationLoggerProvider.getLogger(this);
+
     @Nullable
     private Agent getPrototype(final Population population) {
         return Iterables.find(prototypes, new Predicate<Agent>() {
@@ -101,7 +107,9 @@ public class ParallelizedSimulation implements Simulation {
         }, null);
     }
 
-    private final AtomicInteger maxId = new AtomicInteger();
+    private final AtomicInteger agentIdSequence = new AtomicInteger();
+
+    private final AtomicInteger eventIdSequence = new AtomicInteger();
 
     /**
      * 
@@ -265,7 +273,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public int generateAgentID() {
-        return maxId.incrementAndGet();
+        return agentIdSequence.incrementAndGet();
     }
 
     @Override
@@ -394,6 +402,19 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public void shutdown() {
         SimulationLoggerProvider.getLogger(this).close();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    @Override
+    public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
+        simulationLogger.addEvent(new AgentEvent(
+                eventIdSequence.incrementAndGet(), uuid, steps,
+                agentId, populationName, coordinates,
+                eventOrigin.getClass().getSimpleName(), title, message));
     }
 
     /**
