@@ -2,6 +2,7 @@ package org.asoem.greyfish.examples;
 
 import com.google.common.base.Predicate;
 import com.google.common.primitives.Doubles;
+import com.google.inject.Guice;
 import javolution.lang.MathLib;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.actions.ClonalReproductionAction;
@@ -11,7 +12,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Avatar;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -34,16 +35,13 @@ public class SimpleAsexualPopulation {
     DescriptiveStatistics stepsPerSecondStatistics = new DescriptiveStatistics();
 
     public SimpleAsexualPopulation() {
-
-        CoreInjectorHolder.coreInjector();
-
         Agent prototype = ImmutableAgent.of(Population.named("AsexualPopulation"))
                 .addActions(
                         ClonalReproductionAction.with()
                                 .name("clone")
                                 .nClones(compile("1"))
                                 .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 1000.0")),
+                                        evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0")),
                                         evaluate(compile("$('#clone.stepsSinceLastExecution') >= 10"))))
                                 .build(),
                         DeathAction.with()
@@ -86,7 +84,7 @@ public class SimpleAsexualPopulation {
     }
 
     public static void main(String[] args) {
-        new SimpleAsexualPopulation();
-
+        Guice.createInjector(new CoreModule())
+                .getInstance(SimpleAsexualPopulation.class);
     }
 }

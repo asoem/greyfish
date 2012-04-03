@@ -48,23 +48,28 @@ public class ParallelIterables {
             return new RecursiveAction() {
                 @Override
                 protected void compute() {
-                    if (Iterables.size(iterable) < threshold) {
+                    if (Iterables.size(iterable) <= threshold) {
                         for (T element : iterable)
                             voidFunction.apply(element);
                     }
                     else {
-                        invokeAll(ImmutableList.copyOf(Iterables.transform(Iterables.partition(iterable, threshold), new Function<List<T>, RecursiveAction>() {
-                            @Override
-                            public RecursiveAction apply(final List<T> elements) {
-                                return new RecursiveAction() {
-                                    @Override
-                                    protected void compute() {
-                                        for (T element : elements)
-                                            voidFunction.apply(element);
-                                    }
-                                };
-                            }
-                        })));
+                        final ImmutableList<RecursiveAction> tasks = ImmutableList.copyOf(
+                                Iterables.transform(
+                                        Iterables.partition(iterable, threshold),
+                                        new Function<List<T>, RecursiveAction>() {
+                                            @Override
+                                            public RecursiveAction apply(final List<T> elements) {
+                                                return new RecursiveAction() {
+                                                    @Override
+                                                    protected void compute() {
+                                                        for (T element : elements)
+                                                            voidFunction.apply(element);
+                                                    }
+                                                };
+                                            }
+                                        }));
+
+                        invokeAll(tasks);
                     }
                 }
             };

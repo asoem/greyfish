@@ -1,8 +1,9 @@
 package org.asoem.greyfish.utils.math;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.VanillaExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +23,7 @@ public class EvaluatingMarkovChainTest {
     private VanillaExpressionFactory expressionFactory;
 
     public EvaluatingMarkovChainTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test
