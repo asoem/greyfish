@@ -82,6 +82,9 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     public ExecutionResult execute(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
 
+        assert timeOfLastExecution < simulation.getSteps() :
+                "actions must not get executed twice per step: " + timeOfLastExecution + " >= " + simulation.getSteps();
+
         try {
             if (isDormant()) {
                 if (!evaluateCondition(simulation)) {
@@ -92,7 +95,6 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
                     if (energySource.get().compareTo(evaluatedCostsFormula) < 0)
                         return INSUFFICIENT_ENERGY;
                 }
-
             }
 
             this.actionState = executeUnconditioned(simulation);
@@ -151,7 +153,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         if (rootCondition != null)
             rootCondition.prepare(simulation);
         executionCount = 0;
-        timeOfLastExecution = simulation.getSteps();
+        timeOfLastExecution = -1;
     }
 
     @Override

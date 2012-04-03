@@ -1,8 +1,9 @@
 package org.asoem.greyfish.core.space;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.asoem.greyfish.utils.space.ImmutableLocation2D;
@@ -22,7 +23,7 @@ public class TiledSpaceTest {
     private Persister persister;
 
     public TiledSpaceTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test

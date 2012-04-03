@@ -4,17 +4,16 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.ImmutableLocation2D;
-import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.fest.assertions.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +25,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static org.asoem.greyfish.core.space.TiledSpace.ofSize;
 import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -41,7 +39,7 @@ public class BasicScenarioTest {
     private Persister persister;
 
     public BasicScenarioTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test

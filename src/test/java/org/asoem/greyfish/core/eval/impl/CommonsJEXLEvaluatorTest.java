@@ -1,8 +1,9 @@
 package org.asoem.greyfish.core.eval.impl;
 
+import com.google.inject.Guice;
 import org.asoem.greyfish.core.eval.Evaluator;
 import org.asoem.greyfish.core.eval.VariableResolver;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -16,7 +17,7 @@ import static org.mockito.Mockito.mock;
 public class CommonsJEXLEvaluatorTest {
 
     public CommonsJEXLEvaluatorTest() {
-        CoreInjectorHolder.coreInjector();
+        Guice.createInjector(new CoreModule());
     }
 
     @Test

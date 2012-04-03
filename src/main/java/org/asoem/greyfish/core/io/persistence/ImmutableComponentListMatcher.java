@@ -4,8 +4,6 @@ import org.asoem.greyfish.core.individual.ImmutableComponentList;
 import org.simpleframework.xml.convert.Converter;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
-import org.simpleframework.xml.transform.Matcher;
-import org.simpleframework.xml.transform.Transform;
 
 import java.util.ArrayList;
 import java.util.List;

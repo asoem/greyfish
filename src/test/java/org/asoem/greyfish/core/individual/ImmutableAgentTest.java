@@ -1,10 +1,11 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.actions.NullAction;
 import org.asoem.greyfish.core.genes.*;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -41,7 +42,7 @@ public class ImmutableAgentTest {
     private Persister persister;
 
     public ImmutableAgentTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test(expected = UnsupportedOperationException.class)

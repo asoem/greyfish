@@ -1,8 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class ResourceConsumptionActionTest {
     private Persister persister;
 
     public ResourceConsumptionActionTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test

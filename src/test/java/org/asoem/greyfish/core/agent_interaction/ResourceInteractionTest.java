@@ -1,13 +1,14 @@
 package org.asoem.greyfish.core.agent_interaction;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Guice;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
@@ -31,7 +32,7 @@ public class ResourceInteractionTest {
     Population population;
 
     public ResourceInteractionTest() {
-        CoreInjectorHolder.coreInjector();
+        Guice.createInjector(new CoreModule());
     }
 
     @Test

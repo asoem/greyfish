@@ -2,16 +2,16 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
-
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class ConditionalStatesPropertyTest {
     private Persister persister;
 
     public ConditionalStatesPropertyTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
     @Test
     public void testPersistence() throws Exception {

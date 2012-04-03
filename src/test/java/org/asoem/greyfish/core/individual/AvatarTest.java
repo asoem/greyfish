@@ -1,7 +1,8 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -26,7 +27,7 @@ public class AvatarTest {
     private Persister persister;
 
     public AvatarTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test

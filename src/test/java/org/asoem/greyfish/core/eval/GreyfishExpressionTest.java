@@ -1,8 +1,9 @@
 package org.asoem.greyfish.core.eval;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.impl.EvaluatorFake;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class GreyfishExpressionTest {
     private Persister persister;
 
     public GreyfishExpressionTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test(expected = NullPointerException.class)

@@ -2,11 +2,12 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.inject.CoreInjectorHolder;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.space.TileDirection;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -29,7 +30,7 @@ public class ParallelizedSimulationTest {
     private Persister persister;
 
     public ParallelizedSimulationTest() {
-        CoreInjectorHolder.coreInjector().injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
     
     @SuppressWarnings("unchecked")

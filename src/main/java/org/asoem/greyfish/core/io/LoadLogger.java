@@ -12,9 +12,9 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
  */
 public class LoadLogger implements SimulationLogger {
 
-    DescriptiveStatistics statistics = new DescriptiveStatistics();
+    private final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
-    int logCount = 0;
+    private int logCount = 0;
 
     private final Service service = new AbstractExecutionThreadService() {
 
@@ -24,6 +24,11 @@ public class LoadLogger implements SimulationLogger {
             while (isRunning()) {
                 Thread.sleep(1000);
                 statistics.addValue(logCount);
+
+                if (logCount > 1000) {
+                    logCount = 0;
+                }
+
                 logCount = 0;
             }
         }

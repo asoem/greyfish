@@ -4,7 +4,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.collect.TreeNode;
 import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;

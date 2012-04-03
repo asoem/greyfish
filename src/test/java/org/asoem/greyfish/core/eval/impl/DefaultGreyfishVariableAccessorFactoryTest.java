@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.eval.impl;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ActiveSimulationContext;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.junit.Before;
