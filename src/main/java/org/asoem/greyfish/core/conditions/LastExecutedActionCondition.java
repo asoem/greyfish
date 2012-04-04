@@ -33,7 +33,7 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(Simulation simulation) {
+    public boolean evaluate(Simulation simulation) {
         return isSameAction(action, agent().getLastExecutedAction());
     }
 

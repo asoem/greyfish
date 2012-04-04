@@ -21,7 +21,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(Simulation simulation) {
+    public boolean evaluate(Simulation simulation) {
         return Math.random() < probability;
     }
 

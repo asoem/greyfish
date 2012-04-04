@@ -15,7 +15,7 @@ public class AgentConditions {
         return new LeafCondition() {
 
             @Override
-            public boolean apply(Simulation simulation) {
+            public boolean evaluate(Simulation simulation) {
                 synchronized (this) {
                     return objectPredicate.apply(simulation);
                 }

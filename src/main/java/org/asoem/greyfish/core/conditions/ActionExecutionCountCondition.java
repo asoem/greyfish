@@ -32,7 +32,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
     @Override
 	protected Integer getCompareValue(Simulation simulation) {
-		return action.getExecutionCount();
+		return action.getSuccessCount();
 	}
 
 	@Override

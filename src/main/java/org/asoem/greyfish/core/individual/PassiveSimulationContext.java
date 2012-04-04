@@ -15,7 +15,7 @@ public enum PassiveSimulationContext implements SimulationContext {
     INSTANCE;
 
     @Override
-    public int getFirstStep() {
+    public int getActivationStep() {
         throw new UnsupportedOperationException();
     }
 

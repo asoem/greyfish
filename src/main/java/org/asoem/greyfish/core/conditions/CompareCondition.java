@@ -29,7 +29,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     }
 
     @Override
-    public boolean apply(Simulation simulation) {
+    public boolean evaluate(Simulation simulation) {
         return comparator.compare(getCompareValue(simulation), value);
     }
 

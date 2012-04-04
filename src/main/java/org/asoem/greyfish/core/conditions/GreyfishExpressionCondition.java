@@ -42,7 +42,7 @@ public class GreyfishExpressionCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(@Nullable Simulation simulation) {
+    public boolean evaluate(@Nullable Simulation simulation) {
         return expression.evaluateForContext(this).asBoolean();
     }
 

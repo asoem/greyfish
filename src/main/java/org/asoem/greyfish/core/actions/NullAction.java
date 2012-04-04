@@ -15,9 +15,9 @@ public class NullAction extends AbstractGFAction {
     }
 
     @Override
-    protected ActionState executeUnconditioned(Simulation simulation) {
+    protected ActionState proceed(Simulation simulation) {
         /* NOP */
-        return ActionState.END_SUCCESS;
+        return ActionState.SUCCESS;
     }
 
     protected NullAction(AbstractBuilder<?,?> builder) {

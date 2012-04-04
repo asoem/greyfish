@@ -268,7 +268,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public int getTimeOfBirth() {
-        return simulationContext.getFirstStep();
+        return simulationContext.getActivationStep();
     }
 
     @Override

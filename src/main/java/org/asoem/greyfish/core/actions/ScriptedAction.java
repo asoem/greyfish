@@ -38,10 +38,10 @@ public class ScriptedAction extends AbstractGFAction {
     }
 
     @Override
-    protected ActionState executeUnconditioned(Simulation simulation) {
+    protected ActionState proceed(Simulation simulation) {
         assert script != null;
         script.evaluateForContext(this);
-        return ActionState.END_SUCCESS;
+        return ActionState.SUCCESS;
     }
 
     @Override

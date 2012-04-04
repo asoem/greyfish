@@ -6,8 +6,11 @@ package org.asoem.greyfish.core.actions.utils;
 * Time: 10:29
 */
 public enum ActionState {
-    DORMANT,
-    ACTIVE,
-    END_SUCCESS,
-    END_FAILED,
+    INITIAL,
+    PRECONDITIONS_MET,
+    INTERMEDIATE,
+    SUCCESS,
+    ABORTED,
+    PRECONDITIONS_FAILED,
+    INSUFFICIENT_ENERGY
 }

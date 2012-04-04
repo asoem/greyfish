@@ -35,7 +35,7 @@ public class DoubleProperty extends AbstractRangeElementProperty<Double> impleme
 	}
 
 	public void subtract(double val) {
-		setValue(value - val);
+        setValue(value - val);
 	}
 	
 	public void add(Double val) {

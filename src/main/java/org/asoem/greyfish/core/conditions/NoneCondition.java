@@ -23,15 +23,15 @@ public class NoneCondition extends BranchCondition {
     }
 
     @Override
-    public boolean apply(final Simulation simulation) {
+    public boolean evaluate(final Simulation simulation) {
         switch (conditions.size()) {
             case 0 : return true;
-            case 1 : return ! conditions.get(0).apply(simulation);
-            case 2 : return ! conditions.get(0).apply(simulation) && ! conditions.get(1).apply(simulation);
+            case 1 : return ! conditions.get(0).evaluate(simulation);
+            case 2 : return ! conditions.get(0).evaluate(simulation) && ! conditions.get(1).evaluate(simulation);
             default : return ! Iterables.any(conditions, new Predicate<GFCondition>() {
                 @Override
                 public boolean apply(GFCondition condition) {
-                    return condition.apply(simulation);
+                    return condition.evaluate(simulation);
                 }
             });
         }

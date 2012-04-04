@@ -24,26 +24,19 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     private boolean endStateReached = false;
 
     @Override
-    protected final ActionState executeUnconditioned(Simulation simulation) {
+    protected final ActionState proceed(Simulation simulation) {
 
         if (endStateReached)
             resetTransition();
 
-        try {
-            executeState(nextStateKey, simulation);
-        }
-        catch (RuntimeException e) {
-            endStateReached = true;
-            LOGGER.error("Caught exception during execution in state {} for simulation {}", nextStateKey, simulation, e);
-            return ActionState.END_FAILED;
-        }
+        executeState(nextStateKey, simulation);
 
         ++statefulExecutionCount;
 
         if (endStateReached)
-            return ActionState.END_SUCCESS;
+            return ActionState.SUCCESS;
         else
-            return ActionState.ACTIVE;
+            return ActionState.INTERMEDIATE;
     }
 
     protected abstract Object initialState();
@@ -96,8 +89,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
      * Won't report the number af actual invocations of this {@code FiniteStateAction}. Use {@link #getStatefulExecutionCount}
      */
     @Override
-    public int getExecutionCount() {
-        return super.getExecutionCount();
+    public int getSuccessCount() {
+        return super.getSuccessCount();
     }
 
     public int getStatefulExecutionCount() {

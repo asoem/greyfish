@@ -26,7 +26,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected ActionState executeUnconditioned(Simulation simulation) {
+    protected ActionState proceed(Simulation simulation) {
         final Location2D locatable = agent().getProjection();
         final Population population = agent().getPopulation();
 
@@ -37,7 +37,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
             agent().logEvent(this, "offspringProduced", "");
         }
-        return ActionState.END_SUCCESS;
+        return ActionState.SUCCESS;
     }
 
     @Override

@@ -67,6 +67,6 @@ public class ParallelizedSimulationTest {
         final ParallelizedSimulation copy = Persisters.createCopy(simulation, ParallelizedSimulation.class, persister);
 
         // then
-        assertThat(copy).isEqualTo(simulation);
+        assertThat(copy).isEqualTo(simulation); // TODO: Overwritten equals was removed. Fix this test
     }
 }

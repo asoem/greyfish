@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
@@ -45,6 +46,10 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
     public void setValue(E amount) {
         checkNotNull(amount);
+
+        if (Objects.equal(value, amount))
+            return;
+
         if (Ordering.natural().isOrdered(ImmutableList.of(lowerBound, amount, upperBound))) {
             this.value = amount;
         }

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -10,30 +9,72 @@ import javax.annotation.Nullable;
 
 public interface GFAction extends AgentComponent {
 
-	public boolean evaluateCondition(Simulation simulation);
-	
-	public ExecutionResult execute(Simulation simulation);
-
-    public ActionState getActionState();
+    /**
+     * Check if all precondition are met for this action.
+     * If so, the action will be in state {@link ActionState#PRECONDITIONS_MET} afterwards,
+     * in {@link ActionState#PRECONDITIONS_FAILED} otherwise.
+     *
+     * @param simulation the context
+     * @return {@code true}, if all preconditions are met
+     */
+    boolean checkPreconditions(Simulation simulation);
 
     /**
-     * @return the number of times this {@code GFAction} was executed when in {@link org.asoem.greyfish.core.actions.utils.ActionState#DORMANT}
+     * Apply the action on it's agent in the given simulation context
+     *
+     * @param simulation the context of this action
+     * @return the result of the application
      */
-	public int getExecutionCount();
-	
-//	public boolean isLast();
-	
+    public ActionState apply(Simulation simulation);
+
+    /**
+     * Reset this action, so that it will be in state {@link ActionState#INITIAL} afterwards.
+     */
+    void reset();
+
+    /**
+     * Set the condition set for this action
+     * @param rootCondition the condition set for this action
+     */
+    public void setCondition(@Nullable GFCondition rootCondition);
+
+    /**
+     * Get the condition set for this action
+     * @return the condition set for this action or {@code null}
+     */
+    @Nullable
+    public GFCondition getCondition();
+
+    /**
+     * Evaluate the this action's condition.
+     *
+     * @param simulation the context of this action
+     * @return {@code true} if this action's condition is {@code null} or evaluates
+     * ({@link GFCondition#evaluate(org.asoem.greyfish.core.simulation.Simulation)}) to {@code true},
+     * {@code false} otherwise.
+     */
+	public boolean evaluateCondition(Simulation simulation);
+
+
+    /**
+     * @return the number of times this {@code GFAction} was executed when in
+     * {@link org.asoem.greyfish.core.actions.utils.ActionState#INITIAL}
+     */
+	public int getSuccessCount();
+
+    /**
+     *
+     * @param simulation
+     * @param steps
+     * @return
+     */
 	public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps);
 
-    public void setRootCondition(GFCondition rootCondition);
-
-    @Nullable
-    public GFCondition getRootCondition();
-
-	/*
-	 * Check if the Action has completed its task.
-	 */
-	public boolean isDormant();
-
+    /**
+     *
+     * @return
+     */
     int stepsSinceLastExecution();
+
+    ActionState getState();
 }

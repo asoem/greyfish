@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
@@ -25,7 +24,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.actions.utils.ExecutionResult.*;
+import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
 @Root
 public abstract class AbstractGFAction extends AbstractAgentComponent implements GFAction {
@@ -41,15 +40,17 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     @Element(name="energy_source", required=false)
     private DoubleProperty energySource;
 
-    private int executionCount;
+    private int successCount;
 
-    private int timeOfLastExecution;
+    private int stepAtLastSuccess;
 
-    private double evaluatedCostsFormula;
+    private double costsOnSuccess;
+
+    private ActionState actionState = ActionState.INITIAL;
 
     protected AbstractGFAction(AbstractGFAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = map.cloneField(cloneable.getRootCondition(), GFCondition.class);
+        this.rootCondition = map.cloneField(cloneable.getCondition(), GFCondition.class);
         this.energySource = map.cloneField(cloneable.energySource, DoubleProperty.class);
         this.energyCosts = cloneable.energyCosts;
     }
@@ -62,15 +63,8 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public ActionState getActionState() {
-        return actionState;
-    }
-
-    private ActionState actionState = ActionState.DORMANT;
-
-    @Override
     public final boolean evaluateCondition(Simulation simulation) {
-        return rootCondition == null || rootCondition.apply(simulation);
+        return rootCondition == null || rootCondition.evaluate(simulation);
     }
 
     /**
@@ -78,100 +72,115 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
      * @param simulation the simulation context
      */
     @Override
-    public ExecutionResult execute(Simulation simulation) {
+    public ActionState apply(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
 
-        assert timeOfLastExecution < simulation.getCurrentStep() :
-                "actions must not get executed twice per step: " + timeOfLastExecution + " >= " + simulation.getCurrentStep();
+        assert stepAtLastSuccess < simulation.getCurrentStep() :
+                "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + simulation.getCurrentStep();
 
-        try {
-            if (isDormant()) {
-                if (!evaluateCondition(simulation)) {
-                    return CONDITIONS_FAILED;
-                }
-                if (hasCosts()) {
-                    evaluatedCostsFormula = energyCosts.evaluateForContext(this).asDouble();
-                    if (energySource.get().compareTo(evaluatedCostsFormula) < 0)
-                        return INSUFFICIENT_ENERGY;
-                }
+        if (INITIAL == actionState)
+            checkPreconditions(simulation);
+
+        if (PRECONDITIONS_MET == actionState
+                || INTERMEDIATE == actionState) {
+
+            final ActionState state = proceed(simulation);
+
+            switch (state) {
+
+                case SUCCESS:
+                    onSuccess(simulation);
+                    break;
             }
 
-            this.actionState = executeUnconditioned(simulation);
-            // TODO: currently only two states are sufficient. Change to boolean?
+            setState(state);
+        }
 
-            switch (actionState) {
-                case ACTIVE:
-                    return EXECUTED;
-                case END_FAILED:
-                    actionState = ActionState.DORMANT;
-                    return ERROR;
-                case END_SUCCESS:
-                    postExecutionTasks(simulation);
-                    actionState = ActionState.DORMANT;
-                    return EXECUTED;
-                default:
-                    throw new RuntimeException("Overwritten method executeUnconditioned() must not return " + actionState + " in " + this);
-            }
-        }
-        catch (RuntimeException e) {
-            LOGGER.error("Execution error in {} with simulation = {}.", this, simulation, e);
-            throw e;
-        }
+        return actionState;
     }
 
-    private boolean hasCosts() {
+    protected abstract ActionState proceed(Simulation simulation);
+
+    protected void setState(ActionState state) {
+        assert state != null;
+        actionState = state;
+    }
+
+    @Override
+    public void reset() {
+        setState(INITIAL);
+        costsOnSuccess = -1;
+    }
+
+    @Override
+    public boolean checkPreconditions(Simulation simulation) {
+        final boolean preconditionsMet = evaluateCondition(simulation) && checkCosts();
+        if (preconditionsMet)
+            setState(PRECONDITIONS_MET);
+        else
+            setState(PRECONDITIONS_FAILED);
+        return preconditionsMet;
+    }
+
+    @Override
+    public ActionState getState() {
+        return actionState;
+    }
+
+    private void calculateCosts() {
+        costsOnSuccess = energyCosts.evaluateForContext(this).asDouble();
+    }
+
+    private boolean checkCosts() {
+        if (generatesCosts()) {
+            calculateCosts();
+            return energySource.get().compareTo(costsOnSuccess) < 0;
+        }
+        else
+            return true;
+    }
+
+    private boolean generatesCosts() {
         return energySource != null && energyCosts != null;
     }
 
-    private void postExecutionTasks(Simulation simulation) {
-        ++executionCount;
-        timeOfLastExecution = simulation.getCurrentStep();
+    private void onSuccess(Simulation simulation) {
+        ++successCount;
+        stepAtLastSuccess = simulation.getCurrentStep();
 
-        if (actionState == ActionState.END_SUCCESS)
-            if (hasCosts()) {
-                if (evaluatedCostsFormula != 0) {
-                    energySource.subtract(evaluatedCostsFormula);
-                    LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining",
-                            this, evaluatedCostsFormula, energySource.getName(), energySource.get());
-                }
-            }
+        if (generatesCosts()) {
+            energySource.subtract(costsOnSuccess);
+            LOGGER.debug("{}: Subtracted {} execution costs from {}: {} remaining",
+                    this, costsOnSuccess, energySource.getName(), energySource.get());
+        }
     }
-
-    /**
-     * In this method the behaviour of this action is implemented. This method should not be called directly.
-     *
-     *
-     * @param simulation the simulation context
-     * @return the state in which this action should be after execution
-     */
-    protected abstract ActionState executeUnconditioned(Simulation simulation);
 
     @Override
     public void prepare(Simulation simulation) {
         super.prepare(simulation);
         if (rootCondition != null)
             rootCondition.prepare(simulation);
-        executionCount = 0;
-        timeOfLastExecution = -1;
+        successCount = 0;
+        stepAtLastSuccess = -1;
     }
 
     @Nullable
     @Element(name="condition", required=false)
-    public GFCondition getRootCondition() {
+    public GFCondition getCondition() {
         return rootCondition;
     }
 
     @Element(name="condition", required=false)
     @Override
-    public void setRootCondition(@Nullable GFCondition rootCondition) {
+    public void setCondition(@Nullable GFCondition rootCondition) {
         this.rootCondition = rootCondition;
         if (rootCondition != null)
             rootCondition.setAgent(this.getAgent());
     }
 
     @Override
-    public int getExecutionCount() {
-        return this.executionCount;
+    public int getSuccessCount() {
+        return this.successCount;
     }
 
     @Override
@@ -210,18 +219,13 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
-        // TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
-        return simulation.getCurrentStep() - timeOfLastExecution >= steps;
-    }
-
-    @Override
-    public final boolean isDormant() {
-        return actionState == ActionState.DORMANT;
+        // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
+        return simulation.getCurrentStep() - stepAtLastSuccess >= steps;
     }
 
     @Override
     public int stepsSinceLastExecution() {
-        return agent().getSimulationContext().getSimulation().getCurrentStep() - timeOfLastExecution;
+        return agent().getSimulationContext().getSimulation().getCurrentStep() - stepAtLastSuccess;
     }
 
     @Override
@@ -231,7 +235,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     @Override
     public Iterable<AgentComponent> children() {
-        return rootCondition != null ? Collections.<AgentComponent>singletonList(getRootCondition()) : Collections.<AgentComponent>emptyList();
+        return rootCondition != null ? Collections.<AgentComponent>singletonList(getCondition()) : Collections.<AgentComponent>emptyList();
     }
 
     @Override
@@ -242,9 +246,9 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
         AbstractGFAction that = (AbstractGFAction) o;
 
-        if (Double.compare(that.evaluatedCostsFormula, evaluatedCostsFormula) != 0) return false;
-        if (executionCount != that.executionCount) return false;
-        if (timeOfLastExecution != that.timeOfLastExecution) return false;
+        if (Double.compare(that.costsOnSuccess, costsOnSuccess) != 0) return false;
+        if (successCount != that.successCount) return false;
+        if (stepAtLastSuccess != that.stepAtLastSuccess) return false;
         if (actionState != that.actionState) return false;
         if (energyCosts != null ? !energyCosts.equals(that.energyCosts) : that.energyCosts != null) return false;
         if (energySource != null ? !energySource.equals(that.energySource) : that.energySource != null) return false;
@@ -261,9 +265,9 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         result = 31 * result + (rootCondition != null ? rootCondition.hashCode() : 0);
         result = 31 * result + (energyCosts != null ? energyCosts.hashCode() : 0);
         result = 31 * result + (energySource != null ? energySource.hashCode() : 0);
-        result = 31 * result + executionCount;
-        result = 31 * result + timeOfLastExecution;
-        temp = evaluatedCostsFormula != +0.0d ? Double.doubleToLongBits(evaluatedCostsFormula) : 0L;
+        result = 31 * result + successCount;
+        result = 31 * result + stepAtLastSuccess;
+        temp = costsOnSuccess != +0.0d ? Double.doubleToLongBits(costsOnSuccess) : 0L;
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (actionState != null ? actionState.hashCode() : 0);
         return result;

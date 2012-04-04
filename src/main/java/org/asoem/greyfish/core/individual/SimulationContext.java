@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
  * Time: 13:07
  */
 public interface SimulationContext {
-    int getFirstStep();
+    int getActivationStep();
 
     @Nullable
     GFAction getLastExecutedAction();

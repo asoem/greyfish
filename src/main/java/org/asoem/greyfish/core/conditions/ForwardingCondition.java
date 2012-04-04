@@ -120,7 +120,7 @@ public abstract class ForwardingCondition extends ForwardingObject implements GF
     }
 
     @Override
-    public boolean apply(@Nullable Simulation simulation) {
-        return delegate().apply(simulation);
+    public boolean evaluate(@Nullable Simulation simulation) {
+        return delegate().evaluate(simulation);
     }
 }

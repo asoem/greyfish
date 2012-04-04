@@ -28,13 +28,13 @@ public class SimpleMovementAction extends AbstractGFAction {
     }
 
     @Override
-    protected ActionState executeUnconditioned(Simulation simulation) {
+    protected ActionState proceed(Simulation simulation) {
         final double angle = rotation.evaluateForContext(this).asDouble();
         final double velocity = speed.evaluateForContext(this).asDouble();
 
         agent().setMotion(ImmutableMotion2D.of(angle, velocity));
 
-        return ActionState.END_SUCCESS;
+        return ActionState.SUCCESS;
     }
 
     @Override

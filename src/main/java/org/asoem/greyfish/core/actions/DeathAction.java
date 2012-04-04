@@ -14,11 +14,11 @@ public class DeathAction extends AbstractGFAction {
 	}
 
 	@Override
-	protected ActionState executeUnconditioned(Simulation simulation) {
+	protected ActionState proceed(Simulation simulation) {
 		simulation.removeAgent(agent());
 
         agent().logEvent(this, "dies", "");
-        return ActionState.END_SUCCESS;
+        return ActionState.SUCCESS;
 	}
 
     @Override

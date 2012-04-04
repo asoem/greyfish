@@ -24,9 +24,9 @@ public class ChangeBodyAction extends AbstractGFAction {
     }
 
     @Override
-    protected ActionState executeUnconditioned(Simulation simulation) {
+    protected ActionState proceed(Simulation simulation) {
         agent().setColor(color);
-        return ActionState.END_SUCCESS;
+        return ActionState.SUCCESS;
     }
 
     @Override

@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
+import static org.asoem.greyfish.core.actions.utils.ActionState.SUCCESS;
 
 @ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
@@ -53,9 +55,9 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    protected ActionState executeUnconditioned(Simulation simulation) {
+    protected ActionState proceed(Simulation simulation) {
         if (spermStorage.isEmpty())
-            return ActionState.END_FAILED;
+            return ABORTED;
 
         LOGGER.debug("Producing {} offspring ", clutchSize);
 
@@ -73,7 +75,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         offspringCount += eggCount;
 
-        return ActionState.END_SUCCESS;
+        return SUCCESS;
     }
 
     @Override

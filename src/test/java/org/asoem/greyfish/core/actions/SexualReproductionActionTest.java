@@ -49,6 +49,6 @@ public class SexualReproductionActionTest {
         assertThat(deserialized.getName()).isEqualTo("test");
         assertThat(deserialized.getClutchSize()).isEqualTo(fakeExpression);
         assertThat(deserialized.getSpermStorage()).isEqualTo(storage);
-        assertThat(deserialized.getRootCondition()).isInstanceOf(condition.getClass());
+        assertThat(deserialized.getCondition()).isInstanceOf(condition.getClass());
     }
 }

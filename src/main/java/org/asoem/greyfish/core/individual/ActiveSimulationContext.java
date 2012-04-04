@@ -1,8 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.actions.utils.ExecutionResult;
+import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -21,8 +20,8 @@ public class ActiveSimulationContext implements SimulationContext {
     @Element(name = "simulation")
     private final Simulation simulation;
 
-    @Attribute(name = "firstStep")
-    private final int firstStep;
+    @Attribute(name = "activationStep")
+    private final int activationStep;
 
     @Attribute(name = "id")
     private final int id;
@@ -36,19 +35,21 @@ public class ActiveSimulationContext implements SimulationContext {
     public ActiveSimulationContext(Simulation simulation) {
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
-        this.firstStep = simulation.getCurrentStep() + 1;
+        this.activationStep = simulation.getCurrentStep() + 1;
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    public ActiveSimulationContext(@Element(name = "simulation") Simulation simulation, @Attribute(name = "firstStep") int firstStep, @Attribute(name = "id") int id) {
+    public ActiveSimulationContext(@Element(name = "simulation") Simulation simulation,
+                                   @Attribute(name = "activationStep") int activationStep,
+                                   @Attribute(name = "id") int id) {
         this.simulation = checkNotNull(simulation);
         this.id = id;
-        this.firstStep = firstStep;
+        this.activationStep = activationStep;
     }
 
     @Override
-    public int getFirstStep() {
-        return firstStep;
+    public int getActivationStep() {
+        return activationStep;
     }
 
     @Override
@@ -69,42 +70,61 @@ public class ActiveSimulationContext implements SimulationContext {
 
     @Override
     public int getAge() {
-        assert simulation.getCurrentStep() >= firstStep;
-        return simulation.getCurrentStep() - firstStep;
+        assert simulation.getCurrentStep() >= activationStep;
+        return simulation.getCurrentStep() - activationStep;
     }
 
     @Override
     public void execute(Agent agent) {
 
+        assert agent.getSimulationContext() == this : "Expected the agent associated with this context";
         assert historyEntry == null || historyEntry.step < simulation.getCurrentStep();
 
+        GFAction nextAction = null;
+
         if (toResume != null) {
-            LOGGER.debug("{}: Resuming {}", this, toResume);
-            if (execute(toResume)) {
-                return;
-            } else {
-                LOGGER.debug("{}: Resume failed", this);
-                toResume = null;
-                // TODO: should the method return here?
-            }
+            nextAction = toResume;
         }
+        else {
+            for (GFAction action : agent.getActions()) {
 
-        LOGGER.trace("{}: Processing " + Iterables.size(agent.getActions()) + " actions in order", this);
+                assert action.getState() == ActionState.INITIAL :
+                        "There should be no action in resuming state";
 
-        for (GFAction action : agent.getActions()) {
-            assert action.isDormant() : "There should be no action in resuming state";
-
-            if (execute(action)) {
-                LOGGER.debug("{}: Executed {}", this, action);
-                if (action.isDormant())
-                    historyEntry = new HistoryEntry(simulation.getCurrentStep(), action);
+                if (action.checkPreconditions(simulation)) {
+                    nextAction = action;
+                    break;
+                }
                 else
-                    toResume = action;
-                return;
+                    action.reset();
             }
         }
 
-        LOGGER.trace("{}: Nothing to execute", this);
+        if (nextAction != null) {
+
+            LOGGER.debug("Agent #{}: Executing {}", id, nextAction);
+
+            final ActionState state = nextAction.apply(simulation);
+
+            LOGGER.trace("Agent #{}: Execution result {}", id, state);
+
+            switch (state) {
+
+                case INTERMEDIATE:
+                    toResume = nextAction;
+                    return;
+
+                case SUCCESS:
+                    historyEntry = new HistoryEntry(simulation.getCurrentStep(), toResume);
+
+                default:
+                    nextAction.reset();
+                    toResume = null;
+                    return;
+            }
+        }
+
+        LOGGER.debug("Could not execute anything for {}", agent);
     }
 
     @Override
@@ -112,35 +132,6 @@ public class ActiveSimulationContext implements SimulationContext {
         final Object2D projection = agent.getProjection();
         assert projection != null;
         simulation.createEvent(id, agent.getPopulation().getName(), projection.getCoordinates(), eventOrigin, title, message);
-    }
-
-    private boolean execute(GFAction action) {
-        assert action != null;
-
-        LOGGER.trace("{}: Trying to execute {}", this, action);
-
-        final ExecutionResult result = action.execute(simulation);
-
-        switch (result) {
-            case CONDITIONS_FAILED:
-                LOGGER.trace("FAILED: Attached conditions evaluated to false.");
-                return false;
-            case INSUFFICIENT_ENERGY:
-                LOGGER.trace("FAILED: Not enough energy.");
-                return false;
-            case ERROR:
-                LOGGER.trace("FAILED: Internal error.");
-                return false;
-            case EXECUTED:
-                LOGGER.trace("SUCCESS");
-                return true;
-            case FAILED:
-                LOGGER.trace("SUCCESS");
-                return true;
-            default:
-                assert false : "Code should never be reached";
-                return false;
-        }
     }
 
     private static class HistoryEntry {
