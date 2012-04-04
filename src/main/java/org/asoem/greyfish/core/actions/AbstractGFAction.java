@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.actions.utils.ExecutionResult;
 import org.asoem.greyfish.core.conditions.GFCondition;
-import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
@@ -82,8 +81,8 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     public ExecutionResult execute(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
 
-        assert timeOfLastExecution < simulation.getSteps() :
-                "actions must not get executed twice per step: " + timeOfLastExecution + " >= " + simulation.getSteps();
+        assert timeOfLastExecution < simulation.getCurrentStep() :
+                "actions must not get executed twice per step: " + timeOfLastExecution + " >= " + simulation.getCurrentStep();
 
         try {
             if (isDormant()) {
@@ -91,7 +90,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
                     return CONDITIONS_FAILED;
                 }
                 if (hasCosts()) {
-                    evaluatedCostsFormula = evaluateFormula(simulation);
+                    evaluatedCostsFormula = energyCosts.evaluateForContext(this).asDouble();
                     if (energySource.get().compareTo(evaluatedCostsFormula) < 0)
                         return INSUFFICIENT_ENERGY;
                 }
@@ -126,7 +125,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     private void postExecutionTasks(Simulation simulation) {
         ++executionCount;
-        timeOfLastExecution = simulation.getSteps();
+        timeOfLastExecution = simulation.getCurrentStep();
 
         if (actionState == ActionState.END_SUCCESS)
             if (hasCosts()) {
@@ -154,16 +153,6 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
             rootCondition.prepare(simulation);
         executionCount = 0;
         timeOfLastExecution = -1;
-    }
-
-    @Override
-    public double evaluateFormula(Simulation simulation) {
-        try {
-            return energyCosts.evaluateForContext(this).asDouble();
-        } catch (EvaluationException e) {
-            LOGGER.error("Costs formula could not be evaluated: {}.", energyCosts, e);
-            return 0;
-        }
     }
 
     @Nullable
@@ -222,7 +211,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
         // TODO: logical error: timeOfLastExecution = 0 does not mean, that it really did execute at 0
-        return simulation.getSteps() - timeOfLastExecution >= steps;
+        return simulation.getCurrentStep() - timeOfLastExecution >= steps;
     }
 
     @Override
@@ -232,7 +221,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     @Override
     public int stepsSinceLastExecution() {
-        return agent().getSimulationContext().getSimulation().getSteps() - timeOfLastExecution;
+        return agent().getSimulationContext().getSimulation().getCurrentStep() - timeOfLastExecution;
     }
 
     @Override

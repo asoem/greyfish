@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.io;
 
+import ch.systemsx.cisd.hdf5.CompoundElement;
 import com.google.common.primitives.Doubles;
 import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.PrimaryKey;
@@ -31,14 +32,19 @@ public class AgentEvent {
 
     private int simulationStep;
 
+    @CompoundElement(dimensions = 20)
     private String sourceOfEvent;
 
+    @CompoundElement(dimensions = 20)
     private String agentPopulationName;
 
+    @CompoundElement(dimensions = 2)
     private double[] locationInSpace;
 
+    @CompoundElement(dimensions = 20)
     private String eventTitle;
 
+    @CompoundElement(dimensions = 20)
     private String eventMessage;
 
     public AgentEvent(int eventId, UUID simulationId, int simulationStep, int agentId, String agentPopulationName, double[] locatable2D, String sourceOfEvent, String eventTitle, String eventMessage) {

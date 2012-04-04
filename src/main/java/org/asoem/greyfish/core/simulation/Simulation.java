@@ -55,7 +55,7 @@ public interface Simulation extends HasName {
 
     TiledSpace<Agent> getSpace();
 
-    int getSteps();
+    int getCurrentStep();
 
     /**
      * Proceed on step cycle and execute evaluates agents & commands

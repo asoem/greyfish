@@ -56,7 +56,7 @@ public class ParallelizedSimulation implements Simulation {
     private final TiledSpace<Agent> space;
 
     @Attribute
-    private int steps = -1;
+    private int currentStep = -1;
 
     @Attribute
     private String title = "untitled";
@@ -312,15 +312,15 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public int getSteps() {
-        return steps;
+    public int getCurrentStep() {
+        return currentStep;
     }
 
     @Override
     public synchronized void step() {
-        ++steps;
+        ++currentStep;
 
-        LOGGER.debug("{}: Entering step {}", this, steps);
+        LOGGER.debug("{}: Entering step {}", this, currentStep);
 
         executeAllAgents();
 
@@ -334,7 +334,7 @@ public class ParallelizedSimulation implements Simulation {
     private void processAgentMessageDelivery() {
         for (DeliverAgentMessageMessage message : deliverAgentMessageMessages) {
             for (Agent agent : message.message.getRecipients()) {
-                agent.receive(new AgentMessage(message.message, getSteps()));
+                agent.receive(new AgentMessage(message.message, getCurrentStep()));
             }
         }
         deliverAgentMessageMessages.clear();
@@ -380,7 +380,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public String toString() {
-        return "Simulation['" + getName() + "']@" + getSteps();
+        return "Simulation['" + getName() + "']@" + getCurrentStep();
     }
 
     @Override
@@ -412,7 +412,7 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
         simulationLogger.addEvent(new AgentEvent(
-                eventIdSequence.incrementAndGet(), uuid, steps,
+                eventIdSequence.incrementAndGet(), uuid, currentStep,
                 agentId, populationName, coordinates,
                 eventOrigin.getClass().getSimpleName(), title, message));
     }

@@ -28,12 +28,15 @@ public class ActiveSimulationContext implements SimulationContext {
     private final int id;
 
     @Nullable
-    private GFAction lastExecutedAction;
+    private GFAction toResume;
+
+    @Nullable
+    private HistoryEntry historyEntry;
 
     public ActiveSimulationContext(Simulation simulation) {
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
-        this.firstStep = simulation.getSteps() + 1;
+        this.firstStep = simulation.getCurrentStep() + 1;
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
@@ -51,7 +54,7 @@ public class ActiveSimulationContext implements SimulationContext {
     @Override
     @Nullable
     public GFAction getLastExecutedAction() {
-        return lastExecutedAction;
+        return historyEntry == null ? null : historyEntry.action;
     }
 
     @Override
@@ -66,20 +69,22 @@ public class ActiveSimulationContext implements SimulationContext {
 
     @Override
     public int getAge() {
-        assert simulation.getSteps() >= firstStep;
-        return simulation.getSteps() - firstStep;
+        assert simulation.getCurrentStep() >= firstStep;
+        return simulation.getCurrentStep() - firstStep;
     }
 
     @Override
     public void execute(Agent agent) {
-        if (lastExecutedAction != null &&
-                !lastExecutedAction.isDormant()) {
-            LOGGER.debug("{}: Resuming {}", this, lastExecutedAction);
-            if (tryToExecute(lastExecutedAction)) {
+
+        assert historyEntry == null || historyEntry.step < simulation.getCurrentStep();
+
+        if (toResume != null) {
+            LOGGER.debug("{}: Resuming {}", this, toResume);
+            if (execute(toResume)) {
                 return;
             } else {
                 LOGGER.debug("{}: Resume failed", this);
-                lastExecutedAction = null;
+                toResume = null;
                 // TODO: should the method return here?
             }
         }
@@ -89,9 +94,12 @@ public class ActiveSimulationContext implements SimulationContext {
         for (GFAction action : agent.getActions()) {
             assert action.isDormant() : "There should be no action in resuming state";
 
-            if (tryToExecute(action)) {
+            if (execute(action)) {
                 LOGGER.debug("{}: Executed {}", this, action);
-                lastExecutedAction = action;
+                if (action.isDormant())
+                    historyEntry = new HistoryEntry(simulation.getCurrentStep(), action);
+                else
+                    toResume = action;
                 return;
             }
         }
@@ -106,7 +114,7 @@ public class ActiveSimulationContext implements SimulationContext {
         simulation.createEvent(id, agent.getPopulation().getName(), projection.getCoordinates(), eventOrigin, title, message);
     }
 
-    private boolean tryToExecute(GFAction action) {
+    private boolean execute(GFAction action) {
         assert action != null;
 
         LOGGER.trace("{}: Trying to execute {}", this, action);
@@ -132,6 +140,16 @@ public class ActiveSimulationContext implements SimulationContext {
             default:
                 assert false : "Code should never be reached";
                 return false;
+        }
+    }
+
+    private static class HistoryEntry {
+        private final int step;
+        private final GFAction action;
+
+        private HistoryEntry(int step, GFAction action) {
+            this.step = step;
+            this.action = action;
         }
     }
 }

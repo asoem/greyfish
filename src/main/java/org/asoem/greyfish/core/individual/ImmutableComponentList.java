@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
@@ -36,7 +37,12 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     private ImmutableComponentList(ImmutableComponentList<E> list, final DeepCloner cloner) {
         cloner.addClone(this);
 
-        listDelegate = ImmutableList.copyOf(list.listDelegate);
+        listDelegate = ImmutableList.copyOf(Iterables.transform(list.listDelegate, new Function<E, E>() {
+            @Override
+            public E apply(@Nullable E e) {
+                return (E) cloner.cloneField(e, AgentComponent.class);
+            }
+        }));
     }
 
     @Override

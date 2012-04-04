@@ -78,8 +78,8 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public int getSteps() {
-        return delegate().getSteps();
+    public int getCurrentStep() {
+        return delegate().getCurrentStep();
     }
 
     @Override

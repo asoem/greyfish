@@ -30,7 +30,8 @@ public class ClonalReproductionAction extends AbstractGFAction {
         final Location2D locatable = agent().getProjection();
         final Population population = agent().getPopulation();
 
-        for (int i = 0; i < nClones.evaluateForContext(this).asInt(); i++) {
+        final int nClones = this.nClones.evaluateForContext(this).asInt();
+        for (int i = 0; i < nClones; i++) {
             final ImmutableChromosome<Gene<?>> gamete = ImmutableChromosome.mutatedCopyOf(agent().getChromosome());
             simulation.createAgent(population, gamete, locatable);
 

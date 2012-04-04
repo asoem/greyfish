@@ -29,9 +29,13 @@ public class HDF5Logger implements SimulationLogger {
 
     @Inject
     private HDF5Logger(@Assisted Simulation simulation) {
-        writer = HDF5Factory.open(simulation.getName() + ".h5");
+        writer = HDF5Factory.open(simulation.getUUID() + ".h5");
+
+        final HDF5CompoundType<AgentEvent> inferredType = writer.compounds().getInferredType(AgentEvent.class);
+        writer.compounds().createArray("agent_events", inferredType, 10000);
+
         bufferedWriter = new BufferedCompoundArrayWriter<AgentEvent>(
-                "/agent_events/", writer.compounds(), writer.compounds().getInferredType(AgentEvent.class),
+                "agent_events", writer.compounds(), inferredType,
                 Lists.<AgentEvent>newArrayListWithCapacity(100), 100);
     }
 

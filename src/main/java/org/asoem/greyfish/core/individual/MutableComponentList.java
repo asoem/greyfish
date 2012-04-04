@@ -34,7 +34,7 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
         delegate = Lists.newArrayList(Iterables.transform(list, new Function<E, E>() {
             @Override
             public E apply(@Nullable E e) {
-                return (E) cloner.cloneField(e, DeepCloneable.class);
+                return (E) cloner.cloneField(e, AgentComponent.class);
             }
         }));
     }

@@ -14,8 +14,6 @@ public interface GFAction extends AgentComponent {
 	
 	public ExecutionResult execute(Simulation simulation);
 
-	public double evaluateFormula(Simulation simulation);
-
     public ActionState getActionState();
 
     /**

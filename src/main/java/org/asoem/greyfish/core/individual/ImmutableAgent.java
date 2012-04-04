@@ -56,7 +56,7 @@ public class ImmutableAgent extends AbstractAgent {
      */
     public static ImmutableAgent cloneOf(Agent agent) {
         checkNotNull(agent);
-        Agent clone = DeepCloner.clone(agent, Agent.class);
+        final Agent clone = DeepCloner.clone(agent, Agent.class);
 
         final ImmutableAgent ret = new ImmutableAgent(
                 clone.getBody(),
@@ -66,7 +66,7 @@ public class ImmutableAgent extends AbstractAgent {
         ret.setPopulation(clone.getPopulation());
         ret.setMotion(clone.getMotion());
         ret.setProjection(clone.getProjection());
-        ret.setSimulationContext(agent.getSimulationContext());
+        ret.setSimulationContext(clone.getSimulationContext());
         ret.setColor(clone.getColor());
 
         return ret;
