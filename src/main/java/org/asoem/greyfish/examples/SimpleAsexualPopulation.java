@@ -59,7 +59,7 @@ public class SimpleAsexualPopulation {
         final ParallelizedSimulation simulation = ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
 
             private long millies = System.currentTimeMillis();
-            int steps = 0;
+            int lastStep = -1;
 
             @Override
             public boolean apply(@Nullable ParallelizedSimulation parallelizedSimulation) {
@@ -69,11 +69,11 @@ public class SimpleAsexualPopulation {
                 final long l = System.currentTimeMillis();
                 if (l > millies + 1000) {
                     populationCountStatistics.addValue(parallelizedSimulation.countAgents());
-                    stepsPerSecondStatistics.addValue(parallelizedSimulation.getSteps() - steps);
+                    stepsPerSecondStatistics.addValue(parallelizedSimulation.getCurrentStep() - lastStep);
                     millies = l;
-                    steps = parallelizedSimulation.getSteps();
+                    lastStep = parallelizedSimulation.getCurrentStep();
                 }
-                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getSteps() == 20000;
+                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getCurrentStep() == 20000;
             }
         });
 
