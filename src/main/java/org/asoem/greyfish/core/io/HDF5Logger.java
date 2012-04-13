@@ -1,13 +1,9 @@
 package org.asoem.greyfish.core.io;
 
 import ch.systemsx.cisd.hdf5.*;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
 import java.io.Flushable;
@@ -28,13 +24,16 @@ public class HDF5Logger implements SimulationLogger {
 
     private final IHDF5Writer writer;
     private final BufferedCompoundArrayWriter<HDF5AgentEvent> bufferedWriter;
-    private final HDF5EnumerationType enumerationType;
+    //private final HDF5EnumerationType enumerationType;
 
     @Inject
     private HDF5Logger(@Assisted Simulation simulation) {
 
         final String filePath = simulation.getUUID() + ".h5";
+
         writer = HDF5Factory.open(filePath);
+
+        /*
         enumerationType = writer.enums().getType("population", Iterables.toArray(Iterables.transform(
                 simulation.getPrototypes(), new Function<Agent, String>() {
             @Override
@@ -48,8 +47,9 @@ public class HDF5Logger implements SimulationLogger {
                 HDF5AgentEvent.class,
                 HDF5CompoundMemberMapping.inferMapping(HDF5AgentEvent.class,
                         ImmutableMap.<String, HDF5EnumerationType>of("population", enumerationType)));
-
-        writer.compounds().createArray("agent_events", inferredType, 10000, HDF5GenericStorageFeatures.GENERIC_DEFLATE_MAX_KEEP);
+        */
+        HDF5CompoundType<HDF5AgentEvent> inferredType = writer.compounds().getInferredType(HDF5AgentEvent.class);
+        writer.compounds().createArray("agent_events", inferredType, 10000, HDF5GenericStorageFeatures.GENERIC_DEFLATE_KEEP);
 
         bufferedWriter = new BufferedCompoundArrayWriter<HDF5AgentEvent>(
                 "agent_events", writer.compounds(), inferredType,
@@ -71,7 +71,7 @@ public class HDF5Logger implements SimulationLogger {
     @Override
     public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String population, double[] coordinates, String source, String title, String message) {
         try {
-            bufferedWriter.add(new HDF5AgentEvent(eventId, agentId, System.currentTimeMillis(), currentStep, source, new HDF5EnumerationValue(enumerationType, population), coordinates, title, message) );
+            bufferedWriter.add(new HDF5AgentEvent(eventId, agentId, System.currentTimeMillis(), currentStep, source, population, coordinates, title, message) );
         } catch (IOException e) {
             throw new IOError(e);
         }
@@ -125,11 +125,12 @@ public class HDF5Logger implements SimulationLogger {
         @CompoundElement(dimensions = 20)
         private String sourceOfEvent;
 
-        @CompoundElement(typeName = "population")
-        private HDF5EnumerationValue population;
+        @CompoundElement(dimensions = 20)
+        private String population;
 
-        @CompoundElement(dimensions = 2)
-        private double[] locationInSpace;
+        private double locationX;
+
+        private double locationY;
 
         @CompoundElement(dimensions = 20)
         private String eventTitle;
@@ -137,14 +138,16 @@ public class HDF5Logger implements SimulationLogger {
         @CompoundElement(dimensions = 20)
         private String eventMessage;
 
-        private HDF5AgentEvent(int eventId, int agentId, long createdAt, int simulationStep, String sourceOfEvent, HDF5EnumerationValue population, double[] locationInSpace, String eventTitle, String eventMessage) {
+        private HDF5AgentEvent(int eventId, int agentId, long createdAt, int simulationStep, String sourceOfEvent, String population, double[] locationInSpace, String eventTitle, String eventMessage) {
             this.eventId = eventId;
             this.agentId = agentId;
             this.createdAt = createdAt;
             this.simulationStep = simulationStep;
             this.sourceOfEvent = sourceOfEvent;
             this.population = population;
-            this.locationInSpace = locationInSpace;
+            assert locationInSpace.length == 2;
+            this.locationX = locationInSpace[0];
+            this.locationY = locationInSpace[1];
             this.eventTitle = eventTitle;
             this.eventMessage = eventMessage;
         }
