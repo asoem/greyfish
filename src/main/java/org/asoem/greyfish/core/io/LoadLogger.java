@@ -5,6 +5,8 @@ import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.common.util.concurrent.Service;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+import java.util.UUID;
+
 /**
  * User: christoph
  * Date: 23.03.12
@@ -39,14 +41,14 @@ public class LoadLogger implements SimulationLogger {
     }
 
     @Override
-    public void addEvent(AgentEvent event) {
-        logCount++;
-    }
-
-    @Override
     public void close() {
         service.stopAndWait();
         System.out.println(statistics.toString());
         System.out.println(Doubles.join(" ", statistics.getValues()));
+    }
+
+    @Override
+    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        ++logCount;
     }
 }

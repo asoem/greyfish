@@ -16,6 +16,7 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * User: christoph
@@ -63,11 +64,6 @@ public class BerkeleyLogger implements SimulationLogger {
     }
 
     @Override
-    public void addEvent(AgentEvent event) {
-        eventById.putNoReturn(event);
-    }
-
-    @Override
     public void close() {
         if (!ACTIVE_LOGGERS.containsKey(this))
             LOGGER.warn("This logger is not in map. Already closed?");
@@ -79,6 +75,12 @@ public class BerkeleyLogger implements SimulationLogger {
                 LOGGER.debug("Closed environment {}", environment);
             }
         }
+    }
+
+    @Override
+    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        final AgentEvent event = new AgentEvent(eventId, uuid, currentStep, agentId, populationName, coordinates, source, title, message);
+        eventById.putNoReturn(event);
     }
 
     public Iterable<AgentEvent> getLoggedEvents() {

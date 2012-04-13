@@ -17,11 +17,10 @@ public class BerkeleyLoggerTest {
     @Test
     public void testAddEvent() throws Exception {
         // given
-        BerkeleyLogger berkeleyLogger = new BerkeleyLogger(mock(Simulation.class));
-        AgentEvent agentEvent = new AgentEvent(0, UUID.randomUUID(), 42, 1, "TestPopulation", new double[] {2.5435, 0.54534}, "BerkeleyLoggerTest", "TestEvent", "Lorem ipsum");
+        final BerkeleyLogger berkeleyLogger = new BerkeleyLogger(mock(Simulation.class));
 
         // when
-        berkeleyLogger.addEvent(agentEvent);
+        berkeleyLogger.addEvent(0, UUID.randomUUID(), 42, 1, "TestPopulation", new double[] {2.5435, 0.54534}, "BerkeleyLoggerTest", "TestEvent", "Lorem ipsum");
 
         // then
         for (AgentEvent event : berkeleyLogger.getLoggedEvents())

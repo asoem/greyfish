@@ -82,6 +82,7 @@ public class ActiveSimulationContext implements SimulationContext {
 
         GFAction nextAction = null;
 
+        // identify action to execute
         if (toResume != null) {
             nextAction = toResume;
         }
@@ -100,6 +101,7 @@ public class ActiveSimulationContext implements SimulationContext {
             }
         }
 
+        // execute action
         if (nextAction != null) {
 
             LOGGER.debug("Agent #{}: Executing {}", id, nextAction);

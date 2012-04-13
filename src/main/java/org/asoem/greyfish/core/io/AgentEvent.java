@@ -1,11 +1,11 @@
 package org.asoem.greyfish.core.io;
 
 import ch.systemsx.cisd.hdf5.CompoundElement;
+import ch.systemsx.cisd.hdf5.HDF5DataTypeVariant;
 import com.google.common.primitives.Doubles;
 import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.PrimaryKey;
 
-import java.util.Date;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -22,13 +22,12 @@ public class AgentEvent {
     @PrimaryKey
     private int eventId;
 
-    private long simulationUUID_upper;
-
-    private long simulationUUID_lower;
+    private UUID simulationUUID;
 
     private int agentId;
 
-    private Date createdAt;
+    @CompoundElement(typeVariant = HDF5DataTypeVariant.TIMESTAMP_MILLISECONDS_SINCE_START_OF_THE_EPOCH)
+    private long createdAt;
 
     private int simulationStep;
 
@@ -55,10 +54,9 @@ public class AgentEvent {
         this.eventTitle = checkNotNull(eventTitle);
         this.sourceOfEvent = checkNotNull(sourceOfEvent);
         this.simulationStep = simulationStep;
-        this.simulationUUID_lower = simulationId.getLeastSignificantBits();
-        this.simulationUUID_upper = simulationId.getMostSignificantBits();
+        this.simulationUUID = simulationId;
         this.agentId = checkNotNull(agentId);
-        this.createdAt = new Date();
+        this.createdAt = System.currentTimeMillis();
     }
 
     @SuppressWarnings("UnusedDeclaration") // used for deserialization
@@ -86,7 +84,7 @@ public class AgentEvent {
     }
 
     public UUID getSimulationId() {
-        return new UUID(simulationUUID_upper, simulationUUID_lower);
+        return simulationUUID;
     }
 
     public double[] getLocatable2D() {
@@ -97,11 +95,11 @@ public class AgentEvent {
         return agentPopulationName;
     }
 
-    public Date getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public long getEventId() {
+    public int getEventId() {
         return eventId;
     }
 

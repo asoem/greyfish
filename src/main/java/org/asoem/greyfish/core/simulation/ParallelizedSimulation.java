@@ -94,7 +94,7 @@ public class ParallelizedSimulation implements Simulation {
 
     private final UUID uuid = UUID.randomUUID();
 
-    private final SimulationLogger simulationLogger = SimulationLoggerProvider.getLogger(this);
+    private final SimulationLogger simulationLogger;
 
     @Nullable
     private Agent getPrototype(final Population population) {
@@ -170,6 +170,8 @@ public class ParallelizedSimulation implements Simulation {
         for (Agent agent : space.getObjects()) {
             agentAdded(agent);
         }
+
+        simulationLogger = SimulationLoggerProvider.getLogger(this);
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -411,10 +413,10 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
-        simulationLogger.addEvent(new AgentEvent(
+        simulationLogger.addEvent(
                 eventIdSequence.incrementAndGet(), uuid, currentStep,
                 agentId, populationName, coordinates,
-                eventOrigin.getClass().getSimpleName(), title, message));
+                eventOrigin.getClass().getSimpleName(), title, message);
     }
 
     /**
