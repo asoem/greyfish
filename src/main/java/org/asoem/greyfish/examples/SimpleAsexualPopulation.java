@@ -2,23 +2,18 @@ package org.asoem.greyfish.examples;
 
 import com.google.common.base.Predicate;
 import com.google.common.primitives.Doubles;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import javolution.lang.MathLib;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.actions.ClonalReproductionAction;
 import org.asoem.greyfish.core.actions.DeathAction;
 import org.asoem.greyfish.core.conditions.AllCondition;
+import org.asoem.greyfish.core.genes.DoubleGene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Avatar;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.io.HDF5Logger;
-import org.asoem.greyfish.core.io.JSONLogger;
-import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggerFactory;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -54,6 +49,12 @@ public class SimpleAsexualPopulation {
                                 .name("die")
                                 .executesIf(evaluate(compile("$('this.agent.age') >= 100")))
                                 .build())
+                .addGenes(
+                        DoubleGene.builder()
+                                .initialValue(compile("50.0"))
+                                .mutation(compile("rnorm(0.0, 0.1)"))
+                                .build()
+                )
                 .build();
 
         TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(10, 10).build();
