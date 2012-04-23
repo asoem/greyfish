@@ -29,7 +29,7 @@ public abstract class AbstractBuilder<E, T extends AbstractBuilder<? super E, T>
      * The basic implementation will never throw an exception.
      * Overwritten implementations should call the {@code super} method of their super class
      * unless if their direct base class is not {@link AbstractBuilder}.
-     * @throws IllegalStateException if the {@code AbstractBuilder} is in a State
+     * @throws IllegalStateException if the {@code AbstractDoubleGeneBuilder} is in a State
      * which prevents this builder to {@link #build()}
      */
     protected void checkBuilder() throws IllegalStateException {}
