@@ -7,7 +7,6 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
@@ -17,7 +16,7 @@ public class ActiveSimulationContext implements SimulationContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActiveSimulationContext.class);
 
-    @Element(name = "simulation")
+    //@Element(name = "simulation")
     private final Simulation simulation;
 
     @Attribute(name = "activationStep")
@@ -39,10 +38,9 @@ public class ActiveSimulationContext implements SimulationContext {
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    public ActiveSimulationContext(@Element(name = "simulation") Simulation simulation,
-                                   @Attribute(name = "activationStep") int activationStep,
+    public ActiveSimulationContext(@Attribute(name = "activationStep") int activationStep,
                                    @Attribute(name = "id") int id) {
-        this.simulation = checkNotNull(simulation);
+        this.simulation = null;//checkNotNull(simulation);
         this.id = id;
         this.activationStep = activationStep;
     }

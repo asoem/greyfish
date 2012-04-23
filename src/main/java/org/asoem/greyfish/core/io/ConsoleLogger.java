@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.primitives.Doubles;
+import org.asoem.greyfish.core.individual.Agent;
 
 import java.util.UUID;
 
@@ -14,6 +15,11 @@ public class ConsoleLogger implements SimulationLogger {
     @Override
     public void close() {
         /* NOP */
+    }
+
+    @Override
+    public void addAgent(Agent agent) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

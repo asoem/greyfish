@@ -81,7 +81,7 @@ public class SimpleXMLPersister implements Persister {
             CharStreams.copy(new StringReader(stringWriter.toString()), writer);
         } catch (Exception e) {
             LOGGER.error("Serialization failed", e);
-            throw new RuntimeException("Object not serializable", e);
+            throw new RuntimeException("Object not serializable " + object, e);
         } finally {
             writer.close();
         }

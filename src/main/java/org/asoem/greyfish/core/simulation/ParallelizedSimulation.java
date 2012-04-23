@@ -138,6 +138,7 @@ public class ParallelizedSimulation implements Simulation {
     public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space) {
         checkNotNull(space);
         this.space = space;
+        this.simulationLogger = SimulationLoggerProvider.getLogger(this);
 
         this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
             final Map<Population, Agent> populationAgentMap = Maps.newHashMap();
@@ -170,8 +171,6 @@ public class ParallelizedSimulation implements Simulation {
         for (Agent agent : space.getObjects()) {
             agentAdded(agent);
         }
-
-        simulationLogger = SimulationLoggerProvider.getLogger(this);
     }
 
     public static ParallelizedSimulation newSimulation(final Scenario scenario) {
@@ -225,6 +224,7 @@ public class ParallelizedSimulation implements Simulation {
         AtomicInteger counter = populationCounterMap.get(agent.getPopulation());
         counter.incrementAndGet(); // non-null verified by checkCanAddAgent();
         LOGGER.trace("{}: Agent added: {}", this, agent);
+        simulationLogger.addAgent(agent);
     }
 
     private void removeAgentsInternal(Collection<? extends Agent> agents) {

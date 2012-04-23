@@ -29,7 +29,7 @@ public class CoreModule extends AbstractModule {
 
         // SimulationLogger
         install(new FactoryModuleBuilder()
-                .implement(SimulationLogger.class, BerkeleyLogger.class)
+                .implement(SimulationLogger.class, HDF5Logger.class)
                 .build(SimulationLoggerFactory.class));
         requestStaticInjection(SimulationLoggerProvider.class);
 

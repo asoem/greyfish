@@ -4,6 +4,7 @@ import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
@@ -50,6 +51,11 @@ public class JSONLogger implements SimulationLogger {
         finally {
             closeStream();
         }
+    }
+
+    @Override
+    public void addAgent(Agent agent) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     private void closeStream() {

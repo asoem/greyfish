@@ -14,6 +14,7 @@ import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.StoreConfig;
 import com.sleepycat.persist.model.Entity;
 import com.sleepycat.persist.model.PrimaryKey;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -79,6 +80,11 @@ public class BerkeleyLogger implements SimulationLogger {
                 LOGGER.debug("Closed environment {}", environment);
             }
         }
+    }
+
+    @Override
+    public void addAgent(Agent agent) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

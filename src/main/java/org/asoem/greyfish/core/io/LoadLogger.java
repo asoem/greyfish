@@ -4,6 +4,7 @@ import com.google.common.primitives.Doubles;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.common.util.concurrent.Service;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.asoem.greyfish.core.individual.Agent;
 
 import java.util.UUID;
 
@@ -45,6 +46,11 @@ public class LoadLogger implements SimulationLogger {
         service.stopAndWait();
         System.out.println(statistics.toString());
         System.out.println(Doubles.join(" ", statistics.getValues()));
+    }
+
+    @Override
+    public void addAgent(Agent agent) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
