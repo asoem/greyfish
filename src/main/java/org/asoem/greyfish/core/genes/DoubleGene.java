@@ -12,6 +12,9 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 /**
  * User: christoph
  * Date: 22.09.11
@@ -71,6 +74,13 @@ public class DoubleGene extends AbstractGene<Double> {
         super(doubleMutableGene, cloner);
         this.initialValue = doubleMutableGene.initialValue;
         this.mutation = doubleMutableGene.mutation;
+    }
+
+    protected DoubleGene(AbstractDoubleGeneBuilder<? extends DoubleGene, ? extends AbstractDoubleGeneBuilder> builder) {
+        super(builder);
+
+        this.initialValue = builder.initialValue; assert initialValue != null;
+        this.mutation = builder.mutation; assert mutation != null;
     }
 
     @Override
@@ -148,5 +158,36 @@ public class DoubleGene extends AbstractGene<Double> {
                 return mutation;
             }
         });
+    }
+
+    public static DoubleGeneBuilder builder() {
+        return new DoubleGeneBuilder();
+    }
+
+    public static class DoubleGeneBuilder extends AbstractDoubleGeneBuilder<DoubleGene, DoubleGeneBuilder> {
+        @Override
+        protected DoubleGeneBuilder self() {
+            return this;
+        }
+
+        @Override
+        protected DoubleGene checkedBuild() {
+            return new DoubleGene(this);
+        }
+    }
+
+    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGene, T extends AbstractDoubleGeneBuilder<E,T>> extends AbstractGene.AbstractBuilder<E,T> {
+        private GreyfishExpression initialValue;
+        private GreyfishExpression mutation;
+
+        public T initialValue(GreyfishExpression expression) { this.initialValue = checkNotNull(expression); return self(); }
+        public T mutation(GreyfishExpression expression) { this.mutation = checkNotNull(expression); return self(); }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            super.checkBuilder();
+            checkState(initialValue != null, "You must provide an expression for the initial value");
+            checkState(mutation != null, "You must provide an expression for the mutation");
+        }
     }
 }

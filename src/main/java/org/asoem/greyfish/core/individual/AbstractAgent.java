@@ -242,7 +242,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public TreeNode<AgentComponent> getRootComponent() {
+    public AgentComponent getRootComponent() {
         return rootComponent;
     }
 

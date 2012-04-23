@@ -28,6 +28,10 @@ public abstract class AbstractGene<T> extends AbstractAgentComponent implements 
         super(name);
     }
 
+    public AbstractGene(AbstractBuilder<? extends AbstractGene<?>, ? extends AbstractBuilder> builder) {
+        super(builder);
+    }
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(get()) + "]";

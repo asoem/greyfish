@@ -7,7 +7,6 @@ import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -233,7 +232,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public TreeNode<AgentComponent> getRootComponent() {
+    public AgentComponent getRootComponent() {
         return delegate().getRootComponent();
     }
 

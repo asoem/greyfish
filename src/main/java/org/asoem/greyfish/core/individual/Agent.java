@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulatable2D;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
-import org.asoem.greyfish.utils.collect.TreeNode;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -21,7 +20,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
      */
     boolean isCloneOf(Object object);
 
-    TreeNode<AgentComponent> getRootComponent();
+    AgentComponent getRootComponent();
 
     Iterable<AgentComponent> getComponents();
     void changeActionExecutionOrder(GFAction object, GFAction object2);
