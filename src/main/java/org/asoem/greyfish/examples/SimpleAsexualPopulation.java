@@ -51,6 +51,7 @@ public class SimpleAsexualPopulation {
                                 .build())
                 .addGenes(
                         DoubleGene.builder()
+                                .name("gene1")
                                 .initialValue(compile("50.0"))
                                 .mutation(compile("rnorm(0.0, 0.1)"))
                                 .build()
