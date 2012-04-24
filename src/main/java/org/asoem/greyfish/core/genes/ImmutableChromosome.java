@@ -69,7 +69,7 @@ public class ImmutableChromosome<E extends Gene<?>> extends AbstractChromosome<E
     }
 
     public static <E extends Gene<?>> ImmutableChromosome<E> copyOf(Iterable<? extends E> genes) {
-        return new Builder<E>().addAll(genes).build();
+        return new Builder<E>().addAll(genes).build(); // TODO:
     }
 
     /**

@@ -18,10 +18,10 @@ public class EvaluatedChromosome<E extends Gene<?>> extends ForwardingChromosome
     }
 
     @SuppressWarnings({"unchecked"}) // cloning is save
-    public EvaluatedChromosome(EvaluatedChromosome<E> genome, DeepCloner cloner) {
+    protected EvaluatedChromosome(EvaluatedChromosome<E> chromosome, DeepCloner cloner) {
         cloner.addClone(this);
-        delegate = cloner.cloneField(genome.delegate, Chromosome.class);
-        this.fitness = genome.fitness;
+        delegate = cloner.cloneField(chromosome.delegate, Chromosome.class);
+        this.fitness = chromosome.fitness;
     }
 
     @Override

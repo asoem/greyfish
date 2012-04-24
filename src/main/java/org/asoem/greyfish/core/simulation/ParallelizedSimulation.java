@@ -136,7 +136,9 @@ public class ParallelizedSimulation implements Simulation {
 
     public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space) {
         checkNotNull(space);
+
         this.space = space;
+
         this.simulationLogger = SimulationLoggerProvider.getLogger(this);
 
         this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
@@ -168,6 +170,7 @@ public class ParallelizedSimulation implements Simulation {
                 build();
         
         for (Agent agent : space.getObjects()) {
+            agent.prepare(this);
             agentAdded(agent);
         }
     }
@@ -219,9 +222,8 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void agentAdded(Agent agent) {
-        agent.prepare(this);
         AtomicInteger counter = populationCounterMap.get(agent.getPopulation());
-        counter.incrementAndGet(); // non-null verified by checkCanAddAgent();
+        counter.incrementAndGet();
         LOGGER.trace("{}: Agent added: {}", this, agent);
         simulationLogger.addAgent(agent);
     }
@@ -295,7 +297,9 @@ public class ParallelizedSimulation implements Simulation {
      */
     private Agent borrowAgentFromPool(final Population population) {
         try {
-            return objectPool.borrowObject(population);
+            final Agent agent = objectPool.borrowObject(population);
+            agent.prepare(this);
+            return agent;
         } catch (Exception e) {
             LOGGER.error("Error getting Agent from objectPool for population {}", population.getName(), e);
             throw new AssertionError(e);

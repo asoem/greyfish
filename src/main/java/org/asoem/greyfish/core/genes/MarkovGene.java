@@ -77,6 +77,16 @@ public class MarkovGene extends AbstractGene<String> {
     }
 
     @Override
+    public void init() {
+        currentState = initialState.evaluateForContext(MarkovGene.this).asString();
+    }
+
+    @Override
+    public void mutate() {
+        currentState = markovChain.apply(currentState, GreyfishExpression.createContextResolver(this));
+    }
+
+    @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new MarkovGene(this, cloner);
     }

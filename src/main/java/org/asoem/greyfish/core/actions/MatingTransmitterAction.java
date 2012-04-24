@@ -106,6 +106,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
         final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
         if (RandomUtils.trueWithProbability(probability)) {
+
             final Chromosome<Gene<?>> sperm = ImmutableChromosome.copyOf(agent().getChromosome());
             double fitness = 0.0;
             try {
@@ -113,8 +114,10 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
             } catch (EvaluationException e) {
                 LOGGER.error("Evaluation of spermFitness failed: {}", spermFitness, e);
             }
+
             reply.content(new EvaluatedChromosome<Gene<?>>(sperm, fitness), EvaluatedChromosome.class)
                     .performative(ACLPerformative.PROPOSE);
+
             LOGGER.debug("Accepted mating with p={}", probability);
         }
         else {
