@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ImmutableMap;
-import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -9,7 +8,6 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,17 +34,12 @@ public class DoubleGene extends AbstractGene<Double> {
 
         @Override
         public Double mutate(Double original) {
-            try {
-                return get() + mutation.evaluateForContext(DoubleGene.this).asDouble();
-            } catch (EvaluationException e) {
-                LoggerFactory.getLogger(DoubleGene.class).error("Error in mutation", e);
-                return original;
-            }
+            return get() + mutation.evaluateForContext(DoubleGene.this).asDouble();
         }
 
         @Override
         public double normalizedDistance(Double orig, Double copy) {
-            return distanceMetric.evaluateForContext(this, ImmutableMap.of("x", orig, "y", copy)).asDouble();
+            return distanceMetric.evaluateForContext(DoubleGene.this, ImmutableMap.of("x", orig, "y", copy)).asDouble();
         }
 
         @Override
@@ -56,12 +49,7 @@ public class DoubleGene extends AbstractGene<Double> {
 
         @Override
         public Double createInitialValue() {
-            try {
-                return initialValue.evaluateForContext(DoubleGene.this).asDouble();
-            } catch (EvaluationException e) {
-                LoggerFactory.getLogger(DoubleGene.class).error("Error in initialValue", e);
-                return 0.0;
-            }
+            return initialValue.evaluateForContext(DoubleGene.this).asDouble();
         }
     };
 

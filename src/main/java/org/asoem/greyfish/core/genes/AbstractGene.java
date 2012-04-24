@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -60,8 +61,7 @@ public abstract class AbstractGene<T> extends AbstractAgentComponent implements 
     }
 
     @Override
-    public boolean isMutatedCopy(Gene<?> gene) {
-        checkNotNull(gene);
-        return this.getGeneController().equals(gene.getGeneController());
+    public boolean isMutatedCopy(@Nullable Gene<?> gene) {
+        return gene != null && gene.getSupplierClass().equals(this.getSupplierClass());
     }
 }

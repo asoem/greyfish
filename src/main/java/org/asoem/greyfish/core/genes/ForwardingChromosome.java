@@ -17,13 +17,8 @@ public abstract class ForwardingChromosome<E extends Gene<?>> extends Forwarding
     }
 
     @Override
-    public Iterable<E> findCopiesFor(Iterable<? extends E> thisGenes) {
-        return delegate().findCopiesFor(thisGenes);
-    }
-
-    @Override
-    public boolean isCompatibleGenome(Chromosome<? extends Gene<?>> es) {
-        return delegate().isCompatibleGenome(es);
+    public boolean isCompatible(Chromosome<? extends Gene<?>> es) {
+        return delegate().isCompatible(es);
     }
 
     @Override
