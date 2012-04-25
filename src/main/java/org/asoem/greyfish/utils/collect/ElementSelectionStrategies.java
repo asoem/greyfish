@@ -1,9 +1,9 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
-import org.apache.commons.math.genetics.Fitness;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
 import java.util.Collections;
@@ -20,47 +20,44 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ElementSelectionStrategies {
 
-    @SuppressWarnings("unchecked")
-    public static <E extends Fitness> ElementSelectionStrategy<E> rouletteWheelSelection() {
-        return (ElementSelectionStrategy<E>) RouletteWheelSelection.INSTANCE;
-    }
+    public static <E> ElementSelectionStrategy<E> rouletteWheelSelection(final Function<E, ? extends Double> function) {
+        return new ElementSelectionStrategy<E>() {
 
-    private enum RouletteWheelSelection implements ElementSelectionStrategy<Fitness> {
-        INSTANCE;
+            @Override
+            public <T extends E> Iterable<T> pick(final List<? extends T> elements, int k) {
+                final double f_sum = cumulative_fitness(elements);
+                if (f_sum == 0)
+                    return randomSelection().pick(elements, k);
 
-        private <T extends Fitness> double cumulative_fitness(Iterable<? extends T> elements) {
-            double sum = 0;
-            for (T element : elements)
-                sum += element.fitness();
-            return sum;
-        }
+                return Iterables.limit(new Iterable<T>() {
+                    @Override
+                    public Iterator<T> iterator() {
+                        return new AbstractIterator<T>() {
 
-        @Override
-        public <T extends Fitness> Iterable<T> pick(final List<? extends T> elements, int k) {
-            final double f_sum = cumulative_fitness(elements);
-            if (f_sum == 0)
-                return randomSelection().pick(elements, k);
-
-            return Iterables.limit(new Iterable<T>() {
-                @Override
-                public Iterator<T> iterator() {
-                    return new AbstractIterator<T>() {
-
-                        @Override
-                        protected T computeNext() {
-                            final double rand = RandomUtils.nextDouble(f_sum);
-                            double step_sum = 0;
-                            for (T element : elements) {
-                                step_sum += element.fitness();
-                                if (rand < step_sum)
-                                    return element;
+                            @Override
+                            protected T computeNext() {
+                                final double rand = RandomUtils.nextDouble(f_sum);
+                                double step_sum = 0;
+                                for (T element : elements) {
+                                    step_sum += function.apply(element);
+                                    if (rand < step_sum)
+                                        return element;
+                                }
+                                throw new AssertionError();
                             }
-                            throw new AssertionError();
-                        }
-                    };
-                }
-            }, k);
-        }
+                        };
+                    }
+                }, k);
+            }
+
+            private double cumulative_fitness(Iterable<? extends E> elements) {
+                double sum = 0;
+                for (E element : elements)
+                    sum += function.apply(element);
+
+                return sum;
+            }
+        };
     }
 
     @SuppressWarnings("unchecked")
