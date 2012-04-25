@@ -51,7 +51,6 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
      *
      *
      * @param chromosome a copy of this agents chromosome
-     * @throws org.asoem.greyfish.core.genes.IncompatibleGenomeException
      * if {@code chromosome} is not a copy of this agents chromosome as defined by {@link org.asoem.greyfish.core.genes.Chromosome#isCompatible}
      */
     void injectGamete(Chromosome<? extends Gene<?>> chromosome);

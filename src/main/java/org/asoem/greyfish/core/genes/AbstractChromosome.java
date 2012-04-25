@@ -2,8 +2,6 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ForwardingList;
 import org.asoem.greyfish.core.individual.ComponentList;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.util.Iterator;
 
@@ -48,6 +46,23 @@ public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingLi
             destination.setValue(source.get());
         }
     }
+
+    // TODO: move to interface
+    public void updateGenes(Iterable<?> values) {
+
+        // TODO: check Argument
+
+        final Iterator<?> sourceIterator = values.iterator();
+        final Iterator<E> destinationIterator = this.iterator();
+
+        while (sourceIterator.hasNext() && destinationIterator.hasNext()) {
+            Object source =  sourceIterator.next();
+            E destination = destinationIterator.next();
+
+            destination.setValue(source);
+        }
+    }
+
 
     @Override
     public void initGenes() {

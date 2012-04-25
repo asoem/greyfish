@@ -1,14 +1,13 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Function;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.EvaluatedChromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.ImmutableChromosome;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -23,6 +22,9 @@ import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
@@ -39,13 +41,21 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Element(name = "clutchSize")
     private GreyfishExpression clutchSize;
 
-    private ElementSelectionStrategy<EvaluatedChromosome<?>> spermSelectionStrategy;
+    private ElementSelectionStrategy<GeneSnapshotVector> spermSelectionStrategy;
 
-    private final static BiMap<String, ElementSelectionStrategy<EvaluatedChromosome<?>>> strategies =
+    private GreyfishExpression spermFitnessEvaluator;
+
+
+    private final BiMap<String, ElementSelectionStrategy<GeneSnapshotVector>> strategies =
             ImmutableBiMap.of(
-                    "Random", ElementSelectionStrategies.<EvaluatedChromosome<?>>randomSelection(),
-                    "Roulette Wheel", ElementSelectionStrategies.<EvaluatedChromosome<?>>rouletteWheelSelection(),
-                    "Best", ElementSelectionStrategies.<EvaluatedChromosome<?>>bestSelection());
+                    "Random", ElementSelectionStrategies.<GeneSnapshotVector>randomSelection(),
+                    "Roulette Wheel", ElementSelectionStrategies.<GeneSnapshotVector>rouletteWheelSelection(new Function<GeneSnapshotVector, Double>() {
+                @Override
+                public Double apply(@Nullable GeneSnapshotVector genes) {
+                    assert genes != null;
+                    return spermFitnessEvaluator.evaluateForContext(SexualReproductionAction.this).asDouble();
+                }
+            }));
 
     private int offspringCount = 0;
 
@@ -65,9 +75,38 @@ public class SexualReproductionAction extends AbstractGFAction {
         final Location2D locatable = agent().getProjection();
 
         final int eggCount = clutchSize.evaluateForContext(this).asInt();
-        for (EvaluatedChromosome<?> spermCandidate : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
+
+        List<GeneSnapshotVector> geneSnapshotVectors = null;
+
+
+        GeneSnapshotVector own = new GeneSnapshotVector(agent().getId(), Iterables.transform(agent().getChromosome(), new Function<Gene<?>, GeneSnapshot<?>>() {
+            @Override
+            public GeneSnapshot<?> apply(@Nullable Gene<?> gene) {
+                assert gene != null;
+                return new GeneSnapshot<Object>(gene.get(), gene.getRecombinationProbability());
+            }
+        }));
+
+        for (GeneSnapshotVector spermCandidate : spermSelectionStrategy.pick(geneSnapshotVectors, eggCount)) {
+
+            GeneSnapshotVector rec = spermCandidate.recombined(own);
+
             final ImmutableChromosome<Gene<?>> gamete = ImmutableChromosome.mutatedCopyOf(ImmutableChromosome.recombined(agent().getChromosome(), spermCandidate));
 
+            gamete.updateGenes(Iterables.transform(rec.getSnapshots(), new Function<GeneSnapshot<?>, Object>() {
+                @Override
+                public Object apply(@Nullable GeneSnapshot<?> o) {
+                    assert o != null;
+                    return o.getValue();
+                }
+            }));
+
+            /*
+            Agent agent = simulation.createAgent(population);
+            agent.updateChromosome(rec);
+            agent.setProjection(locatable);
+            simulation.activateAgent(agent);
+             */
             simulation.createAgent(population, gamete, locatable);
 
             agent().logEvent(this, "offspringProduced", "");

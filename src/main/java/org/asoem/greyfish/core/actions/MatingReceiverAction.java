@@ -12,6 +12,7 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.EvaluatedChromosome;
+import org.asoem.greyfish.core.genes.GeneSnapshotVector;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -135,7 +136,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
         ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
-            EvaluatedChromosome evaluatedGenome = message.getContent(EvaluatedChromosome.class);
+            EvaluatedChromosome evaluatedGenome = message.getContent(GeneSnapshotVector.class);
             final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
             if (RandomUtils.trueWithProbability(probability)) {
                 receiveGenome(evaluatedGenome, message.getSender(), simulation);

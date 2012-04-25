@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.EvaluatedChromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.ImmutableChromosome;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -22,6 +21,8 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
+
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -107,6 +108,9 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
         if (RandomUtils.trueWithProbability(probability)) {
 
+
+
+
             final Chromosome<Gene<?>> sperm = ImmutableChromosome.copyOf(agent().getChromosome());
             double fitness = 0.0;
             try {
@@ -114,6 +118,15 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
             } catch (EvaluationException e) {
                 LOGGER.error("Evaluation of spermFitness failed: {}", spermFitness, e);
             }
+
+            final GeneSnapshotVector alleleVector = new GeneSnapshotVector(agent().getId(), Iterables.transform(agent().getChromosome(), new Function<Gene<?>, GeneSnapshot<?>>() {
+                @Override
+                public GeneSnapshot<?> apply(@Nullable Gene<?> gene) {
+                    assert gene != null;
+                    return new GeneSnapshot<Object>(gene.get(), gene.getRecombinationProbability());
+                }
+            }));
+
 
             reply.content(new EvaluatedChromosome<Gene<?>>(sperm, fitness), EvaluatedChromosome.class)
                     .performative(ACLPerformative.PROPOSE);
