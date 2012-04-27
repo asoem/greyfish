@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.io;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
@@ -23,6 +23,7 @@ public class H2Logger implements SimulationLogger {
     private final PreparedStatement insertGeneAsStringStatement;
     private final PreparedStatement insertEventStatement;
     private final PreparedStatement insertGeneAsDoubleStatement;
+    private final PreparedStatement insertChromosomeStatement;
 
     @Inject
     private H2Logger(@Assisted Simulation simulation) {
@@ -33,6 +34,9 @@ public class H2Logger implements SimulationLogger {
             connection.createStatement().execute(
                     "CREATE TABLE agents (id int NOT NULL PRIMARY KEY, population VARCHAR(255) NOT NULL, activated_at int NOT NULL, created_at TIMESTAMP NOT NULL)");
             connection.createStatement().execute(
+                    "CREATE TABLE chromosome_tree (id int NOT NULL PRIMARY KEY, parent_id int NOT NULL)"
+            );
+            connection.createStatement().execute(
                     "CREATE TABLE genes_double (agent_id int NOT NULL, name VARCHAR(80) NOT NULL, value DOUBLE NOT NULL)");
             connection.createStatement().execute(
                     "CREATE TABLE genes_string (agent_id int NOT NULL, name VARCHAR(80) NOT NULL, value VARCHAR(255) NOT NULL)");
@@ -40,6 +44,10 @@ public class H2Logger implements SimulationLogger {
                     "CREATE TABLE agent_events (id int NOT NULL PRIMARY KEY, created_at TIMESTAMP NOT NULL, simulation_step int NOT NULL, agent_id int NOT NULL, source VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, message VARCHAR(255) NOT NULL)");
 
             connection.setAutoCommit(false);
+
+            insertChromosomeStatement = connection.prepareStatement(
+                    "INSERT INTO chromosome_tree (id, parent_id) VALUES (?, ?)"
+            );
 
             insertAgentStatement = connection.prepareStatement(
                     "INSERT INTO agents (id, population, activated_at, created_at) VALUES (?, ?, ?, ?)"
@@ -83,14 +91,20 @@ public class H2Logger implements SimulationLogger {
 
             insertAgentStatement.execute();
 
-            for (Gene<?> gene : agent.getChromosome()) {
+            insertChromosomeStatement.setInt(1, agent.getId());
+            for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
+                insertChromosomeStatement.setInt(2, parentId);
+                insertChromosomeStatement.execute();
+            }
+
+            for (GeneComponent<?> gene : agent.getGeneComponentList()) {
 
                 assert gene != null;
 
                 if (Double.class.equals(gene.getSupplierClass())) {
                     insertGeneAsDoubleStatement.setInt(1, agent.getId());
                     insertGeneAsDoubleStatement.setString(2, gene.getName());
-                    insertGeneAsDoubleStatement.setDouble(3, ((Gene<Double>) gene).get());
+                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).get());
                     insertGeneAsDoubleStatement.execute();
                 }
                 else {

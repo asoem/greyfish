@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Time: 11:28
  */
 @ClassGroup(tags = {"genes"})
-public class MarkovGene extends AbstractGene<String> {
+public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     private static final GreyfishExpressionFactory EXPRESSION_FACTORY = GreyfishExpressionFactoryHolder.get();
 
@@ -40,15 +40,15 @@ public class MarkovGene extends AbstractGene<String> {
 
         @Override
         public String createInitialValue() {
-            return MarkovGene.this.initialState.evaluateForContext(MarkovGene.this).asString();
+            return MarkovGeneComponent.this.initialState.evaluateForContext(MarkovGeneComponent.this).asString();
         }
     };
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public MarkovGene() {
+    public MarkovGeneComponent() {
     }
     
-    public MarkovGene(EvaluatingMarkovChain<String> chain, GreyfishExpression initialState) {
+    public MarkovGeneComponent(EvaluatingMarkovChain<String> chain, GreyfishExpression initialState) {
         markovChain = chain;
         this.initialState = initialState;
         this.currentState = geneController.createInitialValue();
@@ -60,7 +60,7 @@ public class MarkovGene extends AbstractGene<String> {
         currentState = (String) value;
     }
 
-    private MarkovGene(MarkovGene markovGene, DeepCloner cloner) {
+    private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
         super(markovGene, cloner);
         this.markovChain = markovGene.markovChain;
         this.currentState = markovGene.currentState;
@@ -78,7 +78,7 @@ public class MarkovGene extends AbstractGene<String> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new MarkovGene(this, cloner);
+        return new MarkovGeneComponent(this, cloner);
     }
 
     @Override

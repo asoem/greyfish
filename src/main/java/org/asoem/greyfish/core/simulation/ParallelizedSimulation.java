@@ -117,12 +117,7 @@ public class ParallelizedSimulation implements Simulation {
      * @param scenario the scenario
      */
     public ParallelizedSimulation(final Scenario scenario) {
-        this(new TiledSpace<Agent>(scenario.getSpace(), new Function<Agent, Agent>() {
-            @Override
-            public Agent apply(@Nullable Agent agent) {
-                return ImmutableAgent.cloneOf(agent);
-            }
-        }));
+        this(scenario.getSpace());
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
@@ -139,7 +134,7 @@ public class ParallelizedSimulation implements Simulation {
     public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space) {
         checkNotNull(space);
 
-        this.space = space;
+        this.space = TiledSpace.createEmptyCopy(space);
 
         this.simulationLogger = SimulationLoggerProvider.getLogger(this);
 
@@ -170,10 +165,9 @@ public class ParallelizedSimulation implements Simulation {
                             }
                         })).
                 build();
-        
+
         for (Agent agent : space.getObjects()) {
-            agent.activate(this);
-            agentActivated(agent);
+            activateAgentInternal(createAgent(agent.getPopulation()), agent.getProjection());
         }
     }
 

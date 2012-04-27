@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.*;
  * Time: 09:37
  */
 @ClassGroup(tags = "genes")
-public class DoubleGene extends AbstractGene<Double> {
+public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
 
     @Element
     private GreyfishExpression initialValue = GreyfishExpressionFactoryHolder.compile("0.0");
@@ -33,12 +33,12 @@ public class DoubleGene extends AbstractGene<Double> {
 
         @Override
         public Double mutate(Double original) {
-            return get() + mutation.evaluateForContext(DoubleGene.this).asDouble();
+            return get() + mutation.evaluateForContext(DoubleGeneComponent.this).asDouble();
         }
 
         @Override
         public double normalizedDistance(Double orig, Double copy) {
-            return distanceMetric.evaluateForContext(DoubleGene.this, ImmutableMap.of("x", orig, "y", copy)).asDouble();
+            return distanceMetric.evaluateForContext(DoubleGeneComponent.this, ImmutableMap.of("x", orig, "y", copy)).asDouble();
         }
 
         @Override
@@ -48,22 +48,22 @@ public class DoubleGene extends AbstractGene<Double> {
 
         @Override
         public Double createInitialValue() {
-            return initialValue.evaluateForContext(DoubleGene.this).asDouble();
+            return initialValue.evaluateForContext(DoubleGeneComponent.this).asDouble();
         }
     };
 
     private Double value = 0.0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public DoubleGene() {}
+    public DoubleGeneComponent() {}
 
-    protected DoubleGene(DoubleGene doubleMutableGene, DeepCloner cloner) {
+    protected DoubleGeneComponent(DoubleGeneComponent doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
         this.initialValue = doubleMutableGene.initialValue;
         this.mutation = doubleMutableGene.mutation;
     }
 
-    protected DoubleGene(AbstractDoubleGeneBuilder<? extends DoubleGene, ? extends AbstractDoubleGeneBuilder> builder) {
+    protected DoubleGeneComponent(AbstractDoubleGeneBuilder<? extends DoubleGeneComponent, ? extends AbstractDoubleGeneBuilder> builder) {
         super(builder);
 
         this.initialValue = builder.initialValue; assert initialValue != null;
@@ -72,7 +72,7 @@ public class DoubleGene extends AbstractGene<Double> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new DoubleGene(this, cloner);
+        return new DoubleGeneComponent(this, cloner);
     }
 
     @Override
@@ -152,19 +152,19 @@ public class DoubleGene extends AbstractGene<Double> {
         return new DoubleGeneBuilder();
     }
 
-    public static class DoubleGeneBuilder extends AbstractDoubleGeneBuilder<DoubleGene, DoubleGeneBuilder> {
+    public static class DoubleGeneBuilder extends AbstractDoubleGeneBuilder<DoubleGeneComponent, DoubleGeneBuilder> {
         @Override
         protected DoubleGeneBuilder self() {
             return this;
         }
 
         @Override
-        protected DoubleGene checkedBuild() {
-            return new DoubleGene(this);
+        protected DoubleGeneComponent checkedBuild() {
+            return new DoubleGeneComponent(this);
         }
     }
 
-    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGene, T extends AbstractDoubleGeneBuilder<E,T>> extends AbstractGene.AbstractBuilder<E,T> {
+    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E,T>> extends AbstractGeneComponent.AbstractBuilder<E,T> {
         private GreyfishExpression initialValue;
         private GreyfishExpression mutation;
 

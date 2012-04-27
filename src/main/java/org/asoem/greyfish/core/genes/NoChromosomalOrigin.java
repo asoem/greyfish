@@ -1,5 +1,8 @@
 package org.asoem.greyfish.core.genes;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * User: christoph
  * Date: 26.04.12
@@ -9,7 +12,7 @@ public enum NoChromosomalOrigin implements ChromosomalOrigin {
     INSTANCE;
 
     @Override
-    public int parentCount() {
-        return 0;
+    public Set<Integer> getParents() {
+        return Collections.emptySet();
     }
 }

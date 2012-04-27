@@ -7,9 +7,10 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneSnapshot;
-import org.asoem.greyfish.core.genes.GeneSnapshotVector;
+import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.UniparentalChromosomalOrigin;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -41,16 +42,16 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Element(name = "clutchSize")
     private GreyfishExpression clutchSize;
 
-    private ElementSelectionStrategy<GeneSnapshotVector> spermSelectionStrategy;
+    private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
 
     private GreyfishExpression spermFitnessEvaluator = GreyfishExpressionFactoryHolder.compile("0"); // TODO: make field configurable
 
-    private final BiMap<String, ElementSelectionStrategy<GeneSnapshotVector>> strategies =
+    private final BiMap<String, ElementSelectionStrategy<Chromosome>> strategies =
             ImmutableBiMap.of(
-                    "Random", ElementSelectionStrategies.<GeneSnapshotVector>randomSelection(),
-                    "Roulette Wheel", ElementSelectionStrategies.<GeneSnapshotVector>rouletteWheelSelection(new Function<GeneSnapshotVector, Double>() {
+                    "Random", ElementSelectionStrategies.<Chromosome>randomSelection(),
+                    "Roulette Wheel", ElementSelectionStrategies.<Chromosome>rouletteWheelSelection(new Function<Chromosome, Double>() {
                 @Override
-                public Double apply(@Nullable GeneSnapshotVector genes) {
+                public Double apply(@Nullable Chromosome genes) {
                     assert genes != null;
                     return spermFitnessEvaluator.evaluateForContext(SexualReproductionAction.this).asDouble();
                 }
@@ -70,21 +71,23 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         LOGGER.debug("Producing {} offspring ", clutchSize);
 
-        GeneSnapshotVector egg = new GeneSnapshotVector(agent().getId(), Iterables.transform(agent().getChromosome(), new Function<Gene<?>, GeneSnapshot<?>>() {
-            @Override
-            public GeneSnapshot<?> apply(@Nullable Gene<?> gene) {
-                assert gene != null;
-                return new GeneSnapshot<Object>(gene.get(), gene.getRecombinationProbability());
-            }
-        }));
+        Chromosome egg = new Chromosome(
+                new UniparentalChromosomalOrigin(agent().getId()),
+                Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
+                    @Override
+                    public Gene<?> apply(@Nullable GeneComponent<?> gene) {
+                        assert gene != null;
+                        return new Gene<Object>(gene.get(), gene.getRecombinationProbability());
+                    }
+                }));
 
         final int eggCount = clutchSize.evaluateForContext(this).asInt();
 
-        for (GeneSnapshotVector sperm : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
+        for (Chromosome sperm : spermSelectionStrategy.pick(spermStorage.get(), eggCount)) {
 
-            Agent child = simulation.createAgent(agent().getPopulation());
-            child.updateChromosome(egg.recombined(sperm));
-            simulation.activateAgent(child, agent().getProjection());
+            Agent offspring = simulation.createAgent(agent().getPopulation());
+            offspring.updateGeneComponents(egg.recombined(sperm));
+            simulation.activateAgent(offspring, agent().getProjection());
 
             agent().logEvent(this, "offspringProduced", "");
         }
@@ -115,9 +118,9 @@ public class SexualReproductionAction extends AbstractGFAction {
                 return Iterables.filter(agent().getProperties(), EvaluatedGenomeStorage.class);
             }
         });
-        
+
         e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
-            
+
             @Override
             public Iterable<String> values() {
                 return strategies.keySet();
@@ -184,10 +187,10 @@ public class SexualReproductionAction extends AbstractGFAction {
     protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
         private EvaluatedGenomeStorage spermStorage;
         private GreyfishExpression clutchSize = GreyfishExpressionFactoryHolder.compile("1");
-        public ElementSelectionStrategy<GeneSnapshotVector> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
+        public ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
 
         public T spermStorage(EvaluatedGenomeStorage spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
         public T clutchSize(GreyfishExpression nOffspring) { this.clutchSize = nOffspring; return self(); }
-        public T spermSelectionStrategy(ElementSelectionStrategy<GeneSnapshotVector> selectionStrategy) { this.spermSelectionStrategy = checkNotNull(selectionStrategy); return self(); }
+        public T spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) { this.spermSelectionStrategy = checkNotNull(selectionStrategy); return self(); }
     }
 }

@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
-import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
 
 /**
@@ -28,7 +28,7 @@ public class ComponentVisitorAdaptor implements ComponentVisitor {
     }
 
     @Override
-    public void visit(Gene<?> gene) {
+    public void visit(GeneComponent<?> gene) {
     }
 
     @Override

@@ -32,7 +32,7 @@ public interface GeneController<T> {
     double normalizedWeightedDistance(T orig, T copy);
 
     /**
-     * This function is intended to generate a value to which a {@code Gene}
+     * This function is intended to generate a value to which a {@code GeneComponent}
      * will be initialize when (and probably ony when) an agent is generated from a prototype.
      * @return some value dependent on the implementation
      */

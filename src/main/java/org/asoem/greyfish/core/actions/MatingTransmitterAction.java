@@ -7,10 +7,12 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
-import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.*;
+import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.UniparentalChromosomalOrigin;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -108,27 +110,18 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
         if (RandomUtils.trueWithProbability(probability)) {
 
+            final Chromosome chromosome = new Chromosome(
+                    new UniparentalChromosomalOrigin(agent().getId()),
+                    Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
+                        @Override
+                        public Gene<?> apply(@Nullable GeneComponent<?> geneComponent) {
+                            assert geneComponent != null;
+                            return new Gene<Object>(geneComponent.get(), geneComponent.getRecombinationProbability());
+                        }
+                    }));
 
 
-
-            final Chromosome<Gene<?>> sperm = ImmutableChromosome.copyOf(agent().getChromosome());
-            double fitness = 0.0;
-            try {
-                fitness = spermFitness.evaluateForContext(this).asDouble();
-            } catch (EvaluationException e) {
-                LOGGER.error("Evaluation of spermFitness failed: {}", spermFitness, e);
-            }
-
-            final GeneSnapshotVector alleleVector = new GeneSnapshotVector(agent().getId(), Iterables.transform(agent().getChromosome(), new Function<Gene<?>, GeneSnapshot<?>>() {
-                @Override
-                public GeneSnapshot<?> apply(@Nullable Gene<?> gene) {
-                    assert gene != null;
-                    return new GeneSnapshot<Object>(gene.get(), gene.getRecombinationProbability());
-                }
-            }));
-
-
-            reply.content(new EvaluatedChromosome<Gene<?>>(sperm, fitness), EvaluatedChromosome.class)
+            reply.content(chromosome, Chromosome.class)
                     .performative(ACLPerformative.PROPOSE);
 
             LOGGER.debug("Accepted mating with p={}", probability);
@@ -143,9 +136,9 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
-        // costs for mating define quality of the chromosome
+        // costs for mating define quality of the geneComponentList
 //        DoubleProperty doubleProperty = null;
-//        Chromosome sperm = null;
+//        GeneComponentList sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.parallelApply(sperm));
 
         return ImmutableACLMessage.createReply(message, getAgent())

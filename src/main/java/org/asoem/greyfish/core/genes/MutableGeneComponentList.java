@@ -15,21 +15,21 @@ import javax.annotation.Nullable;
  * Date: 09.09.11
  * Time: 15:21
  */
-public class MutableChromosome<E extends Gene<?>> extends AbstractChromosome<E> {
+public class MutableGeneComponentList<E extends GeneComponent<?>> extends AbstractGeneComponentList<E> {
 
     @Element(name = "genes")
     private final ComponentList<E> delegate;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private MutableChromosome(@Element(name = "genes") ComponentList<E> genes) {
+    private MutableGeneComponentList(@Element(name = "genes") ComponentList<E> genes) {
         delegate = genes;
     }
 
-    public MutableChromosome(Iterable<? extends E> genome) {
+    public MutableGeneComponentList(Iterable<? extends E> genome) {
         delegate = new MutableComponentList<E>(genome);
     }
 
-    protected MutableChromosome(MutableChromosome<E> parent, final DeepCloner cloner) {
+    protected MutableGeneComponentList(MutableGeneComponentList<E> parent, final DeepCloner cloner) {
         cloner.addClone(this);
         delegate = new MutableComponentList<E>(Iterables.transform(parent.delegate, new Function<E, E>() {
             @SuppressWarnings("unchecked") // its a save downcast
@@ -48,6 +48,6 @@ public class MutableChromosome<E extends Gene<?>> extends AbstractChromosome<E> 
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new MutableChromosome<E>(this, cloner);
+        return new MutableGeneComponentList<E>(this, cloner);
     }
 }

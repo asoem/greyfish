@@ -6,10 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneSnapshot;
-import org.asoem.greyfish.core.genes.GeneSnapshotVector;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -46,8 +43,8 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "actions")
     protected final ComponentList<GFAction> actions;
 
-    @Element(name = "chromosome")
-    protected final Chromosome<Gene<?>> chromosome;
+    @Element(name = "geneComponentList")
+    protected final GeneComponentList<GeneComponent<?>> geneComponentList;
 
     @Element(name = "body")
     protected final Body body;
@@ -71,23 +68,23 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(Body body,
                             ComponentList<GFProperty> properties,
                             ComponentList<GFAction> actions,
-                            Chromosome<Gene<?>> chromosome) {
+                            GeneComponentList<GeneComponent<?>> geneComponentList) {
         this.body = checkNotNull(body);
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
-        this.chromosome = checkNotNull(chromosome);
+        this.geneComponentList = checkNotNull(geneComponentList);
 
         rootComponent = new AgentComponentWrapper(Iterables.concat(
                 Collections.singleton(body),
                 properties,
                 actions,
-                chromosome
+                geneComponentList
         ));
         rootComponent.setAgent(this);
     }
 
     public AbstractAgent(AbstractAgent agent) {
-        this(agent.getBody(), agent.getProperties(), agent.getActions(), agent.getChromosome());
+        this(agent.getBody(), agent.getProperties(), agent.getActions(), agent.getGeneComponentList());
         this.population = agent.population;
         this.simulationContext = agent.simulationContext;
         this.object2D = agent.object2D;
@@ -106,7 +103,7 @@ public abstract class AbstractAgent implements Agent {
         this.population = abstractAgent.population;
         this.actions = (ComponentList<GFAction>) cloner.cloneField(abstractAgent.actions, ComponentList.class);
         this.properties = (ComponentList<GFProperty>) cloner.cloneField(abstractAgent.properties, ComponentList.class);
-        this.chromosome = cloner.cloneField(abstractAgent.chromosome, Chromosome.class);
+        this.geneComponentList = cloner.cloneField(abstractAgent.geneComponentList, GeneComponentList.class);
         this.body = cloner.cloneField(abstractAgent.body, Body.class);
         this.object2D = abstractAgent.object2D;
         this.motion = abstractAgent.motion;
@@ -115,7 +112,7 @@ public abstract class AbstractAgent implements Agent {
                 Collections.singleton(body),
                 properties,
                 actions,
-                chromosome
+                geneComponentList
         ));
         rootComponent.setAgent(this);
     }
@@ -194,41 +191,31 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public boolean addGene(Gene<?> gene) {
-        return addComponent(chromosome, gene);
+    public boolean addGene(GeneComponent<?> gene) {
+        return addComponent(geneComponentList, gene);
     }
 
     @Override
-    public boolean removeGene(Gene<?> gene) {
-        return removeComponent(chromosome, gene);
+    public boolean removeGene(GeneComponent<?> gene) {
+        return removeComponent(geneComponentList, gene);
     }
 
     @Override
     public void removeAllGenes() {
-        clearComponentList(chromosome);
+        clearComponentList(geneComponentList);
     }
 
     @Override
-    public Chromosome<Gene<?>> getChromosome() {
-        return chromosome;
+    public GeneComponentList<GeneComponent<?>> getGeneComponentList() {
+        return geneComponentList;
     }
 
     @Override
     @Nullable
-    public <T extends Gene> T getGene(String name, Class<T> clazz) {
+    public <T extends GeneComponent> T getGene(String name, Class<T> clazz) {
         checkNotNull(clazz);
 
-        return chromosome.find(name, clazz);
-    }
-
-    @Override
-    public void injectGamete(Chromosome<? extends Gene<?>> chromosome) {
-        this.chromosome.updateAllGenes(chromosome);
-    }
-
-    @Override
-    public void initGenome() {
-        chromosome.initGenes();
+        return geneComponentList.find(name, clazz);
     }
 
     /**
@@ -391,16 +378,16 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void updateChromosome(GeneSnapshotVector vector) {
-        checkNotNull(vector);
-        chromosome.updateGenes(Iterables.transform(vector.getSnapshots(), new Function<GeneSnapshot<?>, Object>() {
+    public void updateGeneComponents(Chromosome chromosome) {
+        checkNotNull(chromosome);
+        geneComponentList.updateGenes(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
             @Override
-            public Object apply(@Nullable GeneSnapshot<?> o) {
+            public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
                 return o.getValue();
             }
         }));
-        chromosome.setOrigin();
+        geneComponentList.setOrigin(chromosome.getOrigin());
     }
 
     @Override
@@ -416,7 +403,7 @@ public abstract class AbstractAgent implements Agent {
         if (object2D != null ? !object2D.equals(that.object2D) : that.object2D != null) return false;
         if (actions != null ? !actions.equals(that.actions) : that.actions != null) return false;
         if (body != null ? !body.equals(that.body) : that.body != null) return false;
-        if (chromosome != null ? !chromosome.equals(that.chromosome) : that.chromosome != null) return false;
+        if (geneComponentList != null ? !geneComponentList.equals(that.geneComponentList) : that.geneComponentList != null) return false;
         if (inBox != null ? !inBox.equals(that.inBox) : that.inBox != null) return false;
         if (motion != null ? !motion.equals(that.motion) : that.motion != null) return false;
         if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
@@ -428,7 +415,7 @@ public abstract class AbstractAgent implements Agent {
     public int hashCode() {
         int result = properties != null ? properties.hashCode() : 0;
         result = 31 * result + (actions != null ? actions.hashCode() : 0);
-        result = 31 * result + (chromosome != null ? chromosome.hashCode() : 0);
+        result = 31 * result + (geneComponentList != null ? geneComponentList.hashCode() : 0);
         result = 31 * result + (body != null ? body.hashCode() : 0);
         result = 31 * result + (population != null ? population.hashCode() : 0);
         result = 31 * result + (simulationContext != null ? simulationContext.hashCode() : 0);
@@ -441,14 +428,14 @@ public abstract class AbstractAgent implements Agent {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
         protected final ComponentList<GFProperty> properties =  new MutableComponentList<GFProperty>();
         protected final Population population;
-        public final ComponentList<Gene<?>> genes = new MutableComponentList<Gene<?>>();
+        public final ComponentList<GeneComponent<?>> genes = new MutableComponentList<GeneComponent<?>>();
 
         protected AbstractBuilder(Population population) {
             this.population = checkNotNull(population, "Population must not be null");
         }
 
         // todo: these builder methods are not able to control the mutability of the genes
-        public T addGenes(Gene<?> ... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
+        public T addGenes(GeneComponent<?>... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
         public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
         public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
     }

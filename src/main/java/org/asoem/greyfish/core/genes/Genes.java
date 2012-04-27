@@ -1,40 +1,53 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.ImmutableList;
+import org.asoem.greyfish.utils.math.RandomUtils;
+
 import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.size;
 
 /**
  * User: christoph
- * Date: 22.02.11
- * Time: 11:43
+ * Date: 27.04.12
+ * Time: 10:44
  */
 public class Genes {
+    public static List<Gene<?>> recombine(final List<? extends Gene<?>> thisGenes, final List<? extends Gene<?>> thatGenes) {
 
-    public static double normalizedDistance(Iterable<? extends Gene<?>> thisGenes, Iterable<? extends Gene<?>> thatGenes) {
-        checkArgument( size(checkNotNull(thisGenes)) == size(checkNotNull(thatGenes)) );
+        checkArgument(thisGenes.size() == thatGenes.size(), "Gene lists must have the same length");
 
-        double ret = 0;
+        return ImmutableList.copyOf(new AbstractIterator<Gene<?>>() {
 
-        final Iterator<? extends Gene<?>> other_genome_iter = thisGenes.iterator();
-        final Iterator<? extends Gene<?>> this_genome_iter = thatGenes.iterator();
+            private final Iterator<? extends Gene<?>> thisIterator = thisGenes.iterator();
+            private final Iterator<? extends Gene<?>> thatIterator = thatGenes.iterator();
 
-        while (this_genome_iter.hasNext() && other_genome_iter.hasNext()) {
+            private boolean thisOrThat = false;
 
-            Gene<?> thisGene = this_genome_iter.next();
-            Gene<?> thatGene = other_genome_iter.next();
+            @Override
+            protected Gene<?> computeNext() {
 
-//            if (!thisGene.isMutatedCopyOf(thatGene))
-//                throw new IllegalArgumentException("Genes are not compatible: " + thisGene + ", " + thatGene);
+                if (! thisIterator.hasNext()) {
+                    return endOfData();
+                }
 
-            if (!thisGene.getSupplierClass().equals(thatGene.getSupplierClass()))
-                throw new IllegalArgumentException("Genes implemented with different types: this: " + thisGene.getSupplierClass() + ", that: " + thatGene.getSupplierClass());
+                assert thatIterator.hasNext();
 
-            ret += thisGene.distance(thatGene);
-        }
+                final Gene<?> thisGene = thisIterator.next();
+                final Gene<?> thatGene = thatIterator.next();
 
-        return ret;
+                final double recombinationProbability = (thisOrThat ? thisGene : thatGene).getRecombinationProbability();
+                if (recombinationProbability < 0 || recombinationProbability > 1)
+                    throw new AssertionError("Recombination probability has an invalid value: " + recombinationProbability);
+
+                final boolean recombine = RandomUtils.trueWithProbability(recombinationProbability);
+                if (recombine)
+                    thisOrThat = !thisOrThat;
+
+                return (thisOrThat ? thisGene : thatGene);
+            }
+        });
     }
 }

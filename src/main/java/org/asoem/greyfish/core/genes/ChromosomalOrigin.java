@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
+import java.util.Set;
+
 /**
  * User: christoph
  * Date: 26.04.12
@@ -7,5 +9,5 @@ package org.asoem.greyfish.core.genes;
  */
 
 public interface ChromosomalOrigin {
-    int parentCount();
+    Set<Integer> getParents();
 }

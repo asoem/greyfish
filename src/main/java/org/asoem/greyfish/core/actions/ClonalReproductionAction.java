@@ -5,10 +5,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneSnapshot;
-import org.asoem.greyfish.core.genes.GeneSnapshotVector;
-import org.asoem.greyfish.core.genes.ImmutableChromosome;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -37,13 +34,15 @@ public class ClonalReproductionAction extends AbstractGFAction {
         for (int i = 0; i < nClones; i++) {
 
             final Agent agent = simulation.createAgent(agent().getPopulation());
-            agent.updateChromosome(new GeneSnapshotVector(agent().getId(), Iterables.transform(ImmutableChromosome.mutatedCopyOf(agent().getChromosome()), new Function<Gene<?>, GeneSnapshot<?>>() {
-                @Override
-                public GeneSnapshot<?> apply(@Nullable Gene<?> gene) {
-                    assert gene != null;
-                    return new GeneSnapshot<Object>(gene.get(), gene.getRecombinationProbability());
-                }
-            })));
+            agent.updateGeneComponents(
+                    new Chromosome(new UniparentalChromosomalOrigin(agent().getId()),
+                            Iterables.transform(ImmutableGeneComponentList.mutatedCopyOf(agent().getGeneComponentList()), new Function<GeneComponent<?>, Gene<?>>() {
+                                @Override
+                                public Gene<?> apply(@Nullable GeneComponent<?> gene) {
+                                    assert gene != null;
+                                    return new Gene<Object>(gene.get(), gene.getRecombinationProbability());
+                                }
+                            })));
             simulation.activateAgent(agent, agent().getProjection());
 
             agent().logEvent(this, "offspringProduced", "");

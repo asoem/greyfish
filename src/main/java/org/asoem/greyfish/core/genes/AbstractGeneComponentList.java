@@ -14,20 +14,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 08.02.12
  * Time: 11:08
  */
-public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingList<E> implements Chromosome<E> {
+public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> extends ForwardingList<E> implements GeneComponentList<E> {
 
     private ChromosomalOrigin chromosomalOrigin = NoChromosomalOrigin.INSTANCE;
 
-    protected AbstractChromosome() {
+    protected AbstractGeneComponentList() {
     }
 
-    public boolean isCompatible(Chromosome<? extends Gene<?>> chromosome) {
-        if (chromosome == null || this.size() != chromosome.size())
+    public boolean isCompatible(GeneComponentList<? extends GeneComponent<?>> geneComponentList) {
+        if (geneComponentList == null || this.size() != geneComponentList.size())
             return false;
 
         final Iterator<E> this_genome_iterator = this.iterator();
 
-        for (Gene<?> gene : chromosome) {
+        for (GeneComponent<?> gene : geneComponentList) {
             if (!this_genome_iterator.next().isMutatedCopy(gene)) {
                 return false;
             }
@@ -37,10 +37,10 @@ public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingLi
     }
 
     @Override
-    public void updateAllGenes(Chromosome<? extends E> chromosome) {
-        checkArgument(isCompatible(chromosome), "Given chromosome %s is not compatible to this chromosome %s.", chromosome, this);
+    public void updateAllGenes(GeneComponentList<? extends E> geneComponentList) {
+        checkArgument(isCompatible(geneComponentList), "Given geneComponentList %s is not compatible to this geneComponentList %s.", geneComponentList, this);
 
-        final Iterator<? extends E> sourceIterator = chromosome.iterator();
+        final Iterator<? extends E> sourceIterator = geneComponentList.iterator();
         final Iterator<E> destinationIterator = this.iterator();
 
         while (sourceIterator.hasNext() && destinationIterator.hasNext()) {
@@ -71,7 +71,7 @@ public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingLi
 
     @Override
     public void initGenes() {
-        for(Gene<?> gene : this) {
+        for(GeneComponent<?> gene : this) {
             gene.setValue(gene.getGeneController().createInitialValue());
         }
     }
@@ -85,8 +85,8 @@ public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingLi
     }
 
     @Override
-    public double distance(Chromosome<? extends E> that) {
-        return Genes.normalizedDistance(this, that);
+    public double distance(GeneComponentList<? extends E> that) {
+        return GenesComponents.normalizedDistance(this, that);
     }
 
     @Override

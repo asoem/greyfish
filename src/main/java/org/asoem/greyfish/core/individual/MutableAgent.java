@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.MutableChromosome;
+import org.asoem.greyfish.core.genes.GeneComponentList;
+import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.MutableGeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -20,7 +20,7 @@ public class MutableAgent extends AbstractAgent {
         super(new Body(),
                 new MutableComponentList<GFProperty>(builder.properties),
                 new MutableComponentList<GFAction>(builder.actions),
-                new MutableChromosome<Gene<?>>(builder.genes));
+                new MutableGeneComponentList<GeneComponent<?>>(builder.genes));
         setPopulation(builder.population);
     }
 
@@ -28,15 +28,15 @@ public class MutableAgent extends AbstractAgent {
     private MutableAgent(@Element(name = "body") Body body,
                            @Element(name = "properties") ComponentList<GFProperty> properties,
                            @Element(name = "actions") ComponentList<GFAction> actions,
-                           @Element(name = "chromosome") Chromosome<Gene<?>> chromosome) {
-        super(body, properties, actions, chromosome);
+                           @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
+        super(body, properties, actions, geneComponentList);
     }
 
     public MutableAgent(Agent agent) {
         super(new Body(agent.getBody()),
                 new MutableComponentList<GFProperty>(agent.getProperties()),
                 new MutableComponentList<GFAction>(agent.getActions()),
-                new MutableChromosome<Gene<?>>(agent.getChromosome()));
+                new MutableGeneComponentList<GeneComponent<?>>(agent.getGeneComponentList()));
         setPopulation(agent.getPopulation());
     }
 

@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.GeneSnapshotVector;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -60,7 +60,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("ImmutableChromosome Storage", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
+        e.add("ImmutableGeneComponentList Storage", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
             @Override
             protected void set(EvaluatedGenomeStorage arg0) {
                 spermBuffer = checkNotNull(arg0);
@@ -112,10 +112,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 });
     }
 
-    private void receiveGenome(GeneSnapshotVector genome, Agent sender, Simulation simulation) {
-        spermBuffer.addGenome(genome);
+    private void receiveSperm(Chromosome chromosome, Agent sender, Simulation simulation) {
+        spermBuffer.addGenome(chromosome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
-        LOGGER.trace(getAgent() + " received sperm: " + genome);
+        LOGGER.trace(getAgent() + " received sperm: " + chromosome);
     }
 
     @Override
@@ -135,10 +135,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
         ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
-            GeneSnapshotVector evaluatedGenome = message.getContent(GeneSnapshotVector.class);
+            Chromosome chromosome = message.getContent(Chromosome.class);
             final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
             if (RandomUtils.trueWithProbability(probability)) {
-                receiveGenome(evaluatedGenome, message.getSender(), simulation);
+                receiveSperm(chromosome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
                 LOGGER.debug("Accepted mating with p={}", probability);
             }
@@ -147,7 +147,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 LOGGER.debug("Refused mating with p={}", probability);
             }
         } catch (ClassCastException e) {
-            throw new NotUnderstoodException("Payload of message is not of type EvaluatedChromosome: " + message.getContentClass(), e);
+            throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + message.getContentClass(), e);
         }
 
         return builder;

@@ -1,15 +1,37 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.individual.ComponentList;
+import com.google.common.collect.ImmutableList;
 
-public interface Chromosome<E extends Gene<?>> extends ComponentList<E> {
-    double distance(Chromosome<? extends E> chromosome);
-    boolean isCompatible(Chromosome<? extends Gene<?>> chromosome);
-    void updateAllGenes(Chromosome<? extends E> chromosome);
+import java.util.List;
 
-    void initGenes();
-    void updateGenes(Iterable<?> values);
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    ChromosomalOrigin getOrigin();
-    void setOrigin(ChromosomalOrigin origin);
+/**
+ * User: christoph
+ * Date: 25.04.12
+ * Time: 15:27
+ */
+public class Chromosome {
+
+    final List<Gene<?>> genes;
+    final ChromosomalOrigin origin;
+
+    public Chromosome(ChromosomalOrigin origin, Iterable<? extends Gene<?>> genes) {
+        this.origin = checkNotNull(origin);
+        this.genes = ImmutableList.copyOf(genes);
+    }
+
+    public ChromosomalOrigin getOrigin() {
+        return origin;
+    }
+
+    public Iterable<Gene<?>> getGenes() {
+        return genes;
+    }
+
+    public Chromosome recombined(Chromosome other) {
+        return new Chromosome(
+                ChromosomalOrigins.merge(this.origin, other.origin),
+                Genes.recombine(this.genes, other.genes));
+    }
 }

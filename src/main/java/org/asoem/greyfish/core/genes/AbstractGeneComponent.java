@@ -16,20 +16,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 07.02.12
  * Time: 12:15
  */
-public abstract class AbstractGene<T> extends AbstractAgentComponent implements Gene<T> {
+public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent implements GeneComponent<T> {
 
-    protected AbstractGene() {
+    protected AbstractGeneComponent() {
     }
 
-    protected AbstractGene(AbstractAgentComponent cloneable, DeepCloner map) {
+    protected AbstractGeneComponent(AbstractAgentComponent cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    protected AbstractGene(String name) {
+    protected AbstractGeneComponent(String name) {
         super(name);
     }
 
-    public AbstractGene(AbstractBuilder<? extends AbstractGene<?>, ? extends AbstractBuilder> builder) {
+    public AbstractGeneComponent(AbstractBuilder<? extends AbstractGeneComponent<?>, ? extends AbstractBuilder> builder) {
         super(builder);
     }
 
@@ -39,7 +39,7 @@ public abstract class AbstractGene<T> extends AbstractAgentComponent implements 
     }
 
     @Override
-    public final double distance(Gene<?> thatGene) {
+    public final double distance(GeneComponent<?> thatGene) {
         checkNotNull(thatGene);
         checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
         return getGeneController().normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
@@ -61,7 +61,7 @@ public abstract class AbstractGene<T> extends AbstractAgentComponent implements 
     }
 
     @Override
-    public boolean isMutatedCopy(@Nullable Gene<?> gene) {
+    public boolean isMutatedCopy(@Nullable GeneComponent<?> gene) {
         return gene != null && gene.getSupplierClass().equals(this.getSupplierClass());
     }
 

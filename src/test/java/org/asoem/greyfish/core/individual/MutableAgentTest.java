@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -37,7 +37,7 @@ public class MutableAgentTest {
     @Test
     public void testAddGene() throws Exception {
         // given
-        final Gene gene = mock(Gene.class);
+        final GeneComponent gene = mock(GeneComponent.class);
         MutableAgent agent = MutableAgent.of(mock(Population.class)).build();
 
         // when
@@ -51,14 +51,14 @@ public class MutableAgentTest {
     @Test
     public void testGetGene() throws Exception {
         // given
-        final Gene gene = mock(Gene.class);
+        final GeneComponent gene = mock(GeneComponent.class);
         MutableAgent agent = MutableAgent.of(mock(Population.class)).build();
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
         agent.addGene(gene);
 
         // when
-        Gene ret = agent.getGene("foo", Gene.class);
+        GeneComponent ret = agent.getGene("foo", GeneComponent.class);
 
         // then
         assertThat(ret).isEqualTo(gene);

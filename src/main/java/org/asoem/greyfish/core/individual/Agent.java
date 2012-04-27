@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.individual;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneSnapshotVector;
+import org.asoem.greyfish.core.genes.GeneComponentList;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulatable2D;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -41,27 +41,17 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
     ComponentList<GFProperty> getProperties();
     @Nullable <T extends GFProperty> T getProperty(String name, Class<T> clazz);
 
-    boolean addGene(Gene<?> gene);
-    boolean removeGene(Gene<?> gene);
+    boolean addGene(GeneComponent<?> gene);
+    boolean removeGene(GeneComponent<?> gene);
     void removeAllGenes();
-    Chromosome<Gene<?>> getChromosome();
-    @Nullable <T extends Gene> T getGene(String name, Class<T> clazz);
+    GeneComponentList<GeneComponent<?>> getGeneComponentList();
+    @Nullable <T extends GeneComponent> T getGene(String name, Class<T> clazz);
 
     /**
-     * Inject a copy of this agents chromosome so that this agents genes return the values of the genes in the given chromosome
-     *
-     *
-     * @param chromosome a copy of this agents chromosome
-     * if {@code chromosome} is not a copy of this agents chromosome as defined by {@link org.asoem.greyfish.core.genes.Chromosome#isCompatible}
-     */
-    void injectGamete(Chromosome<? extends Gene<?>> chromosome);
-    void initGenome();
-
-    /**
-     * Update the agent's chromosome with the values of the {@link org.asoem.greyfish.core.genes.GeneSnapshot}s in the given {@code vector}
+     * Update the agent's geneComponentList with the values of the {@link org.asoem.greyfish.core.genes.Gene}s in the given {@code vector}
      * @param vector the vector containing the information for the update
      */
-    void updateChromosome(GeneSnapshotVector vector);
+    void updateGeneComponents(Chromosome vector);
 
     Body getBody();
     Color getColor();

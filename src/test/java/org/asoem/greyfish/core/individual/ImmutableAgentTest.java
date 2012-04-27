@@ -33,7 +33,8 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class ImmutableAgentTest {
 
-    @Mock Gene<?> gene;
+    @Mock
+    GeneComponent<?> gene;
     @Mock GFAction action;
     @Mock GFProperty property;
     @Mock Population population;
@@ -89,7 +90,7 @@ public class ImmutableAgentTest {
         ImmutableAgent agent = ImmutableAgent.of(population).addGenes(gene).build();
 
         // when
-        Gene ret = agent.getGene("foo", Gene.class);
+        GeneComponent ret = agent.getGene("foo", GeneComponent.class);
 
         // then
         verify(gene).setAgent(agent);
@@ -124,23 +125,6 @@ public class ImmutableAgentTest {
 
         // then
         assertThat(clone).isEqualTo(agent);
-    }
-
-    @Test
-    public void testInjectGamete() throws Exception {
-        // given
-        final GeneControllerAdaptor<String> geneController = new GeneControllerAdaptor<String>();
-        Gene<String> gene1 = new MutableGene<String>("Foo", String.class, geneController);
-        Gene<String> gene2 = ImmutableGene.of("DefaultName", "Bar", String.class, geneController);
-        Agent agent = ImmutableAgent.of(population).addGenes(gene1).build();
-
-        Chromosome<Gene<String>> chromosome = ImmutableChromosome.copyOf(Collections.singleton(gene2));
-
-        // when
-        agent.injectGamete(chromosome);
-
-        // then
-        assertThat(gene1.get()).isEqualTo(gene2.get());
     }
 
     @Test
@@ -188,7 +172,7 @@ public class ImmutableAgentTest {
     public void testPersistenceWithGenes() throws Exception {
         // given
         final Population population = Population.newPopulation("Test", Color.green);
-        final Gene<?> gene = new DoubleGene();
+        final GeneComponent<?> gene = new DoubleGeneComponent();
         final Agent agent = ImmutableAgent.of(population).addGenes(gene).build();
 
         // when

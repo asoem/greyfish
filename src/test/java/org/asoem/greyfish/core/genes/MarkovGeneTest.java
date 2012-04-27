@@ -32,10 +32,10 @@ public class MarkovGeneTest {
         // given
         final EvaluatingMarkovChain<String> markovChain = EvaluatingMarkovChain.parse("A -> B : 1.0", factory);
         final GreyfishExpression initialState = factory.compile("\"A\"");
-        MarkovGene markovGene = new MarkovGene(markovChain, initialState);
+        MarkovGeneComponent markovGene = new MarkovGeneComponent(markovChain, initialState);
 
         // when
-        MarkovGene deserialized = Persisters.createCopy(markovGene, MarkovGene.class, persister);
+        MarkovGeneComponent deserialized = Persisters.createCopy(markovGene, MarkovGeneComponent.class, persister);
 
         // then
         assertThat(deserialized.getMarkovChain()).isEqualTo(markovChain);

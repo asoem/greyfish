@@ -8,7 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
-import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -59,11 +59,11 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         }
                     });
                 }
-                else if (Gene.class.isAssignableFrom(contextClass)) {
-                    return gene(gomParts, new Function<T, Gene>() {
+                else if (GeneComponent.class.isAssignableFrom(contextClass)) {
+                    return gene(gomParts, new Function<T, GeneComponent>() {
                         @Override
-                        public Gene apply(@Nullable T agentComponent) {
-                            return Gene.class.cast(agentComponent);
+                        public GeneComponent apply(@Nullable T agentComponent) {
+                            return GeneComponent.class.cast(agentComponent);
                         }
                     });
                 }
@@ -164,14 +164,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                                     }
                                 });
                             }
-                            else if (Gene.class.isInstance(target)) {
-                                return gene(gomParts, new Function<T, Gene>() {
+                            else if (GeneComponent.class.isInstance(target)) {
+                                return gene(gomParts, new Function<T, GeneComponent>() {
                                     @Override
-                                    public Gene apply(@Nullable T t) {
+                                    public GeneComponent apply(@Nullable T t) {
                                         final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
                                         if (agent1 == null)
                                             throw new AssertionError("Agent must not be null at this point");
-                                        return agent1.getGene(componentName, Gene.class);
+                                        return agent1.getGene(componentName, GeneComponent.class);
                                     }
                                 });
                             }
@@ -304,21 +304,21 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         }
     }
 
-    private <T> Function<T, ?> gene(Iterator<String> parts, Function<T, Gene> ret) {
+    private <T> Function<T, ?> gene(Iterator<String> parts, Function<T, GeneComponent> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
             if ("value".equals(nextPart)) {
-                return Functions.compose(new Function<Gene, Object>() {
+                return Functions.compose(new Function<GeneComponent, Object>() {
                     @Override
-                    public Object apply(@Nullable Gene gene) {
+                    public Object apply(@Nullable GeneComponent gene) {
                         return checkNotNull(gene).get();
                     }
                 }, ret);
             }
 
             else
-                throw new RuntimeException("Gene has no member named " + nextPart);
+                throw new RuntimeException("GeneComponent has no member named " + nextPart);
         }
         else {
             return ret;
@@ -367,11 +367,11 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             matcher = Pattern.compile("genes\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
             if (matcher.matches()) {
                 final String geneName = matcher.group(1);
-                return gene(parts, Functions.compose(new Function<Agent, Gene>() {
+                return gene(parts, Functions.compose(new Function<Agent, GeneComponent>() {
                     @Override
-                    public Gene apply(@Nullable Agent agent) {
+                    public GeneComponent apply(@Nullable Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen
-                        return checkNotNull(agent).getGene(geneName, Gene.class);
+                        return checkNotNull(agent).getGene(geneName, GeneComponent.class);
                     }
                 }, ret));
             }

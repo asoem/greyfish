@@ -29,14 +29,14 @@ public class DoubleGeneTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final DoubleGene doubleGene = new DoubleGene();
+        final DoubleGeneComponent doubleGene = new DoubleGeneComponent();
         doubleGene.setName("test");
         doubleGene.setInitialValue(expressionFactory.compile("1.0"));
         doubleGene.setMutation(expressionFactory.compile("rnorm(0.0, 1.0)"));
         doubleGene.setDistanceMetric(expressionFactory.compile("1.0"));
 
         // when
-        final DoubleGene persistentGene = Persisters.createCopy(doubleGene, DoubleGene.class, persister);
+        final DoubleGeneComponent persistentGene = Persisters.createCopy(doubleGene, DoubleGeneComponent.class, persister);
 
         // then
         assertThat(persistentGene.getName()).isEqualTo("test");

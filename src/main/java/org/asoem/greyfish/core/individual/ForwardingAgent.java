@@ -4,8 +4,8 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneSnapshotVector;
+import org.asoem.greyfish.core.genes.GeneComponentList;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Motion2D;
@@ -128,16 +128,6 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void injectGamete(Chromosome<? extends Gene<?>> chromosome) {
-        delegate().injectGamete(chromosome);
-    }
-
-    @Override
-    public void initGenome() {
-        delegate().initGenome();
-    }
-
-    @Override
     public GFAction getLastExecutedAction() {
         return delegate().getLastExecutedAction();
     }
@@ -208,17 +198,17 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public <T extends Gene> T getGene(String geneName, Class<T> geneClass) {
+    public <T extends GeneComponent> T getGene(String geneName, Class<T> geneClass) {
         return delegate().getGene(geneName, geneClass);
     }
 
     @Override
-    public boolean addGene(Gene<?> gene) {
+    public boolean addGene(GeneComponent<?> gene) {
         return delegate().addGene(gene);
     }
 
     @Override
-    public boolean removeGene(Gene<?> gene) {
+    public boolean removeGene(GeneComponent<?> gene) {
         return delegate().removeGene(gene);
     }
 
@@ -228,8 +218,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Chromosome<Gene<?>> getChromosome() {
-        return delegate().getChromosome();
+    public GeneComponentList<GeneComponent<?>> getGeneComponentList() {
+        return delegate().getGeneComponentList();
     }
 
     @Override
@@ -263,7 +253,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void updateChromosome(GeneSnapshotVector vector) {
-        delegate().updateChromosome(vector);
+    public void updateGeneComponents(Chromosome vector) {
+        delegate().updateGeneComponents(vector);
     }
 }

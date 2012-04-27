@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.ImmutableChromosome;
+import org.asoem.greyfish.core.genes.GeneComponentList;
+import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.ImmutableGeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -25,8 +25,8 @@ public class ImmutableAgent extends AbstractAgent {
     private ImmutableAgent(@Element(name = "body") Body body,
                              @Element(name = "properties") ComponentList<GFProperty> properties,
                              @Element(name = "actions") ComponentList<GFAction> actions,
-                             @Element(name = "chromosome") Chromosome<Gene<?>> chromosome) {
-        super(body, properties, actions, chromosome);
+                             @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
+        super(body, properties, actions, geneComponentList);
         freeze();
     }
 
@@ -38,7 +38,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                ImmutableChromosome.copyOf(builder.genes));
+                ImmutableGeneComponentList.copyOf(builder.genes));
         setPopulation(builder.population);
         freeze();
     }
@@ -62,7 +62,7 @@ public class ImmutableAgent extends AbstractAgent {
                 clone.getBody(),
                 clone.getProperties(),
                 clone.getActions(),
-                ImmutableChromosome.copyOf(clone.getChromosome()));
+                ImmutableGeneComponentList.copyOf(clone.getGeneComponentList()));
         ret.setPopulation(clone.getPopulation());
         ret.setMotion(clone.getMotion());
         ret.setProjection(clone.getProjection());
@@ -103,7 +103,7 @@ public class ImmutableAgent extends AbstractAgent {
     }
 
     @Override
-    public boolean addGene(Gene<?> gene) {
+    public boolean addGene(GeneComponent<?> gene) {
         throw new UnsupportedOperationException();
     }
 }
