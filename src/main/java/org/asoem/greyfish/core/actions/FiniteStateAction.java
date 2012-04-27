@@ -71,8 +71,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        super.prepare(simulation);
+    public void initialize() {
+        super.initialize();
         nextStateKey = initialState();
         statefulExecutionCount = 0;
     }

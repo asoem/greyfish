@@ -8,6 +8,8 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneSnapshot;
+import org.asoem.greyfish.core.genes.GeneSnapshotVector;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -347,10 +349,14 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void activate(Simulation simulation) {
         setSimulationContext(new ActiveSimulationContext(simulation));
+    }
+
+    @Override
+    public void initialize() {
         for (AgentComponent component : getComponents()) {
-            component.prepare(simulation);
+            component.initialize();
         }
     }
 
@@ -382,6 +388,19 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void setMotion(Motion2D motion) {
         this.motion = checkNotNull(motion);
+    }
+
+    @Override
+    public void updateChromosome(GeneSnapshotVector vector) {
+        checkNotNull(vector);
+        chromosome.updateGenes(Iterables.transform(vector.getSnapshots(), new Function<GeneSnapshot<?>, Object>() {
+            @Override
+            public Object apply(@Nullable GeneSnapshot<?> o) {
+                assert o != null;
+                return o.getValue();
+            }
+        }));
+        chromosome.setOrigin();
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -76,10 +75,10 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        super.prepare(simulation);
+    public void initialize() {
+        super.initialize();
         for (GFCondition condition : conditions)
-            condition.prepare(simulation);
+            condition.initialize();
     }
 
     public void addAll(Iterable<? extends GFCondition> childConditions) {

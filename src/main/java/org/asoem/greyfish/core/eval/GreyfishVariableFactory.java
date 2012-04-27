@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class GreyfishVariableFactory {
     @Inject private static GreyfishVariableAccessorFactory FACTORY;
 
-    @SuppressWarnings({"UnusedDeclaration"})
+    @SuppressWarnings({"UnusedDeclaration", "unchecked"})
     public static <T> Object $(String expression, T ctx) {
         checkNotNull(ctx, "Context must not be null");
         return FACTORY.get(expression, (Class<T>) ctx.getClass()).apply(ctx);

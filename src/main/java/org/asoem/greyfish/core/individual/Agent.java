@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneSnapshotVector;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulatable2D;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -55,6 +56,12 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
      */
     void injectGamete(Chromosome<? extends Gene<?>> chromosome);
     void initGenome();
+
+    /**
+     * Update the agent's chromosome with the values of the {@link org.asoem.greyfish.core.genes.GeneSnapshot}s in the given {@code vector}
+     * @param vector the vector containing the information for the update
+     */
+    void updateChromosome(GeneSnapshotVector vector);
 
     Body getBody();
     Color getColor();

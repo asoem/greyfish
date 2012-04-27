@@ -25,4 +25,24 @@ public abstract class ForwardingChromosome<E extends Gene<?>> extends Forwarding
     public void initGenes() {
         delegate().initGenes();
     }
+
+    @Override
+    public void updateGenes(Iterable<?> values) {
+        delegate().updateGenes(values);
+    }
+
+    @Override
+    public void updateAllGenes(Chromosome<? extends E> genes) {
+        delegate().updateAllGenes(genes);
+    }
+
+    @Override
+    public ChromosomalOrigin getOrigin() {
+        return delegate().getOrigin();
+    }
+
+    @Override
+    public void setOrigin(ChromosomalOrigin origin) {
+        delegate().setOrigin(origin);
+    }
 }

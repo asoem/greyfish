@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.space.Location2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Set;
 import java.util.UUID;
@@ -43,13 +44,19 @@ public interface Simulation extends HasName {
     int generateAgentID();
 
     /**
-     * Creates a new {@link org.asoem.greyfish.core.individual.Agent} as clone of the prototype registered for given {@code population} with chromosome set to {@code chromosome}.
-     * The {@link org.asoem.greyfish.core.individual.Agent} will get inserted before and executed on the next step at given {@code location}.
-     * @param population The {@code Population} of the {@code AgentModel} the Agent will be cloned from.
-     * @param chromosome The chromosome which will be injected into the inserted Agent ({@link Agent#injectGamete(org.asoem.greyfish.core.genes.Chromosome)}).
-     * @param location the location where the {@code Agent} will enter the {@code Simulation}
+     * Create an {@code Agent} of type {@code population}, that is, a clone of the prototype registered for {@code population}.
+     * This method does not activate the agent, so you have to call {@link #activateAgent(org.asoem.greyfish.core.individual.Agent, org.asoem.greyfish.utils.space.Object2D)} afterwards.
+     * @param population the type of the created {@code Agent}
+     * @return an {@code Agent} of type {@code population}
      */
-    void createAgent(Population population, Chromosome<? extends Gene<?>> chromosome, Location2D location);
+    Agent createAgent(final Population population);
+
+    /**
+     * Activate the given {@code agent} in the next step represented in space by the given {@code projection}.
+     * @param agent the agent to activate
+     * @param projection the agent's representation in {@link org.asoem.greyfish.core.space.Space2D}
+     */
+    void activateAgent(Agent agent, Object2D projection);
 
     Set<Agent> getPrototypes();
 

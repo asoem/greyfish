@@ -10,8 +10,7 @@ import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * User: christoph
@@ -112,7 +111,8 @@ public class DoubleGene extends AbstractGene<Double> {
 
     @Override
     public void setValue(Object value) {
-        this.value = Double.class.cast(value);
+        checkArgument(value instanceof Double);
+        this.value = (Double) value;
     }
 
     @Override

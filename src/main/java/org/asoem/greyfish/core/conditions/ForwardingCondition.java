@@ -85,8 +85,8 @@ public abstract class ForwardingCondition extends ForwardingObject implements GF
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        delegate().prepare(simulation);
+    public void initialize() {
+        delegate().initialize();
     }
 
     @Override

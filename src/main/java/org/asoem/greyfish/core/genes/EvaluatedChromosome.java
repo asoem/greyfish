@@ -40,11 +40,6 @@ public class EvaluatedChromosome<E extends Gene<?>> extends ForwardingChromosome
     }
 
     @Override
-    public void updateAllGenes(Chromosome<? extends E> genes) {
-        delegate().updateAllGenes(genes);
-    }
-
-    @Override
     public int compareTo(EvaluatedChromosome<E> o) {
         return Double.compare(this.fitness(), o.fitness());
     }

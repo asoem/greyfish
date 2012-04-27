@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.genes.EvaluatedChromosome;
 import org.asoem.greyfish.core.genes.GeneSnapshotVector;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
@@ -113,7 +112,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 });
     }
 
-    private void receiveGenome(EvaluatedChromosome genome, Agent sender, Simulation simulation) {
+    private void receiveGenome(GeneSnapshotVector genome, Agent sender, Simulation simulation) {
         spermBuffer.addGenome(genome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
         LOGGER.trace(getAgent() + " received sperm: " + genome);
@@ -136,7 +135,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
         ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
-            EvaluatedChromosome evaluatedGenome = message.getContent(GeneSnapshotVector.class);
+            GeneSnapshotVector evaluatedGenome = message.getContent(GeneSnapshotVector.class);
             final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
             if (RandomUtils.trueWithProbability(probability)) {
                 receiveGenome(evaluatedGenome, message.getSender(), simulation);
@@ -160,8 +159,8 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        super.prepare(simulation);
+    public void initialize() {
+        super.initialize();
         spermBuffer.clear();
     }
 

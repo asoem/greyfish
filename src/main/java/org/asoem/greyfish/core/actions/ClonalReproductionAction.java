@@ -1,18 +1,23 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneSnapshot;
+import org.asoem.greyfish.core.genes.GeneSnapshotVector;
 import org.asoem.greyfish.core.genes.ImmutableChromosome;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.Location2D;
 import org.simpleframework.xml.Element;
+
+import javax.annotation.Nullable;
 
 @ClassGroup(tags="actions")
 public class ClonalReproductionAction extends AbstractGFAction {
@@ -27,13 +32,19 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
     @Override
     protected ActionState proceed(Simulation simulation) {
-        final Location2D locatable = agent().getProjection();
-        final Population population = agent().getPopulation();
 
         final int nClones = this.nClones.evaluateForContext(this).asInt();
         for (int i = 0; i < nClones; i++) {
-            final ImmutableChromosome<Gene<?>> gamete = ImmutableChromosome.mutatedCopyOf(agent().getChromosome());
-            simulation.createAgent(population, gamete, locatable);
+
+            final Agent agent = simulation.createAgent(agent().getPopulation());
+            agent.updateChromosome(new GeneSnapshotVector(agent().getId(), Iterables.transform(ImmutableChromosome.mutatedCopyOf(agent().getChromosome()), new Function<Gene<?>, GeneSnapshot<?>>() {
+                @Override
+                public GeneSnapshot<?> apply(@Nullable Gene<?> gene) {
+                    assert gene != null;
+                    return new GeneSnapshot<Object>(gene.get(), gene.getRecombinationProbability());
+                }
+            })));
+            simulation.activateAgent(agent, agent().getProjection());
 
             agent().logEvent(this, "offspringProduced", "");
         }

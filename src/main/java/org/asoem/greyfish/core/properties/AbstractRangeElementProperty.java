@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -37,6 +36,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;
         this.initialValue = property.initialValue;
+        this.value = property.value;
     }
 
     @Override
@@ -64,8 +64,8 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        super.prepare(simulation);
+    public void initialize() {
+        super.initialize();
         setValue(initialValue);
     }
 

@@ -1,11 +1,13 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ForwardingList;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.ComponentList;
 
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -13,6 +15,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Time: 11:08
  */
 public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingList<E> implements Chromosome<E> {
+
+    private ChromosomalOrigin chromosomalOrigin = NoChromosomalOrigin.INSTANCE;
 
     protected AbstractChromosome() {
     }
@@ -47,10 +51,11 @@ public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingLi
         }
     }
 
-    // TODO: move to interface
+    @Override
     public void updateGenes(Iterable<?> values) {
 
-        // TODO: check Argument
+        checkNotNull(values);
+        checkArgument(Iterables.size(values) == size());
 
         final Iterator<?> sourceIterator = values.iterator();
         final Iterator<E> destinationIterator = this.iterator();
@@ -83,5 +88,16 @@ public abstract class AbstractChromosome<E extends Gene<?>> extends ForwardingLi
     public double distance(Chromosome<? extends E> that) {
         return Genes.normalizedDistance(this, that);
     }
+
+    @Override
+    public ChromosomalOrigin getOrigin() {
+        return chromosomalOrigin;
+    }
+
+    @Override
+    public void setOrigin(ChromosomalOrigin origin) {
+        this.chromosomalOrigin = checkNotNull(origin);
+    }
+
 
 }

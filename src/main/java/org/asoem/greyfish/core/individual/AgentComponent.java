@@ -1,17 +1,15 @@
 package org.asoem.greyfish.core.individual;
 
 
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.base.Preparable;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.gui.Configurable;
 
 import javax.annotation.Nullable;
 
-public interface AgentComponent extends TreeNode<AgentComponent>, Preparable<Simulation>, Freezable, HasName, DeepCloneable, Configurable {
+public interface AgentComponent extends TreeNode<AgentComponent>, Freezable, HasName, DeepCloneable, Configurable {
 
     /**
      * Get the agent this component is part of.
@@ -41,8 +39,6 @@ public interface AgentComponent extends TreeNode<AgentComponent>, Preparable<Sim
     /**
      * Called by an {@code Agent} if it's {@code AgentComponent}s should prepare themselves for a new {@code Simulation} simulation.
      * Implementations should reset their own fields to an initial state and their those of their {@code super} class if they have any.
-     * @param simulation the new {@code Simulation}
      */
-    @Override
-    void prepare(Simulation simulation);
+    void initialize();
 }

@@ -42,7 +42,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     private int successCount;
 
-    private int stepAtLastSuccess;
+    private int stepAtLastSuccess = -1;
 
     private double costsOnSuccess;
 
@@ -156,10 +156,10 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        super.prepare(simulation);
+    public void initialize() {
+        super.initialize();
         if (rootCondition != null)
-            rootCondition.prepare(simulation);
+            rootCondition.initialize();
         successCount = 0;
         stepAtLastSuccess = -1;
     }

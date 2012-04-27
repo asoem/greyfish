@@ -68,8 +68,11 @@ public class MatingInteractionTest {
         receiverAction.setAgent(female);
         transmitterAction.setAgent(male);
 
-        female.prepare(simulationSpy);
-        male.prepare(simulationSpy);
+        female.initialize();
+        female.activate(simulationSpy);
+
+        male.initialize();
+        male.activate(simulationSpy);
 
         // when
         for (int i = 0; i < 3; ++i) {

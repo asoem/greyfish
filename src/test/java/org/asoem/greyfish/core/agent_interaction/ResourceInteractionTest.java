@@ -84,8 +84,11 @@ public class ResourceInteractionTest {
         consumptionAction.setAgent(consumer);
         provisionAction.setAgent(provisioner);
 
-        consumer.prepare(simulationSpy);
-        provisioner.prepare(simulationSpy);
+        consumer.initialize();
+        consumer.activate(simulationSpy);
+
+        provisioner.initialize();
+        provisioner.activate(simulationSpy);
 
         // when
         for (int i = 0; i < 5; ++i) {

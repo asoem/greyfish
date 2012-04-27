@@ -13,8 +13,6 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
@@ -28,8 +26,7 @@ import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
-import org.asoem.greyfish.utils.space.ImmutableObject2D;
-import org.asoem.greyfish.utils.space.Location2D;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -85,6 +82,11 @@ public class ParallelizedSimulation implements Simulation {
                     assert prototype != null : "Found no Prototype for " + key;
 
                     return ImmutableAgent.cloneOf(prototype);
+                }
+
+                @Override
+                public void activateObject(Population key, Agent obj) throws Exception {
+                    obj.initialize();
                 }
             },
             10000, 100);
@@ -170,8 +172,8 @@ public class ParallelizedSimulation implements Simulation {
                 build();
         
         for (Agent agent : space.getObjects()) {
-            agent.prepare(this);
-            agentAdded(agent);
+            agent.activate(this);
+            agentActivated(agent);
         }
     }
 
@@ -206,34 +208,29 @@ public class ParallelizedSimulation implements Simulation {
         return space.getObjects();
     }
 
-    private void addAgentInternal(Agent agent, Location2D locatable) {
-        checkNotNull(agent);
-        checkArgument(getPrototype(agent.getPopulation()) != null,
-                "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
-        // populationCounterMap is guaranteed to contain exactly the same keys as populationPrototypeMap
+    private void activateAgentInternal(Agent agent, Object2D projection) {
+        assert agent != null;
+        assert projection != null;
 
-        checkNotNull(locatable, "You have to provide a location for the Agent");
-        checkArgument(space.contains(locatable),
-                "Coordinates " + locatable + " do not fall inside the area of this simulation's space: " + space);
+        space.addObject(agent, projection);
+        agent.activate(this);
 
-        // following actions must be synchronized
-        space.addObject(agent, ImmutableObject2D.of(locatable.getX(), locatable.getY(), 0));
-        agentAdded(agent);
+        agentActivated(agent);
     }
 
-    private void agentAdded(Agent agent) {
+    private void agentActivated(Agent agent) {
         AtomicInteger counter = populationCounterMap.get(agent.getPopulation());
         counter.incrementAndGet();
         LOGGER.trace("{}: Agent added: {}", this, agent);
         simulationLogger.addAgent(agent);
     }
 
-    private void removeAgentsInternal(Collection<? extends Agent> agents) {
+    private void passivateAgentsInternal(Collection<? extends Agent> agents) {
         for (Agent agent : agents) {
             space.removeObject(agent);
             populationCounterMap.get(agent.getPopulation()).decrementAndGet();
             agent.shutDown();
-            putCloneInPool(agent);
+            releaseAgent(agent);
         }
     }
 
@@ -254,7 +251,7 @@ public class ParallelizedSimulation implements Simulation {
         removeAgentMessages.add(new RemoveAgentMessage(agent));
     }
 
-    private void putCloneInPool(final Agent agent) {
+    private void releaseAgent(final Agent agent) {
         checkCanAddAgent(agent);
         try {
             objectPool.returnObject(agent.getPopulation(), agent);
@@ -280,26 +277,23 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void createAgent(final Population population, final Chromosome<? extends Gene<?>> chromosome, Location2D location) {
-        checkNotNull(population);
-        checkArgument(getPrototype(population) != null);
-        checkNotNull(chromosome);
-        checkNotNull(location);
+    public void activateAgent(Agent agent, Object2D projection) {
+        checkNotNull(agent);
+        checkNotNull(projection);
 
-        addAgentMessages.add(new AddAgentMessage(population, chromosome, location));
+        checkArgument(getPrototype(agent.getPopulation()) != null,
+                "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
+        checkArgument(space.contains(projection),
+                "Coordinates of " + projection + " do not fall inside the area of this simulation's space: " + space);
+
+        addAgentMessages.add(new AddAgentMessage(agent, projection));
     }
 
-    /**
-     * Request an {@code Agent} from the {@code objectPool}
-     * @param population the {@code Population} of the requested {@code Agent}
-     * @return a new or recycled {@code Agent}
-     * @throws RuntimeException if no non-null {@code Agent} could be retrieved from the {@code objectPool}
-     */
-    private Agent borrowAgentFromPool(final Population population) {
+    @Override
+    public Agent createAgent(final Population population) {
+        checkNotNull(population);
         try {
-            final Agent agent = objectPool.borrowObject(population);
-            agent.prepare(this);
-            return agent;
+            return objectPool.borrowObject(population);
         } catch (Exception e) {
             LOGGER.error("Error getting Agent from objectPool for population {}", population.getName(), e);
             throw new AssertionError(e);
@@ -332,7 +326,7 @@ public class ParallelizedSimulation implements Simulation {
         processAgentMessageDelivery();
         processRequestedAgentRemovals();
         processAgentsMovement();
-        processRequestedAgentAdditions();
+        processRequestedAgentActivations();
 
     }
 
@@ -354,11 +348,9 @@ public class ParallelizedSimulation implements Simulation {
         }, 1000));
     }
 
-    private void processRequestedAgentAdditions() {
+    private void processRequestedAgentActivations() {
         for (AddAgentMessage addAgentMessage : addAgentMessages) {
-            final Agent clone = borrowAgentFromPool(addAgentMessage.population);
-            clone.injectGamete(addAgentMessage.chromosome);
-            addAgentInternal(clone, ImmutableObject2D.of(addAgentMessage.location.getX(), addAgentMessage.location.getY(), 0));
+            activateAgentInternal(addAgentMessage.agent, addAgentMessage.location);
         }
         addAgentMessages.clear();
     }
@@ -374,7 +366,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void processRequestedAgentRemovals() {
-        removeAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage, Agent>() {
+        passivateAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage, Agent>() {
             @Override
             public Agent apply(RemoveAgentMessage removeAgentMessage) {
                 return removeAgentMessage.agent;
@@ -444,16 +436,13 @@ public class ParallelizedSimulation implements Simulation {
 
     private static class AddAgentMessage {
 
-        private final Population population;
-        private final Chromosome<? extends Gene<?>> chromosome;
-        private final Location2D location;
+        private final Agent agent;
+        private final Object2D location;
 
-        public AddAgentMessage(Population population, Chromosome<? extends Gene<?>> chromosome, Location2D location) {
-            this.population = population;
-            this.chromosome = chromosome;
+        private AddAgentMessage(Agent agent, Object2D location) {
+            this.agent = agent;
             this.location = location;
         }
-
     }
 
     private static class RemoveAgentMessage {

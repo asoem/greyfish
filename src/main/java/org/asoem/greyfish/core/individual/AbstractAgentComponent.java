@@ -83,7 +83,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     @Override
-    public void prepare(Simulation simulation) {
+    public void initialize() {
     }
 
     @Override
