@@ -32,8 +32,7 @@ public class MatingReceiverActionTest {
         final MatingReceiverAction action = MatingReceiverAction.with()
                 .ontology("foo")
                 .matingProbability(expressionFactory.compile("0.42"))
-                .interactionRadius(42.0)
-                .spermStorage(new EvaluatedGenomeStorage()).build();
+                .interactionRadius(42.0).build();
 
         // when
         final MatingReceiverAction copy = Persisters.createCopy(action, MatingReceiverAction.class, persister);
@@ -42,6 +41,5 @@ public class MatingReceiverActionTest {
         assertThat(copy.getOntology()).isEqualTo("foo");
         assertThat(copy.getMatingProbability().getExpression()).isEqualTo("0.42");
         assertThat(copy.getInteractionRadius()).isEqualTo(42.0);
-        assertThat(copy.getSpermStorage()).isNotNull();
     }
 }

@@ -5,6 +5,7 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
@@ -13,21 +14,19 @@ import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.filter;
 
 /**
  * @author christoph
@@ -37,9 +36,6 @@ import static com.google.common.collect.Iterables.filter;
 public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatingReceiverAction.class);
-
-    @Element(name="spermBuffer")
-    private EvaluatedGenomeStorage spermBuffer;
 
     @Element(name="ontology", required=false)
     private String ontology;
@@ -52,6 +48,8 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private Iterable<Agent> sensedMates;
 
+    private List<Chromosome> receivedSperm = Lists.newArrayList();
+
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public MatingReceiverAction() {
         this(new Builder());
@@ -60,22 +58,6 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("ImmutableGeneComponentList Storage", new SetAdaptor<EvaluatedGenomeStorage>(EvaluatedGenomeStorage.class) {
-            @Override
-            protected void set(EvaluatedGenomeStorage arg0) {
-                spermBuffer = checkNotNull(arg0);
-            }
-
-            @Override
-            public EvaluatedGenomeStorage get() {
-                return spermBuffer;
-            }
-
-            @Override
-            public Iterable<EvaluatedGenomeStorage> values() {
-                return filter(agent().getProperties(), EvaluatedGenomeStorage.class);
-            }
-        });
         e.add("Message Type", new AbstractTypedValueModel<String>() {
             @Override
             protected void set(String arg0) {
@@ -113,9 +95,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     private void receiveSperm(Chromosome chromosome, Agent sender, Simulation simulation) {
-        spermBuffer.addGenome(chromosome);
+        receivedSperm.add(chromosome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
-        LOGGER.trace(getAgent() + " received sperm: " + chromosome);
+        LOGGER.debug(getAgent() + " received sperm: " + chromosome);
     }
 
     @Override
@@ -161,7 +143,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void initialize() {
         super.initialize();
-        spermBuffer.clear();
+        receivedSperm.clear();
     }
 
     @Override
@@ -178,7 +160,6 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private MatingReceiverAction(MatingReceiverAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.spermBuffer = cloner.cloneField(cloneable.spermBuffer, EvaluatedGenomeStorage.class);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
         this.matingProbability = cloneable.matingProbability;
@@ -186,7 +167,6 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     protected MatingReceiverAction(AbstractBuilder<?extends MatingReceiverAction, ? extends AbstractBuilder> builder) {
         super(builder);
-        this.spermBuffer = builder.spermBuffer;
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
         this.matingProbability = builder.matingProbabilityExpression;
@@ -202,10 +182,6 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         return interactionRadius;
     }
 
-    public EvaluatedGenomeStorage getSpermStorage() {
-        return spermBuffer;
-    }
-
     public static final class Builder extends AbstractBuilder<MatingReceiverAction, Builder> {
         @Override protected Builder self() { return this; }
 
@@ -217,20 +193,17 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
-        protected EvaluatedGenomeStorage spermBuffer = null;
         protected String ontology = "mate";
         protected double sensorRange = 1.0;
         protected GreyfishExpression matingProbabilityExpression = GreyfishExpressionFactoryHolder.compile("1.0");
 
         public T matingProbability(GreyfishExpression matingProbabilityExpression) { this.matingProbabilityExpression = checkNotNull(matingProbabilityExpression); return self(); }
-        public T spermStorage(EvaluatedGenomeStorage spermBuffer) { this.spermBuffer = checkNotNull(spermBuffer); return self(); }
         public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
         public T interactionRadius(double sensorRange) { this.sensorRange = sensorRange; return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
-            checkState(spermBuffer != null, "Builder must define a valid spermBuffer.");
             if (sensorRange <= 0)
                 LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": interactionRadius is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))

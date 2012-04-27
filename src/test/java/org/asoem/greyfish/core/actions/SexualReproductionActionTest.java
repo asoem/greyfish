@@ -37,7 +37,7 @@ public class SexualReproductionActionTest {
 
                 .name("test")
                 .clutchSize(fakeExpression)
-                .spermStorage(storage)
+                //.spermStorage(storage)
                 .executesIf(condition)
 
                 .build();
@@ -48,7 +48,7 @@ public class SexualReproductionActionTest {
         // then
         assertThat(deserialized.getName()).isEqualTo("test");
         assertThat(deserialized.getClutchSize()).isEqualTo(fakeExpression);
-        assertThat(deserialized.getSpermStorage()).isEqualTo(storage);
+        //assertThat(deserialized.getSpermStorage()).isEqualTo(storage);
         assertThat(deserialized.getCondition()).isInstanceOf(condition.getClass());
     }
 }

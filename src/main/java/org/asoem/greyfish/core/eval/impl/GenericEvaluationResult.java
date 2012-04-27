@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
  */
 public class GenericEvaluationResult implements EvaluationResult {
 
+    @Nullable
     private final Object result;
     private final RESULT_TYPE resultType;
 
@@ -43,7 +44,7 @@ public class GenericEvaluationResult implements EvaluationResult {
             case INTEGER: return as(Integer.class).doubleValue();
             case FLOAT: return as(Float.class).doubleValue();
             case STRING: return Double.parseDouble(as(String.class));
-            default: throw new EvaluationException("result of type " + result.getClass() + " cannot be converted to Double");
+            default: throw new EvaluationException(result + " cannot be converted to Double");
         }
     }
 
@@ -52,13 +53,13 @@ public class GenericEvaluationResult implements EvaluationResult {
         switch (resultType) {
             case BOOLEAN: return as(Boolean.class);
             case STRING: return Boolean.parseBoolean(as(String.class));
-            default: throw new EvaluationException("result of type " + result.getClass() + " cannot be converted to Boolean");
+            default: throw new EvaluationException(result + " cannot be converted to Boolean");
         }
     }
 
     @Override
     public String asString() throws EvaluationException {
-        return result.toString();
+        return String.valueOf(result);
     }
 
     @Override
@@ -73,7 +74,7 @@ public class GenericEvaluationResult implements EvaluationResult {
             case DOUBLE: return as(Double.class).intValue();
             case FLOAT: return as(Double.class).intValue();
             case STRING: return Integer.parseInt(as(String.class));
-            default: throw new EvaluationException("result of type " + result.getClass() + " cannot be converted to Integer");
+            default: throw new EvaluationException(result + " cannot be converted to Integer");
         }
     }
 

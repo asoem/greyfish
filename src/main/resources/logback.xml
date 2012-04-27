@@ -14,38 +14,12 @@
         </encoder>
     </appender>
 
-    <logger name="org.asoem.greyfish" additivity="true" level="INFO">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.asoem.greyfish.core" additivity="true" level="INFO">
-    </logger>
-
-    <logger name="org.asoem.greyfish.core.individual.ActiveSimulationContext" additivity="true" level="INFO">
-    </logger>
-
-    <logger name="org.asoem.greyfish.core.simulation" additivity="false" level="INFO">
-        <!--
-        <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-            <file>logs/Simulation.log</file>
-            <append>true</append>
-            <encoder>
-                <pattern>%-5level %logger{10} - %msg %n</pattern>
-            </encoder>
-        </appender>
-        -->
-    </logger>
 
     <logger name="org.asoem.greyfish.core.actions" additivity="true" level="INFO">
-    </logger>
-
-    <logger name="org.asoem.greyfish.core.actions.FiniteStateAction" additivity="true" level="INFO">
-    </logger>
-
-    <logger name="org.asoem.greyfish.gui" additivity="true" level="INFO">
-    </logger>
-
-    <root level="INFO">
         <appender-ref ref="STDOUT" />
+    </logger>
+
+    <root level="DEBUG">
+        <appender-ref ref="INFO" />
     </root>
 </configuration>

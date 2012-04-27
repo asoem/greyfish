@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import java.util.Set;

@@ -45,7 +45,6 @@ public class MatingInteractionTest {
                 .name("receiveSperm")
                 .ontology(messageClassifier)
                 .interactionRadius(1.0)
-                .spermStorage(genomeStorage)
                 .build();
 
         MatingTransmitterAction transmitterAction = MatingTransmitterAction.with()

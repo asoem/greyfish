@@ -12,6 +12,8 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * User: christoph
@@ -40,17 +42,29 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
         @Override
         public String createInitialValue() {
-            return MarkovGeneComponent.this.initialState.evaluateForContext(MarkovGeneComponent.this).asString();
+            assert initialState != null;
+            return initialState.evaluateForContext(MarkovGeneComponent.this).asString();
         }
     };
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public MarkovGeneComponent() {
+    private MarkovGeneComponent() {
     }
     
     public MarkovGeneComponent(EvaluatingMarkovChain<String> chain, GreyfishExpression initialState) {
-        markovChain = chain;
-        this.initialState = initialState;
+        this.markovChain = checkNotNull(chain);
+        this.initialState = checkNotNull(initialState);
+    }
+
+    public MarkovGeneComponent(AbstractMarkovGeneComponentBuilder<? extends MarkovGeneComponent, ? extends AbstractMarkovGeneComponentBuilder> builder) {
+        super(builder);
+        this.markovChain = builder.markovChain;
+        this.initialState = builder.initialState;
+    }
+
+    @Override
+    public void initialize() {
+        super.initialize();
         this.currentState = geneController.createInitialValue();
     }
 
@@ -63,7 +77,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
         super(markovGene, cloner);
         this.markovChain = markovGene.markovChain;
-        this.currentState = markovGene.currentState;
+        this.initialState = markovGene.initialState;
     }
 
     @Override
@@ -121,5 +135,44 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     public GreyfishExpression getInitialState() {
         return initialState;
+    }
+
+    public static MarkovGeneComponentBuilder builder() {
+        return new MarkovGeneComponentBuilder();
+    }
+
+    public static class MarkovGeneComponentBuilder extends AbstractMarkovGeneComponentBuilder<MarkovGeneComponent, MarkovGeneComponentBuilder> {
+        @Override
+        protected MarkovGeneComponentBuilder self() {
+            return this;
+        }
+
+        @Override
+        protected MarkovGeneComponent checkedBuild() {
+            return new MarkovGeneComponent(this);
+        }
+    }
+
+    protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractBuilder<T,B>> extends AbstractBuilder<T,B> {
+
+        private EvaluatingMarkovChain<String> markovChain;
+        private GreyfishExpression initialState;
+
+        public B markovChain(EvaluatingMarkovChain<String> markovChain) {
+            this.markovChain = checkNotNull(markovChain);
+            return self();
+        }
+
+        public B initialState(GreyfishExpression initialState) {
+            this.initialState = checkNotNull(initialState);
+            return self();
+        }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            super.checkBuilder();
+            checkState(markovChain != null);
+            checkState(initialState != null);
+        }
     }
 }

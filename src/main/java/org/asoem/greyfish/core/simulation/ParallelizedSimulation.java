@@ -86,6 +86,7 @@ public class ParallelizedSimulation implements Simulation {
 
                 @Override
                 public void activateObject(Population key, Agent obj) throws Exception {
+                    assert obj != null;
                     obj.initialize();
                 }
             },
@@ -289,7 +290,7 @@ public class ParallelizedSimulation implements Simulation {
         try {
             return objectPool.borrowObject(population);
         } catch (Exception e) {
-            LOGGER.error("Error getting Agent from objectPool for population {}", population.getName(), e);
+            LOGGER.error("Couldn't borrow Agent from objectPool for population {}", population.getName(), e);
             throw new AssertionError(e);
         }
     }

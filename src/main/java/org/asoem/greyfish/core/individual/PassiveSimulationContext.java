@@ -16,27 +16,27 @@ public enum PassiveSimulationContext implements SimulationContext {
 
     @Override
     public int getActivationStep() {
-        throw new UnsupportedOperationException();
+        return -1;
     }
 
     @Override
     public GFAction getLastExecutedAction() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public int getId() {
-        throw new UnsupportedOperationException();
+        return -1;
     }
 
     @Override
     public Simulation getSimulation() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public int getAge() {
-        throw new UnsupportedOperationException();
+        return -1;
     }
 
     @Override
