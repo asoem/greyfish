@@ -64,7 +64,7 @@ public class DeepCloner {
         else {
             keyForExpectedPut = cloneable;
             final DeepCloneable clone = cloneable.deepClone(this);
-            checkNotNull(clone, "Deep clone of a non-null cloneable must not be null: " + cloneable);
+            checkNotNull(clone, "Deep clone of a non-null cloneable must not be null: {}", cloneable);
             return clazz.cast(clone);
         }
     }
