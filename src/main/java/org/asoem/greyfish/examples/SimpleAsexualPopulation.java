@@ -8,7 +8,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.actions.ClonalReproductionAction;
 import org.asoem.greyfish.core.actions.DeathAction;
 import org.asoem.greyfish.core.conditions.AllCondition;
-import org.asoem.greyfish.core.genes.DoubleGene;
+import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Avatar;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
@@ -50,10 +50,10 @@ public class SimpleAsexualPopulation {
                                 .executesIf(evaluate(compile("$('this.agent.age') >= 100")))
                                 .build())
                 .addGenes(
-                        DoubleGene.builder()
+                        DoubleGeneComponent.builder()
                                 .name("gene1")
-                                .initialValue(compile("50.0"))
-                                .mutation(compile("rnorm(0.0, 0.1)"))
+                                .initialValue(compile("50.0 + rnorm(0.0, 10.0)"))
+                                .mutation(compile("rnorm(0.0, 1.0)"))
                                 .build()
                 )
                 .build();
