@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.eval.impl;
 
+import com.google.common.base.Objects;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.EvaluationResult;
 
@@ -107,9 +108,9 @@ public class GenericEvaluationResult implements EvaluationResult {
 
     @Override
     public String toString() {
-        return "GenericEvaluationResult{" +
-                "result=" + result +
-                ", resultType=" + resultType +
-                '}';
+        return Objects.toStringHelper(this)
+                .addValue(result)
+                .addValue(resultType)
+                .toString();
     }
 }

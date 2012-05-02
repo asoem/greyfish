@@ -28,12 +28,12 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
     private ImmutableGeneComponent(ImmutableGeneComponent<T> gene, DeepCloner map) {
         super(gene, map);
         this.geneController = checkNotNull(gene.getGeneController());
-        this.representation = checkNotNull(gene.get());
+        this.representation = checkNotNull(gene.getValue());
         this.clazz = checkNotNull(gene.getSupplierClass());
     }
 
     @Override
-	public T get() {
+	public T getValue() {
 		return representation;
 	}
 
@@ -56,7 +56,7 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
         checkNotNull(gene);
         return new ImmutableGeneComponent<E>(
                 gene.getName(),
-                gene.getGeneController().mutate(gene.get()),
+                gene.getGeneController().mutate(gene.getValue()),
                 gene.getSupplierClass(),
                 gene.getGeneController());
     }
@@ -76,7 +76,7 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
     }
 
     public static <T> GeneComponent<T> copyOf(GeneComponent<T> gene) {
-        return new ImmutableGeneComponent<T>(gene.getName(), gene.get(), gene.getSupplierClass(), gene.getGeneController());
+        return new ImmutableGeneComponent<T>(gene.getName(), gene.getValue(), gene.getSupplierClass(), gene.getGeneController());
     }
 
     public static <T> ImmutableGeneComponent<T> of(String name, T element, Class<T> elementType, GeneController<T> geneController) {

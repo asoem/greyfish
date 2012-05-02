@@ -66,7 +66,11 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     @Override
     protected ActionState proceed(Simulation simulation) {
-        final List<Chromosome> chromosomes = (List<Chromosome>) spermList.evaluateForContext(this).as(List.class);
+        final List<Chromosome> chromosomes =
+                (List<Chromosome>) spermList.evaluateForContext(this).as(List.class);
+
+        if (chromosomes == null)
+            throw new AssertionError("chromosomes is null");
 
         if (chromosomes.isEmpty())
             return ABORTED;
@@ -79,7 +83,7 @@ public class SexualReproductionAction extends AbstractGFAction {
                     @Override
                     public Gene<?> apply(@Nullable GeneComponent<?> gene) {
                         assert gene != null;
-                        return new Gene<Object>(gene.get(), gene.getRecombinationProbability());
+                        return new Gene<Object>(gene.getValue(), gene.getRecombinationProbability());
                     }
                 }));
 

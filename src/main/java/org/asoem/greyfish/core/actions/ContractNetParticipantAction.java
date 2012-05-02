@@ -52,17 +52,19 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
     @Override
     protected void executeState(Object state, Simulation simulation) {
-        if (State.CHECK_CFP.equals(state)) {
+
+        if (State.CHECK_CFP == state) {
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<Agent>> cfpReplies = Lists.newArrayList();
-            for (ACLMessage<Agent> message : agent().pullMessages(template)) {
+            final List<AgentMessage> proposalCalls = agent().pullMessages(template);
+            for (ACLMessage<Agent> cfp : proposalCalls) {
 
                 ACLMessage<Agent> cfpReply;
                 try {
-                    cfpReply = checkNotNull(handleCFP(message, simulation)).build();
+                    cfpReply = checkNotNull(handleCFP(cfp, simulation)).build();
                 } catch (NotUnderstoodException e) {
-                    cfpReply = ImmutableACLMessage.createReply(message, agent())
+                    cfpReply = ImmutableACLMessage.createReply(cfp, agent())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
                             .content(e.getMessage(), String.class).build();
                     LOGGER.debug("Message not understood", e);
@@ -84,8 +86,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
             else
                 endTransition(State.NO_CFP);
         }
-        else if (State.WAIT_FOR_ACCEPT.equals(state)) {
-            Iterable<AgentMessage> receivedMessages = agent().pullMessages(getTemplate());
+        else if (State.WAIT_FOR_ACCEPT == state) {
+            final List<AgentMessage> receivedMessages = agent().pullMessages(getTemplate());
             for (ACLMessage<Agent> receivedMessage : receivedMessages) {
                 // TODO: turn into switch statement
                 switch (receivedMessage.getPerformative()) {
@@ -171,6 +173,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException;
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
+        assert ontology != null;
         return MessageTemplates.and(
                 MessageTemplates.ontology(ontology),
                 MessageTemplates.performative(ACLPerformative.CFP)

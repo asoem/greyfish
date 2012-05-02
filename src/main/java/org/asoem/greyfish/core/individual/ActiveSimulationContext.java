@@ -102,11 +102,11 @@ public class ActiveSimulationContext implements SimulationContext {
         // execute action
         if (nextAction != null) {
 
-            LOGGER.debug("Agent #{}: Executing {}", id, nextAction);
+            LOGGER.debug("{}#{}: Executing {}", agent, id, nextAction);
 
             final ActionState state = nextAction.apply(simulation);
 
-            LOGGER.trace("Agent #{}: Execution result {}", id, state);
+            LOGGER.trace("{}#{}: Execution result {}", agent, id, state);
 
             switch (state) {
 
@@ -124,7 +124,7 @@ public class ActiveSimulationContext implements SimulationContext {
             }
         }
 
-        LOGGER.debug("Could not execute anything for {}", agent);
+        LOGGER.debug("Could not execute anything for {}#{}", agent, id);
     }
 
     @Override

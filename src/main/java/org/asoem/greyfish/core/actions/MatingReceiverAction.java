@@ -140,6 +140,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         return ontology;
     }
 
+    public List<Chromosome> getReceivedSperm() {
+        return receivedSperm;
+    }
+
     @Override
     public void initialize() {
         super.initialize();

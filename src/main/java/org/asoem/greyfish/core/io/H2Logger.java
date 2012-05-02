@@ -104,13 +104,13 @@ public class H2Logger implements SimulationLogger {
                 if (Double.class.equals(gene.getSupplierClass())) {
                     insertGeneAsDoubleStatement.setInt(1, agent.getId());
                     insertGeneAsDoubleStatement.setString(2, gene.getName());
-                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).get());
+                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getValue());
                     insertGeneAsDoubleStatement.execute();
                 }
                 else {
                     insertGeneAsStringStatement.setInt(1, agent.getId());
                     insertGeneAsStringStatement.setString(2, gene.getName());
-                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.get()));
+                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.getValue()));
                     insertGeneAsStringStatement.execute();
                 }
             }

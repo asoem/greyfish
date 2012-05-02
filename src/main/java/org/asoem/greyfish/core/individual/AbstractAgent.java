@@ -12,6 +12,8 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -37,6 +39,7 @@ import static java.util.Arrays.asList;
 @Root(name = "agent")
 public abstract class AbstractAgent implements Agent {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
     @Element(name = "properties")
     protected final ComponentList<GFProperty> properties;
 
@@ -242,11 +245,13 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void receive(AgentMessage message) {
+        LOGGER.debug("{} received a message: {}", this, message);
         inBox.push(message);
     }
 
     @Override
     public void receiveAll(Iterable<? extends AgentMessage> messages) {
+        LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
         inBox.pushAll(messages);
     }
 

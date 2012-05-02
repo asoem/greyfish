@@ -28,6 +28,14 @@ public class AgentMessage extends ForwardingACLMessage<Agent> {
     }
 
     @Override
+    public String toString() {
+        return "AgentMessage{" +
+                "delegate=" + delegate +
+                ", receivedTimestamp=" + receivedTimestamp +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

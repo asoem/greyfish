@@ -47,7 +47,7 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
             E source =  sourceIterator.next();
             E destination = destinationIterator.next();
 
-            destination.setValue(source.get());
+            destination.setValue(source.getValue());
         }
     }
 

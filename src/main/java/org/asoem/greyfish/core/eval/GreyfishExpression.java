@@ -3,6 +3,8 @@ package org.asoem.greyfish.core.eval;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -18,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class GreyfishExpression implements Expression {
 
     private static final Pattern DOLLAR_FUNCTION_PATTERN = Pattern.compile("\\$\\(([^\\)]+)\\)");
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishExpression.class);
 
     private final Evaluator evaluator;
     private final String expression;
@@ -53,7 +56,9 @@ public class GreyfishExpression implements Expression {
     @Override
     public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
         evaluator.setResolver(resolver);
-        return evaluator.evaluate();
+        final EvaluationResult result = evaluator.evaluate();
+        LOGGER.debug("{} got evaluated to {} with resolver {}", expression, result, resolver);
+        return result;
     }
 
     @Override

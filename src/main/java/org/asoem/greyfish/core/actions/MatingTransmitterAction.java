@@ -116,7 +116,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
                         @Override
                         public Gene<?> apply(@Nullable GeneComponent<?> geneComponent) {
                             assert geneComponent != null;
-                            return new Gene<Object>(geneComponent.get(), geneComponent.getRecombinationProbability());
+                            return new Gene<Object>(geneComponent.getValue(), geneComponent.getRecombinationProbability());
                         }
                     }));
 

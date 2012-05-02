@@ -33,7 +33,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
 
         @Override
         public Double mutate(Double original) {
-            return get() + mutation.evaluateForContext(DoubleGeneComponent.this).asDouble();
+            return getValue() + mutation.evaluateForContext(DoubleGeneComponent.this).asDouble();
         }
 
         @Override
@@ -116,7 +116,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     }
 
     @Override
-    public Double get() {
+    public Double getValue() {
         return value;
     }
 

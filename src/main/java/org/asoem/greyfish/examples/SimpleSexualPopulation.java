@@ -46,7 +46,7 @@ public class SimpleSexualPopulation {
                                 .clutchSize(compile("1"))
                                 .spermStorage(compile("$('#receive').getReceivedSperm()"))
                                 .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("$('#gender') == 'FEMALE'")),
+                                        evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
                                         evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0")),
                                         evaluate(compile("$('#reproduce.stepsSinceLastExecution') >= 10"))))
                                 .build(),
@@ -54,7 +54,7 @@ public class SimpleSexualPopulation {
                                 .name("fertilize")
                                 .ontology("mate")
                                 .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("$('#gender') == 'MALE'")),
+                                        evaluate(compile("$('#gender').getValue() == 'MALE'")),
                                         evaluate(compile("$('#fertilize').getSuccessCount() == 0"))))
                                 .build(),
                         MatingReceiverAction.with()
@@ -62,7 +62,7 @@ public class SimpleSexualPopulation {
                                 .ontology("mate")
                                 .interactionRadius(1.0)
                                 .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("$('#gender') == 'FEMALE'")),
+                                        evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
                                         evaluate(compile("$('#receive').getSuccessCount() == 0"))))
                                 .build(),
                         DeathAction.with()
@@ -83,7 +83,7 @@ public class SimpleSexualPopulation {
 
         final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(10, 10).build();
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
-        for (int i = 0; i<10; ++i) {
+        for (int i = 0; i<100; ++i) {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 

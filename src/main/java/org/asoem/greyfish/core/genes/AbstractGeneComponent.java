@@ -35,14 +35,14 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(get()) + "]";
+        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(getValue()) + "]";
     }
 
     @Override
     public final double distance(GeneComponent<?> thatGene) {
         checkNotNull(thatGene);
         checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
-        return getGeneController().normalizedDistance(this.get(), getSupplierClass().cast(thatGene.get()));
+        return getGeneController().normalizedDistance(this.getValue(), getSupplierClass().cast(thatGene.getValue()));
     }
 
     @Override

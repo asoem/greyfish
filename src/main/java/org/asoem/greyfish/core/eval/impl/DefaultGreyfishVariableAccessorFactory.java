@@ -312,7 +312,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return Functions.compose(new Function<GeneComponent, Object>() {
                     @Override
                     public Object apply(@Nullable GeneComponent gene) {
-                        return checkNotNull(gene).get();
+                        return checkNotNull(gene).getValue();
                     }
                 }, ret);
             }

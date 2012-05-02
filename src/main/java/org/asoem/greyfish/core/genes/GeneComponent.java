@@ -1,12 +1,11 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.individual.AgentComponent;
 
 import javax.annotation.Nullable;
 
 
-public interface GeneComponent<T> extends AgentComponent, Supplier<T> {
+public interface GeneComponent<T> extends AgentComponent {
 
     /**
      * @return the class of the value this gene is supplying
@@ -36,6 +35,12 @@ public interface GeneComponent<T> extends AgentComponent, Supplier<T> {
      * @param value the new value this gene will supply
      */
     void setValue(Object value);
+
+    /**
+     * Get the current value of this gene
+     * @return the current value of this gene
+     */
+    T getValue();
 
     /**
      * Get the recombination probability for this gene.

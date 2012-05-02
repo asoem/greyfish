@@ -40,7 +40,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
                                 @Override
                                 public Gene<?> apply(@Nullable GeneComponent<?> gene) {
                                     assert gene != null;
-                                    return new Gene<Object>(gene.get(), gene.getRecombinationProbability());
+                                    return new Gene<Object>(gene.getValue(), gene.getRecombinationProbability());
                                 }
                             })));
             simulation.activateAgent(agent, agent().getProjection());

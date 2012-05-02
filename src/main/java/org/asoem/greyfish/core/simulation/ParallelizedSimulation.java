@@ -216,7 +216,7 @@ public class ParallelizedSimulation implements Simulation {
     private void agentActivated(Agent agent) {
         AtomicInteger counter = populationCounterMap.get(agent.getPopulation());
         counter.incrementAndGet();
-        LOGGER.trace("{}: Agent added: {}", this, agent);
+        LOGGER.debug("Agent got activated: {}", agent);
         simulationLogger.addAgent(agent);
     }
 

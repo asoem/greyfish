@@ -96,7 +96,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     }
 
     @Override
-    public String get() {
+    public String getValue() {
         return currentState;
     }
 
