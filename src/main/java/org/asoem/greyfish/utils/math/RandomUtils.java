@@ -1,10 +1,13 @@
 package org.asoem.greyfish.utils.math;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import org.apache.commons.math.random.*;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 
@@ -123,7 +126,14 @@ public class RandomUtils {
 
     public static <S> S sample(Collection<S> elements) {
         checkNotNull(elements);
-        checkArgument(elements.isEmpty(), "Cannot take a sample out of 0 elements");
-        return Iterables.get(elements, nextInt(elements.size()));
+        checkArgument(!elements.isEmpty(), "Cannot take a sample out of 0 elements");
+        final S sample = Iterables.get(elements, nextInt(elements.size()));
+        assert elements.contains(sample);
+        LoggerFactory.getLogger(RandomUtils.class).debug("Sampled {} out of [{}]", sample, Joiner.on(',').join(elements));
+        return sample;
+    }
+
+    public static <S> S sample(S ... elements) {
+        return sample(Arrays.asList(elements));
     }
 }

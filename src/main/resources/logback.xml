@@ -14,12 +14,13 @@
         </encoder>
     </appender>
 
-
-    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="INFO">
-        <appender-ref ref="STDOUT" />
+    <logger name="org.asoem.greyfish.core.individual.AbstractAgent" additivity="true" level="DEBUG">
     </logger>
 
-    <root level="DEBUG">
-        <appender-ref ref="INFO" />
+    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="DEBUG">
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
     </root>
 </configuration>
