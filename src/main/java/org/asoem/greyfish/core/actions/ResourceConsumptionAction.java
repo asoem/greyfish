@@ -36,6 +36,8 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     private Iterable<Agent> sensedMates;
 
+    private GreyfishExpression classification;
+
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceConsumptionAction() {
         this(new Builder());
@@ -49,7 +51,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
                 .setReceivers(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
-                .content(new ResourceRequestMessage(requestAmount.evaluateForContext(this).asDouble(), ""), ResourceRequestMessage.class);
+                .content(new ResourceRequestMessage(requestAmount.evaluateForContext(this).asDouble(), classification.evaluateForContext(this).asString()), ResourceRequestMessage.class);
     }
 
     @Override
@@ -111,6 +113,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.interactionRadius = cloneable.interactionRadius;
         this.requestAmount = cloneable.requestAmount;
         this.uptakeUtilization = cloneable.uptakeUtilization;
+        this.classification = cloneable.classification;
     }
 
     protected ResourceConsumptionAction(AbstractBuilder<?,?> builder) {
@@ -119,6 +122,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.requestAmount = builder.requestAmount;
         this.interactionRadius = builder.interactionRadius;
         this.uptakeUtilization = builder.uptakeUtilization;
+        this.classification = builder.classification;
     }
 
     public static Builder with() { return new Builder(); }
@@ -149,6 +153,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         private GreyfishExpression requestAmount = GreyfishExpressionFactoryHolder.compile("1.0");
         private GreyfishExpression interactionRadius = GreyfishExpressionFactoryHolder.compile("1.0");
         private GreyfishExpression uptakeUtilization = GreyfishExpressionFactoryHolder.compile("$('this.agent.properties[\"myEnergy\"]').add(offer)");
+        private GreyfishExpression classification = GreyfishExpressionFactoryHolder.compile("0.42");
 
         public T ontology(String parameterMessageType) { this.ontology = checkNotNull(parameterMessageType); return self(); }
         public T requestAmount(GreyfishExpression amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
