@@ -64,7 +64,6 @@ public class ResourceInteractionTest {
         ResourceProvisionAction provisionAction = ResourceProvisionAction.with()
                 .name("feed")
                 .ontology(messageClassifier)
-                .resourceProperty(resourceProperty)
                 .build();
 
         Agent consumer = spy(ImmutableAgent.of(population)

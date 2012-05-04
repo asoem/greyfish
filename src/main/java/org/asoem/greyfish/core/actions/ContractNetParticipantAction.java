@@ -63,11 +63,11 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 ACLMessage<Agent> cfpReply;
                 try {
                     cfpReply = checkNotNull(handleCFP(cfp, simulation)).build();
-                } catch (NotUnderstoodException e) {
+                } catch (RuntimeException e) {
                     cfpReply = ImmutableACLMessage.createReply(cfp, agent())
-                            .performative(ACLPerformative.NOT_UNDERSTOOD)
+                            .performative(ACLPerformative.FAILURE)
                             .content(e.getMessage(), String.class).build();
-                    LOGGER.debug("Message not understood", e);
+                    LOGGER.warn("Error occurred while handling call for proposal {}", cfp, e);
                 }
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
@@ -89,18 +89,17 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         else if (State.WAIT_FOR_ACCEPT == state) {
             final Iterable<AgentMessage> receivedMessages = agent().getMessages(getTemplate());
             for (ACLMessage<Agent> receivedMessage : receivedMessages) {
-                // TODO: turn into switch statement
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:
                         ACLMessage<Agent> informMessage;
                         try {
                             informMessage = handleAccept(receivedMessage, simulation).build();
-                        } catch (NotUnderstoodException e) {
+                        } catch (RuntimeException e) {
                             informMessage = ImmutableACLMessage.createReply(receivedMessage, agent())
-                                    .performative(ACLPerformative.NOT_UNDERSTOOD)
+                                    .performative(ACLPerformative.FAILURE)
                                     .content(e.getMessage(), String.class).build();
 
-                            LOGGER.debug("Message not understood", e);
+                            LOGGER.warn("Error occurred while handling accept message {}", receivedMessage, e);
                         }
                         checkAcceptReply(informMessage);
                         LOGGER.debug("{}: Accepting proposal", this);
@@ -109,12 +108,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                     case REJECT_PROPOSAL:
                         handleReject(receivedMessage, simulation);
                         break;
-                    case NOT_UNDERSTOOD:
-                        LOGGER.debug("Communication Error: Message not understood");
-                        break;
                     default:
-                        LOGGER.debug("Protocol Error: Expected ACCEPT_PROPOSAL, REJECT_PROPOSAL or NOT_UNDERSTOOD. Received {}", receivedMessage.getPerformative());
-                        break;
+                        throw new AssertionError("Received message with unexpected performative: " + receivedMessage.getPerformative());
                 }
 
                 --nExpectedProposeAnswers;
@@ -165,12 +160,12 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation);
 
     @SuppressWarnings("UnusedParameters") // hook method
     protected void handleReject(ACLMessage<Agent> message, Simulation simulation) {}
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation);
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         assert ontology != null;

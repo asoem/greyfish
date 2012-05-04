@@ -2,14 +2,15 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * User: christoph
@@ -31,7 +32,7 @@ public class ResourceProvisionActionTest {
         // given
         final ResourceProvisionAction action = ResourceProvisionAction.with()
                 .ontology("foo")
-                .resourceProperty(new DoubleProperty())
+                .provides(mock(GreyfishExpression.class))
                 .build();
 
         // when
@@ -39,6 +40,5 @@ public class ResourceProvisionActionTest {
 
         // then
         assertThat(copy.getOntology()).isEqualTo("foo");
-        assertThat(copy.getResourceProperty()).isNotNull();
     }
 }

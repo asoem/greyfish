@@ -61,6 +61,10 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
         return expression.evaluateForContext(this);
     }
 
+    public static Builder with() {
+        return new Builder();
+    }
+
     public static class Builder extends AbstractBuilder<ExpressionProperty, Builder> {
 
         @Override
@@ -69,7 +73,7 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
         }
 
         @Override
-        public ExpressionProperty checkedBuild() {
+        protected ExpressionProperty checkedBuild() {
             return new ExpressionProperty(this);
         }
     }

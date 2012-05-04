@@ -1,19 +1,18 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
-import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -22,11 +21,13 @@ import static com.google.common.base.Preconditions.checkState;
 @ClassGroup(tags="actions")
 public class ResourceProvisionAction extends ContractNetParticipantAction {
 
-    @Element(name="resource")
-    private DoubleProperty resourceProperty;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
     @Element(name="ontology", required=false)
     private String ontology;
+
+    private GreyfishExpression provides;
+
+    private double providedAmount;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceProvisionAction() {
@@ -39,45 +40,37 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
-        double requested;
-        try {
-            requested = message.getContent(Double.class);
-        } catch (IllegalArgumentException e) {
-            throw new NotUnderstoodException("Double content expected, received " + message);
-        }
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) {
 
-        ImmutableACLMessage.Builder<Agent> ret = ImmutableACLMessage.createReply(message, getAgent());
+        final ResourceRequestMessage requestMessage = message.getContent(ResourceRequestMessage.class);
+        final double requestAmount = requestMessage.getRequestAmount();
+        final double providedAmount = provides.evaluateForContext(this, ImmutableMap.of("classifier", requestMessage.getRequestClassifier())).asDouble();
+        final double offeredAmount = Math.min(requestAmount, providedAmount);
 
-        double offer = Math.min(requested, resourceProperty.get());
-
-        if (offer > 0) {
-            ret.performative(ACLPerformative.PROPOSE).content(offer, Double.class);
-            LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Offering {}", offer);
+        final ImmutableACLMessage.Builder<Agent> ret = ImmutableACLMessage.createReply(message, getAgent());
+        if (offeredAmount > 0) {
+            ret.performative(ACLPerformative.PROPOSE).content(offeredAmount, Double.class);
+            LOGGER.trace("Offering {}", offeredAmount);
         }
         else {
-            ret.performative(ACLPerformative.REFUSE).content("Nothing to offer", String.class);
-            LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Nothing to offer");
+            ret.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount", String.class);
+            LOGGER.trace("Nothing to offeredAmount");
         }
 
         return ret;
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
-        try {
+    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
             double offer = message.getContent(Double.class);
-            assert resourceProperty.get() >= offer : "Values have changed unexpectedly";
 
-            LoggerFactory.getLogger(ResourceProvisionAction.class).debug("Subtracting {}", offer);
+            LOGGER.debug("Provided {}", offer);
 
-            resourceProperty.subtract(offer);
+            this.providedAmount += offer;
+
             return ImmutableACLMessage.createReply(message, getAgent())
                     .performative(ACLPerformative.INFORM)
                     .content(offer, Double.class);
-        } catch (IllegalArgumentException e) {
-            throw new NotUnderstoodException("Double content expected, received " + message);
-        }
     }
 
     @Override
@@ -95,22 +88,6 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
                 return ontology;
             }
         });
-        e.add("ResourceProperty", new SetAdaptor<DoubleProperty>(DoubleProperty.class) {
-            @Override
-            protected void set(DoubleProperty arg0) {
-                resourceProperty = checkNotNull(arg0);
-            }
-
-            @Override
-            public DoubleProperty get() {
-                return resourceProperty;
-            }
-
-            @Override
-            public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
-            }
-        });
     }
 
     @Override
@@ -120,39 +97,50 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.resourceProperty = cloner.cloneField(cloneable.resourceProperty, DoubleProperty.class);
+        this.provides = cloneable.provides;
         this.ontology = cloneable.ontology;
     }
 
     protected ResourceProvisionAction(AbstractBuilder<?,?> builder) {
         super(builder);
         this.ontology = builder.ontology;
-        this.resourceProperty = builder.resourceProperty;
+        this.provides = builder.provides;
     }
 
     public static Builder with() { return new Builder(); }
 
-    public DoubleProperty getResourceProperty() {
-        return resourceProperty;
+    public double getProvidedAmount() {
+        return providedAmount;
+    }
+
+    @Override
+    public void initialize() {
+        super.initialize();
+        providedAmount = 0;
     }
 
     public static final class Builder extends AbstractBuilder<ResourceProvisionAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public ResourceProvisionAction checkedBuild() { return new ResourceProvisionAction(this); }
+        @Override protected ResourceProvisionAction checkedBuild() { return new ResourceProvisionAction(this); }
     }
 
     protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
-        private DoubleProperty resourceProperty;
-        private String ontology = "food";
+        private String ontology;
+        private GreyfishExpression provides;
 
-        public T resourceProperty(DoubleProperty resourceProperty) { this.resourceProperty = checkNotNull(resourceProperty); return self(); }
         public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
+        public T provides(GreyfishExpression expression) {
+            this.provides = checkNotNull(expression);
+            return self();
+        }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
-            checkState(this.resourceProperty != null, "The ResourceProperty is mandatory");
-            checkState(this.ontology != null, "The messageType is mandatory");
+            checkState(ontology != null, "The messageType is mandatory");
+            checkState(provides != null, "You must define ");
             super.checkBuilder();
         }
+
+
     }
 }

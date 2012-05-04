@@ -49,7 +49,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
                 .setReceivers(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
-                .content(requestAmount.evaluateForContext(this).asDouble(), Double.class);
+                .content(new ResourceRequestMessage(requestAmount.evaluateForContext(this).asDouble(), ""), ResourceRequestMessage.class);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     public static final class Builder extends AbstractBuilder<ResourceConsumptionAction, Builder> {
         @Override protected Builder self() { return this; }
-        @Override public ResourceConsumptionAction checkedBuild() {
+        @Override protected ResourceConsumptionAction checkedBuild() {
             return new ResourceConsumptionAction(this);
         }
     }

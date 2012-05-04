@@ -14,6 +14,7 @@ import org.asoem.greyfish.core.individual.Avatar;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.properties.ExpressionProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -36,55 +37,18 @@ public class SimpleSexualPopulation {
     DescriptiveStatistics stepsPerSecondStatistics = new DescriptiveStatistics();
 
     public SimpleSexualPopulation() {
-        final Agent prototype = ImmutableAgent.of(Population.named("SexualPopulation"))
-                .addActions(
-                        SexualReproductionAction.with()
-                                .name("reproduce")
-                                .clutchSize(compile("1"))
-                                .spermStorage(compile("$('#receive').getReceivedSperm()"))
-                                .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
-                                        evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0")),
-                                        evaluate(compile("$('#reproduce.stepsSinceLastExecution') >= 10"))))
-                                .build(),
-                        MatingTransmitterAction.with()
-                                .name("fertilize")
-                                .ontology("mate")
-                                .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("$('#gender').getValue() == 'MALE'")),
-                                        evaluate(compile("$('#fertilize').getMatingCount() == 0"))))
-                                .build(),
-                        MatingReceiverAction.with()
-                                .name("receive")
-                                .ontology("mate")
-                                .interactionRadius(1.0)
-                                .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
-                                        evaluate(compile("$('#receive').getMatingCount() == 0"))))
-                                .build(),
-                        DeathAction.with()
-                                .name("die")
-                                .executesIf(evaluate(compile("$('this.agent.age') >= 100")))
-                                .build(),
-                        SimpleMovementAction.builder()
-                                .name("move")
-                                .build())
-                .addGenes(
-                        MarkovGeneComponent.builder()
-                                .name("gender")
-                                .markovChain(EvaluatingMarkovChain.parse(
-                                        "MALE -> FEMALE: 0.5;" +
-                                                "FEMALE -> MALE: 0.5",
-                                        GreyfishExpressionFactoryHolder.get()))
-                                .initialState(compile("rand:sample('MALE','FEMALE')"))
-                                .build()
-                )
-                .build();
 
         final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(10, 10).build();
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
+
+        final Agent prototype = createConsumerPrototype();
         for (int i = 0; i<100; ++i) {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
+        }
+
+        final Agent resource = createResourcePrototype();
+        for (int i=0; i<20; ++i) {
+            scenarioBuilder.addAgent(new Avatar(resource), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 
         final ParallelizedSimulation simulation = ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
@@ -112,6 +76,73 @@ public class SimpleSexualPopulation {
 
         System.out.println(Doubles.join(" ", populationCountStatistics.getValues()));
         System.out.println(Doubles.join(" ", stepsPerSecondStatistics.getValues()));
+    }
+
+    private static Agent createResourcePrototype() {
+        return ImmutableAgent.of(Population.named("Resource"))
+                .addActions(ResourceProvisionAction.with()
+                        .name("give")
+                        .ontology("energy")
+                        .provides(compile("min($('#resource').get().asDouble(), 10)"))
+                        .build())
+                .addProperties(ExpressionProperty.with()
+                        .name("resource")
+                        .expression(compile("99 - $('#give').getProvidedAmount()"))
+                        .build())
+                .build();
+    }
+
+    private static Agent createConsumerPrototype() {
+        return ImmutableAgent.of(Population.named("SexualPopulation"))
+                .addActions(
+                        DeathAction.with()
+                                .name("die")
+                                .executesIf(evaluate(compile("$('this.agent.age') >= 100")))
+                                .build(),
+                        SexualReproductionAction.with()
+                                .name("reproduce")
+                                .clutchSize(compile("1"))
+                                .spermStorage(compile("$('#receive').getReceivedSperm()"))
+                                .executesIf(AllCondition.evaluates(
+                                        evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
+                                        evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0")),
+                                        evaluate(compile("$('#reproduce.stepsSinceLastExecution') >= 10"))))
+                                .build(),
+                        MatingTransmitterAction.with()
+                                .name("fertilize")
+                                .ontology("mate")
+                                .executesIf(AllCondition.evaluates(
+                                        evaluate(compile("$('#gender').getValue() == 'MALE'")),
+                                        evaluate(compile("$('#fertilize').getMatingCount() == 0"))))
+                                .build(),
+                        MatingReceiverAction.with()
+                                .name("receive")
+                                .ontology("mate")
+                                .interactionRadius(1.0)
+                                .executesIf(AllCondition.evaluates(
+                                        evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
+                                        evaluate(compile("$('#receive').getMatingCount() == 0"))))
+                                .build(),
+                        ResourceConsumptionAction.with()
+                                .name("consume")
+                                .interactionRadius(compile("1"))
+                                .ontology("energy")
+                                .requestAmount(compile("10"))
+                                .uptakeUtilization(compile("")) // do nothing
+                                .build(),
+                        SimpleMovementAction.builder()
+                                .name("move")
+                                .build())
+                .addGenes(
+                        MarkovGeneComponent.builder()
+                                .name("gender")
+                                .markovChain(EvaluatingMarkovChain.parse(
+                                        "MALE -> FEMALE: 0.5;" +
+                                                "FEMALE -> MALE: 0.5",
+                                        GreyfishExpressionFactoryHolder.get()))
+                                .initialState(compile("rand:sample('MALE','FEMALE')"))
+                                .build())
+                .build();
     }
 
     public static void main(String[] args) {
