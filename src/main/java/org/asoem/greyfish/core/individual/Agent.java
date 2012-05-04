@@ -66,7 +66,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
 
     void receive(AgentMessage message);
     void receiveAll(Iterable<? extends AgentMessage> message);
-    List<AgentMessage> pullMessages(MessageTemplate template);
+    Iterable<AgentMessage> getMessages(MessageTemplate template);
     boolean hasMessages(MessageTemplate template);
 
     void logEvent(Object eventOrigin, String title, String message);

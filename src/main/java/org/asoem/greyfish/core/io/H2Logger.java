@@ -34,7 +34,7 @@ public class H2Logger implements SimulationLogger {
             connection.createStatement().execute(
                     "CREATE TABLE agents (id int NOT NULL PRIMARY KEY, population VARCHAR(255) NOT NULL, activated_at int NOT NULL, created_at TIMESTAMP NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE chromosome_tree (id int NOT NULL PRIMARY KEY, parent_id int NOT NULL)"
+                    "CREATE TABLE chromosome_tree (id int NOT NULL, parent_id int NOT NULL)"
             );
             connection.createStatement().execute(
                     "CREATE TABLE genes_double (agent_id int NOT NULL, name VARCHAR(80) NOT NULL, value DOUBLE NOT NULL)");

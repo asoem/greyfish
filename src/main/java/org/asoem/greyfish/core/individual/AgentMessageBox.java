@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.utils.collect.CircularFifoBuffer;
 
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * User: christoph
@@ -29,8 +27,8 @@ public class AgentMessageBox implements Iterable<AgentMessage> {
         box.add(message);
     }
 
-    public List<AgentMessage> pull(MessageTemplate template) {
-        return ImmutableList.copyOf(Iterables.filter(box, template));
+    public Iterable<AgentMessage> filter(MessageTemplate template) {
+        return Iterables.filter(box, template);
     }
 
     public void clear() {

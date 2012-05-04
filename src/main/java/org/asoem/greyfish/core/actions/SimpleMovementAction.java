@@ -74,7 +74,7 @@ public class SimpleMovementAction extends AbstractGFAction {
     public static final class Builder extends AbstractBuilder<SimpleMovementAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
-        @Override public SimpleMovementAction checkedBuild() { return new SimpleMovementAction(this); }
+        @Override protected SimpleMovementAction checkedBuild() { return new SimpleMovementAction(this); }
     }
 
     @SuppressWarnings({"UnusedDeclaration"})

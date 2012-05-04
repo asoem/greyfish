@@ -13,7 +13,6 @@ import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.util.List;
 
 public abstract class ForwardingAgent extends ForwardingObject implements Agent {
 
@@ -138,8 +137,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public List<AgentMessage> pullMessages(MessageTemplate template) {
-        return delegate().pullMessages(template);
+    public Iterable<AgentMessage> getMessages(MessageTemplate template) {
+        return delegate().getMessages(template);
     }
 
     @Override

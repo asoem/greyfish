@@ -1,9 +1,6 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.lang.MathLib;
@@ -17,7 +14,6 @@ import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -44,7 +40,18 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     private final WalledTile[][] tileMatrix;
 
-    private final SelfUpdatingTree tree = new SelfUpdatingTree();
+    private final SelfUpdatingTree tree = new SelfUpdatingTree<T>(AsoemScalaTwoDimTree.<T>newInstance(), new Supplier<Iterable<? extends T>>() {
+        @Override
+        public Iterable<? extends T> get() {
+            return projectables;
+        }
+    }, new Function<T, Location2D>() {
+        @Override
+        public Location2D apply(@Nullable T t) {
+            assert t != null;
+            return t.getProjection();
+        }
+    });
 
     public TiledSpace(TiledSpace pSpace) {
         this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
@@ -198,7 +205,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
         if (tileAtOrigin.covers(destination))
             return destination;
-        
+
         final Location2D collision = collision(tileAtOrigin, origin.getX(), origin.getY(), destination.getX(), destination.getY());
         assert collision == null || contains(collision) : "Calculated maxTransition from " + origin + " to " + destination + " is " + collision + ", which not contained by this space " + this;
 
@@ -223,8 +230,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             return null;
 
         TileDirection follow1 = null;
-        TileDirection follow2 = null;        
-        
+        TileDirection follow2 = null;
+
         if (yd < yo) { // north
             final ImmutableLocation2D intersection = intersection(
                     tile.getX(), tile.getY(),
@@ -513,42 +520,4 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         }
     }
 
-    private class SelfUpdatingTree implements TwoDimTree<T> {
-
-        private final TwoDimTree<T> delegate = AsoemScalaTwoDimTree.newInstance();
-        private boolean outdated = false;
-
-        @Override
-        public void rebuild(Iterable<? extends T> elements, Function<? super T, ? extends Location2D> function) {
-            delegate.rebuild(elements, function);
-        }
-
-        @Override
-        public Iterable<T> findObjects(Location2D locatable, double range) {
-            if (outdated)
-                rebuild();
-            return delegate.findObjects(locatable, range);
-        }
-
-        private void rebuild() {
-            rebuild(projectables, new Function<Projectable<Object2D>, Location2D>() {
-                @Override
-                public Location2D apply(@Nullable Projectable<Object2D> o) {
-                    assert o != null;
-                    return o.getProjection();
-                }
-            });
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-            if(outdated)
-                rebuild();
-            return delegate.iterator();
-        }
-
-        public void setOutdated() {
-            outdated = true;
-        }
-    }
 }

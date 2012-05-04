@@ -20,12 +20,11 @@ import javax.annotation.Nullable;
 @ClassGroup(tags="conditions")
 public class GreyfishExpressionCondition extends LeafCondition {
 
-    // There is a potential performance increase.
+    // There is a potential for a performance increase.
     // Some Expressions, that for example reference a gene,
     // have functions that return a constant value over the lifetime of an Agent
     @Element
-    private GreyfishExpression expression = GreyfishExpressionFactoryHolder.compile("false");
-
+    private GreyfishExpression expression;
 
     public GreyfishExpressionCondition(GreyfishExpressionCondition greyfishExpressionCondition, DeepCloner cloner) {
         super(greyfishExpressionCondition, cloner);
@@ -60,6 +59,12 @@ public class GreyfishExpressionCondition extends LeafCondition {
                 return expression;
             }
         });
+    }
+
+    @Override
+    public void initialize() {
+        if (expression == null)
+            throw new IllegalStateException("Expression must not be null");
     }
 
     public static GreyfishExpressionCondition evaluate(GreyfishExpression compile) {

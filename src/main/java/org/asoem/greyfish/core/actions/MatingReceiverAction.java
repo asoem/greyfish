@@ -110,7 +110,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose randomly one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
-                .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount)));
+                .setReceivers(Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount)));
     }
 
     @Override
@@ -142,6 +142,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     public List<Chromosome> getReceivedSperm() {
         return receivedSperm;
+    }
+
+    public int getMatingCount() {
+        return receivedSperm.size();
     }
 
     @Override

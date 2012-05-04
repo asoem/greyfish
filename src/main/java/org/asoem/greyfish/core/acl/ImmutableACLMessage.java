@@ -2,10 +2,12 @@ package org.asoem.greyfish.core.acl;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,9 +48,9 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
     private final String inReplyTo;
 
     private ImmutableACLMessage(Builder<T> builder) {
-        this.reply_to = ImmutableSet.copyOf(builder.reply_to);
+        this.reply_to = builder.reply_to;
         this.sender = builder.sender;
-        this.receiver = ImmutableSet.copyOf(builder.dests);
+        this.receiver = builder.receivers;
         this.reply_with = builder.reply_with;
         this.content = builder.content;
         this.contentType = builder.contentType;
@@ -72,8 +74,8 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
         checkArgument(message.getSender() != null, "Cannot reply to an anonymous sender");
         return new Builder<T>()
                 .performative(message.getPerformative())
-                .addReplyTos(message.getAllReplyTo())
-                .addReceiver(message.getSender())
+                .setReplyTo(message.getAllReplyTo())
+                .setReceivers(message.getSender())
                 .language(message.getLanguage())
                 .ontology(message.getOntology())
                 .protocol(message.getProtocol())
@@ -221,8 +223,8 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
     public static class Builder<T> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>> {
         private ACLPerformative performative;
         private T sender;
-        private final Set<T> dests = Sets.newHashSet();
-        private final Set<T> reply_to = Sets.newHashSet();
+        private Set<T> receivers = Sets.newHashSet();
+        private Set<T> reply_to = Sets.newHashSet();
         private Class<?> contentType;
         private Object content = NULL_CONTENT;
         private String reply_with;
@@ -246,13 +248,12 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
 
         public Builder<T> conversationId(int conversationId) { this.conversationId = conversationId; return this; }
 
-        public Builder<T> addReceiver(T destinations) { this.dests.add(checkNotNull(destinations)); return this; }
-        public Builder<T> addReceiver(T ... destinations) { this.dests.addAll(Arrays.asList(checkNotNull(destinations))); return this; }
-        public Builder<T> addReceivers(Iterable<? extends T> destinations) { Iterables.addAll(dests, checkNotNull(destinations)); return this; }
+        public Builder<T> setReceivers(T receiver) { this.receivers = ImmutableSet.of(receiver); return this; }
+        public Builder<T> setReceivers(T ... receivers) { this.receivers = ImmutableSet.copyOf(receivers); return this; }
 
-        public Builder<T> addReplyTos(T destinations) { this.reply_to.add(checkNotNull(destinations)); return this; }
-        public Builder<T> addReplyTos(T ... destinations) { this.reply_to.addAll(Arrays.asList(checkNotNull(destinations))); return this; }
-        public Builder<T> addReplyTos(Iterable<? extends T> destinations) { Iterables.addAll(reply_to, checkNotNull(destinations)); return this; }
+        public Builder<T> setReplyTo(T replyTo) { this.reply_to = ImmutableSet.of(replyTo); return this; }
+        public Builder<T> setReplyTo(T ... replyToReceivers) { this.reply_to = ImmutableSet.copyOf(replyToReceivers); return this; }
+        public Builder<T> setReplyTo(Set<T> replyToReceivers) { this.reply_to = checkNotNull(replyToReceivers); return this; }
 
         public <C> Builder<T> content(C content, Class<C> contentType) {
             this.content = checkNotNull(content);
@@ -271,7 +272,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
         @Override
         public ImmutableACLMessage<T> build() {
             /* FIPA says: "It is only permissible to omit the receiver parameter if the message recipient can be reliably inferred from context" */
-            if (dests.isEmpty())        throw new  IllegalStateException("No receiver defined");
+            if (receivers.isEmpty())        throw new  IllegalStateException("No receiver defined");
 
             /* FIPA says: An agent MAY tag ACL messages with a conversation identifier */
             if (conversationId < 0)   throw new IllegalStateException("Invalid conversation ID: " + conversationId);

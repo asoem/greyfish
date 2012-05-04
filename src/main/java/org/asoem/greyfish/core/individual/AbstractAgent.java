@@ -285,8 +285,8 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public List<AgentMessage> pullMessages(MessageTemplate template) {
-        return inBox.pull(template);
+    public Iterable<AgentMessage> getMessages(MessageTemplate template) {
+        return inBox.filter(template);
     }
 
     @Override

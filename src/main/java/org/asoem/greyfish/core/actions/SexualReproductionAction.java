@@ -44,7 +44,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
 
-    private GreyfishExpression spermFitnessEvaluator = GreyfishExpressionFactoryHolder.compile("0"); // TODO: make field configurable
+    private GreyfishExpression spermFitnessEvaluator;
 
     private final BiMap<String, ElementSelectionStrategy<Chromosome>> strategies =
             ImmutableBiMap.of(
@@ -137,6 +137,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         this.spermList =cloneable.spermList;
         this.clutchSize = cloneable.clutchSize;
         this.spermSelectionStrategy = cloneable.spermSelectionStrategy;
+        this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
     }
 
     protected SexualReproductionAction(AbstractBuilder<?,?> builder) {
@@ -144,6 +145,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         this.spermList = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
         this.spermSelectionStrategy = builder.spermSelectionStrategy;
+        this.spermFitnessEvaluator = GreyfishExpressionFactoryHolder.compile("0");
     }
 
     @Override

@@ -43,6 +43,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     @Element(name="matingProbability", required = false)
     private GreyfishExpression matingProbability;
 
+    private int matingCount;
+
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public MatingTransmitterAction() {
         this(new Builder());
@@ -56,11 +58,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     @Override
     public void initialize() {
         super.initialize();
-        checkValidity();
-    }
-
-    private void checkValidity() {
-        Preconditions.checkNotNull(ontology);
+        matingCount = 0;
     }
 
     @Override
@@ -140,7 +138,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 //        DoubleProperty doubleProperty = null;
 //        GeneComponentList sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.parallelApply(sperm));
-
+        ++matingCount;
         return ImmutableACLMessage.createReply(message, getAgent())
                 .performative(ACLPerformative.INFORM);
     }
@@ -172,6 +170,10 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     public GreyfishExpression getSpermFitness() {
         return spermFitness;
+    }
+
+    public int getMatingCount() {
+        return matingCount;
     }
 
     public static final class Builder extends AbstractBuilder<MatingTransmitterAction, Builder> {

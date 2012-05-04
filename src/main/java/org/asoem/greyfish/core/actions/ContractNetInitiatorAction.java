@@ -76,7 +76,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         }
         else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
             Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-            for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
+            for (ACLMessage<Agent> receivedMessage : agent().getMessages(getTemplate())) {
                 assert (receivedMessage != null);
 
                 ACLMessage<Agent> proposeReply;
@@ -143,7 +143,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         else if (State.WAIT_FOR_INFORM.equals(state)) {
             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-            for (ACLMessage<Agent> receivedMessage : agent().pullMessages(getTemplate())) {
+            for (ACLMessage<Agent> receivedMessage : agent().getMessages(getTemplate())) {
                 assert receivedMessage != null;
 
                 switch (receivedMessage.getPerformative()) {

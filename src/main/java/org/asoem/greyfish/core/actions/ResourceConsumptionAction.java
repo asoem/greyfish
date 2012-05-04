@@ -48,7 +48,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
-                .addReceiver(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
+                .setReceivers(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
                 .content(requestAmount.evaluateForContext(this).asDouble(), Double.class);
     }
 

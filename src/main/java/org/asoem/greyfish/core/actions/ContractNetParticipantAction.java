@@ -57,7 +57,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<Agent>> cfpReplies = Lists.newArrayList();
-            final List<AgentMessage> proposalCalls = agent().pullMessages(template);
+            final Iterable<AgentMessage> proposalCalls = agent().getMessages(template);
             for (ACLMessage<Agent> cfp : proposalCalls) {
 
                 ACLMessage<Agent> cfpReply;
@@ -87,7 +87,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT == state) {
-            final List<AgentMessage> receivedMessages = agent().pullMessages(getTemplate());
+            final Iterable<AgentMessage> receivedMessages = agent().getMessages(getTemplate());
             for (ACLMessage<Agent> receivedMessage : receivedMessages) {
                 // TODO: turn into switch statement
                 switch (receivedMessage.getPerformative()) {
