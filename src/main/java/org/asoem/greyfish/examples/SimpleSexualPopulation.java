@@ -83,7 +83,7 @@ public class SimpleSexualPopulation {
                 .addActions(ResourceProvisionAction.with()
                         .name("give")
                         .ontology("energy")
-                        .provides(compile("min($('#resource').get().asDouble(), 10)"))
+                        .provides(compile("min($('#resource').get().asDouble(), 10) * classifier"))
                         .build())
                 .addProperties(ExpressionProperty.with()
                         .name("resource")
