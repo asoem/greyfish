@@ -5,10 +5,7 @@ import com.google.common.primitives.Doubles;
 import com.google.inject.Guice;
 import javolution.lang.MathLib;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.asoem.greyfish.core.actions.DeathAction;
-import org.asoem.greyfish.core.actions.MatingReceiverAction;
-import org.asoem.greyfish.core.actions.MatingTransmitterAction;
-import org.asoem.greyfish.core.actions.SexualReproductionAction;
+import org.asoem.greyfish.core.actions.*;
 import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
@@ -55,7 +52,7 @@ public class SimpleSexualPopulation {
                                 .ontology("mate")
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'MALE'")),
-                                        evaluate(compile("$('#fertilize').getSuccessCount() == 0"))))
+                                        evaluate(compile("$('#fertilize').getMatingCount() == 0"))))
                                 .build(),
                         MatingReceiverAction.with()
                                 .name("receive")
@@ -63,18 +60,21 @@ public class SimpleSexualPopulation {
                                 .interactionRadius(1.0)
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
-                                        evaluate(compile("$('#receive').getSuccessCount() == 0"))))
+                                        evaluate(compile("$('#receive').getMatingCount() == 0"))))
                                 .build(),
                         DeathAction.with()
                                 .name("die")
                                 .executesIf(evaluate(compile("$('this.agent.age') >= 100")))
+                                .build(),
+                        SimpleMovementAction.builder()
+                                .name("move")
                                 .build())
                 .addGenes(
                         MarkovGeneComponent.builder()
                                 .name("gender")
                                 .markovChain(EvaluatingMarkovChain.parse(
                                         "MALE -> FEMALE: 0.5;" +
-                                        "FEMALE -> MALE: 0.5",
+                                                "FEMALE -> MALE: 0.5",
                                         GreyfishExpressionFactoryHolder.get()))
                                 .initialState(compile("rand:sample('MALE','FEMALE')"))
                                 .build()
