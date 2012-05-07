@@ -4,12 +4,16 @@ import com.google.common.collect.Ordering;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @ClassGroup(tags="properties")
 public class DoubleProperty extends AbstractRangeElementProperty<Double> implements MutableProperty<Double> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DoubleProperty.class);
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public DoubleProperty() {
@@ -35,7 +39,9 @@ public class DoubleProperty extends AbstractRangeElementProperty<Double> impleme
 	}
 
 	public void subtract(double val) {
+        // TODO: handle bounds violation
         setValue(value - val);
+        LOGGER.debug("Subtracting: {}, Remaining: {}", val, value);
 	}
 	
 	public void add(Double val) {
@@ -48,7 +54,7 @@ public class DoubleProperty extends AbstractRangeElementProperty<Double> impleme
     }
 
     @Override
-    public Double get() {
+    public Double getValue() {
         return value;
     }
 

@@ -102,11 +102,11 @@ public class ActiveSimulationContext implements SimulationContext {
         // execute action
         if (nextAction != null) {
 
-            LOGGER.debug("{}#{}: Executing {}", agent, id, nextAction);
+            LOGGER.info("{}#{}: Executing {}", agent, id, nextAction);
 
             final ActionState state = nextAction.apply(simulation);
 
-            LOGGER.trace("{}#{}: Execution result {}", agent, id, state);
+            LOGGER.debug("{}#{}: Execution result {}", agent, id, state);
 
             switch (state) {
 

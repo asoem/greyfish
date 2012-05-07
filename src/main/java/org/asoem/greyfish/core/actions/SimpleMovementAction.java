@@ -27,6 +27,18 @@ public class SimpleMovementAction extends AbstractGFAction {
         this(new Builder());
     }
 
+    private SimpleMovementAction(SimpleMovementAction cloneable, DeepCloner map) {
+        super(cloneable, map);
+        this.speed = cloneable.speed;
+        this.rotation = cloneable.rotation;
+    }
+
+    protected SimpleMovementAction(AbstractBuilder<?, ?> builder) {
+        super(builder);
+        this.speed = builder.speed;
+        this.rotation = builder.rotation;
+    }
+
     @Override
     protected ActionState proceed(Simulation simulation) {
         final double angle = rotation.evaluateForContext(this).asDouble();
@@ -35,6 +47,11 @@ public class SimpleMovementAction extends AbstractGFAction {
         agent().setMotion(ImmutableMotion2D.of(angle, velocity));
 
         return ActionState.SUCCESS;
+    }
+
+    @Override
+    public boolean checkPreconditions(Simulation simulation) {
+        return super.checkPreconditions(simulation);
     }
 
     @Override
@@ -49,17 +66,6 @@ public class SimpleMovementAction extends AbstractGFAction {
         return new SimpleMovementAction(this, cloner);
     }
 
-    private SimpleMovementAction(SimpleMovementAction cloneable, DeepCloner map) {
-        super(cloneable, map);
-        this.speed = cloneable.speed;
-        this.rotation = cloneable.rotation;
-    }
-
-    protected SimpleMovementAction(AbstractBuilder<?, ?> builder) {
-        super(builder);
-        this.speed = builder.speed;
-        this.rotation = builder.rotation;
-    }
 
     public static Builder builder() { return new Builder(); }
 

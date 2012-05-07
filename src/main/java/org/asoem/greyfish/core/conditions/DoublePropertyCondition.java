@@ -60,7 +60,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
 	@Override
 	protected Double getCompareValue(Simulation simulation) {
-		return doubleProperty.get();
+		return doubleProperty.getValue();
 	}
 
     public static Builder builder() { return new Builder(); }

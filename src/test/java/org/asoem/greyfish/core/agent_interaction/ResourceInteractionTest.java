@@ -95,6 +95,6 @@ public class ResourceInteractionTest {
         }
 
         // then
-        assertThat(energyStorage.get()).isEqualTo(2);
+        assertThat(energyStorage.getValue()).isEqualTo(2);
     }
 }

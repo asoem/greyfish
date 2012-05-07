@@ -92,7 +92,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                             proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage(), String.class).build();
-                            LOGGER.debug("{}: Message not understood", this, e);
+                            LOGGER.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkProposeReply(proposeReply);
                         LOGGER.debug("{}: Replying to proposal", this, proposeReply);
@@ -106,12 +106,12 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                         break;
 
                     case NOT_UNDERSTOOD:
-                        LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatorAction.this);
+                        LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", this);
                         --nProposalsMax;
                         break;
 
                     default:
-                        LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatorAction.this, receivedMessage.getPerformative());
+                        LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", this, receivedMessage.getPerformative());
                         --nProposalsMax;
                         break;
                 }
@@ -153,12 +153,12 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                         break;
 
                     case FAILURE:
-                        LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
+                        LOGGER.debug("{}: Received FAILURE: {}", this, receivedMessage);
                         handleFailure(receivedMessage, simulation);
                         break;
 
                     case NOT_UNDERSTOOD:
-                        LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
+                        LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", this, receivedMessage);
                         break;
 
                     default:

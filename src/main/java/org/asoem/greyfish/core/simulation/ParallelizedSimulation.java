@@ -420,7 +420,7 @@ public class ParallelizedSimulation implements Simulation {
         checkNotNull(scenario);
         checkNotNull(stopTrigger);
 
-        ParallelizedSimulation simulation = new ParallelizedSimulation(scenario);
+        final ParallelizedSimulation simulation = new ParallelizedSimulation(scenario);
 
         while (!stopTrigger.apply(simulation)) {
             simulation.step();

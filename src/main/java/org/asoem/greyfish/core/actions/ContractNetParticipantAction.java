@@ -63,11 +63,11 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 ACLMessage<Agent> cfpReply;
                 try {
                     cfpReply = checkNotNull(handleCFP(cfp, simulation)).build();
-                } catch (RuntimeException e) {
+                } catch (NotUnderstoodException e) {
                     cfpReply = ImmutableACLMessage.createReply(cfp, agent())
-                            .performative(ACLPerformative.FAILURE)
+                            .performative(ACLPerformative.NOT_UNDERSTOOD)
                             .content(e.getMessage(), String.class).build();
-                    LOGGER.warn("Error occurred while handling call for proposal {}", cfp, e);
+                    LOGGER.warn("Message not understood {}", cfp, e);
                 }
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
@@ -94,12 +94,12 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                         ACLMessage<Agent> informMessage;
                         try {
                             informMessage = handleAccept(receivedMessage, simulation).build();
-                        } catch (RuntimeException e) {
+                        } catch (NotUnderstoodException e) {
                             informMessage = ImmutableACLMessage.createReply(receivedMessage, agent())
-                                    .performative(ACLPerformative.FAILURE)
+                                    .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage(), String.class).build();
 
-                            LOGGER.warn("Error occurred while handling accept message {}", receivedMessage, e);
+                            LOGGER.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkAcceptReply(informMessage);
                         LOGGER.debug("{}: Accepting proposal", this);

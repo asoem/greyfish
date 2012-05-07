@@ -1,5 +1,6 @@
 package org.asoem.greyfish.examples;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.primitives.Doubles;
 import com.google.inject.Guice;
@@ -7,13 +8,16 @@ import javolution.lang.MathLib;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.actions.*;
 import org.asoem.greyfish.core.conditions.AllCondition;
+import org.asoem.greyfish.core.conditions.FunctionCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
+import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Avatar;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.ExpressionProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
@@ -80,15 +84,21 @@ public class SimpleSexualPopulation {
 
     private static Agent createResourcePrototype() {
         return ImmutableAgent.of(Population.named("Resource"))
-                .addActions(ResourceProvisionAction.with()
-                        .name("give")
-                        .ontology("energy")
-                        .provides(compile("min($('#resource').get().asDouble(), 10) * classifier"))
-                        .build())
-                .addProperties(ExpressionProperty.with()
-                        .name("resource")
-                        .expression(compile("99 - $('#give').getProvidedAmount()"))
-                        .build())
+                .addActions(
+                        ResourceProvisionAction.with()
+                                .name("give")
+                                .ontology("energy")
+                                .provides(compile("min($('#resource').get().asDouble(), 10) * abs(classifier - $('#resource_classification').getValue())"))
+                                .build())
+                .addProperties(
+                        ExpressionProperty.with()
+                                .name("resource")
+                                .expression(compile("99 - $('#give').getProvidedAmount()"))
+                                .build(),
+                        ExpressionProperty.with()
+                                .name("resource_classification")
+                                .expression(compile("0.50"))
+                                .build())
                 .build();
     }
 
@@ -97,7 +107,7 @@ public class SimpleSexualPopulation {
                 .addActions(
                         DeathAction.with()
                                 .name("die")
-                                .executesIf(evaluate(compile("$('this.agent.age') >= 100")))
+                                .executesIf(evaluate(compile("$('#energy2').getValue() < 1.0")))
                                 .build(),
                         SexualReproductionAction.with()
                                 .name("reproduce")
@@ -106,29 +116,45 @@ public class SimpleSexualPopulation {
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
                                         evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0")),
-                                        evaluate(compile("$('#reproduce.stepsSinceLastExecution') >= 10"))))
+                                        evaluate(compile("$('#reproduce').stepsSinceLastExecution() >= 10")),
+                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                            @Override
+                                            public Boolean apply(FunctionCondition functionCondition) {
+                                                final ExpressionProperty energy2 = functionCondition.agent().getProperty("energy2", ExpressionProperty.class);
+                                                assert energy2 != null;
+                                                return energy2.get().asDouble() >= 10.0;
+                                            }
+                                        })))
+                                .onSuccess(compile("$('#energy').subtract(10.0)"))
                                 .build(),
                         MatingTransmitterAction.with()
                                 .name("fertilize")
                                 .ontology("mate")
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'MALE'")),
-                                        evaluate(compile("$('#fertilize').getMatingCount() == 0"))))
+                                        evaluate(compile("$('#fertilize').getMatingCount() == 0")),
+                                        evaluate(compile("$('#energy2').getValue() >= 1.0"))))
+                                .onSuccess(compile("$('#energy').subtract(1.0)"))
                                 .build(),
                         MatingReceiverAction.with()
                                 .name("receive")
                                 .ontology("mate")
                                 .interactionRadius(1.0)
+                                .matingProbability(compile("1 - abs(mate.getComponent('#consumer_classification') - $('#consumer_classification'))"))
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
-                                        evaluate(compile("$('#receive').getMatingCount() == 0"))))
+                                        evaluate(compile("$('#receive').getMatingCount() == 0")),
+                                        evaluate(compile("$('#energy2').getValue() >= 1.0"))))
+                                .onSuccess(compile("$('#energy').subtract(1.0)"))
                                 .build(),
                         ResourceConsumptionAction.with()
                                 .name("consume")
                                 .interactionRadius(compile("1"))
                                 .ontology("energy")
                                 .requestAmount(compile("10"))
-                                .uptakeUtilization(compile("")) // do nothing
+                                .uptakeUtilization(compile("$('#energy').add(offer)")) // do nothing
+                                .classification(compile("$('#consumer_classification').getValue()"))
+                                .executesIf(evaluate(compile("$('#consume').stepsSinceLastExecution() >= 10")))
                                 .build(),
                         SimpleMovementAction.builder()
                                 .name("move")
@@ -141,7 +167,29 @@ public class SimpleSexualPopulation {
                                                 "FEMALE -> MALE: 0.5",
                                         GreyfishExpressionFactoryHolder.get()))
                                 .initialState(compile("rand:sample('MALE','FEMALE')"))
+                                .build(),
+                        DoubleGeneComponent.builder()
+                                .name("consumer_classification")
+                                .initialValue(compile("rnorm(0.5, 0.1)"))
+                                .mutation(compile("rnorm(0, 0.1)"))
+                                .build(),
+                        DoubleGeneComponent.builder()
+                                .name("female_mating_preference")
+                                .initialValue(compile("runif(0.0, 100.0)"))
+                                .mutation(compile("rnorm(0, 0.1)"))
                                 .build())
+                .addProperties(
+                        DoubleProperty.with()
+                                .name("energy")
+                                .initialValue(100.0)
+                                .lowerBound(0.0)
+                                .upperBound(100.0)
+                                .build(),
+                        ExpressionProperty.with()
+                                .name("energy2")
+                                .expression(compile("$('#energy').getValue() - $('this.agent.age')"))
+                                .build()
+                )
                 .build();
     }
 

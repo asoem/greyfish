@@ -102,7 +102,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
-        int sensedMatesCount = Iterables.size(sensedMates);
+        final int sensedMatesCount = Iterables.size(sensedMates);
         assert(sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
         return ImmutableACLMessage.<Agent>with()
@@ -115,7 +115,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
-        ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
+        final ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             Chromosome chromosome = message.getContent(Chromosome.class);
             final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();

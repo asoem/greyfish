@@ -14,16 +14,13 @@
         </encoder>
     </appender>
 
-    <logger name="org.asoem.greyfish.core.individual.AbstractAgent" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.actions.SexualReproductionAction" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions.ResourceProvisionAction" additivity="true" level="DEBUG">
+    <logger name="org.asoem.greyfish.core.actions.MatingTransmitterAction" additivity="true" level="DEBUG">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.actions.ResourceConsumptionAction" additivity="true" level="DEBUG">
-    </logger>
-
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

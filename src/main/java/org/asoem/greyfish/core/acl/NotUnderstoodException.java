@@ -7,7 +7,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 14.01.11
  * Time: 14:19
  */
-public class NotUnderstoodException extends Exception {
+public class NotUnderstoodException extends RuntimeException {
     public NotUnderstoodException() {
     }
 

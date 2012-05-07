@@ -159,6 +159,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         public T requestAmount(GreyfishExpression amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
         public T interactionRadius(GreyfishExpression sensorRange) { this.interactionRadius = sensorRange; return self(); }
         public T uptakeUtilization(GreyfishExpression uptakeUtilization) { this.uptakeUtilization = checkNotNull(uptakeUtilization); return self(); }
+        public T classification(GreyfishExpression classification) { this.classification = checkNotNull(classification); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
