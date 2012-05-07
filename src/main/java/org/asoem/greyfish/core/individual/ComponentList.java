@@ -20,8 +20,8 @@ public interface ComponentList<E extends AgentComponent> extends List<E>, DeepCl
      * @param name the name of the {@code AgentComponent} to search for
      * @param clazz the clazz of the {@code AgentComponent} to search for
      * @param <T> the type of clazz
-     * @return the matching element in this {@code ComponentList} or {@code null} if none could be found
+     * @return the matching element in this {@code ComponentList}
+     * @throws java.util.NoSuchElementException if none could be found
      */
-    @Nullable
     <T extends E> T find(String name, Class<T> clazz);
 }

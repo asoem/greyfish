@@ -92,6 +92,11 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
+    public AgentComponent getComponent(String name) {
+        return delegate().getComponent(name);
+    }
+
+    @Override
     public void changeActionExecutionOrder(GFAction object, GFAction object2) {
         delegate().changeActionExecutionOrder(object, object2);
     }

@@ -24,6 +24,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
     AgentComponent getRootComponent();
 
     Iterable<AgentComponent> getComponents();
+    AgentComponent getComponent(String name);
     void changeActionExecutionOrder(GFAction object, GFAction object2);
 
     Population getPopulation();
@@ -33,19 +34,19 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
     boolean removeAction(GFAction action);
     void removeAllActions();
     ComponentList<GFAction> getActions();
-    @Nullable <T extends GFAction> T getAction(String name, Class<T> clazz);
+    <T extends GFAction> T getAction(String name, Class<T> clazz);
 
     boolean addProperty(GFProperty property);
     boolean removeProperty(GFProperty property);
     void removeAllProperties();
     ComponentList<GFProperty> getProperties();
-    @Nullable <T extends GFProperty> T getProperty(String name, Class<T> clazz);
+    <T extends GFProperty> T getProperty(String name, Class<T> clazz);
 
     boolean addGene(GeneComponent<?> gene);
     boolean removeGene(GeneComponent<?> gene);
     void removeAllGenes();
     GeneComponentList<GeneComponent<?>> getGeneComponentList();
-    @Nullable <T extends GeneComponent> T getGene(String name, Class<T> clazz);
+    <T extends GeneComponent> T getGene(String name, Class<T> clazz);
 
     /**
      * Update the agent's geneComponentList with the values of the {@link org.asoem.greyfish.core.genes.Gene}s in the given {@code vector}

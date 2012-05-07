@@ -120,9 +120,7 @@ public class SimpleSexualPopulation {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition functionCondition) {
-                                                final ExpressionProperty energy2 = functionCondition.agent().getProperty("energy2", ExpressionProperty.class);
-                                                assert energy2 != null;
-                                                return energy2.get().asDouble() >= 10.0;
+                                                return functionCondition.agent().getProperty("energy2", ExpressionProperty.class).get().asDouble() >= 10.0;
                                             }
                                         })))
                                 .onSuccess(compile("$('#energy').subtract(10.0)"))
@@ -133,18 +131,18 @@ public class SimpleSexualPopulation {
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'MALE'")),
                                         evaluate(compile("$('#fertilize').getMatingCount() == 0")),
-                                        evaluate(compile("$('#energy2').getValue() >= 1.0"))))
+                                        evaluate(compile("$('#energy2').get().asDouble() >= 1.0"))))
                                 .onSuccess(compile("$('#energy').subtract(1.0)"))
                                 .build(),
                         MatingReceiverAction.with()
                                 .name("receive")
                                 .ontology("mate")
                                 .interactionRadius(1.0)
-                                .matingProbability(compile("1 - abs(mate.getComponent('#consumer_classification') - $('#consumer_classification'))"))
+                                .matingProbability(compile("1 - abs(mate.getComponent('consumer_classification').getValue() - $('#consumer_classification').getValue())"))
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
                                         evaluate(compile("$('#receive').getMatingCount() == 0")),
-                                        evaluate(compile("$('#energy2').getValue() >= 1.0"))))
+                                        evaluate(compile("$('#energy2').get().asDouble() >= 1.0"))))
                                 .onSuccess(compile("$('#energy').subtract(1.0)"))
                                 .build(),
                         ResourceConsumptionAction.with()

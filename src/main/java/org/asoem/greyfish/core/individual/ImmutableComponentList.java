@@ -67,7 +67,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
                 assert e != null;
                 return Objects.equal(e.getName(), name) && clazz.isInstance(e);
             }
-        }, null));
+        }));
     }
 
     @Override

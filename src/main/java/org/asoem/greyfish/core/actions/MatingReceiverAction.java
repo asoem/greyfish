@@ -101,6 +101,11 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
+    public boolean checkPreconditions(Simulation simulation) {
+        return super.checkPreconditions(simulation);
+    }
+
+    @Override
     protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert(sensedMatesCount > 0); // see #evaluateCondition(Simulation)

@@ -61,7 +61,7 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
                 assert e != null;
                 return Objects.equal(e.getName(), name);
             }
-        }, null));
+        }));
     }
 
     @Override

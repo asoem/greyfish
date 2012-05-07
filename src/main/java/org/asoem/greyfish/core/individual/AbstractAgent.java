@@ -1,12 +1,16 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.*;
+import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -458,6 +462,16 @@ public abstract class AbstractAgent implements Agent {
                 });
             }
         };
+    }
+
+    @Override
+    public AgentComponent getComponent(final String name) {
+        return Iterables.find(getComponents(), new Predicate<AgentComponent>() {
+            @Override
+            public boolean apply(AgentComponent agentComponent) {
+                return agentComponent.getName().equals(name);
+            }
+        });
     }
 
     @Override
