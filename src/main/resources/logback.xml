@@ -14,10 +14,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.asoem.greyfish.core.actions.SexualReproductionAction" additivity="true" level="DEBUG">
-    </logger>
-
-    <logger name="org.asoem.greyfish.core.actions.MatingTransmitterAction" additivity="true" level="DEBUG">
+    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="INFO">
     </logger>
 
     <root level="WARN">
