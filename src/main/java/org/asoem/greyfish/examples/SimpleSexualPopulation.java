@@ -72,7 +72,7 @@ public class SimpleSexualPopulation {
                     millies = l;
                     lastStep = parallelizedSimulation.getCurrentStep();
                 }
-                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getCurrentStep() == 20000;
+                return parallelizedSimulation.countAgents(Population.named("SexualPopulation")) == 0 || parallelizedSimulation.getCurrentStep() == 20000;
             }
         });
 
@@ -88,7 +88,7 @@ public class SimpleSexualPopulation {
                         ResourceProvisionAction.with()
                                 .name("give")
                                 .ontology("energy")
-                                .provides(compile("min($('#resource').get().asDouble(), 10) * abs(classifier - $('#resource_classification').getValue())"))
+                                .provides(compile("min($('#resource').get().asDouble(), 10) * abs(classifier - $('#resource_classification').get().asDouble())"))
                                 .build())
                 .addProperties(
                         ExpressionProperty.with()
@@ -107,7 +107,12 @@ public class SimpleSexualPopulation {
                 .addActions(
                         DeathAction.with()
                                 .name("die")
-                                .executesIf(evaluate(compile("$('#energy2').getValue() < 1.0")))
+                                .executesIf(FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                    @Override
+                                    public Boolean apply(FunctionCondition functionCondition) {
+                                        return functionCondition.agent().getProperty("energy2", ExpressionProperty.class).evaluate().asDouble() < 1.0;
+                                    }
+                                }))
                                 .build(),
                         SexualReproductionAction.with()
                                 .name("reproduce")
@@ -120,7 +125,7 @@ public class SimpleSexualPopulation {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition functionCondition) {
-                                                return functionCondition.agent().getProperty("energy2", ExpressionProperty.class).get().asDouble() >= 10.0;
+                                                return functionCondition.agent().getProperty("energy2", ExpressionProperty.class).evaluate().asDouble() >= 10.0;
                                             }
                                         })))
                                 .onSuccess(compile("$('#energy').subtract(10.0)"))
@@ -131,7 +136,7 @@ public class SimpleSexualPopulation {
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'MALE'")),
                                         evaluate(compile("$('#fertilize').getMatingCount() == 0")),
-                                        evaluate(compile("$('#energy2').get().asDouble() >= 1.0"))))
+                                        evaluate(compile("$('#energy2').getValue() >= 1.0"))))
                                 .onSuccess(compile("$('#energy').subtract(1.0)"))
                                 .build(),
                         MatingReceiverAction.with()
@@ -142,7 +147,7 @@ public class SimpleSexualPopulation {
                                 .executesIf(AllCondition.evaluates(
                                         evaluate(compile("$('#gender').getValue() == 'FEMALE'")),
                                         evaluate(compile("$('#receive').getMatingCount() == 0")),
-                                        evaluate(compile("$('#energy2').get().asDouble() >= 1.0"))))
+                                        evaluate(compile("$('#energy2').getValue() >= 1.0"))))
                                 .onSuccess(compile("$('#energy').subtract(1.0)"))
                                 .build(),
                         ResourceConsumptionAction.with()
