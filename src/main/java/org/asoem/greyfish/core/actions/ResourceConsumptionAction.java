@@ -13,6 +13,8 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
@@ -22,6 +24,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceConsumptionAction.class);
     @Element(name="ontology", required=false)
     private String ontology;
 
@@ -69,6 +72,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {
         final double offer = message.getContent(Double.class);
+        LOGGER.info("Consuming {} {}", offer, ontology);
         uptakeUtilization.evaluateForContext(this, "offer", offer);
     }
 

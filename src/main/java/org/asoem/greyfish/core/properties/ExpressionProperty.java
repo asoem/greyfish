@@ -58,7 +58,15 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
 
     @Override
     public EvaluationResult get() {
+        return evaluate();
+    }
+
+    public EvaluationResult evaluate() {
         return expression.evaluateForContext(this);
+    }
+
+    public Object getValue() {
+        return evaluate().asObject();
     }
 
     public static Builder with() {

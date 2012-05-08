@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 @ClassGroup(tags="actions")
 public class DeathAction extends AbstractGFAction {
@@ -16,7 +17,7 @@ public class DeathAction extends AbstractGFAction {
 	@Override
 	protected ActionState proceed(Simulation simulation) {
 		simulation.removeAgent(agent());
-
+        LoggerFactory.getLogger(DeathAction.class).info("Dying");
         agent().logEvent(this, "dies", "");
         return ActionState.SUCCESS;
 	}

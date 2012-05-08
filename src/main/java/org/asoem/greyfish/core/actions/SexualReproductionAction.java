@@ -75,7 +75,8 @@ public class SexualReproductionAction extends AbstractGFAction {
         if (chromosomes.isEmpty())
             return ABORTED;
 
-        LOGGER.debug("Producing {} offspring ", clutchSize);
+        final int eggCount = clutchSize.evaluateForContext(this).asInt();
+        LOGGER.info("Producing {} offspring ", eggCount);
 
         final Chromosome egg = new Chromosome(
                 new UniparentalChromosomalOrigin(agent().getId()),
@@ -86,8 +87,6 @@ public class SexualReproductionAction extends AbstractGFAction {
                         return new Gene<Object>(gene.getValue(), gene.getRecombinationProbability());
                     }
                 }));
-
-        final int eggCount = clutchSize.evaluateForContext(this).asInt();
 
         for (Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 

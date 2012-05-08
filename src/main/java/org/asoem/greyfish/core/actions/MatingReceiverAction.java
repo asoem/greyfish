@@ -127,11 +127,11 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
             if (RandomUtils.trueWithProbability(probability)) {
                 receiveSperm(chromosome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
-                LOGGER.debug("Accepted mating with p={}", probability);
+                LOGGER.info("Accepted mating with p={}", probability);
             }
             else {
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
-                LOGGER.debug("Refused mating with p={}", probability);
+                LOGGER.info("Refused mating with p={}", probability);
             }
         } catch (ClassCastException e) {
             throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + message.getContentClass(), e);
