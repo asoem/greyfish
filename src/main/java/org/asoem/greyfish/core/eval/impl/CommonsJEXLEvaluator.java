@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.eval.impl;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import javolution.lang.MathLib;
 import org.apache.commons.jexl2.Expression;
@@ -90,6 +91,14 @@ public class CommonsJEXLEvaluator implements Evaluator {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(CommonsJEXLEvaluator.class)
+                .addValue(expression)
+                .addValue(resolver)
+                .toString();
+    }
+
     private class JEXLResolverAdaptor extends ForwardingVariableResolver implements JexlContext {
         private final VariableResolver resolver;
 
@@ -132,6 +141,11 @@ public class CommonsJEXLEvaluator implements Evaluator {
         @Override
         public int hashCode() {
             return resolver.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).addValue(resolver).toString();
         }
     }
 }

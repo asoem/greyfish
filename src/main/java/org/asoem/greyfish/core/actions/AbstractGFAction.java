@@ -60,8 +60,8 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     public ActionState apply(Simulation simulation) {
         Preconditions.checkNotNull(simulation);
 
-        assert stepAtLastSuccess < simulation.getCurrentStep() :
-                "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + simulation.getCurrentStep();
+        assert stepAtLastSuccess < simulation.getStep() :
+                "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + simulation.getStep();
 
         if (INITIAL == actionState)
             checkPreconditions(simulation);
@@ -113,7 +113,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     private void onSuccess(Simulation simulation) {
         ++successCount;
-        stepAtLastSuccess = simulation.getCurrentStep();
+        stepAtLastSuccess = simulation.getStep();
         onSuccess.evaluateForContext(this);
     }
 
@@ -152,12 +152,12 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
         // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
-        return simulation.getCurrentStep() - stepAtLastSuccess >= steps;
+        return simulation.getStep() - stepAtLastSuccess >= steps;
     }
 
     @Override
     public int stepsSinceLastExecution() {
-        return agent().getSimulationContext().getSimulation().getCurrentStep() - stepAtLastSuccess;
+        return agent().getSimulationContext().getSimulation().getStep() - stepAtLastSuccess;
     }
 
     @Override

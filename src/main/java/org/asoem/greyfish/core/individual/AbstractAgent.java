@@ -290,7 +290,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Iterable<AgentMessage> getMessages(MessageTemplate template) {
-        return inBox.filter(template);
+        return inBox.consume(template);
     }
 
     @Override
@@ -476,6 +476,6 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public String toString() {
-        return "Agent[" + population + ']';
+        return "Agent[" + population + ']' + "#" + simulationContext.getId() + "@" + simulationContext.getSimulationStep();
     }
 }

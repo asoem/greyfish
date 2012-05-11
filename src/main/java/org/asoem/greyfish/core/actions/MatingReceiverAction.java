@@ -97,7 +97,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     private void receiveSperm(Chromosome chromosome, Agent sender, Simulation simulation) {
         receivedSperm.add(chromosome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
-        LOGGER.debug(getAgent() + " received sperm: " + chromosome);
+        LOGGER.info(getAgent() + " received sperm: " + chromosome);
     }
 
     @Override

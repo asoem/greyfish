@@ -1,10 +1,13 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.ForwardingIterator;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.utils.collect.CircularFifoBuffer;
 
 import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * User: christoph
@@ -59,5 +62,30 @@ public class AgentMessageBox implements Iterable<AgentMessage> {
     @Override
     public int hashCode() {
         return box.hashCode();
+    }
+
+    public Iterable<AgentMessage> consume(final MessageTemplate template) {
+        return new Iterable<AgentMessage>() {
+            @Override
+            public Iterator<AgentMessage> iterator() {
+                return new AbstractIterator<AgentMessage>() {
+
+                    final ListIterator<AgentMessage> listIterator = box.listIterator();
+
+                    @Override
+                    protected AgentMessage computeNext() {
+                        while (listIterator.hasNext()) {
+                            final AgentMessage message = listIterator.next();
+                            if (template.apply(message)) {
+                                listIterator.remove();
+                                return message;
+                            }
+                        }
+
+                        return endOfData();
+                    }
+                };
+            }
+        };
     }
 }

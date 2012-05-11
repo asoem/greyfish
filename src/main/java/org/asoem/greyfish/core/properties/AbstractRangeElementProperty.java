@@ -40,7 +40,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     }
 
     @Override
-    public E get() {
+    public E getValue() {
         return value;
     }
 

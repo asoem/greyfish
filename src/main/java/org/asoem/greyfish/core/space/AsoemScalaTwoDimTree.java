@@ -46,10 +46,10 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
         if (kdtree.size() == 0)
             return Collections.emptyList();
 
-        HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
+        final HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
 
-        scala.collection.immutable.List<NNResult<T>> nnResultList
-                = kdtree.findNeighbours(searchPoint, Integer.MAX_VALUE, range);
+        final scala.collection.immutable.List<NNResult<T>> nnResultList
+                = kdtree.filterRange(searchPoint, range);
 
         return Iterables.transform(asJavaIterable(nnResultList), new Function<NNResult<T>, T>() {
             @Override

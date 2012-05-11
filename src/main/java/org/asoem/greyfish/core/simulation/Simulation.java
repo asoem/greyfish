@@ -38,6 +38,8 @@ public interface Simulation extends HasName {
 
     int countAgents(Population population);
 
+    int countAgents(String populationName);
+
     int generateAgentID();
 
     /**
@@ -59,12 +61,12 @@ public interface Simulation extends HasName {
 
     TiledSpace<Agent> getSpace();
 
-    int getCurrentStep();
+    int getStep();
 
     /**
      * Proceed on step cycle and execute evaluates agents & commands
      */
-    void step();
+    void nextStep();
 
     void setName(String name);
 

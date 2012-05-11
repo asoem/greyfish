@@ -55,6 +55,11 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
+    public int countAgents(String populationName) {
+        return delegate().countAgents(populationName);
+    }
+
+    @Override
     public int generateAgentID() {
         return delegate().generateAgentID();
     }
@@ -70,13 +75,13 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public int getCurrentStep() {
-        return delegate().getCurrentStep();
+    public int getStep() {
+        return delegate().getStep();
     }
 
     @Override
-    public void step() {
-        delegate().step();
+    public void nextStep() {
+        delegate().nextStep();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -45,6 +44,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
     private int matingCount;
 
+    private boolean proposalSent;
+
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public MatingTransmitterAction() {
         this(new Builder());
@@ -53,6 +54,11 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     @Override
     protected String getOntology() {
         return ontology;
+    }
+
+    @Override
+    protected void prepareForCommunication() {
+        proposalSent = false;
     }
 
     @Override
@@ -105,6 +111,9 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) {
         final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, agent());
 
+        if (proposalSent) // TODO: CFP messages are not randomized. Problem?
+            return reply.performative(ACLPerformative.REFUSE);
+
         final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
         if (RandomUtils.trueWithProbability(probability)) {
 
@@ -121,6 +130,8 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
 
             reply.content(chromosome, Chromosome.class)
                     .performative(ACLPerformative.PROPOSE);
+
+            proposalSent = true;
 
             LOGGER.debug("Accepted mating with p={}", probability);
         }

@@ -54,6 +54,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     protected void executeState(Object state, Simulation simulation) {
 
         if (State.CHECK_CFP == state) {
+            prepareForCommunication();
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<Agent>> cfpReplies = Lists.newArrayList();
@@ -159,6 +160,8 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.FAILURE),
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
+
+    protected void prepareForCommunication() {};
 
     protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation);
 

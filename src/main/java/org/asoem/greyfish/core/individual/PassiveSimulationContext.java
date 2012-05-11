@@ -49,6 +49,11 @@ public enum PassiveSimulationContext implements SimulationContext {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int getSimulationStep() {
+        return -1;
+    }
+
     public static PassiveSimulationContext instance() {
         return INSTANCE;
     }

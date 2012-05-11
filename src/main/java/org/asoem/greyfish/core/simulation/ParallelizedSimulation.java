@@ -267,6 +267,11 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
+    public int countAgents(String populationName) {
+        return countAgents(Population.named(populationName));
+    }
+
+    @Override
     public int generateAgentID() {
         return agentIdSequence.incrementAndGet();
     }
@@ -306,15 +311,15 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public int getCurrentStep() {
+    public int getStep() {
         return currentStep;
     }
 
     @Override
-    public synchronized void step() {
+    public synchronized void nextStep() {
         ++currentStep;
 
-        LOGGER.debug("{}: Entering step {}", this, currentStep);
+        LOGGER.info("{}: Entering step {}; {}", this, currentStep, countAgents());
 
         executeAllAgents();
 
@@ -328,7 +333,7 @@ public class ParallelizedSimulation implements Simulation {
     private void processAgentMessageDelivery() {
         for (DeliverAgentMessageMessage message : deliverAgentMessageMessages) {
             for (Agent agent : message.message.getRecipients()) {
-                agent.receive(new AgentMessage(message.message, getCurrentStep()));
+                agent.receive(new AgentMessage(message.message, getStep()));
             }
         }
         deliverAgentMessageMessages.clear();
@@ -372,7 +377,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public String toString() {
-        return "Simulation['" + getName() + "']@" + getCurrentStep();
+        return "Simulation['" + getName() + "']@" + getStep();
     }
 
     @Override
@@ -410,7 +415,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     /**
-     * Creates a new {@code Simulation} and calls {@link #step()} until the {@code stopTrigger} returns {@code true}
+     * Creates a new {@code Simulation} and calls {@link Simulation#nextStep()} until the {@code stopTrigger} returns {@code true}
      * @param scenario the {@code Scenario} used to initialize this Simulation
      * @param stopTrigger the {@code Predicate} which will be asked before each simulation step if the simulation should stop.
      * @return the newly created simulation
@@ -423,7 +428,7 @@ public class ParallelizedSimulation implements Simulation {
         final ParallelizedSimulation simulation = new ParallelizedSimulation(scenario);
 
         while (!stopTrigger.apply(simulation)) {
-            simulation.step();
+            simulation.nextStep();
         }
 
         return simulation;

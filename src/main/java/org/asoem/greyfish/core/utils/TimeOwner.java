@@ -8,5 +8,5 @@ package org.asoem.greyfish.core.utils;
 public interface TimeOwner {
     void addTimeListener(TimeListener timeListener);
 
-    int getCurrentStep();
+    int getStep();
 }

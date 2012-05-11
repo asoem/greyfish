@@ -9,5 +9,5 @@ import org.asoem.greyfish.utils.collect.RangeElement;
  */
 public interface RangeElementProperty<T extends Number & Comparable<T>> extends DiscreteProperty<T>, RangeElement<T> {
     @Override
-    T get();
+    T getValue();
 }

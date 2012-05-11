@@ -1,14 +1,20 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.genes.ImmutableGeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.simpleframework.xml.Element;
+
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

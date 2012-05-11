@@ -72,7 +72,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {
         final double offer = message.getContent(Double.class);
-        LOGGER.info("Consuming {} {}", offer, ontology);
+        LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
         uptakeUtilization.evaluateForContext(this, "offer", offer);
     }
 

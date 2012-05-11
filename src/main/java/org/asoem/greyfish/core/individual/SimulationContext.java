@@ -25,4 +25,6 @@ public interface SimulationContext {
     void execute(Agent agent);
 
     void logEvent(Agent agent, Object eventOrigin, String title, String message);
+
+    int getSimulationStep();
 }

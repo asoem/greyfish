@@ -29,6 +29,8 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     private double providedAmount;
 
+    private boolean proposalSent;
+
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceProvisionAction() {
         this(new Builder());
@@ -40,31 +42,39 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
+    protected void prepareForCommunication() {
+        proposalSent = false;
+    }
+
+    @Override
     protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) {
+        final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, getAgent());
+        if (proposalSent)
+            return reply.performative(ACLPerformative.REFUSE);
 
         final ResourceRequestMessage requestMessage = message.getContent(ResourceRequestMessage.class);
         final double requestAmount = requestMessage.getRequestAmount();
         final double providedAmount = provides.evaluateForContext(this, ImmutableMap.of("classifier", requestMessage.getRequestClassifier())).asDouble();
         final double offeredAmount = Math.min(requestAmount, providedAmount);
 
-        final ImmutableACLMessage.Builder<Agent> ret = ImmutableACLMessage.createReply(message, getAgent());
         if (offeredAmount > 0) {
-            ret.performative(ACLPerformative.PROPOSE).content(offeredAmount, Double.class);
-            LOGGER.trace("Offering {}", offeredAmount);
+            reply.performative(ACLPerformative.PROPOSE).content(offeredAmount, Double.class);
+            proposalSent = true;
+            LOGGER.trace("{}: Offering {}", agent(), offeredAmount);
         }
         else {
-            ret.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount", String.class);
-            LOGGER.trace("Nothing to offeredAmount");
+            reply.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount", String.class);
+            LOGGER.trace("{}: Nothing to offeredAmount", agent());
         }
 
-        return ret;
+        return reply;
     }
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
             double offer = message.getContent(Double.class);
 
-            LOGGER.debug("Provided {}", offer);
+            LOGGER.info("{}: Provided {}", agent(), offer);
 
             this.providedAmount += offer;
 

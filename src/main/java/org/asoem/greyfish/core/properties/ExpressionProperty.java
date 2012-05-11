@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 18:25
  */
 @ClassGroup(tags = {"properties"})
-public class ExpressionProperty extends AbstractGFProperty implements DiscreteProperty<EvaluationResult> {
+public class ExpressionProperty extends AbstractGFProperty implements DiscreteProperty<Object> {
 
     @Element
     private GreyfishExpression expression;
@@ -57,16 +57,12 @@ public class ExpressionProperty extends AbstractGFProperty implements DiscretePr
     }
 
     @Override
-    public EvaluationResult get() {
-        return evaluate();
+    public Object getValue() {
+        return evaluate().asObject();
     }
 
     public EvaluationResult evaluate() {
         return expression.evaluateForContext(this);
-    }
-
-    public Object getValue() {
-        return evaluate().asObject();
     }
 
     public static Builder with() {

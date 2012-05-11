@@ -19,7 +19,9 @@ public class GenericEvaluationResult implements EvaluationResult {
 
     public GenericEvaluationResult(@Nullable Object result) {
         this.result = result;
-        if (result instanceof Double)
+        if (result == null)
+            resultType = RESULT_TYPE.NULL;
+        else if (result instanceof Double)
             resultType = RESULT_TYPE.DOUBLE;
         else if (result instanceof Float)
             resultType = RESULT_TYPE.FLOAT;
@@ -30,7 +32,7 @@ public class GenericEvaluationResult implements EvaluationResult {
         else if (result instanceof String)
             resultType = RESULT_TYPE.STRING;
         else
-            resultType = RESULT_TYPE.OTHER;
+            resultType = RESULT_TYPE.OBJECT;
     }
 
     @Override
@@ -85,7 +87,8 @@ public class GenericEvaluationResult implements EvaluationResult {
         INTEGER,
         BOOLEAN,
         STRING,
-        OTHER
+        NULL,
+        OBJECT
     }
 
     @Override

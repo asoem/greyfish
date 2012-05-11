@@ -8,6 +8,8 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.simpleframework.xml.Element;
 
@@ -16,6 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ClassGroup(tags = "actions")
 public class SimpleMovementAction extends AbstractGFAction {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMovementAction.class);
     @Element(required=false)
     private GreyfishExpression speed;
 
@@ -44,8 +47,9 @@ public class SimpleMovementAction extends AbstractGFAction {
         final double angle = rotation.evaluateForContext(this).asDouble();
         final double velocity = speed.evaluateForContext(this).asDouble();
 
-        agent().setMotion(ImmutableMotion2D.of(angle, velocity));
-
+        final ImmutableMotion2D motion = ImmutableMotion2D.of(angle, velocity);
+        agent().setMotion(motion);
+        LOGGER.info("{}: Changing movement to {}", agent(), motion);
         return ActionState.SUCCESS;
     }
 

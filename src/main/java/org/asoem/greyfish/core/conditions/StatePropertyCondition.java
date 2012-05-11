@@ -47,7 +47,7 @@ public class StatePropertyCondition extends LeafCondition {
     @Override
     public boolean evaluate(Simulation simulation) {
         return stateProperty != null &&
-                Objects.equal(stateProperty.get(), state);
+                Objects.equal(stateProperty.getValue(), state);
     }
 
     @Override

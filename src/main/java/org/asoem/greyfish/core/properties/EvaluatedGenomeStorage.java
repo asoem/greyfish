@@ -55,7 +55,7 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty implements Discre
     public static Builder with() { return new Builder(); }
 
     @Override
-    public List<Chromosome> get() {
+    public List<Chromosome> getValue() {
         return Collections.unmodifiableList(spermList);
     }
 

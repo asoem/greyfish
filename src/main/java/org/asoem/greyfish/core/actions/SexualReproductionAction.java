@@ -76,7 +76,7 @@ public class SexualReproductionAction extends AbstractGFAction {
             return ABORTED;
 
         final int eggCount = clutchSize.evaluateForContext(this).asInt();
-        LOGGER.info("Producing {} offspring ", eggCount);
+        LOGGER.info("{}: Producing {} offspring ", agent(), eggCount);
 
         final Chromosome egg = new Chromosome(
                 new UniparentalChromosomalOrigin(agent().getId()),

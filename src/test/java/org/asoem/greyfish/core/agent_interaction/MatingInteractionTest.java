@@ -75,7 +75,7 @@ public class MatingInteractionTest {
 
         // when
         for (int i = 0; i < 3; ++i) {
-            simulationSpy.step();
+            simulationSpy.nextStep();
         }
 
         // then

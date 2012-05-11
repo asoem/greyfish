@@ -34,7 +34,7 @@ public class ActiveSimulationContext implements SimulationContext {
     public ActiveSimulationContext(Simulation simulation) {
         this.simulation = checkNotNull(simulation);
         this.id = simulation.generateAgentID();
-        this.activationStep = simulation.getCurrentStep() + 1;
+        this.activationStep = simulation.getStep() + 1;
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
@@ -68,15 +68,15 @@ public class ActiveSimulationContext implements SimulationContext {
 
     @Override
     public int getAge() {
-        assert simulation.getCurrentStep() >= activationStep;
-        return simulation.getCurrentStep() - activationStep;
+        assert simulation.getStep() >= activationStep;
+        return simulation.getStep() - activationStep;
     }
 
     @Override
     public void execute(Agent agent) {
 
         assert agent.getSimulationContext() == this : "Expected the agent associated with this context";
-        assert historyEntry == null || historyEntry.step < simulation.getCurrentStep();
+        assert historyEntry == null || historyEntry.step < simulation.getStep();
 
         GFAction nextAction = null;
 
@@ -102,11 +102,11 @@ public class ActiveSimulationContext implements SimulationContext {
         // execute action
         if (nextAction != null) {
 
-            LOGGER.info("{}#{}: Executing {}", agent, id, nextAction);
+            LOGGER.info("{}: Executing {}", agent, nextAction);
 
             final ActionState state = nextAction.apply(simulation);
 
-            LOGGER.debug("{}#{}: Execution result {}", agent, id, state);
+            LOGGER.debug("{}: Execution result {}", agent, state);
 
             switch (state) {
 
@@ -115,7 +115,7 @@ public class ActiveSimulationContext implements SimulationContext {
                     return;
 
                 case SUCCESS:
-                    historyEntry = new HistoryEntry(simulation.getCurrentStep(), toResume);
+                    historyEntry = new HistoryEntry(simulation.getStep(), toResume);
 
                 default:
                     nextAction.reset();
@@ -124,7 +124,7 @@ public class ActiveSimulationContext implements SimulationContext {
             }
         }
 
-        LOGGER.debug("Could not execute anything for {}#{}", agent, id);
+        LOGGER.debug("Could not execute anything for {}", agent);
     }
 
     @Override
@@ -132,6 +132,11 @@ public class ActiveSimulationContext implements SimulationContext {
         final Object2D projection = agent.getProjection();
         assert projection != null;
         simulation.createEvent(id, agent.getPopulation().getName(), projection.getCoordinates(), eventOrigin, title, message);
+    }
+
+    @Override
+    public int getSimulationStep() {
+        return simulation.getStep();
     }
 
     private static class HistoryEntry {
