@@ -3,12 +3,11 @@ package org.asoem.greyfish.utils.collect;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
-public interface RangeElement<E extends Number & Comparable<E>> extends Supplier<E> {
+public interface RangeElement<E extends Number & Comparable<E>> {
     /**
      * @return the value of this element
      */
-    @Override
-    E get();
+    E getValue();
 
     /**
      *

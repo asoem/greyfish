@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
+import com.google.common.base.Objects;
 import org.simpleframework.xml.Attribute;
 
 /**
@@ -86,6 +87,11 @@ public class ImmutableMotion2D implements Motion2D {
         temp = rotation != +0.0d ? Double.doubleToLongBits(rotation) : 0L;
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(translation).addValue(rotation).toString();
     }
 
     public static Motion2D noMotion() {

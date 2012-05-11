@@ -21,7 +21,7 @@ public class MutableRangeElement<T extends Number & Comparable<T>> implements Ra
     }
 
     @Override
-    public T get() {
+    public T getValue() {
         return value;
     }
 

@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.collect;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,5 +36,14 @@ public class ImmutableMapBuilder<K,V> extends ImmutableMap.Builder<K,V> {
     public ImmutableMapBuilder<K, V> putAll(Map<? extends K, ? extends V> map) {
         super.putAll(map);
         return this;
+    }
+
+    public static <E, K> ImmutableMap<K, Integer> uniqueIndex(List<E> list, Function<E, K> function) {
+        final ImmutableMap.Builder<K, Integer> builder = ImmutableMap.builder();
+        int i = 0;
+        for (E elem : list) {
+            builder.put(function.apply(elem), i++);
+        }
+        return builder.build();
     }
 }

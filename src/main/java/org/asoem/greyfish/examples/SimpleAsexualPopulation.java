@@ -77,11 +77,11 @@ public class SimpleAsexualPopulation {
                 final long l = System.currentTimeMillis();
                 if (l > millies + 1000) {
                     populationCountStatistics.addValue(parallelizedSimulation.countAgents());
-                    stepsPerSecondStatistics.addValue(parallelizedSimulation.getCurrentStep() - lastStep);
+                    stepsPerSecondStatistics.addValue(parallelizedSimulation.getStep() - lastStep);
                     millies = l;
-                    lastStep = parallelizedSimulation.getCurrentStep();
+                    lastStep = parallelizedSimulation.getStep();
                 }
-                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getCurrentStep() == 20000;
+                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getStep() == 20000;
             }
         });
 
