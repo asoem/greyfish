@@ -14,6 +14,8 @@ import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -27,6 +29,7 @@ import org.simpleframework.xml.Element;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.individual.Callbacks.call;
 
 /**
  * @author christoph
@@ -41,7 +44,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     private String ontology;
 
     @Element(name="interactionRadius", required=false)
-    private double interactionRadius;
+    private Callback<? super MatingReceiverAction, Double> interactionRadius;
 
     @Element(name="matingProbability", required = false)
     private GreyfishExpression matingProbability;
@@ -69,6 +72,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 return ontology;
             }
         });
+        /*
         e.add("Sensor Range", new AbstractTypedValueModel<Double>() {
             @Override
             protected void set(Double arg0) {
@@ -80,6 +84,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 return interactionRadius;
             }
         });
+        */
         e.add("matingProbability", "Expected is an expression that returns a double between 0.0 and 1.0",
                 new AbstractTypedValueModel<GreyfishExpression>() {
                     @Override
@@ -161,7 +166,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = simulation.findNeighbours(agent(), interactionRadius);
+        sensedMates = simulation.findNeighbours(agent(), getInteractionRadius());
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
@@ -192,7 +197,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     public double getInteractionRadius() {
-        return interactionRadius;
+        return call(interactionRadius, this);
     }
 
     public static final class Builder extends AbstractBuilder<MatingReceiverAction, Builder> {
@@ -205,20 +210,18 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
         protected String ontology = "mate";
-        protected double sensorRange = 1.0;
+        protected Callback<? super MatingReceiverAction, Double> sensorRange = Callbacks.constant(1.0);
         protected GreyfishExpression matingProbabilityExpression = GreyfishExpressionFactoryHolder.compile("1.0");
 
         public T matingProbability(GreyfishExpression matingProbabilityExpression) { this.matingProbabilityExpression = checkNotNull(matingProbabilityExpression); return self(); }
         public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
-        public T interactionRadius(double sensorRange) { this.sensorRange = sensorRange; return self(); }
+        public T interactionRadius(Callback<? super MatingReceiverAction, Double> sensorRange) { this.sensorRange = sensorRange; return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
-            if (sensorRange <= 0)
-                LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": interactionRadius is <= 0 '" + sensorRange + "'");
             if (Strings.isNullOrEmpty(ontology))
                 LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
         }

@@ -32,8 +32,7 @@ public interface VariableResolver {
      * which will be used to resolve variables if this one cannot resolve a queried variable
      * @return the next {@code VariableResolver} in the resolver chain
      */
-    @Nullable
-    VariableResolver getNext();
+    @Nullable VariableResolver getNext();
 
     /**
      * Add a {@code VariableResolver} to this resolver to build a chain of resolvers which will be queried for a variable.

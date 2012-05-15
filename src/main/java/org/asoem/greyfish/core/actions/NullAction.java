@@ -20,13 +20,13 @@ public class NullAction extends AbstractGFAction {
         return ActionState.SUCCESS;
     }
 
-    protected NullAction(AbstractBuilder<?,?> builder) {
+    protected NullAction(AbstractActionBuilder<?,?> builder) {
         super(builder);
     }
 
     public static Builder with() { return new Builder(); }
 
-    public static final class Builder extends AbstractBuilder<NullAction, Builder> {
+    public static final class Builder extends AbstractActionBuilder<NullAction, Builder> {
         @Override protected Builder self() { return this; }
         @Override public NullAction checkedBuild() { return new NullAction(this); }
     }

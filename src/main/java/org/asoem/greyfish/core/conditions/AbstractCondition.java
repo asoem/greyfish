@@ -63,7 +63,7 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractCondition, T extends AbstractBuilder<E,T>> extends AbstractAgentComponent.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends AbstractCondition, T extends AbstractBuilder<E,T>> extends AbstractComponentBuilder<E,T> {
     }
 
     @Override

@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 18:25
  */
 @ClassGroup(tags = {"properties"})
-public class ExpressionProperty extends AbstractGFProperty implements DiscreteProperty<Object> {
+public class ExpressionProperty extends AbstractGFProperty<Object> {
 
     @Element
     private GreyfishExpression expression;

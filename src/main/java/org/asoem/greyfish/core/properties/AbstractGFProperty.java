@@ -10,7 +10,7 @@ import org.simpleframework.xml.Root;
 import java.util.Collections;
 
 @Root
-public abstract class AbstractGFProperty extends AbstractAgentComponent implements GFProperty {
+public abstract class AbstractGFProperty<T> extends AbstractAgentComponent implements GFProperty<T> {
 
     @Override
     public void configure(ConfigurationHandler e) {
@@ -34,5 +34,5 @@ public abstract class AbstractGFProperty extends AbstractAgentComponent implemen
         return Collections.emptyList();
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractGFProperty, T extends AbstractBuilder<E, T>> extends AbstractAgentComponent.AbstractBuilder<E, T> {}
+    protected static abstract class AbstractBuilder<E extends AbstractGFProperty, T extends AbstractBuilder<E, T>> extends AbstractComponentBuilder<E, T> {}
 }

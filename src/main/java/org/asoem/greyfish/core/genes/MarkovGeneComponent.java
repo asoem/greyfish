@@ -153,7 +153,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         }
     }
 
-    protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractBuilder<T,B>> extends AbstractBuilder<T,B> {
+    protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T,B>> extends AbstractComponentBuilder<T,B> {
 
         private EvaluatingMarkovChain<String> markovChain;
         private GreyfishExpression initialState;

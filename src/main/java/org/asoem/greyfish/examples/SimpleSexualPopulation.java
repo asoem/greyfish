@@ -13,10 +13,7 @@ import org.asoem.greyfish.core.conditions.FunctionCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Avatar;
-import org.asoem.greyfish.core.individual.ImmutableAgent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.FunctionProperty;
@@ -28,8 +25,10 @@ import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 import static org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder.compile;
+import static org.asoem.greyfish.core.individual.Callbacks.constant;
 import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
 
 /**
@@ -89,7 +88,15 @@ public class SimpleSexualPopulation {
                         ResourceProvisionAction.with()
                                 .name("give")
                                 .ontology("energy")
-                                .provides(compile("min($('#resource').getValue(), 10) * (1 - abs(classifier - $('#resource_classification').getValue()))"))
+                                .provides(new Callback<ResourceProvisionAction, Double>() {
+                                    @Override
+                                    public Double apply(ResourceProvisionAction caller, Map<? super String, ?> localVariables) {
+                                        final Double resourceValue = (Double) (caller.agent().getProperty("resource", FunctionProperty.class).getValue());
+                                        final Double resource_classification = (Double) (caller.agent().getProperty("resource_classification", FunctionProperty.class).getValue());
+                                        final Double classifier = (Double) localVariables.get("classifier");
+                                        return Math.min(resourceValue, 10) * (1 - Math.abs(classifier - resource_classification));
+                                    }
+                                })
                                 .build())
                 .addProperties(
                         FunctionProperty.<Double>builder()
@@ -155,7 +162,12 @@ public class SimpleSexualPopulation {
                                                 return (Double) condition.agent().getProperty("energy2", FunctionProperty.class).getValue() >= 10.0;
                                             }
                                         })))
-                                .onSuccess(compile("$('#energy').subtract(10.0)"))
+                                .onSuccess(new Callback<AbstractGFAction, Void>() {
+                                    @Override
+                                    public Void apply(AbstractGFAction caller, Map<? super String, ?> localVariables) {
+                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(10.0); return null;
+                                    }
+                                })
                                 .build(),
                         MatingTransmitterAction.with()
                                 .name("fertilize")
@@ -179,12 +191,17 @@ public class SimpleSexualPopulation {
                                                 return (Double) condition.agent().getProperty("energy2", FunctionProperty.class).getValue() >= 1.0;
                                             }
                                         })))
-                                .onSuccess(compile("$('#energy').subtract(1.0)"))
+                                .onSuccess(new Callback<AbstractGFAction, Void>() {
+                                    @Override
+                                    public Void apply(AbstractGFAction caller, Map<? super String, ?> localVariables) {
+                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(1.0); return null;
+                                    }
+                                })
                                 .build(),
                         MatingReceiverAction.with()
                                 .name("receive")
                                 .ontology("mate")
-                                .interactionRadius(1.0)
+                                .interactionRadius(constant(1.0))
                                 .matingProbability(compile("1 - abs(mate.getComponent('consumer_classification').getValue() - $('#female_mating_preference').getValue())"))
                                 .executesIf(AllCondition.evaluates(
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -205,7 +222,12 @@ public class SimpleSexualPopulation {
                                                 return (Double) condition.agent().getProperty("energy2", FunctionProperty.class).getValue() >= 1.0;
                                             }
                                         })))
-                                .onSuccess(compile("$('#energy').subtract(1.0)"))
+                                .onSuccess(new Callback<AbstractGFAction, Void>() {
+                                    @Override
+                                    public Void apply(AbstractGFAction caller, Map<? super String, ?> localVariables) {
+                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(1.0); return null;
+                                    }
+                                })
                                 .build(),
                         ResourceConsumptionAction.with()
                                 .name("consume")

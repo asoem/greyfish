@@ -170,7 +170,7 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
         private GreyfishExpression spermStorage;
         private GreyfishExpression clutchSize = GreyfishExpressionFactoryHolder.compile("1");
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();

@@ -151,7 +151,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
+    protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
 
         private String ontology = "food";
         private GreyfishExpression requestAmount = GreyfishExpressionFactoryHolder.compile("1.0");

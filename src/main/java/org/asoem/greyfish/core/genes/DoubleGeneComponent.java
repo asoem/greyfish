@@ -164,7 +164,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
         }
     }
 
-    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E,T>> extends AbstractGeneComponent.AbstractBuilder<E,T> {
+    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E,T>> extends AbstractComponentBuilder<E,T> {
         private GreyfishExpression initialValue;
         private GreyfishExpression mutation;
 

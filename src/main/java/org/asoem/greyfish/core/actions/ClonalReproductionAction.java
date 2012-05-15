@@ -87,7 +87,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
         private GreyfishExpression nClones = GreyfishExpressionFactoryHolder.compile("1");
 
         public T nClones(GreyfishExpression nClones) { this.nClones = nClones; return self(); }

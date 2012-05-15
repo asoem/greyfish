@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 09.05.12
  * Time: 11:29
  */
-public class FunctionProperty<T> extends AbstractGFProperty implements DiscreteProperty<T> {
+public class FunctionProperty<T> extends AbstractGFProperty<T> {
 
     private Function<? super FunctionProperty<T>, ? extends T> function;
 

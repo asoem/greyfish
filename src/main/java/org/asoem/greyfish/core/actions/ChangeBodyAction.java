@@ -66,7 +66,7 @@ public class ChangeBodyAction extends AbstractGFAction {
         @Override public ChangeBodyAction checkedBuild() { return new ChangeBodyAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends ChangeBodyAction,T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ChangeBodyAction,T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
         private Color color;
 
         public T color(Color color) { this.color = checkNotNull(color); return self(); }

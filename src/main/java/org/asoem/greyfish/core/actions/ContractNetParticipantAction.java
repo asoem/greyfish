@@ -41,7 +41,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         return template;
     }
 
-    public ContractNetParticipantAction(AbstractGFAction.AbstractBuilder<?,?> builder) {
+    public ContractNetParticipantAction(AbstractActionBuilder<?,?> builder) {
         super(builder);
     }
 

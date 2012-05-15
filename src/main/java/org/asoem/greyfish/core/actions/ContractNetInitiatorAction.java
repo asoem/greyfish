@@ -33,7 +33,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     private int nProposalsReceived;
     private int nInformReceived;
 
-    protected ContractNetInitiatorAction(AbstractBuilder<? extends ContractNetInitiatorAction, ? extends AbstractBuilder> builder) {
+    protected ContractNetInitiatorAction(AbstractActionBuilder<? extends ContractNetInitiatorAction, ? extends AbstractActionBuilder> builder) {
         super(builder);
     }
 

@@ -88,7 +88,7 @@ public class SimpleMovementAction extends AbstractGFAction {
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<E extends SimpleMovementAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends SimpleMovementAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
         private GreyfishExpression speed = GreyfishExpressionFactoryHolder.compile("0.1");
         private GreyfishExpression rotation = GreyfishExpressionFactoryHolder.compile("rnorm(0.0, HALF_PI)");
 

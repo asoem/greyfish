@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -22,10 +22,11 @@ import static com.google.common.base.Preconditions.checkState;
 public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
+
     @Element(name="ontology", required=false)
     private String ontology;
 
-    private GreyfishExpression provides;
+    private Callback<ResourceProvisionAction, Double> provides;
 
     private double providedAmount;
 
@@ -54,7 +55,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
         final ResourceRequestMessage requestMessage = message.getContent(ResourceRequestMessage.class);
         final double requestAmount = requestMessage.getRequestAmount();
-        final double providedAmount = provides.evaluateForContext(this, ImmutableMap.of("classifier", requestMessage.getRequestClassifier())).asDouble();
+        final double providedAmount = provides.apply(this, ImmutableMap.of("classifier", requestMessage.getRequestClassifier()));
         final double offeredAmount = Math.min(requestAmount, providedAmount);
 
         if (offeredAmount > 0) {
@@ -134,12 +135,12 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         @Override protected ResourceProvisionAction checkedBuild() { return new ResourceProvisionAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E,T>> extends ContractNetParticipantAction.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
         private String ontology;
-        private GreyfishExpression provides;
+        private Callback<ResourceProvisionAction, Double> provides;
 
         public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
-        public T provides(GreyfishExpression expression) {
+        public T provides(Callback<ResourceProvisionAction, Double> expression) {
             this.provides = checkNotNull(expression);
             return self();
         }

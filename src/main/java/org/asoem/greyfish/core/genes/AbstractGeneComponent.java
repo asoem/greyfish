@@ -29,7 +29,7 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
         super(name);
     }
 
-    public AbstractGeneComponent(AbstractBuilder<? extends AbstractGeneComponent<?>, ? extends AbstractBuilder> builder) {
+    public AbstractGeneComponent(AbstractComponentBuilder<? extends AbstractGeneComponent<?>, ? extends AbstractComponentBuilder> builder) {
         super(builder);
     }
 

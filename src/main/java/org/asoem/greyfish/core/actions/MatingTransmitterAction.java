@@ -193,7 +193,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
             return new MatingTransmitterAction(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends ContractNetParticipantAction.AbstractBuilder<E, T> {
+    protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         private String ontology = "mate";
         private GreyfishExpression spermFitnessExpression =
                 GreyfishExpressionFactoryHolder.compile("0.0");

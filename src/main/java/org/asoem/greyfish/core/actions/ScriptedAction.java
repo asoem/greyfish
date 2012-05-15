@@ -71,7 +71,7 @@ public class ScriptedAction extends AbstractGFAction {
     }
     
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ScriptedAction, T extends AbstractBuilder<E,T>> extends AbstractGFAction.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ScriptedAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
 
         public GreyfishExpression script = GreyfishExpressionFactoryHolder.compile("");
         

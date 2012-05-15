@@ -1,13 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.ComponentVisitor;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -27,7 +26,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     @Nullable
     private GFCondition rootCondition = null;
 
-    private GreyfishExpression onSuccess;
+    private Callback<? super AbstractGFAction, Void> onSuccess;
 
     private int successCount;
 
@@ -41,7 +40,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractGFAction(AbstractBuilder<? extends AbstractGFAction, ? extends AbstractBuilder> builder) {
+    protected AbstractGFAction(AbstractActionBuilder<? extends AbstractGFAction, ? extends AbstractActionBuilder> builder) {
         super(builder);
         this.rootCondition = builder.condition;
         this.onSuccess = builder.onSuccess;
@@ -114,7 +113,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private void onSuccess(Simulation simulation) {
         ++successCount;
         stepAtLastSuccess = simulation.getStep();
-        onSuccess.evaluateForContext(this);
+        onSuccess.apply(this, ImmutableMap.of());
     }
 
     @Override
@@ -199,17 +198,17 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends AbstractGFAction, T extends AbstractBuilder<E,T>> extends AbstractAgentComponent.AbstractBuilder<E,T> {
+    protected static abstract class AbstractActionBuilder<A extends AbstractGFAction, B extends AbstractActionBuilder<A, B>> extends AbstractComponentBuilder<A, B> {
         private GFCondition condition;
         private DoubleProperty source;
         private GreyfishExpression formula = GreyfishExpressionFactoryHolder.compile("0");
-        private GreyfishExpression onSuccess = GreyfishExpressionFactoryHolder.compile("");
+        private Callback<? super AbstractGFAction, Void> onSuccess = Callbacks.emptyCallback();
 
-        public T executesIf(GFCondition condition) { this.condition = condition; return self(); }
-        private T source(DoubleProperty source) { this.source = source; return self(); }
-        private T formula(String formula) { this.formula = GreyfishExpressionFactoryHolder.compile(formula); return self(); }
-        public T generatesCosts(DoubleProperty source, String formula) {
+        public B executesIf(GFCondition condition) { this.condition = condition; return self(); }
+        private B source(DoubleProperty source) { this.source = source; return self(); }
+        private B formula(String formula) { this.formula = GreyfishExpressionFactoryHolder.compile(formula); return self(); }
+        public B generatesCosts(DoubleProperty source, String formula) {
             return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
-        public T onSuccess(GreyfishExpression expression) { this.onSuccess = checkNotNull(expression); return self(); }
+        public B onSuccess(Callback<? super AbstractGFAction, Void> expression) { this.onSuccess = checkNotNull(expression); return self(); }
     }
 }

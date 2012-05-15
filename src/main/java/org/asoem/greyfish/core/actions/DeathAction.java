@@ -34,13 +34,13 @@ public class DeathAction extends AbstractGFAction {
         super(cloneable, map);
     }
 
-    protected DeathAction(AbstractBuilder<?,?> builder) {
+    protected DeathAction(AbstractActionBuilder<?,?> builder) {
         super(builder);
     }
 
     public static Builder with() { return new Builder(); }
 
-    public static final class Builder extends AbstractBuilder<DeathAction, Builder> {
+    public static final class Builder extends AbstractActionBuilder<DeathAction, Builder> {
         private Builder() {}
         @Override protected Builder self() { return this; }
         @Override protected DeathAction checkedBuild() { return new DeathAction(this); }

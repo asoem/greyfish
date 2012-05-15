@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
-public abstract class ForwardingProperty extends ForwardingObject implements GFProperty {
+public abstract class ForwardingProperty<T> extends ForwardingObject implements GFProperty<T> {
 
     @Override
     protected abstract GFProperty delegate();

@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
@@ -27,7 +26,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         this.name = cloneable.name;
     }
 
-    protected AbstractAgentComponent(AbstractBuilder<? extends AbstractAgentComponent, ? extends AbstractBuilder> builder) {
+    protected AbstractAgentComponent(AbstractComponentBuilder<? extends AbstractAgentComponent, ? extends AbstractComponentBuilder> builder) {
         this.name = builder.name;
     }
 
@@ -119,7 +118,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         visitor.visit(this);
     }
 
-    public static abstract class AbstractBuilder<E extends AbstractAgentComponent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
+    public static abstract class AbstractComponentBuilder<E extends AbstractAgentComponent, T extends AbstractComponentBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
         private String name = "";
 
         public T name(String name) { this.name = name; return self(); }

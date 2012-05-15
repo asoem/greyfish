@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 
-public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty implements RangeElementProperty<E> {
+public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty<E> implements RangeElementProperty<E> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
     @Element(name="max")
