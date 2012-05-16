@@ -20,7 +20,6 @@ public class MutableRangeElement<T extends Number & Comparable<T>> implements Ra
         this.value = value;
     }
 
-    @Override
     public T getValue() {
         return value;
     }
