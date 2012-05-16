@@ -29,7 +29,7 @@ import java.util.Set;
  * Time: 10:28
  */
 @ClassGroup(tags = {"properties"})
-public class ConditionalStatesProperty extends AbstractGFProperty implements FiniteStateProperty<String> {
+public class ConditionalStatesProperty extends AbstractGFProperty<String> implements FiniteStateProperty<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConditionalStatesProperty.class);
 

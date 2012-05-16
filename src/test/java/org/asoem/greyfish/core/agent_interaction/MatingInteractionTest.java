@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import org.asoem.greyfish.core.actions.MatingReceiverAction;
 import org.asoem.greyfish.core.actions.MatingTransmitterAction;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
@@ -44,7 +45,7 @@ public class MatingInteractionTest {
         MatingReceiverAction receiverAction = MatingReceiverAction.with()
                 .name("receiveSperm")
                 .ontology(messageClassifier)
-                .interactionRadius(1.0)
+                .interactionRadius(Callbacks.constant(1.0))
                 .build();
 
         MatingTransmitterAction transmitterAction = MatingTransmitterAction.with()

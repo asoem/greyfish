@@ -3,6 +3,8 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
+import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -11,9 +13,7 @@ import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * User: christoph
@@ -29,7 +29,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     private EvaluatingMarkovChain<String> markovChain;
 
     @Element(required = false)
-    private GreyfishExpression initialState;
+    private Callback<? super MarkovGeneComponent, ? extends String> initialState;
 
     @Element(required = false)
     private String currentState;
@@ -43,15 +43,15 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         @Override
         public String createInitialValue() {
             assert initialState != null;
-            return initialState.evaluateForContext(MarkovGeneComponent.this).asString();
+            return Callbacks.call(initialState, MarkovGeneComponent.this);
         }
     };
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private MarkovGeneComponent() {
     }
-    
-    public MarkovGeneComponent(EvaluatingMarkovChain<String> chain, GreyfishExpression initialState) {
+
+    public MarkovGeneComponent(EvaluatingMarkovChain<String> chain, Callback<? super MarkovGeneComponent, ? extends String> initialState) {
         this.markovChain = checkNotNull(chain);
         this.initialState = checkNotNull(initialState);
     }
@@ -115,7 +115,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
                 return markovChain == null ? "" : markovChain.toRule();
             }
         });
-
+        /*
         e.add("Initial State", new AbstractTypedValueModel<String>() {
             @Override
             protected void set(String arg0) {
@@ -127,13 +127,14 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
                 return initialState == null ? "" : initialState.getExpression();
             }
         });
+        */
     }
 
     public EvaluatingMarkovChain<String> getMarkovChain() {
         return markovChain;
     }
 
-    public GreyfishExpression getInitialState() {
+    public Callback<? super MarkovGeneComponent, ? extends String> getInitialState() {
         return initialState;
     }
 
@@ -156,14 +157,14 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T,B>> extends AbstractComponentBuilder<T,B> {
 
         private EvaluatingMarkovChain<String> markovChain;
-        private GreyfishExpression initialState;
+        private Callback<? super MarkovGeneComponent, ? extends String> initialState;
 
         public B markovChain(EvaluatingMarkovChain<String> markovChain) {
             this.markovChain = checkNotNull(markovChain);
             return self();
         }
 
-        public B initialState(GreyfishExpression initialState) {
+        public B initialState(Callback<? super MarkovGeneComponent, ? extends String> initialState) {
             this.initialState = checkNotNull(initialState);
             return self();
         }

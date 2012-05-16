@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
@@ -113,7 +112,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     private void onSuccess(Simulation simulation) {
         ++successCount;
         stepAtLastSuccess = simulation.getStep();
-        onSuccess.apply(this, ImmutableMap.of());
+        Callbacks.call(onSuccess, this);
     }
 
     @Override

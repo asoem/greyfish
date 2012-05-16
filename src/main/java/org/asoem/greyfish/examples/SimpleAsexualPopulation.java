@@ -9,17 +9,16 @@ import org.asoem.greyfish.core.actions.ClonalReproductionAction;
 import org.asoem.greyfish.core.actions.DeathAction;
 import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Avatar;
-import org.asoem.greyfish.core.individual.ImmutableAgent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 import static org.asoem.greyfish.core.conditions.GreyfishExpressionCondition.evaluate;
 import static org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder.compile;
@@ -52,8 +51,18 @@ public class SimpleAsexualPopulation {
                 .addGenes(
                         DoubleGeneComponent.builder()
                                 .name("gene1")
-                                .initialValue(compile("50.0 + rnorm(0.0, 10.0)"))
-                                .mutation(compile("rnorm(0.0, 1.0)"))
+                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return 50.0 + RandomUtils.rnorm(0.0, 10.0);
+                                    }
+                                })
+                                .mutation(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return RandomUtils.rnorm(0.0, 1.0);
+                                    }
+                                })
                                 .build()
                 )
                 .build();

@@ -4,10 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.ImmutableAgent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
@@ -18,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -51,8 +50,13 @@ public class ResourceInteractionTest {
         ResourceConsumptionAction consumptionAction = ResourceConsumptionAction.with()
                 .name("eat")
                 .ontology(messageClassifier)
-                .requestAmount(GreyfishExpressionFactoryHolder.compile("1.0"))
-                .uptakeUtilization(GreyfishExpressionFactoryHolder.compile("$('this.agent.properties[\"resourceStorage\"]').add(offer * 2)"))
+                .requestAmount(Callbacks.constant(1.0))
+                .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
+                    @Override
+                    public Void apply(ResourceConsumptionAction caller, Map<String, ?> localVariables) {
+                        caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) localVariables.get("offer") * 2); return null;
+                    }
+                })
                 .build();
 
 

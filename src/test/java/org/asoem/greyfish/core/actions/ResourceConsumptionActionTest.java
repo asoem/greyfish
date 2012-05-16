@@ -8,6 +8,8 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
+import static org.asoem.greyfish.core.individual.Callbacks.constant;
+import static org.asoem.greyfish.core.individual.Callbacks.emptyCallback;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
@@ -29,19 +31,19 @@ public class ResourceConsumptionActionTest {
     public void testPersistence() throws Exception {
         // given
         final ResourceConsumptionAction action = ResourceConsumptionAction.with()
-                .interactionRadius(expressionFactory.compile("0.42"))
+                .interactionRadius(constant(0.42))
                 .ontology("foo")
-                .requestAmount(expressionFactory.compile("0.42"))
-                .uptakeUtilization(expressionFactory.compile("0.42"))
+                .requestAmount(constant(0.42))
+                .uptakeUtilization(emptyCallback())
                 .build();
 
         // when
         final ResourceConsumptionAction copy = Persisters.createCopy(action, ResourceConsumptionAction.class, persister);
 
         // then
-        assertThat(copy.getInteractionRadius().getExpression()).isEqualTo("0.42");
-        assertThat(copy.getRequestAmount().getExpression()).isEqualTo("0.42");
-        assertThat(copy.getUptakeUtilization().getExpression()).isEqualTo("0.42");
+        assertThat(copy.getInteractionRadius()).isEqualTo(constant(0.42));
+        assertThat(copy.getRequestAmount()).isEqualTo(constant(0.42));
+        assertThat(copy.getUptakeUtilization()).isEqualTo(emptyCallback());
         assertThat(copy.getOntology()).isEqualTo("foo");
     }
 }

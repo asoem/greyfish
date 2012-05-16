@@ -2,14 +2,15 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
+import static org.asoem.greyfish.core.individual.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
@@ -31,7 +32,7 @@ public class MarkovGeneTest {
     public void testPersistence() throws Exception {
         // given
         final EvaluatingMarkovChain<String> markovChain = EvaluatingMarkovChain.parse("A -> B : 1.0", factory);
-        final GreyfishExpression initialState = factory.compile("\"A\"");
+        final Callback<Object, String> initialState = constant("A");
         MarkovGeneComponent markovGene = new MarkovGeneComponent(markovChain, initialState);
 
         // when
@@ -39,6 +40,6 @@ public class MarkovGeneTest {
 
         // then
         assertThat(deserialized.getMarkovChain()).isEqualTo(markovChain);
-        assertThat(deserialized.getInitialState().getExpression()).isEqualTo(initialState.getExpression());
+        assertThat(deserialized.getInitialState()).isEqualTo(constant("A"));
     }
 }

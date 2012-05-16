@@ -4,14 +4,13 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Callback;
@@ -47,7 +46,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     private Callback<? super MatingReceiverAction, Double> interactionRadius;
 
     @Element(name="matingProbability", required = false)
-    private GreyfishExpression matingProbability;
+    private Callback<? super MatingReceiverAction, Double> matingProbability;
 
     private Iterable<Agent> sensedMates;
 
@@ -84,7 +83,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 return interactionRadius;
             }
         });
-        */
+
         e.add("matingProbability", "Expected is an expression that returns a double between 0.0 and 1.0",
                 new AbstractTypedValueModel<GreyfishExpression>() {
                     @Override
@@ -97,6 +96,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                         return matingProbability;
                     }
                 });
+                */
     }
 
     private void receiveSperm(Chromosome chromosome, Agent sender, Simulation simulation) {
@@ -128,7 +128,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         final ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             Chromosome chromosome = message.getContent(Chromosome.class);
-            final double probability = matingProbability.evaluateForContext(this, "mate", message.getSender()).asDouble();
+            final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
             if (RandomUtils.trueWithProbability(probability)) {
                 receiveSperm(chromosome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
@@ -166,7 +166,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = simulation.findNeighbours(agent(), getInteractionRadius());
+        sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
         LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
         return ! Iterables.isEmpty(sensedMates);
     }
@@ -187,17 +187,17 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         super(builder);
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
-        this.matingProbability = builder.matingProbabilityExpression;
+        this.matingProbability = builder.matingProbability;
     }
 
     public static Builder with() { return new Builder(); }
 
-    public GreyfishExpression getMatingProbability() {
+    public Callback<? super MatingReceiverAction, Double> getMatingProbability() {
         return matingProbability;
     }
 
-    public double getInteractionRadius() {
-        return call(interactionRadius, this);
+    public Callback<? super MatingReceiverAction, Double> getInteractionRadius() {
+        return interactionRadius;
     }
 
     public static final class Builder extends AbstractBuilder<MatingReceiverAction, Builder> {
@@ -213,9 +213,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
         protected String ontology = "mate";
         protected Callback<? super MatingReceiverAction, Double> sensorRange = Callbacks.constant(1.0);
-        protected GreyfishExpression matingProbabilityExpression = GreyfishExpressionFactoryHolder.compile("1.0");
+        protected Callback<? super MatingReceiverAction, Double> matingProbability = Callbacks.constant(1.0);
 
-        public T matingProbability(GreyfishExpression matingProbabilityExpression) { this.matingProbabilityExpression = checkNotNull(matingProbabilityExpression); return self(); }
+        public T matingProbability(Callback<? super MatingReceiverAction, Double> matingProbabilityExpression) { this.matingProbability = checkNotNull(matingProbabilityExpression); return self(); }
         public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
         public T interactionRadius(Callback<? super MatingReceiverAction, Double> sensorRange) { this.sensorRange = sensorRange; return self(); }
 

@@ -1,13 +1,15 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -20,6 +22,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
+import static org.asoem.greyfish.core.individual.Callbacks.call;
 
 @ClassGroup(tags="actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
@@ -29,17 +32,17 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     private String ontology;
 
     @Element(name="interactionRadius")
-    protected GreyfishExpression interactionRadius;
+    private Callback<? super ResourceConsumptionAction, Double> interactionRadius;
 
     @Element(name="requestAmount", required=false)
-    protected GreyfishExpression requestAmount;
+    protected Callback<? super ResourceConsumptionAction, Double> requestAmount;
 
     @Element(name="uptakeUtilization", required = false)
-    protected GreyfishExpression uptakeUtilization;
+    protected Callback<? super ResourceConsumptionAction, Void> uptakeUtilization;
 
     private Iterable<Agent> sensedMates;
 
-    private GreyfishExpression classification;
+    private Callback<? super ResourceConsumptionAction, String> classification;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceConsumptionAction() {
@@ -54,7 +57,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
                 .setReceivers(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
-                .content(new ResourceRequestMessage(requestAmount.evaluateForContext(this).asDouble(), classification.evaluateForContext(this).asString()), ResourceRequestMessage.class);
+                .content(new ResourceRequestMessage(call(requestAmount, this), call(classification, this)), ResourceRequestMessage.class);
     }
 
     @Override
@@ -73,7 +76,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {
         final double offer = message.getContent(Double.class);
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
-        uptakeUtilization.evaluateForContext(this, "offer", offer);
+        uptakeUtilization.apply(this, ImmutableMap.of("offer", offer));
     }
 
     @Override
@@ -83,7 +86,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = simulation.findNeighbours(agent(), interactionRadius.evaluateForContext(this).asDouble());
+        sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
         return ! isEmpty(sensedMates);
     }
 
@@ -131,15 +134,15 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     public static Builder with() { return new Builder(); }
 
-    public GreyfishExpression getInteractionRadius() {
+    public Callback<? super ResourceConsumptionAction, Double> getInteractionRadius() {
         return interactionRadius;
     }
 
-    public GreyfishExpression getRequestAmount() {
+    public Callback<? super ResourceConsumptionAction, Double> getRequestAmount() {
         return requestAmount;
     }
 
-    public GreyfishExpression getUptakeUtilization() {
+    public Callback<? super ResourceConsumptionAction, Void> getUptakeUtilization() {
         return uptakeUtilization;
     }
 
@@ -154,16 +157,16 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
 
         private String ontology = "food";
-        private GreyfishExpression requestAmount = GreyfishExpressionFactoryHolder.compile("1.0");
-        private GreyfishExpression interactionRadius = GreyfishExpressionFactoryHolder.compile("1.0");
-        private GreyfishExpression uptakeUtilization = GreyfishExpressionFactoryHolder.compile("$('this.agent.properties[\"myEnergy\"]').add(offer)");
-        private GreyfishExpression classification = GreyfishExpressionFactoryHolder.compile("0.42");
+        private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);
+        private Callback<? super ResourceConsumptionAction, Double> interactionRadius = Callbacks.constant(1.0);
+        private Callback<? super ResourceConsumptionAction, Void> uptakeUtilization = Callbacks.emptyCallback();
+        private Callback<? super ResourceConsumptionAction, String> classification = Callbacks.constant("0.42");
 
         public T ontology(String parameterMessageType) { this.ontology = checkNotNull(parameterMessageType); return self(); }
-        public T requestAmount(GreyfishExpression amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
-        public T interactionRadius(GreyfishExpression sensorRange) { this.interactionRadius = sensorRange; return self(); }
-        public T uptakeUtilization(GreyfishExpression uptakeUtilization) { this.uptakeUtilization = checkNotNull(uptakeUtilization); return self(); }
-        public T classification(GreyfishExpression classification) { this.classification = checkNotNull(classification); return self(); }
+        public T requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
+        public T interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) { this.interactionRadius = sensorRange; return self(); }
+        public T uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) { this.uptakeUtilization = checkNotNull(uptakeUtilization); return self(); }
+        public T classification(Callback<? super ResourceConsumptionAction, String> classification) { this.classification = checkNotNull(classification); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

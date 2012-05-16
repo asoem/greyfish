@@ -4,11 +4,11 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.properties.EvaluatedGenomeStorage;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
+import static org.asoem.greyfish.core.individual.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
@@ -31,15 +31,16 @@ public class MatingReceiverActionTest {
         // given
         final MatingReceiverAction action = MatingReceiverAction.with()
                 .ontology("foo")
-                .matingProbability(expressionFactory.compile("0.42"))
-                .interactionRadius(42.0).build();
+                .matingProbability(constant(0.42))
+                .interactionRadius(constant(0.42))
+                .build();
 
         // when
         final MatingReceiverAction copy = Persisters.createCopy(action, MatingReceiverAction.class, persister);
 
         // then
         assertThat(copy.getOntology()).isEqualTo("foo");
-        assertThat(copy.getMatingProbability().getExpression()).isEqualTo("0.42");
-        assertThat(copy.getInteractionRadius()).isEqualTo(42.0);
+        assertThat(copy.getMatingProbability()).isEqualTo(constant(0.42));
+        assertThat(copy.getInteractionRadius()).isEqualTo(constant(0.42));
     }
 }

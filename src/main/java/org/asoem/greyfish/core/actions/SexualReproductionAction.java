@@ -6,12 +6,13 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.UniparentalChromosomalOrigin;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -30,6 +31,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
 import static org.asoem.greyfish.core.actions.utils.ActionState.SUCCESS;
+import static org.asoem.greyfish.core.individual.Callbacks.call;
 
 @ClassGroup(tags="actions")
 public class SexualReproductionAction extends AbstractGFAction {
@@ -37,14 +39,14 @@ public class SexualReproductionAction extends AbstractGFAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproductionAction.class);
 
     @Element(name = "spermList")
-    private GreyfishExpression spermList;
+    private Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermList;
 
     @Element(name = "clutchSize")
-    private GreyfishExpression clutchSize;
+    private Callback<? super SexualReproductionAction, Integer> clutchSize;
 
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
 
-    private GreyfishExpression spermFitnessEvaluator;
+    private Callback<? super SexualReproductionAction, Double> spermFitnessEvaluator;
 
     private final BiMap<String, ElementSelectionStrategy<Chromosome>> strategies =
             ImmutableBiMap.of(
@@ -53,7 +55,7 @@ public class SexualReproductionAction extends AbstractGFAction {
                 @Override
                 public Double apply(@Nullable Chromosome genes) {
                     assert genes != null;
-                    return spermFitnessEvaluator.evaluateForContext(SexualReproductionAction.this).asDouble();
+                    return call(spermFitnessEvaluator, SexualReproductionAction.this);
                 }
             }));
 
@@ -66,8 +68,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     @Override
     protected ActionState proceed(Simulation simulation) {
-        final List<Chromosome> chromosomes =
-                (List<Chromosome>) spermList.evaluateForContext(this).as(List.class);
+        final List<? extends Chromosome> chromosomes = call(spermList, this);
 
         if (chromosomes == null)
             throw new AssertionError("chromosomes is null");
@@ -75,7 +76,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         if (chromosomes.isEmpty())
             return ABORTED;
 
-        final int eggCount = clutchSize.evaluateForContext(this).asInt();
+        final int eggCount = call(clutchSize, this);
         LOGGER.info("{}: Producing {} offspring ", agent(), eggCount);
 
         final Chromosome egg = new Chromosome(
@@ -144,7 +145,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         this.spermList = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
         this.spermSelectionStrategy = builder.spermSelectionStrategy;
-        this.spermFitnessEvaluator = GreyfishExpressionFactoryHolder.compile("0");
+        this.spermFitnessEvaluator = builder.spermFitnessEvaluator;
     }
 
     @Override
@@ -159,7 +160,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         return offspringCount;
     }
 
-    public GreyfishExpression getClutchSize() {
+    public Callback<? super SexualReproductionAction, Integer> getClutchSize() {
         return clutchSize;
     }
 
@@ -171,12 +172,13 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
-        private GreyfishExpression spermStorage;
-        private GreyfishExpression clutchSize = GreyfishExpressionFactoryHolder.compile("1");
+        private Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermStorage;
+        private Callback<? super SexualReproductionAction, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
+        private Callback<? super SexualReproductionAction, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
-        public T spermStorage(GreyfishExpression spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
-        public T clutchSize(GreyfishExpression nOffspring) { this.clutchSize = nOffspring; return self(); }
+        public T spermSupplier(Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
+        public T clutchSize(Callback<? super SexualReproductionAction, Integer> nOffspring) { this.clutchSize = nOffspring; return self(); }
         public T spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) { this.spermSelectionStrategy = checkNotNull(selectionStrategy); return self(); }
     }
 }

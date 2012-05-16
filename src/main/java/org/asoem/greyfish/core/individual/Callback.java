@@ -8,5 +8,5 @@ import java.util.Map;
  * Time: 11:39
  */
 public interface Callback<C, T> {
-      T apply(C caller, Map<? super String, ?> localVariables);
+      T apply(C caller, Map<String, ?> localVariables);
 }
