@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.actions.*;
 import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.conditions.FunctionCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
 import org.asoem.greyfish.core.individual.*;
@@ -25,11 +26,12 @@ import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
-import static org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder.compile;
 import static org.asoem.greyfish.core.individual.Callbacks.constant;
 import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
+import static org.asoem.greyfish.utils.math.RandomUtils.rnorm;
 
 /**
  * User: christoph
@@ -90,10 +92,10 @@ public class SimpleSexualPopulation {
                                 .ontology("energy")
                                 .provides(new Callback<ResourceProvisionAction, Double>() {
                                     @Override
-                                    public Double apply(ResourceProvisionAction caller, Map<? super String, ?> localVariables) {
+                                    public Double apply(ResourceProvisionAction caller, Map<String, ?> localVariables) {
                                         final Double resourceValue = (Double) (caller.agent().getProperty("resource", FunctionProperty.class).getValue());
                                         final Double resource_classification = (Double) (caller.agent().getProperty("resource_classification", FunctionProperty.class).getValue());
-                                        final Double classifier = (Double) localVariables.get("classifier");
+                                        final Double classifier = Double.valueOf((String) localVariables.get("classifier"));
                                         return Math.min(resourceValue, 10) * (1 - Math.abs(classifier - resource_classification));
                                     }
                                 })
@@ -129,8 +131,13 @@ public class SimpleSexualPopulation {
                                 .build(),
                         SexualReproductionAction.with()
                                 .name("reproduce")
-                                .clutchSize(compile("1"))
-                                .spermStorage(compile("$('#receive').getReceivedSperm()"))
+                                .clutchSize(constant(1))
+                                .spermSupplier(new Callback<SexualReproductionAction, List<? extends Chromosome>>() {
+                                    @Override
+                                    public List<? extends Chromosome> apply(SexualReproductionAction caller, Map<String, ?> localVariables) {
+                                        return caller.agent().getAction("receive", MatingReceiverAction.class).getReceivedSperm();
+                                    }
+                                })
                                 .executesIf(AllCondition.evaluates(
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
@@ -164,7 +171,7 @@ public class SimpleSexualPopulation {
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
                                     @Override
-                                    public Void apply(AbstractGFAction caller, Map<? super String, ?> localVariables) {
+                                    public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
                                         caller.agent().getProperty("energy", DoubleProperty.class).subtract(10.0); return null;
                                     }
                                 })
@@ -193,7 +200,7 @@ public class SimpleSexualPopulation {
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
                                     @Override
-                                    public Void apply(AbstractGFAction caller, Map<? super String, ?> localVariables) {
+                                    public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
                                         caller.agent().getProperty("energy", DoubleProperty.class).subtract(1.0); return null;
                                     }
                                 })
@@ -202,7 +209,14 @@ public class SimpleSexualPopulation {
                                 .name("receive")
                                 .ontology("mate")
                                 .interactionRadius(constant(1.0))
-                                .matingProbability(compile("1 - abs(mate.getComponent('consumer_classification').getValue() - $('#female_mating_preference').getValue())"))
+                                .matingProbability(new Callback<MatingReceiverAction, Double>() {
+                                    @Override
+                                    public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
+                                        final Double classificationOfMate = ((Agent) localVariables.get("mate")).getGene("consumer_classification", DoubleGeneComponent.class).getValue();
+                                        final Double matingPreference = caller.agent().getGene("female_mating_preference", DoubleGeneComponent.class).getValue();
+                                        return 1 - Math.max(0.0, Math.min(Math.abs(classificationOfMate - matingPreference), 1.0));
+                                    }
+                                })
                                 .executesIf(AllCondition.evaluates(
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
@@ -224,18 +238,28 @@ public class SimpleSexualPopulation {
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
                                     @Override
-                                    public Void apply(AbstractGFAction caller, Map<? super String, ?> localVariables) {
+                                    public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
                                         caller.agent().getProperty("energy", DoubleProperty.class).subtract(1.0); return null;
                                     }
                                 })
                                 .build(),
                         ResourceConsumptionAction.with()
                                 .name("consume")
-                                .interactionRadius(compile("1"))
+                                .interactionRadius(constant(1.0))
                                 .ontology("energy")
-                                .requestAmount(compile("10"))
-                                .uptakeUtilization(compile("$('#energy').add(offer)")) // do nothing
-                                .classification(compile("$('#consumer_classification').getValue()"))
+                                .requestAmount(constant(10.0))
+                                .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
+                                    @Override
+                                    public Void apply(ResourceConsumptionAction caller, Map<String, ?> localVariables) {
+                                        caller.agent().getProperty("energy", DoubleProperty.class).add((Double) localVariables.get("offer")); return null;
+                                    }
+                                })
+                                .classification(new Callback<ResourceConsumptionAction, String>() {
+                                    @Override
+                                    public String apply(ResourceConsumptionAction caller, Map<String, ?> localVariables) {
+                                        return String.valueOf(caller.agent().getGene("consumer_classification", DoubleGeneComponent.class).getValue());
+                                    }
+                                })
                                 .executesIf(new FunctionCondition(new Function<FunctionCondition, Boolean>() {
                                     @Override
                                     public Boolean apply(FunctionCondition functionCondition) {
@@ -253,17 +277,42 @@ public class SimpleSexualPopulation {
                                         "MALE -> FEMALE: 0.5;" +
                                                 "FEMALE -> MALE: 0.5",
                                         GreyfishExpressionFactoryHolder.get()))
-                                .initialState(compile("rand:sample('MALE','FEMALE')"))
+                                .initialState(new Callback<MarkovGeneComponent, String>() {
+                                    @Override
+                                    public String apply(MarkovGeneComponent caller, Map<String, ?> localVariables) {
+                                        return RandomUtils.sample("MALE", "FEMALE");
+                                    }
+                                })
                                 .build(),
                         DoubleGeneComponent.builder()
                                 .name("consumer_classification")
-                                .initialValue(compile("rnorm(0.5, 0.1)"))
-                                .mutation(compile("rnorm(0, 0.1)"))
+                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return rnorm(0.5, 0.1);
+                                    }
+                                })
+                                .mutation(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return rnorm(0, 0.1);
+                                    }
+                                })
                                 .build(),
                         DoubleGeneComponent.builder()
                                 .name("female_mating_preference")
-                                .initialValue(compile("runif(0.4, 0.6)"))
-                                .mutation(compile("rnorm(0, 0.1)"))
+                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return rnorm(0.4, 0.6);
+                                    }
+                                })
+                                .mutation(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return rnorm(0, 0.1);
+                                    }
+                                })
                                 .build())
                 .addProperties(
                         DoubleProperty.with()
