@@ -20,20 +20,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 07.02.12
  * Time: 11:30
  */
-public class BasicMarkovChain<S> implements MarkovChain<S> {
+public class StaticMarkovChain<S> implements MarkovChain<S> {
 
     private final Table<S, S, Double> markovMatrix;
 
-    private BasicMarkovChain(Table<S, S, Double> markovMatrix) {
+    private StaticMarkovChain(Table<S, S, Double> markovMatrix) {
         this.markovMatrix = markovMatrix;
     }
 
-    /**
-     * Make a transition to the next state as defined by the markovMatrix
-     *
-     * @param state the current state
-     * @return the next state
-     */
+    @Override
     public S apply(S state) {
         checkNotNull(state, "State must not be null");
 
@@ -73,7 +68,7 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
         return new ChainBuilder<S>();
     }
 
-    public static BasicMarkovChain<String> parse(String rule) {
+    public static StaticMarkovChain<String> parse(String rule) {
         ChainBuilder<String> builder = builder();
 
         final Splitter splitter = Splitter.onPattern("\r?\n|;").trimResults();
@@ -97,7 +92,7 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
         return builder.build();
     }
 
-    public static class ChainBuilder<S> implements Builder<BasicMarkovChain<S>> {
+    public static class ChainBuilder<S> implements Builder<StaticMarkovChain<S>> {
 
         private final Table<S, S, Double> table = HashBasedTable.create();
 
@@ -107,7 +102,7 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
         }
 
         @Override
-        public BasicMarkovChain<S> build() throws IllegalStateException {
+        public StaticMarkovChain<S> build() throws IllegalStateException {
             // todo: check if sum of transition probabilities in rows are <= 1
             for (S state : table.rowKeySet()) {
                 double sum = 0.0;
@@ -117,7 +112,7 @@ public class BasicMarkovChain<S> implements MarkovChain<S> {
                 if (sum < 0 || sum > 1)
                     throw new IllegalArgumentException("Sum of transition probabilities from state " + state + " must be in >= 0 and <= 1");
             }
-            return new BasicMarkovChain<S>(ImmutableTable.copyOf(table));
+            return new StaticMarkovChain<S>(ImmutableTable.copyOf(table));
         }
     }
     
