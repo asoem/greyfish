@@ -48,4 +48,6 @@ public interface GeneComponent<T> extends AgentComponent {
      * the gene on the non-focal geneComponentList. If the non-focal is taken, at the next gene, the focal geneComponentList will be the currently non-focal.
      */
     double getRecombinationProbability();
+
+    T mutatedValue();
 }

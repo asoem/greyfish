@@ -85,7 +85,7 @@ public class SexualReproductionAction extends AbstractGFAction {
                     @Override
                     public Gene<?> apply(@Nullable GeneComponent<?> gene) {
                         assert gene != null;
-                        return new Gene<Object>(gene.getValue(), gene.getRecombinationProbability());
+                        return new Gene<Object>(gene.mutatedValue(), gene.getRecombinationProbability());
                     }
                 }));
 

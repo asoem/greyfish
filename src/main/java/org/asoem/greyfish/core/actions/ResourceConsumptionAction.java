@@ -42,7 +42,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     private Iterable<Agent> sensedMates;
 
-    private Callback<? super ResourceConsumptionAction, String> classification;
+    private Callback<? super ResourceConsumptionAction, ?> classification;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceConsumptionAction() {
@@ -160,13 +160,13 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);
         private Callback<? super ResourceConsumptionAction, Double> interactionRadius = Callbacks.constant(1.0);
         private Callback<? super ResourceConsumptionAction, Void> uptakeUtilization = Callbacks.emptyCallback();
-        private Callback<? super ResourceConsumptionAction, String> classification = Callbacks.constant("0.42");
+        private Callback<? super ResourceConsumptionAction, ?> classification = Callbacks.constant(0.42);
 
         public T ontology(String parameterMessageType) { this.ontology = checkNotNull(parameterMessageType); return self(); }
         public T requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
         public T interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) { this.interactionRadius = sensorRange; return self(); }
         public T uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) { this.uptakeUtilization = checkNotNull(uptakeUtilization); return self(); }
-        public T classification(Callback<? super ResourceConsumptionAction, String> classification) { this.classification = checkNotNull(classification); return self(); }
+        public T classification(Callback<? super ResourceConsumptionAction, Object> classification) { this.classification = checkNotNull(classification); return self(); }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

@@ -51,6 +51,11 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
     }
 
     @Override
+    public T mutatedValue() {
+        return getGeneController().mutate(getValue());
+    }
+
+    @Override
     public void accept(ComponentVisitor visitor) {
         visitor.visit(this);
     }

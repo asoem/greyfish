@@ -9,10 +9,7 @@ import org.asoem.greyfish.core.eval.GreyfishVariableFactory;
 import org.asoem.greyfish.core.eval.impl.CachedGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.eval.impl.CommonsJEXLEvaluator;
 import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
-import org.asoem.greyfish.core.io.NullLogger;
-import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggerFactory;
-import org.asoem.greyfish.core.io.SimulationLoggerProvider;
+import org.asoem.greyfish.core.io.*;
 import org.asoem.greyfish.core.io.persistence.SimpleXMLPersister;
 import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
 import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
@@ -32,7 +29,7 @@ public class CoreModule extends AbstractModule {
 
         // SimulationLogger
         install(new FactoryModuleBuilder()
-                .implement(SimulationLogger.class, NullLogger.class)
+                .implement(SimulationLogger.class, H2Logger.class)
                 .build(SimulationLoggerFactory.class));
         requestStaticInjection(SimulationLoggerProvider.class);
 

@@ -8,9 +8,9 @@ package org.asoem.greyfish.core.actions;
 public class ResourceRequestMessage {
 
     private final double requestAmount;
-    private final String requestClassifier;
+    private final Object requestClassifier;
 
-    public ResourceRequestMessage(double requestAmount, String requestClassifier) {
+    public ResourceRequestMessage(double requestAmount, Object requestClassifier) {
         this.requestAmount = requestAmount;
         this.requestClassifier = requestClassifier;
     }
@@ -19,7 +19,7 @@ public class ResourceRequestMessage {
         return requestAmount;
     }
 
-    public String getRequestClassifier() {
+    public Object getRequestClassifier() {
         return requestClassifier;
     }
 }
