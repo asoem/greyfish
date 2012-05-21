@@ -1,17 +1,19 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
 import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.individual.Callbacks;
-import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
+
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -23,10 +25,8 @@ import static com.google.common.base.Preconditions.*;
 @ClassGroup(tags = {"genes"})
 public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
-    private static final GreyfishExpressionFactory EXPRESSION_FACTORY = GreyfishExpressionFactoryHolder.get();
-
     @Element(required = false)
-    private EvaluatingMarkovChain<String> markovChain;
+    private Table<String, String, Callback<? super MarkovGeneComponent, Double>> markovMatrix;
 
     @Element(required = false)
     private Callback<? super MarkovGeneComponent, ? extends String> initialState;
@@ -36,8 +36,34 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     private final GeneController<String> geneController = new GeneControllerAdaptor<String>() {
         @Override
-        public String mutate(String original) {
-            return markovChain.apply(original, GreyfishExpression.createContextResolver(this));
+        public String mutate(String state) {
+            checkNotNull(state, "State must not be null");
+
+            if (!markovMatrix.containsRow(state)) {
+                if (markovMatrix.containsColumn(state)) {
+                    return state;
+                }
+                else
+                    throw new IllegalArgumentException("State '" + state + "' does not match any of the defined states in set {" + Joiner.on(", ").join(Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet())) + "}");
+            }
+
+
+            final Map<String, Callback<? super MarkovGeneComponent, Double>> row = markovMatrix.row(state);
+
+            if (row.isEmpty()) {
+                return state;
+            }
+
+            double sum = 0;
+            double rand = RandomUtils.nextDouble();
+            for (Map.Entry<String, Callback<? super MarkovGeneComponent, Double>> cell : row.entrySet()) {
+                sum += Callbacks.call(cell.getValue(), MarkovGeneComponent.this);
+                if (sum > rand) {
+                    return cell.getKey();
+                }
+            }
+
+            return state;
         }
 
         @Override
@@ -51,14 +77,14 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     private MarkovGeneComponent() {
     }
 
-    public MarkovGeneComponent(EvaluatingMarkovChain<String> chain, Callback<? super MarkovGeneComponent, ? extends String> initialState) {
-        this.markovChain = checkNotNull(chain);
+    public MarkovGeneComponent(Table<String, String, Callback<? super MarkovGeneComponent, Double>> chain, Callback<? super MarkovGeneComponent, ? extends String> initialState) {
+        this.markovMatrix = checkNotNull(chain);
         this.initialState = checkNotNull(initialState);
     }
 
     public MarkovGeneComponent(AbstractMarkovGeneComponentBuilder<? extends MarkovGeneComponent, ? extends AbstractMarkovGeneComponentBuilder> builder) {
         super(builder);
-        this.markovChain = builder.markovChain;
+        this.markovMatrix = builder.markovChain.build();
         this.initialState = builder.initialState;
     }
 
@@ -76,7 +102,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
         super(markovGene, cloner);
-        this.markovChain = markovGene.markovChain;
+        this.markovMatrix = markovGene.markovMatrix;
         this.initialState = markovGene.initialState;
     }
 
@@ -103,7 +129,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-
+        /*
         e.add("Transition Rules", new AbstractTypedValueModel<String>() {
             @Override
             protected void set(String arg0) {
@@ -115,7 +141,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
                 return markovChain == null ? "" : markovChain.toRule();
             }
         });
-        /*
+
         e.add("Initial State", new AbstractTypedValueModel<String>() {
             @Override
             protected void set(String arg0) {
@@ -130,8 +156,8 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         */
     }
 
-    public EvaluatingMarkovChain<String> getMarkovChain() {
-        return markovChain;
+    public Table<String, String, Callback<? super MarkovGeneComponent, Double>> getMarkovChain() {
+        return markovMatrix;
     }
 
     public Callback<? super MarkovGeneComponent, ? extends String> getInitialState() {
@@ -156,11 +182,11 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T,B>> extends AbstractComponentBuilder<T,B> {
 
-        private EvaluatingMarkovChain<String> markovChain;
+        private ImmutableTable.Builder<String, String, Callback<? super MarkovGeneComponent, Double>> markovChain = ImmutableTable.builder();
         private Callback<? super MarkovGeneComponent, ? extends String> initialState;
 
-        public B markovChain(EvaluatingMarkovChain<String> markovChain) {
-            this.markovChain = checkNotNull(markovChain);
+        public B put(String state1, String state2, Callback<? super MarkovGeneComponent, Double> transitionCallback) {
+            markovChain.put(state1, state2, transitionCallback);
             return self();
         }
 
