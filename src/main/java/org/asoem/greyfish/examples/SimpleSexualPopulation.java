@@ -91,9 +91,9 @@ public class SimpleSexualPopulation {
                                     @Override
                                     public Double apply(ResourceProvisionAction caller, Map<String, ?> localVariables) {
                                         final Double resourceValue = (Double) (caller.agent().getProperty("resource", FunctionProperty.class).getValue());
-                                        final Double resource_classification = caller.agent().getProperty("resource_classification", DoubleProperty.class).getValue();
-                                        final Double classifier = (Double) localVariables.get("classifier");
-                                        final double dist = 1 - abs(classifier - resource_classification);
+                                        final Double resourceClassification = caller.agent().getProperty("resource_classification", DoubleProperty.class).getValue();
+                                        final Double consumerClassification = (Double) localVariables.get("classifier");
+                                        final double dist = 1 - abs(consumerClassification - resourceClassification);
                                         final double v = 1 - (4 * dist) / (sqrt(1 + pow((4 * dist), 2)));
                                         return min(resourceValue, 100) * v;
                                     }
@@ -113,7 +113,7 @@ public class SimpleSexualPopulation {
                                 .name("resource_classification")
                                 .lowerBound(0.0)
                                 .upperBound(1.0)
-                                .initialValue(RandomUtils.sample(0.2, 0.8))
+                                .initialValue(RandomUtils.sample(0.1, 0.9))
                                 .build())
                 .build();
     }
@@ -217,6 +217,7 @@ public class SimpleSexualPopulation {
                                     public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
                                         final Double classificationOfMate = ((Agent) localVariables.get("mate")).getGene("consumer_classification", DoubleGeneComponent.class).getValue();
                                         final Double matingPreference = caller.agent().getGene("female_mating_preference", DoubleGeneComponent.class).getValue();
+                                        // accept mates with min 90% similarity
                                         final boolean b = abs(classificationOfMate - matingPreference) < 0.1;
                                         return (b) ? 1.0 : 0.0;
                                     }
