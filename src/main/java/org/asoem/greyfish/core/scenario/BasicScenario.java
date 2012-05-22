@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -171,6 +172,7 @@ public class BasicScenario implements Scenario {
         public Builder addAgent(final Agent prototype, Object2D object2D) {
             checkNotNull(prototype);
             checkNotNull(object2D);
+            checkArgument(space.contains(object2D), "object2D " + object2D + " is out of the space range " + space);
             projections.add(new AgentProjectionPair(prototype, object2D));
             return this;
         }
@@ -185,7 +187,7 @@ public class BasicScenario implements Scenario {
                 public boolean apply(AgentProjectionPair object2D) {
                     return space.contains(object2D.projection);
                 }
-            }));
+            }), "Scenario cannot be built: Projection of at least one agent is out of the space range");
             return new BasicScenario(this);
         }
         
