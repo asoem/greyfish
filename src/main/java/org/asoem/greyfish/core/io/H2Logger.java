@@ -83,35 +83,40 @@ public class H2Logger implements SimulationLogger {
     @Override
     public void addAgent(Agent agent) {
         try {
+            synchronized (insertAgentStatement) {
+                insertAgentStatement.setInt(1, agent.getId());
+                insertAgentStatement.setString(2, agent.getPopulation().getName());
+                insertAgentStatement.setInt(3, agent.getSimulationContext().getActivationStep());
+                insertAgentStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                insertAgentStatement.execute();
+            }
 
-            insertAgentStatement.setInt(1, agent.getId());
-            insertAgentStatement.setString(2, agent.getPopulation().getName());
-            insertAgentStatement.setInt(3, agent.getSimulationContext().getActivationStep());
-            insertAgentStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-
-            insertAgentStatement.execute();
-
-            insertChromosomeStatement.setInt(1, agent.getId());
-            for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
-                insertChromosomeStatement.setInt(2, parentId);
-                insertChromosomeStatement.execute();
+            synchronized (insertChromosomeStatement) {
+                insertChromosomeStatement.setInt(1, agent.getId());
+                for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
+                    insertChromosomeStatement.setInt(2, parentId);
+                    insertChromosomeStatement.execute();
+                }
             }
 
             for (GeneComponent<?> gene : agent.getGeneComponentList()) {
-
                 assert gene != null;
 
                 if (Double.class.equals(gene.getSupplierClass())) {
-                    insertGeneAsDoubleStatement.setInt(1, agent.getId());
-                    insertGeneAsDoubleStatement.setString(2, gene.getName());
-                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getValue());
-                    insertGeneAsDoubleStatement.execute();
+                    synchronized (insertGeneAsDoubleStatement) {
+                        insertGeneAsDoubleStatement.setInt(1, agent.getId());
+                        insertGeneAsDoubleStatement.setString(2, gene.getName());
+                        insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getValue());
+                        insertGeneAsDoubleStatement.execute();
+                    }
                 }
                 else {
-                    insertGeneAsStringStatement.setInt(1, agent.getId());
-                    insertGeneAsStringStatement.setString(2, gene.getName());
-                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.getValue()));
-                    insertGeneAsStringStatement.execute();
+                    synchronized (insertGeneAsStringStatement) {
+                        insertGeneAsStringStatement.setInt(1, agent.getId());
+                        insertGeneAsStringStatement.setString(2, gene.getName());
+                        insertGeneAsStringStatement.setString(3, String.valueOf(gene.getValue()));
+                        insertGeneAsStringStatement.execute();
+                    }
                 }
             }
 
@@ -127,18 +132,20 @@ public class H2Logger implements SimulationLogger {
     @Override
     public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         try {
-            insertEventStatement.setInt(1, eventId);
-            insertEventStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            synchronized (insertEventStatement) {
+                insertEventStatement.setInt(1, eventId);
+                insertEventStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 
-            //insertEventStatement.setBytes(1, Bytes.concat(Longs.toByteArray(uuid.getMostSignificantBits()), Longs.toByteArray(uuid.getLeastSignificantBits())));
-            insertEventStatement.setInt(3, currentStep);
-            insertEventStatement.setInt(4, agentId);
-            // coordinates
-            insertEventStatement.setString(5, source);
-            insertEventStatement.setString(6, title);
-            insertEventStatement.setString(7, message);
+                //insertEventStatement.setBytes(1, Bytes.concat(Longs.toByteArray(uuid.getMostSignificantBits()), Longs.toByteArray(uuid.getLeastSignificantBits())));
+                insertEventStatement.setInt(3, currentStep);
+                insertEventStatement.setInt(4, agentId);
+                // coordinates
+                insertEventStatement.setString(5, source);
+                insertEventStatement.setString(6, title);
+                insertEventStatement.setString(7, message);
 
-            insertEventStatement.execute();
+                insertEventStatement.execute();
+            }
 
         } catch (SQLException e) {
             throw new IOError(e);

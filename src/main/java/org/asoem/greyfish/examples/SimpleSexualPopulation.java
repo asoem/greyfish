@@ -155,7 +155,7 @@ public class SimpleSexualPopulation {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return RandomUtils.nextDouble() < 1.0 - condition.agent().getSimulationContext().getSimulation().countAgents("SexualPopulation") / 900.0;
+                                                return RandomUtils.nextDouble() < 1.0 - condition.agent().getSimulationContext().getSimulation().countAgents("SexualPopulation") / 2000.0;
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
