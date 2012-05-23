@@ -2,6 +2,9 @@ package org.asoem.greyfish.core.io;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
+import org.apache.commons.pool.KeyedObjectPool;
+import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -18,12 +21,9 @@ import java.util.UUID;
 public class H2Logger implements SimulationLogger {
 
     private final Connection connection;
+    private final KeyedObjectPool<String, PreparedStatement> statementPool;
+
     private int event_commit_counter = 0;
-    private final PreparedStatement insertAgentStatement;
-    private final PreparedStatement insertGeneAsStringStatement;
-    private final PreparedStatement insertEventStatement;
-    private final PreparedStatement insertGeneAsDoubleStatement;
-    private final PreparedStatement insertChromosomeStatement;
 
     @Inject
     private H2Logger(@Assisted Simulation simulation) {
@@ -45,80 +45,81 @@ public class H2Logger implements SimulationLogger {
 
             connection.setAutoCommit(false);
 
-            insertChromosomeStatement = connection.prepareStatement(
-                    "INSERT INTO chromosome_tree (id, parent_id) VALUES (?, ?)"
-            );
-
-            insertAgentStatement = connection.prepareStatement(
-                    "INSERT INTO agents (id, population, activated_at, created_at) VALUES (?, ?, ?, ?)"
-            );
-            insertGeneAsStringStatement = connection.prepareStatement(
-                    "INSERT INTO genes_string (agent_id, name, value) VALUES (?, ?, ?)"
-            );
-            insertGeneAsDoubleStatement = connection.prepareStatement(
-                    "INSERT INTO genes_double (agent_id, name, value) VALUES (?, ?, ?)"
-            );
-            insertEventStatement = connection.prepareStatement(
-                    "INSERT INTO agent_events (id, created_at, simulation_step, agent_id, source, title, message) VALUES (?, ?, ?, ?, ?, ?, ?)"
-            );
-
         } catch (SQLException e) {
             close();
             throw new IOError(e);
         } catch (ClassNotFoundException e) {
             throw new AssertionError("The H2 db library seems not to be loaded");
         }
+
+        statementPool = new GenericKeyedObjectPool<String, PreparedStatement>(
+                new BaseKeyedPoolableObjectFactory<String, PreparedStatement>() {
+                    @Override
+                    public PreparedStatement makeObject(String sql) throws Exception {
+                        return connection.prepareStatement(sql);
+                    }
+                }, -1, GenericKeyedObjectPool.WHEN_EXHAUSTED_GROW, -1);
     }
 
     @Override
     public void close() {
         try {
             commit();
+            statementPool.clear();
             connection.close();
         } catch (SQLException e) {
             throw new IOError(e);
+        } catch (Exception e) {
+            throw new AssertionError(e);
         }
     }
 
     @Override
     public void addAgent(Agent agent) {
         try {
-            synchronized (insertAgentStatement) {
-                insertAgentStatement.setInt(1, agent.getId());
-                insertAgentStatement.setString(2, agent.getPopulation().getName());
-                insertAgentStatement.setInt(3, agent.getSimulationContext().getActivationStep());
-                insertAgentStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-                insertAgentStatement.execute();
-            }
+            final String insertAgentQuery = "INSERT INTO agents (id, population, activated_at, created_at) VALUES (?, ?, ?, ?)";
+            final PreparedStatement insertAgentStatement = borrowStatement(insertAgentQuery);
+            insertAgentStatement.setInt(1, agent.getId());
+            insertAgentStatement.setString(2, agent.getPopulation().getName());
+            insertAgentStatement.setInt(3, agent.getSimulationContext().getActivationStep());
+            insertAgentStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+            insertAgentStatement.execute();
+            returnStatement(insertAgentQuery, insertAgentStatement);
 
-            synchronized (insertChromosomeStatement) {
-                insertChromosomeStatement.setInt(1, agent.getId());
-                for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
-                    insertChromosomeStatement.setInt(2, parentId);
-                    insertChromosomeStatement.execute();
-                }
+            final String insertChromosomeQuery = "INSERT INTO chromosome_tree (id, parent_id) VALUES (?, ?)";
+            final PreparedStatement insertChromosomeStatement = borrowStatement(insertChromosomeQuery);
+            insertChromosomeStatement.setInt(1, agent.getId());
+            for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
+                insertChromosomeStatement.setInt(2, parentId);
+                insertChromosomeStatement.execute();
             }
+            returnStatement(insertChromosomeQuery, insertChromosomeStatement);
+
+            final String insertGeneAsDoubleQuery = "INSERT INTO genes_double (agent_id, name, value) VALUES (?, ?, ?)";
+            final PreparedStatement insertGeneAsDoubleStatement = borrowStatement(insertGeneAsDoubleQuery);
+            final String insertGeneAsStringQuery = "INSERT INTO genes_string (agent_id, name, value) VALUES (?, ?, ?)";
+            final PreparedStatement insertGeneAsStringStatement = borrowStatement(insertGeneAsStringQuery);
 
             for (GeneComponent<?> gene : agent.getGeneComponentList()) {
                 assert gene != null;
 
                 if (Double.class.equals(gene.getSupplierClass())) {
-                    synchronized (insertGeneAsDoubleStatement) {
-                        insertGeneAsDoubleStatement.setInt(1, agent.getId());
-                        insertGeneAsDoubleStatement.setString(2, gene.getName());
-                        insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getValue());
-                        insertGeneAsDoubleStatement.execute();
-                    }
+                    insertGeneAsDoubleStatement.setInt(1, agent.getId());
+                    insertGeneAsDoubleStatement.setString(2, gene.getName());
+                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getValue());
+                    insertGeneAsDoubleStatement.execute();
                 }
                 else {
-                    synchronized (insertGeneAsStringStatement) {
-                        insertGeneAsStringStatement.setInt(1, agent.getId());
-                        insertGeneAsStringStatement.setString(2, gene.getName());
-                        insertGeneAsStringStatement.setString(3, String.valueOf(gene.getValue()));
-                        insertGeneAsStringStatement.execute();
-                    }
+                    insertGeneAsStringStatement.setInt(1, agent.getId());
+                    insertGeneAsStringStatement.setString(2, gene.getName());
+                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.getValue()));
+                    insertGeneAsStringStatement.execute();
+
                 }
             }
+
+            returnStatement(insertGeneAsDoubleQuery, insertGeneAsDoubleStatement);
+            returnStatement(insertGeneAsStringQuery, insertGeneAsStringStatement);
 
         } catch (SQLException e) {
             throw new IOError(e);
@@ -129,24 +130,41 @@ public class H2Logger implements SimulationLogger {
         }
     }
 
+    private void returnStatement(String query, PreparedStatement statement) {
+        try {
+            statementPool.returnObject(query, statement);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private PreparedStatement borrowStatement(String s) {
+        try {
+            return statementPool.borrowObject(s);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
     @Override
     public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         try {
-            synchronized (insertEventStatement) {
-                insertEventStatement.setInt(1, eventId);
-                insertEventStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            final String insertEventQuery = "INSERT INTO agent_events (id, created_at, simulation_step, agent_id, source, title, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            final PreparedStatement insertEventStatement = borrowStatement(insertEventQuery);
+            insertEventStatement.setInt(1, eventId);
+            insertEventStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 
-                //insertEventStatement.setBytes(1, Bytes.concat(Longs.toByteArray(uuid.getMostSignificantBits()), Longs.toByteArray(uuid.getLeastSignificantBits())));
-                insertEventStatement.setInt(3, currentStep);
-                insertEventStatement.setInt(4, agentId);
-                // coordinates
-                insertEventStatement.setString(5, source);
-                insertEventStatement.setString(6, title);
-                insertEventStatement.setString(7, message);
+            //insertEventStatement.setBytes(1, Bytes.concat(Longs.toByteArray(uuid.getMostSignificantBits()), Longs.toByteArray(uuid.getLeastSignificantBits())));
+            insertEventStatement.setInt(3, currentStep);
+            insertEventStatement.setInt(4, agentId);
+            // coordinates
+            insertEventStatement.setString(5, source);
+            insertEventStatement.setString(6, title);
+            insertEventStatement.setString(7, message);
 
-                insertEventStatement.execute();
-            }
+            insertEventStatement.execute();
 
+            returnStatement(insertEventQuery, insertEventStatement);
         } catch (SQLException e) {
             throw new IOError(e);
         }
