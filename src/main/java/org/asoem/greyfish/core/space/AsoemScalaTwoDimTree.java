@@ -5,7 +5,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.asoem.greyfish.utils.space.TwoDimTree;
-import org.asoem.kdtree.*;
+import org.asoem.kdtree.HyperPoint;
+import org.asoem.kdtree.HyperPoint2;
+import org.asoem.kdtree.KDNode;
+import org.asoem.kdtree.NNResult;
+import scala.Product2;
+import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -18,7 +23,7 @@ import static scala.collection.JavaConversions.iterableAsScalaIterable;
 public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
 
     private org.asoem.kdtree.KDTree<T> kdtree =
-            new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(ImmutableList.<KDTuple<T>>of()));
+            new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(ImmutableList.<Product2<HyperPoint, T>>of()));
 
     private AsoemScalaTwoDimTree() {
     }
@@ -29,11 +34,11 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
 
     @Override
     public void rebuild(Iterable<? extends T> elements, final Function<? super T, ? extends Location2D> coordinates2DFunction) {
-        kdtree = new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(Iterables.transform(elements, new Function<T, KDTuple<T>>() {
+        kdtree = new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(Iterables.transform(elements, new Function<T, Product2<HyperPoint, T>>() {
             @Override
-            public KDTuple<T> apply(T t) {
+            public Product2<HyperPoint, T> apply(T t) {
                 final Location2D b = coordinates2DFunction.apply(t);
-                return new KDTuple<T>(new HyperPoint2(b.getX(), b.getY()), t);
+                return new Tuple2<HyperPoint, T>(new HyperPoint2(b.getX(), b.getY()), t);
             }
         })));
     }

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -40,7 +41,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Element(name="uptakeUtilization", required = false)
     protected Callback<? super ResourceConsumptionAction, Void> uptakeUtilization;
 
-    private Iterable<Agent> sensedMates;
+    private Iterable<Agent> sensedMates = ImmutableList.of();
 
     private Callback<? super ResourceConsumptionAction, ?> classification;
 
@@ -51,12 +52,14 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
+        final Agent receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
+        sensedMates = ImmutableList.of();
         return ImmutableACLMessage.<Agent>with()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
-                .setReceivers(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))))
+                .setReceivers(receiver)
                 .content(new ResourceRequestMessage(call(requestAmount, this), call(classification, this)), ResourceRequestMessage.class);
     }
 

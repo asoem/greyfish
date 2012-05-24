@@ -317,6 +317,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void shutDown() {
+        inBox.clear();
     }
 
     @Override

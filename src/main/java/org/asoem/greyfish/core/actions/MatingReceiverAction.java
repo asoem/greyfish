@@ -4,6 +4,7 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -28,6 +29,7 @@ import org.simpleframework.xml.Element;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.core.individual.Callbacks.call;
 
 /**
@@ -48,7 +50,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Element(name="matingProbability", required = false)
     private Callback<? super MatingReceiverAction, Double> matingProbability;
 
-    private Iterable<Agent> sensedMates;
+    private Iterable<Agent> sensedMates = ImmutableList.of();
 
     private List<Chromosome> receivedSperm = Lists.newArrayList();
 
@@ -115,12 +117,15 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert(sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
+        final Agent receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
+        sensedMates = ImmutableList.of();
+
         return ImmutableACLMessage.<Agent>with()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose randomly one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
-                .setReceivers(Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount)));
+                .setReceivers(receiver);
     }
 
     @Override
@@ -167,8 +172,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     protected boolean canInitiate(Simulation simulation) {
         sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
-        LOGGER.debug("Found {} possible mate(s)", Iterables.size(sensedMates));
-        return ! Iterables.isEmpty(sensedMates);
+        return ! isEmpty(sensedMates);
     }
 
     @Override
