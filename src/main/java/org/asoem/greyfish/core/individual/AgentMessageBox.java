@@ -19,7 +19,7 @@ public class AgentMessageBox implements Iterable<AgentMessage> {
     private final CircularFifoBuffer<AgentMessage> box;
 
     public AgentMessageBox() {
-        this.box = CircularFifoBuffer.newInstance(64);
+        this.box = CircularFifoBuffer.newInstance(8);
     }
 
     public AgentMessageBox(int size) {
