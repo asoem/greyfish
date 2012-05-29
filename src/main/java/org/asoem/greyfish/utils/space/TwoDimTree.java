@@ -2,7 +2,7 @@ package org.asoem.greyfish.utils.space;
 
 import com.google.common.base.Function;
 
-public interface TwoDimTree<T> extends Iterable<T> {
+public interface TwoDimTree<T> {
 
     /**
      * Rebuild this {@code KDTree} with the given {@code elements} indexed by {@code Location2D}

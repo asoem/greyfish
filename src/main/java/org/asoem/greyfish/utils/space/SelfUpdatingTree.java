@@ -3,7 +3,6 @@ package org.asoem.greyfish.utils.space;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -67,18 +66,6 @@ public class SelfUpdatingTree<T> extends ForwardingTwoDimTree<T> {
         try {
             rebuildIfOutdated();
             return delegate().findObjects(locatable, range);
-        }
-        finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        lock.readLock().lock();
-        try {
-            rebuildIfOutdated();
-            return delegate().iterator();
         }
         finally {
             lock.readLock().unlock();

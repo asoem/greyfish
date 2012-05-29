@@ -1,14 +1,15 @@
 apply plugin: 'java'
+version = '1.0'
 
 sourceCompatibility = 1.6
-version = '1.0'
+group="org.asoem"
+version="0.2.0"
 
 repositories {
     flatDir { dirs 'lib' }
     mavenLocal()
     mavenCentral()
     maven { url "http://scala-tools.org/repo-releases" } // for org.scala-lang:scala-library
-    maven { url "http://download.oracle.com/maven" } // for com.sleepycat:je
     maven { url "http://mirrors.ibiblio.org/pub/mirrors/maven2/" }
 }
 
@@ -49,7 +50,7 @@ dependencies {
 
 String jgoodies_dependency(String name, String version) {
 
-    String artifactId = "com.jgoodies:${name}:${version}"
+    String artifactId = "com.jgoodies:jgoodies-${name}:${version}"
     String libFileName = "jgoodies-${name}-${version}.jar"
 
     File libraryFile = new File('lib/' + libFileName.toString());
