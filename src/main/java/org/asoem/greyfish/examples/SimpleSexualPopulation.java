@@ -2,10 +2,8 @@ package org.asoem.greyfish.examples;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.primitives.Doubles;
 import com.google.inject.Guice;
 import javolution.lang.MathLib;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.actions.*;
 import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.conditions.FunctionCondition;
@@ -37,8 +35,6 @@ import static org.asoem.greyfish.utils.math.RandomUtils.*;
  * Time: 14:36
  */
 public class SimpleSexualPopulation {
-    private final DescriptiveStatistics populationCountStatistics = new DescriptiveStatistics();
-    private final DescriptiveStatistics stepsPerSecondStatistics = new DescriptiveStatistics();
 
     public SimpleSexualPopulation() {
 
@@ -57,29 +53,14 @@ public class SimpleSexualPopulation {
 
         final ParallelizedSimulation simulation = ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
 
-            private long millies = System.currentTimeMillis();
-            int lastStep = -1;
-
             @Override
             public boolean apply(@Nullable ParallelizedSimulation parallelizedSimulation) {
                 assert parallelizedSimulation != null;
-
-                //System.out.println(parallelizedSimulation.countAgents());
-                final long l = System.currentTimeMillis();
-                if (l > millies + 1000) {
-                    populationCountStatistics.addValue(parallelizedSimulation.countAgents());
-                    stepsPerSecondStatistics.addValue(parallelizedSimulation.getStep() - lastStep);
-                    millies = l;
-                    lastStep = parallelizedSimulation.getStep();
-                }
                 return parallelizedSimulation.countAgents(Population.named("SexualPopulation")) == 0 || parallelizedSimulation.getStep() == 20000;
             }
         });
 
         simulation.shutdown();
-
-        System.out.println(Doubles.join(" ", populationCountStatistics.getValues()));
-        System.out.println(Doubles.join(" ", stepsPerSecondStatistics.getValues()));
     }
 
     private static Agent createResourcePrototype() {
