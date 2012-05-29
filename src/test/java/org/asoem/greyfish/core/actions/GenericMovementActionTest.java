@@ -15,26 +15,26 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 22.02.12
  * Time: 17:57
  */
-public class SimpleMovementActionTest {
+public class GenericMovementActionTest {
 
     @Inject
     private GreyfishExpressionFactory expressionFactory;
     @Inject
     private Persister persister;
 
-    public SimpleMovementActionTest() {
+    public GenericMovementActionTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test
     public void testPersistence() throws Exception {
         // given
-        final SimpleMovementAction action = SimpleMovementAction.builder().speed(expressionFactory.compile("0.42")).build();
+        final GenericMovementAction action = GenericMovementAction.builder().stepSize(expressionFactory.compile("0.42")).build();
 
         // when
-        final SimpleMovementAction copy = Persisters.createCopy(action, SimpleMovementAction.class, persister);
+        final GenericMovementAction copy = Persisters.createCopy(action, GenericMovementAction.class, persister);
 
         // then
-        assertThat(copy.getSpeed().getExpression()).isEqualTo("0.42");
+        assertThat(copy.getStepSize().getExpression()).isEqualTo("0.42");
     }
 }

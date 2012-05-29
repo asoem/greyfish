@@ -5,10 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.asoem.greyfish.utils.space.TwoDimTree;
-import org.asoem.kdtree.HyperPoint;
-import org.asoem.kdtree.HyperPoint2;
-import org.asoem.kdtree.KDNode;
-import org.asoem.kdtree.NNResult;
+import org.asoem.kdtree.*;
 import scala.Product2;
 import scala.Tuple2;
 
@@ -22,8 +19,8 @@ import static scala.collection.JavaConversions.iterableAsScalaIterable;
 
 public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
 
-    private org.asoem.kdtree.KDTree<T> kdtree =
-            new org.asoem.kdtree.KDTree<T>(iterableAsScalaIterable(ImmutableList.<Product2<HyperPoint, T>>of()));
+    private KDTree<T> kdtree =
+            new KDTree<T>(iterableAsScalaIterable(ImmutableList.<Product2<HyperPoint, T>>of()));
 
     private AsoemScalaTwoDimTree() {
     }

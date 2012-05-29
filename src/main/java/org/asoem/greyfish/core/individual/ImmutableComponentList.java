@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * This is an implementation of {@link ComponentList} which behaves like an {@link com.google.common.collect.ImmutableList}.
  * Therefore it is guaranteed to be immutable, cannot be subclassed and does not permit null elements.
  *
- * <p><b>Note:</b> This implementation delegates to an {@link com.google.common.collect.ImmutableMap} internally to speed up name based retrieval.
+ * <p><b>Note:</b> This implementation delegates to an {@link com.google.common.collect.ImmutableMap} internally to stepSize up name based retrieval.
  */
 public class ImmutableComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
 
