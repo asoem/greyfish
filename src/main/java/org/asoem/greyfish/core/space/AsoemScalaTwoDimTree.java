@@ -5,13 +5,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.space.Location2D;
 import org.asoem.greyfish.utils.space.TwoDimTree;
-import org.asoem.kdtree.*;
+import org.asoem.kdtree.HyperPoint;
+import org.asoem.kdtree.HyperPoint2;
+import org.asoem.kdtree.KDTree;
+import org.asoem.kdtree.NNResult;
 import scala.Product2;
 import scala.Tuple2;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static scala.collection.JavaConversions.asJavaIterable;
@@ -59,16 +60,5 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
                 return o.value();
             }
         });
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        return Iterables.transform(asJavaIterable(kdtree), new Function<KDNode<T>, T>() {
-            @Override
-            public T apply(@Nullable KDNode<T> o) {
-                assert o != null;
-                return o.value();
-            }
-        }).iterator();
     }
 }
