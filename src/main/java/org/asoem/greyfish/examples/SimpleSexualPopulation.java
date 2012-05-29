@@ -93,8 +93,8 @@ public class SimpleSexualPopulation {
                                         final Double resourceValue = (Double) (caller.agent().getProperty("resource", FunctionProperty.class).getValue());
                                         final Double resourceClassification = caller.agent().getProperty("resource_classification", DoubleProperty.class).getValue();
                                         final Double consumerClassification = (Double) localVariables.get("classifier");
-                                        final double dist = 1 - abs(consumerClassification - resourceClassification);
-                                        final double v = 1 - (4 * dist) / (sqrt(1 + pow((4 * dist), 2)));
+                                        final double dist = abs(consumerClassification - resourceClassification);
+                                        final double v = 1 - (4 * dist) / sqrt(1 + pow(4 * dist, 2));
                                         return min(resourceValue, 100) * v;
                                     }
                                 })
@@ -173,7 +173,7 @@ public class SimpleSexualPopulation {
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
                                     @Override
                                     public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
-                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(30.0);
+                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(200.0);
                                         return null;
                                     }
                                 })
@@ -274,8 +274,15 @@ public class SimpleSexualPopulation {
                                     }
                                 }))
                                 .build(),
-                        SimpleMovementAction.builder()
+                        GenericMovementAction.builder()
                                 .name("move")
+                                .stepSize(Callbacks.constant(0.1))
+                                .turningAngle(new Callback<GenericMovementAction, Double>() {
+                                    @Override
+                                    public Double apply(GenericMovementAction caller, Map<String, ?> localVariables) {
+                                        return caller.agent().getMotion().getRotation() + RandomUtils.rnorm(0, 0.08);
+                                    }
+                                })
                                 .build())
                 .addGenes(
                         MarkovGeneComponent.builder()
@@ -322,9 +329,9 @@ public class SimpleSexualPopulation {
                 .addProperties(
                         DoubleProperty.with()
                                 .name("energy")
-                                .initialValue(200.0)
+                                .initialValue(2000.0)
                                 .lowerBound(0.0)
-                                .upperBound(200.0)
+                                .upperBound(2000.0)
                                 .build(),
                         FunctionProperty.<Double>builder()
                                 .name("energy2")
