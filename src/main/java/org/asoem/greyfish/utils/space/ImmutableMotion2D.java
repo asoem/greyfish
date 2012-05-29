@@ -13,10 +13,10 @@ public class ImmutableMotion2D implements Motion2D {
     @Attribute(name = "translation")
     private final double translation;
 
-    @Attribute(name = "rotation")
+    @Attribute(name = "turningAngle")
     private final double rotation;
 
-    public ImmutableMotion2D(@Attribute(name = "rotation") double angle,
+    public ImmutableMotion2D(@Attribute(name = "turningAngle") double angle,
                              @Attribute(name = "translation") double v) {
         this.translation = v;
         this.rotation = angle;
