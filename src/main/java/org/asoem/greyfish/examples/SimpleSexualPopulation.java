@@ -14,8 +14,9 @@ import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.properties.ConstantProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.properties.FunctionProperty;
+import org.asoem.greyfish.core.properties.DynamicProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.space.TiledSpace;
@@ -90,7 +91,7 @@ public class SimpleSexualPopulation {
                                 .provides(new Callback<ResourceProvisionAction, Double>() {
                                     @Override
                                     public Double apply(ResourceProvisionAction caller, Map<String, ?> localVariables) {
-                                        final Double resourceValue = (Double) (caller.agent().getProperty("resource", FunctionProperty.class).getValue());
+                                        final Double resourceValue = (Double) (caller.agent().getProperty("resource", DynamicProperty.class).getValue());
                                         final Double resourceClassification = caller.agent().getProperty("resource_classification", DoubleProperty.class).getValue();
                                         final Double consumerClassification = (Double) localVariables.get("classifier");
                                         final double dist = abs(consumerClassification - resourceClassification);
@@ -100,11 +101,11 @@ public class SimpleSexualPopulation {
                                 })
                                 .build())
                 .addProperties(
-                        FunctionProperty.<Double>builder()
+                        DynamicProperty.<Double>builder()
                                 .name("resource")
-                                .function(new Function<FunctionProperty<Double>, Double>() {
+                                .function(new Function<DynamicProperty<Double>, Double>() {
                                     @Override
-                                    public Double apply(FunctionProperty<Double> property) {
+                                    public Double apply(DynamicProperty<Double> property) {
                                         return 10000 - property.agent().getAction("give", ResourceProvisionAction.class).getProvidedAmount();
                                     }
                                 })
@@ -126,7 +127,7 @@ public class SimpleSexualPopulation {
                                 .executesIf(FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                     @Override
                                     public Boolean apply(FunctionCondition functionCondition) {
-                                        return (Double) functionCondition.agent().getProperty("energy2", FunctionProperty.class).getValue() < 1.0;
+                                        return (Double) functionCondition.agent().getProperty("energy2", DynamicProperty.class).getValue() < 1.0;
                                     }
                                 }))
                                 .build(),
@@ -167,7 +168,7 @@ public class SimpleSexualPopulation {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return (Double) condition.agent().getProperty("energy2", FunctionProperty.class).getValue() >= 30.0;
+                                                return (Double) condition.agent().getProperty("energy2", DynamicProperty.class).getValue() >= 30.0;
                                             }
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
@@ -197,7 +198,7 @@ public class SimpleSexualPopulation {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return (Double) condition.agent().getProperty("energy2", FunctionProperty.class).getValue() >= 1.0;
+                                                return (Double) condition.agent().getProperty("energy2", DynamicProperty.class).getValue() >= 1.0;
                                             }
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
@@ -215,7 +216,7 @@ public class SimpleSexualPopulation {
                                 .matingProbability(new Callback<MatingReceiverAction, Double>() {
                                     @Override
                                     public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
-                                        final Double classificationOfMate = ((Agent) localVariables.get("mate")).getGene("consumer_classification", DoubleGeneComponent.class).getValue();
+                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getProperty("consumer_classification", ConstantProperty.class).getValue();
                                         final Double matingPreference = caller.agent().getGene("female_mating_preference", DoubleGeneComponent.class).getValue();
                                         // accept mates with min 90% similarity
                                         final boolean b = abs(classificationOfMate - matingPreference) < 0.1;
@@ -238,7 +239,7 @@ public class SimpleSexualPopulation {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return (Double) condition.agent().getProperty("energy2", FunctionProperty.class).getValue() >= 1.0;
+                                                return (Double) condition.agent().getProperty("energy2", DynamicProperty.class).getValue() >= 1.0;
                                             }
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
@@ -264,7 +265,7 @@ public class SimpleSexualPopulation {
                                 .classification(new Callback<ResourceConsumptionAction, Object>() {
                                     @Override
                                     public Object apply(ResourceConsumptionAction caller, Map<String, ?> localVariables) {
-                                        return caller.agent().getGene("consumer_classification", DoubleGeneComponent.class).getValue();
+                                        return caller.agent().getProperty("consumer_classification", ConstantProperty.class).getValue();
                                     }
                                 })
                                 .executesIf(new FunctionCondition(new Function<FunctionCondition, Boolean>() {
@@ -297,7 +298,22 @@ public class SimpleSexualPopulation {
                                 })
                                 .build(),
                         DoubleGeneComponent.builder()
-                                .name("consumer_classification")
+                                .name("consumer_gene_1")
+                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return runif(0.0, 1.0);
+                                    }
+                                })
+                                .mutation(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return rnorm(0, 0.01);
+                                    }
+                                })
+                                .build(),
+                        DoubleGeneComponent.builder()
+                                .name("consumer_gene_2")
                                 .initialValue(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
@@ -333,11 +349,21 @@ public class SimpleSexualPopulation {
                                 .lowerBound(0.0)
                                 .upperBound(2000.0)
                                 .build(),
-                        FunctionProperty.<Double>builder()
-                                .name("energy2")
-                                .function(new Function<FunctionProperty<Double>, Double>() {
+                        ConstantProperty.<Double>builder()
+                                .name("consumer_classification")
+                                .function(new Function<ConstantProperty<Double>, Double>() {
                                     @Override
-                                    public Double apply(FunctionProperty<Double> property) {
+                                    public Double apply(ConstantProperty<Double> property) {
+                                        return property.agent().getGene("consumer_gene_1", DoubleGeneComponent.class).getValue()
+                                                + property.agent().getGene("consumer_gene_2", DoubleGeneComponent.class).getValue();
+                                    }
+                                })
+                                .build(),
+                        DynamicProperty.<Double>builder()
+                                .name("energy2")
+                                .function(new Function<DynamicProperty<Double>, Double>() {
+                                    @Override
+                                    public Double apply(DynamicProperty<Double> property) {
                                         return property.agent().getProperty("energy", DoubleProperty.class).getValue()
                                                 - property.agent().getAge();
                                     }
