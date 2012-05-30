@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
-import org.apache.commons.math.random.*;
+import org.apache.commons.math3.random.*;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.util.Arrays;
