@@ -1,8 +1,7 @@
-package org.asoem.greyfish.examples;
+package org.asoem.greyfish.scenarios;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.inject.Guice;
+import com.google.inject.Provider;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.*;
 import org.asoem.greyfish.core.conditions.AllCondition;
@@ -11,17 +10,15 @@ import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
 import org.asoem.greyfish.core.individual.*;
-import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.properties.ConstantProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.DynamicProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -34,10 +31,10 @@ import static org.asoem.greyfish.utils.math.RandomUtils.*;
  * Date: 27.04.12
  * Time: 14:36
  */
-public class SimpleSexualPopulation {
+public class SimpleSexualPopulation implements Provider<Scenario> {
 
-    public SimpleSexualPopulation() {
-
+    @Override
+    public Scenario get() {
         final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(10, 10).build();
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
 
@@ -51,16 +48,7 @@ public class SimpleSexualPopulation {
             scenarioBuilder.addAgent(new Avatar(resource), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 
-        final ParallelizedSimulation simulation = ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
-
-            @Override
-            public boolean apply(@Nullable ParallelizedSimulation parallelizedSimulation) {
-                assert parallelizedSimulation != null;
-                return parallelizedSimulation.countAgents(Population.named("SexualPopulation")) == 0 || parallelizedSimulation.getStep() == 20000;
-            }
-        });
-
-        simulation.shutdown();
+        return scenarioBuilder.build();
     }
 
     private static Agent createResourcePrototype() {
@@ -352,10 +340,5 @@ public class SimpleSexualPopulation {
                                 .build()
                 )
                 .build();
-    }
-
-    public static void main(String[] args) {
-        Guice.createInjector(new CoreModule())
-                .getInstance(SimpleSexualPopulation.class);
     }
 }
