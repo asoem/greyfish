@@ -377,7 +377,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public String toString() {
-        return "Simulation['" + getName() + "']@" + getStep();
+        return "Simulation['" + getName() + "', " + getUUID() + "]";
     }
 
     @Override
@@ -406,6 +406,18 @@ public class ParallelizedSimulation implements Simulation {
         return uuid;
     }
 
+    /**
+     * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}
+     * @param predicate the {@code Predicate} which will be checked after each step
+     */
+    public void runWhile(Predicate<? super ParallelizedSimulation> predicate) {
+        checkNotNull(predicate);
+
+        while (predicate.apply(this)) {
+            nextStep();
+        }
+    }
+
     @Override
     public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
         simulationLogger.addEvent(
@@ -415,23 +427,15 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     /**
-     * Creates a new {@code Simulation} and calls {@link Simulation#nextStep()} until the {@code stopTrigger} returns {@code true}
+     * Creates a new {@code Simulation}
+     *
      * @param scenario the {@code Scenario} used to initialize this Simulation
-     * @param stopTrigger the {@code Predicate} which will be asked before each simulation step if the simulation should stop.
      * @return the newly created simulation
      */
     @SuppressWarnings("UnusedDeclaration")
-    public static ParallelizedSimulation runScenario(Scenario scenario, Predicate<? super ParallelizedSimulation> stopTrigger) {
+    public static ParallelizedSimulation create(Scenario scenario) {
         checkNotNull(scenario);
-        checkNotNull(stopTrigger);
-
-        final ParallelizedSimulation simulation = new ParallelizedSimulation(scenario);
-
-        while (!stopTrigger.apply(simulation)) {
-            simulation.nextStep();
-        }
-
-        return simulation;
+        return new ParallelizedSimulation(scenario);
     }
 
     private static class AddAgentMessage {
