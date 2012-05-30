@@ -1,23 +1,18 @@
-package org.asoem.greyfish.examples;
+package org.asoem.greyfish.scenarios;
 
-import com.google.common.base.Predicate;
-import com.google.common.primitives.Doubles;
-import com.google.inject.Guice;
+import com.google.inject.Provider;
 import javolution.lang.MathLib;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.actions.ClonalReproductionAction;
 import org.asoem.greyfish.core.actions.DeathAction;
 import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.individual.*;
-import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.scenario.BasicScenario;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 
 import static org.asoem.greyfish.core.conditions.GreyfishExpressionCondition.evaluate;
@@ -29,12 +24,10 @@ import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
  * Date: 22.03.12
  * Time: 14:14
  */
-public class SimpleAsexualPopulation {
+public class SimpleAsexualPopulation implements Provider<Scenario> {
 
-    DescriptiveStatistics populationCountStatistics = new DescriptiveStatistics();
-    DescriptiveStatistics stepsPerSecondStatistics = new DescriptiveStatistics();
-
-    public SimpleAsexualPopulation() {
+    @Override
+    public Scenario get() {
         Agent prototype = ImmutableAgent.of(Population.named("AsexualPopulation"))
                 .addActions(
                         ClonalReproductionAction.with()
@@ -73,35 +66,6 @@ public class SimpleAsexualPopulation {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 
-        final ParallelizedSimulation simulation = ParallelizedSimulation.runScenario(scenarioBuilder.build(), new Predicate<ParallelizedSimulation>() {
-
-            private long millies = System.currentTimeMillis();
-            int lastStep = -1;
-
-            @Override
-            public boolean apply(@Nullable ParallelizedSimulation parallelizedSimulation) {
-                assert parallelizedSimulation != null;
-
-                //System.out.println(parallelizedSimulation.countAgents());
-                final long l = System.currentTimeMillis();
-                if (l > millies + 1000) {
-                    populationCountStatistics.addValue(parallelizedSimulation.countAgents());
-                    stepsPerSecondStatistics.addValue(parallelizedSimulation.getStep() - lastStep);
-                    millies = l;
-                    lastStep = parallelizedSimulation.getStep();
-                }
-                return parallelizedSimulation.countAgents() == 0 || parallelizedSimulation.getStep() == 20000;
-            }
-        });
-
-        simulation.shutdown();
-
-        System.out.println(Doubles.join(" ", populationCountStatistics.getValues()));
-        System.out.println(Doubles.join(" ", stepsPerSecondStatistics.getValues()));
-    }
-
-    public static void main(String[] args) {
-        Guice.createInjector(new CoreModule())
-                .getInstance(SimpleAsexualPopulation.class);
+        return scenarioBuilder.build();
     }
 }
