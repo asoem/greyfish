@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
+import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.*;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -22,8 +23,8 @@ public class RandomUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomUtils.class);
 
     /**
-     * @see java.util.Random#nextDouble()
      * @return the next pseudorandom, uniformly distributed double value between 0.0 and 1.0 from this random number generator's sequence
+     * @see java.util.Random#nextDouble()
      */
     public static double nextDouble() {
         return RANDOM_GENERATOR.nextDouble();
@@ -40,6 +41,7 @@ public class RandomUtils {
 
     /**
      * Generates a uniformly distributed random value from the open interval (lower,upper) (i.e., endpoints excluded).
+     *
      * @param minExcl the lower bound
      * @param maxExcl the upper bound
      * @return a uniformly distributed random value from the open interval (lower,upper)
@@ -71,6 +73,7 @@ public class RandomUtils {
 
     /**
      * Returns a pseudorandom, uniformly distributed int value between 0 (inclusive) and the specified value (exclusive), drawn from this random number generator's sequence.
+     *
      * @param size the bound on the random number to be returned. Must be positive.
      * @return a pseudorandom, uniformly distributed int value between 0 (inclusive) and n (exclusive).
      */
@@ -80,6 +83,7 @@ public class RandomUtils {
 
     /**
      * Generates a uniformly distributed random value from the open interval (0,upper) (i.e., endpoints excluded).
+     *
      * @param sum the upper bound
      * @return a uniformly distributed random value from the open interval (0,upper)
      */
@@ -89,8 +93,9 @@ public class RandomUtils {
 
     /**
      * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
+     *
      * @param mean the mean of the distribution
-     * @param sd the standard deviation of the distribution
+     * @param sd   the standard deviation of the distribution
      * @return a random value for the given normal distribution
      */
     public static double rnorm(double mean, double sd) {
@@ -99,6 +104,7 @@ public class RandomUtils {
 
     /**
      * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
+     *
      * @param mean the mean for the distribution
      * @return a random value for the given normal distribution
      */
@@ -108,6 +114,7 @@ public class RandomUtils {
 
     /**
      * Generates a random value for the uniform distribution on the interval {@code lower} to {@code upper}.
+     *
      * @param lower the lower bound for the distribution
      * @param upper the upper bound for the distribution
      * @return a random value for the given normal distribution
@@ -119,6 +126,7 @@ public class RandomUtils {
     /**
      * Generates a random value for the uniform distribution on the interval {@code lower} to {@code upper}.
      * Delegates to {@link #runif(double, double)}.
+     *
      * @param range the range for the distribution
      * @return a random value for the given normal distribution
      */
@@ -135,24 +143,33 @@ public class RandomUtils {
         return sample;
     }
 
-    public static <S> S sample(S ... elements) {
+    public static <S> S sample(S... elements) {
         return sample(Arrays.asList(elements));
     }
 
     public static <S> S sample(S e1, S e2) {
         switch (nextInt(2)) {
-            case 0: return e1;
+            case 0:
+                return e1;
             default:
-            case 1: return e2;
+            case 1:
+                return e2;
         }
     }
 
     public static <S> S sample(S e1, S e2, S e3) {
         switch (nextInt(3)) {
-            case 0: return e1;
-            case 1: return e2;
+            case 0:
+                return e1;
+            case 1:
+                return e2;
             default:
-            case 3: return e3;
+            case 3:
+                return e3;
         }
+    }
+
+    public static int rbinom(int size, double p) {
+        return new BinomialDistribution(size, p).sample();
     }
 }

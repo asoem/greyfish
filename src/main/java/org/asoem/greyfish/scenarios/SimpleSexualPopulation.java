@@ -1,8 +1,6 @@
 package org.asoem.greyfish.scenarios;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Range;
 import com.google.inject.Provider;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.*;
@@ -44,7 +42,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
 
         final Agent prototype = createConsumerPrototype();
-        for (int i = 0; i<500; ++i) {
+        for (int i = 0; i < 500; ++i) {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 
@@ -299,7 +297,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0;
+                                        return ((Double) localVariables.get("original")) + (trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0);
                                     }
                                 })
                                 .build(),
@@ -314,7 +312,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0;
+                                        return ((Double) localVariables.get("original")) + (trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0);
                                     }
                                 })
                                 .build()

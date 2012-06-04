@@ -23,7 +23,9 @@ import java.util.Map;
 
 import static java.lang.Math.abs;
 import static org.asoem.greyfish.core.individual.Callbacks.constant;
-import static org.asoem.greyfish.utils.math.RandomUtils.*;
+import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
+import static org.asoem.greyfish.utils.math.RandomUtils.rnorm;
+import static org.asoem.greyfish.utils.math.RandomUtils.sample;
 
 
 /**
@@ -39,7 +41,7 @@ public class SexualSpeciation implements Provider<Scenario> {
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
 
         final Agent prototype = createConsumerPrototype();
-        for (int i = 0; i<500; ++i) {
+        for (int i = 0; i < 500; ++i) {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 
@@ -79,7 +81,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                             public Boolean apply(FunctionCondition condition) {
                                                 return condition.agent().getAction("receive", MatingReceiverAction.class).getMatingCount() > 0;
                                             }
-                                        }) ,
+                                        }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(@Nullable FunctionCondition functionCondition) {
@@ -181,7 +183,13 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0;
+                                        return ((Double) localVariables.get("original")) + rnorm(0, 0.01);
+                                    }
+                                })
+                                .recombination(new Callback<DoubleGeneComponent, Double>() {
+                                    @Override
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        return (((Double) localVariables.get("first")) + ((Double) localVariables.get("second"))) / 2;
                                     }
                                 })
                                 .build()
