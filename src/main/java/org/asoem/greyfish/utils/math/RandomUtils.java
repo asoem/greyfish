@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import org.apache.commons.math3.random.*;
+import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.util.Arrays;
@@ -18,6 +19,7 @@ public class RandomUtils {
     public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
 
     public static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RandomUtils.class);
 
     /**
      * @see java.util.Random#nextDouble()
@@ -129,11 +131,28 @@ public class RandomUtils {
         checkArgument(!elements.isEmpty(), "Cannot take a sample out of 0 elements");
         final S sample = Iterables.get(elements, nextInt(elements.size()));
         assert elements.contains(sample);
-        LoggerFactory.getLogger(RandomUtils.class).debug("Sampled {} out of [{}]", sample, Joiner.on(',').join(elements));
+        LOGGER.debug("Sampled {} out of [{}]", sample, Joiner.on(',').join(elements));
         return sample;
     }
 
     public static <S> S sample(S ... elements) {
         return sample(Arrays.asList(elements));
+    }
+
+    public static <S> S sample(S e1, S e2) {
+        switch (nextInt(2)) {
+            case 0: return e1;
+            default:
+            case 1: return e2;
+        }
+    }
+
+    public static <S> S sample(S e1, S e2, S e3) {
+        switch (nextInt(3)) {
+            case 0: return e1;
+            case 1: return e2;
+            default:
+            case 3: return e3;
+        }
     }
 }
