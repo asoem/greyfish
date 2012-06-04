@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -24,11 +25,19 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     @Element
     private Callback<? super DoubleGeneComponent, Double> mutation;
 
+    @Element
+    private Callback<? super DoubleGeneComponent, Double> recombination;
+
     private final GeneController<Double> geneController = new GeneController<Double>() {
 
         @Override
         public Double mutate(Double original) {
-            return getValue() + call(mutation, DoubleGeneComponent.this);
+            return mutation.apply(DoubleGeneComponent.this, ImmutableMap.of("original", original));
+        }
+
+        @Override
+        public Double recombine(Double first, Double second) {
+            return recombination.apply(DoubleGeneComponent.this, ImmutableMap.of("first", first, "second", second));
         }
 
         @Override
@@ -50,19 +59,21 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     private Double value = 0.0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public DoubleGeneComponent() {}
+    public DoubleGeneComponent() {
+    }
 
     protected DoubleGeneComponent(DoubleGeneComponent doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
         this.initialValue = doubleMutableGene.initialValue;
         this.mutation = doubleMutableGene.mutation;
+        this.recombination = doubleMutableGene.recombination;
     }
 
     protected DoubleGeneComponent(AbstractDoubleGeneBuilder<? extends DoubleGeneComponent, ? extends AbstractDoubleGeneBuilder> builder) {
         super(builder);
-
-        this.initialValue = builder.initialValue; assert initialValue != null;
-        this.mutation = builder.mutation; assert mutation != null;
+        this.initialValue = builder.initialValue;
+        this.mutation = builder.mutation;
+        this.recombination = builder.recombination;
     }
 
     @Override
@@ -146,18 +157,32 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
         }
     }
 
-    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E,T>> extends AbstractComponentBuilder<E,T> {
+    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E, T>> extends AbstractComponentBuilder<E, T> {
         private Callback<? super DoubleGeneComponent, Double> initialValue;
         private Callback<? super DoubleGeneComponent, Double> mutation;
+        private Callback<? super DoubleGeneComponent, Double> recombination;
 
-        public T initialValue(Callback<? super DoubleGeneComponent, Double> expression) { this.initialValue = checkNotNull(expression); return self(); }
-        public T mutation(Callback<? super DoubleGeneComponent, Double> expression) { this.mutation = checkNotNull(expression); return self(); }
+        public T initialValue(Callback<? super DoubleGeneComponent, Double> expression) {
+            this.initialValue = checkNotNull(expression);
+            return self();
+        }
+
+        public T mutation(Callback<? super DoubleGeneComponent, Double> expression) {
+            this.mutation = checkNotNull(expression);
+            return self();
+        }
+
+        public T recombination(Callback<? super DoubleGeneComponent, Double> expression) {
+            this.recombination = checkNotNull(expression);
+            return self();
+        }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
             checkState(initialValue != null, "You must provide an expression for the initial value");
             checkState(mutation != null, "You must provide an expression for the mutation");
+            checkState(recombination != null, "You must provide an expression for the recombination");
         }
     }
 }

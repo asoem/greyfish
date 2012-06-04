@@ -12,6 +12,11 @@ public class GeneControllerAdaptor<T> implements GeneController<T> {
     }
 
     @Override
+    public T recombine(T first, T second) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public double normalizedDistance(T orig, T copy) {
         throw new UnsupportedOperationException();
     }
