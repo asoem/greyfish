@@ -53,7 +53,7 @@ public class SimpleAsexualPopulation implements Provider<Scenario> {
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return RandomUtils.rnorm(0.0, 1.0);
+                                        return ((Double) localVariables.get("original")) + RandomUtils.rnorm(0.0, 1.0);
                                     }
                                 })
                                 .build()
@@ -62,7 +62,7 @@ public class SimpleAsexualPopulation implements Provider<Scenario> {
 
         TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(10, 10).build();
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleAsexualPopulation", tiledSpace);
-        for (int i = 0; i<10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 

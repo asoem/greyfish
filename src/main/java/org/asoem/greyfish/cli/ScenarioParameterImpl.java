@@ -15,7 +15,7 @@ public class ScenarioParameterImpl implements ScenarioParameter, Serializable {
     private final String value;
 
     public ScenarioParameterImpl(String value) {
-        this.value = checkNotNull(value, "name");
+        this.value = checkNotNull(value, "value");
     }
 
     public String value() {
