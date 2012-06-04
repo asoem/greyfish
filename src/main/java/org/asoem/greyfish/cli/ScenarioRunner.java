@@ -18,6 +18,8 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * User: christoph
@@ -29,7 +31,7 @@ public class ScenarioRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScenarioRunner.class);
 
     @Inject
-    private ScenarioRunner(Scenario scenario, @Nullable @Named("steps") final Integer steps) {
+    private ScenarioRunner(Scenario scenario, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
 
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
@@ -43,7 +45,24 @@ public class ScenarioRunner {
         }
 
         final ParallelizedSimulation simulation = ParallelizedSimulation.create(scenario);
+
+        if (verbose) {
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (true) {
+                            System.out.println(simulation.getStep() + " - " + simulation.countAgents());
+                            Thread.sleep(1000);
+                        }
+                    } catch (InterruptedException e) {
+                        LOGGER.warn("Simulation polling thread got interrupted");
+                    }
+                }
+            });
+        }
         LOGGER.info("Starting {} of scenario {}", simulation, scenario);
+
         simulation.runWhile(Predicates.and(predicateList));
         if (LOGGER.isInfoEnabled())
             LOGGER.info("Shutting down {}", simulation);
@@ -56,6 +75,7 @@ public class ScenarioRunner {
             final Options options = createOptions();
             final CommandLine line = parser.parse(options, args);
             processCommandLine(line, options);
+            System.exit(0);
         } catch (ParseException e) {
             System.out.println("Unexpected exception:" + e.getMessage());
             System.exit(1);
@@ -90,7 +110,9 @@ public class ScenarioRunner {
                 ScenarioParameters.bindProperties(binder(), line.getOptionProperties("D"));
 
                 bind(Integer.class).annotatedWith(Names.named("steps")).toInstance(
-                        line.hasOption("max") ? Integer.valueOf(line.getOptionValue("max")) : null);
+                        line.hasOption("steps") ? Integer.valueOf(line.getOptionValue("steps")) : null);
+
+                bind(Boolean.class).annotatedWith(Names.named("verbose")).toInstance(line.hasOption("verbose"));
             }
         };
 
@@ -112,13 +134,17 @@ public class ScenarioRunner {
                 .hasArg()
                 .withArgName("CLASS")
                 .withDescription("run given scenario CLASS")
-                .create();
+                .create("c");
 
-        final Option steps = OptionBuilder.withLongOpt("max")
+        final Option steps = OptionBuilder.withLongOpt("steps")
                 .hasArg()
                 .withArgName("MAX")
                 .withDescription("stop simulation after MAX steps")
-                .create();
+                .create("s");
+
+        final Option verbose = OptionBuilder.withLongOpt("verbose")
+                .withDescription("Enable verbose mode")
+                .create("v");
 
         final Option property  = OptionBuilder.withArgName( "property=value" )
                 .hasArgs(2)
@@ -133,6 +159,7 @@ public class ScenarioRunner {
         options.addOption(steps);
         options.addOption(help);
         options.addOption(property);
+        options.addOption(verbose);
         return options;
     }
 }

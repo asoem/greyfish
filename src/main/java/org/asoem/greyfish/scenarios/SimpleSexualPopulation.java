@@ -1,6 +1,8 @@
 package org.asoem.greyfish.scenarios;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
 import com.google.inject.Provider;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.*;
@@ -8,17 +10,20 @@ import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.conditions.FunctionCondition;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.properties.ConstantProperty;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.DynamicProperty;
+import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -43,10 +48,12 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
             scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
 
+        /*
         final Agent resource = createResourcePrototype();
         for (int i=0; i<20; ++i) {
             scenarioBuilder.addAgent(new Avatar(resource), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
         }
+        */
 
         return scenarioBuilder.build();
     }
@@ -60,8 +67,8 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .provides(new Callback<ResourceProvisionAction, Double>() {
                                     @Override
                                     public Double apply(ResourceProvisionAction caller, Map<String, ?> localVariables) {
-                                        final Double resourceValue = (Double) (caller.agent().getProperty("resource", DynamicProperty.class).getValue());
-                                        final Double resourceClassification = caller.agent().getProperty("resource_classification", DoubleProperty.class).getValue();
+                                        final Double resourceValue = (Double) (caller.agent().getProperty("resource", GFProperty.class).getValue());
+                                        final Double resourceClassification = (Double) caller.agent().getProperty("resource_classification", GFProperty.class).getValue();
                                         final Double consumerClassification = (Double) localVariables.get("classifier");
                                         final double dist = abs(consumerClassification - resourceClassification);
                                         final double v = 1 - (4 * dist) / sqrt(1 + pow(4 * dist, 2));
@@ -79,11 +86,14 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                     }
                                 })
                                 .build(),
-                        DoubleProperty.with()
+                        ConstantProperty.builder()
                                 .name("resource_classification")
-                                .lowerBound(0.0)
-                                .upperBound(1.0)
-                                .initialValue(RandomUtils.sample(0.1, 0.9))
+                                .function(new Function<ConstantProperty<Object>, Object>() {
+                                    @Override
+                                    public Object apply(@Nullable ConstantProperty<Object> objectConstantProperty) {
+                                        return RandomUtils.sample(0.1, 0.9);
+                                    }
+                                })
                                 .build())
                 .build();
     }
@@ -125,12 +135,6 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return RandomUtils.nextDouble() < 1.0 - condition.agent().getSimulationContext().getSimulation().countAgents("SexualPopulation") / 2000.0;
-                                            }
-                                        }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
-                                            @Override
-                                            public Boolean apply(FunctionCondition condition) {
                                                 return condition.agent().getAction("reproduce", SexualReproductionAction.class).stepsSinceLastExecution() >= 10;
                                             }
                                         }),
@@ -143,7 +147,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
                                     @Override
                                     public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
-                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(200.0);
+                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(100.0);
                                         return null;
                                     }
                                 })
@@ -156,6 +160,12 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
                                                 return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("MALE");
+                                            }
+                                        }),
+                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                            @Override
+                                            public Boolean apply(FunctionCondition condition) {
+                                                return condition.agent().getAge() >= 300;
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -185,10 +195,12 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .matingProbability(new Callback<MatingReceiverAction, Double>() {
                                     @Override
                                     public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
-                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getProperty("consumer_classification", ConstantProperty.class).getValue();
-                                        final Double matingPreference = caller.agent().getGene("female_mating_preference", DoubleGeneComponent.class).getValue();
-                                        // accept mates with min 90% similarity
-                                        final boolean b = abs(classificationOfMate - matingPreference) < 0.1;
+                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getGene("consumer_classification", GeneComponent.class).getValue();
+                                        final Double myClassification = (Double) caller.agent().getGene("consumer_classification", GeneComponent.class).getValue();
+                                        final Double preferredSimilarity = Math.max(0.0, Math.min(1.0, caller.agent().getGene("preferred_similarity", DoubleGeneComponent.class).getValue()));
+                                        final double minimalSimilarity = 0.9;
+
+                                        final boolean b = abs(classificationOfMate - myClassification) < Math.max(preferredSimilarity, minimalSimilarity);
                                         return (b) ? 1.0 : 0.0;
                                     }
                                 })
@@ -197,6 +209,12 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
                                                 return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("FEMALE");
+                                            }
+                                        }),
+                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                            @Override
+                                            public Boolean apply(FunctionCondition condition) {
+                                                return condition.agent().getAge() >= 300;
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -211,14 +229,8 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                                 return (Double) condition.agent().getProperty("energy2", DynamicProperty.class).getValue() >= 1.0;
                                             }
                                         })))
-                                .onSuccess(new Callback<AbstractGFAction, Void>() {
-                                    @Override
-                                    public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
-                                        caller.agent().getProperty("energy", DoubleProperty.class).subtract(1.0);
-                                        return null;
-                                    }
-                                })
                                 .build(),
+                        /*
                         ResourceConsumptionAction.with()
                                 .name("consume")
                                 .interactionRadius(constant(1.0))
@@ -234,16 +246,26 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .classification(new Callback<ResourceConsumptionAction, Object>() {
                                     @Override
                                     public Object apply(ResourceConsumptionAction caller, Map<String, ?> localVariables) {
-                                        return caller.agent().getProperty("consumer_classification", ConstantProperty.class).getValue();
+                                        return caller.agent().getGene("consumer_classification", GeneComponent.class).getValue();
                                     }
                                 })
-                                .executesIf(new FunctionCondition(new Function<FunctionCondition, Boolean>() {
-                                    @Override
-                                    public Boolean apply(FunctionCondition functionCondition) {
-                                        return functionCondition.agent().getAction("consume", ResourceConsumptionAction.class).stepsSinceLastExecution() >= 10;
-                                    }
-                                }))
+                                .executesIf(AllCondition.evaluates(
+                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                            @Override
+                                            public Boolean apply(FunctionCondition condition) {
+                                                return condition.agent().getAge() >= 100 &&
+                                                        condition.agent().getAge() < 300;
+                                            }
+                                        }),
+                                        new FunctionCondition(new Function<FunctionCondition, Boolean>() {
+                                            @Override
+                                            public Boolean apply(FunctionCondition functionCondition) {
+                                                return functionCondition.agent().getAction("consume", ResourceConsumptionAction.class).stepsSinceLastExecution() >= 10;
+                                            }
+                                        })
+                                ))
                                 .build(),
+                                */
                         GenericMovementAction.builder()
                                 .name("move")
                                 .stepSize(Callbacks.constant(0.1))
@@ -267,66 +289,42 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 })
                                 .build(),
                         DoubleGeneComponent.builder()
-                                .name("consumer_gene_1")
+                                .name("consumer_classification")
                                 .initialValue(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return runif(0.0, 1.0);
+                                        return 0.1;
                                     }
                                 })
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return rnorm(0, 0.01);
+                                        return trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0;
                                     }
                                 })
                                 .build(),
                         DoubleGeneComponent.builder()
-                                .name("consumer_gene_2")
+                                .name("preferred_similarity")
                                 .initialValue(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return runif(0.0, 1.0);
+                                        return 1.0;
                                     }
                                 })
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return rnorm(0, 0.01);
+                                        return trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0;
                                     }
                                 })
-                                .build(),
-                        DoubleGeneComponent.builder()
-                                .name("female_mating_preference")
-                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
-                                    @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return runif(0.0, 1.0);
-                                    }
-                                })
-                                .mutation(new Callback<DoubleGeneComponent, Double>() {
-                                    @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return rnorm(0, 0.01);
-                                    }
-                                })
-                                .build())
+                                .build()
+                )
                 .addProperties(
                         DoubleProperty.with()
                                 .name("energy")
-                                .initialValue(2000.0)
+                                .initialValue(500.0)
                                 .lowerBound(0.0)
-                                .upperBound(2000.0)
-                                .build(),
-                        ConstantProperty.<Double>builder()
-                                .name("consumer_classification")
-                                .function(new Function<ConstantProperty<Double>, Double>() {
-                                    @Override
-                                    public Double apply(ConstantProperty<Double> property) {
-                                        return property.agent().getGene("consumer_gene_1", DoubleGeneComponent.class).getValue()
-                                                + property.agent().getGene("consumer_gene_2", DoubleGeneComponent.class).getValue();
-                                    }
-                                })
+                                .upperBound(500.0)
                                 .build(),
                         DynamicProperty.<Double>builder()
                                 .name("energy2")
