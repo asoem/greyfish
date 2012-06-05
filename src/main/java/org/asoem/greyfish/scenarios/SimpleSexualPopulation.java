@@ -121,7 +121,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("FEMALE");
+                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("FEMALE");
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -157,7 +157,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("MALE");
+                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("MALE");
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -193,9 +193,9 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .matingProbability(new Callback<MatingReceiverAction, Double>() {
                                     @Override
                                     public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
-                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getGene("consumer_classification", GeneComponent.class).getValue();
-                                        final Double myClassification = (Double) caller.agent().getGene("consumer_classification", GeneComponent.class).getValue();
-                                        final Double preferredSimilarity = Math.max(0.0, Math.min(1.0, caller.agent().getGene("preferred_similarity", DoubleGeneComponent.class).getValue()));
+                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getGene("consumer_classification", GeneComponent.class).getAllele();
+                                        final Double myClassification = (Double) caller.agent().getGene("consumer_classification", GeneComponent.class).getAllele();
+                                        final Double preferredSimilarity = Math.max(0.0, Math.min(1.0, caller.agent().getGene("preferred_similarity", DoubleGeneComponent.class).getAllele()));
                                         final double minimalSimilarity = 0.9;
 
                                         final boolean b = abs(classificationOfMate - myClassification) < Math.max(preferredSimilarity, minimalSimilarity);
@@ -206,7 +206,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("FEMALE");
+                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("FEMALE");
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {

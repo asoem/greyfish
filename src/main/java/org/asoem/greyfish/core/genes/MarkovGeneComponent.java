@@ -9,6 +9,8 @@ import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tuple2;
+import org.asoem.greyfish.utils.base.Tuples;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
@@ -36,22 +38,23 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     private final GeneController<String> geneController = new GeneControllerAdaptor<String>() {
         @Override
-        public String mutate(String state) {
+        public String mutate(Object state) {
+            final String stringState = String.class.cast(state);
+
             checkNotNull(state, "State must not be null");
 
             if (!markovMatrix.containsRow(state)) {
                 if (markovMatrix.containsColumn(state)) {
-                    return state;
-                }
-                else
+                    return stringState;
+                } else
                     throw new IllegalArgumentException("State '" + state + "' does not match any of the defined states in set {" + Joiner.on(", ").join(Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet())) + "}");
             }
 
 
-            final Map<String, Callback<? super MarkovGeneComponent, Double>> row = markovMatrix.row(state);
+            final Map<String, Callback<? super MarkovGeneComponent, Double>> row = markovMatrix.row(stringState);
 
             if (row.isEmpty()) {
-                return state;
+                return stringState;
             }
 
             double sum = 0;
@@ -63,7 +66,12 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
                 }
             }
 
-            return state;
+            return stringState;
+        }
+
+        @Override
+        public Tuple2<String, String> recombine(Object first, Object second) {
+            return Tuples.of(String.class.cast(first), String.class.cast(second));
         }
 
         @Override
@@ -95,7 +103,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setAllele(Object value) {
         checkArgument(value instanceof String);
         currentState = (String) value;
     }
@@ -122,7 +130,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     }
 
     @Override
-    public String getValue() {
+    public String getAllele() {
         return currentState;
     }
 
@@ -180,7 +188,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         }
     }
 
-    protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T,B>> extends AbstractComponentBuilder<T,B> {
+    protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T, B>> extends AbstractComponentBuilder<T, B> {
 
         private ImmutableTable.Builder<String, String, Callback<? super MarkovGeneComponent, Double>> markovChain = ImmutableTable.builder();
         private Callback<? super MarkovGeneComponent, ? extends String> initialState;

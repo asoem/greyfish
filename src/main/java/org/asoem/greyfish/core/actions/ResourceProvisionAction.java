@@ -18,15 +18,15 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-@ClassGroup(tags="actions")
+@ClassGroup(tags = "actions")
 public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
-    @Element(name="ontology", required=false)
+    @Element(name = "ontology", required = false)
     private String ontology;
 
-    private Callback<ResourceProvisionAction, Double> provides;
+    private Callback<? super ResourceProvisionAction, Double> provides;
 
     private double providedAmount;
 
@@ -62,8 +62,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
             reply.performative(ACLPerformative.PROPOSE).content(offeredAmount, Double.class);
             proposalSent = true;
             LOGGER.trace("{}: Offering {}", agent(), offeredAmount);
-        }
-        else {
+        } else {
             reply.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount", String.class);
             LOGGER.trace("{}: Nothing to offeredAmount", agent());
         }
@@ -73,15 +72,15 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
-            double offer = message.getContent(Double.class);
+        double offer = message.getContent(Double.class);
 
-            LOGGER.info("{}: Provided {}", agent(), offer);
+        LOGGER.info("{}: Provided {}", agent(), offer);
 
-            this.providedAmount += offer;
+        this.providedAmount += offer;
 
-            return ImmutableACLMessage.createReply(message, getAgent())
-                    .performative(ACLPerformative.INFORM)
-                    .content(offer, Double.class);
+        return ImmutableACLMessage.createReply(message, getAgent())
+                .performative(ACLPerformative.INFORM)
+                .content(offer, Double.class);
     }
 
     @Override
@@ -112,13 +111,15 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         this.ontology = cloneable.ontology;
     }
 
-    protected ResourceProvisionAction(AbstractBuilder<?,?> builder) {
+    protected ResourceProvisionAction(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.provides = builder.provides;
     }
 
-    public static Builder with() { return new Builder(); }
+    public static Builder with() {
+        return new Builder();
+    }
 
     public double getProvidedAmount() {
         return providedAmount;
@@ -131,16 +132,27 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     public static final class Builder extends AbstractBuilder<ResourceProvisionAction, Builder> {
-        @Override protected Builder self() { return this; }
-        @Override protected ResourceProvisionAction checkedBuild() { return new ResourceProvisionAction(this); }
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected ResourceProvisionAction checkedBuild() {
+            return new ResourceProvisionAction(this);
+        }
     }
 
-    protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         private String ontology;
-        private Callback<ResourceProvisionAction, Double> provides;
+        private Callback<? super ResourceProvisionAction, Double> provides;
 
-        public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
-        public T provides(Callback<ResourceProvisionAction, Double> expression) {
+        public T ontology(String ontology) {
+            this.ontology = checkNotNull(ontology);
+            return self();
+        }
+
+        public T provides(Callback<? super ResourceProvisionAction, Double> expression) {
             this.provides = checkNotNull(expression);
             return self();
         }
@@ -148,7 +160,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         @Override
         protected void checkBuilder() throws IllegalStateException {
             checkState(ontology != null, "The messageType is mandatory");
-            checkState(provides != null, "You must define ");
+            checkState(provides != null, "You must define what this resource should provide");
             super.checkBuilder();
         }
 

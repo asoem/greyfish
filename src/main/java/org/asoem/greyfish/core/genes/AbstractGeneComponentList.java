@@ -44,10 +44,10 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
         final Iterator<E> destinationIterator = this.iterator();
 
         while (sourceIterator.hasNext() && destinationIterator.hasNext()) {
-            E source =  sourceIterator.next();
+            E source = sourceIterator.next();
             E destination = destinationIterator.next();
 
-            destination.setValue(source.getValue());
+            destination.setAllele(source.getAllele());
         }
     }
 
@@ -61,18 +61,18 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
         final Iterator<E> destinationIterator = this.iterator();
 
         while (sourceIterator.hasNext() && destinationIterator.hasNext()) {
-            Object source =  sourceIterator.next();
+            Object source = sourceIterator.next();
             E destination = destinationIterator.next();
 
-            destination.setValue(source);
+            destination.setAllele(source);
         }
     }
 
 
     @Override
     public void initGenes() {
-        for(GeneComponent<?> gene : this) {
-            gene.setValue(gene.getGeneController().createInitialValue());
+        for (GeneComponent<?> gene : this) {
+            gene.setAllele(gene.getGeneController().createInitialValue());
         }
     }
 

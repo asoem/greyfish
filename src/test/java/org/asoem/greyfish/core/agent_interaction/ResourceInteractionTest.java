@@ -54,7 +54,8 @@ public class ResourceInteractionTest {
                 .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
                     @Override
                     public Void apply(ResourceConsumptionAction caller, Map<String, ?> localVariables) {
-                        caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) localVariables.get("offer") * 2); return null;
+                        caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) localVariables.get("offer") * 2);
+                        return null;
                     }
                 })
                 .build();
@@ -68,6 +69,7 @@ public class ResourceInteractionTest {
         ResourceProvisionAction provisionAction = ResourceProvisionAction.with()
                 .name("feed")
                 .ontology(messageClassifier)
+                .provides(Callbacks.constant(1.0))
                 .build();
 
         Agent consumer = spy(ImmutableAgent.of(population)
@@ -79,7 +81,7 @@ public class ResourceInteractionTest {
                 .addActions(provisionAction)
                 .build());
 
-        Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(0,0)).build()));
+        Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(0, 0)).build()));
         given(simulationSpy.getAgents()).willReturn(ImmutableList.<Agent>of(provisioner, consumer));
         doReturn(ImmutableList.of(consumer)).when(simulationSpy).findNeighbours(eq(provisioner), anyDouble());
         doReturn(ImmutableList.of(provisioner)).when(simulationSpy).findNeighbours(eq(consumer), anyDouble());

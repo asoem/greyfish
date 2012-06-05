@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tuple2;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -35,14 +36,14 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(getValue()) + "]";
+        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(getAllele()) + "]";
     }
 
     @Override
     public final double distance(GeneComponent<?> thatGene) {
         checkNotNull(thatGene);
         checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
-        return getGeneController().normalizedDistance(this.getValue(), getSupplierClass().cast(thatGene.getValue()));
+        return getGeneController().normalizedDistance(this.getAllele(), getSupplierClass().cast(thatGene.getAllele()));
     }
 
     @Override
@@ -52,7 +53,12 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
 
     @Override
     public T mutatedValue() {
-        return getGeneController().mutate(getValue());
+        return getGeneController().mutate(getAllele());
+    }
+
+    @Override
+    public Tuple2<T, T> recombinedValue(T other) {
+        return getGeneController().recombine(getAllele(), other);
     }
 
     @Override
@@ -73,6 +79,6 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
     @Override
     public void initialize() {
         super.initialize();
-        setValue(getGeneController().createInitialValue());
+        setAllele(getGeneController().createInitialValue());
     }
 }

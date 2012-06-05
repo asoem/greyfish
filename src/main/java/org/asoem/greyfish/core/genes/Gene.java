@@ -5,7 +5,7 @@ package org.asoem.greyfish.core.genes;
  * Date: 25.04.12
  * Time: 15:30
  */
-public class Gene<T> {
+public class Gene<T> implements GeneLike<T> {
     private final T value;
     private final double recombinationProbability;
 
@@ -14,7 +14,8 @@ public class Gene<T> {
         this.recombinationProbability = recombinationProbability;
     }
 
-    public T getValue() {
+    @Override
+    public T getAllele() {
         return value;
     }
 

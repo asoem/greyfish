@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.utils.base.Tuple2;
+
 /**
  * User: christoph
  * Date: 23.05.11
@@ -7,12 +9,12 @@ package org.asoem.greyfish.core.genes;
  */
 public class GeneControllerAdaptor<T> implements GeneController<T> {
     @Override
-    public T mutate(T original) {
-        return original;
+    public T mutate(Object original) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public T recombine(T first, T second) {
+    public Tuple2<T, T> recombine(Object first, Object second) {
         throw new UnsupportedOperationException();
     }
 

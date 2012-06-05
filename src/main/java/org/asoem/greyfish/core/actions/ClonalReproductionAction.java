@@ -16,7 +16,7 @@ import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
-@ClassGroup(tags="actions")
+@ClassGroup(tags = "actions")
 public class ClonalReproductionAction extends AbstractGFAction {
 
     @Element(name = "nClones")
@@ -40,7 +40,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
                                 @Override
                                 public Gene<?> apply(@Nullable GeneComponent<?> gene) {
                                     assert gene != null;
-                                    return new Gene<Object>(gene.getValue(), gene.getRecombinationProbability());
+                                    return new Gene<Object>(gene.getAllele(), gene.getRecombinationProbability());
                                 }
                             })));
             simulation.activateAgent(agent, agent().getProjection());
@@ -60,7 +60,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
         this.nClones = cloneable.nClones;
     }
 
-    protected ClonalReproductionAction(AbstractBuilder<?,?> builder) {
+    protected ClonalReproductionAction(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.nClones = builder.nClones;
     }
@@ -79,17 +79,29 @@ public class ClonalReproductionAction extends AbstractGFAction {
         this.nClones = nClones;
     }
 
-    public static Builder with() { return new Builder(); }
+    public static Builder with() {
+        return new Builder();
+    }
 
-    public static final class Builder extends AbstractBuilder<ClonalReproductionAction,Builder>  {
-        @Override protected Builder self() { return this; }
-        @Override protected ClonalReproductionAction checkedBuild() { return new ClonalReproductionAction(this); }
+    public static final class Builder extends AbstractBuilder<ClonalReproductionAction, Builder> {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected ClonalReproductionAction checkedBuild() {
+            return new ClonalReproductionAction(this);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         private GreyfishExpression nClones = GreyfishExpressionFactoryHolder.compile("1");
 
-        public T nClones(GreyfishExpression nClones) { this.nClones = nClones; return self(); }
+        public T nClones(GreyfishExpression nClones) {
+            this.nClones = nClones;
+            return self();
+        }
     }
 }

@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tuple2;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
@@ -26,17 +27,17 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     private Callback<? super DoubleGeneComponent, Double> mutation;
 
     @Element
-    private Callback<? super DoubleGeneComponent, Double> recombination;
+    private Callback<? super DoubleGeneComponent, Tuple2<Double, Double>> recombination;
 
     private final GeneController<Double> geneController = new GeneController<Double>() {
 
         @Override
-        public Double mutate(Double original) {
+        public Double mutate(Object original) {
             return mutation.apply(DoubleGeneComponent.this, ImmutableMap.of("original", original));
         }
 
         @Override
-        public Double recombine(Double first, Double second) {
+        public Tuple2<Double, Double> recombine(Object first, Object second) {
             return recombination.apply(DoubleGeneComponent.this, ImmutableMap.of("first", first, "second", second));
         }
 
@@ -100,13 +101,13 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setAllele(Object value) {
         checkArgument(value instanceof Double);
         this.value = (Double) value;
     }
 
     @Override
-    public Double getValue() {
+    public Double getAllele() {
         return value;
     }
 
@@ -160,7 +161,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E, T>> extends AbstractComponentBuilder<E, T> {
         private Callback<? super DoubleGeneComponent, Double> initialValue;
         private Callback<? super DoubleGeneComponent, Double> mutation;
-        private Callback<? super DoubleGeneComponent, Double> recombination;
+        private Callback<? super DoubleGeneComponent, Tuple2<Double, Double>> recombination;
 
         public T initialValue(Callback<? super DoubleGeneComponent, Double> expression) {
             this.initialValue = checkNotNull(expression);
@@ -172,7 +173,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
             return self();
         }
 
-        public T recombination(Callback<? super DoubleGeneComponent, Double> expression) {
+        public T recombination(Callback<? super DoubleGeneComponent, Tuple2<Double, Double>> expression) {
             this.recombination = checkNotNull(expression);
             return self();
         }

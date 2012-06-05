@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.utils.base.Tuple2;
+
 /**
  * User: christoph
  * Date: 22.02.11
@@ -14,9 +16,9 @@ public interface GeneController<T> {
      * @param original The value to mutate
      * @return a mutated version of {@code original}
      */
-    T mutate(T original);
+    T mutate(Object original);
 
-    T recombine(T first, T second);
+    Tuple2<T, T> recombine(Object first, Object second);
 
     /**
      * @param orig The value to compare to

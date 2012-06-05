@@ -1,11 +1,12 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.utils.base.Tuple2;
 
 import javax.annotation.Nullable;
 
 
-public interface GeneComponent<T> extends AgentComponent {
+public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
 
     /**
      * @return the class of the value this gene is supplying
@@ -25,6 +26,7 @@ public interface GeneComponent<T> extends AgentComponent {
 
     /**
      * Computes the normalizedDistance between {@code this} and {@code that} using an arbitrary metric.
+     *
      * @param thatGene the gene to compute the distance to
      * @return the distance
      */
@@ -32,15 +34,10 @@ public interface GeneComponent<T> extends AgentComponent {
 
     /**
      * Set the new value for this {@code GeneComponent}
+     *
      * @param value the new value this gene will supply
      */
-    void setValue(Object value);
-
-    /**
-     * Get the current value of this gene
-     * @return the current value of this gene
-     */
-    T getValue();
+    void setAllele(Object value);
 
     /**
      * Get the recombination probability for this gene.
@@ -50,4 +47,6 @@ public interface GeneComponent<T> extends AgentComponent {
     double getRecombinationProbability();
 
     T mutatedValue();
+
+    Tuple2<T, T> recombinedValue(T other);
 }

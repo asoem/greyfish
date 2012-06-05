@@ -50,36 +50,31 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             return GFAction.class.cast(agentComponent);
                         }
                     });
-                }
-                else if (GFProperty.class.isAssignableFrom(contextClass)) {
+                } else if (GFProperty.class.isAssignableFrom(contextClass)) {
                     return property(gomParts, new Function<T, GFProperty>() {
                         @Override
                         public GFProperty apply(@Nullable T agentComponent) {
                             return GFProperty.class.cast(agentComponent);
                         }
                     });
-                }
-                else if (GeneComponent.class.isAssignableFrom(contextClass)) {
+                } else if (GeneComponent.class.isAssignableFrom(contextClass)) {
                     return gene(gomParts, new Function<T, GeneComponent>() {
                         @Override
                         public GeneComponent apply(@Nullable T agentComponent) {
                             return GeneComponent.class.cast(agentComponent);
                         }
                     });
-                }
-                else if (GFCondition.class.isAssignableFrom(contextClass)) {
+                } else if (GFCondition.class.isAssignableFrom(contextClass)) {
                     return condition(gomParts, new Function<T, GFCondition>() {
                         @Override
                         public GFCondition apply(@Nullable T agentComponent) {
                             return GFCondition.class.cast(agentComponent);
                         }
                     });
-                }
-                else {
+                } else {
                     throw new IllegalArgumentException("Root keywords 'this' of 'self' are not implemented for context " + contextClass);
                 }
-            }
-            else if ("sim".equals(root) || "simulation".equals(root)) {
+            } else if ("sim".equals(root) || "simulation".equals(root)) {
                 if (AgentComponent.class.isAssignableFrom(contextClass)) {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
@@ -89,28 +84,24 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             // TODO: We should have direct access to simulation object through a component
                         }
                     });
-                }
-                else if (Simulation.class.isAssignableFrom(contextClass)) {
+                } else if (Simulation.class.isAssignableFrom(contextClass)) {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
                         public Simulation apply(@Nullable T t) {
                             return Simulation.class.cast(t);
                         }
                     });
-                }
-                else {
+                } else {
                     throw new IllegalArgumentException("Root keyword 'sim' is not implemented for context " + contextClass);
                 }
-            }
-            else if ("testVal".equals(root)) {
+            } else if ("testVal".equals(root)) {
                 return new Function<T, Object>() {
                     @Override
                     public Object apply(@Nullable T t) {
                         return 42.0;
                     }
                 };
-            }
-            else if (root.matches("#\\w+")) {
+            } else if (root.matches("#\\w+")) {
                 if (AgentComponent.class.isAssignableFrom(contextClass)) {
                     // search for component with name equal to given identifier
 
@@ -152,8 +143,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                                         return agent1.getAction(componentName, GFAction.class);
                                     }
                                 });
-                            }
-                            else if (GFProperty.class.isInstance(target)) {
+                            } else if (GFProperty.class.isInstance(target)) {
                                 return property(gomParts, new Function<T, GFProperty>() {
                                     @Override
                                     public GFProperty apply(@Nullable T t) {
@@ -163,8 +153,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                                         return agent1.getProperty(componentName, GFProperty.class);
                                     }
                                 });
-                            }
-                            else if (GeneComponent.class.isInstance(target)) {
+                            } else if (GeneComponent.class.isInstance(target)) {
                                 return gene(gomParts, new Function<T, GeneComponent>() {
                                     @Override
                                     public GeneComponent apply(@Nullable T t) {
@@ -174,16 +163,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                                         return agent1.getGene(componentName, GeneComponent.class);
                                     }
                                 });
-                            }
-                            else
+                            } else
                                 throw new UnsupportedOperationException("Component of class " + target.getClass() + " is not supported");
                         }
                     };
                 }
 
-            }
-            else
-                throw new IllegalArgumentException("Key '"+ root + "'" + " is not handled");
+            } else
+                throw new IllegalArgumentException("Key '" + root + "'" + " is not handled");
         }
 
         throw new IllegalArgumentException("Variable Name does not meet the syntax requirements: " + varName);
@@ -203,8 +190,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if (nextPart.matches("conditions\\[.+\\]")) {
             }
             throw new RuntimeException("GFCondition has no member named " + nextPart);
-        }
-        else {
+        } else {
             return function;
         }
     }
@@ -231,8 +217,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             }
 
             if (nextPart.matches("conditions\\[.+\\]")) {
-            }
-            else if (nextPart.equals("stepsSinceLastExecution")) {
+            } else if (nextPart.equals("stepsSinceLastExecution")) {
                 return Functions.compose(new Function<GFAction, Integer>() {
                     @Override
                     public Integer apply(@Nullable GFAction o) {
@@ -241,8 +226,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 }, ret);
             }
             throw new RuntimeException("GFAction has no member named " + nextPart);
-        }
-        else {
+        } else {
             return ret;
         }
     }
@@ -257,12 +241,9 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         return checkNotNull(property).getAgent();
                     }
                 }, ret));
-            }
-
-            else
+            } else
                 throw new RuntimeException("GFProperty has no member named " + nextPart);
-        }
-        else {
+        } else {
             return ret;
         }
     }
@@ -285,21 +266,16 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         });
                     }
                 }, ret));
-            }
-
-            else if ("agentCount".equals(nextPart)) {
-                return Functions.compose( new Function<Simulation, Object>() {
+            } else if ("agentCount".equals(nextPart)) {
+                return Functions.compose(new Function<Simulation, Object>() {
                     @Override
                     public Object apply(Simulation simulation) {
                         return simulation.countAgents();
                     }
-                },ret);
-            }
-
-            else
+                }, ret);
+            } else
                 throw new RuntimeException("Simulation has no member named " + nextPart);
-        }
-        else {
+        } else {
             return ret;
         }
     }
@@ -312,15 +288,12 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return Functions.compose(new Function<GeneComponent, Object>() {
                     @Override
                     public Object apply(@Nullable GeneComponent gene) {
-                        return checkNotNull(gene).getValue();
+                        return checkNotNull(gene).getAllele();
                     }
                 }, ret);
-            }
-
-            else
+            } else
                 throw new RuntimeException("GeneComponent has no member named " + nextPart);
-        }
-        else {
+        } else {
             return ret;
         }
     }
@@ -331,12 +304,12 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             Matcher matcher;
 
             if ("simulation".equals(nextPart)) {
-                return simulation(parts, Functions.compose( new Function<Agent, Simulation>() {
+                return simulation(parts, Functions.compose(new Function<Agent, Simulation>() {
                     @Override
                     public Simulation apply(@Nullable Agent agent) {
                         return checkNotNull(agent).getSimulationContext().getSimulation();
                     }
-                },ret));
+                }, ret));
             }
 
 
@@ -377,17 +350,16 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             }
 
             if ("age".equals(nextPart)) {
-                return Functions.compose( new Function<Agent, Object>() {
+                return Functions.compose(new Function<Agent, Object>() {
                     @Override
                     public Object apply(@Nullable Agent agent) {
                         return checkNotNull(agent).getAge();
                     }
-                },ret);
+                }, ret);
             }
 
             throw new RuntimeException("Agent has no member named " + nextPart);
-        }
-        else {
+        } else {
             return ret;
         }
     }

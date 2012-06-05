@@ -1,12 +1,9 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,7 +29,7 @@ public class Genes {
             @Override
             protected Gene<?> computeNext() {
 
-                if (! thisIterator.hasNext()) {
+                if (!thisIterator.hasNext()) {
                     return endOfData();
                 }
 

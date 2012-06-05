@@ -7,15 +7,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
 
-	private final T representation;
+    private final T representation;
     private final Class<T> clazz;
     private final GeneController<T> geneController;
 
     /**
      * Constructor
-     * @param name the name for this gene
-     * @param element the initial value this gene will return using {@code get()}
-     * @param clazz the Class of the supplied value
+     *
+     * @param name           the name for this gene
+     * @param element        the initial value this gene will return using {@code get()}
+     * @param clazz          the Class of the supplied value
      * @param geneController the function which describes how to mutate the gene
      */
     public ImmutableGeneComponent(String name, T element, Class<T> clazz, GeneController<T> geneController) {
@@ -23,19 +24,19 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
         this.geneController = checkNotNull(geneController);
         this.representation = checkNotNull(element);
         this.clazz = checkNotNull(clazz);
-	}
+    }
 
     private ImmutableGeneComponent(ImmutableGeneComponent<T> gene, DeepCloner map) {
         super(gene, map);
         this.geneController = checkNotNull(gene.getGeneController());
-        this.representation = checkNotNull(gene.getValue());
+        this.representation = checkNotNull(gene.getAllele());
         this.clazz = checkNotNull(gene.getSupplierClass());
     }
 
     @Override
-	public T getValue() {
-		return representation;
-	}
+    public T getAllele() {
+        return representation;
+    }
 
     @Override
     public Class<T> getSupplierClass() {
@@ -48,7 +49,7 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setAllele(Object value) {
         throw new UnsupportedOperationException();
     }
 
@@ -56,7 +57,7 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
         checkNotNull(gene);
         return new ImmutableGeneComponent<E>(
                 gene.getName(),
-                gene.getGeneController().mutate(gene.getValue()),
+                gene.getGeneController().mutate(gene.getAllele()),
                 gene.getSupplierClass(),
                 gene.getGeneController());
     }
@@ -76,7 +77,7 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
     }
 
     public static <T> GeneComponent<T> copyOf(GeneComponent<T> gene) {
-        return new ImmutableGeneComponent<T>(gene.getName(), gene.getValue(), gene.getSupplierClass(), gene.getGeneController());
+        return new ImmutableGeneComponent<T>(gene.getName(), gene.getAllele(), gene.getSupplierClass(), gene.getGeneController());
     }
 
     public static <T> ImmutableGeneComponent<T> of(String name, T element, Class<T> elementType, GeneController<T> geneController) {

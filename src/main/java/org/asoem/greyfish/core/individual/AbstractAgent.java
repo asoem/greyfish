@@ -394,7 +394,7 @@ public abstract class AbstractAgent implements Agent {
             @Override
             public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
-                return o.getValue();
+                return o.getAllele();
             }
         }));
         geneComponentList.setOrigin(chromosome.getOrigin());
@@ -413,7 +413,8 @@ public abstract class AbstractAgent implements Agent {
         if (object2D != null ? !object2D.equals(that.object2D) : that.object2D != null) return false;
         if (actions != null ? !actions.equals(that.actions) : that.actions != null) return false;
         if (body != null ? !body.equals(that.body) : that.body != null) return false;
-        if (geneComponentList != null ? !geneComponentList.equals(that.geneComponentList) : that.geneComponentList != null) return false;
+        if (geneComponentList != null ? !geneComponentList.equals(that.geneComponentList) : that.geneComponentList != null)
+            return false;
         if (inBox != null ? !inBox.equals(that.inBox) : that.inBox != null) return false;
         if (motion != null ? !motion.equals(that.motion) : that.motion != null) return false;
         if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
@@ -434,9 +435,9 @@ public abstract class AbstractAgent implements Agent {
         return result;
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E,T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
-        protected final ComponentList<GFProperty> properties =  new MutableComponentList<GFProperty>();
+        protected final ComponentList<GFProperty> properties = new MutableComponentList<GFProperty>();
         protected final Population population;
         public final ComponentList<GeneComponent<?>> genes = new MutableComponentList<GeneComponent<?>>();
 
@@ -445,9 +446,20 @@ public abstract class AbstractAgent implements Agent {
         }
 
         // todo: these builder methods are not able to control the mutability of the genes
-        public T addGenes(GeneComponent<?>... genes) { this.genes.addAll(asList(checkNotNull(genes))); return self(); }
-        public T addActions(GFAction ... actions) { this.actions.addAll(asList(checkNotNull(actions))); return self(); }
-        public T addProperties(GFProperty ... properties) { this.properties.addAll(asList(checkNotNull(properties))); return self(); }
+        public T addGenes(GeneComponent<?>... genes) {
+            this.genes.addAll(asList(checkNotNull(genes)));
+            return self();
+        }
+
+        public T addActions(GFAction... actions) {
+            this.actions.addAll(asList(checkNotNull(actions)));
+            return self();
+        }
+
+        public T addProperties(GFProperty... properties) {
+            this.properties.addAll(asList(checkNotNull(properties)));
+            return self();
+        }
     }
 
     @Override

@@ -29,7 +29,7 @@ public class H2Logger implements SimulationLogger {
     private H2Logger(@Assisted Simulation simulation) {
         try {
             Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection("jdbc:h2:~/greyfish-data/"+simulation.getUUID().toString(), "sa", "");
+            connection = DriverManager.getConnection("jdbc:h2:~/greyfish-data/" + simulation.getUUID().toString(), "sa", "");
 
             connection.createStatement().execute(
                     "CREATE TABLE agents (id int NOT NULL PRIMARY KEY, population VARCHAR(255) NOT NULL, activated_at int NOT NULL, created_at TIMESTAMP NOT NULL)");
@@ -106,13 +106,12 @@ public class H2Logger implements SimulationLogger {
                 if (Double.class.equals(gene.getSupplierClass())) {
                     insertGeneAsDoubleStatement.setInt(1, agent.getId());
                     insertGeneAsDoubleStatement.setString(2, gene.getName());
-                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getValue());
+                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getAllele());
                     insertGeneAsDoubleStatement.execute();
-                }
-                else {
+                } else {
                     insertGeneAsStringStatement.setInt(1, agent.getId());
                     insertGeneAsStringStatement.setString(2, gene.getName());
-                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.getValue()));
+                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.getAllele()));
                     insertGeneAsStringStatement.execute();
 
                 }

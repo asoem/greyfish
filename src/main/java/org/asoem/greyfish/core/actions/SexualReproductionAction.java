@@ -6,18 +6,18 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneComponent;
-import org.asoem.greyfish.core.genes.UniparentalChromosomalOrigin;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tuple3;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
+import org.asoem.greyfish.utils.collect.Zipped3;
+import org.asoem.greyfish.utils.collect.Zipped3Impl;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -33,7 +33,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
 import static org.asoem.greyfish.core.actions.utils.ActionState.SUCCESS;
 import static org.asoem.greyfish.core.individual.Callbacks.call;
 
-@ClassGroup(tags="actions")
+@ClassGroup(tags = "actions")
 public class SexualReproductionAction extends AbstractGFAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproductionAction.class);
@@ -79,22 +79,40 @@ public class SexualReproductionAction extends AbstractGFAction {
         final int eggCount = call(clutchSize, this);
         LOGGER.info("{}: Producing {} offspring ", agent(), eggCount);
 
-        final Chromosome egg = new Chromosome(
-                new UniparentalChromosomalOrigin(agent().getId()),
-                Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
-                    @Override
-                    public Gene<?> apply(@Nullable GeneComponent<?> gene) {
-                        assert gene != null;
-                        return new Gene<Object>(gene.mutatedValue(), gene.getRecombinationProbability());
-                    }
-                }));
+        final GeneComponentList<GeneComponent<?>> geneComponentList = agent().getGeneComponentList();
+        final Iterable<GeneController<?>> geneControllers = Iterables.transform(geneComponentList, new Function<GeneComponent<?>, GeneController<?>>() {
+            @Override
+            public GeneController<?> apply(GeneComponent<?> geneComponent) {
+                return geneComponent.getGeneController();
+            }
+        });
 
         for (Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
-            final Agent offspring = simulation.createAgent(agent().getPopulation());
-            offspring.updateGeneComponents(egg.recombined(sperm));
-            simulation.activateAgent(offspring, agent().getProjection());
+            // zip values and recombination operator
+            final Zipped3<GeneComponent<?>, GeneComponentList<GeneComponent<?>>, Gene<?>, Iterable<Gene<?>>, GeneController<?>, Iterable<GeneController<?>>> zip =
+                    new Zipped3Impl<GeneComponent<?>, GeneComponentList<GeneComponent<?>>, Gene<?>, Iterable<Gene<?>>, GeneController<?>, Iterable<GeneController<?>>>(geneComponentList, sperm.getGenes(), geneControllers);
 
+            // recombine
+            final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Tuple3<GeneComponent<?>, Gene<?>, GeneController<?>>, Gene<Object>>() {
+                @Override
+                public Gene<Object> apply(Tuple3<GeneComponent<?>, Gene<?>, GeneController<?>> tuple) {
+                    final Object mutatedAndRecombinedAllele = tuple._3().mutate(tuple._3().recombine(tuple._1().getAllele(), tuple._2().getAllele())._1());
+
+                    // TODO: second allele of the recombination result is never used
+                    return new Gene<Object>(mutatedAndRecombinedAllele, tuple._1().getRecombinationProbability());
+                }
+            });
+
+            // take first part of the recombinedTuple and make a chromosome out of it
+            final Chromosome c = new Chromosome(
+                    ChromosomalOrigins.merge(new UniparentalChromosomalOrigin(agent().getId()), sperm.getOrigin()),
+                    genes
+            );
+
+            final Agent offspring = simulation.createAgent(agent().getPopulation());
+            offspring.updateGeneComponents(c);
+            simulation.activateAgent(offspring, agent().getProjection());
             agent().logEvent(this, "offspringProduced", "");
         }
 
@@ -134,13 +152,13 @@ public class SexualReproductionAction extends AbstractGFAction {
 
     private SexualReproductionAction(SexualReproductionAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.spermList =cloneable.spermList;
+        this.spermList = cloneable.spermList;
         this.clutchSize = cloneable.clutchSize;
         this.spermSelectionStrategy = cloneable.spermSelectionStrategy;
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
     }
 
-    protected SexualReproductionAction(AbstractBuilder<?,?> builder) {
+    protected SexualReproductionAction(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.spermList = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
@@ -154,7 +172,9 @@ public class SexualReproductionAction extends AbstractGFAction {
         offspringCount = 0;
     }
 
-    public static Builder with() { return new Builder(); }
+    public static Builder with() {
+        return new Builder();
+    }
 
     public int getOffspringCount() {
         return offspringCount;
@@ -165,20 +185,40 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     public static final class Builder extends AbstractBuilder<SexualReproductionAction, Builder> {
-        private Builder() {}
-        @Override protected Builder self() { return this; }
-        @Override protected SexualReproductionAction checkedBuild() { return new SexualReproductionAction(this); }
+        private Builder() {
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected SexualReproductionAction checkedBuild() {
+            return new SexualReproductionAction(this);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         private Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproductionAction, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
         private Callback<? super SexualReproductionAction, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
-        public T spermSupplier(Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermStorage) { this.spermStorage = checkNotNull(spermStorage); return self(); }
-        public T clutchSize(Callback<? super SexualReproductionAction, Integer> nOffspring) { this.clutchSize = nOffspring; return self(); }
-        public T spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) { this.spermSelectionStrategy = checkNotNull(selectionStrategy); return self(); }
+        public T spermSupplier(Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermStorage) {
+            this.spermStorage = checkNotNull(spermStorage);
+            return self();
+        }
+
+        public T clutchSize(Callback<? super SexualReproductionAction, Integer> nOffspring) {
+            this.clutchSize = nOffspring;
+            return self();
+        }
+
+        public T spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) {
+            this.spermSelectionStrategy = checkNotNull(selectionStrategy);
+            return self();
+        }
     }
 }

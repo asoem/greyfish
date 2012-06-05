@@ -14,6 +14,8 @@ import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.base.Tuple2;
+import org.asoem.greyfish.utils.base.Tuples;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
@@ -23,9 +25,7 @@ import java.util.Map;
 
 import static java.lang.Math.abs;
 import static org.asoem.greyfish.core.individual.Callbacks.constant;
-import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
-import static org.asoem.greyfish.utils.math.RandomUtils.rnorm;
-import static org.asoem.greyfish.utils.math.RandomUtils.sample;
+import static org.asoem.greyfish.utils.math.RandomUtils.*;
 
 
 /**
@@ -73,7 +73,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("FEMALE");
+                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("FEMALE");
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -97,7 +97,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("MALE");
+                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("MALE");
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -121,8 +121,8 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .matingProbability(new Callback<MatingReceiverAction, Double>() {
                                     @Override
                                     public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
-                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getGene("consumer_classification", GeneComponent.class).getValue();
-                                        final Double myClassification = (Double) caller.agent().getGene("consumer_classification", GeneComponent.class).getValue();
+                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getGene("consumer_classification", GeneComponent.class).getAllele();
+                                        final Double myClassification = (Double) caller.agent().getGene("consumer_classification", GeneComponent.class).getAllele();
                                         final double maximalDifference = 0.03;
 
                                         final boolean b = abs(classificationOfMate - myClassification) < maximalDifference;
@@ -133,7 +133,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(FunctionCondition condition) {
-                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getValue().equals("FEMALE");
+                                                return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("FEMALE");
                                             }
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
@@ -186,10 +186,11 @@ public class SexualSpeciation implements Provider<Scenario> {
                                         return ((Double) localVariables.get("original")) + rnorm(0, 0.01);
                                     }
                                 })
-                                .recombination(new Callback<DoubleGeneComponent, Double>() {
+                                .recombination(new Callback<DoubleGeneComponent, Tuple2<Double, Double>>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return (((Double) localVariables.get("first")) + ((Double) localVariables.get("second"))) / 2;
+                                    public Tuple2<Double, Double> apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                        final double v = (((Double) localVariables.get("first")) + ((Double) localVariables.get("second"))) / 2;
+                                        return Tuples.of(v, v);
                                     }
                                 })
                                 .build()
