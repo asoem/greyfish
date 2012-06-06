@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.utils.base.Tuple2;
+import org.asoem.greyfish.utils.base.Product2;
 
 /**
  * User: christoph
@@ -18,7 +18,7 @@ public interface GeneController<T> {
      */
     T mutate(Object original);
 
-    Tuple2<T, T> recombine(Object first, Object second);
+    Product2<T, T> recombine(Object first, Object second);
 
     /**
      * @param orig The value to compare to

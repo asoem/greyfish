@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.utils.base.Tuple2;
+import org.asoem.greyfish.utils.base.Product2;
 
 /**
  * User: christoph
@@ -14,7 +14,7 @@ public class GeneControllerAdaptor<T> implements GeneController<T> {
     }
 
     @Override
-    public Tuple2<T, T> recombine(Object first, Object second) {
+    public Product2<T, T> recombine(Object first, Object second) {
         throw new UnsupportedOperationException();
     }
 

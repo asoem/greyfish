@@ -1,8 +1,10 @@
 package org.asoem.greyfish.scenarios;
 
 import com.google.common.base.Function;
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import javolution.lang.MathLib;
+import org.asoem.greyfish.cli.ScenarioParameter;
 import org.asoem.greyfish.core.actions.*;
 import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.conditions.FunctionCondition;
@@ -14,12 +16,11 @@ import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
-import org.asoem.greyfish.utils.base.Tuples;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -35,14 +36,22 @@ import static org.asoem.greyfish.utils.math.RandomUtils.*;
  */
 public class SexualSpeciation implements Provider<Scenario> {
 
+    @Inject(optional=true) @ScenarioParameter("width") private String width = "10";
+    @Inject(optional=true) @ScenarioParameter("height") private String height = "10";
+    @Inject(optional=true) @ScenarioParameter("variance") private String variance = "0.01";
+
     @Override
     public Scenario get() {
-        final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(10, 10).build();
+        final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(Integer.valueOf(width), Integer.valueOf(height)).build();
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
 
         final Agent prototype = createConsumerPrototype();
         for (int i = 0; i < 500; ++i) {
-            scenarioBuilder.addAgent(new Avatar(prototype), ImmutableObject2D.of(nextDouble(10), nextDouble(10), nextDouble(MathLib.PI)));
+            final ImmutableObject2D object2D = ImmutableObject2D.of(
+                    nextDouble(Integer.valueOf(width)),
+                    nextDouble(Integer.valueOf(height)),
+                    nextDouble(MathLib.PI));
+            scenarioBuilder.addAgent(new Avatar(prototype), object2D);
         }
 
         return scenarioBuilder.build();
@@ -84,7 +93,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                         }),
                                         FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(@Nullable FunctionCondition functionCondition) {
+                                            public Boolean apply(FunctionCondition functionCondition) {
                                                 return RandomUtils.trueWithProbability(1 - functionCondition.agent().getSimulationContext().getSimulation().countAgents() / 2000);
                                             }
                                         })
@@ -183,14 +192,14 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return ((Double) localVariables.get("original")) + rnorm(0, 0.01);
+                                        return ((Double) localVariables.get("original")) + rnorm(0, Double.valueOf(variance));
                                     }
                                 })
-                                .recombination(new Callback<DoubleGeneComponent, Tuple2<Double, Double>>() {
+                                .recombination(new Callback<DoubleGeneComponent, Product2<Double, Double>>() {
                                     @Override
-                                    public Tuple2<Double, Double> apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                    public Product2<Double, Double> apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
                                         final double v = (((Double) localVariables.get("first")) + ((Double) localVariables.get("second"))) / 2;
-                                        return Tuples.of(v, v);
+                                        return Tuple2.of(v, v);
                                     }
                                 })
                                 .build()

@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ForwardingList;
-import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.ComponentList;
+import org.asoem.greyfish.utils.base.Product2;
+import org.asoem.greyfish.utils.base.Tuple2;
 
 import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -52,19 +54,12 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
     }
 
     @Override
-    public void updateGenes(Iterable<?> values) {
-
+    public void updateGenes(List<?> values) {
         checkNotNull(values);
-        checkArgument(Iterables.size(values) == size());
+        checkArgument(values.size() == size());
 
-        final Iterator<?> sourceIterator = values.iterator();
-        final Iterator<E> destinationIterator = this.iterator();
-
-        while (sourceIterator.hasNext() && destinationIterator.hasNext()) {
-            Object source = sourceIterator.next();
-            E destination = destinationIterator.next();
-
-            destination.setAllele(source);
+        for (Product2<E, ?> tuple2 : Tuple2.Zipped.of(this, values)) {
+            tuple2._1().setAllele(tuple2._2());
         }
     }
 

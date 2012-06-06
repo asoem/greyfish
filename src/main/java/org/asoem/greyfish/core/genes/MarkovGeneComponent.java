@@ -9,8 +9,8 @@ import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
-import org.asoem.greyfish.utils.base.Tuples;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
@@ -70,8 +70,8 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         }
 
         @Override
-        public Tuple2<String, String> recombine(Object first, Object second) {
-            return Tuples.of(String.class.cast(first), String.class.cast(second));
+        public Product2<String, String> recombine(Object first, Object second) {
+            return Tuple2.of(String.class.cast(first), String.class.cast(second));
         }
 
         @Override
@@ -103,9 +103,9 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     }
 
     @Override
-    public void setAllele(Object value) {
-        checkArgument(value instanceof String);
-        currentState = (String) value;
+    public void setAllele(Object allele) {
+        checkArgument(allele instanceof String, "Expected allele of type String. Actual value: " + allele);
+        currentState = (String) allele;
     }
 
     private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {

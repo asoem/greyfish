@@ -25,7 +25,7 @@ public class Chromosome {
         return origin;
     }
 
-    public Iterable<Gene<?>> getGenes() {
+    public List<Gene<?>> getGenes() {
         return genes;
     }
 

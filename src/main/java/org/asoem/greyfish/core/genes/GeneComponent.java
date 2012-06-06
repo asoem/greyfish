@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.utils.base.Tuple2;
+import org.asoem.greyfish.utils.base.Product2;
 
 import javax.annotation.Nullable;
 
@@ -35,9 +35,9 @@ public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
     /**
      * Set the new value for this {@code GeneComponent}
      *
-     * @param value the new value this gene will supply
+     * @param allele
      */
-    void setAllele(Object value);
+    void setAllele(Object allele);
 
     /**
      * Get the recombination probability for this gene.
@@ -48,5 +48,5 @@ public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
 
     T mutatedValue();
 
-    Tuple2<T, T> recombinedValue(T other);
+    Product2<T, T> recombinedValue(T other);
 }

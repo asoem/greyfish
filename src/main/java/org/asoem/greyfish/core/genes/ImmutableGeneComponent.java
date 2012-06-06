@@ -49,7 +49,7 @@ public class ImmutableGeneComponent<T> extends AbstractGeneComponent<T> {
     }
 
     @Override
-    public void setAllele(Object value) {
+    public void setAllele(Object allele) {
         throw new UnsupportedOperationException();
     }
 

@@ -390,13 +390,13 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void updateGeneComponents(Chromosome chromosome) {
         checkNotNull(chromosome);
-        geneComponentList.updateGenes(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
+        geneComponentList.updateGenes(ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
             @Override
             public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
                 return o.getAllele();
             }
-        }));
+        })));
         geneComponentList.setOrigin(chromosome.getOrigin());
     }
 
