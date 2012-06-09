@@ -37,7 +37,7 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
                 return new Tuple2<HyperPoint, T>(new HyperPoint2(b.getX(), b.getY()), t);
             }
         });
-        kdtree = org.asoem.kdtree.KDTree.apply(2, iterableAsScalaIterable(transform).<Product2<HyperPoint, T>>toIndexedSeq());
+        kdtree = org.asoem.kdtree.KDTree.apply(2, iterableAsScalaIterable(transform).toList());
     }
 
     @SuppressWarnings("unchecked")
