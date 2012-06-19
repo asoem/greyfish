@@ -64,10 +64,10 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .ontology("energy")
                                 .provides(new Callback<ResourceProvisionAction, Double>() {
                                     @Override
-                                    public Double apply(ResourceProvisionAction caller, Map<String, ?> localVariables) {
+                                    public Double apply(ResourceProvisionAction caller, Map<String, ?> arguments) {
                                         final Double resourceValue = (Double) (caller.agent().getProperty("resource", GFProperty.class).getValue());
                                         final Double resourceClassification = (Double) caller.agent().getProperty("resource_classification", GFProperty.class).getValue();
-                                        final Double consumerClassification = (Double) localVariables.get("classifier");
+                                        final Double consumerClassification = (Double) arguments.get("classifier");
                                         final double dist = abs(consumerClassification - resourceClassification);
                                         final double v = 1 - (4 * dist) / sqrt(1 + pow(4 * dist, 2));
                                         return min(resourceValue, 100) * v;
@@ -113,7 +113,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .clutchSize(constant(1))
                                 .spermSupplier(new Callback<SexualReproductionAction, List<? extends Chromosome>>() {
                                     @Override
-                                    public List<? extends Chromosome> apply(SexualReproductionAction caller, Map<String, ?> localVariables) {
+                                    public List<? extends Chromosome> apply(SexualReproductionAction caller, Map<String, ?> arguments) {
                                         return caller.agent().getAction("receive", MatingReceiverAction.class).getReceivedSperm();
                                     }
                                 })
@@ -144,7 +144,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
                                     @Override
-                                    public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
+                                    public Void apply(AbstractGFAction caller, Map<String, ?> arguments) {
                                         caller.agent().getProperty("energy", DoubleProperty.class).subtract(100.0);
                                         return null;
                                     }
@@ -180,7 +180,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                         })))
                                 .onSuccess(new Callback<AbstractGFAction, Void>() {
                                     @Override
-                                    public Void apply(AbstractGFAction caller, Map<String, ?> localVariables) {
+                                    public Void apply(AbstractGFAction caller, Map<String, ?> arguments) {
                                         caller.agent().getProperty("energy", DoubleProperty.class).subtract(1.0);
                                         return null;
                                     }
@@ -192,8 +192,8 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .interactionRadius(constant(1.0))
                                 .matingProbability(new Callback<MatingReceiverAction, Double>() {
                                     @Override
-                                    public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
-                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getGene("consumer_classification", GeneComponent.class).getAllele();
+                                    public Double apply(MatingReceiverAction caller, Map<String, ?> arguments) {
+                                        final Double classificationOfMate = (Double) ((Agent) arguments.get("mate")).getGene("consumer_classification", GeneComponent.class).getAllele();
                                         final Double myClassification = (Double) caller.agent().getGene("consumer_classification", GeneComponent.class).getAllele();
                                         final Double preferredSimilarity = Math.max(0.0, Math.min(1.0, caller.agent().getGene("preferred_similarity", DoubleGeneComponent.class).getAllele()));
                                         final double minimalSimilarity = 0.9;
@@ -269,7 +269,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .stepSize(Callbacks.constant(0.1))
                                 .turningAngle(new Callback<GenericMovementAction, Double>() {
                                     @Override
-                                    public Double apply(GenericMovementAction caller, Map<String, ?> localVariables) {
+                                    public Double apply(GenericMovementAction caller, Map<String, ?> arguments) {
                                         return caller.agent().getMotion().getRotation() + RandomUtils.rnorm(0, 0.08);
                                     }
                                 })
@@ -281,38 +281,38 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .put("FEMALE", "MALE", Callbacks.constant(0.5))
                                 .initialState(new Callback<MarkovGeneComponent, String>() {
                                     @Override
-                                    public String apply(MarkovGeneComponent caller, Map<String, ?> localVariables) {
+                                    public String apply(MarkovGeneComponent caller, Map<String, ?> arguments) {
                                         return RandomUtils.sample("MALE", "FEMALE");
                                     }
                                 })
                                 .build(),
                         DoubleGeneComponent.builder()
                                 .name("consumer_classification")
-                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                .initialAllele(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
                                         return 0.1;
                                     }
                                 })
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return ((Double) localVariables.get("original")) + (trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0);
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
+                                        return ((Double) arguments.get("original")) + (trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0);
                                     }
                                 })
                                 .build(),
                         DoubleGeneComponent.builder()
                                 .name("preferred_similarity")
-                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                .initialAllele(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
                                         return 1.0;
                                     }
                                 })
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return ((Double) localVariables.get("original")) + (trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0);
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
+                                        return ((Double) arguments.get("original")) + (trueWithProbability(0.0001) ? sample(-0.01, 0.01) : 0.0);
                                     }
                                 })
                                 .build()
