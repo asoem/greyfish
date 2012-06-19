@@ -44,16 +44,16 @@ public class SimpleAsexualPopulation implements Provider<Scenario> {
                 .addGenes(
                         DoubleGeneComponent.builder()
                                 .name("gene1")
-                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                .initialAllele(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
                                         return 50.0 + RandomUtils.rnorm(0.0, 10.0);
                                     }
                                 })
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return ((Double) localVariables.get("original")) + RandomUtils.rnorm(0.0, 1.0);
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
+                                        return ((Double) arguments.get("original")) + RandomUtils.rnorm(0.0, 1.0);
                                     }
                                 })
                                 .build()
