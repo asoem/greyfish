@@ -19,7 +19,6 @@ import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -31,23 +30,23 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.core.individual.Callbacks.call;
+import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
 
 /**
  * @author christoph
- *
  */
-@ClassGroup(tags="actions")
+@ClassGroup(tags = "actions")
 public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatingReceiverAction.class);
 
-    @Element(name="ontology", required=false)
+    @Element(name = "ontology", required = false)
     private String ontology;
 
-    @Element(name="interactionRadius", required=false)
+    @Element(name = "interactionRadius", required = false)
     private Callback<? super MatingReceiverAction, Double> interactionRadius;
 
-    @Element(name="matingProbability", required = false)
+    @Element(name = "matingProbability", required = false)
     private Callback<? super MatingReceiverAction, Double> matingProbability;
 
     private Iterable<Agent> sensedMates = ImmutableList.of();
@@ -62,43 +61,9 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Message Type", new AbstractTypedValueModel<String>() {
-            @Override
-            protected void set(String arg0) {
-                ontology = checkNotNull(arg0);
-            }
-
-            @Override
-            public String get() {
-                return ontology;
-            }
-        });
-        /*
-        e.add("Sensor Range", new AbstractTypedValueModel<Double>() {
-            @Override
-            protected void set(Double arg0) {
-                interactionRadius = checkNotNull(arg0);
-            }
-
-            @Override
-            public Double get() {
-                return interactionRadius;
-            }
-        });
-
-        e.add("matingProbability", "Expected is an expression that returns a double between 0.0 and 1.0",
-                new AbstractTypedValueModel<GreyfishExpression>() {
-                    @Override
-                    protected void set(GreyfishExpression arg0) {
-                        matingProbability = arg0;
-                    }
-
-                    @Override
-                    public GreyfishExpression get() {
-                        return matingProbability;
-                    }
-                });
-                */
+        e.add("Ontology", forField("ontology", this, String.class));
+        e.add("Interaction Radius", forField("interactionRadius", this, Callback.class));
+        e.add("Mating Probability", forField("matingProbability", this, Callback.class));
     }
 
     private void receiveSperm(Chromosome chromosome, Agent sender, Simulation simulation) {
@@ -115,7 +80,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
         final int sensedMatesCount = Iterables.size(sensedMates);
-        assert(sensedMatesCount > 0); // see #evaluateCondition(Simulation)
+        assert (sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
         final Agent receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
         sensedMates = ImmutableList.of();
@@ -138,8 +103,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
                 receiveSperm(chromosome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
                 LOGGER.info("Accepted mating with p={}", probability);
-            }
-            else {
+            } else {
                 builder.performative(ACLPerformative.REJECT_PROPOSAL);
                 LOGGER.info("Refused mating with p={}", probability);
             }
@@ -172,7 +136,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Override
     protected boolean canInitiate(Simulation simulation) {
         sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
-        return ! isEmpty(sensedMates);
+        return !isEmpty(sensedMates);
     }
 
     @Override
@@ -187,14 +151,16 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         this.matingProbability = cloneable.matingProbability;
     }
 
-    protected MatingReceiverAction(AbstractBuilder<?extends MatingReceiverAction, ? extends AbstractBuilder> builder) {
+    protected MatingReceiverAction(AbstractBuilder<? extends MatingReceiverAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
         this.matingProbability = builder.matingProbability;
     }
 
-    public static Builder with() { return new Builder(); }
+    public static Builder with() {
+        return new Builder();
+    }
 
     public Callback<? super MatingReceiverAction, Double> getMatingProbability() {
         return matingProbability;
@@ -205,7 +171,10 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     public static final class Builder extends AbstractBuilder<MatingReceiverAction, Builder> {
-        @Override protected Builder self() { return this; }
+        @Override
+        protected Builder self() {
+            return this;
+        }
 
         @Override
         protected MatingReceiverAction checkedBuild() {
@@ -214,14 +183,25 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         protected String ontology = "mate";
         protected Callback<? super MatingReceiverAction, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super MatingReceiverAction, Double> matingProbability = Callbacks.constant(1.0);
 
-        public T matingProbability(Callback<? super MatingReceiverAction, Double> matingProbabilityExpression) { this.matingProbability = checkNotNull(matingProbabilityExpression); return self(); }
-        public T ontology(String ontology) { this.ontology = checkNotNull(ontology); return self(); }
-        public T interactionRadius(Callback<? super MatingReceiverAction, Double> sensorRange) { this.sensorRange = sensorRange; return self(); }
+        public T matingProbability(Callback<? super MatingReceiverAction, Double> matingProbabilityExpression) {
+            this.matingProbability = checkNotNull(matingProbabilityExpression);
+            return self();
+        }
+
+        public T ontology(String ontology) {
+            this.ontology = checkNotNull(ontology);
+            return self();
+        }
+
+        public T interactionRadius(Callback<? super MatingReceiverAction, Double> sensorRange) {
+            this.sensorRange = sensorRange;
+            return self();
+        }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

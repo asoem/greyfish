@@ -36,9 +36,15 @@ import static org.asoem.greyfish.utils.math.RandomUtils.*;
  */
 public class SexualSpeciation implements Provider<Scenario> {
 
-    @Inject(optional=true) @ScenarioParameter("width") private String width = "10";
-    @Inject(optional=true) @ScenarioParameter("height") private String height = "10";
-    @Inject(optional=true) @ScenarioParameter("variance") private String variance = "0.01";
+    @Inject(optional = true)
+    @ScenarioParameter("width")
+    private String width = "10";
+    @Inject(optional = true)
+    @ScenarioParameter("height")
+    private String height = "10";
+    @Inject(optional = true)
+    @ScenarioParameter("variance")
+    private String variance = "0.01";
 
     @Override
     public Scenario get() {
@@ -74,7 +80,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .clutchSize(constant(1))
                                 .spermSupplier(new Callback<SexualReproductionAction, List<? extends Chromosome>>() {
                                     @Override
-                                    public List<? extends Chromosome> apply(SexualReproductionAction caller, Map<String, ?> localVariables) {
+                                    public List<? extends Chromosome> apply(SexualReproductionAction caller, Map<String, ?> arguments) {
                                         return caller.agent().getAction("receive", MatingReceiverAction.class).getReceivedSperm();
                                     }
                                 })
@@ -129,8 +135,8 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .interactionRadius(constant(1.0))
                                 .matingProbability(new Callback<MatingReceiverAction, Double>() {
                                     @Override
-                                    public Double apply(MatingReceiverAction caller, Map<String, ?> localVariables) {
-                                        final Double classificationOfMate = (Double) ((Agent) localVariables.get("mate")).getGene("consumer_classification", GeneComponent.class).getAllele();
+                                    public Double apply(MatingReceiverAction caller, Map<String, ?> arguments) {
+                                        final Double classificationOfMate = (Double) ((Agent) arguments.get("mate")).getGene("consumer_classification", GeneComponent.class).getAllele();
                                         final Double myClassification = (Double) caller.agent().getGene("consumer_classification", GeneComponent.class).getAllele();
                                         final double maximalDifference = 0.03;
 
@@ -164,7 +170,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .stepSize(Callbacks.constant(0.1))
                                 .turningAngle(new Callback<GenericMovementAction, Double>() {
                                     @Override
-                                    public Double apply(GenericMovementAction caller, Map<String, ?> localVariables) {
+                                    public Double apply(GenericMovementAction caller, Map<String, ?> arguments) {
                                         return caller.agent().getMotion().getRotation() + RandomUtils.rnorm(0, 0.08);
                                     }
                                 })
@@ -176,29 +182,29 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .put("FEMALE", "MALE", Callbacks.constant(0.5))
                                 .initialState(new Callback<MarkovGeneComponent, String>() {
                                     @Override
-                                    public String apply(MarkovGeneComponent caller, Map<String, ?> localVariables) {
+                                    public String apply(MarkovGeneComponent caller, Map<String, ?> arguments) {
                                         return sample("MALE", "FEMALE");
                                     }
                                 })
                                 .build(),
                         DoubleGeneComponent.builder()
                                 .name("consumer_classification")
-                                .initialValue(new Callback<DoubleGeneComponent, Double>() {
+                                .initialAllele(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
                                         return 0.1;
                                     }
                                 })
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        return ((Double) localVariables.get("original")) + rnorm(0, Double.valueOf(variance));
+                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
+                                        return ((Double) arguments.get("original")) + rnorm(0, Double.valueOf(variance));
                                     }
                                 })
                                 .recombination(new Callback<DoubleGeneComponent, Product2<Double, Double>>() {
                                     @Override
-                                    public Product2<Double, Double> apply(DoubleGeneComponent caller, Map<String, ?> localVariables) {
-                                        final double v = (((Double) localVariables.get("first")) + ((Double) localVariables.get("second"))) / 2;
+                                    public Product2<Double, Double> apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
+                                        final double v = (((Double) arguments.get("first")) + ((Double) arguments.get("second"))) / 2;
                                         return Tuple2.of(v, v);
                                     }
                                 })

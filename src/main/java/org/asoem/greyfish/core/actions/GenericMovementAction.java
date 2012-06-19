@@ -1,10 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.collect.ImmutableMap;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -27,10 +25,10 @@ public class GenericMovementAction extends AbstractGFAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericMovementAction.class);
 
-    @Element(required=false)
+    @Element(required = false)
     private Callback<? super GenericMovementAction, Double> stepSize;
 
-    @Element(required=false)
+    @Element(required = false)
     private Callback<? super GenericMovementAction, Double> turningAngle;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -79,7 +77,9 @@ public class GenericMovementAction extends AbstractGFAction {
     }
 
 
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public Callback<? super GenericMovementAction, Double> getStepSize() {
         return stepSize;
@@ -90,22 +90,38 @@ public class GenericMovementAction extends AbstractGFAction {
     }
 
     public static final class Builder extends AbstractBuilder<GenericMovementAction, Builder> {
-        private Builder() {}
-        @Override protected Builder self() { return this; }
-        @Override protected GenericMovementAction checkedBuild() { return new GenericMovementAction(this); }
+        private Builder() {
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected GenericMovementAction checkedBuild() {
+            return new GenericMovementAction(this);
+        }
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<E extends GenericMovementAction, T extends AbstractBuilder<E,T>> extends AbstractActionBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends GenericMovementAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         private Callback<? super GenericMovementAction, Double> speed = Callbacks.constant(0.1);
         private Callback<? super GenericMovementAction, Double> rotation = new Callback<GenericMovementAction, Double>() {
             @Override
-            public Double apply(GenericMovementAction caller, Map<String, ?> localVariables) {
+            public Double apply(GenericMovementAction caller, Map<String, ?> arguments) {
                 return RandomUtils.rnorm(0.0, MathLib.HALF_PI);
             }
         };
 
-        public T turningAngle(Callback<? super GenericMovementAction, Double> rotation) { this.rotation = checkNotNull(rotation); return self(); }
-        public T stepSize(Callback<? super GenericMovementAction, Double> speedFunction) { this.speed = checkNotNull(speedFunction); return self(); }
+        public T turningAngle(Callback<? super GenericMovementAction, Double> rotation) {
+            this.rotation = checkNotNull(rotation);
+            return self();
+        }
+
+        public T stepSize(Callback<? super GenericMovementAction, Double> speedFunction) {
+            this.speed = checkNotNull(speedFunction);
+            return self();
+        }
     }
 }

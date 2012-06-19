@@ -13,6 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 12:13
  */
 public class GreyfishExpressionCallback<C, T> implements Callback<C, T> {
+
     @Element
     private final GreyfishExpression expression;
 
@@ -25,11 +26,19 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T> {
     }
 
     @Override
-    public T apply(C caller, Map<String, ?> localVariables) {
-        return expression.evaluateForContext(caller, localVariables).as(returnType);
+    public T apply(C caller, Map<String, ?> arguments) {
+        return expression.evaluateForContext(caller, arguments).as(returnType);
     }
 
     public static <C, T> GreyfishExpressionCallback<C, T> create(GreyfishExpression expression, Class<T> returnType) {
         return new GreyfishExpressionCallback<C, T>(expression, returnType);
+    }
+
+    public GreyfishExpression getExpression() {
+        return expression;
+    }
+
+    public Class<T> getReturnType() {
+        return returnType;
     }
 }

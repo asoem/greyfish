@@ -53,8 +53,8 @@ public class ResourceInteractionTest {
                 .requestAmount(Callbacks.constant(1.0))
                 .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
                     @Override
-                    public Void apply(ResourceConsumptionAction caller, Map<String, ?> localVariables) {
-                        caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) localVariables.get("offer") * 2);
+                    public Void apply(ResourceConsumptionAction caller, Map<String, ?> arguments) {
+                        caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) arguments.get("offer") * 2);
                         return null;
                     }
                 })

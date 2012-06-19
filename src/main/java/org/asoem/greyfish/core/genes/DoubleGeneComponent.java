@@ -163,7 +163,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
         private Callback<? super DoubleGeneComponent, Double> mutation;
         private Callback<? super DoubleGeneComponent, Product2<Double, Double>> recombination;
 
-        public T initialValue(Callback<? super DoubleGeneComponent, Double> expression) {
+        public T initialAllele(Callback<? super DoubleGeneComponent, Double> expression) {
             this.initialValue = checkNotNull(expression);
             return self();
         }

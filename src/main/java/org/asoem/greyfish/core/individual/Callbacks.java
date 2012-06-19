@@ -28,7 +28,7 @@ public class Callbacks {
         INSTANCE;
 
         @Override
-        public Void apply(Object caller, Map<String, ?> localVariables) {
+        public Void apply(Object caller, Map<String, ?> arguments) {
             return null;
         }
     }
@@ -42,7 +42,7 @@ public class Callbacks {
         }
 
         @Override
-        public T apply(Object caller, Map<String, ?> localVariables) {
+        public T apply(Object caller, Map<String, ?> arguments) {
             return value;
         }
 

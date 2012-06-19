@@ -45,7 +45,7 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
     public Iterable<Class<? extends GFCondition>> getAvailableConditionClasses() {
         return findClasses(GFCondition.class, "conditions");
     }
-    
+
     private <T extends AgentComponent> Iterable<Class<? extends T>> findClasses(final Class<T> clazz, final String classGroupName) {
         try {
             Iterable<Class<?>> classes = ClassFinder.getInstance().getAll(clazz.getPackage().getName());

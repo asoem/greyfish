@@ -32,7 +32,7 @@ public class DoubleGeneTest {
         // given
         final DoubleGeneComponent doubleGene = DoubleGeneComponent.builder()
                 .name("test")
-                .initialValue(constant(1.0))
+                .initialAllele(constant(1.0))
                 .mutation(constant(1.0))
                 .build();
 
