@@ -2,8 +2,8 @@ apply plugin: 'java'
 sourceCompatibility = 1.6
 
 apply plugin: 'maven'
-group="org.asoem"
-version="0.2.0"
+group = "org.asoem"
+version = "0.2.0"
 
 
 apply plugin: 'application'
@@ -39,8 +39,8 @@ dependencies {
             'commons-cli:commons-cli:1.2'
 
 
-    compile (
-            [group: 'com.google.guava', name: 'guava', version: '11.0.2', transitive: true],
+    compile(
+            [group: 'com.google.guava', name: 'guava', version: '12.0', transitive: true],
             [group: 'com.google.inject', name: 'guice', version: '3.0', transitive: true],
             [group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1', transitive: true],
             [group: 'jfree', name: 'jfreechart', version: '1.0.13', transitive: true],
@@ -60,17 +60,17 @@ String jgoodies_dependency(String name, String version) {
 
     File libraryFile = new File('lib/' + libFileName.toString());
 
-    if (! libraryFile.exists()) {
+    if (!libraryFile.exists()) {
         String remoteZipUrl = "http://www.jgoodies.com/download/libraries/${name}/jgoodies-${name}-${version.replaceAll(/\./, '_')}.zip"
         //noinspection GroovyAssignabilityCheck
         File localTempZipFile = new File(rootDir, "jgoodies-${name}-${version}.zip".toString())
 
-        if (! localTempZipFile.exists() ) {
+        if (!localTempZipFile.exists()) {
             logger.debug "Downloading ${remoteZipUrl} to ${localTempZipFile.getAbsolutePath()}"
             ant.get(src: remoteZipUrl, dest: localTempZipFile.getPath())
         }
 
-        assert localTempZipFile.exists() : "Could not download ${remoteZipUrl} to ${localTempZipFile.getAbsolutePath()}"
+        assert localTempZipFile.exists(): "Could not download ${remoteZipUrl} to ${localTempZipFile.getAbsolutePath()}"
 
         File dir = new File("lib")
         if (!dir.isDirectory()) {
@@ -79,7 +79,7 @@ String jgoodies_dependency(String name, String version) {
 
         logger.debug "Copying all jars in ${localTempZipFile} to './lib'"
         copy {
-            from zipTree(localTempZipFile).matching{ include '**/*.jar' }.getFiles()
+            from zipTree(localTempZipFile).matching { include '**/*.jar' }.getFiles()
             into 'lib'
         }
 

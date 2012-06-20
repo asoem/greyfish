@@ -1,11 +1,10 @@
 package org.asoem.greyfish.scenarios;
 
-import com.google.common.base.Function;
 import com.google.inject.Provider;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.*;
 import org.asoem.greyfish.core.conditions.AllCondition;
-import org.asoem.greyfish.core.conditions.FunctionCondition;
+import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponent;
@@ -21,7 +20,6 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -77,18 +75,18 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                 .addProperties(
                         DynamicProperty.<Double>builder()
                                 .name("resource")
-                                .function(new Function<DynamicProperty<Double>, Double>() {
+                                .function(new Callback<DynamicProperty<Double>, Double>() {
                                     @Override
-                                    public Double apply(DynamicProperty<Double> property) {
-                                        return 10000 - property.agent().getAction("give", ResourceProvisionAction.class).getProvidedAmount();
+                                    public Double apply(DynamicProperty<Double> caller, Map<String, ?> arguments) {
+                                        return 10000 - caller.agent().getAction("give", ResourceProvisionAction.class).getProvidedAmount();
                                     }
                                 })
                                 .build(),
                         ConstantProperty.builder()
                                 .name("resource_classification")
-                                .function(new Function<ConstantProperty<Object>, Object>() {
+                                .callback(new Callback<ConstantProperty<Object>, Object>() {
                                     @Override
-                                    public Object apply(@Nullable ConstantProperty<Object> objectConstantProperty) {
+                                    public Object apply(ConstantProperty<Object> objectConstantProperty, Map<String, ?> arguments) {
                                         return RandomUtils.sample(0.1, 0.9);
                                     }
                                 })
@@ -101,10 +99,10 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                 .addActions(
                         DeathAction.with()
                                 .name("die")
-                                .executesIf(FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                .executesIf(GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                     @Override
-                                    public Boolean apply(FunctionCondition functionCondition) {
-                                        return (Double) functionCondition.agent().getProperty("energy2", DynamicProperty.class).getValue() < 1.0;
+                                    public Boolean apply(GenericCondition genericCondition, Map<String, ?> arguments) {
+                                        return (Double) genericCondition.agent().getProperty("energy2", DynamicProperty.class).getValue() < 1.0;
                                     }
                                 }))
                                 .build(),
@@ -118,27 +116,27 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                     }
                                 })
                                 .executesIf(AllCondition.evaluates(
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("FEMALE");
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getAction("receive", MatingReceiverAction.class).getMatingCount() > 0;
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getAction("reproduce", SexualReproductionAction.class).stepsSinceLastExecution() >= 10;
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return (Double) condition.agent().getProperty("energy2", DynamicProperty.class).getValue() >= 30.0;
                                             }
                                         })))
@@ -154,27 +152,27 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .name("fertilize")
                                 .ontology("mate")
                                 .executesIf(AllCondition.evaluates(
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("MALE");
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getAge() >= 300;
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getAction("fertilize", MatingTransmitterAction.class).getMatingCount() == 0;
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return (Double) condition.agent().getProperty("energy2", DynamicProperty.class).getValue() >= 1.0;
                                             }
                                         })))
@@ -203,27 +201,27 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                     }
                                 })
                                 .executesIf(AllCondition.evaluates(
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getGene("gender", MarkovGeneComponent.class).getAllele().equals("FEMALE");
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getAge() >= 300;
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return condition.agent().getAction("receive", MatingReceiverAction.class).getMatingCount() == 0;
                                             }
                                         }),
-                                        FunctionCondition.evaluate(new Function<FunctionCondition, Boolean>() {
+                                        GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(FunctionCondition condition) {
+                                            public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
                                                 return (Double) condition.agent().getProperty("energy2", DynamicProperty.class).getValue() >= 1.0;
                                             }
                                         })))
@@ -326,9 +324,9 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                 .build(),
                         DynamicProperty.<Double>builder()
                                 .name("energy2")
-                                .function(new Function<DynamicProperty<Double>, Double>() {
+                                .function(new Callback<DynamicProperty<Double>, Double>() {
                                     @Override
-                                    public Double apply(DynamicProperty<Double> property) {
+                                    public Double apply(DynamicProperty<Double> property, Map<String, ?> arguments) {
                                         return property.agent().getProperty("energy", DoubleProperty.class).getValue()
                                                 - property.agent().getAge();
                                     }

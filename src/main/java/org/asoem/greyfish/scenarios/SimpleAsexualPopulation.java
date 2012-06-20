@@ -5,6 +5,7 @@ import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.ClonalReproductionAction;
 import org.asoem.greyfish.core.actions.DeathAction;
 import org.asoem.greyfish.core.conditions.AllCondition;
+import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.BasicScenario;
@@ -15,7 +16,6 @@ import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
 import java.util.Map;
 
-import static org.asoem.greyfish.core.conditions.GreyfishExpressionCondition.evaluate;
 import static org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder.compile;
 import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
 
@@ -34,12 +34,12 @@ public class SimpleAsexualPopulation implements Provider<Scenario> {
                                 .name("clone")
                                 .nClones(compile("1"))
                                 .executesIf(AllCondition.evaluates(
-                                        evaluate(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0")),
-                                        evaluate(compile("$('#clone.stepsSinceLastExecution') >= 10"))))
+                                        GenericCondition.evaluate(new GreyfishExpressionCallback<GenericCondition, Boolean>(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0"), Boolean.class)),
+                                        GenericCondition.evaluate(new GreyfishExpressionCallback<GenericCondition, Boolean>(compile("$('#clone.stepsSinceLastExecution') >= 10"), Boolean.class))))
                                 .build(),
                         DeathAction.with()
                                 .name("die")
-                                .executesIf(evaluate(compile("$('this.agent.age') >= 100")))
+                                .executesIf(GenericCondition.evaluate(new GreyfishExpressionCallback<GenericCondition, Boolean>(compile("$('this.agent.age') >= 100"), Boolean.class)))
                                 .build())
                 .addGenes(
                         DoubleGeneComponent.builder()
