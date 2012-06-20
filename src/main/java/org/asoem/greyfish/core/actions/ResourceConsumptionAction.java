@@ -3,11 +3,11 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.individual.Callbacks;
@@ -25,20 +25,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.core.individual.Callbacks.call;
 
-@ClassGroup(tags="actions")
+@ClassGroup(tags = "actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceConsumptionAction.class);
-    @Element(name="ontology", required=false)
+
+    @Element(name = "ontology", required = false)
     private String ontology;
 
-    @Element(name="interactionRadius")
+    @Element(name = "interactionRadius")
     private Callback<? super ResourceConsumptionAction, Double> interactionRadius;
 
-    @Element(name="requestAmount", required=false)
+    @Element(name = "requestAmount", required = false)
     protected Callback<? super ResourceConsumptionAction, Double> requestAmount;
 
-    @Element(name="uptakeUtilization", required = false)
+    @Element(name = "uptakeUtilization", required = false)
     protected Callback<? super ResourceConsumptionAction, Void> uptakeUtilization;
 
     private Iterable<Agent> sensedMates = ImmutableList.of();
@@ -90,7 +91,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     @Override
     protected boolean canInitiate(Simulation simulation) {
         sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
-        return ! isEmpty(sensedMates);
+        return !isEmpty(sensedMates);
     }
 
     @Override
@@ -107,9 +108,12 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
-        e.add("Sensor Range", TypedValueModels.forField("interactionRadius", this, GreyfishExpression.class));
-        e.add("Requested Amount", TypedValueModels.forField("requestAmount", this, GreyfishExpression.class));
-        e.add("Uptake Utilization", TypedValueModels.forField("uptakeUtilization", this, GreyfishExpression.class));
+        e.add("Sensor Range", TypedValueModels.forField("interactionRadius", this, new TypeToken<Callback<? super ResourceConsumptionAction, Double>>() {
+        }));
+        e.add("Requested Amount", TypedValueModels.forField("requestAmount", this, new TypeToken<Callback<? super ResourceConsumptionAction, Double>>() {
+        }));
+        e.add("Uptake Utilization", TypedValueModels.forField("uptakeUtilization", this, new TypeToken<Callback<? super ResourceConsumptionAction, Void>>() {
+        }));
     }
 
     @Override
@@ -126,7 +130,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.classification = cloneable.classification;
     }
 
-    protected ResourceConsumptionAction(AbstractBuilder<?,?> builder) {
+    protected ResourceConsumptionAction(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.requestAmount = builder.requestAmount;
@@ -135,7 +139,9 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.classification = builder.classification;
     }
 
-    public static Builder with() { return new Builder(); }
+    public static Builder with() {
+        return new Builder();
+    }
 
     public Callback<? super ResourceConsumptionAction, Double> getInteractionRadius() {
         return interactionRadius;
@@ -150,8 +156,13 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     public static final class Builder extends AbstractBuilder<ResourceConsumptionAction, Builder> {
-        @Override protected Builder self() { return this; }
-        @Override protected ResourceConsumptionAction checkedBuild() {
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected ResourceConsumptionAction checkedBuild() {
             return new ResourceConsumptionAction(this);
         }
     }
@@ -165,11 +176,30 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         private Callback<? super ResourceConsumptionAction, Void> uptakeUtilization = Callbacks.emptyCallback();
         private Callback<? super ResourceConsumptionAction, ?> classification = Callbacks.constant(0.42);
 
-        public T ontology(String parameterMessageType) { this.ontology = checkNotNull(parameterMessageType); return self(); }
-        public T requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) { this.requestAmount = amountPerRequest; return self(); }
-        public T interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) { this.interactionRadius = sensorRange; return self(); }
-        public T uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) { this.uptakeUtilization = checkNotNull(uptakeUtilization); return self(); }
-        public T classification(Callback<? super ResourceConsumptionAction, Object> classification) { this.classification = checkNotNull(classification); return self(); }
+        public T ontology(String parameterMessageType) {
+            this.ontology = checkNotNull(parameterMessageType);
+            return self();
+        }
+
+        public T requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) {
+            this.requestAmount = amountPerRequest;
+            return self();
+        }
+
+        public T interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) {
+            this.interactionRadius = sensorRange;
+            return self();
+        }
+
+        public T uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) {
+            this.uptakeUtilization = checkNotNull(uptakeUtilization);
+            return self();
+        }
+
+        public T classification(Callback<? super ResourceConsumptionAction, Object> classification) {
+            this.classification = checkNotNull(classification);
+            return self();
+        }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

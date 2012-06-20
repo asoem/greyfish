@@ -3,14 +3,13 @@ package org.asoem.greyfish.core.actions;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * User: christoph
@@ -32,7 +31,7 @@ public class ResourceProvisionActionTest {
         // given
         final ResourceProvisionAction action = ResourceProvisionAction.with()
                 .ontology("foo")
-                .provides(mock(Callback.class))
+                .provides(Callbacks.constant(42.0))
                 .build();
 
         // when

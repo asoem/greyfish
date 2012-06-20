@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.reflect.TypeToken;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -67,8 +67,10 @@ public class GenericMovementAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Step Size", TypedValueModels.forField("stepSize", this, GreyfishExpression.class));
-        e.add("Turning Angle", TypedValueModels.forField("turningAngle", this, GreyfishExpression.class));
+        e.add("Step Size", TypedValueModels.forField("stepSize", this, new TypeToken<Callback<? super GenericMovementAction, Double>>() {
+        }));
+        e.add("Turning Angle", TypedValueModels.forField("turningAngle", this, new TypeToken<Callback<? super GenericMovementAction, Double>>() {
+        }));
     }
 
     @Override

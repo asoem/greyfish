@@ -1,10 +1,14 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.reflect.TypeToken;
+import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -15,17 +19,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ConstantProperty<T> extends AbstractGFProperty<T> {
 
-    private Function<? super ConstantProperty<T>, ? extends T> function;
+    private Callback<? super ConstantProperty<T>, T> callback;
     private Supplier<T> value;
 
     public ConstantProperty(ConstantProperty<T> functionProperty, DeepCloner cloner) {
         super(functionProperty, cloner);
-        this.function = functionProperty.function;
+        this.callback = functionProperty.callback;
     }
 
     public ConstantProperty(AbstractFunctionPropertyBuilder<T, ? extends ConstantProperty<T>, ? extends FunctionPropertyBuilder> builder) {
         super(builder);
-        this.function = builder.function;
+        this.callback = builder.callback;
     }
 
     @Override
@@ -41,10 +45,17 @@ public class ConstantProperty<T> extends AbstractGFProperty<T> {
         value = new Supplier<T>() {
             @Override
             public T get() {
-                value = Suppliers.ofInstance(function.apply(ConstantProperty.this));
+                value = Suppliers.ofInstance(Callbacks.call(callback, ConstantProperty.this));
                 return value.get();
             }
         };
+    }
+
+    @Override
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
+        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super ConstantProperty<T>, T>>() {
+        }));
     }
 
     @Override
@@ -69,9 +80,12 @@ public class ConstantProperty<T> extends AbstractGFProperty<T> {
         }
     }
 
-    private abstract static class AbstractFunctionPropertyBuilder<T, P extends ConstantProperty<T>, B extends AbstractFunctionPropertyBuilder<T,P,B>> extends AbstractBuilder<P, B> {
-        public Function<? super ConstantProperty<T>, ? extends T> function;
+    private abstract static class AbstractFunctionPropertyBuilder<T, P extends ConstantProperty<T>, B extends AbstractFunctionPropertyBuilder<T, P, B>> extends AbstractBuilder<P, B> {
+        public Callback<? super ConstantProperty<T>, T> callback;
 
-        public B function(Function<? super ConstantProperty<T>, ? extends T> function) {this.function = checkNotNull(function); return self(); }
+        public B callback(Callback<? super ConstantProperty<T>, T> callback) {
+            this.callback = checkNotNull(callback);
+            return self();
+        }
     }
 }

@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.ImmutableMap;
+import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
  * Time: 16:13
  */
 public class Callbacks {
+
     public static <T> Callback<Object, T> constant(final T returnValue) {
         return new ConstantCallback<T>(returnValue);
     }
@@ -34,10 +36,12 @@ public class Callbacks {
     }
 
     private static class ConstantCallback<T> implements Callback<Object, T> {
-        @Nullable
-        private T value;
 
-        public ConstantCallback(T returnValue) {
+        @Element(name = "value", required = false)
+        @Nullable
+        private final T value;
+
+        public ConstantCallback(@Element(name = "value", required = false) T returnValue) {
             this.value = returnValue;
         }
 

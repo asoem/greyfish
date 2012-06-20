@@ -4,8 +4,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Callback;
@@ -129,8 +129,10 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, GreyfishExpression.class));
-
+        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermList", this, new TypeToken<Callback<? super SexualReproductionAction, List<? extends Chromosome>>>() {
+        }));
+        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, new TypeToken<Callback<? super SexualReproductionAction, Integer>>() {
+        }));
         e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
 
             @Override

@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.actions;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.individual.GreyfishExpressionCallback;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -25,14 +26,15 @@ public class MatingTransmitterActionTest {
     public MatingTransmitterActionTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
-    
+
     @Test
     public void testPersistence() throws Exception {
         // given
+        final GreyfishExpressionCallback<MatingTransmitterAction, Double> matingProbability =
+                new GreyfishExpressionCallback<MatingTransmitterAction, Double>(expressionFactory.compile("0.42"), Double.class);
         final MatingTransmitterAction action = MatingTransmitterAction.with()
                 .ontology("foo")
-                .matingProbability(expressionFactory.compile("0.42"))
-                .spermFitness(expressionFactory.compile("0.42"))
+                .matingProbability(matingProbability)
                 .build();
 
         // when
@@ -40,7 +42,6 @@ public class MatingTransmitterActionTest {
 
         // then
         assertThat(copy.getOntology()).isEqualTo("foo");
-        assertThat(copy.getMatingProbability().getExpression()).isEqualTo("0.42");
-        assertThat(copy.getSpermFitness().getExpression()).isEqualTo("0.42");
+        assertThat(copy.getMatingProbability()).isEqualTo(matingProbability);
     }
 }
