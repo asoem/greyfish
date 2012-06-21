@@ -40,7 +40,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     private final WalledTile[][] tileMatrix;
 
-    private final SelfUpdatingTree tree = new SelfUpdatingTree<T>(AsoemScalaTwoDimTree.<T>newInstance(), new Supplier<Iterable<? extends T>>() {
+    private final SelfUpdatingTree<T> tree = new SelfUpdatingTree<T>(AsoemScalaTwoDimTree.<T>newInstance(), new Supplier<Iterable<? extends T>>() {
         @Override
         public Iterable<? extends T> get() {
             return projectables;
@@ -101,8 +101,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     public TiledSpace(TiledSpaceBuilder<T> builder) {
         this(builder.width, builder.height);
-        for (TiledSpaceBuilder.TileBorderDefinition borderDefinition : builder.borderDefinitions) {
-            getTileAt(borderDefinition.x, borderDefinition.y).setBorder(borderDefinition.direction, true);
+        for (TiledSpaceBuilder.BorderDefinition borderDefinition : builder.borderDefinitions) {
+            borderDefinition.apply(this);
         }
     }
 
@@ -201,15 +201,15 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
      * @return The point of the first collision, or {@code destination} if none occurs
      */
     public Location2D maxTransition(Location2D origin, Location2D destination) {
-        final WalledTile tileAtOrigin = getTileAt(origin);
-
-        if (tileAtOrigin.covers(destination))
-            return destination;
-
-        final Location2D collision = collision(tileAtOrigin, origin.getX(), origin.getY(), destination.getX(), destination.getY());
-        assert collision == null || contains(collision) : "Calculated maxTransition from " + origin + " to " + destination + " is " + collision + ", which not contained by this space " + this;
-
+        final Location2D collision = collision(origin.getX(), origin.getY(), destination.getX(), destination.getY());
+        assert collision == null || contains(collision) :
+                "Calculated maxTransition from " + origin + " to " + destination + " is " + collision + ", which not contained by this space " + this;
         return collision != null ? collision : destination;
+    }
+
+    @Nullable
+    private Location2D collision(double x, double y, double x1, double y1) {
+        return collision(getTileAt(x, y), x, y, x1, y1);
     }
 
     /**
@@ -333,8 +333,27 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         return tree.findObjects(point, range);
     }
 
+    public Iterable<T> getVisibleNeighbours(final T agent, double range) {
+        return Iterables.filter(findObjects(agent.getProjection(), range), new Predicate<T>() {
+            @Override
+            public boolean apply(T t) {
+                if (t.equals(agent))
+                    return false;
+
+                final Object2D neighborProjection = t.getProjection();
+                assert neighborProjection != null;
+                final Object2D agentProjection = agent.getProjection();
+                assert agentProjection != null;
+                return collision(agentProjection.getX(), agentProjection.getY(),
+                        neighborProjection.getX(), neighborProjection.getY()) == null;
+            }
+        });
+    }
+
     public Iterable<T> getNeighbours(T agent, double radius) {
-        return Iterables.filter(findObjects(agent.getProjection(), radius), Predicates.not(Predicates.<Projectable<? extends Object2D>>equalTo(agent)));
+        return Iterables.filter(
+                findObjects(agent.getProjection(), radius),
+                Predicates.not(Predicates.<Projectable<? extends Object2D>>equalTo(agent)));
     }
 
     @Override
@@ -487,7 +506,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
         private final int width;
         private final int height;
-        private final List<TiledSpaceBuilder.TileBorderDefinition> borderDefinitions = Lists.newArrayList();
+        private final List<BorderDefinition> borderDefinitions = Lists.newArrayList();
 
         public TiledSpaceBuilder(int width, int height) {
 
@@ -495,10 +514,49 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             this.height = height;
         }
 
-        public TiledSpaceBuilder<T> addBorder(int x, int y, TileDirection direction) {
+        public TiledSpaceBuilder<T> addBorder(final int x, final int y, final TileDirection direction) {
             checkArgument(x >= 0 && x < width && y >= 0 && y < height);
             checkNotNull(direction);
-            borderDefinitions.add(new TileBorderDefinition(x, y, direction));
+            borderDefinitions.add(new BorderDefinition() {
+                @Override
+                public void apply(TiledSpace<?> space) {
+                    space.getTileAt(x, y).setBorder(direction, true);
+                }
+            });
+            return this;
+        }
+
+        public TiledSpaceBuilder<T> addBordersVertical(final int x, final int y1, final int y2, final TileDirection direction) {
+            checkArgument(x >= 0 && x < width);
+            checkArgument(y1 >= 0 && y1 < height);
+            checkArgument(y2 >= 0 && y2 < height);
+            checkNotNull(direction);
+
+            borderDefinitions.add(new BorderDefinition() {
+                @Override
+                public void apply(TiledSpace<?> space) {
+                    for (int i = y1; i <= y2; i++) {
+                        space.getTileAt(x, i).setBorder(direction, true);
+                    }
+                }
+            });
+            return this;
+        }
+
+        public TiledSpaceBuilder<T> addBordersHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
+            checkArgument(x1 >= 0 && x1 < width);
+            checkArgument(x2 >= 0 && x2 < width);
+            checkArgument(y >= 0 && y < height);
+            checkNotNull(direction);
+
+            borderDefinitions.add(new BorderDefinition() {
+                @Override
+                public void apply(TiledSpace<?> space) {
+                    for (int i = x1; i <= x2; i++) {
+                        space.getTileAt(i, y).setBorder(direction, true);
+                    }
+                }
+            });
             return this;
         }
 
@@ -507,16 +565,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             return new TiledSpace<T>(this);
         }
 
-        public class TileBorderDefinition {
-            private final int x;
-            private final int y;
-            private final TileDirection direction;
-
-            public TileBorderDefinition(int x, int y, TileDirection direction) {
-                this.x = x;
-                this.y = y;
-                this.direction = direction;
-            }
+        private static interface BorderDefinition {
+            void apply(TiledSpace<?> space);
         }
     }
 

@@ -14,6 +14,7 @@ import org.asoem.greyfish.core.genes.MarkovGeneComponent;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
+import org.asoem.greyfish.core.space.TileDirection;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
@@ -37,24 +38,29 @@ public class SexualSpeciation implements Provider<Scenario> {
 
     @Inject(optional = true)
     @ScenarioParameter("width")
-    private String width = "10";
+    private String widthStr = "10";
     @Inject(optional = true)
     @ScenarioParameter("height")
-    private String height = "10";
+    private String heightStr = "10";
     @Inject(optional = true)
     @ScenarioParameter("variance")
     private String variance = "0.01";
 
     @Override
     public Scenario get() {
-        final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(Integer.valueOf(width), Integer.valueOf(height)).build();
+        final int width = Integer.valueOf(this.widthStr);
+        final Integer height = Integer.valueOf(heightStr);
+        final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(width, height)
+                .addBordersHorizontal(0, width - 1, height / 2, TileDirection.NORTH)
+                .build();
+
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
 
         final Agent prototype = createConsumerPrototype();
         for (int i = 0; i < 500; ++i) {
             final ImmutableObject2D object2D = ImmutableObject2D.of(
-                    nextDouble(Integer.valueOf(width)),
-                    nextDouble(Integer.valueOf(height)),
+                    nextDouble(width),
+                    nextDouble(height),
                     nextDouble(MathLib.PI));
             scenarioBuilder.addAgent(new Avatar(prototype), object2D);
         }

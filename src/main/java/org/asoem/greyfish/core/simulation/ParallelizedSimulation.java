@@ -183,7 +183,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Iterable<Agent> findNeighbours(Agent agent, double radius) {
-        return Iterables.filter(space.getNeighbours(agent, radius), Agent.class);
+        return Iterables.filter(space.getVisibleNeighbours(agent, radius), Agent.class);
     }
 
     @Override
