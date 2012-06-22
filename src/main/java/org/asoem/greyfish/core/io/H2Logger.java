@@ -24,6 +24,7 @@ public class H2Logger implements SimulationLogger {
     private final KeyedObjectPool<String, PreparedStatement> statementPool;
 
     private int event_commit_counter = 0;
+    private String insertNameIfNotExistsQuery = "SET @name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @name)";
 
     @Inject
     private H2Logger(@Assisted Simulation simulation) {
@@ -32,21 +33,22 @@ public class H2Logger implements SimulationLogger {
             connection = DriverManager.getConnection("jdbc:h2:~/greyfish-data/" + simulation.getUUID().toString(), "sa", "");
 
             connection.createStatement().execute(
-                    "CREATE TABLE agents (id int NOT NULL PRIMARY KEY, population VARCHAR(255) NOT NULL, activated_at int NOT NULL, created_at TIMESTAMP NOT NULL)");
+                    "CREATE TABLE agents (id INT NOT NULL PRIMARY KEY, population_name_id INT NOT NULL, activated_at INT NOT NULL, created_at TIMESTAMP NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE chromosome_tree (id int NOT NULL, parent_id int NOT NULL)"
+                    "CREATE TABLE chromosome_tree (id INT NOT NULL, parent_id INT NOT NULL)"
             );
             connection.createStatement().execute(
-                    "CREATE TABLE genes_double (agent_id int NOT NULL, name VARCHAR(80) NOT NULL, value DOUBLE NOT NULL)");
+                    "CREATE TABLE names (id int NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) UNIQUE NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE genes_string (agent_id int NOT NULL, name VARCHAR(80) NOT NULL, value VARCHAR(255) NOT NULL)");
+                    "CREATE TABLE genes_double (agent_id INT NOT NULL, gene_name_id INT NOT NULL, value DOUBLE NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE agent_events (id int NOT NULL PRIMARY KEY, created_at TIMESTAMP NOT NULL, simulation_step int NOT NULL, agent_id int NOT NULL, source VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, message VARCHAR(255) NOT NULL)");
+                    "CREATE TABLE genes_string (agent_id INT NOT NULL, gene_name_id INT NOT NULL, value VARCHAR(255) NOT NULL)");
+            connection.createStatement().execute(
+                    "CREATE TABLE agent_events (id INT NOT NULL PRIMARY KEY, created_at TIMESTAMP NOT NULL, simulation_step int NOT NULL, agent_id INT NOT NULL, source_name_id INT NOT NULL, title_name_id INT NOT NULL, message VARCHAR(255) NOT NULL)");
 
             connection.setAutoCommit(false);
 
         } catch (SQLException e) {
-            close();
             throw new IOError(e);
         } catch (ClassNotFoundException e) {
             throw new AssertionError("The H2 db library seems not to be loaded");
@@ -77,7 +79,11 @@ public class H2Logger implements SimulationLogger {
     @Override
     public void addAgent(Agent agent) {
         try {
-            final String insertAgentQuery = "INSERT INTO agents (id, population, activated_at, created_at) VALUES (?, ?, ?, ?)";
+            final PreparedStatement insertNameIfNotExistsStatement = borrowStatement(insertNameIfNotExistsQuery);
+            insertNameIfNotExistsStatement.setString(1, agent.getPopulation().getName());
+            insertNameIfNotExistsStatement.execute();
+
+            final String insertAgentQuery = "INSERT INTO agents (id, population_name_id, activated_at, created_at) VALUES (?, (SELECT id FROM names WHERE name = ?), ?, ?);";
             final PreparedStatement insertAgentStatement = borrowStatement(insertAgentQuery);
             insertAgentStatement.setInt(1, agent.getId());
             insertAgentStatement.setString(2, agent.getPopulation().getName());
@@ -95,13 +101,17 @@ public class H2Logger implements SimulationLogger {
             }
             returnStatement(insertChromosomeQuery, insertChromosomeStatement);
 
-            final String insertGeneAsDoubleQuery = "INSERT INTO genes_double (agent_id, name, value) VALUES (?, ?, ?)";
+
+            final String insertGeneAsDoubleQuery = "INSERT INTO genes_double (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = ?), ?)";
             final PreparedStatement insertGeneAsDoubleStatement = borrowStatement(insertGeneAsDoubleQuery);
-            final String insertGeneAsStringQuery = "INSERT INTO genes_string (agent_id, name, value) VALUES (?, ?, ?)";
+            final String insertGeneAsStringQuery = "INSERT INTO genes_string (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = ?), ?)";
             final PreparedStatement insertGeneAsStringStatement = borrowStatement(insertGeneAsStringQuery);
 
             for (GeneComponent<?> gene : agent.getGeneComponentList()) {
                 assert gene != null;
+
+                insertNameIfNotExistsStatement.setString(1, gene.getName());
+                insertNameIfNotExistsStatement.execute();
 
                 if (Double.class.equals(gene.getSupplierClass())) {
                     insertGeneAsDoubleStatement.setInt(1, agent.getId());
@@ -117,6 +127,7 @@ public class H2Logger implements SimulationLogger {
                 }
             }
 
+            returnStatement(insertNameIfNotExistsQuery, insertNameIfNotExistsStatement);
             returnStatement(insertGeneAsDoubleQuery, insertGeneAsDoubleStatement);
             returnStatement(insertGeneAsStringQuery, insertGeneAsStringStatement);
 
@@ -148,7 +159,13 @@ public class H2Logger implements SimulationLogger {
     @Override
     public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         try {
-            final String insertEventQuery = "INSERT INTO agent_events (id, created_at, simulation_step, agent_id, source, title, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            final PreparedStatement insertNameIfNotExistsStatement = borrowStatement(insertNameIfNotExistsQuery);
+            insertNameIfNotExistsStatement.setString(1, source);
+            insertNameIfNotExistsStatement.execute();
+            insertNameIfNotExistsStatement.setString(1, title);
+            insertNameIfNotExistsStatement.execute();
+
+            final String insertEventQuery = "INSERT INTO agent_events (id, created_at, simulation_step, agent_id, source_name_id, title_name_id, message) VALUES (?, ?, ?, ?, (SELECT id FROM names WHERE name = ?), (SELECT id FROM names WHERE name = ?), ?)";
             final PreparedStatement insertEventStatement = borrowStatement(insertEventQuery);
             insertEventStatement.setInt(1, eventId);
             insertEventStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
@@ -163,6 +180,7 @@ public class H2Logger implements SimulationLogger {
 
             insertEventStatement.execute();
 
+            returnStatement(insertNameIfNotExistsQuery, insertNameIfNotExistsStatement);
             returnStatement(insertEventQuery, insertEventStatement);
         } catch (SQLException e) {
             throw new IOError(e);

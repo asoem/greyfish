@@ -32,17 +32,17 @@ public class ParallelizedSimulationTest {
     public ParallelizedSimulationTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void newSimulationTest() {
         // given
-        
+
         final Population population = mock(Population.class);
         given(population.getName()).willReturn("TestPopulation");
 
         final Agent prototype = ImmutableAgent.of(population).build();
-        
+
         final TiledSpace<Agent> tiledSpace = mock(TiledSpace.class);
         given(tiledSpace.contains(any(Location2D.class))).willReturn(true);
         given(tiledSpace.getObjects()).willReturn(ImmutableList.of(prototype, prototype));
@@ -58,7 +58,7 @@ public class ParallelizedSimulationTest {
     public void testBasicPersistence() throws Exception {
         // given
         final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1)
-                .addBorder(0,0, TileDirection.NORTH)
+                .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicScenario scenario = BasicScenario.builder("TestScenario", space).build();
         final ParallelizedSimulation simulation = ParallelizedSimulation.newSimulation(scenario);

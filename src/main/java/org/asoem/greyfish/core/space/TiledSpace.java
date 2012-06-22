@@ -25,7 +25,7 @@ import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
 
 /**
  * @author christoph
- * This class is used to handle a 2D space implemented as a Matrix of Locations.
+ *         This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
 public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, Tiled<WalledTile> {
 
@@ -51,7 +51,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             assert t != null;
             return t.getProjection();
         }
-    });
+    }
+    );
 
     public TiledSpace(TiledSpace pSpace) {
         this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
@@ -91,7 +92,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
     /**
      * Constructs a new {@code TiledSpace} which has the same layout (size and walls) as {@code space}
      * and filled with objects after transforming them using the given {@code function}
-     * @param space The template space
+     *
+     * @param space    The template space
      * @param function A function to the transform the objects in {@code space} into this space
      */
     public TiledSpace(TiledSpace<T> space, Function<T, T> function) {
@@ -101,8 +103,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     public TiledSpace(TiledSpaceBuilder<T> builder) {
         this(builder.width, builder.height);
-        for (TiledSpaceBuilder.BorderDefinition borderDefinition : builder.borderDefinitions) {
-            borderDefinition.apply(this);
+        for (TiledSpaceBuilder.WallDefinition wallDefinition : builder.wallDefinitions) {
+            wallDefinition.apply(this);
         }
     }
 
@@ -111,7 +113,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         return Iterables.toArray(Iterables.filter(getTiles(), new Predicate<WalledTile>() {
             @Override
             public boolean apply(WalledTile tileLocation) {
-                return checkNotNull(tileLocation).getBorderFlags() != 0;
+                return checkNotNull(tileLocation).getWallFlags() != 0;
             }
         }), WalledTile.class);
     }
@@ -119,7 +121,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
     private void setBorderedTiles(WalledTile[] tiles) {
         if (tiles != null) {
             for (WalledTile location : tiles)
-                getTileAt(location.getX(), location.getY()).setBorderFlags(location.getBorderFlags());
+                getTileAt(location.getX(), location.getY()).setWallFlags(location.getWallFlags());
         }
     }
 
@@ -153,7 +155,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     @Override
     public String toString() {
-        return "Tiled Space: dim="+width+"x"+height+"; oc="+Iterables.size(getObjects());
+        return "Tiled Space: dim=" + width + "x" + height + "; oc=" + Iterables.size(getObjects());
     }
 
     public WalledTile getTileAt(Location2D location2D) throws IndexOutOfBoundsException, IllegalArgumentException {
@@ -167,12 +169,10 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
     }
 
     /**
-     *
-     *
-     * @param agent the projectable to check for validity of the move operation.
+     * @param agent    the projectable to check for validity of the move operation.
      * @param motion2D the requested motion
      * @return A {@code MovementPlan} which can be used to check if the move will succeed and to execute the movement
-     * if it does so using {@link #executeMovement(org.asoem.greyfish.core.space.TiledSpace.MovementPlan)}
+     *         if it does so using {@link #executeMovement(org.asoem.greyfish.core.space.TiledSpace.MovementPlan)}
      * @throws IllegalArgumentException if the {@code object2D} is not managed by this {@code TiledSpace}
      */
     @SuppressWarnings("ConstantConditions")
@@ -181,7 +181,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         final Object2D currentProjection = agent.getProjection();
         checkNotNull(currentProjection, "Given projectable has no projection. Have you added it to this Space?", agent);
         checkNotNull(motion2D);
-        checkArgument(Math.abs(motion2D.getTranslation())  <= 1, "Translations > 1 are not supported", motion2D.getTranslation());
+        checkArgument(Math.abs(motion2D.getTranslation()) <= 1, "Translations > 1 are not supported", motion2D.getTranslation());
 
         final double newOrientation = ((currentProjection.getOrientationAngle() + motion2D.getRotation()) % TWO_PI + TWO_PI) % TWO_PI;
         final double translation = motion2D.getTranslation();
@@ -196,7 +196,8 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
      * So, if there is no wall between {@code origin} and {@code destination} that this method returns {@code destination}.
      * Otherwise it returns the first {@code Location2D} at which the line from {@code origin} to {@code destination}
      * intersects with a wall of any crossing tile.
-     * @param origin The origin of the transition
+     *
+     * @param origin      The origin of the transition
      * @param destination The destination of the transition
      * @return The point of the first collision, or {@code destination} if none occurs
      */
@@ -215,11 +216,12 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
     /**
      * Checks if the line {@code xo, yo, xd, yd} crosses an edge of the {@code tile} or any adjacent tile in the direction of movement which has a wall present.
      * If such a crossing is found, than the point closest to this crossing is returned, {@code null}, otherwise.
+     *
      * @param tile the tile to check for a collision
-     * @param xo Movement line x origin
-     * @param yo Movement line y origin
-     * @param xd Movement line x destination
-     * @param yd Movement line x destination
+     * @param xo   Movement line x origin
+     * @param yo   Movement line y origin
+     * @param xd   Movement line x destination
+     * @param yd   Movement line x destination
      * @return the location on the line closest to the point of a collision with a wall or {@code null} if none could be found
      */
     @Nullable
@@ -239,7 +241,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
                     xo, yo, xd, yd);
 
             if (intersection != null) {
-                if (tile.hasBorder(TileDirection.NORTH))
+                if (tile.hasWall(TileDirection.NORTH))
                     return intersection;
                 else
                     follow1 = TileDirection.NORTH;
@@ -253,10 +255,12 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
                     xo, yo, xd, yd);
 
             if (intersection != null) {
-                if (tile.hasBorder(TileDirection.EAST)) {
+                if (tile.hasWall(TileDirection.EAST)) {
                     return intersection;
+                } else {
+                    if (follow1 == null) follow1 = TileDirection.EAST;
+                    else follow2 = TileDirection.EAST;
                 }
-                else { if (follow1 == null) follow1 = TileDirection.EAST; else follow2 = TileDirection.EAST; }
             }
         }
 
@@ -267,9 +271,12 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
                     xo, yo, xd, yd);
 
             if (intersection != null) {
-                if (tile.hasBorder(TileDirection.SOUTH))
+                if (tile.hasWall(TileDirection.SOUTH))
                     return intersection;
-                else { if (follow1 == null) follow1 = TileDirection.SOUTH; else follow2 = TileDirection.SOUTH; }
+                else {
+                    if (follow1 == null) follow1 = TileDirection.SOUTH;
+                    else follow2 = TileDirection.SOUTH;
+                }
             }
         }
 
@@ -280,9 +287,12 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
                     xo, yo, xd, yd);
 
             if (intersection != null) {
-                if (tile.hasBorder(TileDirection.WEST))
+                if (tile.hasWall(TileDirection.WEST))
                     return intersection;
-                else { if (follow1 == null) follow1 = TileDirection.WEST; else follow2 = TileDirection.WEST; }
+                else {
+                    if (follow1 == null) follow1 = TileDirection.WEST;
+                    else follow2 = TileDirection.WEST;
+                }
             }
         }
 
@@ -306,6 +316,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     /**
      * Execute the {@code plan}. If the plan will result in a maxTransition, than subject of the {@code plan} will just get rotated, but not translated
+     *
      * @param plan the planed movement
      * @return the projection after the movement
      */
@@ -381,7 +392,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
     @Override
     public void addObject(T projectable, Object2D projection) {
-        checkArgument(this.contains(checkNotNull(projection)));
+        checkArgument(this.contains(checkNotNull(projection)), "Projection " + projection + " is not contained by this TiledSpace " + this);
         checkNotNull(projectable);
         synchronized (this) {
             projectables.add(projectable);
@@ -397,8 +408,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             if (projectables.remove(object)) {
                 tree.setOutdated();
                 return true;
-            }
-            else
+            } else
                 return false;
         }
     }
@@ -463,6 +473,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
     /**
      * Create a new {@code TiledSpace} which has the same dimensions and the same borders as the given {@code space},
      * but with no objects.
+     *
      * @param space The space to copy the information from
      * @return a new space
      */
@@ -506,7 +517,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
 
         private final int width;
         private final int height;
-        private final List<BorderDefinition> borderDefinitions = Lists.newArrayList();
+        private final List<WallDefinition> wallDefinitions = Lists.newArrayList();
 
         public TiledSpaceBuilder(int width, int height) {
 
@@ -514,46 +525,46 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             this.height = height;
         }
 
-        public TiledSpaceBuilder<T> addBorder(final int x, final int y, final TileDirection direction) {
+        public TiledSpaceBuilder<T> addWall(final int x, final int y, final TileDirection direction) {
             checkArgument(x >= 0 && x < width && y >= 0 && y < height);
             checkNotNull(direction);
-            borderDefinitions.add(new BorderDefinition() {
+            wallDefinitions.add(new WallDefinition() {
                 @Override
                 public void apply(TiledSpace<?> space) {
-                    space.getTileAt(x, y).setBorder(direction, true);
+                    space.setTileWall(x, y, direction, true);
                 }
             });
             return this;
         }
 
-        public TiledSpaceBuilder<T> addBordersVertical(final int x, final int y1, final int y2, final TileDirection direction) {
+        public TiledSpaceBuilder<T> addWallsVertical(final int x, final int y1, final int y2, final TileDirection direction) {
             checkArgument(x >= 0 && x < width);
             checkArgument(y1 >= 0 && y1 < height);
             checkArgument(y2 >= 0 && y2 < height);
             checkNotNull(direction);
 
-            borderDefinitions.add(new BorderDefinition() {
+            wallDefinitions.add(new WallDefinition() {
                 @Override
                 public void apply(TiledSpace<?> space) {
                     for (int i = y1; i <= y2; i++) {
-                        space.getTileAt(x, i).setBorder(direction, true);
+                        space.setTileWall(x, i, direction, true);
                     }
                 }
             });
             return this;
         }
 
-        public TiledSpaceBuilder<T> addBordersHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
+        public TiledSpaceBuilder<T> addWallsHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
             checkArgument(x1 >= 0 && x1 < width);
             checkArgument(x2 >= 0 && x2 < width);
             checkArgument(y >= 0 && y < height);
             checkNotNull(direction);
 
-            borderDefinitions.add(new BorderDefinition() {
+            wallDefinitions.add(new WallDefinition() {
                 @Override
                 public void apply(TiledSpace<?> space) {
                     for (int i = x1; i <= x2; i++) {
-                        space.getTileAt(i, y).setBorder(direction, true);
+                        space.setTileWall(i, y, direction, true);
                     }
                 }
             });
@@ -565,8 +576,26 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
             return new TiledSpace<T>(this);
         }
 
-        private static interface BorderDefinition {
+        private static interface WallDefinition {
             void apply(TiledSpace<?> space);
+        }
+    }
+
+    /**
+     * Set (b={@code true}) or unset (b={@code false}) the wall of the tile at x,y in the given direction.
+     * Automatically adjusts the wall in the opposite direction at the adjacent tile in the given {@code direction}
+     *
+     * @param x         x of the tile location
+     * @param y         y of the tile location
+     * @param direction the side of the tile which will get modified
+     * @param b         indicates if the wall will be set or unset
+     */
+    private void setTileWall(int x, int y, TileDirection direction, boolean b) {
+        final WalledTile tile = getTileAt(x, y);
+        tile.setWall(direction, b);
+        final WalledTile adjacentTile = getAdjacentTile(tile, direction);
+        if (adjacentTile != null) {
+            adjacentTile.setWall(direction.opposite(), b);
         }
     }
 

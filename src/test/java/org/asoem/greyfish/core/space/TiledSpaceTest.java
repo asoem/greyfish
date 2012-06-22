@@ -6,8 +6,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.ImmutableLocation2D;
-import org.asoem.greyfish.utils.space.Location2D;
+import org.asoem.greyfish.utils.space.*;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -45,11 +44,11 @@ public class TiledSpaceTest {
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(0.0, -1.0);
         TiledSpace space = new TiledSpace(3, 3);
-        space.getTileAt(0, 0).setBorder(TileDirection.NORTH, true);
-        
+        space.getTileAt(0, 0).setWall(TileDirection.NORTH, true);
+
         // when
         final Location2D maxTransition = space.maxTransition(origin, destination);
-        
+
         // then
         assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 0.0));
     }
@@ -60,7 +59,7 @@ public class TiledSpaceTest {
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(2.0, 0.0);
         TiledSpace space = new TiledSpace(3, 3);
-        space.getTileAt(0, 0).setBorder(TileDirection.EAST, true);
+        space.getTileAt(0, 0).setWall(TileDirection.EAST, true);
 
         // when
         final Location2D maxTransition = space.maxTransition(origin, destination);
@@ -75,7 +74,7 @@ public class TiledSpaceTest {
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(0.0, 2.0);
         TiledSpace space = new TiledSpace(3, 3);
-        space.getTileAt(0, 0).setBorder(TileDirection.SOUTH, true);
+        space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
         final Location2D maxTransition = space.maxTransition(origin, destination);
@@ -90,7 +89,7 @@ public class TiledSpaceTest {
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(-1.0, 0.0);
         TiledSpace space = new TiledSpace(3, 3);
-        space.getTileAt(0, 0).setBorder(TileDirection.WEST, true);
+        space.getTileAt(0, 0).setWall(TileDirection.WEST, true);
 
         // when
         final Location2D maxTransition = space.maxTransition(origin, destination);
@@ -105,7 +104,7 @@ public class TiledSpaceTest {
         Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
         Location2D destination = ImmutableLocation2D.at(2.0, 2.0);
         TiledSpace space = new TiledSpace(3, 3);
-        space.getTileAt(0, 0).setBorder(TileDirection.SOUTH, true);
+        space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
         final Location2D maxTransition = space.maxTransition(origin, destination);
@@ -133,7 +132,7 @@ public class TiledSpaceTest {
     public void testBasicPersistence() throws Exception {
         // given
         final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1)
-                .addBorder(0, 0, TileDirection.NORTH)
+                .addWall(0, 0, TileDirection.NORTH)
                 .build();
 
         // when
@@ -155,5 +154,23 @@ public class TiledSpaceTest {
 
         // then
         assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE)));
+    }
+
+    @Test
+    public void testFindVisibleNeighbours() throws Exception {
+        // given
+        final TiledSpace<Projectable<Object2D>> space = TiledSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
+        final ProjectableImpl<Object2D> focal = new ProjectableImpl<Object2D>();
+        final ProjectableImpl<Object2D> neighbour1 = new ProjectableImpl<Object2D>();
+        final ProjectableImpl<Object2D> neighbour2 = new ProjectableImpl<Object2D>();
+        space.addObject(focal, ImmutableObject2D.of(1.5, 0.5, 0));
+        space.addObject(neighbour1, ImmutableObject2D.of(0.5, 0.5, 0));
+        space.addObject(neighbour2, ImmutableObject2D.of(2.5, 0.5, 0));
+
+        // when
+        final Iterable<Projectable<Object2D>> visibleNeighbours = space.getVisibleNeighbours(focal, 2.0);
+
+        // then
+        assertThat(visibleNeighbours).containsOnly(neighbour2);
     }
 }
