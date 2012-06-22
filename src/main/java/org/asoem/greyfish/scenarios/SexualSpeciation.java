@@ -51,7 +51,7 @@ public class SexualSpeciation implements Provider<Scenario> {
         final int width = Integer.valueOf(this.widthStr);
         final Integer height = Integer.valueOf(heightStr);
         final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(width, height)
-                .addBordersHorizontal(0, width - 1, height / 2, TileDirection.NORTH)
+                .addWallsHorizontal(0, width - 1, height / 2, TileDirection.NORTH)
                 .build();
 
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
