@@ -57,7 +57,7 @@ public class SexualSpeciation implements Provider<Scenario> {
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
 
         final Agent prototype = createConsumerPrototype();
-        for (int i = 0; i < 500; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             final ImmutableObject2D object2D = ImmutableObject2D.of(
                     nextDouble(width),
                     nextDouble(height),
@@ -77,20 +77,20 @@ public class SexualSpeciation implements Provider<Scenario> {
                                     @Override
                                     public Boolean apply(GenericCondition genericCondition, Map<String, ?> arguments) {
                                         return genericCondition.agent().getAge() >= 500 ||
-                                                genericCondition.agent().getAction("reproduce", SexualReproductionAction.class).getSuccessCount() > 0;
+                                                genericCondition.agent().getAction("reproduce", SexualReproductionAction.class).getCompletionCount() > 0;
                                     }
                                 }))
                                 .build(),
                         SexualReproductionAction.with()
                                 .name("reproduce")
                                 .clutchSize(new Callback<SexualReproductionAction, Integer>() {
-                                    private final int maxOffspring = 5;
+                                    private final int maxOffspring = 10;
 
                                     @Override
                                     public Integer apply(SexualReproductionAction caller, Map<String, ?> arguments) {
                                         int ret = 0;
-                                        for (int i=0; i< maxOffspring; i++) {
-                                            ret += fromBoolean(RandomUtils.trueWithProbability(1 - caller.agent().getSimulationContext().getSimulation().countAgents() / 2000));
+                                        for (int i = 0; i < maxOffspring; i++) {
+                                            ret += fromBoolean(RandomUtils.trueWithProbability(1 - caller.simulation().countAgents() / 2000));
                                         }
                                         return ret;
                                     }
@@ -121,7 +121,8 @@ public class SexualSpeciation implements Provider<Scenario> {
                                         GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(GenericCondition caller, Map<String, ?> arguments) {
-                                                return caller.agent().getAction("reproduce", SexualReproductionAction.class).wasNotExecutedForAtLeast();
+                                                final SexualReproductionAction action = caller.agent().getAction("reproduce", SexualReproductionAction.class);
+                                                return action.getCompletionCount() == 0 || caller.simulation().getStep() - action.lastCompletionStep() > 10;
                                             }
                                         })
                                 ))
@@ -188,7 +189,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .build(),
                         GenericMovementAction.builder()
                                 .name("move")
-                                .stepSize(Callbacks.constant(0.1))
+                                .stepSize(Callbacks.constant(1.0))
                                 .turningAngle(new Callback<GenericMovementAction, Double>() {
                                     @Override
                                     public Double apply(GenericMovementAction caller, Map<String, ?> arguments) {
@@ -210,12 +211,7 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .build(),
                         DoubleGeneComponent.builder()
                                 .name("consumer_classification")
-                                .initialAllele(new Callback<DoubleGeneComponent, Double>() {
-                                    @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
-                                        return 0.1;
-                                    }
-                                })
+                                .initialAllele(Callbacks.constant(0.1))
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
                                     public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {

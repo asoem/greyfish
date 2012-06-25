@@ -99,7 +99,7 @@ public class H2Logger implements SimulationLogger {
             final PreparedStatement insertAgentStatement = borrowStatement(insertAgentQuery);
             insertAgentStatement.setInt(1, agent.getId());
             insertAgentStatement.setString(2, agent.getPopulation().getName());
-            insertAgentStatement.setInt(3, agent.getSimulationContext().getActivationStep());
+            insertAgentStatement.setInt(3, agent.getTimeOfBirth());
             insertAgentStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
             insertAgentStatement.execute();
             returnStatement(insertAgentQuery, insertAgentStatement);

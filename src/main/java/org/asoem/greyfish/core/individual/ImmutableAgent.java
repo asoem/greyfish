@@ -1,7 +1,5 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponentList;
@@ -10,11 +8,7 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -29,9 +23,9 @@ public class ImmutableAgent extends AbstractAgent {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private ImmutableAgent(@Element(name = "body") Body body,
-                             @Element(name = "properties") ComponentList<GFProperty> properties,
-                             @Element(name = "actions") ComponentList<GFAction> actions,
-                             @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
+                           @Element(name = "properties") ComponentList<GFProperty> properties,
+                           @Element(name = "actions") ComponentList<GFAction> actions,
+                           @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
         super(body, properties, actions, geneComponentList);
         freeze();
     }
@@ -57,10 +51,11 @@ public class ImmutableAgent extends AbstractAgent {
     /**
      * Create a new Immutable Agent which is a copy of a deep clone of {@code agent}.
      * This means, that the Agent is deeply cloned first and the clone is used as the template for a flat copy.
+     *
      * @param agent the agent to clone
      * @return a new ImmutableAgent initialized from a deep clone of {@code agent}
      */
-    public static ImmutableAgent cloneOf(Agent agent) {
+    public static ImmutableAgent fromPrototype(Agent agent) {
         checkNotNull(agent);
         final Agent clone = DeepCloner.clone(agent, Agent.class);
 
@@ -72,7 +67,6 @@ public class ImmutableAgent extends AbstractAgent {
         ret.setPopulation(clone.getPopulation());
         ret.setMotion(clone.getMotion());
         ret.setProjection(clone.getProjection());
-        ret.setSimulationContext(clone.getSimulationContext());
         ret.setColor(clone.getColor());
 
         return ret;
@@ -84,7 +78,7 @@ public class ImmutableAgent extends AbstractAgent {
 
     @Override
     public void freeze() {
-        for(AgentComponent component : getComponents())
+        for (AgentComponent component : getComponents())
             component.freeze();
     }
 
@@ -102,6 +96,7 @@ public class ImmutableAgent extends AbstractAgent {
         protected ImmutableAgent checkedBuild() {
             return new ImmutableAgent(this);
         }
+
         @Override
         protected Builder self() {
             return this;

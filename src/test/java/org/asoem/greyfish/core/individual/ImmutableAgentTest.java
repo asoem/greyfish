@@ -25,6 +25,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
 /**
  * User: christoph
  * Date: 20.09.11
@@ -35,9 +36,12 @@ public class ImmutableAgentTest {
 
     @Mock
     GeneComponent<?> gene;
-    @Mock GFAction action;
-    @Mock GFProperty property;
-    @Mock Population population;
+    @Mock
+    GFAction action;
+    @Mock
+    GFProperty property;
+    @Mock
+    Population population;
 
     @Inject
     private Persister persister;
@@ -121,7 +125,7 @@ public class ImmutableAgentTest {
         agent.setMotion(mock(Motion2D.class));
 
         // when
-        ImmutableAgent clone = ImmutableAgent.cloneOf(agent);
+        ImmutableAgent clone = ImmutableAgent.fromPrototype(agent);
 
         // then
         assertThat(clone).isEqualTo(agent);

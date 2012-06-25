@@ -27,7 +27,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
-import static org.asoem.greyfish.core.actions.utils.ActionState.SUCCESS;
+import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.core.individual.Callbacks.call;
 
 @ClassGroup(tags = "actions")
@@ -88,7 +88,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         offspringCount += eggCount;
 
-        return SUCCESS;
+        return COMPLETED;
     }
 
     private static Product2<Chromosome, Chromosome> recombine(GeneComponentList<GeneComponent<?>> geneComponents, Chromosome chromosome) {

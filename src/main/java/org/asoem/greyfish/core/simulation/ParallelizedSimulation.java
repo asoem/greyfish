@@ -25,7 +25,6 @@ import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -81,7 +80,7 @@ public class ParallelizedSimulation implements Simulation {
                     final Agent prototype = getPrototype(key);
                     assert prototype != null : "Found no Prototype for " + key;
 
-                    return ImmutableAgent.cloneOf(prototype);
+                    return ImmutableAgent.fromPrototype(prototype);
                 }
 
                 @Override
@@ -114,7 +113,6 @@ public class ParallelizedSimulation implements Simulation {
     private final AtomicInteger eventIdSequence = new AtomicInteger();
 
     /**
-     * 
      * @param scenario the scenario
      */
     public ParallelizedSimulation(final Scenario scenario) {
@@ -141,11 +139,12 @@ public class ParallelizedSimulation implements Simulation {
 
         this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
             final Map<Population, Agent> populationAgentMap = Maps.newHashMap();
+
             @Override
             public Agent apply(@Nullable Agent agent) {
                 assert agent != null;
                 final Population population = agent.getPopulation();
-                if (! populationAgentMap.containsKey(population))
+                if (!populationAgentMap.containsKey(population))
                     populationAgentMap.put(population, agent);
                 return populationAgentMap.get(population);
             }
@@ -231,6 +230,7 @@ public class ParallelizedSimulation implements Simulation {
 
     /**
      * Check if the given {@code agent} can be added to this simulation
+     *
      * @param agent an {@code Agent}
      */
     private void checkCanAddAgent(final Agent agent) {
@@ -242,7 +242,7 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public void removeAgent(final Agent agent) {
         checkNotNull(agent);
-        checkArgument(agent.getSimulationContext().getSimulation().equals(this));
+        checkArgument(agent.simulation().equals(this));
         removeAgentMessages.add(new RemoveAgentMessage(agent));
     }
 
@@ -359,8 +359,7 @@ public class ParallelizedSimulation implements Simulation {
         invoke(apply(getAgents(), new VoidFunction<Agent>() {
             @Override
             public void apply(Agent agent) {
-                if (agent.getMotion() != ImmutableMotion2D.noMotion())
-                    space.moveObject(agent, agent.getMotion());
+                space.moveObject(agent);
             }
         }, 1000));
     }
@@ -408,6 +407,7 @@ public class ParallelizedSimulation implements Simulation {
 
     /**
      * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}
+     *
      * @param predicate the {@code Predicate} which will be checked after each step
      */
     public void runWhile(Predicate<? super ParallelizedSimulation> predicate) {

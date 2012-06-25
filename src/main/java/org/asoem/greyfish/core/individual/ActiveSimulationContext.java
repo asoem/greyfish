@@ -11,6 +11,7 @@ import org.simpleframework.xml.Attribute;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_MET;
 
 public class ActiveSimulationContext implements SimulationContext {
 
@@ -75,7 +76,6 @@ public class ActiveSimulationContext implements SimulationContext {
     @Override
     public void execute(Agent agent) {
 
-        assert agent.getSimulationContext() == this : "Expected the agent associated with this context";
         assert historyEntry == null || historyEntry.step < simulation.getStep();
 
         GFAction nextAction = null;
@@ -83,18 +83,16 @@ public class ActiveSimulationContext implements SimulationContext {
         // identify action to execute
         if (toResume != null) {
             nextAction = toResume;
-        }
-        else {
+        } else {
             for (GFAction action : agent.getActions()) {
 
                 assert action.getState() == ActionState.INITIAL :
-                        "There should be no action in resuming state";
+                        "Action in unexpected state: " + action + "@" + action.getState();
 
-                if (action.checkPreconditions(simulation)) {
+                if (action.checkPreconditions(simulation) == PRECONDITIONS_MET) {
                     nextAction = action;
                     break;
-                }
-                else
+                } else
                     action.reset();
             }
         }
@@ -114,7 +112,7 @@ public class ActiveSimulationContext implements SimulationContext {
                     toResume = nextAction;
                     return;
 
-                case SUCCESS:
+                case COMPLETED:
                     historyEntry = new HistoryEntry(simulation.getStep(), toResume);
 
                 default:

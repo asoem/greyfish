@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
@@ -12,13 +13,14 @@ import static com.google.common.base.Preconditions.checkState;
 
 public abstract class AbstractAgentComponent implements AgentComponent {
 
-    @Attribute(name="name", required = false)
+    @Attribute(name = "name", required = false)
     private String name = "";
 
     @Nullable
     private Agent agent;
 
-    protected AbstractAgentComponent() {}
+    protected AbstractAgentComponent() {
+    }
 
     protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
         map.addClone(this);
@@ -41,14 +43,17 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     /**
-     *
      * @return this components {@code Agent}
      * @throws IllegalStateException if this components {@code Agent} is {@code null}
      * @see #getAgent()
      */
-    public final Agent agent() throws IllegalStateException {
+    public Agent agent() throws IllegalStateException {
         checkState(agent != null);
         return agent;
+    }
+
+    public Simulation simulation() throws IllegalStateException {
+        return agent().simulation();
     }
 
     @Override
@@ -74,7 +79,8 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     @Override
-    public void freeze() {}
+    public void freeze() {
+    }
 
     @Override
     public boolean isFrozen() {
@@ -121,6 +127,9 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     public static abstract class AbstractComponentBuilder<E extends AbstractAgentComponent, T extends AbstractComponentBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
         private String name = "";
 
-        public T name(String name) { this.name = name; return self(); }
+        public T name(String name) {
+            this.name = name;
+            return self();
+        }
     }
 }

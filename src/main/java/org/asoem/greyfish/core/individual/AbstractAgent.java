@@ -20,6 +20,7 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.MovingObject2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -64,7 +65,7 @@ public abstract class AbstractAgent implements Agent {
     protected Population population;
 
     @Element(required = false)
-    protected SimulationContext simulationContext = PassiveSimulationContext.instance();
+    protected SimulationContext simulationContext = PassiveSimulationContext.INSTANCE;
 
     @Element(name = "projection", required = false)
     private Object2D object2D;
@@ -300,8 +301,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void logEvent(Object eventOrigin, String title, String message) {
-        checkState(!simulationContext.equals(PassiveSimulationContext.instance()),
-                "Agents can only log events in an active simulation context");
+        checkState(isActive(), "Agents can only log events in an active simulation context");
         checkState(object2D != null, "The Agent must have a projection present");
         checkNotNull(eventOrigin);
         checkNotNull(title);
@@ -321,13 +321,14 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public SimulationContext getSimulationContext() {
-        return simulationContext;
+    public boolean isActive() {
+        return simulationContext != PassiveSimulationContext.INSTANCE;
     }
 
     @Override
-    public void setSimulationContext(SimulationContext simulationContext) {
-        this.simulationContext = simulationContext;
+    public Simulation simulation() {
+        checkState(isActive(), "A passive Agent has no associated simulation");
+        return simulationContext.getSimulation();
     }
 
     @Override
@@ -347,7 +348,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void activate(Simulation simulation) {
-        setSimulationContext(new ActiveSimulationContext(simulation));
+        simulationContext = new ActiveSimulationContext(simulation);
         logEvent(this, "activated", "");
     }
 
@@ -436,11 +437,16 @@ public abstract class AbstractAgent implements Agent {
         return result;
     }
 
+    @Override
+    public void collision(MovingObject2D other) {
+        // TODO implement
+    }
+
     protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
         protected final ComponentList<GFProperty> properties = new MutableComponentList<GFProperty>();
         protected final Population population;
-        public final ComponentList<GeneComponent<?>> genes = new MutableComponentList<GeneComponent<?>>();
+        protected final ComponentList<GeneComponent<?>> genes = new MutableComponentList<GeneComponent<?>>();
 
         protected AbstractBuilder(Population population) {
             this.population = checkNotNull(population, "Population must not be null");

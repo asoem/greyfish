@@ -4,11 +4,12 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.MovingObject2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
@@ -182,13 +183,13 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public SimulationContext getSimulationContext() {
-        return delegate().getSimulationContext();
+    public boolean isActive() {
+        return delegate().isActive();
     }
 
     @Override
-    public void setSimulationContext(SimulationContext context) {
-        delegate().setSimulationContext(context);
+    public Simulation simulation() {
+        return delegate().simulation();
     }
 
     @Override
@@ -259,5 +260,10 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Override
     public void updateGeneComponents(Chromosome vector) {
         delegate().updateGeneComponents(vector);
+    }
+
+    @Override
+    public void collision(MovingObject2D other) {
+        delegate().collision(other);
     }
 }

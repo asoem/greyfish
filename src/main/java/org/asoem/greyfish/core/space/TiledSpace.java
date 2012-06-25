@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.lang.MathLib;
 import javolution.util.FastList;
-import org.asoem.greyfish.core.simulation.Simulatable2D;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
@@ -27,7 +26,7 @@ import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
  * @author christoph
  *         This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
-public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, Tiled<WalledTile> {
+public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<WalledTile> {
 
     @Attribute(name = "height")
     private final int height;
@@ -168,27 +167,60 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         return getTileAt((int) x, (int) y);
     }
 
-    /**
-     * @param agent    the projectable to check for validity of the move operation.
-     * @param motion2D the requested motion
-     * @return A {@code MovementPlan} which can be used to check if the move will succeed and to execute the movement
-     *         if it does so using {@link #executeMovement(org.asoem.greyfish.core.space.TiledSpace.MovementPlan)}
-     * @throws IllegalArgumentException if the {@code object2D} is not managed by this {@code TiledSpace}
-     */
-    @SuppressWarnings("ConstantConditions")
-    public MovementPlan<T> planMovement(T agent, Motion2D motion2D) {
-        checkNotNull(agent);
-        final Object2D currentProjection = agent.getProjection();
-        checkNotNull(currentProjection, "Given projectable has no projection. Have you added it to this Space?", agent);
-        checkNotNull(motion2D);
-        checkArgument(Math.abs(motion2D.getTranslation()) <= 1, "Translations > 1 are not supported", motion2D.getTranslation());
 
-        final double newOrientation = ((currentProjection.getOrientationAngle() + motion2D.getRotation()) % TWO_PI + TWO_PI) % TWO_PI;
-        final double translation = motion2D.getTranslation();
-        final Location2D preferredLocation = sum(currentProjection, polarToCartesian(newOrientation, translation));
-        final Location2D maxLocation = maxTransition(currentProjection, preferredLocation);
+    @Override
+    public Object2D moveObject(T object) {
+        final Motion2D motion = object.getMotion();
 
-        return new MovementPlan<T>(agent, preferredLocation, maxLocation, newOrientation);
+        if (!motion.equals(ImmutableMotion2D.noMotion()))
+            return object.getProjection();
+        else {
+            checkNotNull(object);
+            final Object2D currentProjection = object.getProjection();
+            checkNotNull(currentProjection, "Given object has no projection. Have you added it to this Space?", object);
+            checkNotNull(motion);
+            checkArgument(Math.abs(motion.getTranslation()) <= 1, "Translations > 1 are not supported", motion.getTranslation());
+
+            final double newOrientation = ((currentProjection.getOrientationAngle() + motion.getRotation()) % TWO_PI + TWO_PI) % TWO_PI;
+            final double translation = motion.getTranslation();
+            final Location2D preferredLocation = sum(currentProjection, polarToCartesian(newOrientation, translation));
+            final Location2D maxLocation = maxTransition(currentProjection, preferredLocation);
+
+            if (!preferredLocation.equals(maxLocation)) {
+                object.collision(new MovingObject2D() {
+                    @Override
+                    public void collision(MovingObject2D other) {
+
+                    }
+
+                    @Override
+                    public Motion2D getMotion() {
+                        return ImmutableMotion2D.noMotion();
+                    }
+
+                    @Override
+                    public void setMotion(Motion2D motion) {
+                        throw new UnsupportedOperationException();
+                    }
+
+                    @Override
+                    public Object2D getProjection() {
+                        return null; // TODO: return Object2D for Wall at maxLocation
+                    }
+
+                    @Override
+                    public void setProjection(Object2D projection) {
+                        throw new UnsupportedOperationException();
+                    }
+                });
+            }
+
+            final ImmutableObject2D projection = ImmutableObject2D.of(maxLocation.getX(), maxLocation.getY(), newOrientation);
+            object.setProjection(projection);
+            tree.setOutdated();
+
+            return projection;
+        }
     }
 
     /**
@@ -314,31 +346,6 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         return hasTileAt(tile.getX() + direction.getXTranslation(), tile.getY() + direction.getYTranslation());
     }
 
-    /**
-     * Execute the {@code plan}. If the plan will result in a maxTransition, than subject of the {@code plan} will just get rotated, but not translated
-     *
-     * @param plan the planed movement
-     * @return the projection after the movement
-     */
-    private Object2D executeMovement(MovementPlan<T> plan) {
-        checkNotNull(plan);
-        //checkArgument(projectables.contains(plan.projectable)); // todo: the call to 'contains' is a CPU hotspot because agents have a complex equals method
-
-        final Location2D maxLocation = plan.getMaxLocation();
-        assert contains(maxLocation) : maxLocation;
-
-        final ImmutableObject2D projection = ImmutableObject2D.of(maxLocation.getX(), maxLocation.getY(), plan.getNewOrientation());
-        plan.projectable.setProjection(projection);
-        tree.setOutdated();
-
-        return projection;
-    }
-
-    @Override
-    public Object2D moveObject(T object2d, Motion2D motion) {
-        return executeMovement(planMovement(object2d, motion));
-    }
-
     @Override
     public Iterable<T> findObjects(Location2D point, double range) {
         return tree.findObjects(point, range);
@@ -462,11 +469,11 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         return new TiledSpace(space);
     }
 
-    public static <T extends Projectable<Object2D>> TiledSpace<T> ofSize(int width, int height) {
+    public static <T extends MovingObject2D> TiledSpace<T> ofSize(int width, int height) {
         return new TiledSpace<T>(width, height);
     }
 
-    public static <T extends Projectable<Object2D>> TiledSpaceBuilder<T> builder(int width, int height) {
+    public static <T extends MovingObject2D> TiledSpaceBuilder<T> builder(int width, int height) {
         return new TiledSpaceBuilder<T>(width, height);
     }
 
@@ -478,7 +485,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
      * @return a new space
      */
     @SuppressWarnings("UnusedDeclaration")
-    public static <T extends Simulatable2D> TiledSpace<T> createEmptyCopy(TiledSpace<?> space) {
+    public static <T extends MovingObject2D> TiledSpace<T> createEmptyCopy(TiledSpace<?> space) {
         return new TiledSpace<T>(space.getWidth(), space.getHeight(), space.getBorderedTiles());
     }
 
@@ -513,7 +520,7 @@ public class TiledSpace<T extends Projectable<Object2D>> implements Space2D<T>, 
         }
     }
 
-    public static class TiledSpaceBuilder<T extends Projectable<Object2D>> implements Builder<TiledSpace<T>> {
+    public static class TiledSpaceBuilder<T extends MovingObject2D> implements Builder<TiledSpace<T>> {
 
         private final int width;
         private final int height;

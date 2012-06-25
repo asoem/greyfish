@@ -25,17 +25,21 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     private final DefaultGreyfishVariableAccessorFactory converter = new DefaultGreyfishVariableAccessorFactory();
 
-    @Mock Agent agent;
-    @Mock GFAction action;
-    @Mock GFProperty property;
-    @Mock Simulation simulation;
-    @Mock ActiveSimulationContext simulationContext;
+    @Mock
+    Agent agent;
+    @Mock
+    GFAction action;
+    @Mock
+    GFProperty property;
+    @Mock
+    Simulation simulation;
+    @Mock
+    ActiveSimulationContext simulationContext;
 
     @Before
     public void setUp() throws Exception {
         given(action.getAgent()).willReturn(agent);
         given(property.getAgent()).willReturn(agent);
-        given(agent.getSimulationContext()).willReturn(simulationContext);
         given(simulationContext.getSimulation()).willReturn(simulation);
     }
 
@@ -98,22 +102,22 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     }
 
     @SuppressWarnings({"NullableProblems"})
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void shouldScreamIfContextClassIsNull() {
         converter.get("this", null).apply(action);
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void shouldScreamIfContextIsNullButRequired() {
         converter.get("this.agent", GFAction.class).apply(null);
     }
 
-    @Test(expected=RuntimeException.class)
+    @Test(expected = RuntimeException.class)
     public void shouldScreamIfExpressionIsEmpty() {
         converter.get("", GFAction.class).apply(action);
     }
 
-    @Test(expected=RuntimeException.class)
+    @Test(expected = RuntimeException.class)
     public void shouldScreamIfExpressionIsInvalid() {
         converter.get("fooBar", GFAction.class).apply(action);
     }

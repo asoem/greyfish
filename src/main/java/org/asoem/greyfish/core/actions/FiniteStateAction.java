@@ -12,7 +12,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     private int statefulExecutionCount;
 
-    protected FiniteStateAction(AbstractActionBuilder<?,?> builder) {
+    protected FiniteStateAction(AbstractActionBuilder<?, ?> builder) {
         super(builder);
     }
 
@@ -34,7 +34,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         ++statefulExecutionCount;
 
         if (endStateReached)
-            return ActionState.SUCCESS;
+            return ActionState.COMPLETED;
         else
             return ActionState.INTERMEDIATE;
     }
@@ -89,8 +89,8 @@ public abstract class FiniteStateAction extends AbstractGFAction {
      * Won't report the number af actual invocations of this {@code FiniteStateAction}. Use {@link #getStatefulExecutionCount}
      */
     @Override
-    public int getSuccessCount() {
-        return super.getSuccessCount();
+    public int getCompletionCount() {
+        return super.getCompletionCount();
     }
 
     public int getStatefulExecutionCount() {

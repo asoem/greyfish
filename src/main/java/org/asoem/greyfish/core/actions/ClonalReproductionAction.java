@@ -47,7 +47,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
 
             agent().logEvent(this, "offspringProduced", "");
         }
-        return ActionState.SUCCESS;
+        return ActionState.COMPLETED;
     }
 
     @Override

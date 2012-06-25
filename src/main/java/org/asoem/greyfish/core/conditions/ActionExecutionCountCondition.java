@@ -12,15 +12,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ActionExecutionCountCondition extends IntCompareCondition {
 
-	@Element(name="action")
-	private GFAction action;
+    @Element(name = "action")
+    private GFAction action;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private ActionExecutionCountCondition() {
         this(new Builder());
     }
 
-    protected ActionExecutionCountCondition(AbstractBuilder<?,?> builder) {
+    protected ActionExecutionCountCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.action = builder.action;
     }
@@ -31,15 +31,15 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @Override
-	protected Integer getCompareValue(Simulation simulation) {
-		return action.getSuccessCount();
-	}
+    protected Integer getCompareValue(Simulation simulation) {
+        return action.getCompletionCount();
+    }
 
-	@Override
-	public void configure(ConfigurationHandler e) {
-		super.configure(e);
+    @Override
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
 
-		e.add("", new SetAdaptor<GFAction>(GFAction.class) {
+        e.add("", new SetAdaptor<GFAction>(GFAction.class) {
             @Override
             protected void set(GFAction arg0) {
                 action = checkNotNull(arg0);
@@ -55,26 +55,39 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
                 return agent().getActions();
             }
         });
-	}
+    }
 
     @Override
     public AbstractAgentComponent deepClone(DeepCloner cloner) {
         return new ActionExecutionCountCondition(this, cloner);
     }
 
-    public static Builder builder() { return new Builder(); }
+    public static Builder builder() {
+        return new Builder();
+    }
 
-    public static final class Builder extends AbstractBuilder<ActionExecutionCountCondition,Builder> {
-        private Builder() {}
+    public static final class Builder extends AbstractBuilder<ActionExecutionCountCondition, Builder> {
+        private Builder() {
+        }
 
-        @Override protected Builder self() { return this; }
-        @Override protected ActionExecutionCountCondition checkedBuild() { return new ActionExecutionCountCondition(this); }
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected ActionExecutionCountCondition checkedBuild() {
+            return new ActionExecutionCountCondition(this);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ActionExecutionCountCondition, T extends AbstractBuilder<E, T>> extends IntCompareCondition.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ActionExecutionCountCondition, T extends AbstractBuilder<E, T>> extends IntCompareCondition.AbstractBuilder<E, T> {
         private GFAction action;
 
-        public T executionCountOf(GFAction action) { this.action = checkNotNull(action); return self(); }
+        public T executionCountOf(GFAction action) {
+            this.action = checkNotNull(action);
+            return self();
+        }
     }
 }

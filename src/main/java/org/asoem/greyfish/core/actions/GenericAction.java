@@ -41,7 +41,7 @@ public class GenericAction extends AbstractGFAction {
     @Override
     protected ActionState proceed(Simulation simulation) {
         call(callback, this);
-        return ActionState.SUCCESS;
+        return ActionState.COMPLETED;
     }
 
     @Override

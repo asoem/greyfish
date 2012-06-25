@@ -17,7 +17,7 @@ public interface GFAction extends AgentComponent {
      * @param simulation the context
      * @return {@code true}, if all preconditions are met
      */
-    boolean checkPreconditions(Simulation simulation);
+    ActionState checkPreconditions(Simulation simulation);
 
     /**
      * Apply the action on it's agent in the given simulation context
@@ -34,12 +34,14 @@ public interface GFAction extends AgentComponent {
 
     /**
      * Set the condition set for this action
+     *
      * @param rootCondition the condition set for this action
      */
     public void setCondition(@Nullable GFCondition rootCondition);
 
     /**
      * Get the condition set for this action
+     *
      * @return the condition set for this action or {@code null}
      */
     @Nullable
@@ -50,31 +52,29 @@ public interface GFAction extends AgentComponent {
      *
      * @param simulation the context of this action
      * @return {@code true} if this action's condition is {@code null} or evaluates
-     * ({@link GFCondition#evaluate(org.asoem.greyfish.core.simulation.Simulation)}) to {@code true},
-     * {@code false} otherwise.
+     *         ({@link GFCondition#evaluate(org.asoem.greyfish.core.simulation.Simulation)}) to {@code true},
+     *         {@code false} otherwise.
      */
-	public boolean evaluateCondition(Simulation simulation);
+    public boolean evaluateCondition(Simulation simulation);
 
 
     /**
      * @return the number of times this {@code GFAction} was executed when in
-     * {@link org.asoem.greyfish.core.actions.utils.ActionState#INITIAL}
+     *         {@link org.asoem.greyfish.core.actions.utils.ActionState#INITIAL}
      */
-	public int getSuccessCount();
+    public int getCompletionCount();
 
     /**
-     *
      * @param simulation
      * @param steps
      * @return
      */
-	public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps);
+    public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps);
 
     /**
-     *
      * @return
      */
-    int stepsSinceLastExecution();
+    int lastCompletionStep();
 
     ActionState getState();
 }

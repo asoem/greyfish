@@ -52,6 +52,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     /**
      * Called by the {@code Agent} which contains this {@code GFAction}
+     *
      * @param simulation the simulation context
      */
     @Override
@@ -71,8 +72,10 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
             switch (state) {
 
-                case SUCCESS:
-                    onSuccess(simulation);
+                case COMPLETED:
+                    ++successCount;
+                    stepAtLastSuccess = simulation.getStep();
+                    Callbacks.call(onSuccess, this);
                     break;
             }
 
@@ -95,24 +98,18 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public boolean checkPreconditions(Simulation simulation) {
+    public ActionState checkPreconditions(Simulation simulation) {
         final boolean preconditionsMet = evaluateCondition(simulation);
         if (preconditionsMet)
             setState(PRECONDITIONS_MET);
         else
             setState(PRECONDITIONS_FAILED);
-        return preconditionsMet;
+        return getState();
     }
 
     @Override
     public ActionState getState() {
         return actionState;
-    }
-
-    private void onSuccess(Simulation simulation) {
-        ++successCount;
-        stepAtLastSuccess = simulation.getStep();
-        Callbacks.call(onSuccess, this);
     }
 
     @Override
@@ -125,12 +122,12 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Nullable
-    @Element(name="condition", required=false)
+    @Element(name = "condition", required = false)
     public GFCondition getCondition() {
         return rootCondition;
     }
 
-    @Element(name="condition", required=false)
+    @Element(name = "condition", required = false)
     @Override
     public void setCondition(@Nullable GFCondition rootCondition) {
         this.rootCondition = rootCondition;
@@ -139,7 +136,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public int getSuccessCount() {
+    public int getCompletionCount() {
         return this.successCount;
     }
 
@@ -154,8 +151,8 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public int stepsSinceLastExecution() {
-        return agent().getSimulationContext().getSimulation().getStep() - stepAtLastSuccess;
+    public int lastCompletionStep() {
+        return stepAtLastSuccess;
     }
 
     @Override
@@ -203,11 +200,28 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         private GreyfishExpression formula = GreyfishExpressionFactoryHolder.compile("0");
         private Callback<? super AbstractGFAction, Void> onSuccess = Callbacks.emptyCallback();
 
-        public B executesIf(GFCondition condition) { this.condition = condition; return self(); }
-        private B source(DoubleProperty source) { this.source = source; return self(); }
-        private B formula(String formula) { this.formula = GreyfishExpressionFactoryHolder.compile(formula); return self(); }
+        public B executesIf(GFCondition condition) {
+            this.condition = condition;
+            return self();
+        }
+
+        private B source(DoubleProperty source) {
+            this.source = source;
+            return self();
+        }
+
+        private B formula(String formula) {
+            this.formula = GreyfishExpressionFactoryHolder.compile(formula);
+            return self();
+        }
+
         public B generatesCosts(DoubleProperty source, String formula) {
-            return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */ }
-        public B onSuccess(Callback<? super AbstractGFAction, Void> expression) { this.onSuccess = checkNotNull(expression); return self(); }
+            return source(checkNotNull(source)).formula(checkNotNull(formula)); /* TODO: formula should be evaluated */
+        }
+
+        public B onSuccess(Callback<? super AbstractGFAction, Void> expression) {
+            this.onSuccess = checkNotNull(expression);
+            return self();
+        }
     }
 }

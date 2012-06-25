@@ -14,6 +14,7 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
+import org.asoem.greyfish.utils.space.Motion2D;
 import org.simpleframework.xml.Element;
 
 import java.util.Map;
@@ -53,15 +54,11 @@ public class GenericMovementAction extends AbstractGFAction {
         final double evaluatedTurningAngle = Callbacks.call(turningAngle, this);
         final double evaluatedStepSize = Callbacks.call(stepSize, this);
 
-        final ImmutableMotion2D motion = ImmutableMotion2D.of(evaluatedTurningAngle, evaluatedStepSize);
+        final Motion2D motion = ImmutableMotion2D.of(evaluatedTurningAngle, evaluatedStepSize);
         agent().setMotion(motion);
-        LOGGER.info("{}: Changing movement to {}", agent(), motion);
-        return ActionState.SUCCESS;
-    }
 
-    @Override
-    public boolean checkPreconditions(Simulation simulation) {
-        return super.checkPreconditions(simulation);
+        LOGGER.info("{}: Changing movement to {}", agent(), motion);
+        return ActionState.COMPLETED;
     }
 
     @Override
