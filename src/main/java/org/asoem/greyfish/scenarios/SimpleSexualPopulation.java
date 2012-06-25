@@ -131,7 +131,7 @@ public class SimpleSexualPopulation implements Provider<Scenario> {
                                         GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
                                             public Boolean apply(GenericCondition condition, Map<String, ?> arguments) {
-                                                return condition.agent().getAction("reproduce", SexualReproductionAction.class).stepsSinceLastExecution() >= 10;
+                                                return condition.agent().getAction("reproduce", SexualReproductionAction.class).lastCompletionStep() >= 10;
                                             }
                                         }),
                                         GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
