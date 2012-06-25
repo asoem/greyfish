@@ -348,6 +348,7 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void activate(Simulation simulation) {
         setSimulationContext(new ActiveSimulationContext(simulation));
+        logEvent(this, "activated", "");
     }
 
     @Override

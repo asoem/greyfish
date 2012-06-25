@@ -35,8 +35,7 @@ public class H2Logger implements SimulationLogger {
             connection.createStatement().execute(
                     "CREATE TABLE agents (id INT NOT NULL PRIMARY KEY, population_name_id INT NOT NULL, activated_at INT NOT NULL, created_at TIMESTAMP NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE chromosome_tree (id INT NOT NULL, parent_id INT NOT NULL)"
-            );
+                    "CREATE TABLE chromosome_tree (id INT NOT NULL, parent_id INT NOT NULL)");
             connection.createStatement().execute(
                     "CREATE TABLE names (id int NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) UNIQUE NOT NULL)");
             connection.createStatement().execute(
@@ -44,7 +43,15 @@ public class H2Logger implements SimulationLogger {
             connection.createStatement().execute(
                     "CREATE TABLE genes_string (agent_id INT NOT NULL, gene_name_id INT NOT NULL, value VARCHAR(255) NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE agent_events (id INT NOT NULL PRIMARY KEY, created_at TIMESTAMP NOT NULL, simulation_step int NOT NULL, agent_id INT NOT NULL, source_name_id INT NOT NULL, title_name_id INT NOT NULL, message VARCHAR(255) NOT NULL)");
+                    "CREATE TABLE agent_events (" +
+                            "id INT NOT NULL PRIMARY KEY, " +
+                            "simulation_step int NOT NULL, " +
+                            "agent_id INT NOT NULL, source_name_id INT NOT NULL, " +
+                            "title_name_id INT NOT NULL, " +
+                            "message VARCHAR(255) NOT NULL, " +
+                            "x DOUBLE NOT NULL, " +
+                            "y DOUBLE NOT NULL " +
+                            ")");
 
             connection.setAutoCommit(false);
 
@@ -59,6 +66,11 @@ public class H2Logger implements SimulationLogger {
                     @Override
                     public PreparedStatement makeObject(String sql) throws Exception {
                         return connection.prepareStatement(sql);
+                    }
+
+                    @Override
+                    public void passivateObject(String key, PreparedStatement obj) throws Exception {
+                        obj.clearParameters();
                     }
                 }, -1, GenericKeyedObjectPool.WHEN_EXHAUSTED_GROW, -1);
     }
@@ -165,18 +177,20 @@ public class H2Logger implements SimulationLogger {
             insertNameIfNotExistsStatement.setString(1, title);
             insertNameIfNotExistsStatement.execute();
 
-            final String insertEventQuery = "INSERT INTO agent_events (id, created_at, simulation_step, agent_id, source_name_id, title_name_id, message) VALUES (?, ?, ?, ?, (SELECT id FROM names WHERE name = ?), (SELECT id FROM names WHERE name = ?), ?)";
+            final String insertEventQuery = "INSERT INTO agent_events (id, simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, (SELECT id FROM names WHERE name = ?), (SELECT id FROM names WHERE name = ?), ?, ?, ?)";
             final PreparedStatement insertEventStatement = borrowStatement(insertEventQuery);
             insertEventStatement.setInt(1, eventId);
-            insertEventStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 
             //insertEventStatement.setBytes(1, Bytes.concat(Longs.toByteArray(uuid.getMostSignificantBits()), Longs.toByteArray(uuid.getLeastSignificantBits())));
-            insertEventStatement.setInt(3, currentStep);
-            insertEventStatement.setInt(4, agentId);
+            insertEventStatement.setInt(2, currentStep);
+            insertEventStatement.setInt(3, agentId);
             // coordinates
-            insertEventStatement.setString(5, source);
-            insertEventStatement.setString(6, title);
-            insertEventStatement.setString(7, message);
+            insertEventStatement.setString(4, source);
+            insertEventStatement.setString(5, title);
+            insertEventStatement.setString(6, message);
+            assert coordinates.length >= 2;
+            insertEventStatement.setDouble(7, coordinates[0]);
+            insertEventStatement.setDouble(8, coordinates[1]);
 
             insertEventStatement.execute();
 

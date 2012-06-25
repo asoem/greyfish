@@ -76,13 +76,29 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .executesIf(GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                     @Override
                                     public Boolean apply(GenericCondition genericCondition, Map<String, ?> arguments) {
-                                        return genericCondition.agent().getAge() >= 500;
+                                        return genericCondition.agent().getAge() >= 500 ||
+                                                genericCondition.agent().getAction("reproduce", SexualReproductionAction.class).getSuccessCount() > 0;
                                     }
                                 }))
                                 .build(),
                         SexualReproductionAction.with()
                                 .name("reproduce")
-                                .clutchSize(constant(1))
+                                .clutchSize(new Callback<SexualReproductionAction, Integer>() {
+                                    private final int maxOffspring = 5;
+
+                                    @Override
+                                    public Integer apply(SexualReproductionAction caller, Map<String, ?> arguments) {
+                                        int ret = 0;
+                                        for (int i=0; i< maxOffspring; i++) {
+                                            ret += fromBoolean(RandomUtils.trueWithProbability(1 - caller.agent().getSimulationContext().getSimulation().countAgents() / 2000));
+                                        }
+                                        return ret;
+                                    }
+
+                                    private int fromBoolean(boolean b) {
+                                        return b ? 1 : 0;
+                                    }
+                                })
                                 .spermSupplier(new Callback<SexualReproductionAction, List<? extends Chromosome>>() {
                                     @Override
                                     public List<? extends Chromosome> apply(SexualReproductionAction caller, Map<String, ?> arguments) {
@@ -104,8 +120,8 @@ public class SexualSpeciation implements Provider<Scenario> {
                                         }),
                                         GenericCondition.evaluate(new Callback<GenericCondition, Boolean>() {
                                             @Override
-                                            public Boolean apply(GenericCondition genericCondition, Map<String, ?> arguments) {
-                                                return RandomUtils.trueWithProbability(1 - genericCondition.agent().getSimulationContext().getSimulation().countAgents() / 2000);
+                                            public Boolean apply(GenericCondition caller, Map<String, ?> arguments) {
+                                                return caller.agent().getAction("reproduce", SexualReproductionAction.class).wasNotExecutedForAtLeast();
                                             }
                                         })
                                 ))
