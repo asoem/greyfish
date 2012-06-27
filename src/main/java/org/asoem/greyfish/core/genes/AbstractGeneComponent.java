@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Product2;
 
@@ -59,11 +58,6 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
     @Override
     public Product2<T, T> recombinedValue(T other) {
         return getGeneController().recombine(getAllele(), other);
-    }
-
-    @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
     }
 
     @Override

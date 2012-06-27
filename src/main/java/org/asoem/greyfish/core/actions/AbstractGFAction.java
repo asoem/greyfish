@@ -156,11 +156,6 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public Iterable<AgentComponent> children() {
         return rootCondition != null ? Collections.<AgentComponent>singletonList(getCondition()) : Collections.<AgentComponent>emptyList();
     }

@@ -15,7 +15,7 @@ public interface AgentComponent extends TreeNode<AgentComponent>, Freezable, Has
      * Get the agent this component is part of.
      * @return the connected agent
      */
-    @Nullable public Agent getAgent();
+    @Nullable Agent getAgent();
 
     /**
      * Sets the connected agent. This method should only be called by an Agent implementation in an addXXX method.
@@ -27,16 +27,16 @@ public interface AgentComponent extends TreeNode<AgentComponent>, Freezable, Has
      * Set this components name to {@code name}
      * @param name the new name
      */
-    public void setName(String name);
+    void setName(String name);
 
     /**
-     * The 'visitable' part of of the visitor pattern.
-     * All implementations pass themselves to the visitor with {@code visitor.visit(this)}
-     * @param visitor the visitor
+     * This method is called by the {@code} Agent to notify the component of internal events.
+     * @param notification the event notification
      */
-    public void accept(ComponentVisitor visitor);
+    void handleEvent(Object notification);
 
     /**
+     * Component initialization hook.
      * Called by an {@code Agent} if it's {@code AgentComponent}s should prepare themselves for a new {@code Simulation} simulation.
      * Implementations should reset their own fields to an initial state and their those of their {@code super} class if they have any.
      */

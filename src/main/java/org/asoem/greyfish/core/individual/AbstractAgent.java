@@ -13,6 +13,7 @@ import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Collision2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
@@ -45,6 +46,7 @@ import static java.util.Arrays.asList;
 public abstract class AbstractAgent implements Agent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
+
     @Element(name = "properties")
     protected final ComponentList<GFProperty> properties;
 
@@ -57,21 +59,19 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "body")
     protected final Body body;
 
-    private final AgentComponent rootComponent;
-
-    private final AgentMessageBox inBox = new AgentMessageBox();
-
     @Element(name = "population")
     protected Population population;
 
-    @Element(required = false)
+    @Element(name = "simulationContext", required = false)
     protected SimulationContext simulationContext = PassiveSimulationContext.INSTANCE;
 
     @Element(name = "projection", required = false)
-    private Object2D object2D;
+    private Object2D projection;
 
-    @Element
+    @Element(name = "motion", required = false)
     private Motion2D motion = ImmutableMotion2D.noMotion();
+
+    private final AgentMessageBox inBox = new AgentMessageBox();
 
     protected AbstractAgent(Body body,
                             ComponentList<GFProperty> properties,
@@ -82,21 +82,22 @@ public abstract class AbstractAgent implements Agent {
         this.actions = checkNotNull(actions);
         this.geneComponentList = checkNotNull(geneComponentList);
 
-        rootComponent = new AgentComponentWrapper(Iterables.concat(
-                Collections.singleton(body),
-                properties,
-                actions,
-                geneComponentList
-        ));
-        rootComponent.setAgent(this);
+        initComponents();
     }
 
     public AbstractAgent(AbstractAgent agent) {
         this(agent.getBody(), agent.getProperties(), agent.getActions(), agent.getGeneComponentList());
         this.population = agent.population;
         this.simulationContext = agent.simulationContext;
-        this.object2D = agent.object2D;
+        this.projection = agent.projection;
         this.motion = agent.motion;
+
+        initComponents();
+    }
+
+    private void initComponents() {
+        for (AgentComponent component : getComponents())
+            component.setAgent(this);
     }
 
     @Commit
@@ -113,16 +114,8 @@ public abstract class AbstractAgent implements Agent {
         this.properties = (ComponentList<GFProperty>) cloner.cloneField(abstractAgent.properties, ComponentList.class);
         this.geneComponentList = cloner.cloneField(abstractAgent.geneComponentList, GeneComponentList.class);
         this.body = cloner.cloneField(abstractAgent.body, Body.class);
-        this.object2D = abstractAgent.object2D;
+        this.projection = abstractAgent.projection;
         this.motion = abstractAgent.motion;
-
-        rootComponent = new AgentComponentWrapper(Iterables.concat(
-                Collections.singleton(body),
-                properties,
-                actions,
-                geneComponentList
-        ));
-        rootComponent.setAgent(this);
     }
 
     @Override
@@ -239,11 +232,6 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public AgentComponent getRootComponent() {
-        return rootComponent;
-    }
-
-    @Override
     public void changeActionExecutionOrder(GFAction object, GFAction object2) {
         throw new UnsupportedOperationException();
     }
@@ -302,12 +290,18 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void logEvent(Object eventOrigin, String title, String message) {
         checkState(isActive(), "Agents can only log events in an active simulation context");
-        checkState(object2D != null, "The Agent must have a projection present");
+        checkState(projection != null, "The Agent must have a projection present");
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);
 
         simulationContext.logEvent(this, eventOrigin, title, message);
+    }
+
+    @Override
+    public void distributeEvent(Object event) {
+        for (AgentComponent component : getComponents())
+            component.handleEvent(event);
     }
 
     @Override
@@ -376,12 +370,12 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public Object2D getProjection() {
-        return object2D;
+        return projection;
     }
 
     @Override
     public void setProjection(Object2D projection) {
-        this.object2D = projection;
+        this.projection = projection;
     }
 
     @Override
@@ -412,7 +406,7 @@ public abstract class AbstractAgent implements Agent {
         if (simulationContext != null ? !simulationContext.equals(that.simulationContext) : that.simulationContext != null)
             return false;
         if (population != null ? !population.equals(that.population) : that.population != null) return false;
-        if (object2D != null ? !object2D.equals(that.object2D) : that.object2D != null) return false;
+        if (projection != null ? !projection.equals(that.projection) : that.projection != null) return false;
         if (actions != null ? !actions.equals(that.actions) : that.actions != null) return false;
         if (body != null ? !body.equals(that.body) : that.body != null) return false;
         if (geneComponentList != null ? !geneComponentList.equals(that.geneComponentList) : that.geneComponentList != null)
@@ -439,7 +433,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void collision(MovingObject2D other) {
-        // TODO implement
+        distributeEvent(new Collision2D(null, null, null, null, null));
     }
 
     protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
@@ -474,7 +468,12 @@ public abstract class AbstractAgent implements Agent {
         return new Iterable<AgentComponent>() {
             @Override
             public Iterator<AgentComponent> iterator() {
-                return Trees.postOrderView(rootComponent, new Function<TreeNode<AgentComponent>, Iterator<AgentComponent>>() {
+                return Trees.postOrderView(new AgentComponentWrapper(Iterables.concat(
+                        Collections.singleton(getBody()),
+                        getProperties(),
+                        getActions(),
+                        getGeneComponentList()
+                )), new Function<TreeNode<AgentComponent>, Iterator<AgentComponent>>() {
                     @Override
                     public Iterator<AgentComponent> apply(@Nullable TreeNode<AgentComponent> agentComponentTreeNode) {
                         return agentComponentTreeNode == null ? Iterators.<AgentComponent>emptyIterator() : agentComponentTreeNode.children().iterator();

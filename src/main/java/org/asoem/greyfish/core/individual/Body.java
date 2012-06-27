@@ -48,11 +48,6 @@ public class Body extends AbstractAgentComponent {
     }
 
     @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public Iterable<AgentComponent> children() {
         return Collections.emptyList();
     }

@@ -20,8 +20,6 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
      */
     boolean isCloneOf(Object object);
 
-    AgentComponent getRootComponent();
-
     Iterable<AgentComponent> getComponents();
 
     AgentComponent getComponent(String name);
@@ -96,4 +94,6 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
     boolean hasMessages(MessageTemplate template);
 
     void logEvent(Object eventOrigin, String title, String message);
+
+    void distributeEvent(Object event);
 }

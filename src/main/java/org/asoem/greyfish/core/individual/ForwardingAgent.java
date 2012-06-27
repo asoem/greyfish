@@ -228,11 +228,6 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public AgentComponent getRootComponent() {
-        return delegate().getRootComponent();
-    }
-
-    @Override
     public Motion2D getMotion() {
         return delegate().getMotion();
     }

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.core.Commit;
@@ -71,8 +70,4 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
         return parentCondition + "<-" + this.getClass().getSimpleName();
     }
 
-    @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
-    }
 }

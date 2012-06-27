@@ -324,6 +324,7 @@ public class ParallelizedSimulation implements Simulation {
         executeAllAgents();
 
         processAgentMessageDelivery();
+
         processRequestedAgentRemovals();
         processAgentsMovement();
         processRequestedAgentActivations();

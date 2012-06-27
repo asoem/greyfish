@@ -2,12 +2,16 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
+import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Collision2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
+
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -69,6 +73,21 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     @Override
+    public void handleEvent(Object notification) {
+        Callback<AgentComponent, Void> eventCallback = new Callback<AgentComponent, Void>() {
+            @Override
+            public Void apply(AgentComponent caller, Map<String, ?> arguments) {
+                if (arguments.get("event") instanceof Collision2D)
+                    ((DoubleProperty)caller).subtract(10.0);
+
+                return null;
+            }
+        };
+
+        Callbacks.call(eventCallback, this);
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -117,11 +136,6 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     @Override
     public int hashCode() {
         return name.hashCode();
-    }
-
-    @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
     }
 
     public static abstract class AbstractComponentBuilder<E extends AbstractAgentComponent, T extends AbstractComponentBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {

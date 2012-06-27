@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.ComponentVisitor;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Root;
@@ -22,11 +21,6 @@ public abstract class AbstractGFProperty<T> extends AbstractAgentComponent imple
 
     protected AbstractGFProperty(AbstractAgentComponent cloneable, DeepCloner map) {
         super(cloneable, map);
-    }
-
-    @Override
-    public void accept(ComponentVisitor visitor) {
-        visitor.visit(this);
     }
 
     @Override
