@@ -21,9 +21,9 @@ public class ImmutableObject2D implements Object2D {
     @Attribute(name = "orientation")
     private final double orientation;
 
-    private ImmutableObject2D(@Attribute(name = "x") double x,
-                              @Attribute(name = "y") double y,
-                              @Attribute(name = "orientation") double orientation) {
+    protected ImmutableObject2D(@Attribute(name = "x") double x,
+                                @Attribute(name = "y") double y,
+                                @Attribute(name = "orientation") double orientation) {
         checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]: %s", orientation);
         this.orientation = orientation;
         this.x = x;

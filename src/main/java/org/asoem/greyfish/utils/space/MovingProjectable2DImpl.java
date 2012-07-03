@@ -5,22 +5,22 @@ package org.asoem.greyfish.utils.space;
  * Date: 22.06.12
  * Time: 11:47
  */
-public class MovingObject2DImpl implements MovingObject2D {
-    private Object2D projection;
+public class MovingProjectable2DImpl implements MovingProjectable2D {
+    private MotionObject2D projection;
     private Motion2D motion;
 
     @Override
-    public Object2D getProjection() {
+    public MotionObject2D getProjection() {
         return projection;
     }
 
     @Override
-    public void setProjection(Object2D projection) {
+    public void setProjection(MotionObject2D projection) {
         this.projection = projection;
     }
 
     @Override
-    public void collision(MovingObject2D other) {
+    public void collision(MovingProjectable2D other) {
         // nop
     }
 
