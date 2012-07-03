@@ -26,7 +26,7 @@ import static org.asoem.greyfish.utils.space.ImmutableLocation2D.sum;
  * @author christoph
  *         This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
-public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<WalledTile> {
+public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Tiled<WalledTile> {
 
     @Attribute(name = "height")
     private final int height;
@@ -169,58 +169,23 @@ public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<W
 
 
     @Override
-    public Object2D moveObject(T object) {
+    public void moveObject(T object) {
         final Motion2D motion = object.getMotion();
 
-        if (!motion.equals(ImmutableMotion2D.noMotion()))
-            return object.getProjection();
-        else {
-            checkNotNull(object);
-            final Object2D currentProjection = object.getProjection();
-            checkNotNull(currentProjection, "Given object has no projection. Have you added it to this Space?", object);
-            checkNotNull(motion);
-            checkArgument(Math.abs(motion.getTranslation()) <= 1, "Translations > 1 are not supported", motion.getTranslation());
+        checkNotNull(object);
+        final Object2D currentProjection = object.getProjection();
+        checkNotNull(currentProjection, "Given object has no projection. Have you added it to this Space?", object);
+        checkNotNull(motion);
+        checkArgument(Math.abs(motion.getTranslation()) <= 1, "Translations > 1 are not supported", motion.getTranslation());
 
-            final double newOrientation = ((currentProjection.getOrientationAngle() + motion.getRotation()) % TWO_PI + TWO_PI) % TWO_PI;
-            final double translation = motion.getTranslation();
-            final Location2D preferredLocation = sum(currentProjection, polarToCartesian(newOrientation, translation));
-            final Location2D maxLocation = maxTransition(currentProjection, preferredLocation);
+        final double newOrientation = ((currentProjection.getOrientationAngle() + motion.getRotation()) % TWO_PI + TWO_PI) % TWO_PI;
+        final double translation = motion.getTranslation();
+        final Location2D preferredLocation = sum(currentProjection, polarToCartesian(newOrientation, translation));
+        final Location2D maxLocation = maxTransition(currentProjection, preferredLocation);
 
-            if (!preferredLocation.equals(maxLocation)) {
-                object.collision(new MovingObject2D() {
-                    @Override
-                    public void collision(MovingObject2D other) {
-
-                    }
-
-                    @Override
-                    public Motion2D getMotion() {
-                        return ImmutableMotion2D.noMotion();
-                    }
-
-                    @Override
-                    public void setMotion(Motion2D motion) {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public Object2D getProjection() {
-                        return null; // TODO: return Object2D for Wall at maxLocation
-                    }
-
-                    @Override
-                    public void setProjection(Object2D projection) {
-                        throw new UnsupportedOperationException();
-                    }
-                });
-            }
-
-            final ImmutableObject2D projection = ImmutableObject2D.of(maxLocation.getX(), maxLocation.getY(), newOrientation);
-            object.setProjection(projection);
-            tree.setOutdated();
-
-            return projection;
-        }
+        final MotionObject2D projection = MotionObject2DImpl.of(maxLocation.getX(), maxLocation.getY(), newOrientation, !preferredLocation.equals(maxLocation));
+        object.setProjection(projection);
+        tree.setOutdated();
     }
 
     /**
@@ -398,12 +363,13 @@ public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<W
     }
 
     @Override
-    public void addObject(T projectable, Object2D projection) {
+    public void addObject(T projectable) {
+        final MotionObject2D projection = projectable.getProjection();
         checkArgument(this.contains(checkNotNull(projection)), "Projection " + projection + " is not contained by this TiledSpace " + this);
         checkNotNull(projectable);
+
         synchronized (this) {
             projectables.add(projectable);
-            projectable.setProjection(projection);
             tree.setOutdated();
         }
     }
@@ -411,6 +377,7 @@ public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<W
     @Override
     public boolean removeObject(T object) {
         checkNotNull(object);
+
         synchronized (this) {
             if (projectables.remove(object)) {
                 tree.setOutdated();
@@ -469,11 +436,11 @@ public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<W
         return new TiledSpace(space);
     }
 
-    public static <T extends MovingObject2D> TiledSpace<T> ofSize(int width, int height) {
+    public static <T extends MovingProjectable2D> TiledSpace<T> ofSize(int width, int height) {
         return new TiledSpace<T>(width, height);
     }
 
-    public static <T extends MovingObject2D> TiledSpaceBuilder<T> builder(int width, int height) {
+    public static <T extends MovingProjectable2D> TiledSpaceBuilder<T> builder(int width, int height) {
         return new TiledSpaceBuilder<T>(width, height);
     }
 
@@ -485,7 +452,7 @@ public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<W
      * @return a new space
      */
     @SuppressWarnings("UnusedDeclaration")
-    public static <T extends MovingObject2D> TiledSpace<T> createEmptyCopy(TiledSpace<?> space) {
+    public static <T extends MovingProjectable2D> TiledSpace<T> createEmptyCopy(TiledSpace<?> space) {
         return new TiledSpace<T>(space.getWidth(), space.getHeight(), space.getBorderedTiles());
     }
 
@@ -520,7 +487,7 @@ public class TiledSpace<T extends MovingObject2D> implements Space2D<T>, Tiled<W
         }
     }
 
-    public static class TiledSpaceBuilder<T extends MovingObject2D> implements Builder<TiledSpace<T>> {
+    public static class TiledSpaceBuilder<T extends MovingProjectable2D> implements Builder<TiledSpace<T>> {
 
         private final int width;
         private final int height;

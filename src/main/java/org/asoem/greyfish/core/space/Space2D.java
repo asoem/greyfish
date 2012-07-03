@@ -1,15 +1,14 @@
 package org.asoem.greyfish.core.space;
 
 import org.asoem.greyfish.utils.space.Location2D;
-import org.asoem.greyfish.utils.space.MovingObject2D;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.MovingProjectable2D;
 
 /**
  * User: christoph
  * Date: 29.02.12
  * Time: 18:56
  */
-public interface Space2D<T extends MovingObject2D> {
+public interface Space2D<T extends MovingProjectable2D> {
 
     int countObjects();
 
@@ -17,11 +16,11 @@ public interface Space2D<T extends MovingObject2D> {
 
     Iterable<T> getObjects();
 
-    void addObject(T projectable, Object2D projection);
+    void addObject(T projectable);
 
     boolean removeObject(T object);
 
-    Object2D moveObject(T object2d);
+    void moveObject(T object2d);
 
     /**
      * @param point the locatable of the search point

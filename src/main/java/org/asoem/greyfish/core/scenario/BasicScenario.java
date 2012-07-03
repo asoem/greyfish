@@ -70,7 +70,8 @@ public class BasicScenario implements Scenario {
 
         addAsPrototypeIfUnknown(prototype);
 
-        space.addObject(prototype, object2D);
+        prototype.setProjection(object2D);
+        space.addObject(prototype);
         return true;
     }
 

@@ -159,16 +159,20 @@ public class TiledSpaceTest {
     @Test
     public void testFindVisibleNeighbours() throws Exception {
         // given
-        final TiledSpace<MovingObject2D> space = TiledSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
-        final MovingObject2DImpl focal = new MovingObject2DImpl();
-        final MovingObject2DImpl neighbour1 = new MovingObject2DImpl();
-        final MovingObject2DImpl neighbour2 = new MovingObject2DImpl();
-        space.addObject(focal, ImmutableObject2D.of(1.5, 0.5, 0));
-        space.addObject(neighbour1, ImmutableObject2D.of(0.5, 0.5, 0));
-        space.addObject(neighbour2, ImmutableObject2D.of(2.5, 0.5, 0));
+        final TiledSpace<MovingProjectable2D> space = TiledSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
+        final MovingProjectable2DImpl focal = new MovingProjectable2DImpl();
+        focal.setProjection(ImmutableObject2D.of(1.5, 0.5, 0));
+        final MovingProjectable2DImpl neighbour1 = new MovingProjectable2DImpl();
+        neighbour1.setProjection(ImmutableObject2D.of(0.5, 0.5, 0));
+        final MovingProjectable2DImpl neighbour2 = new MovingProjectable2DImpl();
+        neighbour2.setProjection(ImmutableObject2D.of(2.5, 0.5, 0));
+
+        space.addObject(focal);
+        space.addObject(neighbour1);
+        space.addObject(neighbour2);
 
         // when
-        final Iterable<MovingObject2D> visibleNeighbours = space.getVisibleNeighbours(focal, 2.0);
+        final Iterable<MovingProjectable2D> visibleNeighbours = space.getVisibleNeighbours(focal, 2.0);
 
         // then
         assertThat(visibleNeighbours).containsOnly(neighbour2);

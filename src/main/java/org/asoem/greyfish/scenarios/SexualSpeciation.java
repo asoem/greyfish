@@ -193,6 +193,8 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .turningAngle(new Callback<GenericMovementAction, Double>() {
                                     @Override
                                     public Double apply(GenericMovementAction caller, Map<String, ?> arguments) {
+                                        if (caller.agent().didCollide())
+                                            return caller.agent().getMotion().getRotation() + MathLib.PI;
                                         return caller.agent().getMotion().getRotation() + RandomUtils.rnorm(0, 0.08);
                                     }
                                 })

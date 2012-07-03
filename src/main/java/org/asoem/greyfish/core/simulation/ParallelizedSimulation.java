@@ -206,7 +206,8 @@ public class ParallelizedSimulation implements Simulation {
         assert agent != null;
         assert projection != null;
 
-        space.addObject(agent, projection);
+        agent.setProjection(projection);
+        space.addObject(agent);
         agent.activate(this);
 
         agentActivated(agent);

@@ -96,4 +96,6 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
     void logEvent(Object eventOrigin, String title, String message);
 
     void distributeEvent(Object event);
+
+    boolean didCollide();
 }

@@ -21,8 +21,8 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MovingObject2D;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.MotionObject2D;
+import org.asoem.greyfish.utils.space.MovingProjectable2D;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
@@ -66,7 +66,8 @@ public abstract class AbstractAgent implements Agent {
     protected SimulationContext simulationContext = PassiveSimulationContext.INSTANCE;
 
     @Element(name = "projection", required = false)
-    private Object2D projection;
+    @Nullable
+    private MotionObject2D projection;
 
     @Element(name = "motion", required = false)
     private Motion2D motion = ImmutableMotion2D.noMotion();
@@ -81,16 +82,6 @@ public abstract class AbstractAgent implements Agent {
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
         this.geneComponentList = checkNotNull(geneComponentList);
-
-        initComponents();
-    }
-
-    public AbstractAgent(AbstractAgent agent) {
-        this(agent.getBody(), agent.getProperties(), agent.getActions(), agent.getGeneComponentList());
-        this.population = agent.population;
-        this.simulationContext = agent.simulationContext;
-        this.projection = agent.projection;
-        this.motion = agent.motion;
 
         initComponents();
     }
@@ -368,14 +359,22 @@ public abstract class AbstractAgent implements Agent {
         return body;
     }
 
+    @Nullable
     @Override
-    public Object2D getProjection() {
+    public MotionObject2D getProjection() {
         return projection;
     }
 
     @Override
-    public void setProjection(Object2D projection) {
+    public void setProjection(@Nullable MotionObject2D projection) {
         this.projection = projection;
+    }
+
+    @Override
+    public boolean didCollide() {
+        if (projection == null)
+            throw new IllegalStateException("This agent has no projection");
+        return projection.didCollide();
     }
 
     @Override
@@ -396,6 +395,7 @@ public abstract class AbstractAgent implements Agent {
         geneComponentList.setOrigin(chromosome.getOrigin());
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -432,7 +432,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void collision(MovingObject2D other) {
+    public void collision(MovingProjectable2D other) {
         distributeEvent(new Collision2D(null, null, null, null, null));
     }
 

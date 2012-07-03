@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MovingObject2D;
+import org.asoem.greyfish.utils.space.MovingProjectable2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
@@ -258,7 +258,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void collision(MovingObject2D other) {
+    public void collision(MovingProjectable2D other) {
         delegate().collision(other);
     }
 }

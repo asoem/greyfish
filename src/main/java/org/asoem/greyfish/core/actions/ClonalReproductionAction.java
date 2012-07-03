@@ -33,8 +33,8 @@ public class ClonalReproductionAction extends AbstractGFAction {
         final int nClones = this.nClones.evaluateForContext(this).asInt();
         for (int i = 0; i < nClones; i++) {
 
-            final Agent agent = simulation.createAgent(agent().getPopulation());
-            agent.updateGeneComponents(
+            final Agent clone = simulation.createAgent(agent().getPopulation());
+            clone.updateGeneComponents(
                     new Chromosome(new UniparentalChromosomalOrigin(agent().getId()),
                             Iterables.transform(ImmutableGeneComponentList.mutatedCopyOf(agent().getGeneComponentList()), new Function<GeneComponent<?>, Gene<?>>() {
                                 @Override
@@ -43,7 +43,7 @@ public class ClonalReproductionAction extends AbstractGFAction {
                                     return new Gene<Object>(gene.getAllele(), gene.getRecombinationProbability());
                                 }
                             })));
-            simulation.activateAgent(agent, agent().getProjection());
+            simulation.activateAgent(clone, agent().getProjection());
 
             agent().logEvent(this, "offspringProduced", "");
         }
