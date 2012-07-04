@@ -17,8 +17,8 @@ public class MutableObject2D implements Object2D {
     @Attribute(name = "orientation")
     private double orientation = 0;
 
-    @Element(name = "location")
-    private MutableLocation2D locatable2D = new MutableLocation2D();
+    @Element(name = "anchorPoint")
+    private MutablePoint2D anchorPoint = new MutablePoint2D();
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private MutableObject2D() {}
@@ -29,7 +29,7 @@ public class MutableObject2D implements Object2D {
         setOrientation(angle);
     }
 
-    public void setCoordinates(Location2D locatable2d) {
+    public void setCoordinates(Point2D locatable2d) {
         checkNotNull(locatable2d);
         setX(locatable2d.getX());
         setY(locatable2d.getY());
@@ -38,6 +38,11 @@ public class MutableObject2D implements Object2D {
     @Override
     public double getOrientationAngle() {
         return orientation;
+    }
+
+    @Override
+    public Point2D getAnchorPoint() {
+        return anchorPoint;
     }
 
     public void setOrientation(double alpha) {
@@ -53,31 +58,16 @@ public class MutableObject2D implements Object2D {
         return new MutableObject2D(x, y, angle);
     }
 
-    public static MutableObject2D at(Location2D locatable2D, double angle) {
+    public static MutableObject2D at(Point2D locatable2D, double angle) {
         return new MutableObject2D(locatable2D.getX(), locatable2D.getY(), angle);
     }
 
-    @Override
-    public double getX() {
-        return locatable2D.getX();
-    }
-
     public void setX(double x) {
-        locatable2D.setX(x);
-    }
-
-    @Override
-    public double getY() {
-        return locatable2D.getY();
+        anchorPoint.setX(x);
     }
 
     public void setY(double y) {
-        locatable2D.setY(y);
-    }
-
-    @Override
-    public double[] getCoordinates() {
-        return locatable2D.getCoordinates();
+        anchorPoint.setY(y);
     }
 
     @Override
@@ -103,7 +93,7 @@ public class MutableObject2D implements Object2D {
         MutableObject2D that = (MutableObject2D) o;
 
         if (Double.compare(that.orientation, orientation) != 0) return false;
-        if (!locatable2D.equals(that.locatable2D)) return false;
+        if (!anchorPoint.equals(that.anchorPoint)) return false;
 
         return true;
     }
@@ -114,7 +104,7 @@ public class MutableObject2D implements Object2D {
         long temp;
         temp = orientation != +0.0d ? Double.doubleToLongBits(orientation) : 0L;
         result = (int) (temp ^ (temp >>> 32));
-        result = 31 * result + locatable2D.hashCode();
+        result = 31 * result + anchorPoint.hashCode();
         return result;
     }
 }

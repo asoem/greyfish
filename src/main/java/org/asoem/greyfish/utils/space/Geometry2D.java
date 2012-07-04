@@ -19,10 +19,10 @@ public class Geometry2D {
      * @param l2y1 Line2:Point1:y
      * @param l2x2 Line2:Point2:x
      * @param l2y2 Line2:Point2:y
-     * @return The {@code ImmutableLocation2D} where the line segments intersect or {@code null} if they don't.
+     * @return The {@code ImmutablePoint2D} where the line segments intersect or {@code null} if they don't.
      */
     @Nullable
-    public static ImmutableLocation2D intersection(double l1x1, double l1y1, double l1x2, double l1y2,
+    public static ImmutablePoint2D intersection(double l1x1, double l1y1, double l1x2, double l1y2,
                                                    double l2x1, double l2y1, double l2x2, double l2y2) {
         final double dx1 = l1x2 - l1x1;
         final double dx2 = l2x2 - l2x1;
@@ -44,7 +44,7 @@ public class Geometry2D {
         final double ix = l1x1 + (ua * (l1x2 - l1x1));
         final double iy = l1y1 + (ua * (l1y2 - l1y1));
 
-        return ImmutableLocation2D.at(ix, iy);
+        return ImmutablePoint2D.at(ix, iy);
     }
 
     public static boolean rectangleContains(int x, int y, int w, int h, double x1, double y1) {

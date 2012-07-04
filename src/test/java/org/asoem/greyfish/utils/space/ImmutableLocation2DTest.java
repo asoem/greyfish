@@ -13,8 +13,8 @@ public class ImmutableLocation2DTest {
 
     @Test
     public void testEqualsNegativeZero() throws Exception {
-        final ImmutableLocation2D negZero = ImmutableLocation2D.at(-0.0, 1.0);
-        final ImmutableLocation2D posZero = ImmutableLocation2D.at(0.0, 1.0);
+        final ImmutablePoint2D negZero = ImmutablePoint2D.at(-0.0, 1.0);
+        final ImmutablePoint2D posZero = ImmutablePoint2D.at(0.0, 1.0);
 
         assertThat(negZero).isEqualTo(posZero);
         assertThat(negZero.hashCode()).isEqualTo(posZero.hashCode());

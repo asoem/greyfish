@@ -14,7 +14,7 @@ public class Geometry2DTest {
     public void testNoIntersectionWithAdjacentFP() throws Exception {
 
         // when
-        final ImmutableLocation2D intersection = Geometry2D.intersection(1.0, 0.0, 1.0, Math.nextAfter(1.0, -Double.MIN_VALUE), 0.0, 1.0, 1.0, 1.0);
+        final ImmutablePoint2D intersection = Geometry2D.intersection(1.0, 0.0, 1.0, Math.nextAfter(1.0, -Double.MIN_VALUE), 0.0, 1.0, 1.0, 1.0);
 
         // then
         assertThat(intersection).isNull();
@@ -24,9 +24,9 @@ public class Geometry2DTest {
     public void testIntersection() throws Exception {
 
         // when
-        final ImmutableLocation2D intersection = Geometry2D.intersection(9.975393084761107, 0.5, 10.066768813786554, 0.5, Math.nextAfter(10.0, -Double.MIN_VALUE), 0.0, Math.nextAfter(10.0, -Double.MIN_VALUE), 1.0);
+        final ImmutablePoint2D intersection = Geometry2D.intersection(9.975393084761107, 0.5, 10.066768813786554, 0.5, Math.nextAfter(10.0, -Double.MIN_VALUE), 0.0, Math.nextAfter(10.0, -Double.MIN_VALUE), 1.0);
 
         // then
-        assertThat(intersection).isEqualTo(ImmutableLocation2D.at(Math.nextAfter(10.0, -Double.MIN_VALUE), 0.5));
+        assertThat(intersection).isEqualTo(ImmutablePoint2D.at(Math.nextAfter(10.0, -Double.MIN_VALUE), 0.5));
     }
 }

@@ -6,5 +6,4 @@ package org.asoem.greyfish.utils.space;
  * Time: 14:43
  */
 public interface MovingProjectable2D extends Moving<Motion2D>, Projectable<MotionObject2D> {
-    void collision(MovingProjectable2D other);
 }

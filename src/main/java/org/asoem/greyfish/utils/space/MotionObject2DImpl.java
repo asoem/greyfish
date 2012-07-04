@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 
 /**
  * User: christoph
@@ -12,11 +13,10 @@ public class MotionObject2DImpl extends ImmutableObject2D implements MotionObjec
     @Attribute(name = "collision")
     private final boolean collision;
 
-    private MotionObject2DImpl(@Attribute(name = "x") double x,
-                               @Attribute(name = "y") double y,
-                               @Attribute(name = "orientation") double orientation,
-                               @Attribute(name = "collision") boolean collision) {
-        super(x, y, orientation);
+    public MotionObject2DImpl(@Element(name = "anchorPoint") Point2D anchorPoint,
+                              @Attribute(name = "orientation") double orientation,
+                              @Attribute(name = "collision") boolean collision) {
+        super(anchorPoint, orientation);
         this.collision = collision;
     }
 
@@ -26,6 +26,6 @@ public class MotionObject2DImpl extends ImmutableObject2D implements MotionObjec
     }
 
     public static MotionObject2D of(double x, double y, double newOrientation, boolean b) {
-        return new MotionObject2DImpl(x, y, newOrientation, b);
+        return new MotionObject2DImpl(ImmutablePoint2D.at(x, y), newOrientation, b);
     }
 }

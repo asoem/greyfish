@@ -20,11 +20,6 @@ public class MovingProjectable2DImpl implements MovingProjectable2D {
     }
 
     @Override
-    public void collision(MovingProjectable2D other) {
-        // nop
-    }
-
-    @Override
     public Motion2D getMotion() {
         return motion;
     }

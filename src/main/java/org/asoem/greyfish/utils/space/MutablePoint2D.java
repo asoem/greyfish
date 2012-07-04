@@ -7,7 +7,7 @@ import org.simpleframework.xml.Attribute;
  * Date: 24.02.12
  * Time: 10:05
  */
-public class MutableLocation2D implements Location2D {
+public class MutablePoint2D extends AbstractPoint2D {
 
     @Attribute
     private double x;
@@ -15,10 +15,10 @@ public class MutableLocation2D implements Location2D {
     @Attribute
     private double y;
 
-    public MutableLocation2D() {
+    public MutablePoint2D() {
     }
 
-    public MutableLocation2D(double x, double y) {
+    public MutablePoint2D(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -42,16 +42,11 @@ public class MutableLocation2D implements Location2D {
     }
 
     @Override
-    public double[] getCoordinates() {
-        return new double[] {x, y};
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MutableLocation2D)) return false;
+        if (!(o instanceof MutablePoint2D)) return false;
 
-        MutableLocation2D that = (MutableLocation2D) o;
+        MutablePoint2D that = (MutablePoint2D) o;
 
         if (Double.compare(that.x, x) != 0) return false;
         if (Double.compare(that.y, y) != 0) return false;

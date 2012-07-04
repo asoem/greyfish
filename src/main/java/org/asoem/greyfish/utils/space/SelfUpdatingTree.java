@@ -2,6 +2,7 @@ package org.asoem.greyfish.utils.space;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import org.asoem.greyfish.utils.base.Product2;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -18,11 +19,11 @@ public class SelfUpdatingTree<T> extends ForwardingTwoDimTree<T> {
     private final AtomicBoolean outdated = new AtomicBoolean();
     private final TwoDimTree<T> delegate;
     private final Supplier<Iterable<? extends T>> elements;
-    private final Function<? super T, ? extends Location2D> function;
+    private final Function<? super T, ? extends Product2<Double, Double>> function;
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public SelfUpdatingTree(TwoDimTree<T> delegate, Supplier<Iterable<? extends T>> elements, Function<? super T, ? extends Location2D> function) {
+    public SelfUpdatingTree(TwoDimTree<T> delegate, Supplier<Iterable<? extends T>> elements, Function<? super T, ? extends Product2<Double, Double>> function) {
         this.elements = checkNotNull(elements);
         this.function = checkNotNull(function);
         this.delegate = checkNotNull(delegate);
@@ -49,7 +50,7 @@ public class SelfUpdatingTree<T> extends ForwardingTwoDimTree<T> {
     }
 
     @Override
-    public void rebuild(Iterable<? extends T> elements, Function<? super T, ? extends Location2D> function) {
+    public void rebuild(Iterable<? extends T> elements, Function<? super T, ? extends Product2<Double,Double>> function) {
         lock.writeLock().lock();
         try {
             delegate().rebuild(elements, function);
@@ -61,11 +62,11 @@ public class SelfUpdatingTree<T> extends ForwardingTwoDimTree<T> {
     }
 
     @Override
-    public Iterable<T> findObjects(Location2D locatable, double range) {
+    public Iterable<T> findObjects(double x, double y, double range) {
         lock.readLock().lock();
         try {
             rebuildIfOutdated();
-            return delegate().findObjects(locatable, range);
+            return delegate().findObjects(x, y, range);
         }
         finally {
             lock.readLock().unlock();
