@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.space;
 
-import org.asoem.greyfish.utils.space.Location2D;
 import org.asoem.greyfish.utils.space.MovingProjectable2D;
 
 /**
@@ -12,21 +11,22 @@ public interface Space2D<T extends MovingProjectable2D> {
 
     int countObjects();
 
-    boolean contains(Location2D location);
+    boolean contains(double x, double y);
 
     Iterable<T> getObjects();
 
-    void addObject(T projectable);
+    void insertObject(T projectable, double x, double y, double orientation);
 
     boolean removeObject(T object);
 
     void moveObject(T object2d);
 
     /**
-     * @param point the locatable of the search point
-     * @param range the radius of the circle around {@code locatable}
-     * @return evaluates objects whose location in this space
+     *
+     * @param x
+     * @param y
+     *@param range the radius of the circle around {@code locatable}  @return evaluates objects whose location in this space
      *         intersects with the circle defined by {@code locatable} and {@code range}
      */
-    Iterable<T> findObjects(Location2D point, double range);
+    Iterable<T> findObjects(double x, double y, double range);
 }

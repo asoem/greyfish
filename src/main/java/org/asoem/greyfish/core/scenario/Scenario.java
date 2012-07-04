@@ -17,12 +17,12 @@ import java.util.Set;
 public interface Scenario {
 
     /**
-     * Add a {@code Placeholder} for the given {@code Agent} and place it at the given {@code location}
+     * Add a {@code Placeholder} for the given {@code Agent} and place it at the given {@code projection}
      * @param prototype the agent the created {@code Placeholder} will delegate to
-     * @param location the location at which the created {@code Placeholder} will be located at
+     * @param projection the projection at which the created {@code Placeholder} will be located at
      * @return {@code true} if the {@code Placeholder} could be created, {@code false} otherwise
      */
-    boolean addAgent(Agent prototype, Object2D location);
+    boolean addAgent(Agent prototype, Object2D projection);
 
     /**
      * Remove the given {@code Placeholder} from this scenario

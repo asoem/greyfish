@@ -19,8 +19,8 @@ public abstract class ForwardingScenario extends ForwardingObject implements Sce
     protected abstract Scenario delegate();
 
     @Override
-    public boolean addAgent(Agent prototype, Object2D location) {
-        return delegate().addAgent(prototype, location);
+    public boolean addAgent(Agent prototype, Object2D projection) {
+        return delegate().addAgent(prototype, projection);
     }
 
     @Override

@@ -2,7 +2,9 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.core.io.persistence.TypeTokenConverter;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.convert.Convert;
 
 import java.util.Map;
 
@@ -19,6 +21,7 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T> {
     private final GreyfishExpression expression;
 
     @Element(name = "returnType")
+    @Convert(TypeTokenConverter.class)
     private final TypeToken<T> returnType;
 
     public GreyfishExpressionCallback(GreyfishExpression expression, Class<T> returnType) {

@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Collision2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.collect.Trees;
@@ -22,7 +21,6 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.MotionObject2D;
-import org.asoem.greyfish.utils.space.MovingProjectable2D;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
@@ -290,12 +288,6 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void distributeEvent(Object event) {
-        for (AgentComponent component : getComponents())
-            component.handleEvent(event);
-    }
-
-    @Override
     public void execute() {
         simulationContext.execute(this);
     }
@@ -429,11 +421,6 @@ public abstract class AbstractAgent implements Agent {
         result = 31 * result + (inBox != null ? inBox.hashCode() : 0);
         result = 31 * result + (motion != null ? motion.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public void collision(MovingProjectable2D other) {
-        distributeEvent(new Collision2D(null, null, null, null, null));
     }
 
     protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {

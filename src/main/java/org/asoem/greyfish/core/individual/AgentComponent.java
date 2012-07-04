@@ -30,12 +30,6 @@ public interface AgentComponent extends TreeNode<AgentComponent>, Freezable, Has
     void setName(String name);
 
     /**
-     * This method is called by the {@code} Agent to notify the component of internal events.
-     * @param notification the event notification
-     */
-    void handleEvent(Object notification);
-
-    /**
      * Component initialization hook.
      * Called by an {@code Agent} if it's {@code AgentComponent}s should prepare themselves for a new {@code Simulation} simulation.
      * Implementations should reset their own fields to an initial state and their those of their {@code super} class if they have any.

@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.utils.space.Geometry2D;
-import org.asoem.greyfish.utils.space.Location2D;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ public class WalledTile implements Tile {
         setWall(direction, !hasWall(direction));
     }
 
-    public boolean covers(Location2D locatable) {
+    public boolean covers(Point2D locatable) {
         return covers(locatable.getX(), locatable.getY());
     }
 

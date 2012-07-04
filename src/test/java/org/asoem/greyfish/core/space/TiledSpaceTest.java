@@ -41,87 +41,87 @@ public class TiledSpaceTest {
     @Test
     public void testMaxTransitionWithNorthernWall() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
-        Location2D destination = ImmutableLocation2D.at(0.0, -1.0);
+        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        Point2D destination = ImmutablePoint2D.at(0.0, -1.0);
         TiledSpace space = new TiledSpace(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.NORTH, true);
 
         // when
-        final Location2D maxTransition = space.maxTransition(origin, destination);
+        final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(0.0, 0.0));
     }
 
     @Test
     public void testMaxTransitionWithEasternWall() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
-        Location2D destination = ImmutableLocation2D.at(2.0, 0.0);
+        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        Point2D destination = ImmutablePoint2D.at(2.0, 0.0);
         TiledSpace space = new TiledSpace(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.EAST, true);
 
         // when
-        final Location2D maxTransition = space.maxTransition(origin, destination);
+        final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), 0.0));
     }
 
     @Test
     public void testMaxTransitionWithSouthernWall() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
-        Location2D destination = ImmutableLocation2D.at(0.0, 2.0);
+        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        Point2D destination = ImmutablePoint2D.at(0.0, 2.0);
         TiledSpace space = new TiledSpace(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
-        final Location2D maxTransition = space.maxTransition(origin, destination);
+        final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, Math.nextAfter(1.0, -Double.MIN_VALUE)));
+        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(0.0, Math.nextAfter(1.0, -Double.MIN_VALUE)));
     }
 
     @Test
     public void testMaxTransitionWithWesternWall() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
-        Location2D destination = ImmutableLocation2D.at(-1.0, 0.0);
+        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        Point2D destination = ImmutablePoint2D.at(-1.0, 0.0);
         TiledSpace space = new TiledSpace(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.WEST, true);
 
         // when
-        final Location2D maxTransition = space.maxTransition(origin, destination);
+        final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(0.0, 0.0));
+        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(0.0, 0.0));
     }
 
     @Test
     public void testMaxTransitionWithAtEdge() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
-        Location2D destination = ImmutableLocation2D.at(2.0, 2.0);
+        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        Point2D destination = ImmutablePoint2D.at(2.0, 2.0);
         TiledSpace space = new TiledSpace(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
-        final Location2D maxTransition = space.maxTransition(origin, destination);
+        final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), Math.nextAfter(1.0, -Double.MIN_VALUE)));
+        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), Math.nextAfter(1.0, -Double.MIN_VALUE)));
     }
 
     @Test
     public void testNoMaxTransition() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(0.0, 0.0);
-        Location2D destination = ImmutableLocation2D.at(0.5, 0.5);
+        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        Point2D destination = ImmutablePoint2D.at(0.5, 0.5);
         TiledSpace space = new TiledSpace(1, 1);
 
         // when
-        final Location2D maxTransition = space.maxTransition(origin, destination);
+        final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
         assertThat(maxTransition).isEqualTo(destination);
@@ -145,15 +145,15 @@ public class TiledSpaceTest {
     @Test
     public void testMaxTransitionWithEasternSpaceBorder() throws Exception {
         // given
-        Location2D origin = ImmutableLocation2D.at(4.835470690262208, 9.9999999997506);
-        Location2D destination = ImmutableLocation2D.at(4.9251314448644665, 10.044282607873617);
+        Point2D origin = ImmutablePoint2D.at(4.835470690262208, 9.9999999997506);
+        Point2D destination = ImmutablePoint2D.at(4.9251314448644665, 10.044282607873617);
         TiledSpace space = new TiledSpace(10, 10);
 
         // when
-        final Location2D maxTransition = space.maxTransition(origin, destination);
+        final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutableLocation2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE)));
+        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE)));
     }
 
     @Test
@@ -161,15 +161,15 @@ public class TiledSpaceTest {
         // given
         final TiledSpace<MovingProjectable2D> space = TiledSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
         final MovingProjectable2DImpl focal = new MovingProjectable2DImpl();
-        focal.setProjection(ImmutableObject2D.of(1.5, 0.5, 0));
+        focal.setProjection(MotionObject2DImpl.of(1.5, 0.5, 0, false));
         final MovingProjectable2DImpl neighbour1 = new MovingProjectable2DImpl();
-        neighbour1.setProjection(ImmutableObject2D.of(0.5, 0.5, 0));
+        neighbour1.setProjection(MotionObject2DImpl.of(0.5, 0.5, 0, false));
         final MovingProjectable2DImpl neighbour2 = new MovingProjectable2DImpl();
-        neighbour2.setProjection(ImmutableObject2D.of(2.5, 0.5, 0));
+        neighbour2.setProjection(MotionObject2DImpl.of(2.5, 0.5, 0, false));
 
-        space.addObject(focal);
-        space.addObject(neighbour1);
-        space.addObject(neighbour2);
+        space.insertObject(focal, 0, 0, 0);
+        space.insertObject(neighbour1, 0, 0, 0);
+        space.insertObject(neighbour2, 0, 0, 0);
 
         // when
         final Iterable<MovingProjectable2D> visibleNeighbours = space.getVisibleNeighbours(focal, 2.0);

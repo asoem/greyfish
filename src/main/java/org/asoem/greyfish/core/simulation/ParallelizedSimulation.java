@@ -26,6 +26,7 @@ import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -206,8 +207,8 @@ public class ParallelizedSimulation implements Simulation {
         assert agent != null;
         assert projection != null;
 
-        agent.setProjection(projection);
-        space.addObject(agent);
+        final Point2D anchorPoint = projection.getAnchorPoint();
+        space.insertObject(agent, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
         agent.activate(this);
 
         agentActivated(agent);
@@ -284,7 +285,8 @@ public class ParallelizedSimulation implements Simulation {
 
         checkArgument(getPrototype(agent.getPopulation()) != null,
                 "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
-        checkArgument(space.contains(projection),
+        final Point2D anchorPoint = projection.getAnchorPoint();
+        checkArgument(space.contains(anchorPoint.getX(), anchorPoint.getY()),
                 "Coordinates of " + projection + " do not fall inside the area of this simulation's space: " + space);
 
         addAgentMessages.add(new AddAgentMessage(agent, projection));

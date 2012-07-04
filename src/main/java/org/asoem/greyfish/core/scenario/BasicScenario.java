@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -64,14 +65,14 @@ public class BasicScenario implements Scenario {
     }
 
     @Override
-    public boolean addAgent(Agent prototype, Object2D object2D) {
+    public boolean addAgent(Agent prototype, Object2D projection) {
         checkNotNull(prototype);
-        checkNotNull(object2D);
+        checkNotNull(projection);
 
         addAsPrototypeIfUnknown(prototype);
 
-        prototype.setProjection(object2D);
-        space.addObject(prototype);
+        final Point2D anchorPoint = projection.getAnchorPoint();
+        space.insertObject(prototype, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
         return true;
     }
 
@@ -173,7 +174,8 @@ public class BasicScenario implements Scenario {
         public Builder addAgent(final Agent prototype, Object2D object2D) {
             checkNotNull(prototype);
             checkNotNull(object2D);
-            checkArgument(space.contains(object2D), "object2D " + object2D + " is out of the space range " + space);
+            final Point2D anchorPoint = object2D.getAnchorPoint();
+            checkArgument(space.contains(anchorPoint.getX(), anchorPoint.getY()), "object2D " + object2D + " is out of the space range " + space);
             projections.add(new AgentProjectionPair(prototype, object2D));
             return this;
         }
@@ -186,7 +188,9 @@ public class BasicScenario implements Scenario {
             checkState(Iterables.all(projections, new Predicate<AgentProjectionPair>() {
                 @Override
                 public boolean apply(AgentProjectionPair object2D) {
-                    return space.contains(object2D.projection);
+                    final Object2D projection = object2D.projection;
+                    final Point2D anchorPoint = projection.getAnchorPoint();
+                    return space.contains(anchorPoint.getX(), anchorPoint.getY());
                 }
             }), "Scenario cannot be built: Projection of at least one agent is out of the space range");
             return new BasicScenario(this);

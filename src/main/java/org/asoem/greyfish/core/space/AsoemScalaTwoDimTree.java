@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.utils.space.Location2D;
 import org.asoem.greyfish.utils.space.TwoDimTree;
 import org.asoem.kdtree.HyperPoint;
 import org.asoem.kdtree.HyperPoint2;
@@ -13,7 +12,6 @@ import scala.Tuple2;
 
 import java.util.Collections;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static scala.collection.JavaConversions.asJavaIterable;
 import static scala.collection.JavaConversions.iterableAsScalaIterable;
 
@@ -29,12 +27,12 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
     }
 
     @Override
-    public void rebuild(Iterable<? extends T> elements, final Function<? super T, ? extends Location2D> coordinates2DFunction) {
+    public void rebuild(Iterable<? extends T> elements, final Function<? super T, ? extends org.asoem.greyfish.utils.base.Product2<Double,Double>> coordinates2DFunction) {
         final Iterable<Product2<HyperPoint, T>> transform = Iterables.transform(elements, new Function<T, Product2<HyperPoint, T>>() {
             @Override
             public Product2<HyperPoint, T> apply(T t) {
-                final Location2D b = coordinates2DFunction.apply(t);
-                return new Tuple2<HyperPoint, T>(new HyperPoint2(b.getX(), b.getY()), t);
+                final org.asoem.greyfish.utils.base.Product2<Double, Double> b = coordinates2DFunction.apply(t);
+                return new Tuple2<HyperPoint, T>(new HyperPoint2(b._1(), b._2()), t);
             }
         });
         kdtree = org.asoem.kdtree.KDTree.apply(2, iterableAsScalaIterable(transform).toList());
@@ -42,13 +40,11 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Iterable<T> findObjects(Location2D p, double range) {
-        checkNotNull(p);
-
+    public Iterable<T> findObjects(double x, double y, double range) {
         if (kdtree.size() == 0)
             return Collections.emptyList();
 
-        final HyperPoint searchPoint = new HyperPoint2(p.getX(), p.getY());
+        final HyperPoint searchPoint = new HyperPoint2(x, y);
 
         final scala.collection.immutable.List<NNResult<T>> nnResultList
                 = kdtree.filterRange(searchPoint, range);

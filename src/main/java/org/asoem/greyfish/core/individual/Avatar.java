@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -18,7 +18,7 @@ public class Avatar extends ForwardingAgent {
     private final Agent delegate;
 
     @Element(required = false)
-    private Object2D projection;
+    private MotionObject2D projection;
 
     public Avatar(@Element(name = "delegate") Agent delegate) {
         this.delegate = checkNotNull(delegate);
@@ -57,12 +57,12 @@ public class Avatar extends ForwardingAgent {
     }
 
     @Override
-    public void setProjection(Object2D projection) {
+    public void setProjection(MotionObject2D projection) {
         this.projection = projection;
     }
 
     @Override
-    public Object2D getProjection() {
+    public MotionObject2D getProjection() {
         return projection;
     }
 }

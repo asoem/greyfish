@@ -4,7 +4,8 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.actions.NullAction;
-import org.asoem.greyfish.core.genes.*;
+import org.asoem.greyfish.core.genes.DoubleGeneComponent;
+import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -12,7 +13,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -106,7 +107,7 @@ public class ImmutableAgentTest {
         // given
         ImmutableAgent agent = ImmutableAgent.of(population).build();
         agent.setPopulation(mock(Population.class));
-        agent.setProjection(mock(Object2D.class));
+        agent.setProjection(mock(MotionObject2D.class));
         agent.setMotion(mock(Motion2D.class));
 
         // when
@@ -121,7 +122,7 @@ public class ImmutableAgentTest {
         // given
         ImmutableAgent agent = ImmutableAgent.of(population).build();
         agent.setPopulation(mock(Population.class));
-        agent.setProjection(mock(Object2D.class));
+        agent.setProjection(mock(MotionObject2D.class));
         agent.setMotion(mock(Motion2D.class));
 
         // when

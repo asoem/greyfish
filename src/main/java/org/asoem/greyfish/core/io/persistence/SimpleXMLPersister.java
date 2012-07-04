@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.io.persistence;
 
 import com.google.common.io.CharStreams;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.logging.Logger;
@@ -32,8 +33,9 @@ public class SimpleXMLPersister implements Persister {
 
     public SimpleXMLPersister() {
         try {
-            registry.bind(GreyfishExpression.class, GreyfishExpressionConverter.class);
-            registry.bind(EvaluatingMarkovChain.class, EvaluatingMarkovChainConverter.class);
+            registry.bind(GreyfishExpression.class, GreyfishExpressionConverter.class)
+                    .bind(EvaluatingMarkovChain.class, EvaluatingMarkovChainConverter.class)
+                    .bind(TypeToken.class, TypeTokenConverter.class);
         } catch (Exception e) {
             LOGGER.error("Binding converter to registry failed", e);
         }
