@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.ImmutableMap;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementUnion;
 
 import javax.annotation.Nullable;
 import java.util.Map;

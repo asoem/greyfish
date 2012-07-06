@@ -19,7 +19,6 @@ import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggerProvider;
-import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
@@ -83,12 +82,6 @@ public class ParallelizedSimulation implements Simulation {
 
                     return ImmutableAgent.fromPrototype(prototype);
                 }
-
-                @Override
-                public void activateObject(Population key, Agent obj) throws Exception {
-                    assert obj != null;
-                    obj.initialize();
-                }
             },
             10000, 100);
 
@@ -112,16 +105,6 @@ public class ParallelizedSimulation implements Simulation {
     private final AtomicInteger agentIdSequence = new AtomicInteger();
 
     private final AtomicInteger eventIdSequence = new AtomicInteger();
-
-    /**
-     * @param scenario the scenario
-     */
-    private ParallelizedSimulation(final Scenario scenario) {
-        TiledSpace<Agent> tiledSpace = TiledSpace.createEmptyCopy(scenario.getSpace());
-
-
-        this(scenario.getSpace());
-    }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space,
@@ -171,7 +154,7 @@ public class ParallelizedSimulation implements Simulation {
                 build();
 
         for (Agent agent : space.getObjects()) {
-            activateAgentInternal(createAgent(agent.getPopulation()), agent.getProjection());
+            activateAgentInternal(agent, agent.getProjection());
         }
     }
 
@@ -205,11 +188,9 @@ public class ParallelizedSimulation implements Simulation {
     private void activateAgentInternal(Agent agent, Object2D projection) {
         assert agent != null : "agent is null";
         assert projection != null : "projection is null";
-
         final Point2D anchorPoint = projection.getAnchorPoint();
         space.insertObject(agent, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
         agent.activate(this);
-
         agentActivated(agent);
     }
 
@@ -427,18 +408,6 @@ public class ParallelizedSimulation implements Simulation {
                 eventIdSequence.incrementAndGet(), uuid, currentStep,
                 agentId, populationName, coordinates,
                 eventOrigin.getClass().getSimpleName(), title, message);
-    }
-
-    /**
-     * Creates a new {@code Simulation}
-     *
-     * @param scenario the {@code Scenario} used to initialize this Simulation
-     * @return the newly created simulation
-     */
-    @SuppressWarnings("UnusedDeclaration")
-    public static ParallelizedSimulation create(Scenario scenario) {
-        checkNotNull(scenario);
-        return new ParallelizedSimulation(scenario);
     }
 
     private static class AddAgentMessage {

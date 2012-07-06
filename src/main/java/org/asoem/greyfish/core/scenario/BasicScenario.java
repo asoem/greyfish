@@ -5,11 +5,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.SimulationFactory;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.simpleframework.xml.Attribute;
@@ -137,7 +139,14 @@ public class BasicScenario implements Scenario {
     @Override
     public <T extends Simulation> T createSimulation(SimulationFactory<T> simulationFactory) {
         final TiledSpace<Agent> space = TiledSpace.copyOf(this.space);
-        // TODO transform space
+
+        for (Agent agent : getPlaceholder()) {
+            final MotionObject2D projection = agent.getProjection();
+            assert projection != null;
+            final Point2D anchorPoint = projection.getAnchorPoint();
+            space.insertObject(ImmutableAgent.fromPrototype(agent), anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
+        }
+
         return simulationFactory.createSimulation(space);
     }
 

@@ -37,16 +37,27 @@ public class GenericEvaluationResult implements EvaluationResult {
 
     @Override
     public <T> T as(Class<T> resultType) {
-        return resultType.cast(result);
+        if (resultType.equals(Double.class))
+            return resultType.cast(asDouble());
+        else if (resultType.equals(Boolean.class))
+            return resultType.cast(asBoolean());
+        else if (resultType.equals(Integer.class))
+            return resultType.cast(asInt());
+        else if (resultType.equals(String.class))
+            return resultType.cast(asString());
+        else if (resultType.equals(Boolean.class))
+            return resultType.cast(asBoolean());
+        else
+            return resultType.cast(asObject());
     }
 
     @Override
     public double asDouble() throws EvaluationException {
         switch (resultType) {
-            case DOUBLE: return as(Double.class);
-            case INTEGER: return as(Integer.class).doubleValue();
-            case FLOAT: return as(Float.class).doubleValue();
-            case STRING: return Double.parseDouble(as(String.class));
+            case DOUBLE: return (Double)result;
+            case INTEGER: return ((Integer)result).doubleValue();
+            case FLOAT: return ((Float)result).doubleValue();
+            case STRING: return Double.parseDouble((String)result);
             default: throw new EvaluationException(result + " cannot be converted to Double");
         }
     }
@@ -54,8 +65,8 @@ public class GenericEvaluationResult implements EvaluationResult {
     @Override
     public boolean asBoolean() throws EvaluationException {
         switch (resultType) {
-            case BOOLEAN: return as(Boolean.class);
-            case STRING: return Boolean.parseBoolean(as(String.class));
+            case BOOLEAN: return (Boolean)result;
+            case STRING: return Boolean.parseBoolean((String)result);
             default: throw new EvaluationException(result + " cannot be converted to Boolean");
         }
     }
@@ -73,10 +84,10 @@ public class GenericEvaluationResult implements EvaluationResult {
     @Override
     public int asInt() throws EvaluationException {
         switch (resultType) {
-            case INTEGER: return as(Integer.class);
-            case DOUBLE: return as(Double.class).intValue();
-            case FLOAT: return as(Double.class).intValue();
-            case STRING: return Integer.parseInt(as(String.class));
+            case INTEGER: return (Integer) result;
+            case DOUBLE: return ((Double) result).intValue();
+            case FLOAT: return ((Float)result).intValue();
+            case STRING: return Integer.parseInt((String)result);
             default: throw new EvaluationException(result + " cannot be converted to Integer");
         }
     }

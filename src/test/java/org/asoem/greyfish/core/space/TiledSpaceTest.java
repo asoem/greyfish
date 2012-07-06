@@ -2,7 +2,10 @@ package org.asoem.greyfish.core.space;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import javolution.lang.MathLib;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.ImmutableAgent;
+import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -153,7 +156,45 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE)));
+        final ImmutablePoint2D expected = ImmutablePoint2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE));
+        assertThat(maxTransition).isEqualTo(expected);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    public void testCollision() throws Exception {
+        // given
+        final TiledSpace<Agent> space = TiledSpace.ofSize(1,1);
+        Agent agent = ImmutableAgent.of(Population.named("test")).build();
+        agent.setMotion(ImmutableMotion2D.of(0, 1));
+        space.insertObject(agent, 0, 0, 0);
+
+        // when
+        space.moveObject(agent);
+
+        // then
+        final MotionObject2D projection = agent.getProjection();
+        assertThat(projection).isNotNull();
+        assertThat(projection.didCollide()).isTrue();
+    }
+
+
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    public void testNoCollision() throws Exception {
+        // given
+        final TiledSpace<Agent> space = TiledSpace.ofSize(1,1);
+        Agent agent = ImmutableAgent.of(Population.named("test")).build();
+        agent.setMotion(ImmutableMotion2D.of(0, 0.5));
+        space.insertObject(agent, 0, 0, MathLib.HALF_PI / 2);
+
+        // when
+        space.moveObject(agent);
+
+        // then
+        final MotionObject2D projection = agent.getProjection();
+        assertThat(projection).isNotNull();
+        assertThat(projection.didCollide()).isFalse();
     }
 
     @Test

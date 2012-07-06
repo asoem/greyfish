@@ -1,13 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.reflect.TypeToken;
+import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Callbacks;
-import org.asoem.greyfish.core.individual.GreyfishExpressionCallback;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -15,6 +14,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.asoem.greyfish.core.individual.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
@@ -41,8 +41,8 @@ public class SexualReproductionActionTest {
         final SexualReproductionAction action = SexualReproductionAction.with()
 
                 .name("test")
-                .clutchSize(GreyfishExpressionCallback.create(expressionFactory.compile("1"), Integer.class))
-                .spermSupplier(GreyfishExpressionCallback.create(expressionFactory.compile(""), new TypeToken<List<? extends Chromosome>>() {}))
+                .clutchSize(constant(1))
+                .spermSupplier(Callbacks.<List<? extends Chromosome>>constant(null))
                 .executesIf(condition)
 
                 .build();
@@ -52,7 +52,7 @@ public class SexualReproductionActionTest {
 
         // then
         assertThat(deserialized.getName()).isEqualTo("test");
-        assertThat(deserialized.getClutchSize()).isEqualTo(Callbacks.constant(1));
+        assertThat(deserialized.getClutchSize()).isEqualTo(constant(1));
         //assertThat(deserialized.getSpermStorage()).isEqualTo(storage);
         assertThat(deserialized.getCondition()).isInstanceOf(condition.getClass());
     }

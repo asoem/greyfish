@@ -59,7 +59,7 @@ public class ParallelizedSimulationTest {
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicScenario scenario = BasicScenario.builder("TestScenario", space).build();
-        final ParallelizedSimulation simulation = ParallelizedSimulation.create(scenario);
+        final ParallelizedSimulation simulation = scenario.createSimulation(ParallelizedSimulationFactory.INSTANCE);
 
         // when
         final ParallelizedSimulation copy = Persisters.createCopy(simulation, ParallelizedSimulation.class, persister);
