@@ -13,6 +13,8 @@ import org.apache.commons.cli.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SimulationFactory;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
@@ -44,7 +46,9 @@ public class ScenarioRunner {
             });
         }
 
-        final ParallelizedSimulation simulation = ParallelizedSimulation.create(scenario);
+
+        SimulationFactory<ParallelizedSimulation> factory = null;
+        final ParallelizedSimulation simulation = scenario.createSimulation(null);
 
         if (verbose) {
             Executors.newSingleThreadExecutor().execute(new Runnable() {
