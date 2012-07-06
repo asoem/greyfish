@@ -27,7 +27,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     private Callback<? super DoubleGeneComponent, Double> mutation;
 
     @Element
-    private Callback<? super DoubleGeneComponent, Product2<Double, Double>> recombination;
+    private Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> recombination;
 
     private final GeneController<Double> geneController = new GeneController<Double>() {
 
@@ -161,7 +161,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E, T>> extends AbstractComponentBuilder<E, T> {
         private Callback<? super DoubleGeneComponent, Double> initialValue;
         private Callback<? super DoubleGeneComponent, Double> mutation;
-        private Callback<? super DoubleGeneComponent, Product2<Double, Double>> recombination;
+        private Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> recombination;
 
         public T initialAllele(Callback<? super DoubleGeneComponent, Double> expression) {
             this.initialValue = checkNotNull(expression);
@@ -173,7 +173,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
             return self();
         }
 
-        public T recombination(Callback<? super DoubleGeneComponent, Product2<Double, Double>> expression) {
+        public T recombination(Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> expression) {
             this.recombination = checkNotNull(expression);
             return self();
         }

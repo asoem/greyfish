@@ -260,4 +260,9 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     public boolean didCollide() {
         return delegate().didCollide();
     }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return delegate().children();
+    }
 }

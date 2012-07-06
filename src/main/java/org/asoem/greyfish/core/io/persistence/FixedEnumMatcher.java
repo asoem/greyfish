@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.io.persistence;
 
+import com.google.common.reflect.TypeToken;
 import org.simpleframework.xml.transform.Matcher;
 import org.simpleframework.xml.transform.Transform;
 
@@ -44,6 +45,7 @@ class FixedEnumMatcher implements Matcher {
 
             };
         }
+
         return null;
     }
 }

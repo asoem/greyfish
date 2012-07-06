@@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SimulationFactory;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -20,9 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 
 @Root(name="scenario")
 public class BasicScenario implements Scenario {
@@ -132,6 +132,13 @@ public class BasicScenario implements Scenario {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public <T extends Simulation> T createSimulation(SimulationFactory<T> simulationFactory) {
+        final TiledSpace<Agent> space = TiledSpace.copyOf(this.space);
+        // TODO transform space
+        return simulationFactory.createSimulation(space);
     }
 
     @Override

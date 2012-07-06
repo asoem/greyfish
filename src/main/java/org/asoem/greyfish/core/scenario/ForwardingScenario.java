@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.scenario;
 
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SimulationFactory;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -56,6 +58,11 @@ public abstract class ForwardingScenario extends ForwardingObject implements Sce
     @Override
     public void setName(String name) {
         delegate().setName(name);
+    }
+
+    @Override
+    public Simulation createSimulation(SimulationFactory simulationFactory) {
+        return delegate().createSimulation(simulationFactory);
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
@@ -14,8 +13,6 @@ import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.TreeNode;
-import org.asoem.greyfish.utils.collect.Trees;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
@@ -28,7 +25,6 @@ import org.simpleframework.xml.core.Commit;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -85,14 +81,13 @@ public abstract class AbstractAgent implements Agent {
     }
 
     private void initComponents() {
-        for (AgentComponent component : getComponents())
+        for (AgentComponent component : children())
             component.setAgent(this);
     }
 
     @Commit
     private void commit() {
-        for (AgentComponent component : getComponents())
-            component.setAgent(this);
+        initComponents();
     }
 
     @SuppressWarnings("unchecked")
@@ -278,8 +273,8 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void logEvent(Object eventOrigin, String title, String message) {
-        checkState(isActive(), "Agents can only log events in an active simulation context");
-        checkState(projection != null, "The Agent must have a projection present");
+        //checkState(isActive(), "Agents can only log events in an active simulation context");
+        //checkState(projection != null, "The Agent must have a projection present");
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);
@@ -331,8 +326,8 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void initialize() {
-        for (AgentComponent component : getComponents()) {
-            component.initialize();
+        for (AgentNode node : children()) {
+            node.initialize();
         }
     }
 
@@ -451,28 +446,14 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
+    @Deprecated // use #children() instead
     public Iterable<AgentComponent> getComponents() {
-        return new Iterable<AgentComponent>() {
-            @Override
-            public Iterator<AgentComponent> iterator() {
-                return Trees.postOrderView(new AgentComponentWrapper(Iterables.concat(
-                        Collections.singleton(getBody()),
-                        getProperties(),
-                        getActions(),
-                        getGeneComponentList()
-                )), new Function<TreeNode<AgentComponent>, Iterator<AgentComponent>>() {
-                    @Override
-                    public Iterator<AgentComponent> apply(@Nullable TreeNode<AgentComponent> agentComponentTreeNode) {
-                        return agentComponentTreeNode == null ? Iterators.<AgentComponent>emptyIterator() : agentComponentTreeNode.children().iterator();
-                    }
-                });
-            }
-        };
+        return children();
     }
 
     @Override
     public AgentComponent getComponent(final String name) {
-        return Iterables.find(getComponents(), new Predicate<AgentComponent>() {
+        return Iterables.find(children(), new Predicate<AgentComponent>() {
             @Override
             public boolean apply(AgentComponent agentComponent) {
                 return agentComponent.getName().equals(name);
@@ -483,5 +464,15 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public String toString() {
         return "Agent[" + population + ']' + "#" + simulationContext.getId() + "@" + simulationContext.getSimulationStep();
+    }
+
+    @Override
+    public Iterable<AgentComponent> children() {
+        return Iterables.concat(
+                Collections.singleton(getBody()),
+                getProperties(),
+                getActions(),
+                getGeneComponentList()
+        );
     }
 }

@@ -14,6 +14,7 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.asoem.greyfish.utils.space.MovingProjectable2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -38,18 +39,14 @@ public class ParallelizedSimulationTest {
     public void newSimulationTest() {
         // given
 
-        final Population population = mock(Population.class);
-        given(population.getName()).willReturn("TestPopulation");
-
+        final Population population = new Population("testPopulation");
         final Agent prototype = ImmutableAgent.of(population).build();
-
-        final TiledSpace<Agent> tiledSpace = mock(TiledSpace.class);
-        given(tiledSpace.contains(any(Double.class), any(Double.class))).willReturn(true);
-        given(tiledSpace.getObjects()).willReturn(ImmutableList.of(prototype, prototype));
-        given(tiledSpace.getTiles()).willReturn(ImmutableList.<WalledTile>of());
+        final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1).build();
+        space.insertObject(prototype, 0, 0, 0);
+        space.insertObject(prototype, 0, 0, 0);
 
         // when
-        ParallelizedSimulation simulation = new ParallelizedSimulation(tiledSpace);
+        ParallelizedSimulation simulation = new ParallelizedSimulation(space);
 
         // then
         assertThat(Iterables.size(simulation.getAgents())).isEqualTo(2);
@@ -62,7 +59,7 @@ public class ParallelizedSimulationTest {
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicScenario scenario = BasicScenario.builder("TestScenario", space).build();
-        final ParallelizedSimulation simulation = ParallelizedSimulation.newSimulation(scenario);
+        final ParallelizedSimulation simulation = ParallelizedSimulation.create(scenario);
 
         // when
         final ParallelizedSimulation copy = Persisters.createCopy(simulation, ParallelizedSimulation.class, persister);

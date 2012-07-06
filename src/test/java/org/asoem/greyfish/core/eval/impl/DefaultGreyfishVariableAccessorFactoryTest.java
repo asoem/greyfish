@@ -1,19 +1,17 @@
 package org.asoem.greyfish.core.eval.impl;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.ActiveSimulationContext;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * User: christoph
@@ -25,28 +23,13 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     private final DefaultGreyfishVariableAccessorFactory converter = new DefaultGreyfishVariableAccessorFactory();
 
-    @Mock
-    Agent agent;
-    @Mock
-    GFAction action;
-    @Mock
-    GFProperty property;
-    @Mock
-    Simulation simulation;
-    @Mock
-    ActiveSimulationContext simulationContext;
-
-    @Before
-    public void setUp() throws Exception {
-        given(action.getAgent()).willReturn(agent);
-        given(property.getAgent()).willReturn(agent);
-        given(simulationContext.getSimulation()).willReturn(simulation);
-    }
-
     @Test
     public void shouldReturnTheContextItselfForAnAction() {
+        // given
+        final GFAction action = mock(GFAction.class);
+
         // when
-        Object ret = converter.get("this", GFAction.class).apply(action);
+        final Object ret = converter.get("this", GFAction.class).apply(action);
 
         // then
         assertEquals(action, ret);
@@ -54,6 +37,11 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test
     public void shouldReturnTheAgentForAnAction() {
+        // given
+        final GFAction action = mock(GFAction.class);
+        final Agent agent = mock(Agent.class);
+        given(action.getAgent()).willReturn(agent);
+
         // when
         Object ret = converter.get("this.agent", GFAction.class).apply(action);
 
@@ -63,6 +51,13 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test
     public void shouldReturnTheSimulationForAnAction() {
+        // given
+        final GFAction action = mock(GFAction.class);
+        final Agent agent = mock(Agent.class);
+        final Simulation simulation = mock(Simulation.class);
+        given(action.getAgent()).willReturn(agent);
+        given(agent.simulation()).willReturn(simulation);
+
         // when
         Object ret = converter.get("this.agent.simulation", GFAction.class).apply(action);
 
@@ -72,6 +67,9 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test
     public void shouldReturnTheContextItselfForAProperty() {
+        // given
+        final GFProperty property = mock(GFProperty.class);
+
         // when
         Object ret = converter.get("this", GFProperty.class).apply(property);
 
@@ -81,6 +79,11 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test
     public void shouldReturnTheAgentForAProperty() {
+        // given
+        final GFProperty property = mock(GFProperty.class);
+        final Agent agent = mock(Agent.class);
+        given(property.getAgent()).willReturn(agent);
+
         // when
         Object ret = converter.get("this.agent", GFProperty.class).apply(property);
 
@@ -91,7 +94,10 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnAgentsAgeForAnAction() {
         // given
+        final Agent agent = mock(Agent.class);
         given(agent.getAge()).willReturn(23);
+        final GFAction action = mock(GFAction.class);
+        given(action.getAgent()).willReturn(agent);
 
         // when
         Object ret = converter.get("this.agent.age", GFAction.class).apply(action);
@@ -104,6 +110,8 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @SuppressWarnings({"NullableProblems"})
     @Test(expected = NullPointerException.class)
     public void shouldScreamIfContextClassIsNull() {
+        final GFAction action = mock(GFAction.class);
+
         converter.get("this", null).apply(action);
     }
 
@@ -114,11 +122,15 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldScreamIfExpressionIsEmpty() {
+        final GFAction action = mock(GFAction.class);
+
         converter.get("", GFAction.class).apply(action);
     }
 
     @Test(expected = RuntimeException.class)
     public void shouldScreamIfExpressionIsInvalid() {
+        final GFAction action = mock(GFAction.class);
+
         converter.get("fooBar", GFAction.class).apply(action);
     }
 }

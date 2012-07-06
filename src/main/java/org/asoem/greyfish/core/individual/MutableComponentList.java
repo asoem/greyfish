@@ -39,6 +39,10 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
         }));
     }
 
+    public MutableComponentList() {
+        delegate = Lists.newArrayList();
+    }
+
     public MutableComponentList(E ... elements) {
         delegate = Lists.newArrayList(elements);
     }

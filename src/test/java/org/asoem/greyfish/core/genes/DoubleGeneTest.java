@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.base.Product2;
+import org.asoem.greyfish.utils.base.Tuple2;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class DoubleGeneTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final Callback<Object, Product2<Double, Double>> callback = Callbacks.constant(null);
+        final Callback<Object, ? extends Product2<Double, Double>> callback = Callbacks.constant(Tuple2.of(1.0,1.0));
         final DoubleGeneComponent doubleGene = DoubleGeneComponent.builder()
                 .name("test")
                 .initialAllele(constant(1.0))

@@ -132,7 +132,8 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     public void setCondition(@Nullable GFCondition rootCondition) {
         this.rootCondition = rootCondition;
         if (rootCondition != null)
-            rootCondition.setAgent(this.getAgent());
+            for (AgentComponent component : AgentNodes.<AgentComponent>postOrderIteration(rootCondition))
+                component.setAgent(this.getAgent());
     }
 
     @Override
@@ -160,6 +161,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         return rootCondition != null ? Collections.<AgentComponent>singletonList(getCondition()) : Collections.<AgentComponent>emptyList();
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -180,7 +182,6 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        long temp;
         result = 31 * result + (rootCondition != null ? rootCondition.hashCode() : 0);
         result = 31 * result + successCount;
         result = 31 * result + stepAtLastSuccess;

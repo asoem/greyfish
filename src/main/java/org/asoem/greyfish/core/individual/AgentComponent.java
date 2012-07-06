@@ -1,15 +1,12 @@
 package org.asoem.greyfish.core.individual;
 
 
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.collect.TreeNode;
 import org.asoem.greyfish.utils.gui.Configurable;
 
 import javax.annotation.Nullable;
 
-public interface AgentComponent extends TreeNode<AgentComponent>, Freezable, HasName, DeepCloneable, Configurable {
+public interface AgentComponent extends HasName, Configurable, AgentNode<AgentComponent> {
 
     /**
      * Get the agent this component is part of.
@@ -28,11 +25,4 @@ public interface AgentComponent extends TreeNode<AgentComponent>, Freezable, Has
      * @param name the new name
      */
     void setName(String name);
-
-    /**
-     * Component initialization hook.
-     * Called by an {@code Agent} if it's {@code AgentComponent}s should prepare themselves for a new {@code Simulation} simulation.
-     * Implementations should reset their own fields to an initial state and their those of their {@code super} class if they have any.
-     */
-    void initialize();
 }

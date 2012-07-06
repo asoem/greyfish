@@ -6,7 +6,6 @@ package org.asoem.greyfish.core.simulation;
  * Time: 12:54
  */
 public interface Simulatable {
-    void initialize();
     void activate(Simulation context);
     void execute();
     void shutDown();

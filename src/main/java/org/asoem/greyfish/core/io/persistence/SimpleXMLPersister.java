@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.io.persistence;
 
 import com.google.common.io.CharStreams;
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.logging.Logger;
@@ -26,19 +25,23 @@ public class SimpleXMLPersister implements Persister {
 
     private final Logger LOGGER = LoggerFactory.getLogger(SimpleXMLPersister.class);
 
-    private final Registry registry = new Registry();
-    private final Serializer serializer = new org.simpleframework.xml.core.Persister(
-            new RegistryStrategy(registry, new CycleStrategy("id", "ref")),
-            new FixedEnumMatcher());
+    private final Serializer serializer;
 
     public SimpleXMLPersister() {
+        Registry registry = new Registry();
+        serializer = new org.simpleframework.xml.core.Persister(
+                new RegistryStrategy(registry, new CycleStrategy("id", "ref")),
+                new FixedEnumMatcher());
         try {
             registry.bind(GreyfishExpression.class, GreyfishExpressionConverter.class)
-                    .bind(EvaluatingMarkovChain.class, EvaluatingMarkovChainConverter.class)
-                    .bind(TypeToken.class, TypeTokenConverter.class);
+                    .bind(EvaluatingMarkovChain.class, EvaluatingMarkovChainConverter.class);
         } catch (Exception e) {
             LOGGER.error("Binding converter to registry failed", e);
         }
+    }
+
+    public SimpleXMLPersister(Serializer serializer) {
+        this.serializer = checkNotNull(serializer);
     }
 
     @Override

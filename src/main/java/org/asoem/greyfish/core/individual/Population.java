@@ -24,6 +24,11 @@ public class Population implements HasName, Comparable<Population> {
     }
 
     public Population(
+            @Attribute(name="name") String name) {
+        this(name, Color.black);
+    }
+
+    public Population(
             @Attribute(name="name") String name,
             @Element(name="color") Color color) {
         checkNotNull(name);

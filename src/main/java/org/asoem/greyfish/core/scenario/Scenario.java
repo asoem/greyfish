@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.scenario;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SimulationFactory;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -85,4 +87,6 @@ public interface Scenario {
      * @param name the new name of this scenario
      */
     void setName(String name);
+
+    <T extends Simulation> T createSimulation(SimulationFactory<T> simulationFactory);
 }

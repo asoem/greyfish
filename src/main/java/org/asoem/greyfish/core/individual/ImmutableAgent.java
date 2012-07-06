@@ -78,8 +78,8 @@ public class ImmutableAgent extends AbstractAgent {
 
     @Override
     public void freeze() {
-        for (AgentComponent component : getComponents())
-            component.freeze();
+        for (AgentNode node : children())
+            node.freeze();
     }
 
     @Override

@@ -448,8 +448,8 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
         return result;
     }
 
-    public static Tiled copyOf(TiledSpace space) {
-        return new TiledSpace(space);
+    public static <T extends MovingProjectable2D> TiledSpace<T> copyOf(TiledSpace<T> space) {
+        return new TiledSpace<T>(space);
     }
 
     public static <T extends MovingProjectable2D> TiledSpace<T> ofSize(int width, int height) {

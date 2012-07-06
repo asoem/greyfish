@@ -161,15 +161,12 @@ public class TiledSpaceTest {
         // given
         final TiledSpace<MovingProjectable2D> space = TiledSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
         final MovingProjectable2DImpl focal = new MovingProjectable2DImpl();
-        focal.setProjection(MotionObject2DImpl.of(1.5, 0.5, 0, false));
         final MovingProjectable2DImpl neighbour1 = new MovingProjectable2DImpl();
-        neighbour1.setProjection(MotionObject2DImpl.of(0.5, 0.5, 0, false));
         final MovingProjectable2DImpl neighbour2 = new MovingProjectable2DImpl();
-        neighbour2.setProjection(MotionObject2DImpl.of(2.5, 0.5, 0, false));
 
-        space.insertObject(focal, 0, 0, 0);
-        space.insertObject(neighbour1, 0, 0, 0);
-        space.insertObject(neighbour2, 0, 0, 0);
+        space.insertObject(focal, 1.5, 0.5, 0);
+        space.insertObject(neighbour1, 0.5, 0.5, 0);
+        space.insertObject(neighbour2, 2.5, 0.5, 0);
 
         // when
         final Iterable<MovingProjectable2D> visibleNeighbours = space.getVisibleNeighbours(focal, 2.0);

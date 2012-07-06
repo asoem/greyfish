@@ -116,7 +116,10 @@ public class ParallelizedSimulation implements Simulation {
     /**
      * @param scenario the scenario
      */
-    public ParallelizedSimulation(final Scenario scenario) {
+    private ParallelizedSimulation(final Scenario scenario) {
+        TiledSpace<Agent> tiledSpace = TiledSpace.createEmptyCopy(scenario.getSpace());
+
+
         this(scenario.getSpace());
     }
 
@@ -131,7 +134,7 @@ public class ParallelizedSimulation implements Simulation {
         this.deliverAgentMessageMessages.addAll(deliverAgentMessageMessages);
     }
 
-    public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space) {
+    public ParallelizedSimulation(TiledSpace<Agent> space) {
         checkNotNull(space);
 
         this.space = TiledSpace.createEmptyCopy(space);
@@ -172,10 +175,6 @@ public class ParallelizedSimulation implements Simulation {
         }
     }
 
-    public static ParallelizedSimulation newSimulation(final Scenario scenario) {
-        return new ParallelizedSimulation(scenario);
-    }
-
     @Override
     public int numberOfPopulations() {
         return getPrototypes().size();
@@ -204,8 +203,8 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void activateAgentInternal(Agent agent, Object2D projection) {
-        assert agent != null;
-        assert projection != null;
+        assert agent != null : "agent is null";
+        assert projection != null : "projection is null";
 
         final Point2D anchorPoint = projection.getAnchorPoint();
         space.insertObject(agent, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());

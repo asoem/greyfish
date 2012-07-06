@@ -13,7 +13,7 @@ import org.asoem.greyfish.utils.base.Freezable;
 
 import java.awt.*;
 
-public interface Agent extends DeepCloneable, Freezable, Simulatable2D {
+public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNode<AgentComponent> {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
