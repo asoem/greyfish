@@ -16,6 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 15:55
  */
 public class Tuple2<E1, E2> implements Product2<E1, E2> {
+
     @Element(name = "e1")
     private final E1 e1;
 
