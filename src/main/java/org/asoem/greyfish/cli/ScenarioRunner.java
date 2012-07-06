@@ -13,14 +13,12 @@ import org.apache.commons.cli.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SimulationFactory;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -46,9 +44,7 @@ public class ScenarioRunner {
             });
         }
 
-
-        SimulationFactory<ParallelizedSimulation> factory = null;
-        final ParallelizedSimulation simulation = scenario.createSimulation(null);
+        final ParallelizedSimulation simulation = scenario.createSimulation(ParallelizedSimulationFactory.INSTANCE);
 
         if (verbose) {
             Executors.newSingleThreadExecutor().execute(new Runnable() {
