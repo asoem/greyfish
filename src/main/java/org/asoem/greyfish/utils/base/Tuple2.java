@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.base;
 import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
+import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -15,10 +16,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 15:55
  */
 public class Tuple2<E1, E2> implements Product2<E1, E2> {
+    @Element(name = "e1")
     private final E1 e1;
+
+    @Element(name = "e2")
     private final E2 e2;
 
-    public Tuple2(E1 e1, E2 e2) {
+    public Tuple2(@Element(name = "e1")E1 e1, @Element(name = "e2")E2 e2) {
         this.e1 = e1;
         this.e2 = e2;
     }
