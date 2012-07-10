@@ -14,6 +14,7 @@ import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
+import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
@@ -63,7 +64,8 @@ public class ScenarioRunner {
         }
         LOGGER.info("Starting {} of scenario {}", simulation, scenario);
 
-        simulation.runWhile(Predicates.and(predicateList));
+        Simulations.runWhile(simulation, Predicates.and(predicateList));
+
         if (LOGGER.isInfoEnabled())
             LOGGER.info("Shutting down {}", simulation);
         simulation.shutdown();
