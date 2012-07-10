@@ -55,11 +55,6 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public int countAgents(String populationName) {
-        return delegate().countAgents(populationName);
-    }
-
-    @Override
     public int generateAgentID() {
         return delegate().generateAgentID();
     }

@@ -33,20 +33,35 @@ public class H2Logger implements SimulationLogger {
             connection = DriverManager.getConnection("jdbc:h2:~/greyfish-data/" + simulation.getUUID().toString(), "sa", "");
 
             connection.createStatement().execute(
-                    "CREATE TABLE agents (id INT NOT NULL PRIMARY KEY, population_name_id INT NOT NULL, activated_at INT NOT NULL, created_at TIMESTAMP NOT NULL)");
+                    "CREATE TABLE agents (" +
+                            "id INT NOT NULL PRIMARY KEY," +
+                            "population_name_id INT NOT NULL," +
+                            "activated_at INT NOT NULL," +
+                            "created_at TIMESTAMP NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE chromosome_tree (id INT NOT NULL, parent_id INT NOT NULL)");
+                    "CREATE TABLE chromosome_tree (" +
+                            "id INT NOT NULL," +
+                            "parent_id INT NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE names (id int NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) UNIQUE NOT NULL)");
+                    "CREATE TABLE names (" +
+                            "id int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            "name VARCHAR(255) UNIQUE NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE genes_double (agent_id INT NOT NULL, gene_name_id INT NOT NULL, value DOUBLE NOT NULL)");
+                    "CREATE TABLE genes_double (" +
+                            "agent_id INT NOT NULL," +
+                            "gene_name_id INT NOT NULL," +
+                            "value DOUBLE NOT NULL)");
             connection.createStatement().execute(
-                    "CREATE TABLE genes_string (agent_id INT NOT NULL, gene_name_id INT NOT NULL, value VARCHAR(255) NOT NULL)");
+                    "CREATE TABLE genes_string (" +
+                            "agent_id INT NOT NULL, " +
+                            "gene_name_id INT NOT NULL, " +
+                            "value VARCHAR(255) NOT NULL)");
             connection.createStatement().execute(
                     "CREATE TABLE agent_events (" +
                             "id INT NOT NULL PRIMARY KEY, " +
                             "simulation_step int NOT NULL, " +
-                            "agent_id INT NOT NULL, source_name_id INT NOT NULL, " +
+                            "agent_id INT NOT NULL, " +
+                            "source_name_id INT NOT NULL, " +
                             "title_name_id INT NOT NULL, " +
                             "message VARCHAR(255) NOT NULL, " +
                             "x DOUBLE NOT NULL, " +
@@ -79,6 +94,16 @@ public class H2Logger implements SimulationLogger {
     public void close() {
         try {
             commit();
+
+            connection.createStatement().execute(
+                    "CREATE INDEX ON genes_double(agent_id); CREATE INDEX ON genes_double(gene_name_id);");
+
+            connection.createStatement().execute(
+                    "CREATE INDEX ON genes_string(agent_id); CREATE INDEX ON genes_string(gene_name_id);");
+
+            connection.createStatement().execute(
+                    "CREATE INDEX ON agent_events(agent_id); CREATE INDEX ON agent_events(title_name_id);");
+
             statementPool.clear();
             connection.close();
         } catch (SQLException e) {

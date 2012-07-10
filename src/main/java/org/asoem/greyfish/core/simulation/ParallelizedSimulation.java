@@ -82,6 +82,11 @@ public class ParallelizedSimulation implements Simulation {
 
                     return ImmutableAgent.fromPrototype(prototype);
                 }
+
+                @Override
+                public void activateObject(Population key, Agent obj) throws Exception {
+                    obj.initialize();
+                }
             },
             10000, 100);
 
@@ -249,11 +254,6 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public int countAgents(String populationName) {
-        return countAgents(Population.named(populationName));
-    }
-
-    @Override
     public int generateAgentID() {
         return agentIdSequence.incrementAndGet();
     }
@@ -387,19 +387,6 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public UUID getUUID() {
         return uuid;
-    }
-
-    /**
-     * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}
-     *
-     * @param predicate the {@code Predicate} which will be checked after each step
-     */
-    public void runWhile(Predicate<? super ParallelizedSimulation> predicate) {
-        checkNotNull(predicate);
-
-        while (predicate.apply(this)) {
-            nextStep();
-        }
     }
 
     @Override

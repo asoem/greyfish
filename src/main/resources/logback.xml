@@ -17,9 +17,6 @@
     <logger name="org.asoem.greyfish.core.individual" additivity="true" level="WARN">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.eval.GreyfishExpression" additivity="true" level="DEBUG">
-    </logger>
-
     <logger name="org.asoem.greyfish.cli" additivity="true" level="INFO">
     </logger>
 

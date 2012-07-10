@@ -4,9 +4,9 @@ import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,16 +67,12 @@ public class ResourceInteractionTest {
                 .build();
 
 
-        final TiledSpace<Agent> space = TiledSpace.ofSize(1, 1);
+        final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1).build();
         space.insertObject(consumer, 0, 0, 0);
         space.insertObject(provisioner, 0, 0, 0);
 
-        Simulation simulation = new ParallelizedSimulation(space);
-
-        // when
-        for (int i = 0; i < 5; ++i) {
-            simulation.nextStep();
-        }
+        final Simulation simulation = new ParallelizedSimulation(space);
+        Simulations.runFor(simulation, 5);
 
         // then
         assertThat(energyStorage.getValue()).isEqualTo(2);

@@ -144,7 +144,9 @@ public class BasicScenario implements Scenario {
             final MotionObject2D projection = agent.getProjection();
             assert projection != null;
             final Point2D anchorPoint = projection.getAnchorPoint();
-            space.insertObject(ImmutableAgent.fromPrototype(agent), anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
+            final ImmutableAgent clone = ImmutableAgent.fromPrototype(agent);
+            clone.initialize();
+            space.insertObject(clone, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
         }
 
         return simulationFactory.createSimulation(space);

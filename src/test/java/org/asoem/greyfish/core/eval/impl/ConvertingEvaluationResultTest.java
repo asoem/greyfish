@@ -10,11 +10,11 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 17.02.12
  * Time: 17:01
  */
-public class GenericEvaluationResultTest {
+public class ConvertingEvaluationResultTest {
     @Test
     public void testDoubleAsDouble() throws Exception {
         // given
-        EvaluationResult result = new GenericEvaluationResult(42.0);
+        EvaluationResult result = new ConvertingEvaluationResult(42.0);
 
         // when
         final double b = result.asDouble();
@@ -26,7 +26,7 @@ public class GenericEvaluationResultTest {
     @Test
     public void testBooleanAsBoolean() throws Exception {
         // given
-        EvaluationResult result = new GenericEvaluationResult(true);
+        EvaluationResult result = new ConvertingEvaluationResult(true);
 
         // when
         final boolean b = result.asBoolean();
@@ -38,7 +38,7 @@ public class GenericEvaluationResultTest {
     @Test
     public void testStringAsDouble() throws Exception {
         // given
-        EvaluationResult result = new GenericEvaluationResult("42.0");
+        EvaluationResult result = new ConvertingEvaluationResult("42.0");
 
         // when
         final double b = result.asDouble();
@@ -50,7 +50,7 @@ public class GenericEvaluationResultTest {
     @Test
     public void testStringAsBoolean() throws Exception {
         // given
-        EvaluationResult result = new GenericEvaluationResult("true");
+        EvaluationResult result = new ConvertingEvaluationResult("true");
 
         // when
         final boolean b = result.asBoolean();

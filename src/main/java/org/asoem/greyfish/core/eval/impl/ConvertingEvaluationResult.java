@@ -11,13 +11,13 @@ import javax.annotation.Nullable;
  * Date: 17.02.12
  * Time: 16:10
  */
-public class GenericEvaluationResult implements EvaluationResult {
+public class ConvertingEvaluationResult implements EvaluationResult {
 
     @Nullable
     private final Object result;
     private final RESULT_TYPE resultType;
 
-    public GenericEvaluationResult(@Nullable Object result) {
+    public ConvertingEvaluationResult(@Nullable Object result) {
         this.result = result;
         if (result == null)
             resultType = RESULT_TYPE.NULL;
@@ -107,7 +107,7 @@ public class GenericEvaluationResult implements EvaluationResult {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        GenericEvaluationResult that = (GenericEvaluationResult) o;
+        ConvertingEvaluationResult that = (ConvertingEvaluationResult) o;
 
         return !(result != null ? !result.equals(that.result) : that.result != null) && resultType == that.resultType;
 

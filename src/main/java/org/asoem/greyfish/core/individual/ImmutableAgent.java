@@ -94,7 +94,9 @@ public class ImmutableAgent extends AbstractAgent {
 
         @Override
         protected ImmutableAgent checkedBuild() {
-            return new ImmutableAgent(this);
+            final ImmutableAgent agent = new ImmutableAgent(this);
+            agent.initialize();
+            return agent;
         }
 
         @Override

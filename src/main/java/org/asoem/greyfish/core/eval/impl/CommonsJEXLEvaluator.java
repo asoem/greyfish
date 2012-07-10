@@ -42,7 +42,7 @@ public class CommonsJEXLEvaluator implements Evaluator {
     @Override
     public EvaluationResult evaluate() {
         checkState(expression != null, "No expression has been defined");
-        return new GenericEvaluationResult(expression.evaluate(resolver));
+        return new ConvertingEvaluationResult(expression.evaluate(resolver));
     }
 
     @Override

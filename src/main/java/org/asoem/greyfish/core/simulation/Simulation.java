@@ -38,8 +38,6 @@ public interface Simulation extends HasName {
 
     int countAgents(Population population);
 
-    int countAgents(String populationName);
-
     int generateAgentID();
 
     /**
