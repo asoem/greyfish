@@ -1,5 +1,9 @@
 package org.asoem.greyfish.scenarios;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import javolution.lang.MathLib;
@@ -12,6 +16,7 @@ import org.asoem.greyfish.core.genes.DoubleGeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.MarkovGeneComponent;
 import org.asoem.greyfish.core.individual.*;
+import org.asoem.greyfish.core.properties.ConstantProperty;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TileDirection;
@@ -20,7 +25,9 @@ import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
+import org.asoem.greyfish.utils.space.MotionObject2D;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -87,10 +94,20 @@ public class SexualSpeciation implements Provider<Scenario> {
                                     private final int maxOffspring = 10;
 
                                     @Override
-                                    public Integer apply(SexualReproductionAction caller, Map<String, ?> arguments) {
+                                    public Integer apply(final SexualReproductionAction caller, Map<String, ?> arguments) {
                                         int ret = 0;
+
+                                        final int frequency = Iterables.frequency(Iterables.transform(caller.simulation().getAgents(), new Function<Agent, Object>() {
+                                            @Override
+                                            public Object apply(Agent input) {
+                                                return input.getProperty("niche", ConstantProperty.class).getValue();
+                                            }
+                                        }), caller.agent().getProperty("niche", ConstantProperty.class).getValue());
+
+                                        final int probability = 1 - frequency / 1000;
+
                                         for (int i = 0; i < maxOffspring; i++) {
-                                            ret += fromBoolean(RandomUtils.trueWithProbability(1 - caller.simulation().countAgents() / 2000));
+                                            ret += fromBoolean(RandomUtils.trueWithProbability(probability));
                                         }
                                         return ret;
                                     }
@@ -193,12 +210,26 @@ public class SexualSpeciation implements Provider<Scenario> {
                                 .turningAngle(new Callback<GenericMovementAction, Double>() {
                                     @Override
                                     public Double apply(GenericMovementAction caller, Map<String, ?> arguments) {
+                                        final double rotation = caller.agent().getMotion().getRotation();
                                         if (caller.agent().didCollide())
-                                            return caller.agent().getMotion().getRotation() + MathLib.PI;
-                                        return caller.agent().getMotion().getRotation() + RandomUtils.rnorm(0, 0.08);
+                                            return rotation + MathLib.PI;
+                                        return rotation + RandomUtils.rnorm(0, 0.08);
                                     }
                                 })
                                 .build())
+                .addProperties(
+                        ConstantProperty.<String>builder()
+                                .name("niche")
+                                .callback(new Callback<ConstantProperty<String>, String>() {
+                                    @Override
+                                    public String apply(ConstantProperty<String> caller, Map<String, ?> arguments) {
+                                        final MotionObject2D projection = caller.agent().getProjection();
+                                        assert projection != null;
+                                        return (projection.getAnchorPoint().getY() < (Double.valueOf(heightStr) / 2)) ? "upperHalf" : "lowerHalf";
+                                    }
+                                })
+                                .build()
+                )
                 .addGenes(
                         MarkovGeneComponent.builder()
                                 .name("gender")
