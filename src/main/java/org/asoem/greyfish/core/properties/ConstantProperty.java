@@ -13,9 +13,7 @@ import org.asoem.greyfish.utils.gui.TypedValueModels;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 29.05.12
- * Time: 10:57
+ * A {@code GFProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
  */
 public class ConstantProperty<T> extends AbstractGFProperty<T> {
 
