@@ -3,6 +3,7 @@ package org.asoem.greyfish.cli;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -19,8 +20,11 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.*;
 import java.util.List;
 import java.util.concurrent.Executors;
+
+import static org.asoem.greyfish.cli.ScenarioRunner.State.*;
 
 /**
  * User: christoph
@@ -30,6 +34,8 @@ import java.util.concurrent.Executors;
 public class ScenarioRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScenarioRunner.class);
+
+    private ScenarioRunner.State state = STARTUP;
 
     @Inject
     private ScenarioRunner(Scenario scenario, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
@@ -51,24 +57,38 @@ public class ScenarioRunner {
             Executors.newSingleThreadExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
+                    File verboseFile = null;
+                    PrintWriter writer = null;
                     try {
-                        while (true) {
-                            System.out.println(simulation.getStep() + " - " + simulation.countAgents());
+                        verboseFile = File.createTempFile("greyfish_verbose_", ".txt");
+                        writer = new PrintWriter(new BufferedWriter(new FileWriter(verboseFile)));
+                        System.out.println("Writing verbose output to file " + verboseFile.getAbsolutePath());
+                        while (state == STARTUP)
+                            Thread.sleep(10);
+
+                        while (state == RUNNING) {
+                            writer.println(simulation.getStep() + " - " + simulation.countAgents());
                             Thread.sleep(1000);
                         }
                     } catch (InterruptedException e) {
-                        LOGGER.warn("Simulation polling thread got interrupted");
+                        LOGGER.error("Simulation polling thread got interrupted");
+                    } catch (IOException e) {
+                        LOGGER.error("Could not write verbose output to file {}", verboseFile, e);
+                    } finally {
+                        Closeables.closeQuietly(writer);
                     }
                 }
             });
         }
         LOGGER.info("Starting {} of scenario {}", simulation, scenario);
 
+        state = RUNNING;
         Simulations.runWhile(simulation, Predicates.and(predicateList));
 
         if (LOGGER.isInfoEnabled())
             LOGGER.info("Shutting down {}", simulation);
         simulation.shutdown();
+        state = SHUTDOWN;
     }
 
     public static void main(final String[] args) {
@@ -77,7 +97,6 @@ public class ScenarioRunner {
             final Options options = createOptions();
             final CommandLine line = parser.parse(options, args);
             processCommandLine(line, options);
-            System.exit(0);
         } catch (ParseException e) {
             System.out.println("Unexpected exception:" + e.getMessage());
             System.exit(1);
@@ -163,5 +182,11 @@ public class ScenarioRunner {
         options.addOption(property);
         options.addOption(verbose);
         return options;
+    }
+
+    public enum State {
+        STARTUP,
+        RUNNING,
+        SHUTDOWN
     }
 }
