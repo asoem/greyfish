@@ -92,6 +92,9 @@ public class SimpleBranchingModel implements Provider<Scenario> {
                                     }
 
                                     private double viability(Object habitat, Object allele) {
+                                        assert habitat instanceof String : "Expected habitat argument to be of type String not " + habitat.getClass();
+                                        assert allele instanceof Double : "Expected allele argument to be of type Double not " + habitat.getClass();
+
                                         if("habitat_1".equals(habitat)) {
                                             return gaussian((Double)allele, DISTANCE);
                                         }
