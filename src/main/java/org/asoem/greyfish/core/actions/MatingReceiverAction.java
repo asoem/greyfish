@@ -49,7 +49,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     @Element(name = "matingProbability", required = false)
     private Callback<? super MatingReceiverAction, Double> matingProbability;
 
-    private Iterable<Agent> sensedMates = ImmutableList.of();
+    private List<Agent> sensedMates = ImmutableList.of();
 
     private List<Chromosome> receivedSperm = Lists.newArrayList();
 
@@ -130,7 +130,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
 
     @Override
     protected boolean canInitiate(Simulation simulation) {
-        sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
+        sensedMates = ImmutableList.copyOf(simulation.findNeighbours(agent(), call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
 
