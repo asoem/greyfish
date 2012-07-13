@@ -1,16 +1,17 @@
 package org.asoem.greyfish.core.io;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
 import java.io.IOError;
 import java.sql.*;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -21,16 +22,13 @@ import java.util.UUID;
 public class H2Logger implements SimulationLogger {
 
     private final Connection connection;
-    private final KeyedObjectPool<String, PreparedStatement> statementPool;
-
-    private int event_commit_counter = 0;
-    private String insertNameIfNotExistsQuery = "SET @name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @name)";
+    private final List<UpdateOperation> updateOperationList = Lists.newArrayList();
 
     @Inject
     private H2Logger(@Assisted Simulation simulation) {
         try {
             Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection("jdbc:h2:~/greyfish-data/" + simulation.getUUID().toString(), "sa", "");
+            connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0", simulation.getUUID().toString()), "sa", "");
 
             connection.createStatement().execute(
                     "CREATE TABLE agents (" +
@@ -45,7 +43,8 @@ public class H2Logger implements SimulationLogger {
             connection.createStatement().execute(
                     "CREATE TABLE names (" +
                             "id int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                            "name VARCHAR(255) UNIQUE NOT NULL)");
+                            "name VARCHAR(255) UNIQUE NOT NULL);" +
+                            "CREATE UNIQUE HASH INDEX ON names(name)");
             connection.createStatement().execute(
                     "CREATE TABLE genes_double (" +
                             "agent_id INT NOT NULL," +
@@ -75,19 +74,6 @@ public class H2Logger implements SimulationLogger {
         } catch (ClassNotFoundException e) {
             throw new AssertionError("The H2 db library seems not to be loaded");
         }
-
-        statementPool = new GenericKeyedObjectPool<String, PreparedStatement>(
-                new BaseKeyedPoolableObjectFactory<String, PreparedStatement>() {
-                    @Override
-                    public PreparedStatement makeObject(String sql) throws Exception {
-                        return connection.prepareStatement(sql);
-                    }
-
-                    @Override
-                    public void passivateObject(String key, PreparedStatement obj) throws Exception {
-                        obj.clearParameters();
-                    }
-                }, -1, GenericKeyedObjectPool.WHEN_EXHAUSTED_GROW, -1);
     }
 
     @Override
@@ -106,144 +92,236 @@ public class H2Logger implements SimulationLogger {
 
             commit();
 
-            statementPool.clear();
-            connection.close();
         } catch (SQLException e) {
             throw new IOError(e);
         } catch (Exception e) {
             throw new AssertionError(e);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void addAgent(Agent agent) {
-        try {
-            final PreparedStatement insertNameIfNotExistsStatement = borrowStatement(insertNameIfNotExistsQuery);
-            insertNameIfNotExistsStatement.setString(1, agent.getPopulation().getName());
-            insertNameIfNotExistsStatement.execute();
-
-            final String insertAgentQuery = "INSERT INTO agents (id, population_name_id, activated_at, created_at) VALUES (?, (SELECT id FROM names WHERE name = ?), ?, ?);";
-            final PreparedStatement insertAgentStatement = borrowStatement(insertAgentQuery);
-            insertAgentStatement.setInt(1, agent.getId());
-            insertAgentStatement.setString(2, agent.getPopulation().getName());
-            insertAgentStatement.setInt(3, agent.getTimeOfBirth());
-            insertAgentStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-            insertAgentStatement.execute();
-            returnStatement(insertAgentQuery, insertAgentStatement);
-
-            final String insertChromosomeQuery = "INSERT INTO chromosome_tree (id, parent_id) VALUES (?, ?)";
-            final PreparedStatement insertChromosomeStatement = borrowStatement(insertChromosomeQuery);
-            insertChromosomeStatement.setInt(1, agent.getId());
-            for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
-                insertChromosomeStatement.setInt(2, parentId);
-                insertChromosomeStatement.execute();
+        addUpdateOperation(new InsertAgentOperation(agent.getId(), agent.getPopulation().getName(), agent.getTimeOfBirth(), new Timestamp(System.currentTimeMillis())));
+        for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
+            addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
+        }
+        for (GeneComponent<?> gene : agent.getGeneComponentList()) {
+            assert gene != null;
+            if (Double.class.equals(gene.getSupplierClass())) {
+                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), gene.getName(), ((GeneComponent<Double>) gene).getAllele()));
+            } else {
+                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), gene.getName(), String.valueOf(gene.getAllele())));
             }
-            returnStatement(insertChromosomeQuery, insertChromosomeStatement);
-
-
-            final String insertGeneAsDoubleQuery = "INSERT INTO genes_double (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = ?), ?)";
-            final PreparedStatement insertGeneAsDoubleStatement = borrowStatement(insertGeneAsDoubleQuery);
-            final String insertGeneAsStringQuery = "INSERT INTO genes_string (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = ?), ?)";
-            final PreparedStatement insertGeneAsStringStatement = borrowStatement(insertGeneAsStringQuery);
-
-            for (GeneComponent<?> gene : agent.getGeneComponentList()) {
-                assert gene != null;
-
-                insertNameIfNotExistsStatement.setString(1, gene.getName());
-                insertNameIfNotExistsStatement.execute();
-
-                if (Double.class.equals(gene.getSupplierClass())) {
-                    insertGeneAsDoubleStatement.setInt(1, agent.getId());
-                    insertGeneAsDoubleStatement.setString(2, gene.getName());
-                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getAllele());
-                    insertGeneAsDoubleStatement.execute();
-                } else {
-                    insertGeneAsStringStatement.setInt(1, agent.getId());
-                    insertGeneAsStringStatement.setString(2, gene.getName());
-                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.getAllele()));
-                    insertGeneAsStringStatement.execute();
-
-                }
-            }
-
-            returnStatement(insertNameIfNotExistsQuery, insertNameIfNotExistsStatement);
-            returnStatement(insertGeneAsDoubleQuery, insertGeneAsDoubleStatement);
-            returnStatement(insertGeneAsStringQuery, insertGeneAsStringStatement);
-
-        } catch (SQLException e) {
-            throw new IOError(e);
         }
 
         if (shouldCommit()) {
             commit();
-        }
-    }
-
-    private void returnStatement(String query, PreparedStatement statement) {
-        try {
-            statementPool.returnObject(query, statement);
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    private PreparedStatement borrowStatement(String s) {
-        try {
-            return statementPool.borrowObject(s);
-        } catch (Exception e) {
-            throw new AssertionError(e);
         }
     }
 
     @Override
     public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
-        try {
-            final PreparedStatement insertNameIfNotExistsStatement = borrowStatement(insertNameIfNotExistsQuery);
-            insertNameIfNotExistsStatement.setString(1, source);
-            insertNameIfNotExistsStatement.execute();
-            insertNameIfNotExistsStatement.setString(1, title);
-            insertNameIfNotExistsStatement.execute();
-
-            final String insertEventQuery = "INSERT INTO agent_events (id, simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, (SELECT id FROM names WHERE name = ?), (SELECT id FROM names WHERE name = ?), ?, ?, ?)";
-            final PreparedStatement insertEventStatement = borrowStatement(insertEventQuery);
-            insertEventStatement.setInt(1, eventId);
-
-            //insertEventStatement.setBytes(1, Bytes.concat(Longs.toByteArray(uuid.getMostSignificantBits()), Longs.toByteArray(uuid.getLeastSignificantBits())));
-            insertEventStatement.setInt(2, currentStep);
-            insertEventStatement.setInt(3, agentId);
-            // coordinates
-            insertEventStatement.setString(4, source);
-            insertEventStatement.setString(5, title);
-            insertEventStatement.setString(6, message);
-            assert coordinates.length >= 2;
-            insertEventStatement.setDouble(7, coordinates[0]);
-            insertEventStatement.setDouble(8, coordinates[1]);
-
-            insertEventStatement.execute();
-
-            returnStatement(insertNameIfNotExistsQuery, insertNameIfNotExistsStatement);
-            returnStatement(insertEventQuery, insertEventStatement);
-        } catch (SQLException e) {
-            throw new IOError(e);
-        }
+        addUpdateOperation(new InsertEventOperation(eventId, uuid, currentStep, agentId, populationName, coordinates, source, title, message));
 
         if (shouldCommit()) {
             commit();
         }
     }
 
+    private void addUpdateOperation(UpdateOperation updateOperation) {
+        updateOperationList.add(updateOperation);
+    }
+
     private boolean shouldCommit() {
-        final boolean shouldCommit = ++event_commit_counter == 1000;
-        if (shouldCommit)
-            event_commit_counter = 0;
-        return shouldCommit;
+        return updateOperationList.size() >= 1000;
     }
 
     private void commit() {
+        final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
         try {
+            for (UpdateOperation updateOperation : updateOperationList) {
+                final String sql = updateOperation.sqlString();
+                if (!preparedStatementMap.containsKey(sql)) {
+                    preparedStatementMap.put(sql, connection.prepareStatement(sql));
+                }
+                final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
+                updateOperation.update(preparedStatement);
+                preparedStatement.addBatch();
+            }
+
+            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                preparedStatement.executeBatch();
+            }
+
             connection.commit();
         } catch (SQLException e) {
             throw new IOError(e);
+        } finally {
+            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        updateOperationList.clear();
+    }
+
+    private static interface UpdateOperation {
+        public String sqlString();
+        public void update(PreparedStatement statement) throws SQLException;
+    }
+
+    private static class InsertEventOperation implements UpdateOperation {
+        private final int eventId;
+        private final UUID uuid;
+        private final int currentStep;
+        private final int agentId;
+        private final String populationName;
+        private final double[] coordinates;
+        private final String source;
+        private final String title;
+        private final String message;
+
+        public InsertEventOperation(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+
+            this.eventId = eventId;
+            this.uuid = uuid;
+            this.currentStep = currentStep;
+            this.agentId = agentId;
+            this.populationName = populationName;
+            this.coordinates = coordinates;
+            assert coordinates.length >= 2;
+            this.source = source;
+            this.title = title;
+            this.message = message;
+        }
+
+        @Override
+        public String sqlString() {
+            return "SET @source_name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @source_name);" +
+                    "SET @title_name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @title_name);" +
+                    "INSERT INTO agent_events (id, simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, (SELECT id FROM names WHERE name = @source_name), (SELECT id FROM names WHERE name = @title_name), ?, ?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setString(1, source);
+            statement.setString(2, title);
+            statement.setInt(3, eventId);
+            statement.setInt(4, currentStep);
+            statement.setInt(5, agentId);
+            statement.setString(6, message);
+            statement.setDouble(7, coordinates[0]);
+            statement.setDouble(8, coordinates[1]);
+        }
+    }
+
+    private static class InsertAgentOperation implements UpdateOperation {
+        private final int id;
+        private final String name;
+        private final int timeOfBirth;
+        private final Timestamp timestamp;
+
+        public InsertAgentOperation(int id, String name, int timeOfBirth, Timestamp timestamp) {
+            this.id = id;
+            this.name = name;
+            this.timeOfBirth = timeOfBirth;
+            this.timestamp = timestamp;
+        }
+
+        @Override
+        public String sqlString() {
+            return "SET @name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @name);" +
+                    "INSERT INTO agents (id, population_name_id, activated_at, created_at) VALUES (?, (SELECT id FROM names WHERE name = @name), ?, ?);";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setString(1, name);
+            statement.setInt(2, id);
+            statement.setInt(3, timeOfBirth);
+            statement.setTimestamp(4, timestamp);
+        }
+    }
+
+    private static class InsertChromosomeOperation implements UpdateOperation {
+        private final int id;
+        private final int origin;
+
+        public InsertChromosomeOperation(int id, int origin) {
+            this.id = id;
+            this.origin = origin;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO chromosome_tree (id, parent_id) VALUES (?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setInt(1, id);
+            statement.setInt(2, origin);
+        }
+    }
+
+    private static class InsertGeneAsDoubleOperation implements UpdateOperation {
+        private final int id;
+        private final String name;
+        private final Double allele;
+
+        public InsertGeneAsDoubleOperation(int id, String name, Double allele) {
+            this.id = id;
+            this.name = name;
+            this.allele = allele;
+        }
+
+        @Override
+        public String sqlString() {
+            return "SET @name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @name);" +
+                    "INSERT INTO genes_double (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = @name), ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setString(1, name);
+            statement.setInt(2, id);
+            statement.setDouble(3, allele);
+        }
+    }
+
+    private static class InsertGeneAsStringOperation implements UpdateOperation {
+        private final int id;
+        private final String name;
+        private final String s;
+
+        public InsertGeneAsStringOperation(int id, String name, String s) {
+            this.id = id;
+            this.name = name;
+            this.s = s;
+        }
+
+        @Override
+        public String sqlString() {
+            return "SET @name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @name);" +
+                    "INSERT INTO genes_string (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = @name), ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setString(1, name);
+            statement.setInt(2, id);
+            statement.setString(3, s);
         }
     }
 }
