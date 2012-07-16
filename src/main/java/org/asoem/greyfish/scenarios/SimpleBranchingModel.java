@@ -83,12 +83,15 @@ public class SimpleBranchingModel implements Provider<Scenario> {
 
                                     @Override
                                     public Boolean apply(GenericCondition caller, Map<String, ?> arguments) {
-                                        return caller.agent().getAge() == 1
-                                                && RandomUtils.trueWithProbability(
-                                                    viability(caller.agent().getProperty("habitat", GFProperty.class).getValue(),
-                                                        caller.agent().getGene("consumer_classification", GeneComponent.class).getAllele()))
-                                                || caller.agent().getAge() >= 500
-                                                || caller.agent().getAction("reproduce", SexualReproductionAction.class).getCompletionCount() > 0;
+                                        if (caller.agent().getAge() == 1) {
+                                            final Object habitat = caller.agent().getProperty("habitat", GFProperty.class).getValue();
+                                            final Object consumer_classification = caller.agent().getGene("consumer_classification", GeneComponent.class).getAllele();
+                                            final double viability = viability(habitat, consumer_classification);
+                                            return ! RandomUtils.trueWithProbability(viability);
+                                        }
+                                        else
+                                            return caller.agent().getAge() >= 500
+                                                    || caller.agent().getAction("reproduce", SexualReproductionAction.class).getCompletionCount() > 0;
                                     }
 
                                     private double viability(Object habitat, Object allele) {
