@@ -9,11 +9,11 @@ import java.util.Set;
  * Date: 26.04.12
  * Time: 15:39
  */
-public class BiparentalChromosomalOrigin implements ChromosomalOrigin {
+public class BiparentalChromosomalHistory implements ChromosomalHistory {
 
     private final Set<Integer> parents;
 
-    public BiparentalChromosomalOrigin(int parent1, int parent2) {
+    public BiparentalChromosomalHistory(int parent1, int parent2) {
         this.parents = ImmutableSet.of(parent1, parent2);
     }
 

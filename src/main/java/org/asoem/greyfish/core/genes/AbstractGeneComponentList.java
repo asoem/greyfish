@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> extends ForwardingList<E> implements GeneComponentList<E> {
 
-    private ChromosomalOrigin chromosomalOrigin = NoChromosomalOrigin.INSTANCE;
+    private ChromosomalHistory chromosomalHistory = NoChromosomalHistory.INSTANCE;
 
     protected AbstractGeneComponentList() {
     }
@@ -85,13 +85,13 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
     }
 
     @Override
-    public ChromosomalOrigin getOrigin() {
-        return chromosomalOrigin;
+    public ChromosomalHistory getOrigin() {
+        return chromosomalHistory;
     }
 
     @Override
-    public void setOrigin(ChromosomalOrigin origin) {
-        this.chromosomalOrigin = checkNotNull(origin);
+    public void setOrigin(ChromosomalHistory history) {
+        this.chromosomalHistory = checkNotNull(history);
     }
 
 

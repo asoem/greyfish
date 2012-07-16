@@ -12,7 +12,9 @@ import java.io.IOError;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -26,12 +28,13 @@ public class H2Logger implements SimulationLogger {
     private final Connection connection;
     private final List<UpdateOperation> updateOperationList = Lists.newArrayList();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final NameIdMap nameIdMap = new NameIdMap();
 
     @Inject
     private H2Logger(@Assisted Simulation simulation) {
         try {
             Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0", simulation.getUUID().toString()), "sa", "");
+            connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;TRACE_LEVEL_FILE=2", simulation.getUUID().toString()), "sa", "");
 
             connection.createStatement().execute(
                     "CREATE TABLE agents (" +
@@ -45,9 +48,8 @@ public class H2Logger implements SimulationLogger {
                             "parent_id INT NOT NULL)");
             connection.createStatement().execute(
                     "CREATE TABLE names (" +
-                            "id int NOT NULL PRIMARY KEY AUTO_INCREMENT," +
-                            "name VARCHAR(255) UNIQUE NOT NULL);" +
-                            "CREATE UNIQUE HASH INDEX ON names(name)");
+                            "id int NOT NULL PRIMARY KEY," +
+                            "name VARCHAR(255) UNIQUE NOT NULL);");
             connection.createStatement().execute(
                     "CREATE TABLE genes_double (" +
                             "agent_id INT NOT NULL," +
@@ -93,6 +95,9 @@ public class H2Logger implements SimulationLogger {
             connection.createStatement().execute(
                     "CREATE INDEX ON agent_events(agent_id); CREATE INDEX ON agent_events(title_name_id);");
 
+            connection.createStatement().execute(
+                    "CREATE UNIQUE HASH INDEX ON names(name)");
+
             commit();
 
         } catch (SQLException e) {
@@ -113,19 +118,17 @@ public class H2Logger implements SimulationLogger {
     public void addAgent(Agent agent) {
         lock.readLock().lock();
         try{
-            addUpdateOperation(new InsertNameOperation(agent.getPopulation().getName()));
-            addUpdateOperation(new InsertAgentOperation(agent.getId(), agent.getPopulation().getName(), agent.getTimeOfBirth(), new Timestamp(System.currentTimeMillis())));
-            for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
+            addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth(), new Timestamp(System.currentTimeMillis())));
+            final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
+            for (Integer parentId : parents) {
                 addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
             }
             for (GeneComponent<?> gene : agent.getGeneComponentList()) {
                 assert gene != null;
                 if (Double.class.equals(gene.getSupplierClass())) {
-                    addUpdateOperation(new InsertNameOperation(gene.getName()));
-                    addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), gene.getName(), ((GeneComponent<Double>) gene).getAllele()));
+                    addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), ((GeneComponent<Double>) gene).getAllele()));
                 } else {
-                    addUpdateOperation(new InsertNameOperation(gene.getName()));
-                    addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), gene.getName(), String.valueOf(gene.getAllele())));
+                    addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));
                 }
             }
             tryCommit();
@@ -134,14 +137,22 @@ public class H2Logger implements SimulationLogger {
         }
     }
 
+    private int idForName(String name) {
+        if (nameIdMap.contains(name)) {
+            return nameIdMap.get(name);
+        }
+        else {
+            final int id = nameIdMap.create(name);
+            addUpdateOperation(new InsertNameOperation(id, name));
+            return id;
+        }
+    }
+
     @Override
     public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         lock.readLock().lock();
         try {
-            addUpdateOperation(new InsertNameOperation(populationName));
-            addUpdateOperation(new InsertNameOperation(source));
-            addUpdateOperation(new InsertNameOperation(title));
-            addUpdateOperation(new InsertEventOperation(eventId, uuid, currentStep, agentId, populationName, coordinates, source, title, message));
+            addUpdateOperation(new InsertEventOperation(eventId, uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
             tryCommit();
         } finally {
             lock.readLock().unlock();
@@ -216,29 +227,29 @@ public class H2Logger implements SimulationLogger {
         private final UUID uuid;
         private final int currentStep;
         private final int agentId;
-        private final String populationName;
+        private final int populationNameId;
         private final double[] coordinates;
-        private final String source;
-        private final String title;
+        private final int sourceNameId;
+        private final int titleNameId;
         private final String message;
 
-        public InsertEventOperation(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        public InsertEventOperation(int eventId, UUID uuid, int currentStep, int agentId, int populationNameId, double[] coordinates, int sourceNameId, int titleNameId, String message) {
 
             this.eventId = eventId;
             this.uuid = uuid;
             this.currentStep = currentStep;
             this.agentId = agentId;
-            this.populationName = populationName;
+            this.populationNameId = populationNameId;
             this.coordinates = coordinates;
             assert coordinates.length >= 2;
-            this.source = source;
-            this.title = title;
+            this.sourceNameId = sourceNameId;
+            this.titleNameId = titleNameId;
             this.message = message;
         }
 
         @Override
         public String sqlString() {
-            return "INSERT INTO agent_events (id, simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, (SELECT id FROM names WHERE name = ?), (SELECT id FROM names WHERE name = ?), ?, ?, ?);";
+            return "INSERT INTO agent_events (id, simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         }
 
         @Override
@@ -247,8 +258,8 @@ public class H2Logger implements SimulationLogger {
             statement.setInt(1, eventId);
             statement.setInt(2, currentStep);
             statement.setInt(3, agentId);
-            statement.setString(4, source);
-            statement.setString(5, title);
+            statement.setInt(4, sourceNameId);
+            statement.setInt(5, titleNameId);
             statement.setString(6, message);
             statement.setDouble(7, coordinates[0]);
             statement.setDouble(8, coordinates[1]);
@@ -257,26 +268,26 @@ public class H2Logger implements SimulationLogger {
 
     private static class InsertAgentOperation implements UpdateOperation {
         private final int id;
-        private final String name;
+        private final int nameId;
         private final int timeOfBirth;
         private final Timestamp timestamp;
 
-        public InsertAgentOperation(int id, String name, int timeOfBirth, Timestamp timestamp) {
+        public InsertAgentOperation(int id, int nameId, int timeOfBirth, Timestamp timestamp) {
             this.id = id;
-            this.name = name;
+            this.nameId = nameId;
             this.timeOfBirth = timeOfBirth;
             this.timestamp = timestamp;
         }
 
         @Override
         public String sqlString() {
-            return "INSERT INTO agents (id, population_name_id, activated_at, created_at) VALUES (?, (SELECT id FROM names WHERE name = ?), ?, ?)";
+            return "INSERT INTO agents (id, population_name_id, activated_at, created_at) VALUES (?, ?, ?, ?)";
         }
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
             statement.setInt(1, id);
-            statement.setString(2, name);
+            statement.setInt(2, nameId);
             statement.setInt(3, timeOfBirth);
             statement.setTimestamp(4, timestamp);
         }
@@ -305,67 +316,90 @@ public class H2Logger implements SimulationLogger {
 
     private static class InsertGeneAsDoubleOperation implements UpdateOperation {
         private final int id;
-        private final String name;
+        private final int nameId;
         private final Double allele;
 
-        public InsertGeneAsDoubleOperation(int id, String name, Double allele) {
+        public InsertGeneAsDoubleOperation(int id, int nameId, Double allele) {
             this.id = id;
-            this.name = name;
+            this.nameId = nameId;
             this.allele = allele;
         }
 
         @Override
         public String sqlString() {
-            return "INSERT INTO genes_double (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = ?), ?)";
+            return "INSERT INTO genes_double (agent_id, gene_name_id, value) VALUES (?, ?, ?)";
         }
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
             statement.setInt(1, id);
-            statement.setString(2, name);
+            statement.setInt(2, nameId);
             statement.setDouble(3, allele);
         }
     }
 
     private static class InsertGeneAsStringOperation implements UpdateOperation {
         private final int id;
-        private final String name;
+        private final int nameId;
         private final String s;
 
-        public InsertGeneAsStringOperation(int id, String name, String s) {
+        public InsertGeneAsStringOperation(int id, int nameId, String s) {
             this.id = id;
-            this.name = name;
+            this.nameId = nameId;
             this.s = s;
         }
 
         @Override
         public String sqlString() {
-            return "INSERT INTO genes_string (agent_id, gene_name_id, value) VALUES (?, (SELECT id FROM names WHERE name = ?), ?)";
+            return "INSERT INTO genes_string (agent_id, gene_name_id, value) VALUES (?, ?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setInt(1, id);
+            statement.setInt(2, nameId);
+            statement.setString(3, s);
+        }
+    }
+
+    private static class InsertNameOperation implements UpdateOperation {
+        private final String name;
+        private final int id;
+
+        public InsertNameOperation(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO names (id, name) VALUES(?, ?)";
         }
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
             statement.setInt(1, id);
             statement.setString(2, name);
-            statement.setString(3, s);
         }
     }
 
-    private class InsertNameOperation implements UpdateOperation {
-        private final String name;
+    private static class NameIdMap {
+        private final Map<String, Integer> map = Maps.newConcurrentMap();
+        private final AtomicInteger maxId = new AtomicInteger(0);
 
-        public InsertNameOperation(String name) {
-            this.name = name;
+        public int create(String s) {
+            assert s != null;
+            final int id = maxId.incrementAndGet();
+            map.put(s, id);
+            return id;
         }
 
-        @Override
-        public String sqlString() {
-            return "SET @name = ?; INSERT INTO names (name) SELECT @name WHERE NOT EXISTS (SELECT * FROM names WHERE name = @name)";
+        public boolean contains(String name) {
+            return map.containsKey(name);
         }
 
-        @Override
-        public void update(PreparedStatement statement) throws SQLException {
-            statement.setString(1, name);
+        public int get(String name) {
+            return map.get(name);
         }
     }
 }

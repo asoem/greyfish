@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import java.util.Set;
@@ -11,10 +10,10 @@ import java.util.Set;
  * Time: 10:41
  */
 public class ChromosomalOrigins {
-    public static ChromosomalOrigin merge(final ChromosomalOrigin origin, final ChromosomalOrigin origin1) {
-        return new ChromosomalOrigin() {
+    public static ChromosomalHistory merge(final ChromosomalHistory history, final ChromosomalHistory history1) {
+        return new ChromosomalHistory() {
 
-            private Set<Integer> union = Sets.union(origin.getParents(), origin1.getParents());
+            private Set<Integer> union = Sets.union(history.getParents(), history1.getParents());
 
             @Override
             public Set<Integer> getParents() {

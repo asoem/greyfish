@@ -9,10 +9,10 @@ import java.util.Set;
  * Date: 26.04.12
  * Time: 15:38
  */
-public class UniparentalChromosomalOrigin implements ChromosomalOrigin {
+public class UniparentalChromosomalHistory implements ChromosomalHistory {
     private Set<Integer> parent;
 
-    public UniparentalChromosomalOrigin(int parent) {
+    public UniparentalChromosomalHistory(int parent) {
         this.parent = ImmutableSet.of(parent);
     }
 

@@ -379,7 +379,7 @@ public abstract class AbstractAgent implements Agent {
                 return o.getAllele();
             }
         })));
-        geneComponentList.setOrigin(chromosome.getOrigin());
+        geneComponentList.setOrigin(chromosome.getHistory());
     }
 
     @SuppressWarnings("RedundantIfStatement")

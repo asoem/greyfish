@@ -79,7 +79,10 @@ public class SexualReproductionAction extends AbstractGFAction {
         for (Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
             final Agent offspring = simulation.createAgent(agent().getPopulation());
 
-            final Product2<Chromosome, Chromosome> recombinedChromosomes = recombine(agent().getGeneComponentList(), sperm);
+            final ChromosomalHistory spermHistory = sperm.getHistory();
+            if ( ! (spermHistory instanceof UniparentalChromosomalHistory))
+                throw new AssertionError("Sperm must have an uniparental history");
+            final Product2<Chromosome, Chromosome> recombinedChromosomes = recombine(agent().getGeneComponentList(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
             offspring.updateGeneComponents(recombinedChromosomes._1());
 
             simulation.activateAgent(offspring, agent().getProjection());
@@ -91,8 +94,8 @@ public class SexualReproductionAction extends AbstractGFAction {
         return COMPLETED;
     }
 
-    private static Product2<Chromosome, Chromosome> recombine(GeneComponentList<GeneComponent<?>> geneComponents, Chromosome chromosome) {
-        final Iterable<GeneController<?>> geneControllers = Iterables.transform(geneComponents, new Function<GeneComponent<?>, GeneController<?>>() {
+    private static Product2<Chromosome, Chromosome> recombine(GeneComponentList<GeneComponent<?>> egg, Chromosome sperm, int femaleID, int maleID) {
+        final Iterable<GeneController<?>> geneControllers = Iterables.transform(egg, new Function<GeneComponent<?>, GeneController<?>>() {
             @Override
             public GeneController<?> apply(GeneComponent<?> geneComponent) {
                 return geneComponent.getGeneController();
@@ -101,7 +104,7 @@ public class SexualReproductionAction extends AbstractGFAction {
 
         // zip chromosomes and recombination operator
         final Tuple3.Zipped<GeneComponent<?>, Gene<?>, GeneController<?>> zip
-                = Tuple3.Zipped.of(geneComponents, chromosome.getGenes(), geneControllers);
+                = Tuple3.Zipped.of(egg, sperm.getGenes(), geneControllers);
 
         // recombine and mutate
         final Iterable<Product2<Gene<Object>, Gene<Object>>> genes = Iterables.transform(zip, new Function<Product3<GeneComponent<?>, Gene<?>, GeneController<?>>, Product2<Gene<Object>, Gene<Object>>>() {
@@ -118,11 +121,11 @@ public class SexualReproductionAction extends AbstractGFAction {
         });
 
         final Tuple2<Iterable<Gene<Object>>, Iterable<Gene<Object>>> unzipped = Tuple2.unzipped(genes);
-        final ChromosomalOrigin chromosomalOrigin = ChromosomalOrigins.merge(geneComponents.getOrigin(), chromosome.getOrigin());
+        final ChromosomalHistory chromosomalHistory = new BiparentalChromosomalHistory(femaleID, maleID);
 
         return Tuple2.of(
-                new Chromosome(chromosomalOrigin, unzipped._1()),
-                new Chromosome(chromosomalOrigin, unzipped._2())
+                new Chromosome(chromosomalHistory, unzipped._1()),
+                new Chromosome(chromosomalHistory, unzipped._2())
         );
     }
 

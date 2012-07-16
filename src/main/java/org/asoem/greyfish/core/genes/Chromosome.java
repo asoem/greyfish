@@ -13,16 +13,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class Chromosome {
 
-    final List<Gene<?>> genes;
-    final ChromosomalOrigin origin;
+    private final List<Gene<?>> genes;
+    private final ChromosomalHistory history;
 
-    public Chromosome(ChromosomalOrigin origin, Iterable<? extends Gene<?>> genes) {
-        this.origin = checkNotNull(origin);
+    public Chromosome(ChromosomalHistory history, Iterable<? extends Gene<?>> genes) {
+        this.history = checkNotNull(history);
         this.genes = ImmutableList.copyOf(genes);
     }
 
-    public ChromosomalOrigin getOrigin() {
-        return origin;
+    public ChromosomalHistory getHistory() {
+        return history;
     }
 
     public List<Gene<?>> getGenes() {
@@ -31,7 +31,7 @@ public class Chromosome {
 
     public Chromosome recombined(Chromosome other) {
         return new Chromosome(
-                ChromosomalOrigins.merge(this.origin, other.origin),
+                ChromosomalOrigins.merge(this.history, other.history),
                 Genes.recombine(this.genes, other.genes));
     }
 }

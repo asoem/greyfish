@@ -12,6 +12,6 @@ public interface GeneComponentList<E extends GeneComponent<?>> extends Component
     void initGenes();
     void updateGenes(List<?> values);
 
-    ChromosomalOrigin getOrigin();
-    void setOrigin(ChromosomalOrigin origin);
+    ChromosomalHistory getOrigin();
+    void setOrigin(ChromosomalHistory history);
 }

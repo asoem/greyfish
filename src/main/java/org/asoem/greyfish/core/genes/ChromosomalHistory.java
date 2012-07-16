@@ -8,6 +8,6 @@ import java.util.Set;
  * Time: 15:33
  */
 
-public interface ChromosomalOrigin {
+public interface ChromosomalHistory {
     Set<Integer> getParents();
 }

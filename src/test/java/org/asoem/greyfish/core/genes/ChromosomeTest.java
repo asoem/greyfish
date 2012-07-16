@@ -15,15 +15,15 @@ public class ChromosomeTest {
     public void testRecombined() throws Exception {
         // given
         final Gene<String> foo = new Gene<String>("foo", 1.0);
-        Chromosome a = new Chromosome(new UniparentalChromosomalOrigin(11), ImmutableList.of(foo));
+        Chromosome a = new Chromosome(new UniparentalChromosomalHistory(11), ImmutableList.of(foo));
         final Gene<String> bar = new Gene<String>("bar", 0.0);
-        Chromosome b = new Chromosome(new UniparentalChromosomalOrigin(12), ImmutableList.of(bar));
+        Chromosome b = new Chromosome(new UniparentalChromosomalHistory(12), ImmutableList.of(bar));
 
         // when
         final Chromosome recombined = a.recombined(b);
 
         // then
         assertThat(recombined.getGenes()).containsOnly(bar);
-        assertThat(recombined.getOrigin().getParents()).containsOnly(11, 12);
+        assertThat(recombined.getHistory().getParents()).containsOnly(11, 12);
     }
 }

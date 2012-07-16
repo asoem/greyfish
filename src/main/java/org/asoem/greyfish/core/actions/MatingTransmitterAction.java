@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneComponent;
-import org.asoem.greyfish.core.genes.UniparentalChromosomalOrigin;
+import org.asoem.greyfish.core.genes.UniparentalChromosomalHistory;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Callback;
 import org.asoem.greyfish.core.individual.Callbacks;
@@ -85,7 +85,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         if (RandomUtils.trueWithProbability(probability)) {
 
             final Chromosome chromosome = new Chromosome(
-                    new UniparentalChromosomalOrigin(agent().getId()),
+                    new UniparentalChromosomalHistory(agent().getId()),
                     Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
                         @Override
                         public Gene<?> apply(@Nullable GeneComponent<?> geneComponent) {
