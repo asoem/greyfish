@@ -39,7 +39,6 @@ public class ScenarioRunner {
 
     @Inject
     private ScenarioRunner(Scenario scenario, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
-
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
         if (steps != null) {

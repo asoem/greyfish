@@ -3,7 +3,7 @@ package org.asoem.greyfish.scenarios;
 import com.google.inject.Provider;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.ClonalReproductionAction;
-import org.asoem.greyfish.core.actions.DeathAction;
+import org.asoem.greyfish.core.actions.Suicide;
 import org.asoem.greyfish.core.conditions.AllCondition;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.genes.DoubleGeneComponent;
@@ -11,10 +11,11 @@ import org.asoem.greyfish.core.individual.*;
 import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.utils.GreyfishExpressionCallback;
+import org.asoem.greyfish.utils.base.Arguments;
+import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
-
-import java.util.Map;
 
 import static org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder.compile;
 import static org.asoem.greyfish.utils.math.RandomUtils.nextDouble;
@@ -37,7 +38,7 @@ public class SimpleAsexualPopulation implements Provider<Scenario> {
                                         GenericCondition.evaluate(new GreyfishExpressionCallback<GenericCondition, Boolean>(compile("rand:nextDouble() < 1.0 - $('simulation.agentCount') / 900.0"), Boolean.class)),
                                         GenericCondition.evaluate(new GreyfishExpressionCallback<GenericCondition, Boolean>(compile("$('#clone.stepsSinceLastExecution') >= 10"), Boolean.class))))
                                 .build(),
-                        DeathAction.with()
+                        Suicide.with()
                                 .name("die")
                                 .executesIf(GenericCondition.evaluate(new GreyfishExpressionCallback<GenericCondition, Boolean>(compile("$('this.agent.age') >= 100"), Boolean.class)))
                                 .build())
@@ -46,13 +47,13 @@ public class SimpleAsexualPopulation implements Provider<Scenario> {
                                 .name("gene1")
                                 .initialAllele(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
+                                    public Double apply(DoubleGeneComponent caller, Arguments arguments) {
                                         return 50.0 + RandomUtils.rnorm(0.0, 10.0);
                                     }
                                 })
                                 .mutation(new Callback<DoubleGeneComponent, Double>() {
                                     @Override
-                                    public Double apply(DoubleGeneComponent caller, Map<String, ?> arguments) {
+                                    public Double apply(DoubleGeneComponent caller, Arguments arguments) {
                                         return ((Double) arguments.get("original")) + RandomUtils.rnorm(0.0, 1.0);
                                     }
                                 })
