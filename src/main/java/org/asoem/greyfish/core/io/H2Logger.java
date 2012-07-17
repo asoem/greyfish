@@ -7,6 +7,8 @@ import com.google.inject.assistedinject.Assisted;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.io.IOError;
 import java.sql.*;
@@ -25,6 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class H2Logger implements SimulationLogger {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(H2Logger.class);
     private final Connection connection;
     private final List<UpdateOperation> updateOperationList = Lists.newArrayList();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -77,7 +80,7 @@ public class H2Logger implements SimulationLogger {
         } catch (SQLException e) {
             throw new IOError(e);
         } catch (ClassNotFoundException e) {
-            throw new AssertionError("The H2 db library seems not to be loaded");
+            throw new AssertionError("The H2 database driver could not be found");
         }
     }
 
@@ -87,14 +90,17 @@ public class H2Logger implements SimulationLogger {
             commit();
 
             connection.createStatement().execute(
-                    "CREATE INDEX ON genes_double(agent_id); CREATE INDEX ON genes_double(gene_name_id);");
-
+                    "CREATE INDEX ON genes_double(agent_id)");
             connection.createStatement().execute(
-                    "CREATE INDEX ON genes_string(agent_id); CREATE INDEX ON genes_string(gene_name_id);");
-
+                    "CREATE INDEX ON genes_double(gene_name_id)");
             connection.createStatement().execute(
-                    "CREATE INDEX ON agent_events(agent_id); CREATE INDEX ON agent_events(title_name_id);");
-
+                    "CREATE INDEX ON genes_string(agent_id)");
+            connection.createStatement().execute(
+                    "CREATE INDEX ON genes_string(gene_name_id)");
+            connection.createStatement().execute(
+                    "CREATE INDEX ON agent_events(agent_id)");
+            connection.createStatement().execute(
+                    "CREATE INDEX ON agent_events(title_name_id)");
             connection.createStatement().execute(
                     "CREATE UNIQUE HASH INDEX ON names(name)");
 
@@ -108,8 +114,7 @@ public class H2Logger implements SimulationLogger {
             try {
                 connection.close();
             } catch (SQLException e) {
-
-                e.printStackTrace();
+                LOGGER.warn("Exception during Connection.close()", e);
             }
         }
     }

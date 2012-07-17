@@ -8,8 +8,8 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
-import static org.asoem.greyfish.core.individual.Callbacks.emptyCallback;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
+import static org.asoem.greyfish.utils.base.Callbacks.emptyCallback;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**

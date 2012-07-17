@@ -5,7 +5,6 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -14,8 +13,9 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.utils.base.ArgumentMap;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -29,32 +29,32 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
-import static org.asoem.greyfish.core.individual.Callbacks.call;
+import static org.asoem.greyfish.utils.base.Callbacks.call;
 import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
 
 /**
  * @author christoph
  */
 @ClassGroup(tags = "actions")
-public class MatingReceiverAction extends ContractNetInitiatorAction {
+public class FemaleLikeMating extends ContractNetInitiatorAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MatingReceiverAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FemaleLikeMating.class);
 
     @Element(name = "ontology", required = false)
     private String ontology;
 
     @Element(name = "interactionRadius", required = false)
-    private Callback<? super MatingReceiverAction, Double> interactionRadius;
+    private Callback<? super FemaleLikeMating, Double> interactionRadius;
 
     @Element(name = "matingProbability", required = false)
-    private Callback<? super MatingReceiverAction, Double> matingProbability;
+    private Callback<? super FemaleLikeMating, Double> matingProbability;
 
     private List<Agent> sensedMates = ImmutableList.of();
 
     private List<Chromosome> receivedSperm = Lists.newArrayList();
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public MatingReceiverAction() {
+    public FemaleLikeMating() {
         this(new Builder());
     }
 
@@ -93,7 +93,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         final ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             Chromosome chromosome = message.getContent(Chromosome.class);
-            final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
+            final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
             if (RandomUtils.trueWithProbability(probability)) {
                 receiveSperm(chromosome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
@@ -135,18 +135,18 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    public MatingReceiverAction deepClone(DeepCloner cloner) {
-        return new MatingReceiverAction(this, cloner);
+    public FemaleLikeMating deepClone(DeepCloner cloner) {
+        return new FemaleLikeMating(this, cloner);
     }
 
-    private MatingReceiverAction(MatingReceiverAction cloneable, DeepCloner cloner) {
+    private FemaleLikeMating(FemaleLikeMating cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
         this.matingProbability = cloneable.matingProbability;
     }
 
-    protected MatingReceiverAction(AbstractBuilder<? extends MatingReceiverAction, ? extends AbstractBuilder> builder) {
+    protected FemaleLikeMating(AbstractBuilder<? extends FemaleLikeMating, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
@@ -157,33 +157,33 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         return new Builder();
     }
 
-    public Callback<? super MatingReceiverAction, Double> getMatingProbability() {
+    public Callback<? super FemaleLikeMating, Double> getMatingProbability() {
         return matingProbability;
     }
 
-    public Callback<? super MatingReceiverAction, Double> getInteractionRadius() {
+    public Callback<? super FemaleLikeMating, Double> getInteractionRadius() {
         return interactionRadius;
     }
 
-    public static final class Builder extends AbstractBuilder<MatingReceiverAction, Builder> {
+    public static final class Builder extends AbstractBuilder<FemaleLikeMating, Builder> {
         @Override
         protected Builder self() {
             return this;
         }
 
         @Override
-        protected MatingReceiverAction checkedBuild() {
-            return new MatingReceiverAction(this);
+        protected FemaleLikeMating checkedBuild() {
+            return new FemaleLikeMating(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends MatingReceiverAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<E extends FemaleLikeMating, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         protected String ontology = "mate";
-        protected Callback<? super MatingReceiverAction, Double> sensorRange = Callbacks.constant(1.0);
-        protected Callback<? super MatingReceiverAction, Double> matingProbability = Callbacks.constant(1.0);
+        protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
+        protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);
 
-        public T matingProbability(Callback<? super MatingReceiverAction, Double> matingProbabilityExpression) {
+        public T matingProbability(Callback<? super FemaleLikeMating, Double> matingProbabilityExpression) {
             this.matingProbability = checkNotNull(matingProbabilityExpression);
             return self();
         }
@@ -193,7 +193,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
             return self();
         }
 
-        public T interactionRadius(Callback<? super MatingReceiverAction, Double> sensorRange) {
+        public T interactionRadius(Callback<? super FemaleLikeMating, Double> sensorRange) {
             this.sensorRange = sensorRange;
             return self();
         }
@@ -202,7 +202,7 @@ public class MatingReceiverAction extends ContractNetInitiatorAction {
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
             if (Strings.isNullOrEmpty(ontology))
-                LOGGER.warn(MatingReceiverAction.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
+                LOGGER.warn(FemaleLikeMating.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
         }
     }
 }

@@ -23,7 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.awt.*;
 import java.util.Collections;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

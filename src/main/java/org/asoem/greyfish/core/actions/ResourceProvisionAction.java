@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.utils.base.ArgumentMap;
+import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -57,7 +57,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
         final ResourceRequestMessage requestMessage = message.getContent(ResourceRequestMessage.class);
         final double requestAmount = requestMessage.getRequestAmount();
-        final double providedAmount = provides.apply(this, ImmutableMap.of("classifier", requestMessage.getRequestClassifier()));
+        final double providedAmount = provides.apply(this, ArgumentMap.of("classifier", requestMessage.getRequestClassifier()));
         final double offeredAmount = Math.min(requestAmount, providedAmount);
 
         if (offeredAmount > 0) {

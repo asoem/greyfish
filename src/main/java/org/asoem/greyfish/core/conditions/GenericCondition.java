@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.inject.Inject;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;

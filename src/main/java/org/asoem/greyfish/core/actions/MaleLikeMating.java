@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -13,8 +12,9 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.UniparentalChromosomalHistory;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.utils.base.ArgumentMap;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -31,22 +31,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @ClassGroup(tags = "actions")
-public class MatingTransmitterAction extends ContractNetParticipantAction {
+public class MaleLikeMating extends ContractNetParticipantAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MatingTransmitterAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaleLikeMating.class);
 
     @Element(name = "ontology", required = false)
     private String ontology;
 
     @Element(name = "matingProbability", required = false)
-    private Callback<? super MatingTransmitterAction, Double> matingProbability;
+    private Callback<? super MaleLikeMating, Double> matingProbability;
 
     private int matingCount;
 
     private boolean proposalSent;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public MatingTransmitterAction() {
+    public MaleLikeMating() {
         this(new Builder());
     }
 
@@ -70,7 +70,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
-        e.add("Mating Probability", TypedValueModels.forField("matingProbability", this, new TypeToken<Callback<? super MatingTransmitterAction, Double>>() {
+        e.add("Mating Probability", TypedValueModels.forField("matingProbability", this, new TypeToken<Callback<? super MaleLikeMating, Double>>() {
         }));
     }
 
@@ -81,7 +81,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
             return reply.performative(ACLPerformative.REFUSE);
 
-        final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
+        final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
         if (RandomUtils.trueWithProbability(probability)) {
 
             final Chromosome chromosome = new Chromosome(
@@ -121,17 +121,17 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public MatingTransmitterAction deepClone(DeepCloner cloner) {
-        return new MatingTransmitterAction(this, cloner);
+    public MaleLikeMating deepClone(DeepCloner cloner) {
+        return new MaleLikeMating(this, cloner);
     }
 
-    private MatingTransmitterAction(MatingTransmitterAction cloneable, DeepCloner cloner) {
+    private MaleLikeMating(MaleLikeMating cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.matingProbability = cloneable.matingProbability;
     }
 
-    protected MatingTransmitterAction(AbstractBuilder<? extends MatingTransmitterAction, ? extends AbstractBuilder> builder) {
+    protected MaleLikeMating(AbstractBuilder<? extends MaleLikeMating, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.matingProbability = builder.matingProbabilityExpression;
@@ -141,7 +141,7 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         return new Builder();
     }
 
-    public Callback<? super MatingTransmitterAction, Double> getMatingProbability() {
+    public Callback<? super MaleLikeMating, Double> getMatingProbability() {
         return matingProbability;
     }
 
@@ -149,23 +149,23 @@ public class MatingTransmitterAction extends ContractNetParticipantAction {
         return matingCount;
     }
 
-    public static final class Builder extends AbstractBuilder<MatingTransmitterAction, Builder> {
+    public static final class Builder extends AbstractBuilder<MaleLikeMating, Builder> {
         @Override
         protected Builder self() {
             return this;
         }
 
         @Override
-        public MatingTransmitterAction checkedBuild() {
-            return new MatingTransmitterAction(this);
+        public MaleLikeMating checkedBuild() {
+            return new MaleLikeMating(this);
         }
     }
 
-    protected static abstract class AbstractBuilder<E extends MatingTransmitterAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<E extends MaleLikeMating, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
         private String ontology = "mate";
-        public Callback<? super MatingTransmitterAction, Double> matingProbabilityExpression = Callbacks.constant(1.0);
+        public Callback<? super MaleLikeMating, Double> matingProbabilityExpression = Callbacks.constant(1.0);
 
-        public T matingProbability(Callback<? super MatingTransmitterAction, Double> matingProbability) {
+        public T matingProbability(Callback<? super MaleLikeMating, Double> matingProbability) {
             this.matingProbabilityExpression = checkNotNull(matingProbability);
             return self();
         }

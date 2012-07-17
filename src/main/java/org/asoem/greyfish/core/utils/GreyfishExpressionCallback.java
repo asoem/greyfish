@@ -1,10 +1,10 @@
-package org.asoem.greyfish.core.individual;
+package org.asoem.greyfish.core.utils;
 
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
+import org.asoem.greyfish.utils.base.Arguments;
+import org.asoem.greyfish.utils.base.Callback;
 import org.simpleframework.xml.Element;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -33,7 +33,7 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T apply(C caller, Map<String, ?> arguments) {
+    public T apply(C caller, Arguments arguments) {
         return (T) expression.evaluateForContext(caller, arguments).as(returnType);
     }
 

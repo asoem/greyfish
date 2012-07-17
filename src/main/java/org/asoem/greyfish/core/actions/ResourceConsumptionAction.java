@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -9,8 +8,9 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.utils.base.ArgumentMap;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -23,7 +23,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
-import static org.asoem.greyfish.core.individual.Callbacks.call;
+import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @ClassGroup(tags = "actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
@@ -80,7 +80,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {
         final double offer = message.getContent(Double.class);
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
-        uptakeUtilization.apply(this, ImmutableMap.of("offer", offer));
+        uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
     }
 
     @Override

@@ -1,12 +1,11 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -14,7 +13,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
@@ -22,7 +21,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 21.02.12
  * Time: 18:34
  */
-public class SexualReproductionActionTest {
+public class SexualReproductionTest {
 
     @Inject
     private Persister persister;
@@ -30,7 +29,7 @@ public class SexualReproductionActionTest {
     @Inject
     private GreyfishExpressionFactory expressionFactory;
 
-    public SexualReproductionActionTest() {
+    public SexualReproductionTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
@@ -38,7 +37,7 @@ public class SexualReproductionActionTest {
     public void testPersistence() throws Exception {
         // given
         final AlwaysTrueCondition condition = new AlwaysTrueCondition();
-        final SexualReproductionAction action = SexualReproductionAction.with()
+        final SexualReproduction action = SexualReproduction.with()
 
                 .name("test")
                 .clutchSize(constant(1))
@@ -48,7 +47,7 @@ public class SexualReproductionActionTest {
                 .build();
 
         // when
-        SexualReproductionAction deserialized = Persisters.createCopy(action, SexualReproductionAction.class, persister);
+        SexualReproduction deserialized = Persisters.createCopy(action, SexualReproduction.class, persister);
 
         // then
         assertThat(deserialized.getName()).isEqualTo("test");

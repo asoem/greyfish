@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.genes;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
@@ -12,7 +12,7 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**

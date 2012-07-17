@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.agent_interaction;
 
-import org.asoem.greyfish.core.actions.MatingReceiverAction;
-import org.asoem.greyfish.core.actions.MatingTransmitterAction;
+import org.asoem.greyfish.core.actions.FemaleLikeMating;
+import org.asoem.greyfish.core.actions.MaleLikeMating;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -34,14 +34,14 @@ public class MatingInteractionTest {
         given(population.getName()).willReturn("TestPopulation");
 
         String messageClassifier = "mate";
-        MatingReceiverAction receiverAction = MatingReceiverAction.with()
+        FemaleLikeMating receiverAction = FemaleLikeMating.with()
                 .name("receiveSperm")
                 .ontology(messageClassifier)
                 .interactionRadius(constant(1.0))
                 .matingProbability(constant(1.0))
                 .build();
 
-        MatingTransmitterAction transmitterAction = MatingTransmitterAction.with()
+        MaleLikeMating transmitterAction = MaleLikeMating.with()
                 .name("sendSperm")
                 .ontology(messageClassifier)
                 .matingProbability(constant(1.0))

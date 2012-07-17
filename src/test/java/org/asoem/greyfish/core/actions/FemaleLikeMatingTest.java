@@ -8,7 +8,7 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
@@ -16,27 +16,27 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 22.02.12
  * Time: 17:40
  */
-public class MatingReceiverActionTest {
+public class FemaleLikeMatingTest {
     @Inject
     private GreyfishExpressionFactory expressionFactory;
     @Inject
     private Persister persister;
 
-    public MatingReceiverActionTest() {
+    public FemaleLikeMatingTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
     
     @Test
     public void testPersistence() throws Exception {
         // given
-        final MatingReceiverAction action = MatingReceiverAction.with()
+        final FemaleLikeMating action = FemaleLikeMating.with()
                 .ontology("foo")
                 .matingProbability(constant(0.42))
                 .interactionRadius(constant(0.42))
                 .build();
 
         // when
-        final MatingReceiverAction copy = Persisters.createCopy(action, MatingReceiverAction.class, persister);
+        final FemaleLikeMating copy = Persisters.createCopy(action, FemaleLikeMating.class, persister);
 
         // then
         assertThat(copy.getOntology()).isEqualTo("foo");

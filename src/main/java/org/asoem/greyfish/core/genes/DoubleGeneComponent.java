@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.collect.ImmutableMap;
-import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.utils.base.ArgumentMap;
+import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -10,7 +10,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.*;
-import static org.asoem.greyfish.core.individual.Callbacks.call;
+import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 /**
  * User: christoph
@@ -33,12 +33,12 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
 
         @Override
         public Double mutate(Object original) {
-            return mutation.apply(DoubleGeneComponent.this, ImmutableMap.of("original", original));
+            return mutation.apply(DoubleGeneComponent.this, ArgumentMap.of("original", original));
         }
 
         @Override
         public Product2<Double, Double> recombine(Object first, Object second) {
-            return recombination.apply(DoubleGeneComponent.this, ImmutableMap.of("first", first, "second", second));
+            return recombination.apply(DoubleGeneComponent.this, ArgumentMap.of("first", first, "second", second));
         }
 
         @Override

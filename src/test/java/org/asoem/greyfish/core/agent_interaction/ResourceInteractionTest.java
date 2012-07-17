@@ -8,11 +8,12 @@ import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.utils.base.Arguments;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -38,7 +39,7 @@ public class ResourceInteractionTest {
                 .requestAmount(Callbacks.constant(1.0))
                 .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
                     @Override
-                    public Void apply(ResourceConsumptionAction caller, Map<String, ?> arguments) {
+                    public Void apply(ResourceConsumptionAction caller, Arguments arguments) {
                         caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) arguments.get("offer") * 2);
                         return null;
                     }

@@ -8,12 +8,12 @@ import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 @ClassGroup(tags = "actions")
-public class DeathAction extends AbstractGFAction {
+public class Suicide extends AbstractGFAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeathAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Suicide.class);
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public DeathAction() {
+    public Suicide() {
         this(new Builder());
     }
 
@@ -26,15 +26,15 @@ public class DeathAction extends AbstractGFAction {
     }
 
     @Override
-    public DeathAction deepClone(DeepCloner cloner) {
-        return new DeathAction(this, cloner);
+    public Suicide deepClone(DeepCloner cloner) {
+        return new Suicide(this, cloner);
     }
 
-    private DeathAction(AbstractGFAction cloneable, DeepCloner map) {
+    private Suicide(AbstractGFAction cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    protected DeathAction(AbstractActionBuilder<?, ?> builder) {
+    protected Suicide(AbstractActionBuilder<?, ?> builder) {
         super(builder);
     }
 
@@ -42,7 +42,7 @@ public class DeathAction extends AbstractGFAction {
         return new Builder();
     }
 
-    public static final class Builder extends AbstractActionBuilder<DeathAction, Builder> {
+    public static final class Builder extends AbstractActionBuilder<Suicide, Builder> {
         private Builder() {
         }
 
@@ -52,8 +52,8 @@ public class DeathAction extends AbstractGFAction {
         }
 
         @Override
-        protected DeathAction checkedBuild() {
-            return new DeathAction(this);
+        protected Suicide checkedBuild() {
+            return new Suicide(this);
         }
     }
 }

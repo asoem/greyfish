@@ -8,8 +8,8 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
@@ -28,22 +28,22 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
 import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
-import static org.asoem.greyfish.core.individual.Callbacks.call;
+import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @ClassGroup(tags = "actions")
-public class SexualReproductionAction extends AbstractGFAction {
+public class SexualReproduction extends AbstractGFAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproductionAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
     @Element(name = "spermList")
-    private Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermList;
+    private Callback<? super SexualReproduction, List<? extends Chromosome>> spermList;
 
     @Element(name = "clutchSize")
-    private Callback<? super SexualReproductionAction, Integer> clutchSize;
+    private Callback<? super SexualReproduction, Integer> clutchSize;
 
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
 
-    private Callback<? super SexualReproductionAction, Double> spermFitnessEvaluator;
+    private Callback<? super SexualReproduction, Double> spermFitnessEvaluator;
 
     private final BiMap<String, ElementSelectionStrategy<Chromosome>> strategies =
             ImmutableBiMap.of(
@@ -52,14 +52,14 @@ public class SexualReproductionAction extends AbstractGFAction {
                 @Override
                 public Double apply(@Nullable Chromosome genes) {
                     assert genes != null;
-                    return call(spermFitnessEvaluator, SexualReproductionAction.this);
+                    return call(spermFitnessEvaluator, SexualReproduction.this);
                 }
             }));
 
     private int offspringCount = 0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public SexualReproductionAction() {
+    public SexualReproduction() {
         this(new Builder());
     }
 
@@ -132,9 +132,9 @@ public class SexualReproductionAction extends AbstractGFAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermList", this, new TypeToken<Callback<? super SexualReproductionAction, List<? extends Chromosome>>>() {
+        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermList", this, new TypeToken<Callback<? super SexualReproduction, List<? extends Chromosome>>>() {
         }));
-        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, new TypeToken<Callback<? super SexualReproductionAction, Integer>>() {
+        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, new TypeToken<Callback<? super SexualReproduction, Integer>>() {
         }));
         e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
 
@@ -156,11 +156,11 @@ public class SexualReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public SexualReproductionAction deepClone(DeepCloner cloner) {
-        return new SexualReproductionAction(this, cloner);
+    public SexualReproduction deepClone(DeepCloner cloner) {
+        return new SexualReproduction(this, cloner);
     }
 
-    private SexualReproductionAction(SexualReproductionAction cloneable, DeepCloner map) {
+    private SexualReproduction(SexualReproduction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.spermList = cloneable.spermList;
         this.clutchSize = cloneable.clutchSize;
@@ -168,7 +168,7 @@ public class SexualReproductionAction extends AbstractGFAction {
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
     }
 
-    protected SexualReproductionAction(AbstractBuilder<?, ?> builder) {
+    protected SexualReproduction(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.spermList = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
@@ -190,11 +190,11 @@ public class SexualReproductionAction extends AbstractGFAction {
         return offspringCount;
     }
 
-    public Callback<? super SexualReproductionAction, Integer> getClutchSize() {
+    public Callback<? super SexualReproduction, Integer> getClutchSize() {
         return clutchSize;
     }
 
-    public static final class Builder extends AbstractBuilder<SexualReproductionAction, Builder> {
+    public static final class Builder extends AbstractBuilder<SexualReproduction, Builder> {
         private Builder() {
         }
 
@@ -204,24 +204,24 @@ public class SexualReproductionAction extends AbstractGFAction {
         }
 
         @Override
-        protected SexualReproductionAction checkedBuild() {
-            return new SexualReproductionAction(this);
+        protected SexualReproduction checkedBuild() {
+            return new SexualReproduction(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends SexualReproductionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
-        private Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermStorage;
-        private Callback<? super SexualReproductionAction, Integer> clutchSize = Callbacks.constant(1);
+    protected static abstract class AbstractBuilder<E extends SexualReproduction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+        private Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage;
+        private Callback<? super SexualReproduction, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
-        private Callback<? super SexualReproductionAction, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
+        private Callback<? super SexualReproduction, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
-        public T spermSupplier(Callback<? super SexualReproductionAction, List<? extends Chromosome>> spermStorage) {
+        public T spermSupplier(Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage) {
             this.spermStorage = checkNotNull(spermStorage);
             return self();
         }
 
-        public T clutchSize(Callback<? super SexualReproductionAction, Integer> nOffspring) {
+        public T clutchSize(Callback<? super SexualReproduction, Integer> nOffspring) {
             this.clutchSize = nOffspring;
             return self();
         }
