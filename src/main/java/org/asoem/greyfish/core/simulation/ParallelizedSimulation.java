@@ -36,8 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.concurrent.SingletonForkJoinPool.invoke;
-import static org.asoem.greyfish.utils.parallel.ParallelIterables.apply;
+import static org.asoem.greyfish.utils.concurrent.SingletonForkJoinPool.invoke;
+import static org.asoem.greyfish.utils.concurrent.ParallelIterables.apply;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s

@@ -1,9 +1,7 @@
-package org.asoem.greyfish.core.scenario;
+package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SimulationFactory;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -15,10 +13,10 @@ import java.util.Set;
  * Date: 07.10.11
  * Time: 12:41
  */
-public abstract class ForwardingScenario extends ForwardingObject implements Scenario {
+public abstract class ForwardingSimulationTemplate extends ForwardingObject implements SimulationTemplate {
 
     @Override
-    protected abstract Scenario delegate();
+    protected abstract SimulationTemplate delegate();
 
     @Override
     public boolean addAgent(Agent prototype, Object2D projection) {

@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.scenario;
+package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
@@ -16,7 +16,7 @@ import java.util.Set;
  * Date: 07.10.11
  * Time: 12:39
  */
-public interface Scenario {
+public interface SimulationTemplate {
 
     /**
      * Add a {@code Placeholder} for the given {@code Agent} and place it at the given {@code projection}
@@ -50,7 +50,7 @@ public interface Scenario {
 
     /**
      * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Agent} agents
-     * created by this {@code Scenario}.
+     * created by this {@code SimulationTemplate}.
      */
     Iterable<Agent> getPlaceholder();
 

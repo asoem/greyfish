@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.scenario;
+package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -11,6 +11,8 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.simulation.BasicSimulationTemplate;
+import org.asoem.greyfish.core.simulation.SimulationTemplate;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -31,14 +33,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BasicScenarioTest {
+public class BasicSimulationTemplateTest {
 
     @Inject
     private GreyfishExpressionFactory expressionFactory;
     @Inject
     private Persister persister;
 
-    public BasicScenarioTest() {
+    public BasicSimulationTemplateTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
@@ -52,13 +54,13 @@ public class BasicScenarioTest {
         final Agent prototype2 = mock(Agent.class);
         given(prototype2.getPopulation()).willReturn(population);
 
-        Scenario scenario = BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(1, 1))
+        SimulationTemplate simulationTemplate = BasicSimulationTemplate.builder("TestScenario", TiledSpace.<Agent>ofSize(1, 1))
                 .addAgent(prototype, locatedAt(0.0, 0.0))
                 .addAgent(prototype2, locatedAt(0.0, 0.0))
                 .build();
         // when
-        Set<Agent> prototypes = scenario.getPrototypes();
-        Iterable<Agent> agents = scenario.getPlaceholder();
+        Set<Agent> prototypes = simulationTemplate.getPrototypes();
+        Iterable<Agent> agents = simulationTemplate.getPlaceholder();
 
         // then
         assertThat(prototypes)
@@ -72,13 +74,13 @@ public class BasicScenarioTest {
     public void testPersistence() throws Exception {
         final Agent prototype = ImmutableAgent.of(Population.newPopulation("TestPopulation", Color.blue)).build();
         // given
-        Scenario scenario = BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(3, 4))
+        SimulationTemplate simulationTemplate = BasicSimulationTemplate.builder("TestScenario", TiledSpace.<Agent>ofSize(3, 4))
                 .addAgent(prototype, locatedAt(0.42, 1.42))
                 .addAgent(prototype, locatedAt(0.42, 1.42))
                 .build();
 
         // when
-        final BasicScenario copy = Persisters.createCopy(scenario, BasicScenario.class, persister);
+        final BasicSimulationTemplate copy = Persisters.createCopy(simulationTemplate, BasicSimulationTemplate.class, persister);
 
         // then
         assertThat(copy.getName()).isEqualTo("TestScenario");
