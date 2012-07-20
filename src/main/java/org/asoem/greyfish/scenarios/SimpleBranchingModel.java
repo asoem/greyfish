@@ -3,7 +3,6 @@ package org.asoem.greyfish.scenarios;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import javolution.lang.MathLib;
 import org.apache.commons.math3.util.FastMath;
 import org.asoem.greyfish.cli.ScenarioParameter;
@@ -24,12 +23,9 @@ import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableObject2D;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.asoem.greyfish.utils.base.Callbacks.constant;
@@ -42,9 +38,7 @@ import static org.asoem.greyfish.utils.math.RandomUtils.*;
  * Time: 13:40
  */
 @SuppressWarnings("FieldCanBeLocal")
-public class SimpleBranchingModel implements Provider<Scenario> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleBranchingModel.class);
+public class SimpleBranchingModel extends AbstractInjectedModelFactory {
 
     @Inject(optional = true)
     @ScenarioParameter("width")
@@ -65,16 +59,6 @@ public class SimpleBranchingModel implements Provider<Scenario> {
     @Override
     public Scenario get() {
 
-        for (Field field : SimpleBranchingModel.class.getDeclaredFields()) {
-            if (field.isAnnotationPresent(ScenarioParameter.class)) {
-                try {
-                    LOGGER.info("{} = {}", field.getAnnotation(ScenarioParameter.class).value(), field.get(this));
-                } catch (IllegalAccessException e) {
-                    LOGGER.error("Exception during field access", e);
-                }
-            }
-        }
-
         final int width = Integer.valueOf(this.widthStr);
         final Integer height = Integer.valueOf(heightStr);
         final TiledSpace<Agent> tiledSpace = TiledSpace.<Agent>builder(width, height)
@@ -83,7 +67,7 @@ public class SimpleBranchingModel implements Provider<Scenario> {
 
         final BasicScenario.Builder scenarioBuilder = BasicScenario.builder("SimpleSexualPopulation", tiledSpace);
 
-        final Agent prototype = createConsumerPrototype();
+        final Agent prototype = createPrototype();
         for (int i = 0; i < 1000; ++i) {
             final ImmutableObject2D object2D = ImmutableObject2D.of(
                     nextDouble(width),
@@ -95,7 +79,7 @@ public class SimpleBranchingModel implements Provider<Scenario> {
         return scenarioBuilder.build();
     }
 
-    private Agent createConsumerPrototype() {
+    private Agent createPrototype() {
         return ImmutableAgent.of(Population.named("SexualPopulation"))
                 .addActions(
                         Suicide.with()
@@ -222,9 +206,9 @@ public class SimpleBranchingModel implements Provider<Scenario> {
                                     public Double apply(FemaleLikeMating caller, Arguments arguments) {
 
                                         final double myEcologicalTraitValue = (Double) caller.agent().getGene("ecological_trait", GeneComponent.class).getAllele();
-                                        final double hisEcologicalTrait = (Double) ((Agent) arguments.get("mate")).getGene("ecological_trait", GeneComponent.class).getAllele();
-                                        final double assortment = (Double) caller.agent().getGene("assortment_trait", GeneComponent.class).getAllele();
-                                        return FastMath.abs(myEcologicalTraitValue - hisEcologicalTrait) < assortment ? 1.0 : 0.0;
+                                        final double hisEcologicalTraitValue = (Double) ((Agent) arguments.get("mate")).getGene("ecological_trait", GeneComponent.class).getAllele();
+                                        final double assortmentTraitValue = (Double) caller.agent().getGene("assortment_trait", GeneComponent.class).getAllele();
+                                        return FastMath.abs(myEcologicalTraitValue - hisEcologicalTraitValue) < assortmentTraitValue ? 1.0 : 0.0;
                                     }
                                 })
                                 .executesIf(AllCondition.evaluates(

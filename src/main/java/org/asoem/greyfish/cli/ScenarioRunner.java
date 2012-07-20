@@ -1,5 +1,6 @@
 package org.asoem.greyfish.cli;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
@@ -7,7 +8,6 @@ import com.google.common.io.Closeables;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import org.apache.commons.cli.*;
@@ -16,6 +16,7 @@ import org.asoem.greyfish.core.scenario.Scenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.Simulations;
+import org.asoem.greyfish.scenarios.ModelFactory;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class ScenarioRunner {
     private ScenarioRunner.State state = STARTUP;
 
     @Inject
-    private ScenarioRunner(Scenario scenario, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
+    private ScenarioRunner(ModelFactory modelFactory, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
         if (steps != null) {
@@ -50,6 +51,7 @@ public class ScenarioRunner {
             });
         }
 
+        final Scenario scenario = modelFactory.get();
         final ParallelizedSimulation simulation = scenario.createSimulation(ParallelizedSimulationFactory.INSTANCE);
 
         if (verbose) {
@@ -79,13 +81,15 @@ public class ScenarioRunner {
                 }
             });
         }
-        LOGGER.info("Starting {} of scenario {}", simulation, scenario);
+
+        LOGGER.info("Starting {} of model {}", simulation, scenario);
+        LOGGER.info("Model properties:\n\t{}", Joiner.on("\n\t").withKeyValueSeparator("=").join(modelFactory.getModelProperties()));
 
         state = RUNNING;
         Simulations.runWhile(simulation, Predicates.and(predicateList));
 
         if (LOGGER.isInfoEnabled())
-            LOGGER.info("Shutting down {}", simulation);
+            LOGGER.info("Shutting down simulation {}", simulation);
         simulation.shutdown();
         state = SHUTDOWN;
     }
@@ -114,9 +118,9 @@ public class ScenarioRunner {
             protected void configure() {
                 if (line.hasOption("scenario")) {
                     try {
-                        final Class<? extends Provider<Scenario>> scenario =
-                                (Class<? extends Provider<Scenario>>) Class.forName(line.getOptionValue("scenario"));
-                        bind(Scenario.class).toProvider(scenario);
+                        final Class<? extends ModelFactory> modelFactoryClass =
+                                (Class<? extends ModelFactory>) Class.forName(line.getOptionValue("scenario"));
+                        bind(ModelFactory.class).to(modelFactoryClass);
                     } catch (ClassNotFoundException e) {
                         System.err.println("Could not find class " + line.getOptionValue("scenario"));
                         System.exit(1);
