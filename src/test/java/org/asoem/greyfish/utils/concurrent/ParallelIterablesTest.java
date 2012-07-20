@@ -1,4 +1,4 @@
-package org.asoem.greyfish.utils.parallel;
+package org.asoem.greyfish.utils.concurrent;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.base.VoidFunction;
