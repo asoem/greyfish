@@ -149,7 +149,9 @@ public class BasicScenario implements Scenario {
             space.insertObject(clone, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
         }
 
-        return simulationFactory.createSimulation(space);
+        final T simulation = simulationFactory.createSimulation(space);
+        simulation.setName(getName());
+        return simulation;
     }
 
     @Override
