@@ -3,7 +3,9 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
@@ -12,6 +14,7 @@ import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.base.AbstractBuilder;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
@@ -26,6 +29,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -418,13 +422,13 @@ public abstract class AbstractAgent implements Agent {
         return result;
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
+    protected static abstract class AbstractAgentBuilder<E extends AbstractAgent, T extends AbstractAgentBuilder<E, T>> extends AbstractBuilder<E, T> {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
         protected final ComponentList<GFProperty> properties = new MutableComponentList<GFProperty>();
         protected final Population population;
         protected final ComponentList<GeneComponent<?>> genes = new MutableComponentList<GeneComponent<?>>();
 
-        protected AbstractBuilder(Population population) {
+        protected AbstractAgentBuilder(Population population) {
             this.population = checkNotNull(population, "Population must not be null");
         }
 
@@ -442,6 +446,25 @@ public abstract class AbstractAgent implements Agent {
         public T addProperties(GFProperty... properties) {
             this.properties.addAll(asList(checkNotNull(properties)));
             return self();
+        }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, genes), new Function<AgentComponent, String>() {
+                @Override
+                public String apply(AgentComponent input) {
+                    return input.getName();
+                }
+            });
+            final String duplicate = Iterables.find(nameWithPossibleDuplicates, new Predicate<String>() {
+                private final Set<String> nameSet = Sets.newHashSet();
+
+                @Override
+                public boolean apply(@Nullable String input) {
+                    return ! nameSet.add(input);
+                }
+            }, null);
+            checkState(duplicate == null, "You assigned the following name more than once to a component: " + duplicate);
         }
     }
 

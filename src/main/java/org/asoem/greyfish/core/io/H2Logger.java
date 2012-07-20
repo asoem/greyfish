@@ -102,6 +102,8 @@ public class H2Logger implements SimulationLogger {
             connection.createStatement().execute(
                     "CREATE INDEX ON agent_events(title_name_id)");
             connection.createStatement().execute(
+                    "CREATE INDEX ON agent_events(simulation_step)");
+            connection.createStatement().execute(
                     "CREATE UNIQUE HASH INDEX ON names(name)");
 
             commit();

@@ -16,7 +16,7 @@ public class MutableAgent extends AbstractAgent {
         super(mutableAgent, map);
     }
 
-    protected MutableAgent(AbstractBuilder<?,?> builder) {
+    protected MutableAgent(AbstractAgentBuilder<?,?> builder) {
         super(new Body(),
                 new MutableComponentList<GFProperty>(builder.properties),
                 new MutableComponentList<GFAction>(builder.actions),
@@ -65,7 +65,7 @@ public class MutableAgent extends AbstractAgent {
         return new Builder(population);
     }
 
-    public static final class Builder extends AbstractBuilder<MutableAgent, Builder> {
+    public static final class Builder extends AbstractAgentBuilder<MutableAgent, Builder> {
         protected Builder(Population population) {
             super(population);
         }

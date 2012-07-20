@@ -250,7 +250,7 @@ public class SimpleBranchingModel implements Provider<Scenario> {
                                 .build(),
                         GenericMovement.builder()
                                 .name("move")
-                                .stepSize(Callbacks.constant(1.0))
+                                .stepSize(Callbacks.constant(0.2))
                                 .turningAngle(new Callback<GenericMovement, Double>() {
                                     @Override
                                     public Double apply(GenericMovement caller, Arguments arguments) {

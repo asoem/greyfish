@@ -34,7 +34,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(agent, map);
     }
 
-    private ImmutableAgent(Builder builder) {
+    private ImmutableAgent(ImmutableAgentBuilder builder) {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
@@ -72,8 +72,8 @@ public class ImmutableAgent extends AbstractAgent {
         return ret;
     }
 
-    public static Builder of(Population population) {
-        return new Builder(population);
+    public static ImmutableAgentBuilder of(Population population) {
+        return new ImmutableAgentBuilder(population);
     }
 
     @Override
@@ -87,8 +87,8 @@ public class ImmutableAgent extends AbstractAgent {
         return true;
     }
 
-    public static final class Builder extends AbstractAgent.AbstractBuilder<ImmutableAgent, Builder> {
-        public Builder(Population population) {
+    public static final class ImmutableAgentBuilder extends AbstractAgentBuilder<ImmutableAgent, ImmutableAgentBuilder> {
+        public ImmutableAgentBuilder(Population population) {
             super(population);
         }
 
@@ -100,7 +100,7 @@ public class ImmutableAgent extends AbstractAgent {
         }
 
         @Override
-        protected Builder self() {
+        protected ImmutableAgentBuilder self() {
             return this;
         }
     }
