@@ -12,11 +12,11 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import org.apache.commons.cli.*;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.scenario.Scenario;
+import org.asoem.greyfish.core.simulation.SimulationTemplate;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.scenarios.ModelFactory;
+import org.asoem.greyfish.models.ModelFactory;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
@@ -25,21 +25,21 @@ import java.io.*;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-import static org.asoem.greyfish.cli.ScenarioRunner.State.*;
+import static org.asoem.greyfish.cli.GreyfishCLIApplication.State.*;
 
 /**
  * User: christoph
  * Date: 30.05.12
  * Time: 10:36
  */
-public class ScenarioRunner {
+public class GreyfishCLIApplication {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScenarioRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishCLIApplication.class);
 
-    private ScenarioRunner.State state = STARTUP;
+    private GreyfishCLIApplication.State state = STARTUP;
 
     @Inject
-    private ScenarioRunner(ModelFactory modelFactory, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
+    private GreyfishCLIApplication(ModelFactory modelFactory, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
         if (steps != null) {
@@ -51,8 +51,8 @@ public class ScenarioRunner {
             });
         }
 
-        final Scenario scenario = modelFactory.get();
-        final ParallelizedSimulation simulation = scenario.createSimulation(ParallelizedSimulationFactory.INSTANCE);
+        final ParallelizedSimulation simulation =
+                modelFactory.get().createSimulation(ParallelizedSimulationFactory.INSTANCE);
 
         if (verbose) {
             Executors.newSingleThreadExecutor().execute(new Runnable() {
@@ -82,7 +82,7 @@ public class ScenarioRunner {
             });
         }
 
-        LOGGER.info("Starting {} of model {}", simulation, scenario);
+        LOGGER.info("Starting {}", simulation);
         LOGGER.info("Model properties:\n\t{}", Joiner.on("\n\t").withKeyValueSeparator("=").join(modelFactory.getModelProperties()));
 
         state = RUNNING;
@@ -131,7 +131,7 @@ public class ScenarioRunner {
                     System.exit(1);
                 }
 
-                ScenarioParameters.bindProperties(binder(), line.getOptionProperties("D"));
+                ModelParameters.bindProperties(binder(), line.getOptionProperties("D"));
 
                 bind(Integer.class).annotatedWith(Names.named("steps")).toInstance(
                         line.hasOption("steps") ? Integer.valueOf(line.getOptionValue("steps")) : null);
@@ -143,13 +143,13 @@ public class ScenarioRunner {
         Guice.createInjector(
                 new CoreModule(),
                 commandLineModule)
-                .getInstance(ScenarioRunner.class);
+                .getInstance(GreyfishCLIApplication.class);
     }
 
     private static void usage(String s, Options options) {
         final HelpFormatter formatter = new HelpFormatter();
         System.out.println(s);
-        formatter.printHelp( ScenarioRunner.class.getSimpleName(), options );
+        formatter.printHelp( GreyfishCLIApplication.class.getSimpleName(), options );
     }
 
     @SuppressWarnings("AccessStaticViaInstance")

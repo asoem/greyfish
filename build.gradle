@@ -7,7 +7,7 @@ version = "0.2.0"
 
 
 apply plugin: 'application'
-mainClassName = "org.asoem.greyfish.cli.ScenarioRunner"
+mainClassName = "org.asoem.greyfish.cli.GreyfishCLIApplication"
 
 repositories {
     flatDir { dirs 'lib' }

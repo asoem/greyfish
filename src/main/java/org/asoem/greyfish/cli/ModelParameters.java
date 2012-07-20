@@ -12,14 +12,14 @@ import java.util.Properties;
  * Date: 30.05.12
  * Time: 15:16
  */
-public class ScenarioParameters {
-    private ScenarioParameters() {}
+public class ModelParameters {
+    private ModelParameters() {}
 
     /**
-     * Creates a {@link ScenarioParameter} annotation with {@code name} as the value.
+     * Creates a {@link ModelParameter} annotation with {@code name} as the value.
      */
-    public static ScenarioParameter named(String name) {
-        return new ScenarioParameterImpl(name);
+    public static ModelParameter named(String name) {
+        return new ModelParameterImpl(name);
     }
 
     /**
@@ -27,11 +27,11 @@ public class ScenarioParameters {
      * {@code properties}.
      */
     public static void bindProperties(Binder binder, Map<String, String> properties) {
-        binder = binder.skipSources(ScenarioParameter.class);
+        binder = binder.skipSources(ModelParameter.class);
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            binder.bind(Key.get(String.class, new ScenarioParameterImpl(key))).toInstance(value);
+            binder.bind(Key.get(String.class, new ModelParameterImpl(key))).toInstance(value);
         }
     }
 
@@ -41,13 +41,13 @@ public class ScenarioParameters {
      * {@link Properties#defaults defaults}.
      */
     public static void bindProperties(Binder binder, Properties properties) {
-        binder = binder.skipSources(ScenarioParameter.class);
+        binder = binder.skipSources(ModelParameter.class);
 
         // use enumeration to include the default properties
         for (Enumeration<?> e = properties.propertyNames(); e.hasMoreElements(); ) {
             String propertyName = (String) e.nextElement();
             String value = properties.getProperty(propertyName);
-            binder.bind(Key.get(String.class, new ScenarioParameterImpl(propertyName))).toInstance(value);
+            binder.bind(Key.get(String.class, new ModelParameterImpl(propertyName))).toInstance(value);
         }
     }
 }

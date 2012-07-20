@@ -10,11 +10,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 30.05.12
  * Time: 15:18
  */
-public class ScenarioParameterImpl implements ScenarioParameter, Serializable {
+public class ModelParameterImpl implements ModelParameter, Serializable {
 
     private final String value;
 
-    public ScenarioParameterImpl(String value) {
+    public ModelParameterImpl(String value) {
         this.value = checkNotNull(value, "value");
     }
 
@@ -28,20 +28,20 @@ public class ScenarioParameterImpl implements ScenarioParameter, Serializable {
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof ScenarioParameter)) {
+        if (!(o instanceof ModelParameter)) {
             return false;
         }
 
-        ScenarioParameter other = (ScenarioParameter) o;
+        ModelParameter other = (ModelParameter) o;
         return value.equals(other.value());
     }
 
     public String toString() {
-        return "@" + ScenarioParameter.class.getName() + "(value=" + value + ")";
+        return "@" + ModelParameter.class.getName() + "(value=" + value + ")";
     }
 
     public Class<? extends Annotation> annotationType() {
-        return ScenarioParameter.class;
+        return ModelParameter.class;
     }
 
     private static final long serialVersionUID = 0;
