@@ -14,7 +14,7 @@ public abstract class AbstractInjectedModelFactory  implements ModelFactory {
     @Override
     public Properties getModelProperties() {
         final Properties properties = new Properties();
-        for (Field field : SimpleBranchingModel.class.getDeclaredFields()) {
+        for (Field field : this.getClass().getDeclaredFields()) {
             if (field.getType().equals(String.class) && field.isAnnotationPresent(ScenarioParameter.class)) {
                 try {
                     field.setAccessible(true);
