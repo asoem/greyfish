@@ -4,11 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -17,20 +18,19 @@ import org.simpleframework.xml.Element;
 import javax.annotation.Nullable;
 
 @ClassGroup(tags = "actions")
-public class ClonalReproductionAction extends AbstractGFAction {
+public class ClonalReproduction extends AbstractGFAction {
 
     @Element(name = "nClones")
-    private GreyfishExpression nClones;
+    private Callback<? super ClonalReproduction, Integer> nClones;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public ClonalReproductionAction() {
+    public ClonalReproduction() {
         this(new Builder());
     }
 
     @Override
     protected ActionState proceed(Simulation simulation) {
-
-        final int nClones = this.nClones.evaluateForContext(this).asInt();
+        final int nClones = Callbacks.call(this.nClones, this);
         for (int i = 0; i < nClones; i++) {
 
             final Agent clone = simulation.createAgent(agent().getPopulation());
@@ -51,16 +51,16 @@ public class ClonalReproductionAction extends AbstractGFAction {
     }
 
     @Override
-    public ClonalReproductionAction deepClone(DeepCloner cloner) {
-        return new ClonalReproductionAction(this, cloner);
+    public ClonalReproduction deepClone(DeepCloner cloner) {
+        return new ClonalReproduction(this, cloner);
     }
 
-    public ClonalReproductionAction(ClonalReproductionAction cloneable, DeepCloner map) {
+    public ClonalReproduction(ClonalReproduction cloneable, DeepCloner map) {
         super(cloneable, map);
         this.nClones = cloneable.nClones;
     }
 
-    protected ClonalReproductionAction(AbstractBuilder<?, ?> builder) {
+    protected ClonalReproduction(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.nClones = builder.nClones;
     }
@@ -71,11 +71,11 @@ public class ClonalReproductionAction extends AbstractGFAction {
         e.add("nClones", TypedValueModels.forField("nClones", this, GreyfishExpression.class));
     }
 
-    public GreyfishExpression getnClones() {
+    public Callback<? super ClonalReproduction, Integer> getnClones() {
         return nClones;
     }
 
-    public void setnClones(GreyfishExpression nClones) {
+    public void setnClones(Callback<? super ClonalReproduction, Integer> nClones) {
         this.nClones = nClones;
     }
 
@@ -83,23 +83,23 @@ public class ClonalReproductionAction extends AbstractGFAction {
         return new Builder();
     }
 
-    public static final class Builder extends AbstractBuilder<ClonalReproductionAction, Builder> {
+    public static final class Builder extends AbstractBuilder<ClonalReproduction, Builder> {
         @Override
         protected Builder self() {
             return this;
         }
 
         @Override
-        protected ClonalReproductionAction checkedBuild() {
-            return new ClonalReproductionAction(this);
+        protected ClonalReproduction checkedBuild() {
+            return new ClonalReproduction(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ClonalReproductionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
-        private GreyfishExpression nClones = GreyfishExpressionFactoryHolder.compile("1");
+    protected static abstract class AbstractBuilder<E extends ClonalReproduction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+        private Callback<? super ClonalReproduction, Integer> nClones = Callbacks.constant(1);
 
-        public T nClones(GreyfishExpression nClones) {
+        public T nClones(Callback<? super ClonalReproduction, Integer> nClones) {
             this.nClones = nClones;
             return self();
         }

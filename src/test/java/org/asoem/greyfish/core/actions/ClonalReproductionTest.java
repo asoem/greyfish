@@ -15,7 +15,7 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 22.02.12
  * Time: 17:28
  */
-public class ClonalReproductionActionTest {
+public class ClonalReproductionTest {
 
     @Inject
     private Persister persister;
@@ -23,18 +23,18 @@ public class ClonalReproductionActionTest {
     @Inject
     private GreyfishExpressionFactory expressionFactory;
     
-    public ClonalReproductionActionTest() {
+    public ClonalReproductionTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     @Test
     public void testPersistence() throws Exception {
         // given
-        final ClonalReproductionAction action = new ClonalReproductionAction();
+        final ClonalReproduction action = new ClonalReproduction();
         action.setnClones(expressionFactory.compile("42"));
         
         // when
-        final ClonalReproductionAction copy = Persisters.createCopy(action, ClonalReproductionAction.class, persister);
+        final ClonalReproduction copy = Persisters.createCopy(action, ClonalReproduction.class, persister);
 
         // then
         assertThat(copy.getnClones().getExpression()).isEqualTo("42");
