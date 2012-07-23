@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils.base;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import org.simpleframework.xml.Element;
 
@@ -25,6 +26,15 @@ public class Callbacks {
 
     public static <C, T> T call(Callback<C, T> callback, C caller) {
         return callback.apply(caller, ZERO_ARGUMENTS);
+    }
+
+    public static <C, T> Callback<C, T> forSupplier(final Supplier<T> supplier) {
+        return new Callback<C, T>() {
+            @Override
+            public T apply(C caller, Arguments arguments) {
+                return supplier.get();
+            }
+        };
     }
 
     private static enum EmptyCallback implements Callback<Object, Void> {
