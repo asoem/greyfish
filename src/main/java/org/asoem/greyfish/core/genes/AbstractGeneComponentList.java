@@ -67,7 +67,7 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
     @Override
     public void initGenes() {
         for (GeneComponent<?> gene : this) {
-            gene.setAllele(gene.getGeneController().createInitialValue());
+            gene.setAllele(gene.createInitialValue());
         }
     }
 
@@ -77,11 +77,6 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
     @Override
     public <T extends E> T find(String name, Class<T> clazz) {
         return delegate().find(name, clazz);
-    }
-
-    @Override
-    public double distance(GeneComponentList<? extends E> that) {
-        return GenesComponents.normalizedDistance(this, that);
     }
 
     @Override

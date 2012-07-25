@@ -1,15 +1,16 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 /**
  * User: christoph
@@ -27,34 +28,6 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
 
     @Element
     private Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> recombination;
-
-    private final GeneController<Double> geneController = new GeneController<Double>() {
-
-        @Override
-        public Double mutate(Object original) {
-            return mutation.apply(DoubleGeneComponent.this, ArgumentMap.of("original", original));
-        }
-
-        @Override
-        public Product2<Double, Double> recombine(Object first, Object second) {
-            return recombination.apply(DoubleGeneComponent.this, ArgumentMap.of("first", first, "second", second));
-        }
-
-        @Override
-        public double normalizedDistance(Double orig, Double copy) {
-            return 1.0;
-        }
-
-        @Override
-        public double normalizedWeightedDistance(Double orig, Double copy) {
-            return normalizedDistance(orig, copy);
-        }
-
-        @Override
-        public Double createInitialValue() {
-            return call(initialValue, DoubleGeneComponent.this);
-        }
-    };
 
     private Double value = 0.0;
 
@@ -82,13 +55,8 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     }
 
     @Override
-    public Class<Double> getSupplierClass() {
+    public Class<Double> getAlleleClass() {
         return Double.class;
-    }
-
-    @Override
-    public GeneController<Double> getGeneController() {
-        return geneController;
     }
 
     public Callback<? super DoubleGeneComponent, Double> getInitialValue() {
@@ -106,6 +74,22 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     }
 
     @Override
+    public Double mutate(Double allele) {
+        checkNotNull(allele);
+        return mutation.apply(this, ArgumentMap.of("x", allele));
+    }
+
+    @Override
+    public Product2<Double, Double> recombine(Double allele1, Double allele2) {
+        return recombination.apply(this, ArgumentMap.of("x", allele1, "y", allele2));
+    }
+
+    @Override
+    public Double createInitialValue() {
+        return initialValue.apply(this, ArgumentMap.of());
+    }
+
+    @Override
     public Double getAllele() {
         return value;
     }
@@ -113,32 +97,9 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        /*
-        e.add("Initial Value", new AbstractTypedValueModel<GreyfishExpression>() {
-
-            @Override
-            protected void set(GreyfishExpression arg0) {
-                initialValue = arg0;
-            }
-
-            @Override
-            public GreyfishExpression get() {
-                return initialValue;
-            }
-        });
-
-        e.add("Mutation", new AbstractTypedValueModel<GreyfishExpression>() {
-            @Override
-            protected void set(GreyfishExpression arg0) {
-                mutation = arg0;
-            }
-
-            @Override
-            public GreyfishExpression get() {
-                return mutation;
-            }
-        });
-    */
+        e.add("Initial Value", TypedValueModels.forField("initialValue", this, new TypeToken<Callback<? super DoubleGeneComponent, Double>>() {}));
+        e.add("Mutation(x)", TypedValueModels.forField("mutation", this, new TypeToken<Callback<? super DoubleGeneComponent, Double>>() {}));
+        e.add("Recombination(x,y)", TypedValueModels.forField("recombination", this, new TypeToken<Callback<? super DoubleGeneComponent, Double>>() {}));
     }
 
     public static DoubleGeneBuilder builder() {

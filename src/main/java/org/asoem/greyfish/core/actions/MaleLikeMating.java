@@ -90,7 +90,7 @@ public class MaleLikeMating extends ContractNetParticipantAction {
                         @Override
                         public Gene<?> apply(@Nullable GeneComponent<?> geneComponent) {
                             assert geneComponent != null;
-                            return new Gene<Object>(geneComponent.mutatedValue(), geneComponent.getRecombinationProbability());
+                            return new Gene<Object>(geneComponent.mutate(null), geneComponent.getRecombinationProbability());
                         }
                     }));
 

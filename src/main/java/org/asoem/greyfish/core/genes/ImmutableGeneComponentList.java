@@ -68,20 +68,6 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
         return new Builder<E>().addAll(genes).build(); // TODO:
     }
 
-    /**
-     * Creates a new {@code ImmutableGeneComponentList} which contains {@code ImmutableGeneComponent} copies of the geiven {@code genes}
-     * @param genes the genes which will used to create new mutated copies from
-     * @return a new {@code ImmutableGeneComponentList} with muted copies of the given {@code genes}
-     */
-    public static ImmutableGeneComponentList<GeneComponent<?>> mutatedCopyOf(Iterable<? extends GeneComponent<?>> genes) {
-        return new Builder<GeneComponent<?>>().addAll(Iterables.transform(genes, new Function<GeneComponent<?>, GeneComponent<?>>() {
-            @Override
-            public GeneComponent<?> apply(@Nullable GeneComponent<?> o) {
-                return ImmutableGeneComponent.newMutatedCopy(o);
-            }
-        })).build();
-    }
-
     @SuppressWarnings("unchecked")
     public static <E extends GeneComponent<?>> GeneComponentList<E> of() {
         return (GeneComponentList<E>) EMPTY_GENE_COMPONENT_LIST;

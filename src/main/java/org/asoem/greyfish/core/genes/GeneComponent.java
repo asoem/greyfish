@@ -11,26 +11,13 @@ public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
     /**
      * @return the class of the value this gene is supplying
      */
-    Class<T> getSupplierClass();
-
-    /**
-     * @return the controller for this gene
-     */
-    GeneController<T> getGeneController();
+    Class<T> getAlleleClass();
 
     /**
      * @param gene the gene to builderTest for
      * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
      */
     boolean isMutatedCopy(@Nullable GeneComponent<?> gene);
-
-    /**
-     * Computes the normalizedDistance between {@code this} and {@code that} using an arbitrary metric.
-     *
-     * @param thatGene the gene to compute the distance to
-     * @return the distance
-     */
-    double distance(GeneComponent<?> thatGene);
 
     /**
      * Set the new value for this {@code GeneComponent}
@@ -46,7 +33,9 @@ public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
      */
     double getRecombinationProbability();
 
-    T mutatedValue();
+    T mutate(T allele);
 
-    Product2<T, T> recombinedValue(T other);
+    Product2<T, T> recombine(T allele1, T allele2);
+
+    T createInitialValue();
 }

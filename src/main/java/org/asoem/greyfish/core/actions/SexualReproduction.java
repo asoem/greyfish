@@ -8,8 +8,6 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
@@ -95,23 +93,17 @@ public class SexualReproduction extends AbstractGFAction {
     }
 
     private static Product2<Chromosome, Chromosome> recombine(GeneComponentList<GeneComponent<?>> egg, Chromosome sperm, int femaleID, int maleID) {
-        final Iterable<GeneController<?>> geneControllers = Iterables.transform(egg, new Function<GeneComponent<?>, GeneController<?>>() {
-            @Override
-            public GeneController<?> apply(GeneComponent<?> geneComponent) {
-                return geneComponent.getGeneController();
-            }
-        });
 
-        // zip chromosomes and recombination operator
-        final Tuple3.Zipped<GeneComponent<?>, Gene<?>, GeneController<?>> zip
-                = Tuple3.Zipped.of(egg, sperm.getGenes(), geneControllers);
+        // zip chromosomes
+        final Tuple2.Zipped<GeneComponent<?>, Gene<?>> zip
+                = Tuple2.Zipped.of(egg, sperm.getGenes());
 
         // recombine and mutate
-        final Iterable<Product2<Gene<Object>, Gene<Object>>> genes = Iterables.transform(zip, new Function<Product3<GeneComponent<?>, Gene<?>, GeneController<?>>, Product2<Gene<Object>, Gene<Object>>>() {
+        final Iterable<Product2<Gene<Object>, Gene<Object>>> genes = Iterables.transform(zip, new Function<Product2<GeneComponent<?>, Gene<?>>, Product2<Gene<Object>, Gene<Object>>>() {
             @Override
-            public Product2<Gene<Object>, Gene<Object>> apply(Product3<GeneComponent<?>, Gene<?>, GeneController<?>> tuple) {
-                final Object mutatedAndRecombinedAllele
-                        = tuple._3().mutate(tuple._3().recombine(tuple._1().getAllele(), tuple._2().getAllele())._1());
+            public Product2<Gene<Object>, Gene<Object>> apply(Product2<GeneComponent<?>, Gene<?>> tuple) {
+                final Product2<?, ?> recombinationProduct = GenesComponents.recombine(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
+                final Object mutatedAndRecombinedAllele = GenesComponents.mutate(tuple._1(), recombinationProduct._1());
 
                 return Tuple2.of(
                         new Gene<Object>(mutatedAndRecombinedAllele, tuple._1().getRecombinationProbability()),

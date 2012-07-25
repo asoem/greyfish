@@ -36,11 +36,11 @@ public class ClonalReproduction extends AbstractGFAction {
             final Agent clone = simulation.createAgent(agent().getPopulation());
             clone.updateGeneComponents(
                     new Chromosome(new UniparentalChromosomalHistory(agent().getId()),
-                            Iterables.transform(ImmutableGeneComponentList.mutatedCopyOf(agent().getGeneComponentList()), new Function<GeneComponent<?>, Gene<?>>() {
+                            Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
                                 @Override
                                 public Gene<?> apply(@Nullable GeneComponent<?> gene) {
                                     assert gene != null;
-                                    return new Gene<Object>(gene.getAllele(), gene.getRecombinationProbability());
+                                    return new Gene<Object>(GenesComponents.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
                                 }
                             })));
             simulation.activateAgent(clone, agent().getProjection());

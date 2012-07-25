@@ -132,7 +132,7 @@ public class H2Logger implements SimulationLogger {
             }
             for (GeneComponent<?> gene : agent.getGeneComponentList()) {
                 assert gene != null;
-                if (Double.class.equals(gene.getSupplierClass())) {
+                if (Double.class.equals(gene.getAlleleClass())) {
                     addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), ((GeneComponent<Double>) gene).getAllele()));
                 } else {
                     addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));

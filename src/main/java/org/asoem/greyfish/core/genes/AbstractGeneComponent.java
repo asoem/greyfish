@@ -3,13 +3,9 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Product2;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -39,25 +35,8 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
     }
 
     @Override
-    public final double distance(GeneComponent<?> thatGene) {
-        checkNotNull(thatGene);
-        checkArgument(this.getSupplierClass().equals(thatGene.getSupplierClass()));
-        return getGeneController().normalizedDistance(this.getAllele(), getSupplierClass().cast(thatGene.getAllele()));
-    }
-
-    @Override
     public double getRecombinationProbability() {
         return 0.5;
-    }
-
-    @Override
-    public T mutatedValue() {
-        return getGeneController().mutate(getAllele());
-    }
-
-    @Override
-    public Product2<T, T> recombinedValue(T other) {
-        return getGeneController().recombine(getAllele(), other);
     }
 
     @Override
@@ -67,12 +46,12 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
 
     @Override
     public boolean isMutatedCopy(@Nullable GeneComponent<?> gene) {
-        return gene != null && gene.getSupplierClass().equals(this.getSupplierClass());
+        return gene != null && gene.getAlleleClass().equals(this.getAlleleClass());
     }
 
     @Override
     public void initialize() {
         super.initialize();
-        setAllele(getGeneController().createInitialValue());
+        setAllele(createInitialValue());
     }
 }

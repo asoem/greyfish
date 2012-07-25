@@ -4,14 +4,11 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Product2;
-import org.asoem.greyfish.utils.base.Tuple2;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
@@ -36,51 +33,6 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     @Element(required = false)
     private String currentState;
 
-    private final GeneController<String> geneController = new GeneControllerAdaptor<String>() {
-        @Override
-        public String mutate(Object state) {
-            final String stringState = String.class.cast(state);
-
-            checkNotNull(state, "State must not be null");
-
-            if (!markovMatrix.containsRow(state)) {
-                if (markovMatrix.containsColumn(state)) {
-                    return stringState;
-                } else
-                    throw new IllegalArgumentException("State '" + state + "' does not match any of the defined states in set {" + Joiner.on(", ").join(Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet())) + "}");
-            }
-
-
-            final Map<String, Callback<? super MarkovGeneComponent, Double>> row = markovMatrix.row(stringState);
-
-            if (row.isEmpty()) {
-                return stringState;
-            }
-
-            double sum = 0;
-            double rand = RandomUtils.nextDouble();
-            for (Map.Entry<String, Callback<? super MarkovGeneComponent, Double>> cell : row.entrySet()) {
-                sum += Callbacks.call(cell.getValue(), MarkovGeneComponent.this);
-                if (sum > rand) {
-                    return cell.getKey();
-                }
-            }
-
-            return stringState;
-        }
-
-        @Override
-        public Product2<String, String> recombine(Object first, Object second) {
-            return Tuple2.of(String.class.cast(first), String.class.cast(second));
-        }
-
-        @Override
-        public String createInitialValue() {
-            assert initialState != null;
-            return Callbacks.call(initialState, MarkovGeneComponent.this);
-        }
-    };
-
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private MarkovGeneComponent() {
     }
@@ -97,15 +49,49 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-        this.currentState = geneController.createInitialValue();
-    }
-
-    @Override
     public void setAllele(Object allele) {
         checkArgument(allele instanceof String, "Expected allele of type String. Actual value: " + allele);
         currentState = (String) allele;
+    }
+
+    @Override
+    public String mutate(String allele) {
+        checkNotNull(allele, "State must not be null");
+
+        if (!markovMatrix.containsRow(allele)) {
+            if (markovMatrix.containsColumn(allele)) {
+                return allele;
+            } else
+                throw new IllegalArgumentException("State '" + allele + "' does not match any of the defined states in set {" + Joiner.on(", ").join(Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet())) + "}");
+        }
+
+
+        final Map<String, Callback<? super MarkovGeneComponent, Double>> row = markovMatrix.row(allele);
+
+        if (row.isEmpty()) {
+            return allele;
+        }
+
+        double sum = 0;
+        double rand = RandomUtils.nextDouble();
+        for (Map.Entry<String, Callback<? super MarkovGeneComponent, Double>> cell : row.entrySet()) {
+            sum += Callbacks.call(cell.getValue(), MarkovGeneComponent.this);
+            if (sum > rand) {
+                return cell.getKey();
+            }
+        }
+
+        return allele;
+    }
+
+    @Override
+    public Product2<String, String> recombine(String allele1, String allele2) {
+        return Tuple2.of(allele1, allele2);
+    }
+
+    @Override
+    public String createInitialValue() {
+        return Callbacks.call(initialState, MarkovGeneComponent.this);
     }
 
     private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
@@ -115,13 +101,8 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     }
 
     @Override
-    public Class<String> getSupplierClass() {
+    public Class<String> getAlleleClass() {
         return String.class;
-    }
-
-    @Override
-    public GeneController<String> getGeneController() {
-        return geneController;
     }
 
     @Override
@@ -137,6 +118,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
+        e.add("Initial State", TypedValueModels.forField("initialState", this, new TypeToken<Callback<? super MarkovGeneComponent, String>>() {}));
         /*
         e.add("Transition Rules", new AbstractTypedValueModel<String>() {
             @Override
@@ -147,18 +129,6 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
             @Override
             public String get() {
                 return markovChain == null ? "" : markovChain.toRule();
-            }
-        });
-
-        e.add("Initial State", new AbstractTypedValueModel<String>() {
-            @Override
-            protected void set(String arg0) {
-                initialState = GreyfishExpressionFactoryHolder.compile(arg0);
-            }
-
-            @Override
-            public String get() {
-                return initialState == null ? "" : initialState.getExpression();
             }
         });
         */

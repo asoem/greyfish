@@ -1,10 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.reflect.TypeToken;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 
@@ -19,6 +16,10 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
 
     private Callback<? super DynamicProperty<T>, T> callback;
 
+    private int step;
+
+    private T value;
+
     public DynamicProperty(DynamicProperty<T> dynamicProperty, DeepCloner cloner) {
         super(dynamicProperty, cloner);
         this.callback = dynamicProperty.callback;
@@ -31,7 +32,11 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
 
     @Override
     public T getValue() {
-        return Callbacks.call(callback, this);
+        if (simulation().getStep() > step) {
+            step = simulation().getStep();
+            value = callback.apply(this, ArgumentMap.of());
+        }
+        return value;
     }
 
     @Override
@@ -44,6 +49,12 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
         super.configure(e);
         e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super ConstantProperty<T>, T>>() {
         }));
+    }
+
+    @Override
+    public void initialize() {
+        super.initialize();
+        step = -1;
     }
 
     public static <T> DynamicPropertyBuilder<T> builder() {
