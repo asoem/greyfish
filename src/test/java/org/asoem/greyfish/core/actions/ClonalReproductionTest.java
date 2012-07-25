@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.utils.GreyfishExpressionCallback;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -31,12 +32,13 @@ public class ClonalReproductionTest {
     public void testPersistence() throws Exception {
         // given
         final ClonalReproduction action = new ClonalReproduction();
-        action.setnClones(expressionFactory.compile("42"));
+        final GreyfishExpressionCallback<Object, Integer> nClones = GreyfishExpressionCallback.create(expressionFactory.compile("42"), Integer.class);
+        action.setnClones(nClones);
         
         // when
         final ClonalReproduction copy = Persisters.createCopy(action, ClonalReproduction.class, persister);
 
         // then
-        assertThat(copy.getnClones().getExpression()).isEqualTo("42");
+        assertThat(copy.getnClones()).isEqualTo(nClones);
     }
 }

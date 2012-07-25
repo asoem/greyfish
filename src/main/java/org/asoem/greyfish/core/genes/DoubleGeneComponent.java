@@ -1,15 +1,14 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.utils.base.ArgumentMap;
-import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Product2;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 import org.simpleframework.xml.Element;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 /**
@@ -159,31 +158,39 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     }
 
     protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E, T>> extends AbstractComponentBuilder<E, T> {
-        private Callback<? super DoubleGeneComponent, Double> initialValue;
-        private Callback<? super DoubleGeneComponent, Double> mutation;
-        private Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> recombination;
+        private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDoubleGeneBuilder.class);
+        private static final Callback<Object,Double> DEFAULT_INITIAL_VALUE_CALLBACK = Callbacks.constant(0.0);
+        private static final Callback<Object,Double> DEFAULT_MUTATION_CALLBACK = Callbacks.constant(0.0);
+        private static final Callback<Object,Tuple2<Double,Double>> DEFAULT_RECOMBINATION_CALLBACK = Callbacks.constant(Tuple2.of(0.0, 0.0));
 
-        public T initialAllele(Callback<? super DoubleGeneComponent, Double> expression) {
-            this.initialValue = checkNotNull(expression);
+        private Callback<? super DoubleGeneComponent, Double> initialValue = DEFAULT_INITIAL_VALUE_CALLBACK;
+        private Callback<? super DoubleGeneComponent, Double> mutation = DEFAULT_MUTATION_CALLBACK;
+        private Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> recombination = DEFAULT_RECOMBINATION_CALLBACK;
+
+        public T initialAllele(Callback<? super DoubleGeneComponent, Double> callback) {
+            this.initialValue = checkNotNull(callback);
             return self();
         }
 
-        public T mutation(Callback<? super DoubleGeneComponent, Double> expression) {
-            this.mutation = checkNotNull(expression);
+        public T mutation(Callback<? super DoubleGeneComponent, Double> callback) {
+            this.mutation = checkNotNull(callback);
             return self();
         }
 
-        public T recombination(Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> expression) {
-            this.recombination = checkNotNull(expression);
+        public T recombination(Callback<? super DoubleGeneComponent, ? extends Product2<Double, Double>> callback) {
+            this.recombination = checkNotNull(callback);
             return self();
         }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
-            checkState(initialValue != null, "You must provide an expression for the initial value");
-            checkState(mutation != null, "You must provide an expression for the mutation");
-            checkState(recombination != null, "You must provide an expression for the recombination");
+            if (initialValue == DEFAULT_INITIAL_VALUE_CALLBACK)
+                LOGGER.warn("Using default initialValue callback: {}", DEFAULT_INITIAL_VALUE_CALLBACK);
+            if (mutation == DEFAULT_MUTATION_CALLBACK)
+                LOGGER.warn("Using default mutation callback: {}", DEFAULT_MUTATION_CALLBACK);
+            if (recombination == DEFAULT_RECOMBINATION_CALLBACK)
+                LOGGER.warn("Using default recombination callback: {}", DEFAULT_RECOMBINATION_CALLBACK);
         }
     }
 }
