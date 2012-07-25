@@ -12,11 +12,10 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import org.apache.commons.cli.*;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.simulation.SimulationTemplate;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.models.ModelFactory;
+import org.asoem.greyfish.models.SimulationTemplateFactory;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
@@ -39,7 +38,7 @@ public class GreyfishCLIApplication {
     private GreyfishCLIApplication.State state = STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(ModelFactory modelFactory, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
+    private GreyfishCLIApplication(SimulationTemplateFactory simulationTemplateFactory, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
         if (steps != null) {
@@ -51,8 +50,9 @@ public class GreyfishCLIApplication {
             });
         }
 
+        LOGGER.info("Creating simulation for model {}", simulationTemplateFactory);
         final ParallelizedSimulation simulation =
-                modelFactory.get().createSimulation(ParallelizedSimulationFactory.INSTANCE);
+                simulationTemplateFactory.get().createSimulation(ParallelizedSimulationFactory.INSTANCE);
 
         if (verbose) {
             Executors.newSingleThreadExecutor().execute(new Runnable() {
@@ -82,8 +82,8 @@ public class GreyfishCLIApplication {
             });
         }
 
+        LOGGER.info("Model properties:\n\t{}", Joiner.on("\n\t").withKeyValueSeparator("=").join(simulationTemplateFactory.getModelProperties()));
         LOGGER.info("Starting {}", simulation);
-        LOGGER.info("Model properties:\n\t{}", Joiner.on("\n\t").withKeyValueSeparator("=").join(modelFactory.getModelProperties()));
 
         state = RUNNING;
         Simulations.runWhile(simulation, Predicates.and(predicateList));
@@ -118,9 +118,9 @@ public class GreyfishCLIApplication {
             protected void configure() {
                 if (line.hasOption("scenario")) {
                     try {
-                        final Class<? extends ModelFactory> modelFactoryClass =
-                                (Class<? extends ModelFactory>) Class.forName(line.getOptionValue("scenario"));
-                        bind(ModelFactory.class).to(modelFactoryClass);
+                        final Class<? extends SimulationTemplateFactory> modelFactoryClass =
+                                (Class<? extends SimulationTemplateFactory>) Class.forName(line.getOptionValue("scenario"));
+                        bind(SimulationTemplateFactory.class).to(modelFactoryClass);
                     } catch (ClassNotFoundException e) {
                         System.err.println("Could not find class " + line.getOptionValue("scenario"));
                         System.exit(1);
