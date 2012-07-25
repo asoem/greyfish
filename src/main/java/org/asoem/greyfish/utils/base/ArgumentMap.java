@@ -42,4 +42,10 @@ public class ArgumentMap extends ForwardingMap<String, Object> implements Argume
     public static Arguments of(String i1, Object o1, String i2, Object o2) {
         return new ArgumentMap(ImmutableMap.of(i1, o1, i2, o2));
     }
+
+    public static Arguments of() {
+        return EMPTY_MAP;
+    }
+
+    private static final ArgumentMap EMPTY_MAP = new ArgumentMap(ImmutableMap.<String, Object>of());
 }
