@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils.base;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
 import org.simpleframework.xml.Element;
@@ -36,6 +37,13 @@ public class Tuple2<E1, E2> implements Product2<E1, E2> {
     @Override
     public E2 _2() {
         return e2;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(Tuple2.class)
+                .addValue(e1)
+                .addValue(e2).toString();
     }
 
     public static <E1, E2> Tuple2<E1, E2> of(E1 e1, E2 e2) {
