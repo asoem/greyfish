@@ -36,8 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.concurrent.SingletonForkJoinPool.invoke;
 import static org.asoem.greyfish.utils.concurrent.ParallelIterables.apply;
+import static org.asoem.greyfish.utils.concurrent.SingletonForkJoinPool.invoke;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -95,6 +95,8 @@ public class ParallelizedSimulation implements Simulation {
     private final UUID uuid = UUID.randomUUID();
 
     private final SimulationLogger simulationLogger;
+
+    private final Map<String, Object> snapshotValues = Maps.newHashMap();
 
     @Nullable
     private Agent getPrototype(final Population population) {
@@ -312,6 +314,11 @@ public class ParallelizedSimulation implements Simulation {
         processAgentsMovement();
         processRequestedAgentActivations();
 
+        afterStepCleanUp();
+    }
+
+    private void afterStepCleanUp() {
+        snapshotValues.clear();
     }
 
     private void processAgentMessageDelivery() {
@@ -395,6 +402,19 @@ public class ParallelizedSimulation implements Simulation {
                 eventIdSequence.incrementAndGet(), uuid, currentStep,
                 agentId, populationName, coordinates,
                 eventOrigin.getClass().getSimpleName(), title, message);
+    }
+
+    @Override
+    public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
+        // TODO: long thread locks observed!
+        if (!snapshotValues.containsKey(key)) {
+            synchronized (snapshotValues) {
+                if (!snapshotValues.containsKey(key))
+                    snapshotValues.put(key, valueCalculator.get());
+            }
+
+        }
+        return snapshotValues.get(key);
     }
 
     private static class AddAgentMessage {

@@ -13,4 +13,6 @@ public interface GeneComponentList<E extends GeneComponent<?>> extends Component
 
     ChromosomalHistory getOrigin();
     void setOrigin(ChromosomalHistory history);
+
+    int indexOfNamed(String name);
 }

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.individual.Agent;
@@ -97,6 +98,11 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     @Override
     public UUID getUUID() {
         return delegate().getUUID();
+    }
+
+    @Override
+    public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
+        return delegate().snapshotValue(key, valueCalculator);
     }
 
     @Override

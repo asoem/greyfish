@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
@@ -75,4 +76,13 @@ public interface Simulation extends HasName {
     UUID getUUID();
 
     void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
+
+    /**
+     * With this method you can store values which hold for all agents during a single simulation step.
+     * Using these snapshot values, you can prevent duplicate computations.
+     * @param key The name of the value
+     * @param valueCalculator The algorithm to compute the value
+     * @return The stored value for {@code key}
+     */
+    Object snapshotValue(String key, Supplier<Object> valueCalculator);
 }

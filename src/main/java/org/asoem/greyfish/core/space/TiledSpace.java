@@ -5,8 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.lang.MathLib;
 import javolution.util.FastList;
-import org.asoem.greyfish.utils.base.Builder;
-import org.asoem.greyfish.utils.base.Product2;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
@@ -39,21 +38,24 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
     private final WalledTile[][] tileMatrix;
 
-    private final SelfUpdatingTree<T> tree = new SelfUpdatingTree<T>(AsoemScalaTwoDimTree.<T>newInstance(), new Supplier<Iterable<? extends T>>() {
-        @Override
-        public Iterable<? extends T> get() {
-            return projectables;
-        }
-    }, new Function<T, Product2<Double, Double>>() {
-        @Override
-        public Point2D apply(@Nullable T t) {
-            assert t != null;
-            final MotionObject2D projection = t.getProjection();
-            assert projection != null;
-            return projection.getAnchorPoint();
-        }
-    }
-    );
+    private final OutdateableUpdateRequest<Object> updateRequest = UpdateRequests.atomicRequest(true);
+
+    private final LazyObject<TwoDimTree<T>> lazyTree = LazyObjects.threadSave(new LazyObjectImpl<TwoDimTree<T>>(
+            new Supplier<TwoDimTree<T>>() {
+                @Override
+                public TwoDimTree<T> get() {
+                    return AsoemScalaTwoDimTree.create(projectables, new Function<T, Product2<Double, Double>>() {
+                        @Override
+                        public Point2D apply(@Nullable T t) {
+                            assert t != null;
+                            final MotionObject2D projection = t.getProjection();
+                            assert projection != null;
+                            return projection.getAnchorPoint();
+                        }
+                    });
+                }
+            },
+            updateRequest));
 
     public TiledSpace(TiledSpace pSpace) {
         this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
@@ -187,7 +189,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
         final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), newOrientation, !preferredPoint.equals(maxPoint));
         object.setProjection(projection);
-        tree.setOutdated();
+        updateRequest.outdate();
     }
 
     /**
@@ -315,7 +317,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
     @Override
     public Iterable<T> findObjects(double x, double y, double range) {
-        return tree.findObjects(x, y, range);
+        return lazyTree.get().findObjects(x, y, range);
     }
 
     public Iterable<T> getVisibleNeighbours(final T agent, double range) {
@@ -386,7 +388,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
         synchronized (this) {
             projectables.add(projectable);
-            tree.setOutdated();
+            updateRequest.outdate();
         }
     }
 
@@ -396,7 +398,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
         synchronized (this) {
             if (projectables.remove(object)) {
-                tree.setOutdated();
+                updateRequest.outdate();
                 return true;
             } else
                 return false;

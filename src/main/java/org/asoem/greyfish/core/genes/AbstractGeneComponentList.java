@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
@@ -87,6 +89,16 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
     @Override
     public void setOrigin(ChromosomalHistory history) {
         this.chromosomalHistory = checkNotNull(history);
+    }
+
+    @Override
+    public int indexOfNamed(final String name) {
+        return Iterables.indexOf(this, new Predicate<E>() {
+            @Override
+            public boolean apply(E input) {
+                return input.getName().equals(name);
+            }
+        });
     }
 
 

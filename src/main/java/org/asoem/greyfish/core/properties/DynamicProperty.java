@@ -1,9 +1,12 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.base.Supplier;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
+
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -16,9 +19,28 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
 
     private Callback<? super DynamicProperty<T>, T> callback;
 
-    private int step;
+    private final LazyObject<T> lazyValue = LazyObjects.threadSave(new LazyObjectImpl<T>(
+            new Supplier<T>() {
+                @Override
+                public T get() {
+                    assert callback != null;
+                    return callback.apply(DynamicProperty.this, ArgumentMap.of());
+                }
+            },
+            new UpdateRequest<T>() {
+                private int stepForValue = -1;
 
-    private T value;
+                @Override
+                public void done() {
+                    stepForValue = simulation().getStep();
+                }
+
+                @Override
+                public boolean apply(@Nullable T input) {
+                    return simulation().getStep() > stepForValue;
+                }
+            }
+    ));
 
     public DynamicProperty(DynamicProperty<T> dynamicProperty, DeepCloner cloner) {
         super(dynamicProperty, cloner);
@@ -32,11 +54,7 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
 
     @Override
     public T getValue() {
-        if (simulation().getStep() > step) {
-            step = simulation().getStep();
-            value = callback.apply(this, ArgumentMap.of());
-        }
-        return value;
+        return lazyValue.get();
     }
 
     @Override
@@ -54,7 +72,6 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
     @Override
     public void initialize() {
         super.initialize();
-        step = -1;
     }
 
     public static <T> DynamicPropertyBuilder<T> builder() {

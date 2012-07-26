@@ -22,12 +22,7 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
     private AsoemScalaTwoDimTree() {
     }
 
-    public static <T> AsoemScalaTwoDimTree<T> newInstance() {
-        return new AsoemScalaTwoDimTree<T>();
-    }
-
-    @Override
-    public void rebuild(Iterable<? extends T> elements, final Function<? super T, ? extends org.asoem.greyfish.utils.base.Product2<Double,Double>> coordinates2DFunction) {
+    public AsoemScalaTwoDimTree(Iterable<? extends T> elements, final Function<? super T, ? extends org.asoem.greyfish.utils.base.Product2<Double, Double>> coordinates2DFunction) {
         final Iterable<Product2<HyperPoint, T>> transform = Iterables.transform(elements, new Function<T, Product2<HyperPoint, T>>() {
             @Override
             public Product2<HyperPoint, T> apply(T t) {
@@ -36,6 +31,10 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
             }
         });
         kdtree = org.asoem.kdtree.KDTree.apply(2, iterableAsScalaIterable(transform).toList());
+    }
+
+    public static <T> AsoemScalaTwoDimTree<T> newInstance() {
+        return new AsoemScalaTwoDimTree<T>();
     }
 
     @SuppressWarnings("unchecked")
@@ -55,5 +54,9 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
                 return o.value();
             }
         });
+    }
+
+    public static <T> AsoemScalaTwoDimTree<T> create(Iterable<? extends T> elements, final Function<? super T, ? extends org.asoem.greyfish.utils.base.Product2<Double,Double>> coordinates2DFunction) {
+        return new AsoemScalaTwoDimTree<T>(elements, coordinates2DFunction);
     }
 }
