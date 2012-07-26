@@ -6,13 +6,6 @@ import org.asoem.greyfish.utils.base.Product2;
 public interface TwoDimTree<T> {
 
     /**
-     * Rebuild this {@code KDTree} with the given {@code elements} indexed by {@code Point2D}
-     * @param elements the objects this {@code KDTree} will contain afterwards
-     * @param function the function to compute the {@code Point2D} for each element
-     */
-    void rebuild(final Iterable<? extends T> elements, Function<? super T, ? extends Product2<Double,Double>> function);
-
-    /**
      *
      * @param x
      * @param y
