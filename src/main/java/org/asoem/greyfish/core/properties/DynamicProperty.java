@@ -19,7 +19,7 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
 
     private Callback<? super DynamicProperty<T>, T> callback;
 
-    private final LazyObject<T> lazyValue = LazyObjects.threadSave(new LazyObjectImpl<T>(
+    private final LazyObject<T> lazyValue = LazyObjects.synchronizedLazyObject(new LazyObjectImpl<T>(
             new Supplier<T>() {
                 @Override
                 public T get() {

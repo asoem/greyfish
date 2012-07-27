@@ -4,9 +4,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
@@ -29,15 +29,15 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
     private final List<E> listDelegate;
 
-    private final Map<String, Integer> indexMap;
+    private final Map<String, E> indexMap;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private ImmutableComponentList(@ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) List<E> components) {
         listDelegate = ImmutableList.copyOf(components);
-        indexMap = ImmutableMapBuilder.uniqueIndex(listDelegate, new Function<E, String>() {
+        indexMap = Maps.uniqueIndex(listDelegate, new Function<E, String>() {
             @Override
-            public String apply(E geneComponent) {
-                return geneComponent.getName();
+            public String apply(E input) {
+                return input.getName();
             }
         });
     }
@@ -73,11 +73,11 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
     @Override
     public <T extends E> T find(final String name, final Class<T> clazz) {
 
-        final Integer index = indexMap.get(name);
-        if (index == null)
+        final E element = indexMap.get(name);
+        if (element == null)
             throw new NoSuchElementException("Couldn't find " + clazz + " with name " + name);
 
-        return clazz.cast(listDelegate.get(index));
+        return clazz.cast(element);
         /*
         final E element = Iterables.find(listDelegate, new Predicate<E>() {
             @Override

@@ -40,7 +40,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
     private final OutdateableUpdateRequest<Object> updateRequest = UpdateRequests.atomicRequest(true);
 
-    private final LazyObject<TwoDimTree<T>> lazyTree = LazyObjects.threadSave(new LazyObjectImpl<TwoDimTree<T>>(
+    private final LazyObject<TwoDimTree<T>> lazyTree = LazyObjects.synchronizedLazyObject(new LazyObjectImpl<TwoDimTree<T>>(
             new Supplier<TwoDimTree<T>>() {
                 @Override
                 public TwoDimTree<T> get() {

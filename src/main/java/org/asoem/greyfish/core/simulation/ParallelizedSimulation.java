@@ -32,6 +32,7 @@ import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -96,7 +97,7 @@ public class ParallelizedSimulation implements Simulation {
 
     private final SimulationLogger simulationLogger;
 
-    private final Map<String, Object> snapshotValues = Maps.newHashMap();
+    private final ConcurrentMap<String, Object> snapshotValues = Maps.newConcurrentMap();
 
     @Nullable
     private Agent getPrototype(final Population population) {
@@ -406,14 +407,8 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
-        // TODO: long thread locks observed!
-        if (!snapshotValues.containsKey(key)) {
-            synchronized (snapshotValues) {
-                if (!snapshotValues.containsKey(key))
-                    snapshotValues.put(key, valueCalculator.get());
-            }
-
-        }
+        if (!snapshotValues.containsKey(key))
+            snapshotValues.putIfAbsent(key, valueCalculator.get());
         return snapshotValues.get(key);
     }
 
