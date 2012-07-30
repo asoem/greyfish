@@ -32,7 +32,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
     protected DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.doubleProperty = map.cloneField(condition.doubleProperty, DoubleProperty.class);
+        this.doubleProperty = map.getClone(condition.doubleProperty, DoubleProperty.class);
     }
 
     @Override

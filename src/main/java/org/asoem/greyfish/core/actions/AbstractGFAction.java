@@ -37,7 +37,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     protected AbstractGFAction(AbstractGFAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = map.cloneField(cloneable.getCondition(), GFCondition.class);
+        this.rootCondition = map.getClone(cloneable.getCondition(), GFCondition.class);
         this.onSuccess = cloneable.onSuccess;
     }
 

@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.acl.MessageTemplate;
@@ -98,10 +97,10 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner cloner) {
         cloner.addClone(this);
         this.population = abstractAgent.population;
-        this.actions = (ComponentList<GFAction>) cloner.cloneField(abstractAgent.actions, ComponentList.class);
-        this.properties = (ComponentList<GFProperty>) cloner.cloneField(abstractAgent.properties, ComponentList.class);
-        this.geneComponentList = cloner.cloneField(abstractAgent.geneComponentList, GeneComponentList.class);
-        this.body = cloner.cloneField(abstractAgent.body, Body.class);
+        this.actions = (ComponentList<GFAction>) cloner.getClone(abstractAgent.actions, ComponentList.class);
+        this.properties = (ComponentList<GFProperty>) cloner.getClone(abstractAgent.properties, ComponentList.class);
+        this.geneComponentList = cloner.getClone(abstractAgent.geneComponentList, GeneComponentList.class);
+        this.body = cloner.getClone(abstractAgent.body, Body.class);
         this.projection = abstractAgent.projection;
         this.motion = abstractAgent.motion;
     }

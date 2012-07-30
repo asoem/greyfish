@@ -24,7 +24,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
         map.addClone(this);
-        this.agent = map.cloneField(agent, Agent.class);
+        this.agent = map.getClone(agent, Agent.class);
         this.name = cloneable.name;
     }
 

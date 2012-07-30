@@ -40,7 +40,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
     private final OutdateableUpdateRequest<Object> updateRequest = UpdateRequests.atomicRequest(true);
 
-    private final LazyObject<TwoDimTree<T>> lazyTree = LazyObjects.synchronizedLazyObject(new LazyObjectImpl<TwoDimTree<T>>(
+    private final Supplier<TwoDimTree<T>> lazyTree = MoreSuppliers.memoize(
             new Supplier<TwoDimTree<T>>() {
                 @Override
                 public TwoDimTree<T> get() {
@@ -55,7 +55,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
                     });
                 }
             },
-            updateRequest));
+            updateRequest);
 
     public TiledSpace(TiledSpace pSpace) {
         this(checkNotNull(pSpace).getWidth(), pSpace.getHeight());
@@ -174,21 +174,34 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
 
     @Override
     public void moveObject(T object) {
-        final Motion2D motion = object.getMotion();
-
         checkNotNull(object);
-        final Object2D currentProjection = object.getProjection();
-        checkNotNull(currentProjection, "Given object has no projection. Have you added it to this Space?", object);
-        checkNotNull(motion);
-        checkArgument(Math.abs(motion.getTranslation()) <= 1, "Translations > 1 are not supported", motion.getTranslation());
 
-        final double newOrientation = ((currentProjection.getOrientationAngle() + motion.getRotation()) % TWO_PI + TWO_PI) % TWO_PI;
+        final Motion2D motion = checkNotNull(object.getMotion(), "Required motion of {} is null", object);
+        final Object2D currentProjection = checkNotNull(object.getProjection(), "Required projection of {} is null", object);
+
         final double translation = motion.getTranslation();
-        final Point2D preferredPoint = ImmutablePoint2D.sum(currentProjection.getAnchorPoint(), polarToCartesian(newOrientation, translation));
-        final Point2D maxPoint = maxTransition(currentProjection.getAnchorPoint(), preferredPoint);
+        final double rotation = motion.getRotation();
 
-        final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), newOrientation, !preferredPoint.equals(maxPoint));
-        object.setProjection(projection);
+        if (translation == 0 && rotation == 0)
+            return;
+        if (translation < 0)
+            throw new IllegalStateException("Translations < 0 are not supported: " + translation);
+
+        final double newOrientation = (rotation == 0)
+                ? currentProjection.getOrientationAngle()
+                : ((currentProjection.getOrientationAngle() + rotation) % TWO_PI + TWO_PI) % TWO_PI;
+
+        final Point2D anchorPoint = currentProjection.getAnchorPoint();
+        if (translation != 0) {
+            final Point2D preferredPoint = ImmutablePoint2D.sum(anchorPoint, polarToCartesian(newOrientation, translation));
+            final Point2D maxPoint = maxTransition(anchorPoint, preferredPoint);
+            final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), newOrientation, !preferredPoint.equals(maxPoint));
+            object.setProjection(projection);
+        }
+        else {
+            object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(), anchorPoint.getY(), newOrientation, false));
+        }
+
         updateRequest.outdate();
     }
 

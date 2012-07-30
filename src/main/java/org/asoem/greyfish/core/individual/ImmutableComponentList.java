@@ -49,11 +49,16 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
         listDelegate = ImmutableList.copyOf(Iterables.transform(list.listDelegate, new Function<E, E>() {
             @Override
             public E apply(@Nullable E e) {
-                return (E) cloner.cloneField(e, AgentComponent.class);
+                return (E) cloner.getClone(e, AgentComponent.class);
             }
         }));
 
-        indexMap = list.indexMap;
+        indexMap = Maps.uniqueIndex(listDelegate, new Function<E, String>() {
+            @Override
+            public String apply(E input) {
+                return input.getName();
+            }
+        });
     }
 
     @Override

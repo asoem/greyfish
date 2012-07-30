@@ -40,7 +40,7 @@ public class StatePropertyCondition extends LeafCondition {
 
     protected StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.stateProperty = map.cloneField(condition.stateProperty, FiniteStateProperty.class);
+        this.stateProperty = map.getClone(condition.stateProperty, FiniteStateProperty.class);
         this.state = condition.state;
     }
 

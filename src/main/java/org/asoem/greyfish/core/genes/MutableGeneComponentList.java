@@ -36,7 +36,7 @@ public class MutableGeneComponentList<E extends GeneComponent<?>> extends Abstra
             @Override
             public E apply(@Nullable E e) {
                 assert e != null;
-                return cloner.cloneField(e, (Class<E>) e.getClass());
+                return cloner.getClone(e, (Class<E>) e.getClass());
             }
         }));
     }

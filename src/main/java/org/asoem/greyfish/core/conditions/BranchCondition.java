@@ -38,7 +38,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     protected BranchCondition(BranchCondition cloneable, DeepCloner map) {
         super(cloneable, map);
         for (GFCondition condition : cloneable.getChildConditions())
-            add(map.cloneField(condition, GFCondition.class));
+            add(map.getClone(condition, GFCondition.class));
     }
 
     public BranchCondition(GFCondition... conditions) {

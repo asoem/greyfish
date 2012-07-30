@@ -19,7 +19,7 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
 
     private Callback<? super DynamicProperty<T>, T> callback;
 
-    private final LazyObject<T> lazyValue = LazyObjects.synchronizedLazyObject(new LazyObjectImpl<T>(
+    private final Supplier<T> value = MoreSuppliers.memoize(
             new Supplier<T>() {
                 @Override
                 public T get() {
@@ -40,7 +40,7 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
                     return simulation().getStep() > stepForValue;
                 }
             }
-    ));
+    );
 
     public DynamicProperty(DynamicProperty<T> dynamicProperty, DeepCloner cloner) {
         super(dynamicProperty, cloner);
@@ -54,7 +54,7 @@ public class DynamicProperty<T> extends AbstractGFProperty<T> {
 
     @Override
     public T getValue() {
-        return lazyValue.get();
+        return value.get();
     }
 
     @Override

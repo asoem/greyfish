@@ -26,7 +26,7 @@ public class Avatar extends ForwardingAgent {
 
     private Avatar(Avatar avatar, DeepCloner cloner) {
         cloner.addClone(this);
-        this.delegate = cloner.cloneField(avatar.delegate, Agent.class);
+        this.delegate = cloner.getClone(avatar.delegate, Agent.class);
         this.projection = avatar.projection;
     }
 

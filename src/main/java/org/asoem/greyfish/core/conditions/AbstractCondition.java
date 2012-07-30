@@ -19,7 +19,7 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
 
     protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.parentCondition = cloner.cloneField(cloneable.parentCondition, GFCondition.class);
+        this.parentCondition = cloner.getClone(cloneable.parentCondition, GFCondition.class);
     }
 
     protected AbstractCondition() {}

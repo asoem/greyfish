@@ -27,7 +27,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
     public ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.cloneField(condition.action, GFAction.class);
+        this.action = map.getClone(condition.action, GFAction.class);
     }
 
     @Override

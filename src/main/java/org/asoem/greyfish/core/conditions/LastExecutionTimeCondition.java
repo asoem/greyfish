@@ -23,7 +23,7 @@ public class LastExecutionTimeCondition extends LeafCondition {
 
     protected LastExecutionTimeCondition(LastExecutionTimeCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.cloneField(condition.action, GFAction.class);
+        this.action = map.getClone(condition.action, GFAction.class);
         this.steps = condition.steps;
     }
 

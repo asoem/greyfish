@@ -3,10 +3,7 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 
@@ -18,7 +15,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConstantProperty<T> extends AbstractGFProperty<T> {
 
     private Callback<? super ConstantProperty<T>, T> callback;
-    private Supplier<T> value;
+
+    private final Supplier<T> value = Suppliers.memoize(new Supplier<T>() {
+        @Override
+        public T get() {
+            return callback.apply(ConstantProperty.this, ArgumentMap.of());
+        }
+    });
 
     public ConstantProperty(ConstantProperty<T> functionProperty, DeepCloner cloner) {
         super(functionProperty, cloner);
@@ -36,24 +39,9 @@ public class ConstantProperty<T> extends AbstractGFProperty<T> {
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-        // this implements sort of a lazy variable
-        // This solves possible dependency issues to components which have not yet been initialized.
-        value = new Supplier<T>() {
-            @Override
-            public T get() {
-                value = Suppliers.ofInstance(Callbacks.call(callback, ConstantProperty.this));
-                return value.get();
-            }
-        };
-    }
-
-    @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super ConstantProperty<T>, T>>() {
-        }));
+        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super ConstantProperty<T>, T>>() {}));
     }
 
     @Override

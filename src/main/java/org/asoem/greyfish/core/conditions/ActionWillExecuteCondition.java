@@ -16,7 +16,7 @@ public class ActionWillExecuteCondition extends LeafCondition {
 
     public ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
         super(condition, map);
-        this.parameterAction = map.cloneField(condition.parameterAction, GFAction.class);
+        this.parameterAction = map.getClone(condition.parameterAction, GFAction.class);
     }
 
     @Override

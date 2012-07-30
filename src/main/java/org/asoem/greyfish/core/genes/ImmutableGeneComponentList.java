@@ -43,7 +43,7 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
             @Override
             public E apply(@Nullable E gene) {
                 assert gene != null;
-                return cloner.cloneField(gene, (Class<E>) gene.getClass());
+                return cloner.getClone(gene, (Class<E>) gene.getClass());
             }
         }));
     }
