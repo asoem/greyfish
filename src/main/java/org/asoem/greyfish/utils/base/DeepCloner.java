@@ -1,5 +1,7 @@
 package org.asoem.greyfish.utils.base;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import javax.annotation.Nullable;
@@ -13,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * The usual way is to use the static {@link #clone(DeepCloneable, Class)} method to clone a certain object.
  * This method calls the {@link DeepCloneable#deepClone(DeepCloner)} method of the object whose implementation should do nothing but call the "Cloner"-Constructor.
- * Here, the object should pass evaluates fields to the {@link #cloneField(DeepCloneable, Class)} method, which are required for a deep copy.
+ * Here, the object should pass evaluates fields to the {@link #getClone(DeepCloneable, Class)} method, which are required for a deep copy.
  */
 public class DeepCloner {
 
@@ -29,7 +31,7 @@ public class DeepCloner {
 
     /**
      * Add the given {@code clone} as the clone of the {@code DeepCloneable} of the last
-     * {@link #clone(DeepCloneable, Class)} or {@link #cloneField(DeepCloneable, Class)} operation.
+     * {@link #clone(DeepCloneable, Class)} or {@link #getClone(DeepCloneable, Class)} operation.
      * This method must be called by the clone before the clone itself clones any of it's {@code DeepCloneable} fields.
      * @param clone the clone to add
      */
@@ -43,14 +45,14 @@ public class DeepCloner {
     }
 
     /**
-     * Clone a {@code DeepCloneable} object and return the clone casted to {@code T}
+     * Get the deep clone of {@code cloneable} casted to {@code clazz}.
+     *
      * @param cloneable the object to clone
-     * @param clazz the class for type {@code T}
-     * @param <T> the type of the {@code DeepCloneable} object and it's clone
-     * @return a deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
+     * @param clazz the class of {@code cloneable}
+     * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
      */
     @Nullable
-    public <T extends DeepCloneable> T cloneField(@Nullable T cloneable, Class<T> clazz) {
+    public <T extends DeepCloneable> T getClone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
         if (insertIsRequired())
             throw new IllegalStateException(
@@ -70,14 +72,30 @@ public class DeepCloner {
     }
 
     /**
-     * Clone a {@code DeepCloneable} object and return the clone casted to {@code T}
-     * @param cloneable the object to clone
-     * @param clazz the class for type {@code T}
-     * @param <T> the type of the {@code DeepCloneable} object and it's clone
-     * @return a clone of {@code cloneable}
+     * Get the clones for given {@code cloneableElements}
+     * @param cloneableElements the objects to get it's deep clone for
+     * @param elementClazz the class of the cloneable objects
+     * @param <T> the type of the cloneable objects
+     * @return an {@code Iterable} of the deep clones of given {@code cloneableElements}
+     */
+    public <T extends DeepCloneable> Iterable<T> getClones(Iterable<T> cloneableElements, final Class<T> elementClazz) {
+          return Iterables.transform(cloneableElements, new Function<T, T>() {
+              @Override
+              public T apply(@Nullable T input) {
+                  return getClone(input, elementClazz);
+              }
+          });
+    }
+
+    /**
+     * Creates a deep clone of {@code cloneable}
+     * @param cloneable the object to clone deeply
+     * @param clazz the class of {@code cloneable}
+     * @param <T> the type of {@code cloneable}
+     * @return a deep clone of {@code cloneable}
      */
     public static <T extends DeepCloneable> T clone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
-        return new DeepCloner().cloneField(cloneable, clazz);
+        return new DeepCloner().getClone(cloneable, clazz);
     }
 }
