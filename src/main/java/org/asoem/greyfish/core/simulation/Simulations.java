@@ -13,9 +13,9 @@ public class Simulations {
 
     /**
      * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}
-    *
-            * @param predicate the {@code Predicate} which will be checked after each step
-    */
+     *
+     * @param predicate the {@code Predicate} which will be checked after each step
+     */
     public static <T extends Simulation> void runWhile(T simulation, Predicate<? super T> predicate) {
         checkNotNull(predicate);
 

@@ -138,6 +138,7 @@ public class BasicSimulationTemplate implements SimulationTemplate {
 
     @Override
     public <T extends Simulation> T createSimulation(SimulationFactory<T> simulationFactory) {
+        checkNotNull(simulationFactory);
         final TiledSpace<Agent> space = TiledSpace.copyOf(this.space);
 
         for (Agent agent : getPlaceholder()) {

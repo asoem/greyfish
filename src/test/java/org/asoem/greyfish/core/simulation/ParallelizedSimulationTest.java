@@ -16,8 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParallelizedSimulationTest {
@@ -41,7 +39,7 @@ public class ParallelizedSimulationTest {
         space.insertObject(prototype, 0, 0, 0);
 
         // when
-        ParallelizedSimulation simulation = new ParallelizedSimulation(space);
+        ParallelizedSimulation simulation = new ParallelizedSimulation(1000, space);
 
         // then
         assertThat(Iterables.size(simulation.getAgents())).isEqualTo(2);
@@ -54,7 +52,7 @@ public class ParallelizedSimulationTest {
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicSimulationTemplate scenario = BasicSimulationTemplate.builder("TestScenario", space).build();
-        final ParallelizedSimulation simulation = scenario.createSimulation(ParallelizedSimulationFactory.INSTANCE);
+        final ParallelizedSimulation simulation = scenario.createSimulation(new ParallelizedSimulationFactory(1000));
 
         // when
         final ParallelizedSimulation copy = Persisters.createCopy(simulation, ParallelizedSimulation.class, persister);

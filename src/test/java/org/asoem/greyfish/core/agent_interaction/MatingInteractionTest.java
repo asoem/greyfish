@@ -58,7 +58,7 @@ public class MatingInteractionTest {
         space.insertObject(male, 0, 0, 0);
         space.insertObject(female, 0, 0, 0);
 
-        final Simulation simulation = new ParallelizedSimulation(space);
+        final Simulation simulation = new ParallelizedSimulation(1000, space);
         Simulations.runFor(simulation, 3);
 
         // then

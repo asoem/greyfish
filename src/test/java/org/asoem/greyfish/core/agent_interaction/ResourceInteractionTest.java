@@ -72,7 +72,7 @@ public class ResourceInteractionTest {
         space.insertObject(consumer, 0, 0, 0);
         space.insertObject(provisioner, 0, 0, 0);
 
-        final Simulation simulation = new ParallelizedSimulation(space);
+        final Simulation simulation = new ParallelizedSimulation(1000, space);
         Simulations.runFor(simulation, 5);
 
         // then

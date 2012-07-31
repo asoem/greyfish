@@ -9,6 +9,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jsr166y.ForkJoinPool;
+import jsr166y.RecursiveAction;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
@@ -38,7 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.concurrent.ParallelIterables.apply;
-import static org.asoem.greyfish.utils.concurrent.SingletonForkJoinPool.invoke;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -91,6 +91,8 @@ public class ParallelizedSimulation implements Simulation {
             },
             10000, 100);
 
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+
     private final Set<Agent> prototypes;
 
     private final UUID uuid = UUID.randomUUID();
@@ -98,6 +100,9 @@ public class ParallelizedSimulation implements Simulation {
     private final SimulationLogger simulationLogger;
 
     private final ConcurrentMap<String, Object> snapshotValues = Maps.newConcurrentMap();
+
+    @Attribute(name = "parallelizationThreshold")
+    private final int parallelizationThreshold;
 
     @Nullable
     private Agent getPrototype(final Population population) {
@@ -115,21 +120,21 @@ public class ParallelizedSimulation implements Simulation {
     private final AtomicInteger eventIdSequence = new AtomicInteger();
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space,
+    public ParallelizedSimulation(@Attribute(name = "parallelizationThreshold") int parallelizationThreshold,
+                                  @Element(name = "space") TiledSpace<Agent> space,
                                   @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true) List<AddAgentMessage> addAgentMessages,
                                   @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true) List<RemoveAgentMessage> removeAgentMessages,
                                   @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true) List<DeliverAgentMessageMessage> deliverAgentMessageMessages) {
-        this(space);
+        this(parallelizationThreshold, space);
         this.addAgentMessages.addAll(addAgentMessages);
         this.removeAgentMessages.addAll(removeAgentMessages);
         this.deliverAgentMessageMessages.addAll(deliverAgentMessageMessages);
     }
 
-    public ParallelizedSimulation(TiledSpace<Agent> space) {
+    public ParallelizedSimulation(int parallelizationThreshold, TiledSpace<Agent> space) {
         checkNotNull(space);
-
+        this.parallelizationThreshold = parallelizationThreshold;
         this.space = TiledSpace.createEmptyCopy(space);
-
         this.simulationLogger = SimulationLoggerProvider.getLogger(this);
 
         this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
@@ -332,12 +337,13 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void executeAllAgents() {
-        invoke(apply(getAgents(), new VoidFunction<Simulatable>() {
+        final RecursiveAction executeAllAgents = apply(getAgents(), new VoidFunction<Simulatable>() {
             @Override
             public void apply(Simulatable agent) {
                 agent.execute();
             }
-        }, 1000));
+        }, parallelizationThreshold);
+        forkJoinPool.invoke(executeAllAgents);
     }
 
     private void processRequestedAgentActivations() {
@@ -348,12 +354,13 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void processAgentsMovement() {
-        invoke(apply(getAgents(), new VoidFunction<Agent>() {
+        final RecursiveAction moveAllAgents = apply(getAgents(), new VoidFunction<Agent>() {
             @Override
             public void apply(Agent agent) {
                 space.moveObject(agent);
             }
-        }, 1000));
+        }, parallelizationThreshold);
+        forkJoinPool.invoke(moveAllAgents);
     }
 
     private void processRequestedAgentRemovals() {
