@@ -3,6 +3,8 @@ package org.asoem.greyfish.utils.math;
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * User: christoph
  * Date: 23.07.12
@@ -40,9 +42,14 @@ public class MathFunctions {
      * @return an approximated value for e^x
      */
     public static double exp(double x) {
-        final long tmp = (long) (1512775 * x + 1072632447);
-        return Double.longBitsToDouble(tmp << 32);
+        checkArgument(x > -700 && x < 700); // boundaries for this approximation
+        final long v = (long) (EXP_A * x + (EXP_B - EXP_C));
+        assert v > 0 : "Expected 0 < exp("+x+") = "+v;
+        return Double.longBitsToDouble(v << 32);
     }
+    private static final double EXP_A = Math.pow(2, 20) / Math.log(2);
+    private static final double EXP_B = 1023.0 * Math.pow(2, 20);
+    private static final double EXP_C = 45799.0;  /* Read article for choice of c values */
 
     public static UnivariateFunction gaussianFunction(final double norm, final double mean, final double sigma) {
          return new UnivariateFunction() {
