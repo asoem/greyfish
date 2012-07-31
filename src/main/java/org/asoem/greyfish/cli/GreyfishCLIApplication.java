@@ -14,6 +14,7 @@ import org.apache.commons.cli.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
+import org.asoem.greyfish.core.simulation.SimulationTemplate;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.models.SimulationTemplateFactory;
 import org.asoem.greyfish.utils.logging.Logger;
@@ -22,7 +23,9 @@ import org.asoem.greyfish.utils.logging.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.asoem.greyfish.cli.GreyfishCLIApplication.State.*;
 
@@ -38,7 +41,10 @@ public class GreyfishCLIApplication {
     private GreyfishCLIApplication.State state = STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(SimulationTemplateFactory simulationTemplateFactory, @Nullable @Named("steps") final Integer steps, @Named("verbose") final boolean verbose) {
+    private GreyfishCLIApplication(SimulationTemplateFactory simulationTemplateFactory,
+                                   @Nullable @Named("steps") final Integer steps,
+                                   @Named("verbose") final boolean verbose,
+                                   @Named("parallelizationThreshold") int parallelizationThreshold) {
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
         if (steps != null) {
@@ -51,11 +57,13 @@ public class GreyfishCLIApplication {
         }
 
         LOGGER.info("Creating simulation for model {}", simulationTemplateFactory);
-        final ParallelizedSimulation simulation =
-                simulationTemplateFactory.get().createSimulation(ParallelizedSimulationFactory.INSTANCE);
+        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold);
+        final SimulationTemplate simulationTemplate = simulationTemplateFactory.get();
+        assert simulationTemplate != null;
+        final ParallelizedSimulation simulation = simulationTemplate.createSimulation(simulationFactory);
 
         if (verbose) {
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
+            final Runnable simulationMonitorTask = new Runnable() {
                 @Override
                 public void run() {
                     File verboseFile = null;
@@ -63,7 +71,8 @@ public class GreyfishCLIApplication {
                     try {
                         verboseFile = File.createTempFile("greyfish_verbose_", ".txt");
                         writer = new PrintWriter(new BufferedWriter(new FileWriter(verboseFile)));
-                        System.out.println("Writing verbose output to file " + verboseFile.getAbsolutePath());
+                        LOGGER.info("Writing verbose output to file {}", verboseFile.getAbsolutePath());
+                        //writer = new PrintWriter(System.out, true);
                         while (state == STARTUP)
                             Thread.sleep(10);
 
@@ -79,19 +88,37 @@ public class GreyfishCLIApplication {
                         Closeables.closeQuietly(writer);
                     }
                 }
-            });
+            };
+            Executors.newSingleThreadExecutor().execute(simulationMonitorTask);
         }
 
         LOGGER.info("Model properties:\n\t{}", Joiner.on("\n\t").withKeyValueSeparator("=").join(simulationTemplateFactory.getModelProperties()));
         LOGGER.info("Starting {}", simulation);
 
-        state = RUNNING;
-        Simulations.runWhile(simulation, Predicates.and(predicateList));
+        final Runnable simulationTask = new Runnable() {
+            @Override
+            public void run() {
+                Simulations.runWhile(simulation, Predicates.and(predicateList));
+            }
+        };
 
-        if (LOGGER.isInfoEnabled())
-            LOGGER.info("Shutting down simulation {}", simulation);
-        simulation.shutdown();
-        state = SHUTDOWN;
+        final Future<?> future = Executors.newSingleThreadExecutor().submit(simulationTask);
+
+        state = RUNNING;
+
+        try {
+            future.get();
+        } catch (InterruptedException e) {
+            LOGGER.error("Simulation thread got interrupted", e);
+        } catch (ExecutionException e) {
+            LOGGER.error("Exception occurred while executing simulation", e);
+        }
+        finally {
+            if (LOGGER.isInfoEnabled())
+                LOGGER.info("Shutting down simulation {}", simulation);
+            simulation.shutdown();
+            state = SHUTDOWN;
+        }
     }
 
     public static void main(final String[] args) {
@@ -136,7 +163,11 @@ public class GreyfishCLIApplication {
                 bind(Integer.class).annotatedWith(Names.named("steps")).toInstance(
                         line.hasOption("steps") ? Integer.valueOf(line.getOptionValue("steps")) : null);
 
-                bind(Boolean.class).annotatedWith(Names.named("verbose")).toInstance(line.hasOption("verbose"));
+                bind(Boolean.class).annotatedWith(Names.named("verbose")).toInstance(
+                        line.hasOption("verbose"));
+
+                bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold")).toInstance(
+                        line.hasOption("parallelizationThreshold") ? Integer.valueOf(line.getOptionValue("parallelizationThreshold")) : 1000);
             }
         };
 
@@ -154,27 +185,39 @@ public class GreyfishCLIApplication {
 
     @SuppressWarnings("AccessStaticViaInstance")
     private static Options createOptions() {
-        final Option scenarioClass = OptionBuilder.withLongOpt("scenario")
+        final Option scenarioClass = OptionBuilder
+                .withLongOpt("scenario")
                 .hasArg()
                 .withArgName("CLASS")
                 .withDescription("run given scenario CLASS")
                 .create("c");
 
-        final Option steps = OptionBuilder.withLongOpt("steps")
+        final Option steps = OptionBuilder
+                .withLongOpt("steps")
                 .hasArg()
                 .withArgName("MAX")
                 .withDescription("stop simulation after MAX steps")
                 .create("s");
 
-        final Option verbose = OptionBuilder.withLongOpt("verbose")
+        final Option verbose = OptionBuilder
+                .withLongOpt("verbose")
                 .withDescription("Enable verbose mode")
                 .create("v");
 
-        final Option property  = OptionBuilder.withArgName( "property=value" )
+        final Option property  = OptionBuilder
+                .withArgName("property=value")
                 .hasArgs(2)
                 .withValueSeparator()
                 .withDescription( "use value for given scenario-property" )
                 .create( "D" );
+
+        final Option parallelizationThreshold = OptionBuilder
+                .withLongOpt("parallelizationThreshold")
+                .withArgName( "THRESHOLD" )
+                .hasArg()
+                .withDescription("")
+                .withType(Number.class)
+                .create("pt");
 
         final Option help = new Option("h", "help", false, "Print help");
 
@@ -184,6 +227,7 @@ public class GreyfishCLIApplication {
         options.addOption(help);
         options.addOption(property);
         options.addOption(verbose);
+        options.addOption(parallelizationThreshold);
         return options;
     }
 
