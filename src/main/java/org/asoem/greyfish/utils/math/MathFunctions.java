@@ -2,6 +2,8 @@ package org.asoem.greyfish.utils.math;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.asoem.greyfish.utils.logging.Logger;
+import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 /**
  * User: christoph
@@ -11,6 +13,7 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 public class MathFunctions {
 
     private static final double ZERO_CLOSEST_POSITIVE = Math.nextUp(0.0);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MathFunctions.class);
 
     /**
      * Gaussian function using {@link #expQuickApprox}
@@ -60,6 +63,8 @@ public class MathFunctions {
      * @return an approximated value for e^x
      */
     public static double expQuickApprox(double x) {
+        if (LOGGER.isWarnEnabled() && x < -700 || x > 700)
+            LOGGER.warn("This exp(x) approximation algorithm is not accurate at all for x outside range [-700, 700]: {}", x);
         final long tmp = (long) (EXP_A * x + (EXP_B - EXP_C));
         return Double.longBitsToDouble(tmp << 32);
     }
