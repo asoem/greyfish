@@ -1,9 +1,7 @@
 package org.asoem.greyfish.utils.math;
 
-import org.apache.commons.math3.analysis.BivariateFunction;
+import com.google.common.base.Preconditions;
 import org.apache.commons.math3.analysis.UnivariateFunction;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * User: christoph
@@ -12,66 +10,83 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class MathFunctions {
 
+    private static final double ZERO_CLOSEST_POSITIVE = Math.nextUp(0.0);
+
     /**
-     * Gaussian function using {@link #exp(double)}
+     * Gaussian function using {@link #expQuickApprox}
      * @param x x
      * @param norm the normalization factor
      * @param mean the mean
      * @param sigma the standard deviation
      * @return norm * e ^ -((x - mean)^2 / 2 * sigma^2)
      */
-    public static double gaussian(double x, double norm, double mean, double sigma) {
-        return gaussian2(x - mean, norm, 1 / (2 * sigma * sigma));
+    public static double gaussianApprox(double x, double norm, double mean, double sigma) {
+        Preconditions.checkArgument(sigma > 0);
+        return gaussianApproxHelper(x - mean, norm, i2s2(sigma));
     }
 
     /**
-     * Gaussian function with partially precomputed arguments using {@link #exp(double)}
+     * Gaussian function with the precomputed value 1 / (2sigma^2) {@link #i2s2}.
+     * It uses the exp approximation function {@link #expQuickApprox} if the exponent is >= -700
+     * and the positive double value closest to 0 otherwise ( {@code Math.nextUp(0.0)} ).
      * @param xMinusMean x - mean
      * @param norm normalization factor
      * @param i2s2 1 / 2 * sigma * sigma
      * @return norm * e ^ -(xMinusMean^2 * i2s2)
      */
-    public static double gaussian2(double xMinusMean, double norm, double i2s2) {
-        return norm * exp(-xMinusMean * xMinusMean * i2s2);
+    private static double gaussianApproxHelper(double xMinusMean, double norm, double i2s2) {
+        final double x = -xMinusMean * xMinusMean * i2s2;
+        if (x < -700) {
+            return norm * ZERO_CLOSEST_POSITIVE;
+        }
+        else
+            return norm * expQuickApprox(x);
+    }
+
+    /**
+     * A helper function to precompute the last factor for {@link #gaussianApproxHelper(double, double, double)}
+     * @param sigma the standard deviation for the gaussian function
+     * @return 1 / (2sigma^2)
+     */
+    private static double i2s2(double sigma) {
+        return 1 / (2 * sigma * sigma);
     }
 
     /**
      * An exp approximation based on the article
      * "A Fast, Compact Approximation of the Exponential Function", Nicol N. Schraudolph, Neural Computation (1999)
+     * It has a max relative error of about 3e-2 for |value| < 700.0 or so, and no accuracy at all outside this range.
      * @param x the exponent
      * @return an approximated value for e^x
      */
-    public static double exp(double x) {
-        checkArgument(x > -700 && x < 700); // boundaries for this approximation
-        final long v = (long) (EXP_A * x + (EXP_B - EXP_C));
-        assert v > 0 : "Expected 0 < exp("+x+") = "+v;
-        return Double.longBitsToDouble(v << 32);
+    public static double expQuickApprox(double x) {
+        final long tmp = (long) (EXP_A * x + (EXP_B - EXP_C));
+        return Double.longBitsToDouble(tmp << 32);
     }
     private static final double EXP_A = Math.pow(2, 20) / Math.log(2);
     private static final double EXP_B = 1023.0 * Math.pow(2, 20);
     private static final double EXP_C = 45799.0;  /* Read article for choice of c values */
 
-    public static UnivariateFunction gaussianFunction(final double norm, final double mean, final double sigma) {
-         return new UnivariateFunction() {
+    public static UnivariateFunction gaussianApproxFunction(final double norm, final double mean, double sigma) {
+        Preconditions.checkArgument(sigma > 0);
+        final double i2s2 = i2s2(sigma);
 
-             private double i2s2 = 1 / 2 * sigma * sigma;
-
-             @Override
+        return new UnivariateFunction() {
+            @Override
              public double value(double x) {
-                 return gaussian2(x - mean, norm, i2s2);
+                 return gaussianApproxHelper(x - mean, norm, i2s2);
              }
          };
     }
 
-    public static BivariateFunction gaussianFunctionUnknownMean(final double norm, final double sigma) {
-        return new BivariateFunction() {
-
-            private double i2s2 = 1 / 2 * sigma * sigma;
-
-            @Override
-            public double value(double x, double mean) {
-                return gaussian2(x - mean, norm, i2s2);
-            }
-        };
+    public static void main(String[] args) {
+        double x1 = -10.0;
+        double x2 = 10.0;
+        double stepLength = 0.01;
+        final double v = (x2 - x1) / stepLength;
+        final UnivariateFunction function = gaussianApproxFunction(1.0, 0.0, 2.0);
+        for (int i = 0; i <= v; i++) {
+            System.out.println(function.value(x1 + i * stepLength));
+        }
     }
 }

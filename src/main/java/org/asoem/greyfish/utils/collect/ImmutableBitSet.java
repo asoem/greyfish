@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.math.RandomUtils.trueWithProbability;
+import static org.asoem.greyfish.utils.math.RandomUtils.nextBoolean;
 
 /**
  * User: christoph
@@ -43,7 +43,7 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
         BitSet bs = new BitSet(val.length());
         int idx = 0;
         for(boolean b : val)
-            bs.set(idx++, (trueWithProbability(p)) ? !b : b);
+            bs.set(idx++, (nextBoolean(p)) ? !b : b);
         this.val = BitSets.toBigInteger(bs);
     }
 
@@ -55,7 +55,7 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
     public ImmutableBitSet(int length, double p) {
         BitSet bs = new BitSet(length);
         for (int i=0; i<= bs.length(); i++) {
-            bs.set(i, trueWithProbability(p));
+            bs.set(i, nextBoolean(p));
         }
         this.val = BitSets.toBigInteger(bs);
     }

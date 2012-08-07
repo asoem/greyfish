@@ -5,22 +5,25 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import org.apache.commons.math3.distribution.BinomialDistribution;
-import org.apache.commons.math3.random.*;
+import org.apache.commons.math3.random.RandomData;
+import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@SuppressWarnings("UnusedDeclaration")
 public class RandomUtils {
-    public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
-
-    public static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
     private static final Logger LOGGER = LoggerFactory.getLogger(RandomUtils.class);
+
+    public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
+    public static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
 
     /**
      * @return the next pseudorandom, uniformly distributed double value between 0.0 and 1.0 from this random number generator's sequence
@@ -28,10 +31,6 @@ public class RandomUtils {
      */
     public static double nextDouble() {
         return RANDOM_GENERATOR.nextDouble();
-    }
-
-    public static Random randomInstance() {
-        return new RandomAdaptor(RANDOM_GENERATOR);
     }
 
     public static int nextInt(final Integer minIncl, final Integer maxExcl) {
@@ -60,15 +59,20 @@ public class RandomUtils {
         return RANDOM_GENERATOR.nextBoolean();
     }
 
-    public static boolean trueWithProbability(double probability) {
-        if (probability == 0)
+    /**
+     * Get a boolean value which is {@code true} with probability {@code p}
+     * @param p the probability for {@code true}
+     * @return {@code true} with probability {@code p}, false with probability {@code 1-p}
+     */
+    public static boolean nextBoolean(double p) {
+        if (p == 0)
             return false;
-        else if (probability == 1)
+        else if (p == 1)
             return true;
-        else if (probability > 0 && probability < 1)
-            return nextDouble() < probability;
+        else if (p > 0 && p < 1)
+            return nextDouble() < p;
         else
-            throw new IllegalArgumentException("Probability not in [0,1]: " + probability);
+            throw new IllegalArgumentException("Probability not in [0,1]: " + p);
     }
 
     /**
@@ -82,16 +86,6 @@ public class RandomUtils {
     }
 
     /**
-     * Generates a uniformly distributed random value from the open interval (0,upper) (i.e., endpoints excluded).
-     *
-     * @param sum the upper bound
-     * @return a uniformly distributed random value from the open interval (0,upper)
-     */
-    public static double nextDouble(double sum) {
-        return nextDouble(0, sum);
-    }
-
-    /**
      * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
      *
      * @param mean the mean of the distribution
@@ -99,7 +93,9 @@ public class RandomUtils {
      * @return a random value for the given normal distribution
      */
     public static double rnorm(double mean, double sd) {
-        return RANDOM_DATA.nextGaussian(mean, sd);
+        final double v = RANDOM_DATA.nextGaussian(mean, sd);
+        assert !Double.isNaN(v) : "NaN for mean="+mean+" and sd="+sd;
+        return v;
     }
 
     /**
