@@ -152,11 +152,11 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
             if (initializationKernel == DEFAULT_INITIALIZATION_KERNEL)
-                LOGGER.warn("Using default initialization kernel: {}", DEFAULT_INITIALIZATION_KERNEL);
+                LOGGER.warn("Builder uses default initialization kernel for {}: {}", name, DEFAULT_INITIALIZATION_KERNEL);
             if (mutationKernel == DEFAULT_MUTATION_KERNEL)
-                LOGGER.warn("Using default mutation kernel: {}", DEFAULT_MUTATION_KERNEL);
+                LOGGER.warn("Builder uses default mutation kernel for {}: {}", name, DEFAULT_MUTATION_KERNEL);
             if (segregationKernel == DEFAULT_RECOMBINATION_KERNEL)
-                LOGGER.warn("Using default segregation kernel: {}", DEFAULT_RECOMBINATION_KERNEL);
+                LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_RECOMBINATION_KERNEL);
         }
     }
 }

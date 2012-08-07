@@ -120,7 +120,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     public static abstract class AbstractComponentBuilder<E extends AbstractAgentComponent, T extends AbstractComponentBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
-        private String name = "";
+        protected String name = "";
 
         public T name(String name) {
             this.name = name;
