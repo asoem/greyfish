@@ -70,9 +70,8 @@ public class GreyfishCLIApplication {
                     PrintWriter writer = null;
                     try {
                         verboseFile = File.createTempFile("greyfish_verbose_", ".txt");
-                        writer = new PrintWriter(new BufferedWriter(new FileWriter(verboseFile)));
+                        writer = new PrintWriter(new BufferedWriter(new FileWriter(verboseFile)), true);
                         LOGGER.info("Writing verbose output to file {}", verboseFile.getAbsolutePath());
-                        //writer = new PrintWriter(System.out, true);
                         while (state == STARTUP)
                             Thread.sleep(10);
 
