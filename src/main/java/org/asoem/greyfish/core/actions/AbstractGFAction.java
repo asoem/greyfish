@@ -49,7 +49,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     @Override
     public final boolean evaluateCondition(Simulation simulation) {
-        return rootCondition == null || rootCondition.evaluate(simulation);
+        return rootCondition == null || rootCondition.apply(this);
     }
 
     /**
@@ -101,7 +101,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     @Override
     public ActionState checkPreconditions(Simulation simulation) {
-        final boolean preconditionsMet = evaluateCondition(simulation);
+        final boolean preconditionsMet = evaluateCondition(simulation());
         if (preconditionsMet)
             setState(PRECONDITIONS_MET);
         else
@@ -148,9 +148,9 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         super.configure(e);
     }
 
-    public boolean wasNotExecutedForAtLeast(final Simulation simulation, final int steps) {
+    public boolean wasNotExecutedForAtLeast(int steps) {
         // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
-        return simulation.getStep() - stepAtLastSuccess >= steps;
+        return simulation().getStep() - stepAtLastSuccess >= steps;
     }
 
     @Override

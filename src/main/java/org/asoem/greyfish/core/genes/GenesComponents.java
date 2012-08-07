@@ -9,12 +9,16 @@ import org.asoem.greyfish.utils.base.Product2;
  */
 public class GenesComponents {
 
+    public static <T> T mutate(GeneComponent<T> component) {
+        return component.mutate(component.getAllele());
+    }
+
     public static <T> T mutate(GeneComponent<T> component, Object t) {
         return component.mutate(component.getAlleleClass().cast(t));
     }
 
-    public static <T> Product2<T, T> recombine(GeneComponent<T> geneComponent, Object allele1, Object allele2) {
+    public static <T> T segregate(GeneComponent<T> geneComponent, Object allele1, Object allele2) {
         final Class<T> alleleClass = geneComponent.getAlleleClass();
-        return geneComponent.recombine(alleleClass.cast(allele1), alleleClass.cast(allele2));
+        return geneComponent.segregate(alleleClass.cast(allele1), alleleClass.cast(allele2));
     }
 }

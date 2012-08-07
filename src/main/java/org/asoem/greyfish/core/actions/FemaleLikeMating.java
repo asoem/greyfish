@@ -94,7 +94,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         try {
             Chromosome chromosome = message.getContent(Chromosome.class);
             final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
-            if (RandomUtils.trueWithProbability(probability)) {
+            if (RandomUtils.nextBoolean(probability)) {
                 receiveSperm(chromosome, message.getSender(), simulation);
                 builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
                 LOGGER.info("Accepted mating with p={}", probability);

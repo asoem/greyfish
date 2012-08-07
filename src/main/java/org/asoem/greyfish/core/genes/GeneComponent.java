@@ -35,7 +35,7 @@ public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
 
     T mutate(T allele);
 
-    Product2<T, T> recombine(T allele1, T allele2);
+    T segregate(T allele1, T allele2);
 
     T createInitialValue();
 }

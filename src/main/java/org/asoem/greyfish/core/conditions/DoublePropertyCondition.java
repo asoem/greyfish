@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -59,7 +58,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
 	@Override
-	protected Double getCompareValue(Simulation simulation) {
+	protected Double getCompareValue() {
 		return doubleProperty.getValue();
 	}
 

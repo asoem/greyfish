@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -33,8 +32,8 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        return isSameAction(action, agent().getLastExecutedAction());
+    public boolean apply(GFAction action) {
+        return isSameAction(this.action, agent().getLastExecutedAction());
     }
 
     private static boolean isSameAction(GFAction a1, GFAction a2) {

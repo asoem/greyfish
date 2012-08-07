@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -25,7 +24,7 @@ public class AgeCondition extends IntCompareCondition {
     }
 
     @Override
-    protected Integer getCompareValue(Simulation simulation) {
+    protected Integer getCompareValue() {
         return agent().getAge();
     }
 

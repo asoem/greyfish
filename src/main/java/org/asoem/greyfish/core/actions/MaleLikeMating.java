@@ -7,16 +7,13 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
-import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneComponent;
-import org.asoem.greyfish.core.genes.UniparentalChromosomalHistory;
+import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -82,7 +79,7 @@ public class MaleLikeMating extends ContractNetParticipantAction {
             return reply.performative(ACLPerformative.REFUSE);
 
         final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
-        if (RandomUtils.trueWithProbability(probability)) {
+        if (RandomUtils.nextBoolean(probability)) {
 
             final Chromosome chromosome = new Chromosome(
                     new UniparentalChromosomalHistory(agent().getId()),
@@ -90,7 +87,7 @@ public class MaleLikeMating extends ContractNetParticipantAction {
                         @Override
                         public Gene<?> apply(@Nullable GeneComponent<?> geneComponent) {
                             assert geneComponent != null;
-                            return new Gene<Object>(geneComponent.mutate(null), geneComponent.getRecombinationProbability());
+                            return new Gene<Object>(GenesComponents.mutate(geneComponent), geneComponent.getRecombinationProbability());
                         }
                     }));
 

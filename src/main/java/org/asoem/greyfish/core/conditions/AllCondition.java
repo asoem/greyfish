@@ -3,10 +3,8 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -30,18 +28,11 @@ public class AllCondition extends BranchCondition {
     }
 
     @Override
-    public boolean evaluate(final Simulation simulation) {
-        switch (conditions.size()) {
-            case 0 : return true;
-            case 1 : return conditions.get(0).evaluate(simulation);
-            case 2 : return conditions.get(0).evaluate(simulation) && conditions.get(1).evaluate(simulation);
-            default : return Iterables.all(conditions, new Predicate<GFCondition>() {
-                @Override
-                public boolean apply(GFCondition condition) {
-                    return condition.evaluate(simulation);
-                }
-            });
-        }
+    public boolean apply(GFAction action) {
+        for (GFCondition condition : conditions)
+            if (!condition.apply(action))
+                return false;
+        return true;
     }
 
     @Override

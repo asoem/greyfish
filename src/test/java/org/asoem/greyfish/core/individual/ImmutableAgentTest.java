@@ -10,7 +10,6 @@ import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Tuple2;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.asoem.greyfish.utils.space.Motion2D;
@@ -180,9 +179,9 @@ public class ImmutableAgentTest {
         // given
         final Population population = Population.newPopulation("Test", Color.green);
         final GeneComponent<?> gene = DoubleGeneComponent.builder()
-                .initialAllele(constant(1.0))
+                .initialization(constant(1.0))
                 .mutation(constant(1.0))
-                .recombination(constant(Tuple2.of(1.9, 1.0)))
+                .segregation(constant(1.0))
                 .build();
         final Agent agent = ImmutableAgent.of(population).addGenes(gene).build();
 

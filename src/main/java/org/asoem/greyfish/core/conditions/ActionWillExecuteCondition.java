@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -20,8 +19,8 @@ public class ActionWillExecuteCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        return parameterAction.evaluateCondition(simulation);
+    public boolean apply(GFAction action) {
+        return parameterAction.evaluateCondition(simulation());
     }
 
     @Override

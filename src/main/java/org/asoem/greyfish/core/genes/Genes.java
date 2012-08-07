@@ -42,7 +42,7 @@ public class Genes {
                 if (recombinationProbability < 0 || recombinationProbability > 1)
                     throw new AssertionError("Recombination probability has an invalid value: " + recombinationProbability);
 
-                final boolean recombine = RandomUtils.trueWithProbability(recombinationProbability);
+                final boolean recombine = RandomUtils.nextBoolean(recombinationProbability);
                 if (recombine)
                     thisOrThat = !thisOrThat;
 

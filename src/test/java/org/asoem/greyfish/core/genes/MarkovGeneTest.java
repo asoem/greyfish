@@ -34,7 +34,7 @@ public class MarkovGeneTest {
 
         // then
         assertThat(deserialized.getMarkovChain()).isEqualTo(markovChain);
-        assertThat(deserialized.getInitialState()).isEqualTo(constant("A"));
+        assertThat(deserialized.getInitializationKernel()).isEqualTo(constant("A"));
     }
     */
 }

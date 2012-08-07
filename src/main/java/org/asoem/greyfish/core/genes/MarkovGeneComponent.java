@@ -28,7 +28,10 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     private Table<String, String, Callback<? super MarkovGeneComponent, Double>> markovMatrix;
 
     @Element(required = false)
-    private Callback<? super MarkovGeneComponent, ? extends String> initialState;
+    private Callback<? super MarkovGeneComponent, String> initializationKernel;
+
+    @Element
+    private Callback<? super MarkovGeneComponent, String> segregationKernel;
 
     @Element(required = false)
     private String currentState;
@@ -37,15 +40,16 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     private MarkovGeneComponent() {
     }
 
-    public MarkovGeneComponent(Table<String, String, Callback<? super MarkovGeneComponent, Double>> chain, Callback<? super MarkovGeneComponent, ? extends String> initialState) {
+    public MarkovGeneComponent(Table<String, String, Callback<? super MarkovGeneComponent, Double>> chain, Callback<? super MarkovGeneComponent, String> initialState) {
         this.markovMatrix = checkNotNull(chain);
-        this.initialState = checkNotNull(initialState);
+        this.initializationKernel = checkNotNull(initialState);
     }
 
     public MarkovGeneComponent(AbstractMarkovGeneComponentBuilder<? extends MarkovGeneComponent, ? extends AbstractMarkovGeneComponentBuilder> builder) {
         super(builder);
         this.markovMatrix = builder.markovChain.build();
-        this.initialState = builder.initialState;
+        this.initializationKernel = builder.initializationKernel;
+        this.segregationKernel = builder.segregationKernel;
     }
 
     @Override
@@ -85,19 +89,19 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     }
 
     @Override
-    public Product2<String, String> recombine(String allele1, String allele2) {
-        return Tuple2.of(allele1, allele2);
+    public String segregate(String allele1, String allele2) {
+        return segregationKernel.apply(this, ArgumentMap.of("x", allele1, "y", allele2));
     }
 
     @Override
     public String createInitialValue() {
-        return Callbacks.call(initialState, MarkovGeneComponent.this);
+        return Callbacks.call(initializationKernel, MarkovGeneComponent.this);
     }
 
     private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
         super(markovGene, cloner);
         this.markovMatrix = markovGene.markovMatrix;
-        this.initialState = markovGene.initialState;
+        this.initializationKernel = markovGene.initializationKernel;
     }
 
     @Override
@@ -118,7 +122,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Initial State", TypedValueModels.forField("initialState", this, new TypeToken<Callback<? super MarkovGeneComponent, String>>() {}));
+        e.add("Initial State", TypedValueModels.forField("initializationKernel", this, new TypeToken<Callback<? super MarkovGeneComponent, String>>() {}));
         /*
         e.add("Transition Rules", new AbstractTypedValueModel<String>() {
             @Override
@@ -138,8 +142,8 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         return markovMatrix;
     }
 
-    public Callback<? super MarkovGeneComponent, ? extends String> getInitialState() {
-        return initialState;
+    public Callback<? super MarkovGeneComponent, ? extends String> getInitializationKernel() {
+        return initializationKernel;
     }
 
     public static MarkovGeneComponentBuilder builder() {
@@ -161,15 +165,21 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T, B>> extends AbstractComponentBuilder<T, B> {
 
         private ImmutableTable.Builder<String, String, Callback<? super MarkovGeneComponent, Double>> markovChain = ImmutableTable.builder();
-        private Callback<? super MarkovGeneComponent, ? extends String> initialState;
+        private Callback<? super MarkovGeneComponent, String> initializationKernel;
+        private Callback<? super MarkovGeneComponent, String> segregationKernel;
 
         public B put(String state1, String state2, Callback<? super MarkovGeneComponent, Double> transitionCallback) {
             markovChain.put(state1, state2, transitionCallback);
             return self();
         }
 
-        public B initialState(Callback<? super MarkovGeneComponent, ? extends String> initialState) {
-            this.initialState = checkNotNull(initialState);
+        public B initialization(Callback<? super MarkovGeneComponent, String> callback) {
+            this.initializationKernel = checkNotNull(callback);
+            return self();
+        }
+
+        public B segregation(Callback<? super MarkovGeneComponent, String> callback) {
+            this.segregationKernel = checkNotNull(callback);
             return self();
         }
 
@@ -177,7 +187,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
             checkState(markovChain != null);
-            checkState(initialState != null);
+            checkState(initializationKernel != null);
         }
     }
 }

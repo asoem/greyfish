@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 public class AlwaysTrueCondition extends LeafCondition {
@@ -20,7 +20,7 @@ public class AlwaysTrueCondition extends LeafCondition {
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean apply(GFAction action) {
         return true;
     }
 

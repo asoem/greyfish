@@ -48,7 +48,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
      * @see #getAgent()
      */
     public Agent agent() throws IllegalStateException {
-        checkState(agent != null);
+        checkState(agent != null, "This component is not attached to an agent");
         return agent;
     }
 

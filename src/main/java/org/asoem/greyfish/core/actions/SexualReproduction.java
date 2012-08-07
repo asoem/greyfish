@@ -80,8 +80,8 @@ public class SexualReproduction extends AbstractGFAction {
             final ChromosomalHistory spermHistory = sperm.getHistory();
             if ( ! (spermHistory instanceof UniparentalChromosomalHistory))
                 throw new AssertionError("Sperm must have an uniparental history");
-            final Product2<Chromosome, Chromosome> recombinedChromosomes = recombine(agent().getGeneComponentList(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
-            offspring.updateGeneComponents(recombinedChromosomes._1());
+            final Chromosome blend = blend(agent().getGeneComponentList(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
+            offspring.updateGeneComponents(blend);
 
             simulation.activateAgent(offspring, agent().getProjection());
             agent().logEvent(this, "offspringProduced", "");
@@ -92,33 +92,26 @@ public class SexualReproduction extends AbstractGFAction {
         return COMPLETED;
     }
 
-    private static Product2<Chromosome, Chromosome> recombine(GeneComponentList<GeneComponent<?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static Chromosome blend(GeneComponentList<GeneComponent<?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
         final Tuple2.Zipped<GeneComponent<?>, Gene<?>> zip
                 = Tuple2.Zipped.of(egg, sperm.getGenes());
 
-        // recombine and mutate
-        final Iterable<Product2<Gene<Object>, Gene<Object>>> genes = Iterables.transform(zip, new Function<Product2<GeneComponent<?>, Gene<?>>, Product2<Gene<Object>, Gene<Object>>>() {
+        // segregate and mutate
+        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<GeneComponent<?>, Gene<?>>, Gene<Object>>() {
             @Override
-            public Product2<Gene<Object>, Gene<Object>> apply(Product2<GeneComponent<?>, Gene<?>> tuple) {
-                final Product2<?, ?> recombinationProduct = GenesComponents.recombine(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
-                final Object mutatedAndRecombinedAllele = GenesComponents.mutate(tuple._1(), recombinationProduct._1());
+            public Gene<Object> apply(Product2<GeneComponent<?>, Gene<?>> tuple) {
+                final Object segregationProduct = GenesComponents.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
+                final Object mutatedAndRecombinedAllele = GenesComponents.mutate(tuple._1(), segregationProduct);
 
-                return Tuple2.of(
-                        new Gene<Object>(mutatedAndRecombinedAllele, tuple._1().getRecombinationProbability()),
-                        new Gene<Object>(mutatedAndRecombinedAllele, tuple._2().getRecombinationProbability())
-                );
+                return new Gene<Object>(mutatedAndRecombinedAllele, tuple._1().getRecombinationProbability());
             }
         });
 
-        final Tuple2<Iterable<Gene<Object>>, Iterable<Gene<Object>>> unzipped = Tuple2.unzipped(genes);
         final ChromosomalHistory chromosomalHistory = new BiparentalChromosomalHistory(femaleID, maleID);
 
-        return Tuple2.of(
-                new Chromosome(chromosomalHistory, unzipped._1()),
-                new Chromosome(chromosomalHistory, unzipped._2())
-        );
+        return new Chromosome(chromosomalHistory, genes);
     }
 
     @Override

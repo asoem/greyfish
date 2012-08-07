@@ -3,11 +3,9 @@ package org.asoem.greyfish.core.genes;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.utils.base.Product2;
-import org.asoem.greyfish.utils.base.Tuple2;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -34,12 +32,12 @@ public class DoubleGeneTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final Callback<Object, ? extends Product2<Double, Double>> callback = Callbacks.constant(Tuple2.of(1.0,1.0));
+        final Callback<Object, Double> callback = Callbacks.constant(1.0);
         final DoubleGeneComponent doubleGene = DoubleGeneComponent.builder()
                 .name("test")
-                .initialAllele(constant(1.0))
+                .initialization(constant(1.0))
                 .mutation(constant(1.0))
-                .recombination(callback)
+                .segregation(callback)
                 .build();
 
         // when
@@ -47,7 +45,7 @@ public class DoubleGeneTest {
 
         // then
         assertThat(persistentGene.getName()).isEqualTo("test");
-        assertThat(persistentGene.getInitialValue()).isEqualTo(constant(1.0));
-        assertThat(persistentGene.getMutation()).isEqualTo(constant(1.0));
+        assertThat(persistentGene.getInitializationKernel()).isEqualTo(constant(1.0));
+        assertThat(persistentGene.getMutationKernel()).isEqualTo(constant(1.0));
     }
 }
