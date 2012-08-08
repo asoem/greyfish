@@ -1,8 +1,5 @@
 package org.asoem.greyfish.utils.space;
 
-import com.google.common.base.Function;
-import org.asoem.greyfish.utils.base.Product2;
-
 public interface TwoDimTree<T> {
 
     /**

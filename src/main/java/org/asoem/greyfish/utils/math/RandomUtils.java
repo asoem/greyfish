@@ -93,8 +93,11 @@ public class RandomUtils {
      * @return a random value for the given normal distribution
      */
     public static double rnorm(double mean, double sd) {
-        final double v = RANDOM_DATA.nextGaussian(mean, sd);
-        assert !Double.isNaN(v) : "NaN for mean="+mean+" and sd="+sd;
+        double v = 0;
+        do {
+            RANDOM_DATA.nextGaussian(mean, sd);
+        }
+        while (Double.isNaN(v)); // bug?
         return v;
     }
 
