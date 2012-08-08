@@ -93,9 +93,9 @@ public class RandomUtils {
      * @return a random value for the given normal distribution
      */
     public static double rnorm(double mean, double sd) {
-        double v = 0;
+        double v;
         do {
-            RANDOM_DATA.nextGaussian(mean, sd);
+            v = RANDOM_DATA.nextGaussian(mean, sd);
         }
         while (Double.isNaN(v)); // bug?
         return v;
