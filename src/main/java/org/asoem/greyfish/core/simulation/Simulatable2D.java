@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.asoem.greyfish.utils.space.*;
+import org.asoem.greyfish.utils.space.MovingProjectable2D;
 
 /**
  * User: christoph

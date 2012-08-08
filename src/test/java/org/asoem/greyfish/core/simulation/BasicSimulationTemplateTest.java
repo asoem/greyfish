@@ -11,8 +11,6 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.simulation.BasicSimulationTemplate;
-import org.asoem.greyfish.core.simulation.SimulationTemplate;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;

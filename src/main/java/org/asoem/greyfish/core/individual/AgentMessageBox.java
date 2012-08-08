@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.ForwardingIterator;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.utils.collect.CircularFifoBuffer;

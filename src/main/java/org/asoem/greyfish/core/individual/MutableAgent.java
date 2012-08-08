@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.genes.MutableGeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.base.DeepCloneable;

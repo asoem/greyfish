@@ -13,9 +13,9 @@ import org.asoem.greyfish.core.eval.VariableResolvers;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.logging.Logger;
 import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.asoem.greyfish.utils.math.StaticMarkovChain;
 import org.asoem.greyfish.utils.math.MarkovChain;
 import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.math.StaticMarkovChain;
 
 import java.util.Map;
 import java.util.Set;

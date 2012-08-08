@@ -1,7 +1,5 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.utils.base.Product2;
-
 /**
  * User: christoph
  * Date: 22.02.11

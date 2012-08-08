@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.space;
 
-import org.asoem.greyfish.utils.space.Point2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.Point2D;
 
 /**
  * User: christoph
