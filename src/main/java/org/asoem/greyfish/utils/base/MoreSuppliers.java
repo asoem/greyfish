@@ -11,6 +11,10 @@ import java.io.Serializable;
  */
 public class MoreSuppliers {
 
+    public static <T> Supplier<T> memoize(Supplier<T> delegate) {
+        return new OutdateableMemoizingSupplier<T>(delegate, UpdateRequests.onceOnly());
+    }
+
     public static <T> Supplier<T> memoize(Supplier<T> delegate, UpdateRequest<? super T> updateRequest) {
         return new OutdateableMemoizingSupplier<T>(delegate, updateRequest);
     }

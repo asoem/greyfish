@@ -26,7 +26,7 @@ public class RecursiveActionsTest {
         List<Runnable> iterable = ImmutableList.copyOf(Iterables.limit(Iterables.cycle(mock), listSize));
         VoidFunction<Runnable> fun = new VoidFunction<Runnable>() {
             @Override
-            public void apply(Runnable o) {
+            public void process(Runnable o) {
                 o.run();
             }
         };

@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import jsr166y.RecursiveAction;
-import org.asoem.greyfish.utils.base.VoidFunction;
 
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class RecursiveActions {
      * @param <T> the type of the elements in the list
      * @return a {@code RecursiveAction} which should be executed with a {@link jsr166y.ForkJoinPool}
      */
-    public static <T> RecursiveAction foreach(final List<T> list, final VoidFunction<? super T> f, final int size) {
+    public static <T> RecursiveAction foreach(final List<T> list, final Function<? super T, Void> f, final int size) {
         checkNotNull(list);
         checkNotNull(f);
 

@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class UpdateRequests {
 
-    public static <T> UpdateRequest<T> updateOnce() {
+    public static <T> UpdateRequest<T> onceOnly() {
         return new UpdateOnce<T>();
     }
 

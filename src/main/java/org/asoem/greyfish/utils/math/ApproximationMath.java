@@ -66,8 +66,6 @@ public class ApproximationMath {
      * @return an approximated value for e^x
      */
     public static double exp(double x) {
-        if (LOGGER.isWarnEnabled() && x < -700 || x > 700)
-            LOGGER.warn("This exp(x) approximation algorithm is not accurate at all for x outside range [-700, 700]: {}", x);
         final long tmp = (long) (EXP_A * x + (EXP_B - EXP_C));
         return Double.longBitsToDouble(tmp << 32);
     }

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils.base;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 
 import java.util.Iterator;
@@ -28,7 +29,7 @@ public class ListenerSupport<T> {
 		getListeners().remove(listener);
 	}
 
-	public void notifyListeners(VoidFunction<T> command) {
+	public void notifyListeners(Function<T, Void> command) {
 		for (Iterator<T> i=getListeners().iterator(); i.hasNext(); ) {
 			final T l = i.next();
 			try {
