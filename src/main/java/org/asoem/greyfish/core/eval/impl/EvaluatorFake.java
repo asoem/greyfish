@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.eval.*;
 */
 public class EvaluatorFake implements Evaluator {
 
-    private final String EQUALIZER = "";
+    private static final String EQUALIZER = "";
 
     @Override
     public EvaluationResult evaluate() throws EvaluationException {

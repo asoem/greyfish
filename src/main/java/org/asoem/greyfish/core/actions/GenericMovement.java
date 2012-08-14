@@ -11,8 +11,8 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @ClassGroup(tags = "actions")
 public class GenericMovement extends AbstractGFAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericMovement.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
 
     @Element(required = false)
     private Callback<? super GenericMovement, Double> stepSize;

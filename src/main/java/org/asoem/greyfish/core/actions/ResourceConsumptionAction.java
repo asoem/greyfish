@@ -16,8 +16,8 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
@@ -28,7 +28,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
 @ClassGroup(tags = "actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceConsumptionAction.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ResourceConsumptionAction.class);
 
     @Element(name = "ontology", required = false)
     private String ontology;

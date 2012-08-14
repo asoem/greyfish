@@ -8,8 +8,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.simpleframework.xml.ElementList;
 
 import java.util.Arrays;
@@ -30,7 +30,7 @@ import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
  */
 public abstract class BranchCondition extends AbstractCondition implements Iterable<GFCondition> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BranchCondition.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BranchCondition.class);
 
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
     protected List<GFCondition> conditions = Lists.newArrayList();

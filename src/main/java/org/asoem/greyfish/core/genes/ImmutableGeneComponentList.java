@@ -10,7 +10,6 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
         delegate = ImmutableComponentList.copyOf(Iterables.transform(immutableGenome, new Function<E, E>() {
             @SuppressWarnings("unchecked") // save downcast
             @Override
-            public E apply(@Nullable E gene) {
+            public E apply(E gene) {
                 assert gene != null;
                 return cloner.getClone(gene, (Class<E>) gene.getClass());
             }

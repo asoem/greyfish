@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.TiledSpace;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,7 +37,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Iterable<Agent> getAgents() {
+    public List<Agent> getAgents() {
         return delegate().getAgents();
     }
 

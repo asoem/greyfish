@@ -99,7 +99,7 @@ public class CommonsJEXLEvaluator implements Evaluator {
                 .toString();
     }
 
-    private class JEXLResolverAdaptor extends ForwardingVariableResolver implements JexlContext {
+    private static class JEXLResolverAdaptor extends ForwardingVariableResolver implements JexlContext {
         private final VariableResolver resolver;
 
         public JEXLResolverAdaptor(VariableResolver resolver) {

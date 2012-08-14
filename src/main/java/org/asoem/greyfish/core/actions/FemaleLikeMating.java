@@ -20,8 +20,8 @@ import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
@@ -38,7 +38,7 @@ import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
 @ClassGroup(tags = "actions")
 public class FemaleLikeMating extends ContractNetInitiatorAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FemaleLikeMating.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FemaleLikeMating.class);
 
     @Element(name = "ontology", required = false)
     private String ontology;
@@ -183,8 +183,13 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);
 
-        public T matingProbability(Callback<? super FemaleLikeMating, Double> matingProbabilityExpression) {
-            this.matingProbability = checkNotNull(matingProbabilityExpression);
+        /**
+         * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed as an argument ({@link org.asoem.greyfish.utils.base.Arguments}) to the callback with key "mate"
+         * @param callback the callback function to calculate the mating probability
+         * @return this builder
+         */
+        public T matingProbability(Callback<? super FemaleLikeMating, Double> callback) {
+            this.matingProbability = checkNotNull(callback);
             return self();
         }
 
@@ -193,8 +198,8 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
             return self();
         }
 
-        public T interactionRadius(Callback<? super FemaleLikeMating, Double> sensorRange) {
-            this.sensorRange = sensorRange;
+        public T interactionRadius(Callback<? super FemaleLikeMating, Double> callback) {
+            this.sensorRange = callback;
             return self();
         }
 

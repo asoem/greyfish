@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -80,7 +81,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends Forwarding
 
         final E element = indexMap.get(name);
         if (element == null)
-            throw new NoSuchElementException("Couldn't find " + clazz + " with name " + name);
+            throw new NoSuchElementException("Couldn't find " + clazz + " with name '" + name + "'. Possible candidates are: " + Joiner.on(", ").join(indexMap.keySet()));
 
         return clazz.cast(element);
         /*

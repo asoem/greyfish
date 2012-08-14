@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.space.Object2D;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,7 +28,7 @@ public interface Simulation extends HasName {
     /**
      * @return an unmodifiable view of evaluates active {@code Agent}s
      */
-    Iterable<Agent> getAgents();
+    List<Agent> getAgents();
 
     /**
      * Remove agent from this {@code Simulation}

@@ -19,7 +19,7 @@ public class MessageTemplates {
     public static MessageTemplate performative(final ACLPerformative performative) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage<?> aclMessage) {
+            public boolean apply(ACLMessage<?> aclMessage) {
                 return checkNotNull(aclMessage).getPerformative().equals(performative);
             }
         };
@@ -49,7 +49,7 @@ public class MessageTemplates {
     public static MessageTemplate isReplyTo(final ACLMessage<?> message) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage<?> reply) {
+            public boolean apply(ACLMessage<?> reply) {
                 ACLMessage<?> replyNonNull = checkNotNull(reply);
                 return replyNonNull.getConversationId() == message.getConversationId()
                         && message.getReplyWith().equals(replyNonNull.getInReplyTo());
@@ -60,7 +60,7 @@ public class MessageTemplates {
     public static <T> MessageTemplate content(final Class<T> clazz, final Predicate<T> predicate) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage<?> aclMessage) {
+            public boolean apply(ACLMessage<?> aclMessage) {
                 ACLMessage<?> message = checkNotNull(aclMessage);
                 return message.getContentClass().isAssignableFrom(clazz)
                         && predicate.apply(message.getContent(clazz));
@@ -71,7 +71,7 @@ public class MessageTemplates {
     public static MessageTemplate sentTo(final Object receiver) {
         return new MessageTemplate() {
             @Override
-            public boolean apply(@Nullable ACLMessage<?> aclMessage) {
+            public boolean apply(ACLMessage<?> aclMessage) {
                 return Iterables.any(checkNotNull(aclMessage).getRecipients(), Predicates.equalTo(receiver));
             }
         };
@@ -95,14 +95,14 @@ public class MessageTemplates {
 
     private static final MessageTemplate ALWAYS_FALSE_TEMPLATE = new MessageTemplate() {
         @Override
-        public boolean apply(@Nullable ACLMessage<?> aclMessage) {
+        public boolean apply(ACLMessage<?> aclMessage) {
             return false;
         }
     };
 
     private static final MessageTemplate ALWAYS_TRUE_TEMPLATE = new MessageTemplate() {
         @Override
-        public boolean apply(@Nullable ACLMessage<?> aclMessage) {
+        public boolean apply(ACLMessage<?> aclMessage) {
             return true;
         }
     };

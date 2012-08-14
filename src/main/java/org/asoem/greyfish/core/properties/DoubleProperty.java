@@ -4,8 +4,8 @@ import com.google.common.collect.Ordering;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
@@ -13,7 +13,7 @@ import static com.google.common.primitives.Doubles.asList;
 @ClassGroup(tags="properties")
 public class DoubleProperty extends AbstractRangeElementProperty<Double> implements MutableProperty<Double> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DoubleProperty.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(DoubleProperty.class);
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public DoubleProperty() {

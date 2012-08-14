@@ -103,9 +103,7 @@ public class SexualReproduction extends AbstractGFAction {
             @Override
             public Gene<Object> apply(Product2<GeneComponent<?>, Gene<?>> tuple) {
                 final Object segregationProduct = GenesComponents.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
-                final Object mutatedAndRecombinedAllele = GenesComponents.mutate(tuple._1(), segregationProduct);
-
-                return new Gene<Object>(mutatedAndRecombinedAllele, tuple._1().getRecombinationProbability());
+                return new Gene<Object>(segregationProduct, tuple._1().getRecombinationProbability());
             }
         });
 

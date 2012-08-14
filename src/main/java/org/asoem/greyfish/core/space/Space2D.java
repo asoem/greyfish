@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.space;
 
 import org.asoem.greyfish.utils.space.MovingProjectable2D;
 
+import java.util.List;
+
 /**
  * User: christoph
  * Date: 29.02.12
@@ -13,7 +15,7 @@ public interface Space2D<T extends MovingProjectable2D> {
 
     boolean contains(double x, double y);
 
-    Iterable<T> getObjects();
+    List<T> getObjects();
 
     void insertObject(T projectable, double x, double y, double orientation);
 

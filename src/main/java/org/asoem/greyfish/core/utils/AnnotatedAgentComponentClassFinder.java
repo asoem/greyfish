@@ -10,8 +10,8 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.ClassFinder;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import java.util.Arrays;
 
@@ -24,7 +24,7 @@ import static com.google.common.collect.Iterables.transform;
  * Time: 13:58
  */
 public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFinder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnnotatedAgentComponentClassFinder.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AnnotatedAgentComponentClassFinder.class);
 
     @Override
     public Iterable<Class<? extends GFAction>> getAvailableActions() {

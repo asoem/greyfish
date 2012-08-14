@@ -8,8 +8,8 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetParticipantAction.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetParticipantAction.class);
 
     private static enum State {
         CHECK_CFP,

@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.individual;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 
@@ -15,7 +15,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_ME
 
 public class ActiveSimulationContext implements SimulationContext {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActiveSimulationContext.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ActiveSimulationContext.class);
 
     //@Element(name = "simulation")
     private final Simulation simulation;
@@ -85,10 +85,6 @@ public class ActiveSimulationContext implements SimulationContext {
             nextAction = toResume;
         } else {
             for (GFAction action : agent.getActions()) {
-
-                assert action.getState() == ActionState.INITIAL :
-                        "Action in unexpected state: " + action + "@" + action.getState();
-
                 if (action.checkPreconditions(simulation) == PRECONDITIONS_MET) {
                     nextAction = action;
                     break;

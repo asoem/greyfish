@@ -23,8 +23,9 @@ import org.asoem.greyfish.core.io.SimulationLoggerProvider;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.concurrent.RecursiveActions;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.simpleframework.xml.Attribute;
@@ -38,7 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.concurrent.ParallelIterables.apply;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -46,13 +46,13 @@ import static org.asoem.greyfish.utils.concurrent.ParallelIterables.apply;
  */
 public class ParallelizedSimulation implements Simulation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParallelizedSimulation.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
     @Element(name = "space")
     private final TiledSpace<Agent> space;
 
     @Attribute
-    private int currentStep = -1;
+    private AtomicInteger currentStep = new AtomicInteger(-1);
 
     @Attribute
     private String title = "untitled";
@@ -194,7 +194,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public Iterable<Agent> getAgents() {
+    public List<Agent> getAgents() {
         return space.getObjects();
     }
 
@@ -303,14 +303,15 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public int getStep() {
-        return currentStep;
+        return currentStep.get();
     }
 
     @Override
     public synchronized void nextStep() {
-        ++currentStep;
 
-        LOGGER.info("{}: Entering step {}; {}", this, currentStep, countAgents());
+        final int step = currentStep.incrementAndGet();
+
+        LOGGER.info("{}: Entering step {}; {}", this, step, countAgents());
 
         executeAllAgents();
 
@@ -337,7 +338,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void executeAllAgents() {
-        final RecursiveAction executeAllAgents = apply(getAgents(), new VoidFunction<Simulatable>() {
+        final RecursiveAction executeAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Simulatable>() {
             @Override
             public void apply(Simulatable agent) {
                 agent.execute();
@@ -354,7 +355,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void processAgentsMovement() {
-        final RecursiveAction moveAllAgents = apply(getAgents(), new VoidFunction<Agent>() {
+        final RecursiveAction moveAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Agent>() {
             @Override
             public void apply(Agent agent) {
                 space.moveObject(agent);
@@ -407,7 +408,7 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
         simulationLogger.addEvent(
-                eventIdSequence.incrementAndGet(), uuid, currentStep,
+                eventIdSequence.incrementAndGet(), uuid, currentStep.get(),
                 agentId, populationName, coordinates,
                 eventOrigin.getClass().getSimpleName(), title, message);
     }

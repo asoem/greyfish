@@ -15,8 +15,8 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.AbstractBuilder;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.MotionObject2D;
@@ -42,7 +42,7 @@ import static java.util.Arrays.asList;
 @Root(name = "agent")
 public abstract class AbstractAgent implements Agent {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
     @Element(name = "properties")
     protected final ComponentList<GFProperty> properties;

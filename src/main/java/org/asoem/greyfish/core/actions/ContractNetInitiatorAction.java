@@ -7,8 +7,8 @@ import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import java.util.Collection;
 
@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetInitiatorAction.class);
 
     private static enum State {
         SEND_CFP,

@@ -1,24 +1,19 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOError;
 import java.sql.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * User: christoph
@@ -27,43 +22,46 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class H2Logger implements SimulationLogger {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(H2Logger.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(H2Logger.class);
+    private static final int COMMIT_THRESHOLD = 1000;
     private final Connection connection;
-    private final List<UpdateOperation> updateOperationList = Lists.newArrayList();
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final List<UpdateOperation> updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
     private final NameIdMap nameIdMap = new NameIdMap();
 
     @Inject
     private H2Logger(@Assisted Simulation simulation) {
+        Statement statement = null;
         try {
             Class.forName("org.h2.Driver");
             connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;TRACE_LEVEL_FILE=2", simulation.getUUID().toString()), "sa", "");
 
-            connection.createStatement().execute(
+            statement = connection.createStatement();
+
+            statement.execute(
                     "CREATE TABLE agents (" +
                             "id INT NOT NULL PRIMARY KEY," +
                             "population_name_id INT NOT NULL," +
                             "activated_at INT NOT NULL," +
                             "created_at TIMESTAMP NOT NULL)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE TABLE chromosome_tree (" +
                             "id INT NOT NULL," +
                             "parent_id INT NOT NULL)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE TABLE names (" +
                             "id int NOT NULL PRIMARY KEY," +
                             "name VARCHAR(255) UNIQUE NOT NULL);");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE TABLE genes_double (" +
                             "agent_id INT NOT NULL," +
                             "gene_name_id INT NOT NULL," +
                             "value DOUBLE NOT NULL)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE TABLE genes_string (" +
                             "agent_id INT NOT NULL, " +
                             "gene_name_id INT NOT NULL, " +
                             "value VARCHAR(255) NOT NULL)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE TABLE agent_events (" +
                             "id INT NOT NULL PRIMARY KEY, " +
                             "simulation_step int NOT NULL, " +
@@ -81,29 +79,34 @@ public class H2Logger implements SimulationLogger {
             throw new IOError(e);
         } catch (ClassNotFoundException e) {
             throw new AssertionError("The H2 database driver could not be found");
+        } finally {
+            closeStatement(statement);
         }
     }
 
     @Override
     public void close() {
+        Statement statement = null;
         try {
             commit();
 
-            connection.createStatement().execute(
+            statement = connection.createStatement();
+
+            statement.execute(
                     "CREATE INDEX ON genes_double(agent_id)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE INDEX ON genes_double(gene_name_id)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE INDEX ON genes_string(agent_id)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE INDEX ON genes_string(gene_name_id)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE INDEX ON agent_events(agent_id)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE INDEX ON agent_events(title_name_id)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE INDEX ON agent_events(simulation_step)");
-            connection.createStatement().execute(
+            statement.execute(
                     "CREATE UNIQUE HASH INDEX ON names(name)");
 
             commit();
@@ -113,35 +116,49 @@ public class H2Logger implements SimulationLogger {
         } catch (Exception e) {
             throw new AssertionError(e);
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                LOGGER.warn("Exception during Connection.close()", e);
-            }
+            closeStatement(statement);
+            closeConnection(connection);
+        }
+    }
+
+    private static void closeStatement(@Nullable Statement statement) {
+        if (statement == null)
+            return;
+
+        try{
+            statement.close();
+        }
+        catch (SQLException e) {
+            LOGGER.warn("Exception occurred while closing statement {}", statement, e);
+        }
+    }
+
+    private static void closeConnection(@Nullable Connection connection) {
+        if (connection == null)
+            return;
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            LOGGER.warn("Exception during Connection.close()", e);
         }
     }
 
     @Override
     public void addAgent(Agent agent) {
-        lock.readLock().lock();
-        try{
-            addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth(), new Timestamp(System.currentTimeMillis())));
-            final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
-            for (Integer parentId : parents) {
-                addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
-            }
-            for (GeneComponent<?> gene : agent.getGeneComponentList()) {
-                assert gene != null;
-                if (Double.class.equals(gene.getAlleleClass())) {
-                    addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), ((GeneComponent<Double>) gene).getAllele()));
-                } else {
-                    addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));
-                }
-            }
-            tryCommit();
-        } finally {
-            lock.readLock().unlock();
+        addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth(), new Timestamp(System.currentTimeMillis())));
+        final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
+        for (Integer parentId : parents) {
+            addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
         }
+        for (GeneComponent<?> gene : agent.getGeneComponentList()) {
+            assert gene != null;
+            if (Double.class.equals(gene.getAlleleClass())) {
+                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));
+            } else {
+                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));
+            }
+        }
+        tryCommit();
     }
 
     private int idForName(String name) {
@@ -157,71 +174,61 @@ public class H2Logger implements SimulationLogger {
 
     @Override
     public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
-        lock.readLock().lock();
-        try {
-            addUpdateOperation(new InsertEventOperation(eventId, uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
-            tryCommit();
-        } finally {
-            lock.readLock().unlock();
-        }
+        addUpdateOperation(new InsertEventOperation(eventId, uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
+        tryCommit();
     }
 
     private void addUpdateOperation(UpdateOperation updateOperation) {
-        updateOperationList.add(updateOperation);
-    }
-
-    private void tryCommit() {
-        if (shouldCommit()) {
-            lock.readLock().unlock();
-            lock.writeLock().lock();
-            try {
-                if (shouldCommit()) {
-                    commit();
-                }
-            } finally {
-                lock.readLock().lock();
-                lock.writeLock().unlock();
-            }
+        synchronized (updateOperationList) {
+            updateOperationList.add(updateOperation);
         }
     }
 
+    private void tryCommit() {
+        if (shouldCommit())
+            synchronized (connection) {
+                if (shouldCommit())
+                    commit();
+            }
+    }
+
     private void commit() {
-        lock.writeLock().lock();
+        synchronized (connection) {
+            final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
 
-        final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
-        try {
-            for (UpdateOperation updateOperation : updateOperationList) {
-                final String sql = updateOperation.sqlString();
-                if (!preparedStatementMap.containsKey(sql)) {
-                    preparedStatementMap.put(sql, connection.prepareStatement(sql));
+            try {
+                synchronized (updateOperationList) {
+                    for (UpdateOperation updateOperation : updateOperationList) {
+                        final String sql = updateOperation.sqlString();
+                        if (!preparedStatementMap.containsKey(sql)) {
+                            preparedStatementMap.put(sql, connection.prepareStatement(sql));
+                        }
+                        final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
+                        updateOperation.update(preparedStatement);
+                        preparedStatement.addBatch();
+                    }
+                    updateOperationList.clear();
                 }
-                final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
-                updateOperation.update(preparedStatement);
-                preparedStatement.addBatch();
-            }
 
-            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
-                preparedStatement.executeBatch();
-            }
+                for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                    preparedStatement.executeBatch();
+                }
 
-            connection.commit();
-        } catch (SQLException e) {
-            throw new IOError(e);
-        } finally {
-            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                connection.commit();
+            } catch (SQLException e) {
+                throw new IOError(e);
+            } finally {
+                for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                    closeStatement(preparedStatement);
                 }
             }
-            updateOperationList.clear();
-            lock.writeLock().unlock();
         }
     }
 
     private boolean shouldCommit() {
-        return updateOperationList.size() >= 1000;
+        synchronized (updateOperationList) {
+            return updateOperationList.size() >= COMMIT_THRESHOLD;
+        }
     }
 
     private static interface UpdateOperation {
@@ -391,14 +398,20 @@ public class H2Logger implements SimulationLogger {
     }
 
     private static class NameIdMap {
-        private final Map<String, Integer> map = Maps.newConcurrentMap();
-        private final AtomicInteger maxId = new AtomicInteger(0);
+        private final ConcurrentMap<String, Integer> map = Maps.newConcurrentMap();
+        private int maxId = 0;
 
         public int create(String s) {
             assert s != null;
-            final int id = maxId.incrementAndGet();
-            map.put(s, id);
-            return id;
+            synchronized (this) {
+                if (!map.containsKey(s)) {
+                    final int id = ++maxId;
+                    map.put(s, id);
+                    return id;
+                }
+                else
+                    return map.get(s);
+            }
         }
 
         public boolean contains(String name) {

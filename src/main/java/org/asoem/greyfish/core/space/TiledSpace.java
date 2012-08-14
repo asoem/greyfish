@@ -46,7 +46,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
                 public TwoDimTree<T> get() {
                     return AsoemScalaTwoDimTree.create(projectables, new Function<T, Product2<Double, Double>>() {
                         @Override
-                        public Point2D apply(@Nullable T t) {
+                        public Point2D apply(T t) {
                             assert t != null;
                             final MotionObject2D projection = t.getProjection();
                             assert projection != null;
@@ -368,18 +368,18 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
     }
 
     @Override
-    public Iterable<T> getObjects() {
+    public List<T> getObjects() {
         return projectables;
     }
 
     public Iterable<T> getObjects(Iterable<? extends Tile> tiles) {
         return Iterables.concat(Iterables.transform(tiles, new Function<Tile, Iterable<T>>() {
             @Override
-            public Iterable<T> apply(@Nullable Tile tile) {
+            public Iterable<T> apply(Tile tile) {
                 final Tile checkedTile = checkNotNull(tile);
                 return Iterables.filter(findObjects(checkedTile.getX(), checkedTile.getY(), MathLib.SQRT2 / 2), new Predicate<T>() {
                     @Override
-                    public boolean apply(@Nullable T t) {
+                    public boolean apply(T t) {
                         assert t != null;
                         final Object2D projection = t.getProjection();
                         assert projection != null;
@@ -427,7 +427,7 @@ public class TiledSpace<T extends MovingProjectable2D> implements Space2D<T>, Ti
     public Iterable<WalledTile> getTiles() {
         return Iterables.concat(Iterables.transform(Arrays.asList(tileMatrix), new Function<WalledTile[], Iterable<WalledTile>>() {
             @Override
-            public Iterable<WalledTile> apply(@Nullable WalledTile[] tileLocations) {
+            public Iterable<WalledTile> apply(WalledTile[] tileLocations) {
                 return Arrays.asList(tileLocations);
             }
         }));

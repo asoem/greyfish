@@ -5,8 +5,8 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -124,7 +124,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     }
 
     protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E, T>> extends AbstractComponentBuilder<E, T> {
-        private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDoubleGeneBuilder.class);
+        private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractDoubleGeneBuilder.class);
         private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.constant(0.0);
         private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.constant(0.0);
         private static final Callback<Object,Double> DEFAULT_RECOMBINATION_KERNEL = Callbacks.constant(0.0);

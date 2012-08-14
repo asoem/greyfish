@@ -9,8 +9,8 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.ValidationResultFunctions;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty<E> implements RangeElementProperty<E> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractRangeElementProperty.class);
     @Element(name="max")
     protected E upperBound;
 

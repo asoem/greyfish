@@ -15,11 +15,10 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.simpleframework.xml.ElementMap;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +30,7 @@ import java.util.Set;
 @ClassGroup(tags = {"properties"})
 public class ConditionalStatesProperty extends AbstractGFProperty<String> implements FiniteStateProperty<String> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConditionalStatesProperty.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ConditionalStatesProperty.class);
 
     @ElementMap(entry="state", key="condition", attribute=true, inline=true)
     private Map<String, GreyfishExpression> conditionMap = ImmutableMap.of();
@@ -59,7 +58,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty<String> implem
         // TODO: Compare performance to a version where evaluates logic from below is inside an expression. Could be faster than evaluation multiple expression.
         return Iterables.find(conditionMap.keySet(), new Predicate<String>() {
             @Override
-            public boolean apply(@Nullable String phenotype) {
+            public boolean apply(String phenotype) {
                 try {
                     return conditionMap.get(phenotype).evaluateForContext(ConditionalStatesProperty.this).asBoolean();
                 } catch (EvaluationException e) {
@@ -95,7 +94,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty<String> implem
     private Map<? extends String, ? extends GreyfishExpression> parse(String arg0) {
         return Maps.transformValues(Splitter.on("\n").withKeyValueSeparator(":").split(arg0), new Function<String, GreyfishExpression>() {
             @Override
-            public GreyfishExpression apply(@Nullable String s) {
+            public GreyfishExpression apply(String s) {
                 return GreyfishExpressionFactoryHolder.compile(s);
             }
         });

@@ -15,7 +15,6 @@ import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.AgentComponents;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,28 +45,28 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 if (GFAction.class.isAssignableFrom(contextClass)) {
                     return action(gomParts, new Function<T, GFAction>() {
                         @Override
-                        public GFAction apply(@Nullable T agentComponent) {
+                        public GFAction apply(T agentComponent) {
                             return GFAction.class.cast(agentComponent);
                         }
                     });
                 } else if (GFProperty.class.isAssignableFrom(contextClass)) {
                     return property(gomParts, new Function<T, GFProperty>() {
                         @Override
-                        public GFProperty apply(@Nullable T agentComponent) {
+                        public GFProperty apply(T agentComponent) {
                             return GFProperty.class.cast(agentComponent);
                         }
                     });
                 } else if (GeneComponent.class.isAssignableFrom(contextClass)) {
                     return gene(gomParts, new Function<T, GeneComponent>() {
                         @Override
-                        public GeneComponent apply(@Nullable T agentComponent) {
+                        public GeneComponent apply(T agentComponent) {
                             return GeneComponent.class.cast(agentComponent);
                         }
                     });
                 } else if (GFCondition.class.isAssignableFrom(contextClass)) {
                     return condition(gomParts, new Function<T, GFCondition>() {
                         @Override
-                        public GFCondition apply(@Nullable T agentComponent) {
+                        public GFCondition apply(T agentComponent) {
                             return GFCondition.class.cast(agentComponent);
                         }
                     });
@@ -78,7 +77,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 if (AgentComponent.class.isAssignableFrom(contextClass)) {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
-                        public Simulation apply(@Nullable T gfComponent) {
+                        public Simulation apply(T gfComponent) {
                             Agent agent = AgentComponent.class.cast(gfComponent).getAgent();
                             return checkNotNull(agent).simulation();
                             // TODO: We should have direct access to simulation object through a component
@@ -87,7 +86,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 } else if (Simulation.class.isAssignableFrom(contextClass)) {
                     return simulation(gomParts, new Function<T, Simulation>() {
                         @Override
-                        public Simulation apply(@Nullable T t) {
+                        public Simulation apply(T t) {
                             return Simulation.class.cast(t);
                         }
                     });
@@ -97,7 +96,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             } else if ("testVal".equals(root)) {
                 return new Function<T, Object>() {
                     @Override
-                    public Object apply(@Nullable T t) {
+                    public Object apply(T t) {
                         return 42.0;
                     }
                 };
@@ -111,7 +110,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         private Function<T, ?> cachedFunction = null;
 
                         @Override
-                        public Object apply(@Nullable T t) {
+                        public Object apply(T t) {
 
                             if (cachedFunction == null) {
                                 cachedFunction = composeFunction(t);
@@ -136,7 +135,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             if (GFAction.class.isInstance(target)) {
                                 return action(gomParts, new Function<T, GFAction>() {
                                     @Override
-                                    public GFAction apply(@Nullable T t) {
+                                    public GFAction apply(T t) {
                                         final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
                                         if (agent1 == null)
                                             throw new AssertionError("Agent must not be null at this point");
@@ -146,7 +145,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             } else if (GFProperty.class.isInstance(target)) {
                                 return property(gomParts, new Function<T, GFProperty>() {
                                     @Override
-                                    public GFProperty apply(@Nullable T t) {
+                                    public GFProperty apply(T t) {
                                         final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
                                         if (agent1 == null)
                                             throw new AssertionError("Agent must not be null at this point");
@@ -156,7 +155,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             } else if (GeneComponent.class.isInstance(target)) {
                                 return gene(gomParts, new Function<T, GeneComponent>() {
                                     @Override
-                                    public GeneComponent apply(@Nullable T t) {
+                                    public GeneComponent apply(T t) {
                                         final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
                                         if (agent1 == null)
                                             throw new AssertionError("Agent must not be null at this point");
@@ -182,13 +181,13 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if ("agent".equals(nextPart)) {
                 return agent(parts, Functions.compose(new Function<GFCondition, Agent>() {
                     @Override
-                    public Agent apply(@Nullable GFCondition action) {
+                    public Agent apply(GFCondition action) {
                         return checkNotNull(action).getAgent();
                     }
                 }, function));
             }
-            if (nextPart.matches("conditions\\[.+\\]")) {
-            }
+            //if (nextPart.matches("conditions\\[.+\\]")) {
+            //}
             throw new RuntimeException("GFCondition has no member named " + nextPart);
         } else {
             return function;
@@ -210,7 +209,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if ("agent".equals(nextPart)) {
                 return agent(parts, Functions.compose(new Function<GFAction, Agent>() {
                     @Override
-                    public Agent apply(@Nullable GFAction action) {
+                    public Agent apply(GFAction action) {
                         return checkNotNull(action).getAgent();
                     }
                 }, ret));
@@ -220,7 +219,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             } else if (nextPart.equals("stepsSinceLastExecution")) {
                 return Functions.compose(new Function<GFAction, Integer>() {
                     @Override
-                    public Integer apply(@Nullable GFAction o) {
+                    public Integer apply(GFAction o) {
                         return checkNotNull(o).lastCompletionStep();
                     }
                 }, ret);
@@ -237,7 +236,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if ("agent".equals(nextPart)) {
                 return agent(parts, Functions.compose(new Function<GFProperty, Agent>() {
                     @Override
-                    public Agent apply(@Nullable GFProperty property) {
+                    public Agent apply(GFProperty property) {
                         return checkNotNull(property).getAgent();
                     }
                 }, ret));
@@ -257,7 +256,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if (nextPart.matches("agents\\[.+\\]")) {
                 return agent(parts, Functions.compose(new Function<Simulation, Agent>() {
                     @Override
-                    public Agent apply(@Nullable Simulation simulation) {
+                    public Agent apply(Simulation simulation) {
                         return Iterables.find(checkNotNull(simulation).getAgents(), new Predicate<Agent>() {
                             @Override
                             public boolean apply(Agent agent) {
@@ -287,7 +286,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if ("value".equals(nextPart)) {
                 return Functions.compose(new Function<GeneComponent, Object>() {
                     @Override
-                    public Object apply(@Nullable GeneComponent gene) {
+                    public Object apply(GeneComponent gene) {
                         return checkNotNull(gene).getAllele();
                     }
                 }, ret);
@@ -306,7 +305,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if ("simulation".equals(nextPart)) {
                 return simulation(parts, Functions.compose(new Function<Agent, Simulation>() {
                     @Override
-                    public Simulation apply(@Nullable Agent agent) {
+                    public Simulation apply(Agent agent) {
                         return checkNotNull(agent).simulation();
                     }
                 }, ret));
@@ -318,7 +317,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 final String propertyName = matcher.group(1);
                 return property(parts, Functions.compose(new Function<Agent, GFProperty>() {
                     @Override
-                    public GFProperty apply(@Nullable Agent agent) {
+                    public GFProperty apply(Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen
                         return checkNotNull(agent).getProperty(propertyName, GFProperty.class);
                     }
@@ -330,7 +329,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 final String actionName = matcher.group(1);
                 return action(parts, Functions.compose(new Function<Agent, GFAction>() {
                     @Override
-                    public GFAction apply(@Nullable Agent agent) {
+                    public GFAction apply(Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen
                         return checkNotNull(agent).getAction(actionName, GFAction.class);
                     }
@@ -342,7 +341,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 final String geneName = matcher.group(1);
                 return gene(parts, Functions.compose(new Function<Agent, GeneComponent>() {
                     @Override
-                    public GeneComponent apply(@Nullable Agent agent) {
+                    public GeneComponent apply(Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen
                         return checkNotNull(agent).getGene(geneName, GeneComponent.class);
                     }
@@ -352,7 +351,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             if ("age".equals(nextPart)) {
                 return Functions.compose(new Function<Agent, Object>() {
                     @Override
-                    public Object apply(@Nullable Agent agent) {
+                    public Object apply(Agent agent) {
                         return checkNotNull(agent).getAge();
                     }
                 }, ret);

@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.io.persistence;
 import com.google.common.io.CharStreams;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.Registry;
@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class SimpleXMLPersister implements Persister {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(SimpleXMLPersister.class);
+    private final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(SimpleXMLPersister.class);
 
     private final Serializer serializer;
 
@@ -47,7 +47,7 @@ public class SimpleXMLPersister implements Persister {
     @Override
     public <T> T deserialize(File file, Class<T> clazz) throws Exception {
         LOGGER.debug("Reading from: {}", file.getAbsolutePath());
-        return deserialize(new BufferedReader(new FileReader(file)), clazz);
+        return deserialize(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")), clazz);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class SimpleXMLPersister implements Persister {
         if (checkNotNull(file).exists())
             checkArgument(file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
-        serialize(object, new BufferedWriter(new FileWriter(file)));
+        serialize(object, new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8")));
         LOGGER.debug("Object written to: {}", file.getAbsolutePath());
     }
 

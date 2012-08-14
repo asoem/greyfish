@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
 @Root
@@ -81,6 +82,9 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
                     stepAtLastSuccess = simulation.getStep();
                     Callbacks.call(onSuccess, this);
                     break;
+
+                default:
+                    break;
             }
 
             setState(state);
@@ -103,6 +107,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
 
     @Override
     public ActionState checkPreconditions(Simulation simulation) {
+        checkState(actionState == INITIAL, "Action not is state %s", INITIAL);
         final boolean preconditionsMet = evaluateCondition(simulation());
         if (preconditionsMet)
             setState(PRECONDITIONS_MET);
