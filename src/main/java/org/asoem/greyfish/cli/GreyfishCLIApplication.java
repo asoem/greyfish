@@ -17,8 +17,8 @@ import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.SimulationTemplate;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.models.SimulationTemplateFactory;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -36,7 +36,7 @@ import static org.asoem.greyfish.cli.GreyfishCLIApplication.State.*;
  */
 public class GreyfishCLIApplication {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishCLIApplication.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GreyfishCLIApplication.class);
 
     private GreyfishCLIApplication.State state = STARTUP;
 
@@ -70,7 +70,7 @@ public class GreyfishCLIApplication {
                     PrintWriter writer = null;
                     try {
                         verboseFile = File.createTempFile("greyfish_verbose_", ".txt");
-                        writer = new PrintWriter(new BufferedWriter(new FileWriter(verboseFile)), true);
+                        writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(verboseFile), "UTF-8")), true);
                         LOGGER.info("Writing verbose output to file {}", verboseFile.getAbsolutePath());
                         while (state == STARTUP)
                             Thread.sleep(10);
