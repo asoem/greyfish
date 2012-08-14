@@ -183,14 +183,17 @@ public class ImmutableBitSet extends Number implements Comparable<ImmutableBitSe
      * @return a new ImmutableBitSet equal to the representation of {@code s}
      */
     public static ImmutableBitSet valueOf(String s) {
-        checkArgument(checkNotNull(Pattern.matches("[01]+", s)), "Input must be a sequence of '0' and '1' characters: "+ s);
-        BitSet bs = new BitSet(s.length());
+        checkArgument(Pattern.matches("[01]+", s),
+                "Input must be a sequence of '0' and '1' characters: "+ s);
+        final BitSet bs = new BitSet(s.length());
         int strIndex = s.length()-1;
         int bsIndex = 0;
         while (strIndex >= 0) {
             switch (s.charAt(strIndex)) {
                 case '0' : break;
                 case '1' : bs.set(bsIndex, true); break;
+                default:
+                    assert false : "Argument check missed something";
             }
             ++bsIndex;
             --strIndex;

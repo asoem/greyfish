@@ -1,9 +1,11 @@
 package org.asoem.greyfish.utils.logging;
 
+import org.slf4j.Logger;
+
 /**
- * The {@code Logger} adds vararg methods to the {@link org.slf4j.Logger} API.
+ * The {@code SLF4JLogger} adds vararg methods to the {@link org.slf4j.Logger} API.
  */
-public interface Logger extends org.slf4j.Logger {
+public interface SLF4JLogger extends Logger {
 
     void trace(String format, Object ... args);
     void debug(String format, Object ... args);

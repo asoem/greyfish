@@ -6,7 +6,6 @@ import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
 import org.simpleframework.xml.Element;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,14 +53,14 @@ public class Tuple2<E1, E2> implements Product2<E1, E2> {
         final Iterable<E1> transform = Iterables.transform(zipped, new Function<Product2<E1, E2>, E1>() {
 
             @Override
-            public E1 apply(@Nullable Product2<E1, E2> e1E2Product2) {
+            public E1 apply(Product2<E1, E2> e1E2Product2) {
                 return checkNotNull(e1E2Product2)._1();
             }
         });
         final Iterable<E2> transform1 = Iterables.transform(zipped, new Function<Product2<E1, E2>, E2>() {
 
             @Override
-            public E2 apply(@Nullable Product2<E1, E2> e1E2Product2) {
+            public E2 apply(Product2<E1, E2> e1E2Product2) {
                 return checkNotNull(e1E2Product2)._2();
             }
         });

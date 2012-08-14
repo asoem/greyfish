@@ -16,6 +16,7 @@ public class MoreSuppliers {
     }
 
     static class OutdateableMemoizingSupplier<T> implements Supplier<T>, Serializable {
+        private static final long serialVersionUID = 0;
 
         private final Supplier<T> delegate;
         private final UpdateRequest<? super T> updateRequest;
@@ -33,9 +34,8 @@ public class MoreSuppliers {
                     value = delegate.get();
                     updateRequest.done();
                 }
+                return value;
             }
-
-            return value;
         }
     }
 }

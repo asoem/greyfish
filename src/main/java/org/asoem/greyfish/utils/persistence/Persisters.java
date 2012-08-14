@@ -30,7 +30,7 @@ public class Persisters {
 
         final PipedOutputStream pipedOutputStream = new PipedOutputStream();
         final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
-        final OutputStreamWriter writer = new OutputStreamWriter(pipedOutputStream);
+        final OutputStreamWriter writer = new OutputStreamWriter(pipedOutputStream, "UTF-8");
 
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
@@ -51,6 +51,6 @@ public class Persisters {
             }
         });
 
-        return persister.deserialize(new InputStreamReader(pipedInputStream), clazz);
+        return persister.deserialize(new InputStreamReader(pipedInputStream, "UTF-8"), clazz);
     }
 }

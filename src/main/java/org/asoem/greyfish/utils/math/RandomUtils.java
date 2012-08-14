@@ -9,8 +9,8 @@ import org.apache.commons.math3.random.RandomData;
 import org.apache.commons.math3.random.RandomDataImpl;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @SuppressWarnings("UnusedDeclaration")
 public class RandomUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RandomUtils.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(RandomUtils.class);
 
     public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
     public static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
