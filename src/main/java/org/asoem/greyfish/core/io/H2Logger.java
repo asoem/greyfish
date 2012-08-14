@@ -108,7 +108,8 @@ public class H2Logger implements SimulationLogger {
                     "CREATE INDEX ON agent_events(simulation_step)");
             statement.execute(
                     "CREATE UNIQUE HASH INDEX ON names(name)");
-
+            statement.execute(
+                    "CREATE INDEX ON chromosome_tree(parent_id)");
             commit();
 
         } catch (SQLException e) {

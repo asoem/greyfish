@@ -340,11 +340,11 @@ public class ParallelizedSimulation implements Simulation {
     private void executeAllAgents() {
         final RecursiveAction executeAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Simulatable>() {
             @Override
-            public void apply(Simulatable agent) {
+            public void process(Simulatable agent) {
                 agent.execute();
             }
         }, parallelizationThreshold);
-        forkJoinPool.invoke(executeAllAgents);
+        tryInvoke(executeAllAgents);
     }
 
     private void processRequestedAgentActivations() {
@@ -357,11 +357,20 @@ public class ParallelizedSimulation implements Simulation {
     private void processAgentsMovement() {
         final RecursiveAction moveAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Agent>() {
             @Override
-            public void apply(Agent agent) {
+            public void process(Agent agent) {
                 space.moveObject(agent);
             }
         }, parallelizationThreshold);
-        forkJoinPool.invoke(moveAllAgents);
+        tryInvoke(moveAllAgents);
+    }
+
+    private void tryInvoke(RecursiveAction recursiveAction) {
+        try {
+            forkJoinPool.invoke(recursiveAction);
+        } catch (Throwable t) {
+            forkJoinPool.shutdownNow();
+            throw new AssertionError(t);
+        }
     }
 
     private void processRequestedAgentRemovals() {
