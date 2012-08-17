@@ -65,14 +65,10 @@ public class RandomUtils {
      * @return {@code true} with probability {@code p}, false with probability {@code 1-p}
      */
     public static boolean nextBoolean(double p) {
-        if (p == 0)
-            return false;
-        else if (p == 1)
-            return true;
-        else if (p > 0 && p < 1)
-            return nextDouble() < p;
-        else
+        if (p < 0 || p > 1)
             throw new IllegalArgumentException("Probability not in [0,1]: " + p);
+
+        return nextDouble() < p;
     }
 
     /**

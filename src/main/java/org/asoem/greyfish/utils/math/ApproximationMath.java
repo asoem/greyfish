@@ -2,8 +2,6 @@ package org.asoem.greyfish.utils.math;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 /**
  * User: christoph
@@ -13,7 +11,6 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 public class ApproximationMath {
 
     private static final double ZERO_CLOSEST_POSITIVE = Math.nextUp(0.0);
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ApproximationMath.class);
 
     /**
      * Gaussian function using {@link #exp}
