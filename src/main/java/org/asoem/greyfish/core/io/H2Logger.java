@@ -74,12 +74,12 @@ public class H2Logger implements SimulationLogger {
             connection.setAutoCommit(false);
 
         } catch (SQLException e) {
+            closeConnection(connection);
             throw new IOError(e);
         } catch (ClassNotFoundException e) {
             throw new AssertionError("The H2 database driver could not be found");
         } finally {
             closeStatement(statement);
-            closeConnection(connection);
         }
 
         this.connection = connection;
