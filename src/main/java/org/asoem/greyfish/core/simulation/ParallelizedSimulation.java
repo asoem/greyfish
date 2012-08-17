@@ -19,7 +19,7 @@ import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggerProvider;
+import org.asoem.greyfish.core.io.SimulationLoggerFactoryHolder;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
@@ -135,7 +135,7 @@ public class ParallelizedSimulation implements Simulation {
         checkNotNull(space);
         this.parallelizationThreshold = parallelizationThreshold;
         this.space = TiledSpace.createEmptyCopy(space);
-        this.simulationLogger = SimulationLoggerProvider.getLogger(this);
+        this.simulationLogger = SimulationLoggerFactoryHolder.getLogger(this);
 
         this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
             final Map<Population, Agent> populationAgentMap = Maps.newHashMap();
@@ -365,12 +365,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void tryInvoke(RecursiveAction recursiveAction) {
-        try {
-            forkJoinPool.invoke(recursiveAction);
-        } catch (Throwable t) {
-            forkJoinPool.shutdownNow();
-            throw new AssertionError(t);
-        }
+        forkJoinPool.invoke(recursiveAction);
     }
 
     private void processRequestedAgentRemovals() {
@@ -406,7 +401,7 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public void shutdown() {
-        SimulationLoggerProvider.getLogger(this).close();
+        simulationLogger.close();
     }
 
     @Override

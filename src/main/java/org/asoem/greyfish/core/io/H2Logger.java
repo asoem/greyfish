@@ -1,8 +1,6 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -13,7 +11,6 @@ import javax.annotation.Nullable;
 import java.io.IOError;
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * User: christoph
@@ -28,9 +25,10 @@ public class H2Logger implements SimulationLogger {
     private final List<UpdateOperation> updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
     private final NameIdMap nameIdMap = new NameIdMap();
 
-    @Inject
-    private H2Logger(@Assisted Simulation simulation) {
+    public H2Logger(Simulation simulation) {
+        Connection connection = null;
         Statement statement = null;
+
         try {
             Class.forName("org.h2.Driver");
             connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;TRACE_LEVEL_FILE=2", simulation.getUUID().toString()), "sa", "");
@@ -81,7 +79,10 @@ public class H2Logger implements SimulationLogger {
             throw new AssertionError("The H2 database driver could not be found");
         } finally {
             closeStatement(statement);
+            closeConnection(connection);
         }
+
+        this.connection = connection;
     }
 
     @Override
@@ -180,56 +181,49 @@ public class H2Logger implements SimulationLogger {
     }
 
     private void addUpdateOperation(UpdateOperation updateOperation) {
-        synchronized (updateOperationList) {
-            updateOperationList.add(updateOperation);
-        }
+        updateOperationList.add(updateOperation);
     }
 
     private void tryCommit() {
         if (shouldCommit())
-            synchronized (connection) {
-                if (shouldCommit())
-                    commit();
+            try {
+                commit();
+            }
+            catch (SQLException e) {
+                closeConnection(connection);
+                throw new IOError(e);
             }
     }
 
-    private void commit() {
-        synchronized (connection) {
-            final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
+    private void commit() throws SQLException {
+        final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
 
-            try {
-                synchronized (updateOperationList) {
-                    for (UpdateOperation updateOperation : updateOperationList) {
-                        final String sql = updateOperation.sqlString();
-                        if (!preparedStatementMap.containsKey(sql)) {
-                            preparedStatementMap.put(sql, connection.prepareStatement(sql));
-                        }
-                        final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
-                        updateOperation.update(preparedStatement);
-                        preparedStatement.addBatch();
-                    }
-                    updateOperationList.clear();
+        try {
+            for (UpdateOperation updateOperation : updateOperationList) {
+                final String sql = updateOperation.sqlString();
+                if (!preparedStatementMap.containsKey(sql)) {
+                    preparedStatementMap.put(sql, connection.prepareStatement(sql));
                 }
+                final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
+                updateOperation.update(preparedStatement);
+                preparedStatement.addBatch();
+            }
+            updateOperationList.clear();
 
-                for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
-                    preparedStatement.executeBatch();
-                }
+            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                preparedStatement.executeBatch();
+            }
 
-                connection.commit();
-            } catch (SQLException e) {
-                throw new IOError(e);
-            } finally {
-                for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
-                    closeStatement(preparedStatement);
-                }
+            connection.commit();
+        } finally {
+            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                closeStatement(preparedStatement);
             }
         }
     }
 
     private boolean shouldCommit() {
-        synchronized (updateOperationList) {
-            return updateOperationList.size() >= COMMIT_THRESHOLD;
-        }
+        return updateOperationList.size() >= COMMIT_THRESHOLD;
     }
 
     private static interface UpdateOperation {
@@ -399,20 +393,20 @@ public class H2Logger implements SimulationLogger {
     }
 
     private static class NameIdMap {
-        private final ConcurrentMap<String, Integer> map = Maps.newConcurrentMap();
+        private final Map<String, Integer> map = Maps.newHashMap();
         private int maxId = 0;
 
         public int create(String s) {
             assert s != null;
-            synchronized (this) {
-                if (!map.containsKey(s)) {
-                    final int id = ++maxId;
-                    map.put(s, id);
-                    return id;
-                }
-                else
-                    return map.get(s);
-            }
+
+            if (map.containsKey(s))
+                throw new IllegalArgumentException("Key already exists: " + s);
+
+            final int value = ++maxId;
+            final Integer previous = map.put(s, value);
+            assert previous == null;
+
+            return value;
         }
 
         public boolean contains(String name) {
