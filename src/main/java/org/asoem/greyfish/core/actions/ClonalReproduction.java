@@ -35,7 +35,7 @@ public class ClonalReproduction extends AbstractGFAction {
 
             final Agent clone = simulation.createAgent(agent().getPopulation());
             clone.updateGeneComponents(
-                    new Chromosome(new UniparentalChromosomalHistory(agent().getId()),
+                    new ChromosomeImpl(new UniparentalChromosomalHistory(agent().getId()),
                             Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
                                 @Override
                                 public Gene<?> apply(@Nullable GeneComponent<?> gene) {

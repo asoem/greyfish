@@ -12,6 +12,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -92,7 +93,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
         final ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
-            Chromosome chromosome = message.getContent(Chromosome.class);
+            Chromosome chromosome = message.getContent(ChromosomeImpl.class);
             final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
             if (RandomUtils.nextBoolean(probability)) {
                 receiveSperm(chromosome, message.getSender(), simulation);

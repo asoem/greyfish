@@ -109,7 +109,7 @@ public class SexualReproduction extends AbstractGFAction {
 
         final ChromosomalHistory chromosomalHistory = new BiparentalChromosomalHistory(femaleID, maleID);
 
-        return new Chromosome(chromosomalHistory, genes);
+        return new ChromosomeImpl(chromosomalHistory, genes);
     }
 
     @Override

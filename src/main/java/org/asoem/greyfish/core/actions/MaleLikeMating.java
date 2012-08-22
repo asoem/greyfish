@@ -1,16 +1,12 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneComponent;
-import org.asoem.greyfish.core.genes.UniparentalChromosomalHistory;
+import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -24,8 +20,6 @@ import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
-
-import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -84,17 +78,7 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
         if (RandomUtils.nextBoolean(probability)) {
 
-            final Chromosome chromosome = new Chromosome(
-                    new UniparentalChromosomalHistory(agent().getId()),
-                    Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
-                        @Override
-                        public Gene<?> apply(@Nullable GeneComponent<?> geneComponent) {
-                            assert geneComponent != null;
-                            return new Gene<Object>(geneComponent.getAllele(), geneComponent.getRecombinationProbability());
-                        }
-                    }));
-
-
+            final Chromosome chromosome = ChromosomeImpl.forAgent(agent());
             reply.content(chromosome, Chromosome.class)
                     .performative(ACLPerformative.PROPOSE);
 
