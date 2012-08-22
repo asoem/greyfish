@@ -1,7 +1,7 @@
 package org.asoem.greyfish.utils.math;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 import org.apache.commons.math3.distribution.BinomialDistribution;
@@ -12,8 +12,10 @@ import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -21,9 +23,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @SuppressWarnings("UnusedDeclaration")
 public class RandomUtils {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(RandomUtils.class);
-
-    public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
-    public static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
+    private static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
+    private static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
 
     /**
      * @return the next pseudorandom, uniformly distributed double value between 0.0 and 1.0 from this random number generator's sequence
@@ -48,11 +49,6 @@ public class RandomUtils {
     public static double nextDouble(double minExcl, double maxExcl) {
         Preconditions.checkArgument(maxExcl >= minExcl);
         return RANDOM_DATA.nextUniform(minExcl, maxExcl);
-    }
-
-    public static float nextFloat(float minIncl, float maxExcl) {
-        Preconditions.checkArgument(maxExcl >= minIncl);
-        return (float) RANDOM_DATA.nextUniform(minIncl, maxExcl);
     }
 
     public static boolean nextBoolean() {
@@ -97,6 +93,15 @@ public class RandomUtils {
         return v;
     }
 
+    public static Supplier<Double> normalDistribution(final double mean, final double sd) {
+        return new Supplier<Double>() {
+            @Override
+            public Double get() {
+                return rnorm(mean, sd);
+            }
+        };
+    }
+
     /**
      * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
      *
@@ -129,13 +134,14 @@ public class RandomUtils {
         return runif(range.lowerEndpoint(), range.upperEndpoint());
     }
 
+    @Nullable
     public static <S> S sample(Collection<S> elements) {
         checkNotNull(elements);
         checkArgument(!elements.isEmpty(), "Cannot take a sample out of 0 elements");
-        final S sample = Iterables.get(elements, nextInt(elements.size()));
-        assert elements.contains(sample);
-        LOGGER.debug("Sampled {} out of [{}]", sample, Joiner.on(',').join(elements));
-        return sample;
+        final int index = nextInt(elements.size());
+        return (elements instanceof List)
+                ? ((List<S>) elements).get(index)
+                : Iterables.get(elements, index);
     }
 
     public static <S> S sample(S... elements) {
