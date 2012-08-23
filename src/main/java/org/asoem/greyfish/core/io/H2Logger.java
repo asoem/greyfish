@@ -39,8 +39,7 @@ public class H2Logger implements SimulationLogger {
                     "CREATE TABLE agents (" +
                             "id INT NOT NULL PRIMARY KEY," +
                             "population_name_id TINYINT NOT NULL," +
-                            "activated_at INT NOT NULL," +
-                            "created_at TIMESTAMP NOT NULL" +
+                            "activated_at INT NOT NULL" +
                             ")");
             statement.execute(
                     "CREATE TABLE chromosome_tree (" +
@@ -118,6 +117,8 @@ public class H2Logger implements SimulationLogger {
             statement.execute(
                     "CREATE UNIQUE HASH INDEX ON names(name)");
             statement.execute(
+                    "CREATE INDEX ON chromosome_tree(child_id)");
+            statement.execute(
                     "CREATE INDEX ON chromosome_tree(parent_id)");
             commit();
 
@@ -155,7 +156,7 @@ public class H2Logger implements SimulationLogger {
 
     @Override
     public void addAgent(Agent agent) {
-        addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth(), new Timestamp(System.currentTimeMillis())));
+        addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
         final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
         for (Integer parentId : parents) {
             addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
@@ -282,18 +283,16 @@ public class H2Logger implements SimulationLogger {
         private final int id;
         private final short populationNameId;
         private final int timeOfBirth;
-        private final Timestamp timestamp;
 
-        public InsertAgentOperation(int id, short populationNameId, int timeOfBirth, Timestamp timestamp) {
+        public InsertAgentOperation(int id, short populationNameId, int timeOfBirth) {
             this.id = id;
             this.populationNameId = populationNameId;
             this.timeOfBirth = timeOfBirth;
-            this.timestamp = timestamp;
         }
 
         @Override
         public String sqlString() {
-            return "INSERT INTO agents (id, population_name_id, activated_at, created_at) VALUES (?, ?, ?, ?)";
+            return "INSERT INTO agents (id, population_name_id, activated_at) VALUES (?, ?, ?)";
         }
 
         @Override
@@ -301,7 +300,6 @@ public class H2Logger implements SimulationLogger {
             statement.setInt(1, id);
             statement.setShort(2, populationNameId);
             statement.setInt(3, timeOfBirth);
-            statement.setTimestamp(4, timestamp);
         }
     }
 
