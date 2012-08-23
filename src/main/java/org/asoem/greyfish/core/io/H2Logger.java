@@ -38,37 +38,45 @@ public class H2Logger implements SimulationLogger {
             statement.execute(
                     "CREATE TABLE agents (" +
                             "id INT NOT NULL PRIMARY KEY," +
-                            "population_name_id INT NOT NULL," +
+                            "population_name_id TINYINT NOT NULL," +
                             "activated_at INT NOT NULL," +
-                            "created_at TIMESTAMP NOT NULL)");
+                            "created_at TIMESTAMP NOT NULL" +
+                            ")");
             statement.execute(
                     "CREATE TABLE chromosome_tree (" +
-                            "id INT NOT NULL," +
-                            "parent_id INT NOT NULL)");
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            "child_id INT NOT NULL," +
+                            "parent_id INT NOT NULL" +
+                            ")");
             statement.execute(
                     "CREATE TABLE names (" +
-                            "id int NOT NULL PRIMARY KEY," +
-                            "name VARCHAR(255) UNIQUE NOT NULL);");
+                            "id TINYINT NOT NULL PRIMARY KEY," +
+                            "name VARCHAR(255) UNIQUE NOT NULL" +
+                            ")");
             statement.execute(
                     "CREATE TABLE genes_double (" +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                             "agent_id INT NOT NULL," +
-                            "gene_name_id INT NOT NULL," +
-                            "value DOUBLE NOT NULL)");
+                            "gene_name_id TINYINT NOT NULL," +
+                            "value REAL NOT NULL" +
+                            ")");
             statement.execute(
                     "CREATE TABLE genes_string (" +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                             "agent_id INT NOT NULL, " +
-                            "gene_name_id INT NOT NULL, " +
-                            "value VARCHAR(255) NOT NULL)");
+                            "gene_name_id TINYINT NOT NULL, " +
+                            "value VARCHAR(255) NOT NULL" +
+                            ")");
             statement.execute(
                     "CREATE TABLE agent_events (" +
-                            "id INT NOT NULL PRIMARY KEY, " +
-                            "simulation_step int NOT NULL, " +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                            "simulation_step INT NOT NULL, " +
                             "agent_id INT NOT NULL, " +
-                            "source_name_id INT NOT NULL, " +
-                            "title_name_id INT NOT NULL, " +
+                            "source_name_id TINYINT NOT NULL, " +
+                            "title_name_id TINYINT NOT NULL, " +
                             "message VARCHAR(255) NOT NULL, " +
-                            "x DOUBLE NOT NULL, " +
-                            "y DOUBLE NOT NULL " +
+                            "x REAL NOT NULL, " +
+                            "y REAL NOT NULL " +
                             ")");
 
             connection.setAutoCommit(false);
@@ -163,20 +171,20 @@ public class H2Logger implements SimulationLogger {
         tryCommit();
     }
 
-    private int idForName(String name) {
+    private short idForName(String name) {
         if (nameIdMap.contains(name)) {
             return nameIdMap.get(name);
         }
         else {
-            final int id = nameIdMap.create(name);
+            final short id = nameIdMap.create(name);
             addUpdateOperation(new InsertNameOperation(id, name));
             return id;
         }
     }
 
     @Override
-    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
-        addUpdateOperation(new InsertEventOperation(eventId, uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
+    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        addUpdateOperation(new InsertEventOperation(uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
         tryCommit();
     }
 
@@ -232,19 +240,16 @@ public class H2Logger implements SimulationLogger {
     }
 
     private static class InsertEventOperation implements UpdateOperation {
-        private final int eventId;
         private final UUID uuid;
         private final int currentStep;
         private final int agentId;
-        private final int populationNameId;
+        private final short populationNameId;
         private final double[] coordinates;
-        private final int sourceNameId;
-        private final int titleNameId;
+        private final short sourceNameId;
+        private final short titleNameId;
         private final String message;
 
-        public InsertEventOperation(int eventId, UUID uuid, int currentStep, int agentId, int populationNameId, double[] coordinates, int sourceNameId, int titleNameId, String message) {
-
-            this.eventId = eventId;
+        public InsertEventOperation(UUID uuid, int currentStep, int agentId, short populationNameId, double[] coordinates, short sourceNameId, short titleNameId, String message) {
             this.uuid = uuid;
             this.currentStep = currentStep;
             this.agentId = agentId;
@@ -258,32 +263,30 @@ public class H2Logger implements SimulationLogger {
 
         @Override
         public String sqlString() {
-            return "INSERT INTO agent_events (id, simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            return "INSERT INTO agent_events (simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, ?, ?, ?, ?)";
         }
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
-            assert statement.getParameterMetaData().getParameterCount() == 8;
-            statement.setInt(1, eventId);
-            statement.setInt(2, currentStep);
-            statement.setInt(3, agentId);
-            statement.setInt(4, sourceNameId);
-            statement.setInt(5, titleNameId);
-            statement.setString(6, message);
-            statement.setDouble(7, coordinates[0]);
-            statement.setDouble(8, coordinates[1]);
+            statement.setInt(1, currentStep);
+            statement.setInt(2, agentId);
+            statement.setShort(3, sourceNameId);
+            statement.setShort(4, titleNameId);
+            statement.setString(5, message);
+            statement.setFloat(6, (float) coordinates[0]);
+            statement.setFloat(7, (float) coordinates[1]);
         }
     }
 
     private static class InsertAgentOperation implements UpdateOperation {
         private final int id;
-        private final int nameId;
+        private final short populationNameId;
         private final int timeOfBirth;
         private final Timestamp timestamp;
 
-        public InsertAgentOperation(int id, int nameId, int timeOfBirth, Timestamp timestamp) {
+        public InsertAgentOperation(int id, short populationNameId, int timeOfBirth, Timestamp timestamp) {
             this.id = id;
-            this.nameId = nameId;
+            this.populationNameId = populationNameId;
             this.timeOfBirth = timeOfBirth;
             this.timestamp = timestamp;
         }
@@ -296,41 +299,41 @@ public class H2Logger implements SimulationLogger {
         @Override
         public void update(PreparedStatement statement) throws SQLException {
             statement.setInt(1, id);
-            statement.setInt(2, nameId);
+            statement.setShort(2, populationNameId);
             statement.setInt(3, timeOfBirth);
             statement.setTimestamp(4, timestamp);
         }
     }
 
     private static class InsertChromosomeOperation implements UpdateOperation {
-        private final int id;
-        private final int origin;
+        private final int childAgentId;
+        private final int parentAgentId;
 
-        public InsertChromosomeOperation(int id, int origin) {
-            this.id = id;
-            this.origin = origin;
+        public InsertChromosomeOperation(int childAgentId, int parentAgentId) {
+            this.childAgentId = childAgentId;
+            this.parentAgentId = parentAgentId;
         }
 
         @Override
         public String sqlString() {
-            return "INSERT INTO chromosome_tree (id, parent_id) VALUES (?, ?)";
+            return "INSERT INTO chromosome_tree (child_id, parent_id) VALUES (?, ?)";
         }
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
-            statement.setInt(1, id);
-            statement.setInt(2, origin);
+            statement.setInt(1, childAgentId);
+            statement.setInt(2, parentAgentId);
         }
     }
 
     private static class InsertGeneAsDoubleOperation implements UpdateOperation {
-        private final int id;
-        private final int nameId;
+        private final int agentId;
+        private final short geneNameId;
         private final Double allele;
 
-        public InsertGeneAsDoubleOperation(int id, int nameId, Double allele) {
-            this.id = id;
-            this.nameId = nameId;
+        public InsertGeneAsDoubleOperation(int agentId, short geneNameId, Double allele) {
+            this.agentId = agentId;
+            this.geneNameId = geneNameId;
             this.allele = allele;
         }
 
@@ -341,21 +344,21 @@ public class H2Logger implements SimulationLogger {
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
-            statement.setInt(1, id);
-            statement.setInt(2, nameId);
+            statement.setInt(1, agentId);
+            statement.setShort(2, geneNameId);
             statement.setDouble(3, allele);
         }
     }
 
     private static class InsertGeneAsStringOperation implements UpdateOperation {
-        private final int id;
-        private final int nameId;
-        private final String s;
+        private final int agentId;
+        private final short geneNameId;
+        private final String allele;
 
-        public InsertGeneAsStringOperation(int id, int nameId, String s) {
-            this.id = id;
-            this.nameId = nameId;
-            this.s = s;
+        public InsertGeneAsStringOperation(int agentId, short geneNameId, String allele) {
+            this.agentId = agentId;
+            this.geneNameId = geneNameId;
+            this.allele = allele;
         }
 
         @Override
@@ -365,17 +368,17 @@ public class H2Logger implements SimulationLogger {
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
-            statement.setInt(1, id);
-            statement.setInt(2, nameId);
-            statement.setString(3, s);
+            statement.setInt(1, agentId);
+            statement.setShort(2, geneNameId);
+            statement.setString(3, allele);
         }
     }
 
     private static class InsertNameOperation implements UpdateOperation {
         private final String name;
-        private final int id;
+        private final short id;
 
-        public InsertNameOperation(int id, String name) {
+        public InsertNameOperation(short id, String name) {
             this.id = id;
             this.name = name;
         }
@@ -387,23 +390,23 @@ public class H2Logger implements SimulationLogger {
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
-            statement.setInt(1, id);
+            statement.setShort(1, id);
             statement.setString(2, name);
         }
     }
 
     private static class NameIdMap {
-        private final Map<String, Integer> map = Maps.newHashMap();
-        private int maxId = 0;
+        private final Map<String, Short> map = Maps.newHashMap();
+        private short maxId = 0;
 
-        public int create(String s) {
+        public short create(String s) {
             assert s != null;
 
             if (map.containsKey(s))
                 throw new IllegalArgumentException("Key already exists: " + s);
 
-            final int value = ++maxId;
-            final Integer previous = map.put(s, value);
+            final short value = ++maxId;
+            final Short previous = map.put(s, value);
             assert previous == null;
 
             return value;
@@ -413,7 +416,7 @@ public class H2Logger implements SimulationLogger {
             return map.containsKey(name);
         }
 
-        public int get(String name) {
+        public short get(String name) {
             return map.get(name);
         }
     }

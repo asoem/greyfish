@@ -54,7 +54,7 @@ public class LoadLogger implements SimulationLogger {
     }
 
     @Override
-    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         ++logCount;
     }
 }

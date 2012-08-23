@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface SimulationLogger {
     void close();
     void addAgent(Agent agent);
-    void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message);
+    void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message);
 }

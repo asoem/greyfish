@@ -19,14 +19,12 @@ public class ConsoleLogger implements SimulationLogger {
 
     @Override
     public void addAgent(Agent agent) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         System.out.println(
-                eventId + "\t" +
-                        currentStep + "\t" +
+                currentStep + "\t" +
                         populationName + "\t" +
                         agentId + "\t" +
                         source + "\t" +

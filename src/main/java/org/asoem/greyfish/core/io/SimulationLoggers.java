@@ -37,9 +37,9 @@ public class SimulationLoggers {
         }
 
         @Override
-        public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
             synchronized (this) {
-                logger.addEvent(eventId, uuid, currentStep, agentId, populationName, coordinates, source, title, message);
+                logger.addEvent(uuid, currentStep, agentId, populationName, coordinates, source, title, message);
             }
         }
     }

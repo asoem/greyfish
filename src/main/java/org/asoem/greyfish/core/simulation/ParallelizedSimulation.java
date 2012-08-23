@@ -117,8 +117,6 @@ public class ParallelizedSimulation implements Simulation {
 
     private final AtomicInteger agentIdSequence = new AtomicInteger();
 
-    private final AtomicInteger eventIdSequence = new AtomicInteger();
-
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     public ParallelizedSimulation(@Attribute(name = "parallelizationThreshold") int parallelizationThreshold,
                                   @Element(name = "space") TiledSpace<Agent> space,
@@ -412,7 +410,7 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
         simulationLogger.addEvent(
-                eventIdSequence.incrementAndGet(), uuid, currentStep.get(),
+                uuid, currentStep.get(),
                 agentId, populationName, coordinates,
                 eventOrigin.getClass().getSimpleName(), title, message);
     }
