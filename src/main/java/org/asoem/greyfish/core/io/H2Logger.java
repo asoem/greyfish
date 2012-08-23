@@ -31,7 +31,7 @@ public class H2Logger implements SimulationLogger {
 
         try {
             Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;TRACE_LEVEL_FILE=2", simulation.getUUID().toString()), "sa", "");
+            connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0", simulation.getUUID().toString()), "sa", "");
 
             statement = connection.createStatement();
 
