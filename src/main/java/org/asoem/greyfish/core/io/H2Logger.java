@@ -27,14 +27,44 @@ public class H2Logger implements SimulationLogger {
 
     public H2Logger(Simulation simulation) {
         Connection connection = null;
-        Statement statement = null;
 
         try {
             Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection(String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0", simulation.getUUID().toString()), "sa", "");
+            connection = DriverManager.getConnection(
+                    String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
+                            simulation.getUUID().toString()), "sa", "");
+            this.connection = connection;
+            initDatabase();
+            connection.setAutoCommit(false);
+        }
+        catch (SQLException e) {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e1) {
+                LOGGER.info("Exception during connection.close()", e1);
+            }
+            throw new IOError(e);
+        }
+        catch (ClassNotFoundException e) {
+            throw new AssertionError("The H2 database driver could not be found");
+        }
 
-            statement = connection.createStatement();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    finalizeAndShutdownDatabase();
+                } catch (SQLException e) {
+                    LOGGER.warn("Exception while finalizing the database", e);
+                }
+            }
+        });
+    }
 
+    private void initDatabase() throws SQLException {
+        Statement statement = connection.createStatement();
+        try {
             statement.execute(
                     "CREATE TABLE agents (" +
                             "id INT NOT NULL PRIMARY KEY," +
@@ -77,131 +107,52 @@ public class H2Logger implements SimulationLogger {
                             "x REAL NOT NULL, " +
                             "y REAL NOT NULL " +
                             ")");
-
-            connection.setAutoCommit(false);
-
-        } catch (SQLException e) {
-            closeConnection(connection);
-            throw new IOError(e);
-        } catch (ClassNotFoundException e) {
-            throw new AssertionError("The H2 database driver could not be found");
         } finally {
             closeStatement(statement);
         }
-
-        this.connection = connection;
     }
 
-    @Override
-    public void close() {
-        Statement statement = null;
-        try {
-            commit();
+    private void finalizeAndShutdownDatabase() throws SQLException {
+        LOGGER.debug("Finalizing and shutting down the database");
 
-            statement = connection.createStatement();
+        commit();
+        connection.setAutoCommit(true);
 
-            statement.execute(
-                    "CREATE INDEX ON genes_double(agent_id)");
-            statement.execute(
-                    "CREATE INDEX ON genes_double(gene_name_id)");
-            statement.execute(
-                    "CREATE INDEX ON genes_string(agent_id)");
-            statement.execute(
-                    "CREATE INDEX ON genes_string(gene_name_id)");
-            statement.execute(
-                    "CREATE INDEX ON agent_events(agent_id)");
-            statement.execute(
-                    "CREATE INDEX ON agent_events(title_name_id)");
-            statement.execute(
-                    "CREATE INDEX ON agent_events(simulation_step)");
-            statement.execute(
-                    "CREATE UNIQUE HASH INDEX ON names(name)");
-            statement.execute(
-                    "CREATE INDEX ON chromosome_tree(child_id)");
-            statement.execute(
-                    "CREATE INDEX ON chromosome_tree(parent_id)");
-            commit();
+        Statement statement = connection.createStatement();
+        statement.execute(
+                "CREATE INDEX ON genes_double(agent_id)");
+        statement.execute(
+                "CREATE INDEX ON genes_double(gene_name_id)");
+        statement.execute(
+                "CREATE INDEX ON genes_string(agent_id)");
+        statement.execute(
+                "CREATE INDEX ON genes_string(gene_name_id)");
+        statement.execute(
+                "CREATE INDEX ON agent_events(agent_id)");
+        statement.execute(
+                "CREATE INDEX ON agent_events(title_name_id)");
+        statement.execute(
+                "CREATE INDEX ON agent_events(simulation_step)");
+        statement.execute(
+                "CREATE UNIQUE HASH INDEX ON names(name)");
+        statement.execute(
+                "CREATE INDEX ON chromosome_tree(child_id)");
+        statement.execute(
+                "CREATE INDEX ON chromosome_tree(parent_id)");
+        statement.execute(
+                "SHUTDOWN COMPACT"); // This causes all connections to it to get closed
 
-        } catch (SQLException e) {
-            throw new IOError(e);
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        } finally {
-            closeStatement(statement);
-            closeConnection(connection);
-        }
-    }
-
-    private static void closeStatement(@Nullable Statement statement) {
-        if (statement == null)
-            return;
-
-        try{
-            statement.close();
-        }
-        catch (SQLException e) {
-            LOGGER.warn("Exception occurred while closing statement {}", statement, e);
-        }
-    }
-
-    private static void closeConnection(@Nullable Connection connection) {
-        if (connection == null)
-            return;
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            LOGGER.warn("Exception during Connection.close()", e);
-        }
-    }
-
-    @Override
-    public void addAgent(Agent agent) {
-        addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
-        final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
-        for (Integer parentId : parents) {
-            addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
-        }
-        for (GeneComponent<?> gene : agent.getGeneComponentList()) {
-            assert gene != null;
-            if (Double.class.equals(gene.getAlleleClass())) {
-                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));
-            } else {
-                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));
-            }
-        }
-        tryCommit();
-    }
-
-    private short idForName(String name) {
-        if (nameIdMap.contains(name)) {
-            return nameIdMap.get(name);
-        }
-        else {
-            final short id = nameIdMap.create(name);
-            addUpdateOperation(new InsertNameOperation(id, name));
-            return id;
-        }
-    }
-
-    @Override
-    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
-        addUpdateOperation(new InsertEventOperation(uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
-        tryCommit();
-    }
-
-    private void addUpdateOperation(UpdateOperation updateOperation) {
-        updateOperationList.add(updateOperation);
+        LOGGER.debug("Shutdown complete");
     }
 
     private void tryCommit() {
-        if (shouldCommit())
-            try {
+        try {
+            if (shouldCommit())
                 commit();
-            }
-            catch (SQLException e) {
-                closeConnection(connection);
-                throw new IOError(e);
-            }
+        }
+        catch (SQLException e) {
+            throw new IOError(e);
+        }
     }
 
     private void commit() throws SQLException {
@@ -233,6 +184,57 @@ public class H2Logger implements SimulationLogger {
 
     private boolean shouldCommit() {
         return updateOperationList.size() >= COMMIT_THRESHOLD;
+    }
+
+    private static void closeStatement(@Nullable Statement statement) {
+        if (statement == null)
+            return;
+        try{
+            if (!statement.isClosed())
+                statement.close();
+        }
+        catch (SQLException e) {
+            LOGGER.warn("Exception occurred while closing statement {}", statement, e);
+        }
+    }
+
+    private void addUpdateOperation(UpdateOperation updateOperation) {
+        updateOperationList.add(updateOperation);
+    }
+
+    private short idForName(String name) {
+        if (nameIdMap.contains(name)) {
+            return nameIdMap.get(name);
+        }
+        else {
+            final short id = nameIdMap.create(name);
+            addUpdateOperation(new InsertNameOperation(id, name));
+            return id;
+        }
+    }
+
+    @Override
+    public void addAgent(Agent agent) {
+        addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
+        final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
+        for (Integer parentId : parents) {
+            addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
+        }
+        for (GeneComponent<?> gene : agent.getGeneComponentList()) {
+            assert gene != null;
+            if (Double.class.equals(gene.getAlleleClass())) {
+                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));
+            } else {
+                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));
+            }
+        }
+        tryCommit();
+    }
+
+    @Override
+    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        addUpdateOperation(new InsertEventOperation(uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
+        tryCommit();
     }
 
     private static interface UpdateOperation {

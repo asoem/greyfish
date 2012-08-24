@@ -17,10 +17,6 @@ public class NullLogger implements SimulationLogger {
     }
 
     @Override
-    public void close() {
-    }
-
-    @Override
     public void addAgent(Agent agent) {
     }
 

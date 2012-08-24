@@ -119,7 +119,11 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         return receivedSperm;
     }
 
-    public int getMatingCount() {
+    /**
+     * The the number of successful matings, equivalent to the size of {@link #getReceivedSperm()}
+     * @return the the number of successful matings
+     */
+    public int successfulMatings() {
         return receivedSperm.size();
     }
 

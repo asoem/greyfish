@@ -399,7 +399,6 @@ public class ParallelizedSimulation implements Simulation {
 
     @Override
     public void shutdown() {
-        simulationLogger.close();
     }
 
     @Override

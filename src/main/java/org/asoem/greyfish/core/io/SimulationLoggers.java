@@ -23,13 +23,6 @@ public class SimulationLoggers {
         }
 
         @Override
-        public void close() {
-            synchronized (this) {
-                logger.close();
-            }
-        }
-
-        @Override
         public void addAgent(Agent agent) {
             synchronized (this) {
                 logger.addAgent(agent);

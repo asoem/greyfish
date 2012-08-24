@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.primitives.Doubles;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.common.util.concurrent.Service;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -39,13 +38,6 @@ public class LoadLogger implements SimulationLogger {
 
     public LoadLogger() {
         service.start();
-    }
-
-    @Override
-    public void close() {
-        service.stopAndWait();
-        System.out.println(statistics.toString());
-        System.out.println(Doubles.join(" ", statistics.getValues()));
     }
 
     @Override

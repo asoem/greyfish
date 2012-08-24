@@ -10,7 +10,6 @@ import java.util.UUID;
  * Time: 12:53
  */
 public interface SimulationLogger {
-    void close();
     void addAgent(Agent agent);
     void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message);
 }

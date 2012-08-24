@@ -13,11 +13,6 @@ import java.util.UUID;
 public class ConsoleLogger implements SimulationLogger {
 
     @Override
-    public void close() {
-        /* NOP */
-    }
-
-    @Override
     public void addAgent(Agent agent) {
     }
 
