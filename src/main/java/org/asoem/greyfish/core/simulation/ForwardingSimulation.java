@@ -5,6 +5,7 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
 
 import java.util.List;
@@ -99,6 +100,11 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     @Override
     public UUID getUUID() {
         return delegate().getUUID();
+    }
+
+    @Override
+    public void setSimulationLogger(SimulationLogger simulationLogger) {
+        delegate().setSimulationLogger(simulationLogger);
     }
 
     @Override

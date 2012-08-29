@@ -18,8 +18,8 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentMessage;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.NullLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggerFactoryHolder;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
@@ -97,7 +97,7 @@ public class ParallelizedSimulation implements Simulation {
 
     private final UUID uuid = UUID.randomUUID();
 
-    private final SimulationLogger simulationLogger;
+    private SimulationLogger simulationLogger = new NullLogger();
 
     private final ConcurrentMap<String, Object> snapshotValues = Maps.newConcurrentMap();
 
@@ -133,7 +133,6 @@ public class ParallelizedSimulation implements Simulation {
         checkNotNull(space);
         this.parallelizationThreshold = parallelizationThreshold;
         this.space = TiledSpace.createEmptyCopy(space);
-        this.simulationLogger = SimulationLoggerFactoryHolder.getLogger(this);
 
         this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
             final Map<Population, Agent> populationAgentMap = Maps.newHashMap();
@@ -404,6 +403,11 @@ public class ParallelizedSimulation implements Simulation {
     @Override
     public UUID getUUID() {
         return uuid;
+    }
+
+    @Override
+    public void setSimulationLogger(SimulationLogger simulationLogger) {
+        this.simulationLogger = checkNotNull(simulationLogger);
     }
 
     @Override

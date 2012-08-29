@@ -13,7 +13,7 @@ import java.util.UUID;
 public class NullLogger implements SimulationLogger {
 
     @Inject
-    private NullLogger() {
+    public NullLogger() {
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -75,6 +76,8 @@ public interface Simulation extends HasName {
     void shutdown();
 
     UUID getUUID();
+
+    void setSimulationLogger(SimulationLogger simulationLogger);
 
     void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
 

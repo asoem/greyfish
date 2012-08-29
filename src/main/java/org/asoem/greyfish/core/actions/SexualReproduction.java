@@ -5,6 +5,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
+import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.individual.Agent;
@@ -16,6 +17,8 @@ import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
+import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.space.ImmutableObject2D;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +86,7 @@ public class SexualReproduction extends AbstractGFAction {
             final Chromosome blend = blend(agent().getGeneComponentList(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
             offspring.updateGeneComponents(blend);
 
-            simulation.activateAgent(offspring, agent().getProjection());
+            simulation.activateAgent(offspring, ImmutableObject2D.rotated(agent().getProjection(), RandomUtils.nextDouble(0, MathUtils.TWO_PI)));
             agent().logEvent(this, "offspringProduced", "");
         }
 

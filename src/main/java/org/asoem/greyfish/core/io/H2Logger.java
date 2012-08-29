@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.io;
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -25,14 +24,14 @@ public class H2Logger implements SimulationLogger {
     private final List<UpdateOperation> updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
     private final NameIdMap nameIdMap = new NameIdMap();
 
-    public H2Logger(Simulation simulation) {
+    public H2Logger(String path) {
         Connection connection = null;
 
         try {
             Class.forName("org.h2.Driver");
             connection = DriverManager.getConnection(
-                    String.format("jdbc:h2:~/greyfish-data/%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
-                            simulation.getUUID().toString()), "sa", "");
+                    String.format("jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
+                            path), "sa", "");
             this.connection = connection;
             initDatabase();
             connection.setAutoCommit(false);
