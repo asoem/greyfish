@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-import javolution.lang.MathLib;
+import org.apache.commons.math3.util.MathUtils;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
@@ -21,7 +21,7 @@ public class ImmutableObject2D implements Object2D {
 
     protected ImmutableObject2D(@Element(name = "anchorPoint") Point2D anchorPoint,
                                 @Attribute(name = "orientation") double orientation) {
-        checkArgument(orientation >= 0 && orientation <= MathLib.TWO_PI, "Given angle is out of range [0, TWO_PI]: %s", orientation);
+        checkArgument(orientation >= 0 && orientation < MathUtils.TWO_PI, "Given angle is out of range [0, TWO_PI): %s", orientation);
         this.orientation = orientation;
         this.anchorPoint = ImmutablePoint2D.at(anchorPoint);
     }
@@ -80,5 +80,9 @@ public class ImmutableObject2D implements Object2D {
 
     public static ImmutableObject2D of(double x, double y, double orientationAngle) {
         return new ImmutableObject2D(ImmutablePoint2D.at(x, y), orientationAngle);
+    }
+
+    public static ImmutableObject2D rotated(Object2D object2D, double rotation) {
+        return new ImmutableObject2D(object2D.getAnchorPoint(), rotation);
     }
 }
