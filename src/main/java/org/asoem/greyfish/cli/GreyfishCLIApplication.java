@@ -14,6 +14,8 @@ import com.google.inject.name.Names;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.io.H2Logger;
+import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.SimulationTemplate;
@@ -52,8 +54,9 @@ public class GreyfishCLIApplication {
     @Inject
     private GreyfishCLIApplication(Model model,
                                    @Nullable @Named("steps") final Integer steps,
-                                   @Named("verbose") final boolean verbose,
-                                   @Named("parallelizationThreshold") int parallelizationThreshold) {
+                                   @Named("verbose") final String verbose,
+                                   @Named("parallelizationThreshold") int parallelizationThreshold,
+                                   @Named("databasePath") String dbPath) {
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
         if (steps != null) {
@@ -70,9 +73,12 @@ public class GreyfishCLIApplication {
         final SimulationTemplate simulationTemplate = model.createTemplate();
         assert simulationTemplate != null;
         final ParallelizedSimulation simulation = simulationTemplate.createSimulation(simulationFactory);
+        simulation.setSimulationLogger(SimulationLoggers.synchronizedLogger(new H2Logger(
+                dbPath.replaceAll("%\\{uuid\\}", simulation.getUUID().toString()))));
 
-        if (verbose) {
-            startSimulationMonitor(simulation);
+
+        if (!verbose.isEmpty()) {
+            startSimulationMonitor(simulation, verbose);
         }
 
         LOGGER.info("Starting {}", simulation);
@@ -98,16 +104,34 @@ public class GreyfishCLIApplication {
         }
     }
 
-    private void startSimulationMonitor(final ParallelizedSimulation simulation) {
+    private void startSimulationMonitor(final ParallelizedSimulation simulation, final String verbose) {
+        OutputStream outputStream = null;
+        try {
+            if (verbose.equals("-")) {
+                outputStream = System.out;
+            }
+            else {
+                File verboseFile = new File(verbose);
+                outputStream = new FileOutputStream(verboseFile);
+                LOGGER.info("Writing verbose output to file {}", verboseFile.getAbsolutePath());
+            }
+        }  catch (IOException e) {
+            LOGGER.error("Error while writing", e);
+        }
+
+        OutputStreamWriter outputStreamWriter;
+        try {
+            outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError(e);
+        }
+
+        final PrintWriter writer = new PrintWriter(new BufferedWriter(outputStreamWriter), true);
+
         final Runnable simulationMonitorTask = new Runnable() {
             @Override
             public void run() {
-                File verboseFile = null;
-                PrintWriter writer = null;
                 try {
-                    verboseFile = File.createTempFile("greyfish_verbose_", ".txt");
-                    writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(verboseFile), "UTF-8")), true);
-                    LOGGER.info("Writing verbose output to file {}", verboseFile.getAbsolutePath());
                     while (state == State.STARTUP)
                         Thread.sleep(10);
 
@@ -117,19 +141,16 @@ public class GreyfishCLIApplication {
                     }
                 } catch (InterruptedException e) {
                     LOGGER.error("Simulation polling thread got interrupted");
-                } catch (IOException e) {
-                    LOGGER.error("Could not write verbose output to file {}", verboseFile, e);
                 } finally {
                     Closeables.closeQuietly(writer);
                 }
             }
         };
+
         Executors.newSingleThreadExecutor().execute(simulationMonitorTask);
     }
 
     public static void main(final String[] args) {
-        // --steps 0 -pt 500 -v -DcompetitionKernelSigma=0.5 org.asoem.greyfish.models.EvolutionOfAssortativeMating
-
         final OptionParser optionParser = createOptionParser();
         final OptionSet optionSet = optionParser.parse(args);
 
@@ -162,7 +183,7 @@ public class GreyfishCLIApplication {
         try {
             optionParser.printHelpOn(System.out);
         } catch (IOException e) {
-            // NOP
+            LOGGER.error("Error while writing to System.out", e);
         }
     }
 
@@ -198,12 +219,12 @@ public class GreyfishCLIApplication {
 
                 bind(Integer.class).annotatedWith(Names.named("steps"))
                         .toInstance((Integer) optionSet.valueOf("steps"));
-                bind(Boolean.class).annotatedWith(Names.named("verbose"))
-                        .toInstance(optionSet.has("verbose"));
+                bind(String.class).annotatedWith(Names.named("verbose"))
+                        .toInstance((String) optionSet.valueOf("v"));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance((Integer) optionSet.valueOf("pt"));
-                bind(File.class).annotatedWith(Names.named("database_dir"))
-                        .toInstance((File) optionSet.valueOf("db"));
+                bind(String.class).annotatedWith(Names.named("databasePath"))
+                        .toInstance((String) optionSet.valueOf("db"));
             }
         };
     }
@@ -212,11 +233,16 @@ public class GreyfishCLIApplication {
     private static OptionParser createOptionParser() {
         final OptionParser parser = new OptionParser();
 
-        parser.accepts("steps", "stop simulation after MAX steps").withRequiredArg().ofType(Integer.class).defaultsTo(-1);
-        parser.accepts("verbose", "Enable verbose mode").withOptionalArg().ofType(File.class);
-        parser.accepts("D", "set model parameter for given model class").withRequiredArg().describedAs("key=value");
-        parser.accepts("pt", "Set parallelization threshold").withRequiredArg().ofType(Integer.class).defaultsTo(1000);
-        parser.accepts("db", "Set directory where database is written to").withRequiredArg().defaultsTo("./").ofType(File.class);
+        parser.accepts("steps", "stop simulation after MAX steps")
+                .withRequiredArg().ofType(Integer.class).defaultsTo(-1);
+        parser.accepts("v", "Write simulation status report to file of stout if -")
+                .withOptionalArg().ofType(String.class).defaultsTo("").describedAs("file");
+        parser.accepts("D", "set model parameter for given model class")
+                .withRequiredArg().describedAs("key=value");
+        parser.accepts("pt", "Set parallelization threshold")
+                .withRequiredArg().ofType(Integer.class).defaultsTo(1000);
+        parser.accepts("db", "Set database path (%(uuid) will be replaced by simulation uuid)")
+                .withRequiredArg().defaultsTo("./%uuid").ofType(String.class);
         parser.acceptsAll(asList("h", "?"), "Print this help");
 
         return parser;
