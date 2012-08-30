@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 
 /**
  * User: christoph
@@ -17,7 +17,7 @@ public class ParallelizedSimulationFactory implements SimulationFactory<Parallel
     }
 
     @Override
-    public ParallelizedSimulation createSimulation(TiledSpace<Agent> space) {
+    public ParallelizedSimulation createSimulation(WalledTileSpace<Agent> space) {
         return new ParallelizedSimulation(parallelizationThreshold, space);
     }
 }

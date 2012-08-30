@@ -31,7 +31,7 @@ public class WalledTile implements Tile {
         this.wallFlagsMask = 0;
     }
 
-    WalledTile(TiledSpace<?> space, int x, int y) {
+    WalledTile(TiledSpace<?, WalledTile> space, int x, int y) {
         this.x = x;
         this.y = y;
 

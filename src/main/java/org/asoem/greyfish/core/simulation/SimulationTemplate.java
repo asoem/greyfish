@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.simulation;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.Tile;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
@@ -78,7 +78,7 @@ public interface SimulationTemplate {
      * Get the {@code TiledSpace} associated with this scenario
      * @return the {@code TiledSpace} associated with this scenario
      */
-    TiledSpace<Agent> getSpace();
+    WalledTileSpace<Agent> getSpace();
 
     /**
      * Change the name of this scenario

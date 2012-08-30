@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -60,7 +61,7 @@ public interface Simulation extends HasName {
 
     Set<Agent> getPrototypes();
 
-    TiledSpace<Agent> getSpace();
+    TiledSpace<Agent,WalledTile> getSpace();
 
     int getStep();
 
