@@ -242,7 +242,7 @@ public class GreyfishCLIApplication {
         parser.accepts("pt", "Set parallelization threshold")
                 .withRequiredArg().ofType(Integer.class).defaultsTo(1000);
         parser.accepts("db", "Set database path (%(uuid) will be replaced by simulation uuid)")
-                .withRequiredArg().defaultsTo("./%uuid").ofType(String.class);
+                .withRequiredArg().defaultsTo("./%{uuid}").ofType(String.class);
         parser.acceptsAll(asList("h", "?"), "Print this help");
 
         return parser;
