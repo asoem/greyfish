@@ -293,11 +293,12 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void shutDown() {
         inBox.clear();
+        simulationContext = PassiveSimulationContext.instance();
     }
 
     @Override
     public boolean isActive() {
-        return simulationContext != PassiveSimulationContext.INSTANCE;
+        return simulationContext != PassiveSimulationContext.instance();
     }
 
     @Override

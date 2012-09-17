@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -54,7 +54,7 @@ public class MatingInteractionTest {
                 .addActions(transmitterAction)
                 .build();
 
-        final TiledSpace<Agent> space = TiledSpace.ofSize(1, 1);
+        final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1, 1);
         space.insertObject(male, 0, 0, 0);
         space.insertObject(female, 0, 0, 0);
 

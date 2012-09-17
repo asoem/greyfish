@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTile;
 
 import java.util.List;
 import java.util.Set;
@@ -68,7 +69,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public TiledSpace<Agent> getSpace() {
+    public TiledSpace<Agent,WalledTile> getSpace() {
         return delegate().getSpace();
     }
 

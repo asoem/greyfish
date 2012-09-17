@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.fest.assertions.Condition;
@@ -52,7 +52,7 @@ public class BasicSimulationTemplateTest {
         final Agent prototype2 = mock(Agent.class);
         given(prototype2.getPopulation()).willReturn(population);
 
-        SimulationTemplate simulationTemplate = BasicSimulationTemplate.builder("TestScenario", TiledSpace.<Agent>ofSize(1, 1))
+        SimulationTemplate simulationTemplate = BasicSimulationTemplate.builder("TestScenario", WalledTileSpace.<Agent>ofSize(1, 1))
                 .addAgent(prototype, locatedAt(0.0, 0.0))
                 .addAgent(prototype2, locatedAt(0.0, 0.0))
                 .build();
@@ -72,7 +72,7 @@ public class BasicSimulationTemplateTest {
     public void testPersistence() throws Exception {
         final Agent prototype = ImmutableAgent.of(Population.newPopulation("TestPopulation", Color.blue)).build();
         // given
-        SimulationTemplate simulationTemplate = BasicSimulationTemplate.builder("TestScenario", TiledSpace.<Agent>ofSize(3, 4))
+        SimulationTemplate simulationTemplate = BasicSimulationTemplate.builder("TestScenario", WalledTileSpace.<Agent>ofSize(3, 4))
                 .addAgent(prototype, locatedAt(0.42, 1.42))
                 .addAgent(prototype, locatedAt(0.42, 1.42))
                 .build();

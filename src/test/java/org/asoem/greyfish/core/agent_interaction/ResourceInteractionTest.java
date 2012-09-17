@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -70,7 +70,7 @@ public class ResourceInteractionTest {
                 .build();
 
 
-        final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1).build();
+        final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
         space.insertObject(consumer, 0, 0, 0);
         space.insertObject(provisioner, 0, 0, 0);
 

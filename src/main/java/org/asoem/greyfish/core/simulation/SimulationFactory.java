@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 
 /**
  * User: christoph
@@ -9,5 +9,5 @@ import org.asoem.greyfish.core.space.TiledSpace;
  * Time: 15:55
  */
 public interface SimulationFactory<T extends Simulation> {
-    T createSimulation(TiledSpace<Agent> space);
+    T createSimulation(WalledTileSpace<Agent> space);
 }

@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.space.Tile;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Set;
@@ -59,12 +59,12 @@ public abstract class ForwardingSimulationTemplate extends ForwardingObject impl
     }
 
     @Override
-    public Simulation createSimulation(SimulationFactory simulationFactory) {
+    public <T extends Simulation> T createSimulation(SimulationFactory<T> simulationFactory) {
         return delegate().createSimulation(simulationFactory);
     }
 
     @Override
-    public TiledSpace<Agent> getSpace() {
+    public WalledTileSpace<Agent> getSpace() {
         return delegate().getSpace();
     }
 }

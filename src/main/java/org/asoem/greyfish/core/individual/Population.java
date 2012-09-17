@@ -19,6 +19,9 @@ public class Population implements HasName, Comparable<Population> {
 	@Element(name="color")
 	private final Color color;
 
+    /** Cache the hash code for the population */
+    private int hash; // Default to 0
+
     public static Population newPopulation(String name, Color color) {
         return new Population(name, color);
     }
@@ -73,9 +76,12 @@ public class Population implements HasName, Comparable<Population> {
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + color.hashCode();
-        return result;
+        int h = hash;
+        if (h == 0) {
+            int result = name.hashCode();
+            hash = 31 * result + color.hashCode();
+        }
+        return hash;
     }
 
     public static Population named(String asexualPopulation) {

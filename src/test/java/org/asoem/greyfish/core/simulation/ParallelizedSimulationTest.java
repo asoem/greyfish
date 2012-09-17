@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.TileDirection;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class ParallelizedSimulationTest {
 
         final Population population = new Population("testPopulation");
         final Agent prototype = ImmutableAgent.of(population).build();
-        final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1).build();
+        final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
         space.insertObject(prototype, 0, 0, 0);
         space.insertObject(prototype, 0, 0, 0);
 
@@ -48,7 +48,7 @@ public class ParallelizedSimulationTest {
     @Test
     public void testBasicPersistence() throws Exception {
         // given
-        final TiledSpace<Agent> space = TiledSpace.<Agent>builder(1, 1)
+        final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1)
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicSimulationTemplate scenario = BasicSimulationTemplate.builder("TestScenario", space).build();
