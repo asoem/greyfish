@@ -1,7 +1,6 @@
 package org.asoem.greyfish.utils.base;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import javax.annotation.Nullable;
@@ -72,22 +71,6 @@ public class DeepCloner {
     }
 
     /**
-     * Get the clones for given {@code cloneableElements}
-     * @param cloneableElements the objects to get it's deep clone for
-     * @param elementClazz the class of the cloneable objects
-     * @param <T> the type of the cloneable objects
-     * @return an {@code Iterable} of the deep clones of given {@code cloneableElements}
-     */
-    public <T extends DeepCloneable> Iterable<T> getClones(Iterable<T> cloneableElements, final Class<T> elementClazz) {
-          return Iterables.transform(cloneableElements, new Function<T, T>() {
-              @Override
-              public T apply(@Nullable T input) {
-                  return getClone(input, elementClazz);
-              }
-          });
-    }
-
-    /**
      * Creates a deep clone of {@code cloneable}
      * @param cloneable the object to clone deeply
      * @param clazz the class of {@code cloneable}
@@ -97,5 +80,21 @@ public class DeepCloner {
     public static <T extends DeepCloneable> T clone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
         return new DeepCloner().getClone(cloneable, clazz);
+    }
+
+    /**
+     * Creates a function which clones the element to which it is applied to using this cloner.
+     * This can be used for transforming lists using guava's {@code Lists.transform}
+     * @param <E> The type of the elements to clone
+     * @return a cloning function which delegates to {@link #getClone(DeepCloneable, Class)}
+     */
+    public <E extends DeepCloneable> Function<E, E> cloneFunction() {
+        return new Function<E, E>() {
+            @SuppressWarnings("unchecked") // This is safe, if the E is implemented correctly
+            @Override
+            public E apply(@Nullable E e) {
+                return (E) getClone(e, DeepCloneable.class);
+            }
+        };
     }
 }

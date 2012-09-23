@@ -1,0 +1,68 @@
+package org.asoem.greyfish.utils.collect;
+
+import com.google.common.base.Predicate;
+
+import java.util.AbstractList;
+import java.util.NoSuchElementException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * User: christoph
+ * Date: 21.09.12
+ * Time: 15:37
+ */
+public class TinyList2<E> extends AbstractList<E> implements TinyList<E> {
+
+    final private E e0;
+    final private E e1;
+
+    public TinyList2(E e0, E e1) {
+        this.e0 = checkNotNull(e0);
+        this.e1 = checkNotNull(e1);
+    }
+
+    @Override
+    public E get(int index) {
+        switch (index) {
+            case 0: return e0;
+            case 1: return e1;
+            default: throw new IndexOutOfBoundsException(badElementIndex(index, 2, "index"));
+        }
+    }
+
+    @Override
+    public int size() {
+        return 2;
+    }
+
+    private static String badElementIndex(int index, int size, String desc) {
+        if (index < 0) {
+            return String.format("%s (%s) must not be negative", desc, index);
+        } else if (size < 0) {
+            throw new IllegalArgumentException("negative size: " + size);
+        } else { // index >= size
+            return String.format("%s (%s) must be less than size (%s)", desc, index, size);
+        }
+    }
+
+    @Override
+    public E find(Predicate<? super E> predicate) {
+        checkNotNull(predicate, "Predicate is null");
+        if (predicate.apply(e0))
+            return e0;
+        if (predicate.apply(e1))
+            return e1;
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public E find(Predicate<? super E> predicate, E defaultValue) {
+        checkNotNull(predicate, "Predicate is null");
+        if (predicate.apply(e0))
+            return e0;
+        if (predicate.apply(e1))
+            return e1;
+        return defaultValue;
+    }
+}

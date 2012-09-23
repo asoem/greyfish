@@ -10,25 +10,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class UpdateRequests {
 
-    public static <T> UpdateRequest<T> onceOnly() {
-        return new UpdateOnce<T>();
-    }
-
-    private static class UpdateOnce<T> implements UpdateRequest<T> {
-
-        private boolean b = true;
-
-        @Override
-        public void done() {
-            b = false;
-        }
-
-        @Override
-        public boolean apply(@Nullable T input) {
-            return b;
-        }
-    }
-
     public static OutdateableUpdateRequest<Object> atomicRequest(final boolean initial) {
         return new OutdateableUpdateRequest<Object>() {
 

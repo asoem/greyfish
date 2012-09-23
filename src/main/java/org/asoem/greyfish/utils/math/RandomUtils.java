@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
+import com.google.inject.Inject;
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.RandomData;
 import org.apache.commons.math3.random.RandomDataImpl;
@@ -23,12 +24,23 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @SuppressWarnings("UnusedDeclaration")
 public class RandomUtils {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(RandomUtils.class);
-    private static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
-    private static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
+
+    private static RandomGenerator RANDOM_GENERATOR;
+    private static RandomData RANDOM_DATA;
+
+    static {
+        setRandomGenerator(new Well19937c());
+    }
+
+    @Inject
+    private static void setRandomGenerator(RandomGenerator randomGenerator) {
+        RANDOM_GENERATOR = checkNotNull(randomGenerator);
+        RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
+    }
 
     /**
      * @return the next pseudorandom, uniformly distributed double value between 0.0 and 1.0 from this random number generator's sequence
-     * @see java.util.Random#nextDouble()
+     * @see RandomGenerator#nextDouble()
      */
     public static double nextDouble() {
         return RANDOM_GENERATOR.nextDouble();
@@ -172,5 +184,38 @@ public class RandomUtils {
 
     public static int rbinom(int size, double p) {
         return new BinomialDistribution(size, p).sample();
+    }
+
+    /**
+     * Finds smallest prime p such that p is greater than or equal to n.
+     * @param n a number
+     * @return a prime number
+     */
+    public static int nextPrime(int n) {
+        // taken from http://svn.apache.org/repos/asf/mahout/trunk/math/src/main/java/org/apache/mahout/common/RandomUtils.java
+        if (n <= 2) {
+            return 2;
+        }
+        // Make sure the number is odd. Is this too clever?
+        n |= 0x1;
+        // There is no problem with overflow since Integer.MAX_INT is prime, as it happens
+        while (isNotPrime(n)) {
+            n += 2;
+        }
+        return n;
+    }
+
+    /** @return {@code true} iff n is not a prime */
+    public static boolean isNotPrime(int n) {
+        if (n < 2 || (n & 0x1) == 0) { // < 2 or even
+            return n != 2;
+        }
+        int max = 1 + (int) Math.sqrt(n);
+        for (int d = 3; d <= max; d += 2) {
+            if (n % d == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }
