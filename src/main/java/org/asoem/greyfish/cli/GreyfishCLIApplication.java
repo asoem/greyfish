@@ -11,8 +11,11 @@ import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+import com.google.inject.util.Providers;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
@@ -53,20 +56,18 @@ public class GreyfishCLIApplication {
 
     @Inject
     private GreyfishCLIApplication(Model model,
-                                   @Nullable @Named("steps") final Integer steps,
-                                   @Named("verbose") final String verbose,
+                                   @Named("steps") final int steps,
+                                   @Nullable @Named("verbose") final String verbose,
                                    @Named("parallelizationThreshold") int parallelizationThreshold,
                                    @Named("databasePath") String dbPath) {
         final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
 
-        if (steps != null) {
-            predicateList.add(new Predicate<ParallelizedSimulation>() {
-                @Override
-                public boolean apply(ParallelizedSimulation parallelizedSimulation) {
-                    return parallelizedSimulation.getStep() < steps;
-                }
-            });
-        }
+        predicateList.add(new Predicate<ParallelizedSimulation>() {
+            @Override
+            public boolean apply(ParallelizedSimulation parallelizedSimulation) {
+                return parallelizedSimulation.getStep() < steps;
+            }
+        });
 
         LOGGER.info("Creating simulation for model {}", model);
         final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold);
@@ -77,7 +78,7 @@ public class GreyfishCLIApplication {
                 dbPath.replaceAll("%\\{uuid\\}", simulation.getUUID().toString()))));
 
 
-        if (!verbose.isEmpty()) {
+        if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
         }
 
@@ -107,7 +108,7 @@ public class GreyfishCLIApplication {
     private void startSimulationMonitor(final ParallelizedSimulation simulation, final String verbose) {
         OutputStream outputStream = null;
         try {
-            if (verbose.equals("-")) {
+            if (verbose.isEmpty()) {
                 outputStream = System.out;
             }
             else {
@@ -170,10 +171,13 @@ public class GreyfishCLIApplication {
             }
         });
 
+        final RandomGenerator randomGenerator =
+                optionSet.has("R") ? new Well19937c(0) : new Well19937c();
+
         Guice.createInjector(
-                new CoreModule(),
-                commandLineModule)
-                .getInstance(GreyfishCLIApplication.class);
+                new CoreModule(randomGenerator),
+                commandLineModule
+        ).getInstance(GreyfishCLIApplication.class);
 
         System.exit(0);
     }
@@ -220,7 +224,7 @@ public class GreyfishCLIApplication {
                 bind(Integer.class).annotatedWith(Names.named("steps"))
                         .toInstance((Integer) optionSet.valueOf("steps"));
                 bind(String.class).annotatedWith(Names.named("verbose"))
-                        .toInstance((String) optionSet.valueOf("v"));
+                        .toProvider(Providers.of(optionSet.has("v") ? (String) optionSet.valueOf("v") : null));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance((Integer) optionSet.valueOf("pt"));
                 bind(String.class).annotatedWith(Names.named("databasePath"))
@@ -234,15 +238,16 @@ public class GreyfishCLIApplication {
         final OptionParser parser = new OptionParser();
 
         parser.accepts("steps", "stop simulation after MAX steps")
-                .withRequiredArg().ofType(Integer.class).defaultsTo(-1);
-        parser.accepts("v", "Write simulation status report to file of stout if -")
-                .withOptionalArg().ofType(String.class).defaultsTo("").describedAs("file");
+                .withRequiredArg().ofType(Integer.class);
+        parser.accepts("v", "Write simulation status report to file or stout if no argument")
+                .withOptionalArg().ofType(String.class).describedAs("file").defaultsTo("");
         parser.accepts("D", "set model parameter for given model class")
                 .withRequiredArg().describedAs("key=value");
         parser.accepts("pt", "Set parallelization threshold")
                 .withRequiredArg().ofType(Integer.class).defaultsTo(1000);
         parser.accepts("db", "Set database path (%(uuid) will be replaced by simulation uuid)")
                 .withRequiredArg().defaultsTo("./%{uuid}").ofType(String.class);
+        parser.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0");
         parser.acceptsAll(asList("h", "?"), "Print this help");
 
         return parser;
