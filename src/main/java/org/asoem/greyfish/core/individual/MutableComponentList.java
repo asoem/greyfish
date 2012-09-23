@@ -1,13 +1,10 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.HookedForwardingList;
 import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
@@ -18,7 +15,7 @@ import java.util.List;
  * Date: 18.09.11
  * Time: 15:53
  */
-public class MutableComponentList<E extends AgentComponent> extends HookedForwardingList<E> implements ComponentList<E> {
+public class MutableComponentList<E extends AgentComponent> extends AbstractComponentList<E> {
 
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
     private final List<E> delegate;
@@ -54,18 +51,6 @@ public class MutableComponentList<E extends AgentComponent> extends HookedForwar
     @Override
     protected List<E> delegate() {
         return delegate;
-    }
-
-    @Nullable
-    @Override
-    public <T extends E> T find(final String name, Class<T> clazz) {
-        return clazz.cast(Iterables.find(delegate, new Predicate<E>() {
-            @Override
-            public boolean apply(@Nullable E e) {
-                assert e != null;
-                return Objects.equal(e.getName(), name);
-            }
-        }));
     }
 
     @Override

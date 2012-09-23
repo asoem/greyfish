@@ -20,13 +20,13 @@ import java.util.List;
  */
 public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends AbstractGeneComponentList<E> {
 
-    private static final GeneComponentList<GeneComponent<?>> EMPTY_GENE_COMPONENT_LIST = new ImmutableGeneComponentList<GeneComponent<?>>(ImmutableGeneComponentList.<GeneComponent<?>>of());
+    private static final ImmutableGeneComponentList<GeneComponent<?>> EMPTY_GENE_COMPONENT_LIST = ImmutableGeneComponentList.of();
 
     @Element(name = "genes")
     private final ComponentList<E> delegate;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private ImmutableGeneComponentList(@Element(name = "genes") ComponentList<E> genes) {
+    private ImmutableGeneComponentList(@Element(name = "genes") ImmutableComponentList<E> genes) {
         delegate = genes;
     }
     
@@ -68,8 +68,8 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
     }
 
     @SuppressWarnings("unchecked")
-    public static <E extends GeneComponent<?>> GeneComponentList<E> of() {
-        return (GeneComponentList<E>) EMPTY_GENE_COMPONENT_LIST;
+    public static <E extends GeneComponent<?>> ImmutableGeneComponentList<E> of() {
+        return (ImmutableGeneComponentList<E>) EMPTY_GENE_COMPONENT_LIST;
     }
 
     protected static class Builder<E extends GeneComponent<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGeneComponentList<E>> {

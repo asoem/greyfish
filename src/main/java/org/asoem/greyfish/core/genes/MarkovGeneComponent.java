@@ -11,6 +11,8 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -50,6 +52,13 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         this.markovMatrix = builder.markovChain.build();
         this.initializationKernel = builder.initializationKernel;
         this.segregationKernel = builder.segregationKernel;
+    }
+
+    private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
+        super(markovGene, cloner);
+        this.markovMatrix = markovGene.markovMatrix;
+        this.initializationKernel = markovGene.initializationKernel;
+        this.segregationKernel = markovGene.segregationKernel;
     }
 
     @Override
@@ -96,12 +105,6 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     @Override
     public String createInitialValue() {
         return Callbacks.call(initializationKernel, MarkovGeneComponent.this);
-    }
-
-    private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
-        super(markovGene, cloner);
-        this.markovMatrix = markovGene.markovMatrix;
-        this.initializationKernel = markovGene.initializationKernel;
     }
 
     @Override
@@ -164,9 +167,17 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T, B>> extends AbstractComponentBuilder<T, B> {
 
+        private static final Callback<Object, String> DEFAULT_SEGREGATION_KERNEL = new Callback<Object, String>() {
+            @Override
+            public String apply(Object caller, Arguments arguments) {
+                return (String) RandomUtils.sample(arguments.get("x"), arguments.get("y"));
+            }
+        };
+        private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMarkovGeneComponentBuilder.class);
+
         private ImmutableTable.Builder<String, String, Callback<? super MarkovGeneComponent, Double>> markovChain = ImmutableTable.builder();
         private Callback<? super MarkovGeneComponent, String> initializationKernel;
-        private Callback<? super MarkovGeneComponent, String> segregationKernel;
+        private Callback<? super MarkovGeneComponent, String> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
 
         public B put(String state1, String state2, Callback<? super MarkovGeneComponent, Double> transitionCallback) {
             markovChain.put(state1, state2, transitionCallback);
@@ -188,6 +199,8 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
             super.checkBuilder();
             checkState(markovChain != null);
             checkState(initializationKernel != null);
+            if (segregationKernel == DEFAULT_SEGREGATION_KERNEL)
+                LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_SEGREGATION_KERNEL);
         }
     }
 }

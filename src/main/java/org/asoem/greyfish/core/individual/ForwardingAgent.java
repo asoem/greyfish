@@ -71,7 +71,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public ComponentList<GFProperty> getProperties() {
+    public ComponentList<GFProperty<?>> getProperties() {
         return delegate().getProperties();
     }
 

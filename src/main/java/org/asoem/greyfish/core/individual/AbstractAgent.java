@@ -45,7 +45,7 @@ public abstract class AbstractAgent implements Agent {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
     @Element(name = "properties")
-    protected final ComponentList<GFProperty> properties;
+    protected final ComponentList<GFProperty<?>> properties;
 
     @Element(name = "actions")
     protected final ComponentList<GFAction> actions;
@@ -72,7 +72,7 @@ public abstract class AbstractAgent implements Agent {
     private final AgentMessageBox inBox = new AgentMessageBox();
 
     protected AbstractAgent(Body body,
-                            ComponentList<GFProperty> properties,
+                            ComponentList<GFProperty<?>> properties,
                             ComponentList<GFAction> actions,
                             GeneComponentList<GeneComponent<?>> geneComponentList) {
         this.body = checkNotNull(body);
@@ -98,7 +98,7 @@ public abstract class AbstractAgent implements Agent {
         cloner.addClone(this);
         this.population = abstractAgent.population;
         this.actions = (ComponentList<GFAction>) cloner.getClone(abstractAgent.actions, ComponentList.class);
-        this.properties = (ComponentList<GFProperty>) cloner.getClone(abstractAgent.properties, ComponentList.class);
+        this.properties = (ComponentList<GFProperty<?>>) cloner.getClone(abstractAgent.properties, ComponentList.class);
         this.geneComponentList = cloner.getClone(abstractAgent.geneComponentList, GeneComponentList.class);
         this.body = cloner.getClone(abstractAgent.body, Body.class);
         this.projection = abstractAgent.projection;
@@ -336,7 +336,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public ComponentList<GFProperty> getProperties() {
+    public ComponentList<GFProperty<?>> getProperties() {
         return properties;
     }
 
@@ -424,7 +424,7 @@ public abstract class AbstractAgent implements Agent {
 
     protected static abstract class AbstractAgentBuilder<E extends AbstractAgent, T extends AbstractAgentBuilder<E, T>> extends AbstractBuilder<E, T> {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
-        protected final ComponentList<GFProperty> properties = new MutableComponentList<GFProperty>();
+        protected final ComponentList<GFProperty<?>> properties = new MutableComponentList<GFProperty<?>>();
         protected final Population population;
         protected final ComponentList<GeneComponent<?>> genes = new MutableComponentList<GeneComponent<?>>();
 
@@ -443,7 +443,7 @@ public abstract class AbstractAgent implements Agent {
             return self();
         }
 
-        public T addProperties(GFProperty... properties) {
+        public T addProperties(GFProperty<?>... properties) {
             this.properties.addAll(asList(checkNotNull(properties)));
             return self();
         }

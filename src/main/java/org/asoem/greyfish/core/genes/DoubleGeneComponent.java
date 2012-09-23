@@ -127,11 +127,11 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
         private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractDoubleGeneBuilder.class);
         private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.constant(0.0);
         private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.constant(0.0);
-        private static final Callback<Object,Double> DEFAULT_RECOMBINATION_KERNEL = Callbacks.constant(0.0);
+        private static final Callback<Object,Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.constant(0.0);
 
         private Callback<? super DoubleGeneComponent, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
         private Callback<? super DoubleGeneComponent, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
-        private Callback<? super DoubleGeneComponent, Double> segregationKernel = DEFAULT_RECOMBINATION_KERNEL;
+        private Callback<? super DoubleGeneComponent, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
 
         public T initialization(Callback<? super DoubleGeneComponent, Double> callback) {
             this.initializationKernel = checkNotNull(callback);
@@ -155,8 +155,8 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
                 LOGGER.warn("Builder uses default initialization kernel for {}: {}", name, DEFAULT_INITIALIZATION_KERNEL);
             if (mutationKernel == DEFAULT_MUTATION_KERNEL)
                 LOGGER.warn("Builder uses default mutation kernel for {}: {}", name, DEFAULT_MUTATION_KERNEL);
-            if (segregationKernel == DEFAULT_RECOMBINATION_KERNEL)
-                LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_RECOMBINATION_KERNEL);
+            if (segregationKernel == DEFAULT_SEGREGATION_KERNEL)
+                LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_SEGREGATION_KERNEL);
         }
     }
 }

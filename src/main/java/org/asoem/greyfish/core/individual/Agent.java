@@ -46,7 +46,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     void removeAllProperties();
 
-    ComponentList<GFProperty> getProperties();
+    ComponentList<GFProperty<?>> getProperties();
 
     <T extends GFProperty> T getProperty(String name, Class<T> clazz);
 

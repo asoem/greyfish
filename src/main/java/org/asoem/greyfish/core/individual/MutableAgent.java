@@ -18,7 +18,7 @@ public class MutableAgent extends AbstractAgent {
 
     protected MutableAgent(AbstractAgentBuilder<?,?> builder) {
         super(new Body(),
-                new MutableComponentList<GFProperty>(builder.properties),
+                new MutableComponentList<GFProperty<?>>(builder.properties),
                 new MutableComponentList<GFAction>(builder.actions),
                 new MutableGeneComponentList<GeneComponent<?>>(builder.genes));
         setPopulation(builder.population);
@@ -26,7 +26,7 @@ public class MutableAgent extends AbstractAgent {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private MutableAgent(@Element(name = "body") Body body,
-                           @Element(name = "properties") ComponentList<GFProperty> properties,
+                           @Element(name = "properties") ComponentList<GFProperty<?>> properties,
                            @Element(name = "actions") ComponentList<GFAction> actions,
                            @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
         super(body, properties, actions, geneComponentList);
@@ -34,7 +34,7 @@ public class MutableAgent extends AbstractAgent {
 
     public MutableAgent(Agent agent) {
         super(new Body(agent.getBody()),
-                new MutableComponentList<GFProperty>(agent.getProperties()),
+                new MutableComponentList<GFProperty<?>>(agent.getProperties()),
                 new MutableComponentList<GFAction>(agent.getActions()),
                 new MutableGeneComponentList<GeneComponent<?>>(agent.getGeneComponentList()));
         setPopulation(agent.getPopulation());

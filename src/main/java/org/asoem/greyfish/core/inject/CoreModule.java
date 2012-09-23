@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.inject;
 
 import com.google.inject.AbstractModule;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.eval.Evaluator;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
@@ -11,6 +13,7 @@ import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.io.persistence.SimpleXMLPersister;
 import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
 import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.persistence.Persister;
 
 /**
@@ -19,6 +22,17 @@ import org.asoem.greyfish.utils.persistence.Persister;
  * Time: 14:37
  */
 public class CoreModule extends AbstractModule {
+
+    private final RandomGenerator randomGenerator;
+
+    public CoreModule() {
+        this.randomGenerator = new Well19937c();
+    }
+
+    public CoreModule(RandomGenerator randomGenerator) {
+        this.randomGenerator = randomGenerator;
+    }
+
     @Override
     protected void configure() {
         // Utils
@@ -35,5 +49,8 @@ public class CoreModule extends AbstractModule {
                         new DefaultGreyfishVariableAccessorFactory()));
         requestStaticInjection(GreyfishVariableFactory.class);
         requestStaticInjection(GreyfishExpressionFactoryHolder.class);
+
+        bind(RandomGenerator.class).toInstance(randomGenerator);
+        requestStaticInjection(RandomUtils.class);
     }
 }

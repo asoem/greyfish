@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ForwardingList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.individual.AbstractComponentList;
 import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 08.02.12
  * Time: 11:08
  */
-public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> extends ForwardingList<E> implements GeneComponentList<E> {
+public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> extends AbstractComponentList<E> implements GeneComponentList<E> {
 
     private ChromosomalHistory chromosomalHistory = NoChromosomalHistory.INSTANCE;
 

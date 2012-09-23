@@ -35,10 +35,10 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
     protected List<GFCondition> conditions = Lists.newArrayList();
 
-    protected BranchCondition(BranchCondition cloneable, DeepCloner map) {
-        super(cloneable, map);
+    protected BranchCondition(BranchCondition cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
         for (GFCondition condition : cloneable.getChildConditions())
-            add(map.getClone(condition, GFCondition.class));
+            add(cloner.getClone(condition, GFCondition.class));
     }
 
     public BranchCondition(GFCondition... conditions) {

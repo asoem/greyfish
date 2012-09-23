@@ -23,7 +23,7 @@ public class ImmutableAgent extends AbstractAgent {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private ImmutableAgent(@Element(name = "body") Body body,
-                           @Element(name = "properties") ComponentList<GFProperty> properties,
+                           @Element(name = "properties") ComponentList<GFProperty<?>> properties,
                            @Element(name = "actions") ComponentList<GFAction> actions,
                            @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
         super(body, properties, actions, geneComponentList);
@@ -61,8 +61,8 @@ public class ImmutableAgent extends AbstractAgent {
 
         final ImmutableAgent ret = new ImmutableAgent(
                 clone.getBody(),
-                clone.getProperties(),
-                clone.getActions(),
+                ImmutableComponentList.copyOf(clone.getProperties()),
+                ImmutableComponentList.copyOf(clone.getActions()),
                 ImmutableGeneComponentList.copyOf(clone.getGeneComponentList()));
         ret.setPopulation(clone.getPopulation());
         ret.setMotion(clone.getMotion());
