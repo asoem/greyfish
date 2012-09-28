@@ -19,7 +19,7 @@ public abstract class AbstractGFProperty<T> extends AbstractAgentComponent imple
         super(builder);
     }
 
-    protected AbstractGFProperty(AbstractAgentComponent cloneable, DeepCloner map) {
+    protected AbstractGFProperty(AbstractGFProperty<T> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 

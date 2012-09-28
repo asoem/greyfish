@@ -161,7 +161,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected void prepareForCommunication() {};
+    protected void prepareForCommunication() {}
 
     protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation);
 

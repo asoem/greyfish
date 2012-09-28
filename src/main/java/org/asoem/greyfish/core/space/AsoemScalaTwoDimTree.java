@@ -27,6 +27,7 @@ public final class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
             @Override
             public Product2<HyperPoint, T> apply(T t) {
                 final org.asoem.greyfish.utils.base.Product2<Double, Double> b = coordinates2DFunction.apply(t);
+                assert b != null;
                 return new Tuple2<HyperPoint, T>(new HyperPoint2(b._1(), b._2()), t);
             }
         });
