@@ -2,11 +2,12 @@ package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * User: christoph
@@ -14,40 +15,58 @@ import java.util.List;
  * Time: 15:46
  */
 public class TinyLists {
-    public static <E> List<E> copyOf(List<E> list) {
+
+    private static final GenericTinyList<Object> EMPTY_LIST = new GenericTinyList<Object>(ImmutableList.of());
+
+    public static <E> TinyList<E> copyOf(List<E> list) {
         final int size = list.size();
         switch (size) {
             case 2: return new TinyList2<E>(list.get(0), list.get(1));
-            default: return ImmutableList.copyOf(list);
+            default: return new GenericTinyList<E>(list);
         }
     }
 
-    public static <E> List<E> copyOf(Iterable<E> components) {
+    public static <E> TinyList<E> copyOf(Iterable<E> components) {
         if (components instanceof List)
             return copyOf((List<E>) components);
         else
             return copyOf(ImmutableList.copyOf(components));
     }
 
-    public static <E> List<E> transform(List<E> list, Function<? super E, E> function) {
+    public static <E> TinyList<E> transform(List<E> list, Function<? super E, E> function) {
         final int size = list.size();
         switch (size) {
             case 2: return new TinyList2<E>(function.apply(list.get(0)), function.apply(list.get(1)));
-            default: return Lists.transform(list, function);
+            default: return new GenericTinyList<E>(Iterables.transform(list, function));
         }
     }
 
-    public static <E> E find(List<E> delegate, Predicate<? super E> predicate) {
-        if (delegate instanceof TinyList)
-            return ((TinyList<E>) delegate).find(predicate);
-        else
-            return Iterables.find(delegate, predicate);
+    @SuppressWarnings("unchecked")
+    public static <E> TinyList<E> of() {
+        return (TinyList<E>) EMPTY_LIST;
     }
 
-    public static <E> E find(List<E> delegate, Predicate<? super E> predicate, E defaultValue) {
-        if (delegate instanceof TinyList)
-            return ((TinyList<E>) delegate).find(predicate, defaultValue);
-        else
+    private static class GenericTinyList<E> extends ForwardingList<E> implements TinyList<E> {
+
+        private final List<E> delegate;
+
+        private GenericTinyList(Iterable<E> elements) {
+            this.delegate = ImmutableList.copyOf(elements);
+        }
+
+        @Override
+        public E find(Predicate<? super E> predicate) throws NoSuchElementException {
+            return Iterables.find(delegate, predicate);
+        }
+
+        @Override
+        public E find(Predicate<? super E> predicate, E defaultValue) {
             return Iterables.find(delegate, predicate, defaultValue);
+        }
+
+        @Override
+        protected List<E> delegate() {
+            return delegate;
+        }
     }
 }
