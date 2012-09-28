@@ -1,13 +1,13 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.core.individual.ImmutableComponentList;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.TinyList;
+import org.asoem.greyfish.utils.collect.TinyLists;
 import org.simpleframework.xml.Element;
 
 import java.util.Arrays;
@@ -23,28 +23,21 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
     private static final ImmutableGeneComponentList<GeneComponent<?>> EMPTY_GENE_COMPONENT_LIST = ImmutableGeneComponentList.of();
 
     @Element(name = "genes")
-    private final ComponentList<E> delegate;
+    private final TinyList<E> delegate;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private ImmutableGeneComponentList(@Element(name = "genes") ImmutableComponentList<E> genes) {
+    private ImmutableGeneComponentList(@Element(name = "genes") TinyList<E> genes) {
         delegate = genes;
     }
     
     private ImmutableGeneComponentList(Builder<E> builder) {
-        delegate = ImmutableComponentList.copyOf(builder.genes);
+        delegate = TinyLists.copyOf(builder.genes);
     }
 
     private ImmutableGeneComponentList(ImmutableGeneComponentList<E> immutableGenome, final DeepCloner cloner) {
         cloner.addClone(this);
 
-        delegate = ImmutableComponentList.copyOf(Iterables.transform(immutableGenome, new Function<E, E>() {
-            @SuppressWarnings("unchecked") // save downcast
-            @Override
-            public E apply(E gene) {
-                assert gene != null;
-                return cloner.getClone(gene, (Class<E>) gene.getClass());
-            }
-        }));
+        delegate = TinyLists.transform(immutableGenome.delegate, cloner.<E>cloneFunction());
     }
 
     @Override
@@ -59,7 +52,7 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
     }
 
     @Override
-    protected ComponentList<E> delegate() {
+    protected TinyList<E> delegate() {
         return delegate;
     }
 

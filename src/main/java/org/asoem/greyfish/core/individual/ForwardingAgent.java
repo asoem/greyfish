@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
@@ -27,6 +28,11 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Override
     public void setPopulation(Population population) {
         delegate().setPopulation(population);
+    }
+
+    @Override
+    public boolean hasPopulation(Population population) {
+        return delegate().hasPopulation(population);
     }
 
     /**
@@ -79,6 +85,11 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Nullable
     public <T extends GFProperty> T getProperty(String name, Class<T> propertyClass) {
         return delegate().getProperty(name, propertyClass);
+    }
+
+    @Override
+    public GFProperty<?> findProperty(Predicate<? super GFProperty<?>> predicate) {
+        return delegate().findProperty(predicate);
     }
 
     @Override
@@ -259,6 +270,11 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Override
     public boolean didCollide() {
         return delegate().didCollide();
+    }
+
+    @Override
+    public GeneComponent<?> findTrait(Predicate<? super GeneComponent<?>> traitPredicate) {
+        return delegate().findTrait(traitPredicate);
     }
 
     @Override

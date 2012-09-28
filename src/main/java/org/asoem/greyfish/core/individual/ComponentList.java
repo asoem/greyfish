@@ -1,9 +1,8 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.base.Predicate;
 import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.collect.SearchableList;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -15,7 +14,7 @@ import java.util.NoSuchElementException;
  * Implementations should not permit {@code null} elements or duplicates and should block addition of new components,
  * if it has the same name as a different component in this list.</p>
  */
-public interface ComponentList<E extends AgentComponent> extends List<E>, DeepCloneable {
+public interface ComponentList<E extends AgentComponent> extends SearchableList<E>, DeepCloneable {
     /**
      * Find the first element which is named {@code name} and is an instance of {@code clazz}.
      * @param name the name of the {@code AgentComponent} to search for
@@ -26,8 +25,4 @@ public interface ComponentList<E extends AgentComponent> extends List<E>, DeepCl
      * @throws ClassCastException if element could not be cast to {@code clazz}
      */
     <T extends E> T find(String name, Class<T> clazz) throws NoSuchElementException, ClassCastException;
-
-    E find(Predicate<? super E> predicate) throws NoSuchElementException;
-
-    E find(Predicate<? super E> predicate, E defaultValue) throws NoSuchElementException;
 }

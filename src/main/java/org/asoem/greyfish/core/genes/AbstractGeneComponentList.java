@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.genes;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.individual.AbstractComponentList;
-import org.asoem.greyfish.core.individual.ComponentList;
 import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
 
@@ -71,14 +70,6 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
         for (GeneComponent<?> gene : this) {
             gene.setAllele(gene.createInitialValue());
         }
-    }
-
-    @Override
-    protected abstract ComponentList<E> delegate();
-
-    @Override
-    public <T extends E> T find(String name, Class<T> clazz) {
-        return delegate().find(name, clazz);
     }
 
     @Override

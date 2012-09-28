@@ -7,7 +7,7 @@ import com.google.common.collect.ForwardingList;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.TinyLists;
+import org.asoem.greyfish.utils.collect.SearchableList;
 
 import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
@@ -18,6 +18,9 @@ import java.util.NoSuchElementException;
  * Time: 12:59
  */
 public abstract class AbstractComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
+
+    @Override
+    protected abstract SearchableList<E> delegate();
 
     @Nullable
     @Override
@@ -38,12 +41,12 @@ public abstract class AbstractComponentList<E extends AgentComponent> extends Fo
 
     @Override
     public E find(Predicate<? super E> predicate) throws NoSuchElementException {
-        return TinyLists.find(delegate(), predicate);
+        return delegate().find(predicate);
     }
 
     @Override
     public E find(Predicate<? super E> predicate, E defaultValue) {
-        return TinyLists.find(delegate(), predicate, defaultValue);
+        return delegate().find(predicate, defaultValue);
     }
 
     @Override

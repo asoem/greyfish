@@ -1,14 +1,11 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.ComponentList;
-import org.asoem.greyfish.core.individual.MutableComponentList;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.SearchableLists;
 import org.simpleframework.xml.Element;
-
-import javax.annotation.Nullable;
 
 /**
  * User: christoph
@@ -18,31 +15,24 @@ import javax.annotation.Nullable;
 public class MutableGeneComponentList<E extends GeneComponent<?>> extends AbstractGeneComponentList<E> {
 
     @Element(name = "genes")
-    private final ComponentList<E> delegate;
+    private final SearchableList<E> delegate;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private MutableGeneComponentList(@Element(name = "genes") ComponentList<E> genes) {
+    private MutableGeneComponentList(@Element(name = "genes") SearchableList<E> genes) {
         delegate = genes;
     }
 
     public MutableGeneComponentList(Iterable<? extends E> genome) {
-        delegate = new MutableComponentList<E>(genome);
+        delegate = SearchableLists.extend(Lists.newArrayList(genome));
     }
 
     protected MutableGeneComponentList(MutableGeneComponentList<E> parent, final DeepCloner cloner) {
         cloner.addClone(this);
-        delegate = new MutableComponentList<E>(Iterables.transform(parent.delegate, new Function<E, E>() {
-            @SuppressWarnings("unchecked") // its a save downcast
-            @Override
-            public E apply(@Nullable E e) {
-                assert e != null;
-                return cloner.getClone(e, (Class<E>) e.getClass());
-            }
-        }));
+        delegate = SearchableLists.extend(Lists.newArrayList(Lists.transform(parent.delegate, cloner.<E>cloneFunction())));
     }
 
     @Override
-    protected ComponentList<E> delegate() {
+    protected SearchableList<E> delegate() {
         return delegate;
     }
 

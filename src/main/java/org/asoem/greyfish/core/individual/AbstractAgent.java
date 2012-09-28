@@ -115,6 +115,11 @@ public abstract class AbstractAgent implements Agent {
         this.population = population;
     }
 
+    @Override
+    public boolean hasPopulation(Population population) {
+        return this.population.equals(population);
+    }
+
     private <E extends AgentComponent> boolean addComponent(ComponentList<E> list, E element) {
         if (list.add(element)) {
             element.setAgent(this);
@@ -176,6 +181,11 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public <T extends GFProperty> T getProperty(String name, Class<T> clazz) {
         return properties.find(name, clazz);
+    }
+
+    @Override
+    public GFProperty<?> findProperty(Predicate<? super GFProperty<?>> predicate) {
+        return properties.find(predicate);
     }
 
     @Override
@@ -366,6 +376,11 @@ public abstract class AbstractAgent implements Agent {
         if (projection == null)
             throw new IllegalStateException("This agent has no projection");
         return projection.didCollide();
+    }
+
+    @Override
+    public GeneComponent<?> findTrait(Predicate<? super GeneComponent<?>> traitPredicate) {
+        return geneComponentList.find(traitPredicate);
     }
 
     @Override

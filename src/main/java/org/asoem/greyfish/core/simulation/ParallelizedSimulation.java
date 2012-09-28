@@ -157,7 +157,7 @@ public class ParallelizedSimulation implements Simulation {
         return Iterables.filter(getAgents(), new Predicate<Agent>() {
             @Override
             public boolean apply(Agent agent) {
-                return agent.getPopulation().equals(population);
+                return agent.hasPopulation(population);
             }
         });
     }

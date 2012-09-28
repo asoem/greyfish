@@ -1,13 +1,11 @@
 package org.asoem.greyfish.core.individual;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.collect.TinyLists;
 import org.simpleframework.xml.ElementList;
-
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -20,14 +18,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ImmutableComponentList<E extends AgentComponent> extends AbstractComponentList<E> {
 
     private static final ImmutableComponentList<AgentComponent> EMPTY_COMPONENT_LIST =
-            new ImmutableComponentList<AgentComponent>(ImmutableList.<AgentComponent>of());
+            new ImmutableComponentList<AgentComponent>(TinyLists.<AgentComponent>of());
 
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
-    private final List<E> listDelegate;
+    private final SearchableList<E> listDelegate;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private ImmutableComponentList(
-            @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) List<E> components) {
+            @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) SearchableList<E> components) {
         listDelegate = components;
     }
 
@@ -38,7 +36,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends AbstractCo
     }
 
     @Override
-    protected List<E> delegate() {
+    protected SearchableList<E> delegate() {
         return listDelegate;
     }
 

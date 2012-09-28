@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.individual;
 
+import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.genes.Chromosome;
@@ -27,8 +28,8 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
     void changeActionExecutionOrder(GFAction object, GFAction object2);
 
     Population getPopulation();
-
     void setPopulation(Population population);
+    boolean hasPopulation(Population population);
 
     boolean addAction(GFAction action);
 
@@ -50,6 +51,8 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     <T extends GFProperty> T getProperty(String name, Class<T> clazz);
 
+    GFProperty<?> findProperty(Predicate<? super GFProperty<?>> predicate);
+
     boolean addGene(GeneComponent<?> gene);
 
     boolean removeGene(GeneComponent<?> gene);
@@ -59,6 +62,8 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
     GeneComponentList<GeneComponent<?>> getGeneComponentList();
 
     <T extends GeneComponent> T getGene(String name, Class<T> clazz);
+
+    GeneComponent<?> findTrait(Predicate<? super GeneComponent<?>> traitPredicate);
 
     /**
      * Update the agent's geneComponentList with the values of the {@link org.asoem.greyfish.core.genes.Gene}s in the given {@code vector}
@@ -95,5 +100,5 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     void logEvent(Object eventOrigin, String title, String message);
 
-    boolean didCollide();
+    boolean didCollide();;
 }
