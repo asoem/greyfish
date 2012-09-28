@@ -7,6 +7,5 @@ package org.asoem.greyfish.utils.base;
  */
 public interface Product2<E1, E2> {
     E1 _1();
-
     E2 _2();
 }
