@@ -108,7 +108,7 @@ public class GreyfishCLIApplication {
     private void startSimulationMonitor(final ParallelizedSimulation simulation, final String verbose) {
         OutputStream outputStream = null;
         try {
-            if (verbose.isEmpty()) {
+            if (verbose.equals("-")) {
                 outputStream = System.out;
             }
             else {
@@ -240,7 +240,7 @@ public class GreyfishCLIApplication {
         parser.accepts("steps", "stop simulation after MAX steps")
                 .withRequiredArg().ofType(Integer.class);
         parser.accepts("v", "Write simulation status report to file or stout if no argument")
-                .withOptionalArg().ofType(String.class).describedAs("file").defaultsTo("");
+                .withRequiredArg().ofType(String.class).describedAs("file");
         parser.accepts("D", "set model parameter for given model class")
                 .withRequiredArg().describedAs("key=value");
         parser.accepts("pt", "Set parallelization threshold")
