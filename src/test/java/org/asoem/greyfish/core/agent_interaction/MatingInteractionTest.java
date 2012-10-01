@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.agent_interaction;
 
+import com.google.inject.Guice;
 import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
@@ -24,7 +26,7 @@ public class MatingInteractionTest {
     @Mock Population population;
 
     public MatingInteractionTest() {
-        //Guice.createInjector(new CoreModule()).injectMembers(this);
+        Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
     // todo: there is a somewhere a stochastic process involved. The test fails only sometimes.

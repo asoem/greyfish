@@ -20,11 +20,13 @@ import org.asoem.greyfish.core.space.ForwardingTiledSpace;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.utils.base.Initializer;
+import org.asoem.greyfish.utils.base.Initializers;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -81,8 +83,8 @@ public class ParallelizedSimulation implements Simulation {
                 }
 
                 @Override
-                public void activateObject(Population key, Agent obj) throws Exception {
-                    obj.initialize();
+                public void activateObject(Population key, Agent agent) throws Exception {
+                    agent.initialize();
                 }
             },
             10000, 100);
@@ -135,8 +137,8 @@ public class ParallelizedSimulation implements Simulation {
         }));
         this.space = new AgentSpace(WalledTileSpace.createEmptyCopy(space), prototypes);
 
-        for (Agent agent : space.getObjects()) {
-            activateAgentInternal(agent, agent.getProjection());
+        for (final Agent templateAgent : space.getObjects()) {
+            activateAgentInternal(templateAgent, Initializers.emptyInitializer());
         }
     }
 
@@ -167,13 +169,22 @@ public class ParallelizedSimulation implements Simulation {
         return space.getObjects();
     }
 
-    private void activateAgentInternal(Agent agent, Object2D projection) {
-        assert agent != null : "agent is null";
-        assert projection != null : "projection is null";
-        final Point2D anchorPoint = projection.getAnchorPoint();
-        space.insertObject(agent, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
+    private void activateAgentInternal(Agent agent, Initializer<? super Agent> initializer) {
+        assert agent != null : "population is null";
+        assert initializer != null : "initializer is null";
+
+        initializer.initialize(agent);
+
+        final MotionObject2D projection = agent.getProjection();
+        if (projection == null)
+            throw new AssertionError("Agent not properly initialized");
+        final Point2D point = projection.getAnchorPoint();
+
+        space.insertObject(agent, point.getX(), point.getY(), projection.getOrientationAngle());
+
         agent.activate(this);
         LOGGER.debug("Agent got activated: {}", agent);
+
         simulationLogger.addAgent(agent);
     }
 
@@ -231,22 +242,7 @@ public class ParallelizedSimulation implements Simulation {
         return agentIdSequence.incrementAndGet();
     }
 
-    @Override
-    public void activateAgent(Agent agent, Object2D projection) {
-        checkNotNull(agent);
-        checkNotNull(projection);
-
-        checkArgument(getPrototype(agent.getPopulation()) != null,
-                "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
-        final Point2D anchorPoint = projection.getAnchorPoint();
-        checkArgument(space.contains(anchorPoint.getX(), anchorPoint.getY()),
-                "Coordinates of " + projection + " do not fall inside the area of this simulation's space: " + space);
-
-        addAgentMessages.add(new AddAgentMessage(agent, projection));
-    }
-
-    @Override
-    public Agent createAgent(final Population population) {
+    private Agent createAgent(final Population population) {
         checkNotNull(population);
         try {
             return objectPool.borrowObject(population);
@@ -314,7 +310,7 @@ public class ParallelizedSimulation implements Simulation {
 
     private void processRequestedAgentActivations() {
         for (AddAgentMessage addAgentMessage : addAgentMessages) {
-            activateAgentInternal(addAgentMessage.agent, addAgentMessage.location);
+            activateAgentInternal(createAgent(addAgentMessage.population), addAgentMessage.initializer);
         }
         addAgentMessages.clear();
     }
@@ -382,7 +378,7 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
+    public void logEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
         simulationLogger.addEvent(
                 uuid, currentStep.get(),
                 agentId, populationName, coordinates,
@@ -396,14 +392,21 @@ public class ParallelizedSimulation implements Simulation {
         return snapshotValues.get(key);
     }
 
+    @Override
+    public void createAgent(Population population, Initializer<Agent> initializer) {
+        addAgentMessages.add(new AddAgentMessage(population, initializer));
+    }
+
     private static class AddAgentMessage {
 
-        private final Agent agent;
-        private final Object2D location;
+        private final Population population;
+        private final Initializer<Agent> initializer;
 
-        private AddAgentMessage(Agent agent, Object2D location) {
-            this.agent = agent;
-            this.location = location;
+        private AddAgentMessage(Population population, Initializer<Agent> initializer) {
+            assert population != null;
+            assert initializer != null;
+            this.population = population;
+            this.initializer = initializer;
         }
     }
 
@@ -412,6 +415,7 @@ public class ParallelizedSimulation implements Simulation {
         private final Agent agent;
 
         public RemoveAgentMessage(Agent agent) {
+            assert agent != null;
             this.agent = agent;
         }
 

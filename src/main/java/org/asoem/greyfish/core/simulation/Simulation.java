@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.base.Initializer;
 
 import java.util.List;
 import java.util.Set;
@@ -44,21 +44,6 @@ public interface Simulation extends HasName {
 
     int generateAgentID();
 
-    /**
-     * Create an {@code Agent} of type {@code population}, that is, a clone of the prototype registered for {@code population}.
-     * This method does not activate the agent, so you have to call {@link #activateAgent(org.asoem.greyfish.core.individual.Agent, org.asoem.greyfish.utils.space.Object2D)} afterwards.
-     * @param population the type of the created {@code Agent}
-     * @return an {@code Agent} of type {@code population}
-     */
-    Agent createAgent(final Population population);
-
-    /**
-     * Activate the given {@code agent} in the next step represented in space by the given {@code projection}.
-     * @param agent the agent to activate
-     * @param projection the agent's representation in {@link org.asoem.greyfish.core.space.Space2D}
-     */
-    void activateAgent(Agent agent, Object2D projection);
-
     Set<Agent> getPrototypes();
 
     TiledSpace<Agent,WalledTile> getSpace();
@@ -80,7 +65,7 @@ public interface Simulation extends HasName {
 
     void setSimulationLogger(SimulationLogger simulationLogger);
 
-    void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
+    void logEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
 
     /**
      * With this method you can store values which hold for all agents during a single simulation step.
@@ -90,4 +75,6 @@ public interface Simulation extends HasName {
      * @return The stored value for {@code key}
      */
     Object snapshotValue(String key, Supplier<Object> valueCalculator);
+
+    void createAgent(Population population, Initializer<Agent> initializer);
 }

@@ -41,7 +41,7 @@ public class ChromosomeImpl implements Chromosome {
     }
 
     public static ChromosomeImpl forAgent(Agent agent) {
-        checkNotNull(agent);
+        checkNotNull(agent, "Agent is null");
         return new ChromosomeImpl(
                 new UniparentalChromosomalHistory(agent.getId()),
                 Iterables.transform(agent.getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {

@@ -11,8 +11,10 @@ import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
+import org.asoem.greyfish.utils.space.MotionObject2DImpl;
 import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
@@ -33,17 +35,21 @@ public class ClonalReproduction extends AbstractGFAction {
         final int nClones = Callbacks.call(this.nClones, this);
         for (int i = 0; i < nClones; i++) {
 
-            final Agent clone = simulation.createAgent(agent().getPopulation());
-            clone.updateGeneComponents(
-                    new ChromosomeImpl(new UniparentalChromosomalHistory(agent().getId()),
-                            Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
-                                @Override
-                                public Gene<?> apply(@Nullable GeneComponent<?> gene) {
-                                    assert gene != null;
-                                    return new Gene<Object>(GenesComponents.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
-                                }
-                            })));
-            simulation.activateAgent(clone, agent().getProjection());
+            simulation.createAgent(agent().getPopulation(), new Initializer<Agent>() {
+                @Override
+                public void initialize(Agent initializable) {
+                    initializable.setProjection(MotionObject2DImpl.copyOf(initializable.getProjection()));
+                    initializable.updateGeneComponents(
+                            new ChromosomeImpl(new UniparentalChromosomalHistory(agent().getId()),
+                                    Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
+                                        @Override
+                                        public Gene<?> apply(@Nullable GeneComponent<?> gene) {
+                                            assert gene != null;
+                                            return new Gene<Object>(GenesComponents.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
+                                        }
+                                    })));
+                }
+            });
 
             agent().logEvent(this, "offspringProduced", "");
         }

@@ -49,7 +49,7 @@ public class ConstantPropertyTest {
         final Object value2 = constantProperty.getValue();
 
         // then
-        verify(function, times(2)).apply(any(ConstantProperty.class), any(Arguments.class));
+        verify(function, times(1)).apply(any(ConstantProperty.class), any(Arguments.class));
         assertThat(value2).isNotEqualTo(value1);
     }
 }

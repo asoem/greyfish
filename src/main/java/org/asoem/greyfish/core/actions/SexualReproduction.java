@@ -18,7 +18,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.ImmutableObject2D;
+import org.asoem.greyfish.utils.space.MotionObject2DImpl;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,15 +78,22 @@ public class SexualReproduction extends AbstractGFAction {
         LOGGER.info("{}: Producing {} offspring ", agent(), eggCount);
 
         for (Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
-            final Agent offspring = simulation.createAgent(agent().getPopulation());
 
             final ChromosomalHistory spermHistory = sperm.getHistory();
+
             if ( ! (spermHistory instanceof UniparentalChromosomalHistory))
                 throw new AssertionError("Sperm must have an uniparental history");
-            final Chromosome blend = blend(agent().getGeneComponentList(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
-            offspring.updateGeneComponents(blend);
 
-            simulation.activateAgent(offspring, ImmutableObject2D.rotated(agent().getProjection(), RandomUtils.nextDouble(0, MathUtils.TWO_PI)));
+            final Chromosome blend = blend(agent().getGeneComponentList(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
+
+            simulation().createAgent(agent().getPopulation(), new Initializer<Agent>() {
+                @Override
+                public void initialize(Agent agent) {
+                    agent.setProjection(MotionObject2DImpl.reorientated(agent().getProjection(), RandomUtils.nextDouble(0, MathUtils.TWO_PI)));
+                    agent.updateGeneComponents(blend);
+                }
+            });
+
             agent().logEvent(this, "offspringProduced", "");
         }
 
