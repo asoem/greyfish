@@ -8,25 +8,28 @@ import org.simpleframework.xml.Element;
  * Date: 03.07.12
  * Time: 12:36
  */
-public class MotionObject2DImpl extends ImmutableObject2D implements MotionObject2D {
+public class MotionObject2DImpl extends ForwardingObject2D implements MotionObject2D {
 
     @Attribute(name = "collision")
     private final boolean collision;
 
+    private final ImmutableObject2D delegate;
+
     public MotionObject2DImpl(@Element(name = "anchorPoint") Point2D anchorPoint,
                               @Attribute(name = "orientation") double orientation,
                               @Attribute(name = "collision") boolean collision) {
-        super(anchorPoint, orientation);
+        this.delegate = ImmutableObject2D.of(anchorPoint.getX(), anchorPoint.getY(), orientation);
         this.collision = collision;
+    }
+
+    @Override
+    protected Object2D delegate() {
+        return delegate;
     }
 
     @Override
     public boolean didCollide() {
         return collision;
-    }
-
-    public static MotionObject2D of(double x, double y, double newOrientation, boolean b) {
-        return new MotionObject2DImpl(ImmutablePoint2D.at(x, y), newOrientation, b);
     }
 
     @Override
@@ -47,5 +50,17 @@ public class MotionObject2DImpl extends ImmutableObject2D implements MotionObjec
         int result = super.hashCode();
         result = 31 * result + (collision ? 1 : 0);
         return result;
+    }
+
+    public static MotionObject2D of(double x, double y, double newOrientation, boolean b) {
+        return new MotionObject2DImpl(ImmutablePoint2D.at(x, y), newOrientation, b);
+    }
+
+    public static MotionObject2D copyOf(MotionObject2D projection) {
+        return new MotionObject2DImpl(projection.getAnchorPoint(), projection.getOrientationAngle(), false);
+    }
+
+    public static MotionObject2D reorientated(MotionObject2D projection, double angle) {
+        return new MotionObject2DImpl(projection.getAnchorPoint(), angle, false);
     }
 }
