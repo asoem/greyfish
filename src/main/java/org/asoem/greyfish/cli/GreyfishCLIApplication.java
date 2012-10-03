@@ -18,7 +18,6 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
-import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.SimulationTemplate;
@@ -70,13 +69,10 @@ public class GreyfishCLIApplication {
         });
 
         LOGGER.info("Creating simulation for model {}", model);
-        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold);
+        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold, new H2Logger(dbPath));
         final SimulationTemplate simulationTemplate = model.createTemplate();
         assert simulationTemplate != null;
         final ParallelizedSimulation simulation = simulationTemplate.createSimulation(simulationFactory);
-        simulation.setSimulationLogger(SimulationLoggers.synchronizedLogger(new H2Logger(
-                dbPath.replaceAll("%\\{uuid\\}", simulation.getUUID().toString()))));
-
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
@@ -219,6 +215,7 @@ public class GreyfishCLIApplication {
                         throw new IOError(e);
                     }
                     ModelParameters.bindProperties(binder(), properties);
+
                 }
 
                 bind(Integer.class).annotatedWith(Names.named("steps"))
