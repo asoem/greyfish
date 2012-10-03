@@ -5,13 +5,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
-import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.simpleframework.xml.Attribute;
@@ -140,18 +139,18 @@ public class BasicSimulationTemplate implements SimulationTemplate {
     public <T extends Simulation> T createSimulation(SimulationFactory<T> simulationFactory) {
         checkNotNull(simulationFactory);
         final WalledTileSpace<Agent> space = WalledTileSpace.copyOf(this.space);
+        final T simulation = simulationFactory.createSimulation(space, prototypes);
+        simulation.setName(getName());
 
-        for (Agent agent : getPlaceholder()) {
-            final MotionObject2D projection = agent.getProjection();
-            assert projection != null;
-            final Point2D anchorPoint = projection.getAnchorPoint();
-            final ImmutableAgent clone = ImmutableAgent.fromPrototype(agent);
-            clone.initialize();
-            space.insertObject(clone, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
+        for (final Agent agent : getPlaceholder()) {
+            simulation.createAgent(agent.getPopulation(), new Initializer<Agent>() {
+                @Override
+                public void initialize(Agent clone) {
+                     clone.setProjection(agent.getProjection());
+                }
+            });
         }
 
-        final T simulation = simulationFactory.createSimulation(space);
-        simulation.setName(getName());
         return simulation;
     }
 

@@ -131,7 +131,7 @@ public class ActiveSimulationContext implements SimulationContext {
         final Object2D projection = agent.getProjection();
         assert projection != null;
 
-        simulation.logEvent(id, agent.getPopulation().getName(), projection.getAnchorPoint().getCoordinates(), eventOrigin, title, message);
+        simulation.logAgentEvent(id, agent.getPopulation().getName(), projection.getAnchorPoint().getCoordinates(), eventOrigin, title, message);
     }
 
     @Override

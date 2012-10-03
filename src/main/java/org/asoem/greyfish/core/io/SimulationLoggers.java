@@ -2,8 +2,6 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.individual.Agent;
 
-import java.util.UUID;
-
 /**
  * User: christoph
  * Date: 16.08.12
@@ -23,16 +21,16 @@ public class SimulationLoggers {
         }
 
         @Override
-        public void addAgent(Agent agent) {
+        public void logAgentCreation(Agent agent) {
             synchronized (this) {
-                logger.addAgent(agent);
+                logger.logAgentCreation(agent);
             }
         }
 
         @Override
-        public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
             synchronized (this) {
-                logger.addEvent(uuid, currentStep, agentId, populationName, coordinates, source, title, message);
+                logger.logAgentEvent(currentStep, agentId, populationName, coordinates, source, title, message);
             }
         }
     }

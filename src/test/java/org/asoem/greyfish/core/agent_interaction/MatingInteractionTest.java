@@ -1,9 +1,16 @@
 package org.asoem.greyfish.core.agent_interaction;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.inject.Guice;
+import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
+import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
 import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.individual.AgentInitializers;
 import org.asoem.greyfish.core.individual.ImmutableAgent;
 import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
@@ -11,29 +18,26 @@ import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.utils.space.MotionObject2DImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatingInteractionTest {
-
-    @Mock Population population;
 
     public MatingInteractionTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
-    // todo: there is a somewhere a stochastic process involved. The test fails only sometimes.
     @Test
     public void testNormalInteraction() throws Exception {
         // given
-        given(population.getName()).willReturn("TestPopulation");
+        final Population receiverPopulation = Population.named("receiverPopulation");
+        final Population donorPopulation = Population.named("donorPopulation");
 
         String messageClassifier = "mate";
         FemaleLikeMating receiverAction = FemaleLikeMating.with()
@@ -49,19 +53,34 @@ public class MatingInteractionTest {
                 .matingProbability(constant(1.0))
                 .build();
 
-        Agent female = ImmutableAgent.of(population)
+        final Agent female = ImmutableAgent.of(receiverPopulation)
                 .addActions(receiverAction)
                 .build();
-        Agent male = ImmutableAgent.of(population)
+        final Agent male = ImmutableAgent.of(donorPopulation)
                 .addActions(transmitterAction)
                 .build();
 
         final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1, 1);
-        space.insertObject(male, 0, 0, 0);
-        space.insertObject(female, 0, 0, 0);
+        final ImmutableSet<Agent> prototypes = ImmutableSet.of(male, female);
+        final Simulation simulation = ParallelizedSimulation.builder(space, prototypes)
+                .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
+                    final ImmutableMap<Population, Agent> populationPrototypeMap =
+                            Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {
+                                @Override
+                                public Population apply(Agent input) {
+                                    return input.getPopulation();
+                                }
+                            });
 
-        final Simulation simulation = new ParallelizedSimulation(1000, space);
-        Simulations.runFor(simulation, 3);
+                    @Override
+                    public Agent makeObject(Population population) throws Exception {
+                        return populationPrototypeMap.get(population);
+                    }
+                }))
+                .build();
+        simulation.createAgent(receiverPopulation, AgentInitializers.projection(MotionObject2DImpl.of(0, 0)));
+        simulation.createAgent(donorPopulation, AgentInitializers.projection(MotionObject2DImpl.of(0, 0)));
+        Simulations.runFor(simulation, 4);
 
         // then
         assertThat(receiverAction.getReceivedSperm().size()).isEqualTo(1);

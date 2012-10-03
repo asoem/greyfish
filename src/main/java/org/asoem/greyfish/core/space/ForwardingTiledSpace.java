@@ -87,6 +87,16 @@ public abstract class ForwardingTiledSpace<O extends MovingProjectable2D, T exte
     }
 
     @Override
+    public void insertObject(O agent) {
+        delegate().insertObject(agent);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return delegate().isEmpty();
+    }
+
+    @Override
     public Iterable<O> getObjects(Iterable<? extends Tile> tiles) {
         return delegate().getObjects(tiles);
     }

@@ -9,7 +9,10 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOError;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * User: christoph
@@ -213,7 +216,7 @@ public class H2Logger implements SimulationLogger {
     }
 
     @Override
-    public void addAgent(Agent agent) {
+    public void logAgentCreation(Agent agent) {
         addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
         final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
         for (Integer parentId : parents) {
@@ -231,8 +234,8 @@ public class H2Logger implements SimulationLogger {
     }
 
     @Override
-    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
-        addUpdateOperation(new InsertEventOperation(uuid, currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
+    public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        addUpdateOperation(new InsertEventOperation(currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
         tryCommit();
     }
 
@@ -242,20 +245,16 @@ public class H2Logger implements SimulationLogger {
     }
 
     private static class InsertEventOperation implements UpdateOperation {
-        private final UUID uuid;
         private final int currentStep;
         private final int agentId;
-        private final short populationNameId;
         private final double[] coordinates;
         private final short sourceNameId;
         private final short titleNameId;
         private final String message;
 
-        public InsertEventOperation(UUID uuid, int currentStep, int agentId, short populationNameId, double[] coordinates, short sourceNameId, short titleNameId, String message) {
-            this.uuid = uuid;
+        public InsertEventOperation(int currentStep, int agentId, short populationNameId, double[] coordinates, short sourceNameId, short titleNameId, String message) {
             this.currentStep = currentStep;
             this.agentId = agentId;
-            this.populationNameId = populationNameId;
             this.coordinates = coordinates;
             assert coordinates.length >= 2;
             this.sourceNameId = sourceNameId;

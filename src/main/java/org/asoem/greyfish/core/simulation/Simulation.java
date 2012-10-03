@@ -12,7 +12,6 @@ import org.asoem.greyfish.utils.base.Initializer;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * User: christoph
@@ -21,10 +20,6 @@ import java.util.UUID;
  */
 public interface Simulation extends HasName {
 
-    int numberOfPopulations();
-
-    Iterable<Agent> findNeighbours(Agent agent, double radius);
-
     Iterable<Agent> getAgents(Population population);
 
     /**
@@ -32,11 +27,19 @@ public interface Simulation extends HasName {
      */
     List<Agent> getAgents();
 
+    void createAgent(Population population, Initializer<? super Agent> initializer);
+
+    void createAgent(Population population);
+
     /**
      * Remove agent from this {@code Simulation}
      * @param agent the {@code Agent} to be removed from this {@code Simulation}
      */
     void removeAgent(Agent agent);
+
+    int numberOfPopulations();
+
+    Iterable<Agent> findNeighbours(Agent agent, double radius);
 
     int countAgents();
 
@@ -61,11 +64,9 @@ public interface Simulation extends HasName {
 
     void shutdown();
 
-    UUID getUUID();
+    SimulationLogger getSimulationLogger();
 
-    void setSimulationLogger(SimulationLogger simulationLogger);
-
-    void logEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
+    void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
 
     /**
      * With this method you can store values which hold for all agents during a single simulation step.
@@ -75,6 +76,4 @@ public interface Simulation extends HasName {
      * @return The stored value for {@code key}
      */
     Object snapshotValue(String key, Supplier<Object> valueCalculator);
-
-    void createAgent(Population population, Initializer<Agent> initializer);
 }

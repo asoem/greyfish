@@ -5,14 +5,12 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
-import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.utils.base.Initializer;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * User: christoph
@@ -100,23 +98,18 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public UUID getUUID() {
-        return delegate().getUUID();
-    }
-
-    @Override
-    public void setSimulationLogger(SimulationLogger simulationLogger) {
-        delegate().setSimulationLogger(simulationLogger);
-    }
-
-    @Override
     public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
         return delegate().snapshotValue(key, valueCalculator);
     }
 
     @Override
-    public void createAgent(Population population, Initializer<Agent> initializer) {
+    public void createAgent(Population population, Initializer<? super Agent> initializer) {
         delegate().createAgent(population, initializer);
+    }
+
+    @Override
+    public void createAgent(Population population) {
+        delegate().createAgent(population);
     }
 
     @Override

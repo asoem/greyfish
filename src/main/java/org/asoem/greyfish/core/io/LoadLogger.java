@@ -5,8 +5,6 @@ import com.google.common.util.concurrent.Service;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.individual.Agent;
 
-import java.util.UUID;
-
 /**
  * User: christoph
  * Date: 23.03.12
@@ -41,12 +39,12 @@ public class LoadLogger implements SimulationLogger {
     }
 
     @Override
-    public void addAgent(Agent agent) {
+    public void logAgentCreation(Agent agent) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+    public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         ++logCount;
     }
 }

@@ -1,5 +1,11 @@
 package org.asoem.greyfish.core.agent_interaction;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
+import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.individual.Agent;
@@ -25,7 +31,8 @@ public class ResourceInteractionTest {
     @Test
     public void testNormalInteraction() throws Exception {
         // given
-        Population population = Population.named("TestPopulation");
+        Population consumerPopulation = Population.named("ConsumerPopulation");
+        Population providerPopulation = Population.named("ProviderPopulation");
 
         String messageClassifier = "mate";
 
@@ -60,22 +67,38 @@ public class ResourceInteractionTest {
                 .provides(Callbacks.constant(1.0))
                 .build();
 
-        Agent consumer = ImmutableAgent.of(population)
+        Agent consumer = ImmutableAgent.of(consumerPopulation)
                 .addProperties(energyStorage)
                 .addActions(consumptionAction)
                 .build();
-        Agent provisioner = ImmutableAgent.of(population)
+        Agent provisioner = ImmutableAgent.of(providerPopulation)
                 .addProperties(resourceProperty)
                 .addActions(provisionAction)
                 .build();
 
 
         final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
-        space.insertObject(consumer, 0, 0, 0);
-        space.insertObject(provisioner, 0, 0, 0);
+        final ImmutableSet<Agent> prototypes = ImmutableSet.of(consumer, provisioner);
+        final Simulation simulation = ParallelizedSimulation.builder(space, prototypes)
+                .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
+                    final ImmutableMap<Population, Agent> populationPrototypeMap =
+                            Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {
+                                @Override
+                                public Population apply(Agent input) {
+                                    return input.getPopulation();
+                                }
+                            });
 
-        final Simulation simulation = new ParallelizedSimulation(1000, space);
-        Simulations.runFor(simulation, 5);
+                    @Override
+                    public Agent makeObject(Population population) throws Exception {
+                        return populationPrototypeMap.get(population);
+                    }
+                }))
+                .build();
+
+        simulation.createAgent(consumerPopulation);
+        simulation.createAgent(providerPopulation);
+        Simulations.runFor(simulation, 6);
 
         // then
         assertThat(energyStorage.getValue()).isEqualTo(2);

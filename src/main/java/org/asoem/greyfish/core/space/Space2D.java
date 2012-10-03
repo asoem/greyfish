@@ -82,4 +82,8 @@ public interface Space2D<T extends MovingProjectable2D> {
      * @return all objects which are visible by the given object at a distance less than or equal to the given {@code radius}
      */
     Iterable<T> getVisibleNeighbours(T object, double radius);
+
+    void insertObject(T agent);
+
+    boolean isEmpty();
 }

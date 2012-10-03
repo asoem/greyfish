@@ -354,7 +354,19 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
             });
         }
         else
-            throw new IllegalArgumentException("Agent has no projection");
+            throw new IllegalArgumentException("Projectable has no projection");
+    }
+
+    @Override
+    public void insertObject(T agent) {
+        final MotionObject2D projection = checkNotNull(agent.getProjection(), "Projectable has no projection");
+        final Point2D point = projection.getAnchorPoint();
+        insertObject(agent, point.getX(), point.getY(), projection.getOrientationAngle());
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return projectables.isEmpty();
     }
 
     public Iterable<T> getNeighbours(T agent, double radius) {
@@ -501,8 +513,11 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
      */
     @SuppressWarnings("UnusedDeclaration")
     public static <T extends MovingProjectable2D> WalledTileSpace<T> createEmptyCopy(WalledTileSpace<T> space) {
+        checkNotNull(space, "space is null");
         return new WalledTileSpace<T>(space.width, space.height, space.getWalledTiles());
     }
+
+
 
     public static class TiledSpaceBuilder<T extends MovingProjectable2D> implements Builder<WalledTileSpace<T>> {
 

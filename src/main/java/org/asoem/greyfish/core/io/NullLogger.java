@@ -3,8 +3,6 @@ package org.asoem.greyfish.core.io;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.individual.Agent;
 
-import java.util.UUID;
-
 /**
  * User: christoph
  * Date: 08.05.12
@@ -17,10 +15,10 @@ public class NullLogger implements SimulationLogger {
     }
 
     @Override
-    public void addAgent(Agent agent) {
+    public void logAgentCreation(Agent agent) {
     }
 
     @Override
-    public void addEvent(UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+    public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
     }
 }
