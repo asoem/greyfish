@@ -19,28 +19,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class DeepCloner {
 
     private final Map<DeepCloneable, DeepCloneable> map = Maps.newIdentityHashMap();
-    private DeepCloneable keyForExpectedPut = null;
 
     private DeepCloner() {
-    }
-
-    private boolean insertIsRequired() {
-        return keyForExpectedPut != null;
     }
 
     /**
      * Add the given {@code clone} as the clone of the {@code DeepCloneable} of the last
      * {@link #clone(DeepCloneable, Class)} or {@link #getClone(DeepCloneable, Class)} operation.
      * This method must be called by the clone before the clone itself clones any of it's {@code DeepCloneable} fields.
-     * @param clone the clone to add
+     * @param original a cloneable
+     * @param clone the clone of original
      */
-    public void addClone(DeepCloneable clone) {
+    public <T extends DeepCloneable> void addClone(T original, T clone) {
+        checkNotNull(original);
         checkNotNull(clone);
-        assert keyForExpectedPut != null;
-        checkArgument(clone.getClass().equals(keyForExpectedPut.getClass()),
-                "Class of clone was expected to be " + keyForExpectedPut.getClass() +  ", but is of type " + clone.getClass());
-        map.put(keyForExpectedPut, clone);
-        keyForExpectedPut = null;
+        checkArgument(original.getClass().equals(clone.getClass()), "Classes are not the same: " + original.getClass() + " != " + clone.getClass());
+        map.put(original, clone);
     }
 
     /**
@@ -53,17 +47,12 @@ public class DeepCloner {
     @Nullable
     public <T extends DeepCloneable> T getClone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
-        if (insertIsRequired())
-            throw new IllegalStateException(
-                    "A clone should createChildNode an entry for itself first with cloner.setAsCloned(cloneable, this)");
-
         if (cloneable == null)
             return null;
         else if (map.containsKey(cloneable)) {
             return clazz.cast(map.get(cloneable));
         }
         else {
-            keyForExpectedPut = cloneable;
             final DeepCloneable clone = cloneable.deepClone(this);
             checkNotNull(clone, "Deep clone of a non-null cloneable must not be null: {}", cloneable);
             return clazz.cast(clone);
