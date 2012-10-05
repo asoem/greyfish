@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -69,7 +70,7 @@ public class GreyfishCLIApplication {
         });
 
         LOGGER.info("Creating simulation for model {}", model);
-        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold, new H2Logger(dbPath));
+        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold, new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString())));
         final SimulationTemplate simulationTemplate = model.createTemplate();
         assert simulationTemplate != null;
         final ParallelizedSimulation simulation = simulationTemplate.createSimulation(simulationFactory);
