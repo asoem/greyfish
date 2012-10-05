@@ -41,7 +41,7 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractGFAction(AbstractActionBuilder<? extends AbstractGFAction, ? extends AbstractActionBuilder> builder) {
+    protected AbstractGFAction(AbstractBuilder<? extends AbstractGFAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.rootCondition = builder.condition;
         this.onSuccess = builder.onSuccess;
@@ -196,11 +196,11 @@ public abstract class AbstractGFAction extends AbstractAgentComponent implements
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractActionBuilder<A extends AbstractGFAction, B extends AbstractActionBuilder<A, B>> extends AbstractComponentBuilder<A, B> {
+    protected static abstract class AbstractBuilder<A extends AbstractGFAction, B extends AbstractBuilder<A, B>> extends AbstractAgentComponent.AbstractBuilder<A, B> {
         private GFCondition condition;
         private Callback<? super AbstractGFAction, Void> onSuccess = Callbacks.emptyCallback();
 
-        public B executesIf(GFCondition condition) {
+        public B executedIf(GFCondition condition) {
             this.condition = condition;
             return self();
         }

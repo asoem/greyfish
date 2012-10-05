@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.collect.Maps;
-import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -28,6 +30,7 @@ public class H2Logger implements SimulationLogger {
     private final NameIdMap nameIdMap = new NameIdMap();
 
     public H2Logger(String path) {
+        checkNotNull(path, "path is null");
         Connection connection = null;
 
         try {
@@ -35,6 +38,7 @@ public class H2Logger implements SimulationLogger {
             connection = DriverManager.getConnection(
                     String.format("jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
                             path), "sa", "");
+            LOGGER.info("Connection opened to database {}", path);
             this.connection = connection;
             initDatabase();
             connection.setAutoCommit(false);
@@ -44,7 +48,7 @@ public class H2Logger implements SimulationLogger {
                 if (connection != null)
                     connection.close();
             } catch (SQLException e1) {
-                LOGGER.info("Exception during connection.close()", e1);
+                LOGGER.warn("Exception during connection.close()", e1);
             }
             throw new IOError(e);
         }
@@ -115,7 +119,7 @@ public class H2Logger implements SimulationLogger {
     }
 
     private void finalizeAndShutdownDatabase() throws SQLException {
-        LOGGER.debug("Finalizing and shutting down the database");
+        LOGGER.info("Finalizing and shutting down the database");
 
         commit();
         connection.setAutoCommit(true);
@@ -218,11 +222,11 @@ public class H2Logger implements SimulationLogger {
     @Override
     public void logAgentCreation(Agent agent) {
         addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
-        final Set<Integer> parents = agent.getGeneComponentList().getOrigin().getParents();
+        final Set<Integer> parents = agent.getTraits().getOrigin().getParents();
         for (Integer parentId : parents) {
             addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
         }
-        for (GeneComponent<?> gene : agent.getGeneComponentList()) {
+        for (AgentTrait<?> gene : agent.getTraits()) {
             assert gene != null;
             if (Double.class.equals(gene.getAlleleClass())) {
                 addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));

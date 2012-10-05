@@ -83,7 +83,7 @@ public interface Space2D<T extends MovingProjectable2D> {
      */
     Iterable<T> getVisibleNeighbours(T object, double radius);
 
-    void insertObject(T agent);
+    boolean insertObject(T agent);
 
     boolean isEmpty();
 }

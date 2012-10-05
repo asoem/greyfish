@@ -12,7 +12,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
 
     private int statefulExecutionCount;
 
-    protected FiniteStateAction(AbstractActionBuilder<?, ?> builder) {
+    protected FiniteStateAction(AbstractBuilder<?, ?> builder) {
         super(builder);
     }
 

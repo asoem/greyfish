@@ -17,20 +17,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 08.02.12
  * Time: 11:08
  */
-public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> extends AbstractComponentList<E> implements GeneComponentList<E> {
+public abstract class AbstractGeneComponentList<E extends AgentTrait<?>> extends AbstractComponentList<E> implements GeneComponentList<E> {
 
     private ChromosomalHistory chromosomalHistory = NoChromosomalHistory.INSTANCE;
 
     protected AbstractGeneComponentList() {
     }
 
-    public boolean isCompatible(GeneComponentList<? extends GeneComponent<?>> geneComponentList) {
+    public boolean isCompatible(GeneComponentList<? extends AgentTrait<?>> geneComponentList) {
         if (geneComponentList == null || this.size() != geneComponentList.size())
             return false;
 
         final Iterator<E> this_genome_iterator = this.iterator();
 
-        for (GeneComponent<?> gene : geneComponentList) {
+        for (AgentTrait<?> gene : geneComponentList) {
             if (!this_genome_iterator.next().isMutatedCopy(gene)) {
                 return false;
             }
@@ -41,7 +41,7 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
 
     @Override
     public void updateAllGenes(GeneComponentList<? extends E> geneComponentList) {
-        checkArgument(isCompatible(geneComponentList), "Given geneComponentList %s is not compatible to this geneComponentList %s.", geneComponentList, this);
+        checkArgument(isCompatible(geneComponentList), "Given agentTraitList %s is not compatible to this agentTraitList %s.", geneComponentList, this);
 
         final Iterator<? extends E> sourceIterator = geneComponentList.iterator();
         final Iterator<E> destinationIterator = this.iterator();
@@ -67,7 +67,7 @@ public abstract class AbstractGeneComponentList<E extends GeneComponent<?>> exte
 
     @Override
     public void initGenes() {
-        for (GeneComponent<?> gene : this) {
+        for (AgentTrait<?> gene : this) {
             gene.setAllele(gene.createInitialValue());
         }
     }

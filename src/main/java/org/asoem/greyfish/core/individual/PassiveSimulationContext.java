@@ -41,7 +41,7 @@ public enum PassiveSimulationContext implements SimulationContext {
 
     @Override
     public void execute(Agent agent) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("An agent cannot get executed in a passive context: " + agent);
     }
 
     @Override

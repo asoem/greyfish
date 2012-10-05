@@ -12,20 +12,20 @@ import java.util.Collections;
  * Date: 07.02.12
  * Time: 12:15
  */
-public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent implements GeneComponent<T> {
+public abstract class AbstractTrait<T> extends AbstractAgentComponent implements AgentTrait<T> {
 
-    protected AbstractGeneComponent() {
+    protected AbstractTrait() {
     }
 
-    protected AbstractGeneComponent(AbstractAgentComponent cloneable, DeepCloner map) {
+    protected AbstractTrait(AbstractAgentComponent cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    protected AbstractGeneComponent(String name) {
+    protected AbstractTrait(String name) {
         super(name);
     }
 
-    public AbstractGeneComponent(AbstractComponentBuilder<? extends AbstractGeneComponent<?>, ? extends AbstractComponentBuilder> builder) {
+    public AbstractTrait(AbstractBuilder<? extends AbstractTrait<?>, ? extends AbstractBuilder> builder) {
         super(builder);
     }
 
@@ -45,7 +45,7 @@ public abstract class AbstractGeneComponent<T> extends AbstractAgentComponent im
     }
 
     @Override
-    public boolean isMutatedCopy(@Nullable GeneComponent<?> gene) {
+    public boolean isMutatedCopy(@Nullable AgentTrait<?> gene) {
         return gene != null && gene.getAlleleClass().equals(this.getAlleleClass());
     }
 

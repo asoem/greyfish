@@ -8,7 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.GFAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
-import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -56,11 +56,11 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             return GFProperty.class.cast(agentComponent);
                         }
                     });
-                } else if (GeneComponent.class.isAssignableFrom(contextClass)) {
-                    return gene(gomParts, new Function<T, GeneComponent>() {
+                } else if (AgentTrait.class.isAssignableFrom(contextClass)) {
+                    return gene(gomParts, new Function<T, AgentTrait>() {
                         @Override
-                        public GeneComponent apply(T agentComponent) {
-                            return GeneComponent.class.cast(agentComponent);
+                        public AgentTrait apply(T agentComponent) {
+                            return AgentTrait.class.cast(agentComponent);
                         }
                     });
                 } else if (GFCondition.class.isAssignableFrom(contextClass)) {
@@ -152,14 +152,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                                         return agent1.getProperty(componentName, GFProperty.class);
                                     }
                                 });
-                            } else if (GeneComponent.class.isInstance(target)) {
-                                return gene(gomParts, new Function<T, GeneComponent>() {
+                            } else if (AgentTrait.class.isInstance(target)) {
+                                return gene(gomParts, new Function<T, AgentTrait>() {
                                     @Override
-                                    public GeneComponent apply(T t) {
+                                    public AgentTrait apply(T t) {
                                         final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
                                         if (agent1 == null)
                                             throw new AssertionError("Agent must not be null at this point");
-                                        return agent1.getGene(componentName, GeneComponent.class);
+                                        return agent1.getGene(componentName, AgentTrait.class);
                                     }
                                 });
                             } else
@@ -279,19 +279,19 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         }
     }
 
-    private <T> Function<T, ?> gene(Iterator<String> parts, Function<T, GeneComponent> ret) {
+    private <T> Function<T, ?> gene(Iterator<String> parts, Function<T, AgentTrait> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
             if ("value".equals(nextPart)) {
-                return Functions.compose(new Function<GeneComponent, Object>() {
+                return Functions.compose(new Function<AgentTrait, Object>() {
                     @Override
-                    public Object apply(GeneComponent gene) {
+                    public Object apply(AgentTrait gene) {
                         return checkNotNull(gene).getAllele();
                     }
                 }, ret);
             } else
-                throw new RuntimeException("GeneComponent has no member named " + nextPart);
+                throw new RuntimeException("AgentTrait has no member named " + nextPart);
         } else {
             return ret;
         }
@@ -339,11 +339,11 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             matcher = Pattern.compile("genes\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
             if (matcher.matches()) {
                 final String geneName = matcher.group(1);
-                return gene(parts, Functions.compose(new Function<Agent, GeneComponent>() {
+                return gene(parts, Functions.compose(new Function<Agent, AgentTrait>() {
                     @Override
-                    public GeneComponent apply(Agent agent) {
+                    public AgentTrait apply(Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen
-                        return checkNotNull(agent).getGene(geneName, GeneComponent.class);
+                        return checkNotNull(agent).getGene(geneName, AgentTrait.class);
                     }
                 }, ret));
             }

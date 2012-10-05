@@ -95,7 +95,7 @@ public class MaleLikeMating extends ContractNetParticipantAction {
 
     @Override
     protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
-        // costs for mating define quality of the geneComponentList
+        // costs for mating define quality of the agentTraitList
 //        DoubleProperty doubleProperty = null;
 //        GeneComponentList sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.parallelApply(sperm));
@@ -145,16 +145,16 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         }
     }
 
-    protected static abstract class AbstractBuilder<E extends MaleLikeMating, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends MaleLikeMating, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
         private String ontology = "mate";
         public Callback<? super MaleLikeMating, Double> matingProbabilityExpression = Callbacks.constant(1.0);
 
-        public T matingProbability(Callback<? super MaleLikeMating, Double> matingProbability) {
+        public B matingProbability(Callback<? super MaleLikeMating, Double> matingProbability) {
             this.matingProbabilityExpression = checkNotNull(matingProbability);
             return self();
         }
 
-        public T ontology(String ontology) {
+        public B ontology(String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }

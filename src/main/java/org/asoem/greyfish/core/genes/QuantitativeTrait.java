@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.reflect.TypeToken;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -17,32 +18,32 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 22.09.11
  * Time: 09:37
  */
-@ClassGroup(tags = "genes")
-public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
+@ClassGroup(tags = "traits")
+public class QuantitativeTrait extends AbstractTrait<Double> {
 
     @Element
-    private Callback<? super DoubleGeneComponent, Double> initializationKernel;
+    private Callback<? super QuantitativeTrait, Double> initializationKernel;
 
     @Element
-    private Callback<? super DoubleGeneComponent, Double> mutationKernel;
+    private Callback<? super QuantitativeTrait, Double> mutationKernel;
 
     @Element
-    private Callback<? super DoubleGeneComponent, Double> segregationKernel;
+    private Callback<? super QuantitativeTrait, Double> segregationKernel;
 
     private Double value = 0.0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public DoubleGeneComponent() {
+    public QuantitativeTrait() {
     }
 
-    protected DoubleGeneComponent(DoubleGeneComponent doubleMutableGene, DeepCloner cloner) {
+    protected QuantitativeTrait(QuantitativeTrait doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
         this.initializationKernel = doubleMutableGene.initializationKernel;
         this.mutationKernel = doubleMutableGene.mutationKernel;
         this.segregationKernel = doubleMutableGene.segregationKernel;
     }
 
-    protected DoubleGeneComponent(AbstractDoubleGeneBuilder<? extends DoubleGeneComponent, ? extends AbstractDoubleGeneBuilder> builder) {
+    protected QuantitativeTrait(AbstractBuilder<? extends QuantitativeTrait, ? extends AbstractBuilder> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
@@ -51,7 +52,7 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new DoubleGeneComponent(this, cloner);
+        return new QuantitativeTrait(this, cloner);
     }
 
     @Override
@@ -59,11 +60,11 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
         return Double.class;
     }
 
-    public Callback<? super DoubleGeneComponent, Double> getInitializationKernel() {
+    public Callback<? super QuantitativeTrait, Double> getInitializationKernel() {
         return initializationKernel;
     }
 
-    public Callback<? super DoubleGeneComponent, Double> getMutationKernel() {
+    public Callback<? super QuantitativeTrait, Double> getMutationKernel() {
         return mutationKernel;
     }
 
@@ -102,48 +103,48 @@ public class DoubleGeneComponent extends AbstractGeneComponent<Double> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Initial Value", TypedValueModels.forField("initializationKernel", this, new TypeToken<Callback<? super DoubleGeneComponent, Double>>() {}));
-        e.add("Mutation(x)", TypedValueModels.forField("mutationKernel", this, new TypeToken<Callback<? super DoubleGeneComponent, Double>>() {}));
-        e.add("Recombination(x,y)", TypedValueModels.forField("segregationKernel", this, new TypeToken<Callback<? super DoubleGeneComponent, Double>>() {}));
+        e.add("Initial Value", TypedValueModels.forField("initializationKernel", this, new TypeToken<Callback<? super QuantitativeTrait, Double>>() {}));
+        e.add("Mutation(x)", TypedValueModels.forField("mutationKernel", this, new TypeToken<Callback<? super QuantitativeTrait, Double>>() {}));
+        e.add("Recombination(x,y)", TypedValueModels.forField("segregationKernel", this, new TypeToken<Callback<? super QuantitativeTrait, Double>>() {}));
     }
 
-    public static DoubleGeneBuilder builder() {
-        return new DoubleGeneBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class DoubleGeneBuilder extends AbstractDoubleGeneBuilder<DoubleGeneComponent, DoubleGeneBuilder> {
+    public static class Builder extends AbstractBuilder<QuantitativeTrait, Builder> {
         @Override
-        protected DoubleGeneBuilder self() {
+        protected Builder self() {
             return this;
         }
 
         @Override
-        protected DoubleGeneComponent checkedBuild() {
-            return new DoubleGeneComponent(this);
+        protected QuantitativeTrait checkedBuild() {
+            return new QuantitativeTrait(this);
         }
     }
 
-    protected static abstract class AbstractDoubleGeneBuilder<E extends DoubleGeneComponent, T extends AbstractDoubleGeneBuilder<E, T>> extends AbstractComponentBuilder<E, T> {
-        private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractDoubleGeneBuilder.class);
+    protected static abstract class AbstractBuilder<C extends QuantitativeTrait, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B> {
+        private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractBuilder.class);
         private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.constant(0.0);
         private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.constant(0.0);
         private static final Callback<Object,Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.constant(0.0);
 
-        private Callback<? super DoubleGeneComponent, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
-        private Callback<? super DoubleGeneComponent, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
-        private Callback<? super DoubleGeneComponent, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
+        private Callback<? super QuantitativeTrait, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
+        private Callback<? super QuantitativeTrait, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
+        private Callback<? super QuantitativeTrait, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
 
-        public T initialization(Callback<? super DoubleGeneComponent, Double> callback) {
+        public B initialization(Callback<? super QuantitativeTrait, Double> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public T mutation(Callback<? super DoubleGeneComponent, Double> callback) {
+        public B mutation(Callback<? super QuantitativeTrait, Double> callback) {
             this.mutationKernel = checkNotNull(callback);
             return self();
         }
 
-        public T segregation(Callback<? super DoubleGeneComponent, Double> callback) {
+        public B segregation(Callback<? super QuantitativeTrait, Double> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }

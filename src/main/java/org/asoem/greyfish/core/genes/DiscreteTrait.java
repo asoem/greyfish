@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.reflect.TypeToken;
+import org.asoem.greyfish.core.individual.AbstractAgentComponent;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -23,38 +24,38 @@ import static com.google.common.base.Preconditions.*;
  * Date: 07.02.12
  * Time: 11:28
  */
-@ClassGroup(tags = {"genes"})
-public class MarkovGeneComponent extends AbstractGeneComponent<String> {
+@ClassGroup(tags = {"traits"})
+public class DiscreteTrait extends AbstractTrait<String> {
 
     @Element(required = false)
-    private Table<String, String, Callback<? super MarkovGeneComponent, Double>> markovMatrix;
+    private Table<String, String, Callback<? super DiscreteTrait, Double>> markovMatrix;
 
     @Element(required = false)
-    private Callback<? super MarkovGeneComponent, String> initializationKernel;
+    private Callback<? super DiscreteTrait, String> initializationKernel;
 
     @Element
-    private Callback<? super MarkovGeneComponent, String> segregationKernel;
+    private Callback<? super DiscreteTrait, String> segregationKernel;
 
     @Element(required = false)
     private String currentState;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    private MarkovGeneComponent() {
+    private DiscreteTrait() {
     }
 
-    public MarkovGeneComponent(Table<String, String, Callback<? super MarkovGeneComponent, Double>> chain, Callback<? super MarkovGeneComponent, String> initialState) {
+    public DiscreteTrait(Table<String, String, Callback<? super DiscreteTrait, Double>> chain, Callback<? super DiscreteTrait, String> initialState) {
         this.markovMatrix = checkNotNull(chain);
         this.initializationKernel = checkNotNull(initialState);
     }
 
-    public MarkovGeneComponent(AbstractMarkovGeneComponentBuilder<? extends MarkovGeneComponent, ? extends AbstractMarkovGeneComponentBuilder> builder) {
+    public DiscreteTrait(AbstractBuilder<? extends DiscreteTrait, ? extends AbstractBuilder> builder) {
         super(builder);
         this.markovMatrix = builder.markovChain.build();
         this.initializationKernel = builder.initializationKernel;
         this.segregationKernel = builder.segregationKernel;
     }
 
-    private MarkovGeneComponent(MarkovGeneComponent markovGene, DeepCloner cloner) {
+    private DiscreteTrait(DiscreteTrait markovGene, DeepCloner cloner) {
         super(markovGene, cloner);
         this.markovMatrix = markovGene.markovMatrix;
         this.initializationKernel = markovGene.initializationKernel;
@@ -79,7 +80,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         }
 
 
-        final Map<String, Callback<? super MarkovGeneComponent, Double>> row = markovMatrix.row(allele);
+        final Map<String, Callback<? super DiscreteTrait, Double>> row = markovMatrix.row(allele);
 
         if (row.isEmpty()) {
             return allele;
@@ -87,8 +88,8 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
         double sum = 0;
         double rand = RandomUtils.nextDouble();
-        for (Map.Entry<String, Callback<? super MarkovGeneComponent, Double>> cell : row.entrySet()) {
-            sum += Callbacks.call(cell.getValue(), MarkovGeneComponent.this);
+        for (Map.Entry<String, Callback<? super DiscreteTrait, Double>> cell : row.entrySet()) {
+            sum += Callbacks.call(cell.getValue(), DiscreteTrait.this);
             if (sum > rand) {
                 return cell.getKey();
             }
@@ -104,7 +105,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     @Override
     public String createInitialValue() {
-        return Callbacks.call(initializationKernel, MarkovGeneComponent.this);
+        return Callbacks.call(initializationKernel, DiscreteTrait.this);
     }
 
     @Override
@@ -114,7 +115,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new MarkovGeneComponent(this, cloner);
+        return new DiscreteTrait(this, cloner);
     }
 
     @Override
@@ -125,7 +126,7 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Initial State", TypedValueModels.forField("initializationKernel", this, new TypeToken<Callback<? super MarkovGeneComponent, String>>() {}));
+        e.add("Initial State", TypedValueModels.forField("initializationKernel", this, new TypeToken<Callback<? super DiscreteTrait, String>>() {}));
         /*
         e.add("Transition Rules", new AbstractTypedValueModel<String>() {
             @Override
@@ -141,31 +142,31 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
         */
     }
 
-    public Table<String, String, Callback<? super MarkovGeneComponent, Double>> getMarkovChain() {
+    public Table<String, String, Callback<? super DiscreteTrait, Double>> getMarkovChain() {
         return markovMatrix;
     }
 
-    public Callback<? super MarkovGeneComponent, ? extends String> getInitializationKernel() {
+    public Callback<? super DiscreteTrait, ? extends String> getInitializationKernel() {
         return initializationKernel;
     }
 
-    public static MarkovGeneComponentBuilder builder() {
-        return new MarkovGeneComponentBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public static class MarkovGeneComponentBuilder extends AbstractMarkovGeneComponentBuilder<MarkovGeneComponent, MarkovGeneComponentBuilder> {
+    public static class Builder extends AbstractBuilder<DiscreteTrait, Builder> {
         @Override
-        protected MarkovGeneComponentBuilder self() {
+        protected Builder self() {
             return this;
         }
 
         @Override
-        protected MarkovGeneComponent checkedBuild() {
-            return new MarkovGeneComponent(this);
+        protected DiscreteTrait checkedBuild() {
+            return new DiscreteTrait(this);
         }
     }
 
-    protected abstract static class AbstractMarkovGeneComponentBuilder<T extends MarkovGeneComponent, B extends AbstractComponentBuilder<T, B>> extends AbstractComponentBuilder<T, B> {
+    protected abstract static class AbstractBuilder<T extends DiscreteTrait, B extends AbstractBuilder<T, B>> extends AbstractAgentComponent.AbstractBuilder<T, B> {
 
         private static final Callback<Object, String> DEFAULT_SEGREGATION_KERNEL = new Callback<Object, String>() {
             @Override
@@ -173,23 +174,23 @@ public class MarkovGeneComponent extends AbstractGeneComponent<String> {
                 return (String) RandomUtils.sample(arguments.get("x"), arguments.get("y"));
             }
         };
-        private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMarkovGeneComponentBuilder.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBuilder.class);
 
-        private ImmutableTable.Builder<String, String, Callback<? super MarkovGeneComponent, Double>> markovChain = ImmutableTable.builder();
-        private Callback<? super MarkovGeneComponent, String> initializationKernel;
-        private Callback<? super MarkovGeneComponent, String> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
+        private ImmutableTable.Builder<String, String, Callback<? super DiscreteTrait, Double>> markovChain = ImmutableTable.builder();
+        private Callback<? super DiscreteTrait, String> initializationKernel;
+        private Callback<? super DiscreteTrait, String> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
 
-        public B put(String state1, String state2, Callback<? super MarkovGeneComponent, Double> transitionCallback) {
+        public B addMutation(String state1, String state2, Callback<? super DiscreteTrait, Double> transitionCallback) {
             markovChain.put(state1, state2, transitionCallback);
             return self();
         }
 
-        public B initialization(Callback<? super MarkovGeneComponent, String> callback) {
+        public B initialization(Callback<? super DiscreteTrait, String> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super MarkovGeneComponent, String> callback) {
+        public B segregation(Callback<? super DiscreteTrait, String> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }

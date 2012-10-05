@@ -130,7 +130,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.classification = cloneable.classification;
     }
 
-    protected ResourceConsumptionAction(AbstractBuilder<?, ?> builder) {
+    protected ResourceConsumptionAction(AbstractBuilder<? extends ResourceConsumptionAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.requestAmount = builder.requestAmount;
@@ -168,7 +168,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends ResourceConsumptionAction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);
@@ -176,27 +176,27 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         private Callback<? super ResourceConsumptionAction, Void> uptakeUtilization = Callbacks.emptyCallback();
         private Callback<? super ResourceConsumptionAction, ?> classification = Callbacks.constant(0.42);
 
-        public T ontology(String parameterMessageType) {
+        public B ontology(String parameterMessageType) {
             this.ontology = checkNotNull(parameterMessageType);
             return self();
         }
 
-        public T requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) {
+        public B requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) {
             this.requestAmount = amountPerRequest;
             return self();
         }
 
-        public T interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) {
+        public B interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) {
             this.interactionRadius = sensorRange;
             return self();
         }
 
-        public T uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) {
+        public B uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) {
             this.uptakeUtilization = checkNotNull(uptakeUtilization);
             return self();
         }
 
-        public T classification(Callback<? super ResourceConsumptionAction, Object> classification) {
+        public B classification(Callback<? super ResourceConsumptionAction, Object> classification) {
             this.classification = checkNotNull(classification);
             return self();
         }

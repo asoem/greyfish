@@ -358,10 +358,10 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public void insertObject(T agent) {
+    public boolean insertObject(T agent) {
         final MotionObject2D projection = checkNotNull(agent.getProjection(), "Projectable has no projection");
         final Point2D point = projection.getAnchorPoint();
-        insertObject(agent, point.getX(), point.getY(), projection.getOrientationAngle());
+        return insertObject(agent, point.getX(), point.getY(), projection.getOrientationAngle());
     }
 
     @Override

@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.genes.MutableGeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -16,11 +16,11 @@ public class MutableAgent extends AbstractAgent {
         super(mutableAgent, map);
     }
 
-    protected MutableAgent(AbstractAgentBuilder<?,?> builder) {
+    protected MutableAgent(AbstractBuilder<?,?> builder) {
         super(new Body(),
                 new MutableComponentList<GFProperty<?>>(builder.properties),
                 new MutableComponentList<GFAction>(builder.actions),
-                new MutableGeneComponentList<GeneComponent<?>>(builder.genes));
+                new MutableGeneComponentList<AgentTrait<?>>(builder.traits));
         setPopulation(builder.population);
     }
 
@@ -28,15 +28,15 @@ public class MutableAgent extends AbstractAgent {
     private MutableAgent(@Element(name = "body") Body body,
                            @Element(name = "properties") ComponentList<GFProperty<?>> properties,
                            @Element(name = "actions") ComponentList<GFAction> actions,
-                           @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
-        super(body, properties, actions, geneComponentList);
+                           @Element(name = "agentTraitList") GeneComponentList<AgentTrait<?>> agentTraitList) {
+        super(body, properties, actions, agentTraitList);
     }
 
     public MutableAgent(Agent agent) {
         super(new Body(agent.getBody()),
                 new MutableComponentList<GFProperty<?>>(agent.getProperties()),
                 new MutableComponentList<GFAction>(agent.getActions()),
-                new MutableGeneComponentList<GeneComponent<?>>(agent.getGeneComponentList()));
+                new MutableGeneComponentList<AgentTrait<?>>(agent.getTraits()));
         setPopulation(agent.getPopulation());
     }
 
@@ -65,7 +65,7 @@ public class MutableAgent extends AbstractAgent {
         return new Builder(population);
     }
 
-    public static final class Builder extends AbstractAgentBuilder<MutableAgent, Builder> {
+    public static final class Builder extends AbstractBuilder<MutableAgent, Builder> {
         protected Builder(Population population) {
             super(population);
         }

@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.genes.ImmutableGeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
@@ -25,20 +25,20 @@ public class ImmutableAgent extends AbstractAgent {
     private ImmutableAgent(@Element(name = "body") Body body,
                            @Element(name = "properties") ComponentList<GFProperty<?>> properties,
                            @Element(name = "actions") ComponentList<GFAction> actions,
-                           @Element(name = "geneComponentList") GeneComponentList<GeneComponent<?>> geneComponentList) {
-        super(body, properties, actions, geneComponentList);
+                           @Element(name = "agentTraitList") GeneComponentList<AgentTrait<?>> agentTraitList) {
+        super(body, properties, actions, agentTraitList);
         freeze();
     }
 
-    private ImmutableAgent(ImmutableAgent agent, DeepCloner map) {
-        super(agent, map);
+    private ImmutableAgent(ImmutableAgent agent, DeepCloner cloner) {
+        super(agent, cloner);
     }
 
-    private ImmutableAgent(ImmutableAgentBuilder builder) {
+    private ImmutableAgent(Builder builder) {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                ImmutableGeneComponentList.copyOf(builder.genes));
+                ImmutableGeneComponentList.copyOf(builder.traits));
         setPopulation(builder.population);
         freeze();
     }
@@ -63,7 +63,7 @@ public class ImmutableAgent extends AbstractAgent {
                 clone.getBody(),
                 ImmutableComponentList.copyOf(clone.getProperties()),
                 ImmutableComponentList.copyOf(clone.getActions()),
-                ImmutableGeneComponentList.copyOf(clone.getGeneComponentList()));
+                ImmutableGeneComponentList.copyOf(clone.getTraits()));
         ret.setPopulation(clone.getPopulation());
         ret.setMotion(clone.getMotion());
         ret.setProjection(clone.getProjection());
@@ -72,8 +72,8 @@ public class ImmutableAgent extends AbstractAgent {
         return ret;
     }
 
-    public static ImmutableAgentBuilder of(Population population) {
-        return new ImmutableAgentBuilder(population);
+    public static Builder of(Population population) {
+        return new Builder(population);
     }
 
     @Override
@@ -87,8 +87,8 @@ public class ImmutableAgent extends AbstractAgent {
         return true;
     }
 
-    public static final class ImmutableAgentBuilder extends AbstractAgentBuilder<ImmutableAgent, ImmutableAgentBuilder> {
-        public ImmutableAgentBuilder(Population population) {
+    public static final class Builder extends AbstractAgent.AbstractBuilder<ImmutableAgent, Builder> {
+        public Builder(Population population) {
             super(population);
         }
 
@@ -100,13 +100,13 @@ public class ImmutableAgent extends AbstractAgent {
         }
 
         @Override
-        protected ImmutableAgentBuilder self() {
+        protected Builder self() {
             return this;
         }
     }
 
     @Override
-    public boolean addGene(GeneComponent<?> gene) {
+    public boolean addGene(AgentTrait<?> gene) {
         throw new UnsupportedOperationException();
     }
 }

@@ -33,7 +33,7 @@ public class DoubleGeneTest {
     public void testPersistence() throws Exception {
         // given
         final Callback<Object, Double> callback = Callbacks.constant(1.0);
-        final DoubleGeneComponent doubleGene = DoubleGeneComponent.builder()
+        final QuantitativeTrait doubleGene = QuantitativeTrait.builder()
                 .name("test")
                 .initialization(constant(1.0))
                 .mutation(constant(1.0))
@@ -41,7 +41,7 @@ public class DoubleGeneTest {
                 .build();
 
         // when
-        final DoubleGeneComponent persistentGene = Persisters.createCopy(doubleGene, DoubleGeneComponent.class, persister);
+        final QuantitativeTrait persistentGene = Persisters.createCopy(doubleGene, QuantitativeTrait.class, persister);
 
         // then
         assertThat(persistentGene.getName()).isEqualTo("test");

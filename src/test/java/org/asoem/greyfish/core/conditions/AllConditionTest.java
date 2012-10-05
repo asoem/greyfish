@@ -4,13 +4,12 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AllConditionTest {
@@ -29,20 +28,16 @@ public class AllConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        given(condition.deepClone(any(DeepCloner.class))).will(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                Object[] args = invocationOnMock.getArguments();
-                DeepCloner.class.cast(args[0]).addClone(condition);
-                return condition;
-            }
-        });
+        GFCondition condition = mock(GFCondition.class);
+        GFCondition conditionClone = mock(GFCondition.class);
+        given(condition.deepClone(any(DeepCloner.class))).willReturn(conditionClone);
         AllCondition allCondition = AllCondition.evaluates(condition, condition);
 
         // when
         AllCondition clone = DeepCloner.clone(allCondition, AllCondition.class);
 
         // then
-        assertThat(clone).containsOnly(condition, condition);
+        verify(condition, times(2)).deepClone(any(DeepCloner.class));
+        assertThat(clone).containsOnly(conditionClone, conditionClone);
     }
 }

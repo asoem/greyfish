@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
@@ -23,12 +24,12 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
-        map.addClone(this);
+        map.addClone(cloneable, this);
         this.agent = map.getClone(agent, Agent.class);
         this.name = cloneable.name;
     }
 
-    protected AbstractAgentComponent(AbstractComponentBuilder<? extends AbstractAgentComponent, ? extends AbstractComponentBuilder> builder) {
+    protected AbstractAgentComponent(AbstractBuilder<? extends AbstractAgentComponent, ? extends AbstractBuilder> builder) {
         this.name = builder.name;
     }
 
@@ -119,10 +120,10 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         return name.hashCode();
     }
 
-    public static abstract class AbstractComponentBuilder<E extends AbstractAgentComponent, T extends AbstractComponentBuilder<E, T>> extends org.asoem.greyfish.utils.base.AbstractBuilder<E, T> {
+    public static abstract class AbstractBuilder<C extends AbstractAgentComponent, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> {
         protected String name = "";
 
-        public T name(String name) {
+        public B name(String name) {
             this.name = name;
             return self();
         }

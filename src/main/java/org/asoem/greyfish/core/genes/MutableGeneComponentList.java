@@ -12,13 +12,13 @@ import org.simpleframework.xml.Element;
  * Date: 09.09.11
  * Time: 15:21
  */
-public class MutableGeneComponentList<E extends GeneComponent<?>> extends AbstractGeneComponentList<E> {
+public class MutableGeneComponentList<E extends AgentTrait<?>> extends AbstractGeneComponentList<E> {
 
-    @Element(name = "genes")
+    @Element(name = "traits")
     private final SearchableList<E> delegate;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private MutableGeneComponentList(@Element(name = "genes") SearchableList<E> genes) {
+    private MutableGeneComponentList(@Element(name = "traits") SearchableList<E> genes) {
         delegate = genes;
     }
 
@@ -27,7 +27,7 @@ public class MutableGeneComponentList<E extends GeneComponent<?>> extends Abstra
     }
 
     protected MutableGeneComponentList(MutableGeneComponentList<E> parent, final DeepCloner cloner) {
-        cloner.addClone(this);
+        cloner.addClone(parent, this);
         delegate = SearchableLists.extend(Lists.newArrayList(Lists.transform(parent.delegate, cloner.<E>cloneFunction())));
     }
 

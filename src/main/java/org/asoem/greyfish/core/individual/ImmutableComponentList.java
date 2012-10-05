@@ -31,7 +31,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends AbstractCo
 
     @SuppressWarnings("unchecked")
     private ImmutableComponentList(ImmutableComponentList<E> list, DeepCloner cloner) {
-        cloner.addClone(this);
+        cloner.addClone(list, this);
         listDelegate = TinyLists.transform(list.listDelegate, cloner.<E>cloneFunction());
     }
 

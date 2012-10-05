@@ -7,14 +7,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.base.AbstractBuilder;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
@@ -50,8 +50,8 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "actions")
     protected final ComponentList<GFAction> actions;
 
-    @Element(name = "geneComponentList")
-    protected final GeneComponentList<GeneComponent<?>> geneComponentList;
+    @Element(name = "agentTraitList")
+    protected final GeneComponentList<AgentTrait<?>> agentTraitList;
 
     @Element(name = "body")
     protected final Body body;
@@ -74,11 +74,11 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(Body body,
                             ComponentList<GFProperty<?>> properties,
                             ComponentList<GFAction> actions,
-                            GeneComponentList<GeneComponent<?>> geneComponentList) {
+                            GeneComponentList<AgentTrait<?>> agentTraitList) {
         this.body = checkNotNull(body);
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
-        this.geneComponentList = checkNotNull(geneComponentList);
+        this.agentTraitList = checkNotNull(agentTraitList);
 
         initComponents();
     }
@@ -95,11 +95,11 @@ public abstract class AbstractAgent implements Agent {
 
     @SuppressWarnings("unchecked")
     protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner cloner) {
-        cloner.addClone(this);
+        cloner.addClone(abstractAgent, this);
         this.population = abstractAgent.population;
         this.actions = (ComponentList<GFAction>) cloner.getClone(abstractAgent.actions, ComponentList.class);
         this.properties = (ComponentList<GFProperty<?>>) cloner.getClone(abstractAgent.properties, ComponentList.class);
-        this.geneComponentList = cloner.getClone(abstractAgent.geneComponentList, GeneComponentList.class);
+        this.agentTraitList = cloner.getClone(abstractAgent.agentTraitList, GeneComponentList.class);
         this.body = cloner.getClone(abstractAgent.body, Body.class);
         this.projection = abstractAgent.projection;
         this.motion = abstractAgent.motion;
@@ -189,31 +189,31 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public boolean addGene(GeneComponent<?> gene) {
-        return addComponent(geneComponentList, gene);
+    public boolean addGene(AgentTrait<?> gene) {
+        return addComponent(agentTraitList, gene);
     }
 
     @Override
-    public boolean removeGene(GeneComponent<?> gene) {
-        return removeComponent(geneComponentList, gene);
+    public boolean removeGene(AgentTrait<?> gene) {
+        return removeComponent(agentTraitList, gene);
     }
 
     @Override
     public void removeAllGenes() {
-        clearComponentList(geneComponentList);
+        clearComponentList(agentTraitList);
     }
 
     @Override
-    public GeneComponentList<GeneComponent<?>> getGeneComponentList() {
-        return geneComponentList;
+    public GeneComponentList<AgentTrait<?>> getTraits() {
+        return agentTraitList;
     }
 
     @Override
     @Nullable
-    public <T extends GeneComponent> T getGene(String name, Class<T> clazz) {
+    public <T extends AgentTrait> T getGene(String name, Class<T> clazz) {
         checkNotNull(clazz);
 
-        return geneComponentList.find(name, clazz);
+        return agentTraitList.find(name, clazz);
     }
 
     /**
@@ -379,8 +379,8 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public GeneComponent<?> findTrait(Predicate<? super GeneComponent<?>> traitPredicate) {
-        return geneComponentList.find(traitPredicate);
+    public AgentTrait<?> findTrait(Predicate<? super AgentTrait<?>> traitPredicate) {
+        return agentTraitList.find(traitPredicate);
     }
 
     @Override
@@ -391,65 +391,29 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void updateGeneComponents(Chromosome chromosome) {
         checkNotNull(chromosome);
-        geneComponentList.updateGenes(ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
+        agentTraitList.updateGenes(ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
             @Override
             public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
                 return o.getAllele();
             }
         })));
-        geneComponentList.setOrigin(chromosome.getHistory());
+        agentTraitList.setOrigin(chromosome.getHistory());
     }
 
-    @SuppressWarnings("RedundantIfStatement")
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        AbstractAgent that = (AbstractAgent) o;
-
-        if (simulationContext != null ? !simulationContext.equals(that.simulationContext) : that.simulationContext != null)
-            return false;
-        if (population != null ? !population.equals(that.population) : that.population != null) return false;
-        if (projection != null ? !projection.equals(that.projection) : that.projection != null) return false;
-        if (actions != null ? !actions.equals(that.actions) : that.actions != null) return false;
-        if (body != null ? !body.equals(that.body) : that.body != null) return false;
-        if (geneComponentList != null ? !geneComponentList.equals(that.geneComponentList) : that.geneComponentList != null)
-            return false;
-        if (inBox != null ? !inBox.equals(that.inBox) : that.inBox != null) return false;
-        if (motion != null ? !motion.equals(that.motion) : that.motion != null) return false;
-        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = properties != null ? properties.hashCode() : 0;
-        result = 31 * result + (actions != null ? actions.hashCode() : 0);
-        result = 31 * result + (geneComponentList != null ? geneComponentList.hashCode() : 0);
-        result = 31 * result + (body != null ? body.hashCode() : 0);
-        result = 31 * result + (population != null ? population.hashCode() : 0);
-        result = 31 * result + (simulationContext != null ? simulationContext.hashCode() : 0);
-        result = 31 * result + (inBox != null ? inBox.hashCode() : 0);
-        result = 31 * result + (motion != null ? motion.hashCode() : 0);
-        return result;
-    }
-
-    protected static abstract class AbstractAgentBuilder<E extends AbstractAgent, T extends AbstractAgentBuilder<E, T>> extends AbstractBuilder<E, T> {
+    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> {
         protected final ComponentList<GFAction> actions = new MutableComponentList<GFAction>();
         protected final ComponentList<GFProperty<?>> properties = new MutableComponentList<GFProperty<?>>();
         protected final Population population;
-        protected final ComponentList<GeneComponent<?>> genes = new MutableComponentList<GeneComponent<?>>();
+        protected final ComponentList<AgentTrait<?>> traits = new MutableComponentList<AgentTrait<?>>();
 
-        protected AbstractAgentBuilder(Population population) {
+        protected AbstractBuilder(Population population) {
             this.population = checkNotNull(population, "Population must not be null");
         }
 
-        // todo: these builder methods are not able to control the mutability of the genes
-        public T addGenes(GeneComponent<?>... genes) {
-            this.genes.addAll(asList(checkNotNull(genes)));
+        // todo: these builder methods are not able to control the mutability of the traits
+        public T addTraits(AgentTrait<?>... genes) {
+            this.traits.addAll(asList(checkNotNull(genes)));
             return self();
         }
 
@@ -465,7 +429,7 @@ public abstract class AbstractAgent implements Agent {
 
         @Override
         protected void checkBuilder() throws IllegalStateException {
-            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, genes), new Function<AgentComponent, String>() {
+            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent, String>() {
                 @Override
                 public String apply(AgentComponent input) {
                     return input.getName();
@@ -510,7 +474,7 @@ public abstract class AbstractAgent implements Agent {
                 Collections.singleton(getBody()),
                 getProperties(),
                 getActions(),
-                getGeneComponentList()
+                getTraits()
         );
     }
 }

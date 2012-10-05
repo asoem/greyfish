@@ -41,9 +41,9 @@ public class ClonalReproduction extends AbstractGFAction {
                     initializable.setProjection(MotionObject2DImpl.copyOf(initializable.getProjection()));
                     initializable.updateGeneComponents(
                             new ChromosomeImpl(new UniparentalChromosomalHistory(agent().getId()),
-                                    Iterables.transform(agent().getGeneComponentList(), new Function<GeneComponent<?>, Gene<?>>() {
+                                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<?>, Gene<?>>() {
                                         @Override
-                                        public Gene<?> apply(@Nullable GeneComponent<?> gene) {
+                                        public Gene<?> apply(@Nullable AgentTrait<?> gene) {
                                             assert gene != null;
                                             return new Gene<Object>(GenesComponents.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
                                         }
@@ -66,7 +66,7 @@ public class ClonalReproduction extends AbstractGFAction {
         this.nClones = cloneable.nClones;
     }
 
-    protected ClonalReproduction(AbstractBuilder<?, ?> builder) {
+    protected ClonalReproduction(AbstractBuilder<? extends ClonalReproduction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.nClones = builder.nClones;
     }
@@ -102,10 +102,10 @@ public class ClonalReproduction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ClonalReproduction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends ClonalReproduction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
         private Callback<? super ClonalReproduction, Integer> nClones = Callbacks.constant(1);
 
-        public T nClones(Callback<? super ClonalReproduction, Integer> nClones) {
+        public B nClones(Callback<? super ClonalReproduction, Integer> nClones) {
             this.nClones = nClones;
             return self();
         }

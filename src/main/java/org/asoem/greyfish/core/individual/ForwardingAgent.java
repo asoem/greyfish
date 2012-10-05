@@ -4,8 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -213,17 +213,17 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public <T extends GeneComponent> T getGene(String geneName, Class<T> geneClass) {
+    public <T extends AgentTrait> T getGene(String geneName, Class<T> geneClass) {
         return delegate().getGene(geneName, geneClass);
     }
 
     @Override
-    public boolean addGene(GeneComponent<?> gene) {
+    public boolean addGene(AgentTrait<?> gene) {
         return delegate().addGene(gene);
     }
 
     @Override
-    public boolean removeGene(GeneComponent<?> gene) {
+    public boolean removeGene(AgentTrait<?> gene) {
         return delegate().removeGene(gene);
     }
 
@@ -233,8 +233,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public GeneComponentList<GeneComponent<?>> getGeneComponentList() {
-        return delegate().getGeneComponentList();
+    public GeneComponentList<AgentTrait<?>> getTraits() {
+        return delegate().getTraits();
     }
 
     @Override
@@ -273,7 +273,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public GeneComponent<?> findTrait(Predicate<? super GeneComponent<?>> traitPredicate) {
+    public AgentTrait<?> findTrait(Predicate<? super AgentTrait<?>> traitPredicate) {
         return delegate().findTrait(traitPredicate);
     }
 

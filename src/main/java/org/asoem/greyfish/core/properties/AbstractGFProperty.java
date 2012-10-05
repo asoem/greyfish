@@ -28,5 +28,5 @@ public abstract class AbstractGFProperty<T> extends AbstractAgentComponent imple
         return Collections.emptyList();
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractGFProperty, T extends AbstractBuilder<E, T>> extends AbstractComponentBuilder<E, T> {}
+    protected static abstract class AbstractBuilder<C extends AbstractGFProperty, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B> {}
 }

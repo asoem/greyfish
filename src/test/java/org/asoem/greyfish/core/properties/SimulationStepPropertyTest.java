@@ -16,15 +16,16 @@ import static org.mockito.Mockito.*;
  * Date: 30.07.12
  * Time: 14:13
  */
-public class DynamicPropertyTest {
+public class SimulationStepPropertyTest {
 
     @Test
     public void testLazyValueComputation() throws Exception {
         // given
-        final Callback callback = mock(Callback.class);
-        final DynamicProperty<Integer> property = DynamicProperty.<Integer>builder().function(callback).build();
+        final Callback<Object, Integer> callback = mock(Callback.class);
+        final SimulationStepProperty<Integer> property = SimulationStepProperty.<Integer>builder().callback(callback).build();
         final Agent agent = mock(Agent.class);
         property.setAgent(agent);
+        property.initialize();
         final Simulation simulation = mock(Simulation.class);
         given(simulation.getStep()).willReturn(0,0,0,1);
         given(agent.simulation()).willReturn(simulation);

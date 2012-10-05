@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.individual.AgentComponent;
 import javax.annotation.Nullable;
 
 
-public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
+public interface AgentTrait<T> extends AgentComponent, GeneLike<T> {
 
     /**
      * @return the class of the value this gene is supplying
@@ -16,10 +16,10 @@ public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
      * @param gene the gene to builderTest for
      * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
      */
-    boolean isMutatedCopy(@Nullable GeneComponent<?> gene);
+    boolean isMutatedCopy(@Nullable AgentTrait<?> gene);
 
     /**
-     * Set the new value for this {@code GeneComponent}
+     * Set the new value for this {@code AgentTrait}
      *
      * @param allele
      */
@@ -27,8 +27,8 @@ public interface GeneComponent<T> extends AgentComponent, GeneLike<T> {
 
     /**
      * Get the recombination probability for this gene.
-     * The values is uses as the probability that, if this gene is on the focal geneComponentList,
-     * the gene on the non-focal geneComponentList. If the non-focal is taken, at the next gene, the focal geneComponentList will be the currently non-focal.
+     * The values is uses as the probability that, if this gene is on the focal agentTraitList,
+     * the gene on the non-focal agentTraitList. If the non-focal is taken, at the next gene, the focal agentTraitList will be the currently non-focal.
      */
     double getRecombinationProbability();
 

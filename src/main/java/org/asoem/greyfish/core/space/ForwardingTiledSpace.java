@@ -87,8 +87,8 @@ public abstract class ForwardingTiledSpace<O extends MovingProjectable2D, T exte
     }
 
     @Override
-    public void insertObject(O agent) {
-        delegate().insertObject(agent);
+    public boolean insertObject(O agent) {
+        return delegate().insertObject(agent);
     }
 
     @Override

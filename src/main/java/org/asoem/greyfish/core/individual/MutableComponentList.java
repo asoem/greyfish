@@ -28,7 +28,7 @@ public class MutableComponentList<E extends AgentComponent> extends AbstractComp
 
     @SuppressWarnings("unchecked")
     public MutableComponentList(MutableComponentList<E> list, final DeepCloner cloner) {
-        cloner.addClone(this);
+        cloner.addClone(list, this);
         delegate = SearchableLists.extend(Lists.newArrayList(Iterables.transform(list, new Function<E, E>() {
             @Override
             public E apply(@Nullable E e) {

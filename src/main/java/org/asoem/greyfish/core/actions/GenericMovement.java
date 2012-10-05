@@ -42,7 +42,7 @@ public class GenericMovement extends AbstractGFAction {
         this.turningAngle = cloneable.turningAngle;
     }
 
-    protected GenericMovement(AbstractBuilder<?, ?> builder) {
+    protected GenericMovement(AbstractBuilder<? extends GenericMovement, ? extends AbstractBuilder> builder) {
         super(builder);
         this.stepSize = builder.speed;
         this.turningAngle = builder.rotation;
@@ -103,7 +103,7 @@ public class GenericMovement extends AbstractGFAction {
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<E extends GenericMovement, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends GenericMovement, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
         private Callback<? super GenericMovement, Double> speed = Callbacks.constant(0.1);
         private Callback<? super GenericMovement, Double> rotation = new Callback<GenericMovement, Double>() {
             @Override
@@ -112,12 +112,12 @@ public class GenericMovement extends AbstractGFAction {
             }
         };
 
-        public T turningAngle(Callback<? super GenericMovement, Double> rotation) {
+        public B turningAngle(Callback<? super GenericMovement, Double> rotation) {
             this.rotation = checkNotNull(rotation);
             return self();
         }
 
-        public T stepSize(Callback<? super GenericMovement, Double> speedFunction) {
+        public B stepSize(Callback<? super GenericMovement, Double> speedFunction) {
             this.speed = checkNotNull(speedFunction);
             return self();
         }

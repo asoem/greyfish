@@ -34,7 +34,7 @@ public class Suicide extends AbstractGFAction {
         super(cloneable, map);
     }
 
-    protected Suicide(AbstractActionBuilder<?, ?> builder) {
+    protected Suicide(AbstractBuilder<? extends Suicide, ? extends AbstractBuilder> builder) {
         super(builder);
     }
 
@@ -42,7 +42,7 @@ public class Suicide extends AbstractGFAction {
         return new Builder();
     }
 
-    public static final class Builder extends AbstractActionBuilder<Suicide, Builder> {
+    public static final class Builder extends AbstractBuilder<Suicide, Builder> {
         private Builder() {
         }
 

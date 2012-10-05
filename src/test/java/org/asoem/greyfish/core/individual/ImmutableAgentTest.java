@@ -3,28 +3,21 @@ package org.asoem.greyfish.core.individual;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.actions.NullAction;
-import org.asoem.greyfish.core.genes.DoubleGeneComponent;
-import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persister;
-import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.awt.*;
 import java.util.Collections;
 
-import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -37,7 +30,7 @@ import static org.mockito.Mockito.verify;
 public class ImmutableAgentTest {
 
     @Mock
-    GeneComponent<?> gene;
+    AgentTrait<?> gene;
     @Mock
     GFAction action;
     @Mock
@@ -93,10 +86,10 @@ public class ImmutableAgentTest {
         // given
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
-        ImmutableAgent agent = ImmutableAgent.of(population).addGenes(gene).build();
+        ImmutableAgent agent = ImmutableAgent.of(population).addTraits(gene).build();
 
         // when
-        GeneComponent ret = agent.getGene("foo", GeneComponent.class);
+        AgentTrait ret = agent.getGene("foo", AgentTrait.class);
 
         // then
         verify(gene).setAgent(agent);
@@ -105,90 +98,68 @@ public class ImmutableAgentTest {
 
     @Test
     public void testDeepClone() throws Exception {
+
         // given
-        ImmutableAgent agent = ImmutableAgent.of(population).build();
-        agent.setPopulation(mock(Population.class));
-        agent.setProjection(mock(MotionObject2D.class));
-        agent.setMotion(mock(Motion2D.class));
+        Population population = mock(Population.class);
+
+        final GFAction actionMock = mock(GFAction.class);
+        final GFAction actionMockClone = mock(GFAction.class);
+        given(actionMock.deepClone(any(DeepCloner.class))).willReturn(actionMockClone);
+
+        final GFProperty propertyMock = mock(GFProperty.class);
+        final GFProperty propertyMockClone = mock(GFProperty.class);
+        given(propertyMock.deepClone(any(DeepCloner.class))).willReturn(propertyMockClone);
+
+        final AgentTrait traitMock = mock(AgentTrait.class);
+        final AgentTrait traitMockClone = mock(AgentTrait.class);
+        given(traitMock.deepClone(any(DeepCloner.class))).willReturn(traitMockClone);
+
+        final ImmutableAgent agent = ImmutableAgent.of(population)
+                .addActions(actionMock)
+                .addProperties(propertyMock)
+                .addTraits(traitMock)
+                .build();
 
         // when
-        ImmutableAgent clone = DeepCloner.clone(agent, ImmutableAgent.class);
+        final ImmutableAgent clone = DeepCloner.clone(agent, ImmutableAgent.class);
 
         // then
-        assertThat(clone).isEqualTo(agent);
+        assertThat(clone.getPopulation()).isEqualTo(population);
+        assertThat(clone.getActions()).containsOnly(actionMockClone);
+        assertThat(clone.getProperties()).containsOnly(propertyMockClone);
+        assertThat(clone.getTraits()).containsOnly(traitMockClone);
     }
 
     @Test
-    public void testCloneOf() {
+    public void testFromPrototype() {
         // given
-        ImmutableAgent agent = ImmutableAgent.of(population).build();
-        agent.setPopulation(mock(Population.class));
-        agent.setProjection(mock(MotionObject2D.class));
-        agent.setMotion(mock(Motion2D.class));
+        Population population = mock(Population.class);
+
+        final GFAction actionMock = mock(GFAction.class);
+        final GFAction actionMockClone = mock(GFAction.class);
+        given(actionMock.deepClone(any(DeepCloner.class))).willReturn(actionMockClone);
+
+        final GFProperty propertyMock = mock(GFProperty.class);
+        final GFProperty propertyMockClone = mock(GFProperty.class);
+        given(propertyMock.deepClone(any(DeepCloner.class))).willReturn(propertyMockClone);
+
+        final AgentTrait traitMock = mock(AgentTrait.class);
+        final AgentTrait traitMockClone = mock(AgentTrait.class);
+        given(traitMock.deepClone(any(DeepCloner.class))).willReturn(traitMockClone);
+
+        final ImmutableAgent agent = ImmutableAgent.of(population)
+                .addActions(actionMock)
+                .addProperties(propertyMock)
+                .addTraits(traitMock)
+                .build();
 
         // when
         ImmutableAgent clone = ImmutableAgent.fromPrototype(agent);
 
         // then
-        assertThat(clone).isEqualTo(agent);
-    }
-
-    @Test
-    public void testBasicPersistence() throws Exception {
-        // given
-        final Population population = Population.newPopulation("Test", Color.green);
-        final Agent agent = ImmutableAgent.of(population).build();
-
-        // when
-        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
-
-        // then
-        assertThat(copy).isEqualTo(agent);
-    }
-
-    @Test
-    public void testPersistenceWithActions() throws Exception {
-        // given
-        final Population population = Population.newPopulation("Test", Color.green);
-        final GFAction action = new NullAction();
-        final Agent agent = ImmutableAgent.of(population).addActions(action).build();
-
-        // when
-        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
-
-        // then
-        assertThat(copy).isEqualTo(agent);
-    }
-
-    @Test
-    public void testPersistenceWithProperties() throws Exception {
-        // given
-        final Population population = Population.newPopulation("Test", Color.green);
-        final GFProperty property = new DoubleProperty();
-        final Agent agent = ImmutableAgent.of(population).addProperties(property).build();
-
-        // when
-        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
-
-        // then
-        assertThat(copy).isEqualTo(agent);
-    }
-
-    @Test
-    public void testPersistenceWithGenes() throws Exception {
-        // given
-        final Population population = Population.newPopulation("Test", Color.green);
-        final GeneComponent<?> gene = DoubleGeneComponent.builder()
-                .initialization(constant(1.0))
-                .mutation(constant(1.0))
-                .segregation(constant(1.0))
-                .build();
-        final Agent agent = ImmutableAgent.of(population).addGenes(gene).build();
-
-        // when
-        final Agent copy = Persisters.createCopy(agent, ImmutableAgent.class, persister);
-
-        // then
-        assertThat(copy).isEqualTo(agent);
+        assertThat(clone.getPopulation()).isEqualTo(population);
+        assertThat(clone.getActions()).containsOnly(actionMockClone);
+        assertThat(clone.getProperties()).containsOnly(propertyMockClone);
+        assertThat(clone.getTraits()).containsOnly(traitMockClone);
     }
 }

@@ -5,6 +5,7 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.utils.base.Initializer;
@@ -117,4 +118,13 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
         return delegate().getName();
     }
 
+    @Override
+    public SimulationLogger getSimulationLogger() {
+        return delegate().getSimulationLogger();
+    }
+
+    @Override
+    public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
+        delegate().logAgentEvent(agentId, populationName, coordinates, eventOrigin, title, message);
+    }
 }

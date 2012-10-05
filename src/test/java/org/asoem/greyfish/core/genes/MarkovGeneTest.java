@@ -27,10 +27,10 @@ public class MarkovGeneTest {
         // given
         final EvaluatingMarkovChain<String> markovChain = EvaluatingMarkovChain.parse("A -> B : 1.0", factory);
         final Callback<Object, String> initialState = constant("A");
-        MarkovGeneComponent markovGene = new MarkovGeneComponent(markovChain, initialState);
+        DiscreteTrait markovGene = new DiscreteTrait(markovChain, initialState);
 
         // when
-        MarkovGeneComponent deserialized = Persisters.createCopy(markovGene, MarkovGeneComponent.class, persister);
+        DiscreteTrait deserialized = Persisters.createCopy(markovGene, DiscreteTrait.class, persister);
 
         // then
         assertThat(deserialized.getMarkovChain()).isEqualTo(markovChain);

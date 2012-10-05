@@ -71,11 +71,11 @@ public class GenericAction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends GenericAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends GenericAction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
 
         public Callback<? super GenericAction, Void> callback = Callbacks.emptyCallback();
 
-        public T executes(Callback<? super GenericAction, Void> callback) {
+        public B executes(Callback<? super GenericAction, Void> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }

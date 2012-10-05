@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.individual;
 
 import com.google.common.base.Predicate;
-import org.asoem.greyfish.core.genes.GeneComponent;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.GFProperty;
 
 import javax.annotation.Nullable;
@@ -34,23 +34,23 @@ public class Agents {
         return cast(propertyAccessor(propertyName), clazz);
     }
 
-    public static ComponentAccessor<GeneComponent<?>> traitAccessor(final String traitName) {
-        return new ComponentAccessor<GeneComponent<?>>() {
-            private final Predicate<? super GeneComponent<?>> traitPredicate = new Predicate<GeneComponent<?>>() {
+    public static ComponentAccessor<AgentTrait<?>> traitAccessor(final String traitName) {
+        return new ComponentAccessor<AgentTrait<?>>() {
+            private final Predicate<? super AgentTrait<?>> traitPredicate = new Predicate<AgentTrait<?>>() {
                 @Override
-                public boolean apply(GeneComponent<?> input) {
+                public boolean apply(AgentTrait<?> input) {
                     return traitName.equals(input.getName());
                 }
             };
 
             @Override
-            public GeneComponent<?> apply(Agent input) {
+            public AgentTrait<?> apply(Agent input) {
                 return checkNotNull(input).findTrait(traitPredicate);
             }
         };
     }
 
-    public static <T extends GeneComponent<?>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
+    public static <T extends AgentTrait<?>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
         return cast(traitAccessor(traitName), geneComponentClass);
     }
 

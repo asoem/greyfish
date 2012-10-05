@@ -20,7 +20,7 @@ public class NullAction extends AbstractGFAction {
         return ActionState.COMPLETED;
     }
 
-    protected NullAction(AbstractActionBuilder<?, ?> builder) {
+    protected NullAction(AbstractBuilder<?, ?> builder) {
         super(builder);
     }
 
@@ -28,7 +28,7 @@ public class NullAction extends AbstractGFAction {
         return new Builder();
     }
 
-    public static final class Builder extends AbstractActionBuilder<NullAction, Builder> {
+    public static final class Builder extends AbstractBuilder<NullAction, Builder> {
         @Override
         protected Builder self() {
             return this;

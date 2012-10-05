@@ -104,7 +104,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         this.ontology = cloneable.ontology;
     }
 
-    protected ResourceProvisionAction(AbstractBuilder<?, ?> builder) {
+    protected ResourceProvisionAction(AbstractBuilder<? extends ResourceProvisionAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.provides = builder.provides;
@@ -136,16 +136,16 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         }
     }
 
-    protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends ResourceProvisionAction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction, Double> provides;
 
-        public T ontology(String ontology) {
+        public B ontology(String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public T provides(Callback<? super ResourceProvisionAction, Double> expression) {
+        public B provides(Callback<? super ResourceProvisionAction, Double> expression) {
             this.provides = checkNotNull(expression);
             return self();
         }

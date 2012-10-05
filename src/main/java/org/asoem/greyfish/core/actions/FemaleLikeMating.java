@@ -183,7 +183,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends FemaleLikeMating, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends FemaleLikeMating, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
         protected String ontology = "mate";
         protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);
@@ -193,17 +193,17 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
          * @param callback the callback function to calculate the mating probability
          * @return this builder
          */
-        public T matingProbability(Callback<? super FemaleLikeMating, Double> callback) {
+        public B matingProbability(Callback<? super FemaleLikeMating, Double> callback) {
             this.matingProbability = checkNotNull(callback);
             return self();
         }
 
-        public T ontology(String ontology) {
+        public B ontology(String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public T interactionRadius(Callback<? super FemaleLikeMating, Double> callback) {
+        public B interactionRadius(Callback<? super FemaleLikeMating, Double> callback) {
             this.sensorRange = callback;
             return self();
         }

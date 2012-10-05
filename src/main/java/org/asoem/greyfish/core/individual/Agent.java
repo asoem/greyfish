@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.individual;
 import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.GeneComponent;
 import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.GFProperty;
 import org.asoem.greyfish.core.simulation.Simulatable2D;
@@ -53,20 +53,20 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     GFProperty<?> findProperty(Predicate<? super GFProperty<?>> predicate);
 
-    boolean addGene(GeneComponent<?> gene);
+    boolean addGene(AgentTrait<?> gene);
 
-    boolean removeGene(GeneComponent<?> gene);
+    boolean removeGene(AgentTrait<?> gene);
 
     void removeAllGenes();
 
-    GeneComponentList<GeneComponent<?>> getGeneComponentList();
+    GeneComponentList<AgentTrait<?>> getTraits();
 
-    <T extends GeneComponent> T getGene(String name, Class<T> clazz);
+    <T extends AgentTrait> T getGene(String name, Class<T> clazz);
 
-    GeneComponent<?> findTrait(Predicate<? super GeneComponent<?>> traitPredicate);
+    AgentTrait<?> findTrait(Predicate<? super AgentTrait<?>> traitPredicate);
 
     /**
-     * Update the agent's geneComponentList with the values of the {@link org.asoem.greyfish.core.genes.Gene}s in the given {@code vector}
+     * Update the agent's agentTraitList with the values of the {@link org.asoem.greyfish.core.genes.Gene}s in the given {@code vector}
      *
      * @param vector the vector containing the information for the update
      */

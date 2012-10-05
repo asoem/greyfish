@@ -4,8 +4,8 @@ import org.asoem.greyfish.core.individual.ComponentList;
 
 import java.util.List;
 
-public interface GeneComponentList<E extends GeneComponent<?>> extends ComponentList<E> {
-    boolean isCompatible(GeneComponentList<? extends GeneComponent<?>> geneComponentList);
+public interface GeneComponentList<E extends AgentTrait<?>> extends ComponentList<E> {
+    boolean isCompatible(GeneComponentList<? extends AgentTrait<?>> geneComponentList);
     void updateAllGenes(GeneComponentList<? extends E> geneComponentList);
 
     void initGenes();

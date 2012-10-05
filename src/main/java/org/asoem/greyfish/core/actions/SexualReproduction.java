@@ -84,7 +84,7 @@ public class SexualReproduction extends AbstractGFAction {
             if ( ! (spermHistory instanceof UniparentalChromosomalHistory))
                 throw new AssertionError("Sperm must have an uniparental history");
 
-            final Chromosome blend = blend(agent().getGeneComponentList(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
+            final Chromosome blend = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
 
             simulation().createAgent(agent().getPopulation(), new Initializer<Agent>() {
                 @Override
@@ -102,16 +102,16 @@ public class SexualReproduction extends AbstractGFAction {
         return COMPLETED;
     }
 
-    private static Chromosome blend(GeneComponentList<GeneComponent<?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static Chromosome blend(GeneComponentList<AgentTrait<?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
-        final Tuple2.Zipped<GeneComponent<?>, Gene<?>> zip
+        final Tuple2.Zipped<AgentTrait<?>, Gene<?>> zip
                 = Tuple2.Zipped.of(egg, sperm.getGenes());
 
         // segregate and mutate
-        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<GeneComponent<?>, Gene<?>>, Gene<Object>>() {
+        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<AgentTrait<?>, Gene<?>>, Gene<Object>>() {
             @Override
-            public Gene<Object> apply(Product2<GeneComponent<?>, Gene<?>> tuple) {
+            public Gene<Object> apply(Product2<AgentTrait<?>, Gene<?>> tuple) {
                 final Object segregationProduct = GenesComponents.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
                 return new Gene<Object>(segregationProduct, tuple._1().getRecombinationProbability());
             }
@@ -161,7 +161,7 @@ public class SexualReproduction extends AbstractGFAction {
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
     }
 
-    protected SexualReproduction(AbstractBuilder<?, ?> builder) {
+    protected SexualReproduction(AbstractBuilder<? extends SexualReproduction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.spermList = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
@@ -203,23 +203,23 @@ public class SexualReproduction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends SexualReproduction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends SexualReproduction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
         private Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
         private Callback<? super SexualReproduction, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
-        public T spermSupplier(Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage) {
+        public B spermSupplier(Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage) {
             this.spermStorage = checkNotNull(spermStorage);
             return self();
         }
 
-        public T clutchSize(Callback<? super SexualReproduction, Integer> nOffspring) {
+        public B clutchSize(Callback<? super SexualReproduction, Integer> nOffspring) {
             this.clutchSize = nOffspring;
             return self();
         }
 
-        public T spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) {
+        public B spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) {
             this.spermSelectionStrategy = checkNotNull(selectionStrategy);
             return self();
         }

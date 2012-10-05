@@ -16,17 +16,17 @@ import java.util.List;
 /**
  * This is an immutable implementation of a GeneComponentList in the sense,
  * that it stores its GenesComponents in an {@link ImmutableComponentList},
- * but makes no guarantees about the immutability of the stored genes.
+ * but makes no guarantees about the immutability of the stored traits.
  */
-public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends AbstractGeneComponentList<E> {
+public class ImmutableGeneComponentList<E extends AgentTrait<?>> extends AbstractGeneComponentList<E> {
 
-    private static final ImmutableGeneComponentList<GeneComponent<?>> EMPTY_GENE_COMPONENT_LIST = ImmutableGeneComponentList.of();
+    private static final ImmutableGeneComponentList<AgentTrait<?>> EMPTY_AGENT_TRAIT_LIST = ImmutableGeneComponentList.of();
 
-    @Element(name = "genes")
+    @Element(name = "traits")
     private final TinyList<E> delegate;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private ImmutableGeneComponentList(@Element(name = "genes") TinyList<E> genes) {
+    private ImmutableGeneComponentList(@Element(name = "traits") TinyList<E> genes) {
         delegate = genes;
     }
     
@@ -35,7 +35,7 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
     }
 
     private ImmutableGeneComponentList(ImmutableGeneComponentList<E> immutableGenome, final DeepCloner cloner) {
-        cloner.addClone(this);
+        cloner.addClone(immutableGenome, this);
 
         delegate = TinyLists.transform(immutableGenome.delegate, cloner.<E>cloneFunction());
     }
@@ -56,16 +56,16 @@ public class ImmutableGeneComponentList<E extends GeneComponent<?>> extends Abst
         return delegate;
     }
 
-    public static <E extends GeneComponent<?>> ImmutableGeneComponentList<E> copyOf(Iterable<? extends E> genes) {
+    public static <E extends AgentTrait<?>> ImmutableGeneComponentList<E> copyOf(Iterable<? extends E> genes) {
         return new Builder<E>().addAll(genes).build(); // TODO:
     }
 
     @SuppressWarnings("unchecked")
-    public static <E extends GeneComponent<?>> ImmutableGeneComponentList<E> of() {
-        return (ImmutableGeneComponentList<E>) EMPTY_GENE_COMPONENT_LIST;
+    public static <E extends AgentTrait<?>> ImmutableGeneComponentList<E> of() {
+        return (ImmutableGeneComponentList<E>) EMPTY_AGENT_TRAIT_LIST;
     }
 
-    protected static class Builder<E extends GeneComponent<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGeneComponentList<E>> {
+    protected static class Builder<E extends AgentTrait<?>> implements org.asoem.greyfish.utils.base.Builder<ImmutableGeneComponentList<E>> {
         private final List<E> genes = Lists.newArrayList();
 
         public Builder<E> add(E gene) { this.genes.add(gene); return this; }
