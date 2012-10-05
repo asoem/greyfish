@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.genes;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.agent.Agent;
 
 import java.util.List;
 

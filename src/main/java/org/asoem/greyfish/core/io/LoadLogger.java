@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.io;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.common.util.concurrent.Service;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.agent.Agent;
 
 /**
  * User: christoph

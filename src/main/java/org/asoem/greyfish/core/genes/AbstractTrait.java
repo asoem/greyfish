@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.individual.AbstractAgentComponent;
-import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.agent.AbstractAgentComponent;
+import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;

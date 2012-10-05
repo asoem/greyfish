@@ -3,11 +3,11 @@ package org.asoem.greyfish.core.utils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.ClassFinder;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -27,13 +27,13 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AnnotatedAgentComponentClassFinder.class);
 
     @Override
-    public Iterable<Class<? extends GFAction>> getAvailableActions() {
-        return findClasses(GFAction.class, "actions");
+    public Iterable<Class<? extends AgentAction>> getAvailableActions() {
+        return findClasses(AgentAction.class, "actions");
     }
 
     @Override
-    public Iterable<Class<? extends GFProperty>> getAvailableProperties() {
-        return findClasses(GFProperty.class, "properties");
+    public Iterable<Class<? extends AgentProperty>> getAvailableProperties() {
+        return findClasses(AgentProperty.class, "properties");
     }
 
     @Override

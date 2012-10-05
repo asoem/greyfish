@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -47,7 +47,7 @@ public interface SimulationTemplate {
     Agent getPrototype(Population population);
 
     /**
-     * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.individual.Agent} agents
+     * @return an unmodifiable view of the (non-null) {@link org.asoem.greyfish.core.agent.Agent} agents
      * created by this {@code SimulationTemplate}.
      */
     Iterable<Agent> getPlaceholder();

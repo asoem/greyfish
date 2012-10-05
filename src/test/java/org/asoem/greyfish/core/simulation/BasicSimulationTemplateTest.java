@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.persistence.Persister;

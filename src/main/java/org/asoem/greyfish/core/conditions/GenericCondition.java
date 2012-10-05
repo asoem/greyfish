@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.inject.Inject;
-import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.utils.base.*;
 
 /**
@@ -28,7 +28,7 @@ public class GenericCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(GFAction action) {
+    public boolean apply(AgentAction action) {
         return callback.apply(this, ArgumentMap.of("action", action));
     }
 

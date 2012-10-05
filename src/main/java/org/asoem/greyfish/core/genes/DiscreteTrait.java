@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.reflect.TypeToken;
-import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;

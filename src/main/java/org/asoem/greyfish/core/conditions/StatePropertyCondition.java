@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -45,7 +45,7 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(GFAction action) {
+    public boolean apply(AgentAction action) {
         return stateProperty != null &&
                 Objects.equal(stateProperty.getValue(), state);
     }

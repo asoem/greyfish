@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.core.Commit;
@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 
 /**
  * A class that implements the <code>Condition</code> interface.
- * Can be used to make a <code>GFAction</code> conditional.
+ * Can be used to make a <code>AgentAction</code> conditional.
  * @author christoph
  */
 public abstract class AbstractCondition extends AbstractAgentComponent implements GFCondition {

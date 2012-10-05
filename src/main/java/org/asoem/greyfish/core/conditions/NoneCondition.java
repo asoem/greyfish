@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -21,7 +21,7 @@ public class NoneCondition extends BranchCondition {
     }
 
     @Override
-    public boolean apply(GFAction action) {
+    public boolean apply(AgentAction action) {
         for (GFCondition condition : conditions)
             if (condition.apply(action))
                 return false;

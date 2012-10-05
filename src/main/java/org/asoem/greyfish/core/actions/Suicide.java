@@ -8,7 +8,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 @ClassGroup(tags = "actions")
-public class Suicide extends AbstractGFAction {
+public class Suicide extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);
 
@@ -30,7 +30,7 @@ public class Suicide extends AbstractGFAction {
         return new Suicide(this, cloner);
     }
 
-    private Suicide(AbstractGFAction cloneable, DeepCloner map) {
+    private Suicide(AbstractAgentAction cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 

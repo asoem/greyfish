@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.primitives.Doubles;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.agent.Agent;
 
 /**
  * User: christoph

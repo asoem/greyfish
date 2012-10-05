@@ -21,7 +21,7 @@ import org.simpleframework.xml.Element;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @ClassGroup(tags = "actions")
-public class GenericMovement extends AbstractGFAction {
+public class GenericMovement extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
 
@@ -103,7 +103,7 @@ public class GenericMovement extends AbstractGFAction {
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<C extends GenericMovement, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends GenericMovement, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
         private Callback<? super GenericMovement, Double> speed = Callbacks.constant(0.1);
         private Callback<? super GenericMovement, Double> rotation = new Callback<GenericMovement, Double>() {
             @Override

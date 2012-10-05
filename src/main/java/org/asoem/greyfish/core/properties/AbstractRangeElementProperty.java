@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 
-public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>> extends AbstractGFProperty<E> implements RangeElementProperty<E> {
+public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>> extends AbstractAgentProperty<E> implements RangeElementProperty<E> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractRangeElementProperty.class);
     @Element(name="max")
@@ -114,7 +114,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         this.initialValue = builder.initialValue;
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractRangeElementProperty<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends AbstractGFProperty.AbstractBuilder<C,T> {
+    protected static abstract class AbstractBuilder<C extends AbstractRangeElementProperty<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends AbstractAgentProperty.AbstractBuilder<C,T> {
         protected E upperBound;
         protected E lowerBound;
         protected E initialValue;

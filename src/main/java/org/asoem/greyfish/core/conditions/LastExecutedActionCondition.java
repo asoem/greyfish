@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class LastExecutedActionCondition extends LeafCondition {
 
     @Element(name="actions", required=false)
-    private GFAction action;
+    private AgentAction action;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public LastExecutedActionCondition() {
@@ -28,35 +28,35 @@ public class LastExecutedActionCondition extends LeafCondition {
     }
     protected LastExecutedActionCondition(LastExecutedActionCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.getClone(condition.action, GFAction.class);
+        this.action = map.getClone(condition.action, AgentAction.class);
     }
 
     @Override
-    public boolean apply(GFAction action) {
+    public boolean apply(AgentAction action) {
         return isSameAction(this.action, agent().getLastExecutedAction());
     }
 
-    private static boolean isSameAction(GFAction a1, GFAction a2) {
+    private static boolean isSameAction(AgentAction a1, AgentAction a2) {
         return Objects.equal(a1, a2);
 //        return Equivalences.equals().equivalent(a1, a2);  // TODO: Make comparison more strict if we can guaranty theAction to be not null
     }
 
     @Override
     public void configure(ConfigurationHandler e) {
-        e.add("Action", new SetAdaptor<GFAction>(GFAction.class) {
+        e.add("Action", new SetAdaptor<AgentAction>(AgentAction.class) {
             @Override
-            protected void set(GFAction arg0) {
+            protected void set(AgentAction arg0) {
                 action = checkNotNull(arg0);
             }
 
             @Override
-            public GFAction get() {
+            public AgentAction get() {
                 return action;
             }
 
             @Override
-            public Iterable<GFAction> values() {
-                return Iterables.filter(agent().getProperties(), GFAction.class);
+            public Iterable<AgentAction> values() {
+                return Iterables.filter(agent().getProperties(), AgentAction.class);
             }
         });
     }
@@ -75,8 +75,8 @@ public class LastExecutedActionCondition extends LeafCondition {
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends LastExecutedActionCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
-        private GFAction action;
+        private AgentAction action;
 
-        public T theLastExecutedActionWas(GFAction action) { this.action = action; return self(); }
+        public T theLastExecutedActionWas(AgentAction action) { this.action = action; return self(); }
     }
 }

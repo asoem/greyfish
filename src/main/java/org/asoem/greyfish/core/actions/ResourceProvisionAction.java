@@ -4,7 +4,7 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.ArgumentMap;
@@ -136,7 +136,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         }
     }
 
-    protected static abstract class AbstractBuilder<C extends ResourceProvisionAction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends ResourceProvisionAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction, Double> provides;
 

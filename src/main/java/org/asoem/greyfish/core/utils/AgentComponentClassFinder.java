@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.utils;
 
-import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.conditions.GFCondition;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.properties.GFProperty;
+import org.asoem.greyfish.core.properties.AgentProperty;
 
 /**
  * User: christoph
@@ -12,8 +12,8 @@ import org.asoem.greyfish.core.properties.GFProperty;
  */
 public interface AgentComponentClassFinder {
     
-    Iterable<Class<? extends GFAction>> getAvailableActions();
-    Iterable<Class<? extends GFProperty>> getAvailableProperties();
+    Iterable<Class<? extends AgentAction>> getAvailableActions();
+    Iterable<Class<? extends AgentProperty>> getAvailableProperties();
     Iterable<Class<? extends AgentTrait>> getAvailableGenes();
     Iterable<Class<? extends GFCondition>> getAvailableConditionClasses();
 }

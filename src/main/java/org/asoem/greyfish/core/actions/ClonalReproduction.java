@@ -3,9 +3,9 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.genes.*;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.Callback;
@@ -20,7 +20,7 @@ import org.simpleframework.xml.Element;
 import javax.annotation.Nullable;
 
 @ClassGroup(tags = "actions")
-public class ClonalReproduction extends AbstractGFAction {
+public class ClonalReproduction extends AbstractAgentAction {
 
     @Element(name = "nClones")
     private Callback<? super ClonalReproduction, Integer> nClones;
@@ -102,7 +102,7 @@ public class ClonalReproduction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends ClonalReproduction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends ClonalReproduction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
         private Callback<? super ClonalReproduction, Integer> nClones = Callbacks.constant(1);
 
         public B nClones(Callback<? super ClonalReproduction, Integer> nClones) {

@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.AbstractAgentComponent;
+import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ActionExecutionCountCondition extends IntCompareCondition {
 
     @Element(name = "action")
-    private GFAction action;
+    private AgentAction action;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private ActionExecutionCountCondition() {
@@ -26,7 +26,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
     public ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
         super(condition, map);
-        this.action = map.getClone(condition.action, GFAction.class);
+        this.action = map.getClone(condition.action, AgentAction.class);
     }
 
     @Override
@@ -38,19 +38,19 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     public void configure(ConfigurationHandler e) {
         super.configure(e);
 
-        e.add("", new SetAdaptor<GFAction>(GFAction.class) {
+        e.add("", new SetAdaptor<AgentAction>(AgentAction.class) {
             @Override
-            protected void set(GFAction arg0) {
+            protected void set(AgentAction arg0) {
                 action = checkNotNull(arg0);
             }
 
             @Override
-            public GFAction get() {
+            public AgentAction get() {
                 return action;
             }
 
             @Override
-            public Iterable<GFAction> values() {
+            public Iterable<AgentAction> values() {
                 return agent().getActions();
             }
         });
@@ -82,9 +82,9 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends ActionExecutionCountCondition, T extends AbstractBuilder<E, T>> extends IntCompareCondition.AbstractBuilder<E, T> {
-        private GFAction action;
+        private AgentAction action;
 
-        public T executionCountOf(GFAction action) {
+        public T executionCountOf(AgentAction action) {
             this.action = checkNotNull(action);
             return self();
         }

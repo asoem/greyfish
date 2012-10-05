@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.agent.AgentComponent;
 
 import javax.annotation.Nullable;
 

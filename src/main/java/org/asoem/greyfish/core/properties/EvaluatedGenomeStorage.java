@@ -16,7 +16,7 @@ import java.util.List;
  *
  */
 @ClassGroup(tags="properties")
-public class EvaluatedGenomeStorage extends AbstractGFProperty<List<Chromosome>> {
+public class EvaluatedGenomeStorage extends AbstractAgentProperty<List<Chromosome>> {
 
     final private List<Chromosome> spermList = Lists.newArrayList();
 
@@ -85,6 +85,6 @@ public class EvaluatedGenomeStorage extends AbstractGFProperty<List<Chromosome>>
         @Override public EvaluatedGenomeStorage checkedBuild() { return new EvaluatedGenomeStorage(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends EvaluatedGenomeStorage,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends EvaluatedGenomeStorage,T extends AbstractBuilder<E,T>> extends AbstractAgentProperty.AbstractBuilder<E,T> {
     }
 }

@@ -18,7 +18,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
  * Time: 18:24
  */
 @ClassGroup(tags = "actions")
-public class GenericAction extends AbstractGFAction {
+public class GenericAction extends AbstractAgentAction {
 
     @Element
     private Callback<? super GenericAction, Void> callback;
@@ -71,7 +71,7 @@ public class GenericAction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends GenericAction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends GenericAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
 
         public Callback<? super GenericAction, Void> callback = Callbacks.emptyCallback();
 

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.GFAction;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -11,15 +11,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ActionWillExecuteCondition extends LeafCondition {
 
-    private final GFAction parameterAction;
+    private final AgentAction parameterAction;
 
     public ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
         super(condition, map);
-        this.parameterAction = map.getClone(condition.parameterAction, GFAction.class);
+        this.parameterAction = map.getClone(condition.parameterAction, AgentAction.class);
     }
 
     @Override
-    public boolean apply(GFAction action) {
+    public boolean apply(AgentAction action) {
         return parameterAction.evaluateCondition(simulation());
     }
 
@@ -40,8 +40,8 @@ public class ActionWillExecuteCondition extends LeafCondition {
     }
 
     protected static abstract class AbstractBuilder<E extends ActionWillExecuteCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
-        private GFAction parameterAction;
+        private AgentAction parameterAction;
 
-        public T followingActionWillExecute(GFAction action) { this.parameterAction = checkNotNull(action); return self(); }
+        public T followingActionWillExecute(AgentAction action) { this.parameterAction = checkNotNull(action); return self(); }
     }
 }

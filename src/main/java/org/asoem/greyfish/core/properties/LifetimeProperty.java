@@ -14,9 +14,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * A {@code GFProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
+ * A {@code AgentProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
  */
-public class LifetimeProperty<T> extends AbstractGFProperty<T> {
+public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
 
     private Callback<? super LifetimeProperty<T>, T> callback;
 
@@ -78,7 +78,7 @@ public class LifetimeProperty<T> extends AbstractGFProperty<T> {
         }
     }
 
-    private abstract static class AbstractBuilder<T, P extends LifetimeProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractGFProperty.AbstractBuilder<P, B> {
+    private abstract static class AbstractBuilder<T, P extends LifetimeProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> {
         public Callback<? super LifetimeProperty<T>, T> callback;
 
         public B callback(Callback<? super LifetimeProperty<T>, T> callback) {

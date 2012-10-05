@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.AgentInitializers;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.AgentInitializers;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
 

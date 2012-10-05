@@ -3,9 +3,9 @@ package org.asoem.greyfish.core.utils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.AgentComponent;
 import org.asoem.greyfish.utils.base.Callback;
 
 import java.util.concurrent.atomic.AtomicInteger;

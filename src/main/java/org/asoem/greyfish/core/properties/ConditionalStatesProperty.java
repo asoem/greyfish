@@ -28,7 +28,7 @@ import java.util.Set;
  * Time: 10:28
  */
 @ClassGroup(tags = {"properties"})
-public class ConditionalStatesProperty extends AbstractGFProperty<String> implements FiniteStateProperty<String> {
+public class ConditionalStatesProperty extends AbstractAgentProperty<String> implements FiniteStateProperty<String> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ConditionalStatesProperty.class);
 
@@ -126,7 +126,7 @@ public class ConditionalStatesProperty extends AbstractGFProperty<String> implem
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ConditionalStatesProperty,T extends AbstractBuilder<E,T>> extends AbstractGFProperty.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<E extends ConditionalStatesProperty,T extends AbstractBuilder<E,T>> extends AbstractAgentProperty.AbstractBuilder<E,T> {
         private final Map<String, GreyfishExpression> phenotypeConditionMap = Maps.newHashMap();
 
         public T addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactoryHolder.compile(when)); return self();}

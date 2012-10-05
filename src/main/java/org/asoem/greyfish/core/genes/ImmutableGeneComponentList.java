@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.genes;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.individual.ImmutableComponentList;
+import org.asoem.greyfish.core.agent.ImmutableComponentList;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.TinyList;

@@ -7,8 +7,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.*;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
@@ -32,7 +32,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @ClassGroup(tags = "actions")
-public class SexualReproduction extends AbstractGFAction {
+public class SexualReproduction extends AbstractAgentAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -203,7 +203,7 @@ public class SexualReproduction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends SexualReproduction, B extends AbstractBuilder<C, B>> extends AbstractGFAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends SexualReproduction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
         private Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();

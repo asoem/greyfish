@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.AbstractComponentList;
+import org.asoem.greyfish.core.agent.AbstractComponentList;
 import org.asoem.greyfish.utils.base.Product2;
 import org.asoem.greyfish.utils.base.Tuple2;
 

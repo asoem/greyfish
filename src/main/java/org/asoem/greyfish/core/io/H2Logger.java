@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.collect.Maps;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.individual.Agent;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 

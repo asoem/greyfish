@@ -2,15 +2,15 @@ package org.asoem.greyfish.core.conditions;
 
 
 import com.google.common.base.Predicate;
-import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.agent.AgentComponent;
 import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 @Root
-public interface GFCondition extends AgentComponent, Predicate<GFAction> {
+public interface GFCondition extends AgentComponent, Predicate<AgentAction> {
 
     @Nullable
     GFCondition getParentCondition();
@@ -27,5 +27,5 @@ public interface GFCondition extends AgentComponent, Predicate<GFAction> {
 	boolean isRootCondition();
 
     @Override
-    boolean apply(GFAction action);
+    boolean apply(AgentAction action);
 }

@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 09.05.12
  * Time: 11:29
  */
-public class SimulationStepProperty<T> extends AbstractGFProperty<T> {
+public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
 
     private Callback<? super SimulationStepProperty<T>, T> callback;
 
@@ -95,7 +95,7 @@ public class SimulationStepProperty<T> extends AbstractGFProperty<T> {
         }
     }
 
-    private abstract static class AbstractBuilder<T, P extends SimulationStepProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractGFProperty.AbstractBuilder<P, B> {
+    private abstract static class AbstractBuilder<T, P extends SimulationStepProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> {
         public Callback<? super SimulationStepProperty<T>, T> callback;
 
         public B callback(Callback<? super SimulationStepProperty<T>, T> function) {

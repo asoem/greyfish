@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.actions.utils;
 
 import com.google.common.collect.ForwardingList;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.individual.ComponentList;
+import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.ComponentList;
 
 /**
  * User: christoph

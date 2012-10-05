@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.space.WalledTile;
