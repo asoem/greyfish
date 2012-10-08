@@ -8,7 +8,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
@@ -63,11 +63,11 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             return AgentTrait.class.cast(agentComponent);
                         }
                     });
-                } else if (GFCondition.class.isAssignableFrom(contextClass)) {
-                    return condition(gomParts, new Function<T, GFCondition>() {
+                } else if (ActionCondition.class.isAssignableFrom(contextClass)) {
+                    return condition(gomParts, new Function<T, ActionCondition>() {
                         @Override
-                        public GFCondition apply(T agentComponent) {
-                            return GFCondition.class.cast(agentComponent);
+                        public ActionCondition apply(T agentComponent) {
+                            return ActionCondition.class.cast(agentComponent);
                         }
                     });
                 } else {
@@ -175,20 +175,20 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         throw new IllegalArgumentException("Variable Name does not meet the syntax requirements: " + varName);
     }
 
-    private <T> Function<T, ?> condition(Iterator<String> parts, Function<T, GFCondition> function) {
+    private <T> Function<T, ?> condition(Iterator<String> parts, Function<T, ActionCondition> function) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
-                return agent(parts, Functions.compose(new Function<GFCondition, Agent>() {
+                return agent(parts, Functions.compose(new Function<ActionCondition, Agent>() {
                     @Override
-                    public Agent apply(GFCondition action) {
+                    public Agent apply(ActionCondition action) {
                         return checkNotNull(action).getAgent();
                     }
                 }, function));
             }
             //if (nextPart.matches("conditions\\[.+\\]")) {
             //}
-            throw new RuntimeException("GFCondition has no member named " + nextPart);
+            throw new RuntimeException("ActionCondition has no member named " + nextPart);
         } else {
             return function;
         }

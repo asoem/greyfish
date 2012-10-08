@@ -13,7 +13,7 @@ import java.util.Map;
  * Date: 20.04.11
  * Time: 14:22
  */
-public class VariableResolvers {
+public final class VariableResolvers {
     public static VariableResolver forMap(final Map<String, ?> map) {
 
         return new AbstractVariableResolver() {

@@ -9,7 +9,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 06.07.12
  * Time: 16:43
  */
-public class Simulations {
+public final class Simulations {
 
     /**
      * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}

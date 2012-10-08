@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 15:39
  */
 @SuppressWarnings("unused")
-public class MessageTemplates {
+public final class MessageTemplates {
 
     public static MessageTemplate performative(final ACLPerformative performative) {
         return new MessageTemplate() {

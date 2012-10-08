@@ -8,7 +8,7 @@ import org.asoem.greyfish.utils.space.MotionObject2D;
  * Date: 03.10.12
  * Time: 18:58
  */
-public class AgentInitializers {
+public final class AgentInitializers {
     public static Initializer<? super Agent> projection(final MotionObject2D motionObject2D) {
         return new Initializer<Agent>() {
             @Override

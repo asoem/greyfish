@@ -22,7 +22,7 @@ public class NoneCondition extends BranchCondition {
 
     @Override
     public boolean apply(AgentAction action) {
-        for (GFCondition condition : conditions)
+        for (ActionCondition condition : conditions)
             if (condition.apply(action))
                 return false;
         return true;
@@ -33,7 +33,7 @@ public class NoneCondition extends BranchCondition {
         return new NoneCondition(this, cloner);
     }
 
-    public static NoneCondition evaluates(GFCondition... conditions) { return new Builder().add(conditions).build(); }
+    public static NoneCondition evaluates(ActionCondition... conditions) { return new Builder().add(conditions).build(); }
 
     public static final class Builder extends AbstractBuilder<NoneCondition, Builder> {
         @Override protected Builder self() { return this; }

@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.simulation.Simulation;
 
 import javax.annotation.Nullable;
@@ -37,7 +37,7 @@ public interface AgentAction extends AgentComponent {
      *
      * @param rootCondition the condition set for this action
      */
-    public void setCondition(@Nullable GFCondition rootCondition);
+    public void setCondition(@Nullable ActionCondition rootCondition);
 
     /**
      * Get the condition set for this action
@@ -45,14 +45,14 @@ public interface AgentAction extends AgentComponent {
      * @return the condition set for this action or {@code null}
      */
     @Nullable
-    public GFCondition getCondition();
+    public ActionCondition getCondition();
 
     /**
      * Evaluate the this action's condition.
      *
      * @param simulation the context of this action
      * @return {@code true} if this action's condition is {@code null} or evaluates
-     *         ({@link GFCondition#apply(AgentAction)}) to {@code true},
+     *         ({@link org.asoem.greyfish.core.conditions.ActionCondition#apply(AgentAction)}) to {@code true},
      *         {@code false} otherwise.
      */
     public boolean evaluateCondition(Simulation simulation);

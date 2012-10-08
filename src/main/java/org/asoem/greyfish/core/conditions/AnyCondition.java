@@ -30,7 +30,7 @@ public class AnyCondition extends BranchCondition {
 
     @Override
     public boolean apply(AgentAction action) {
-        for (GFCondition condition : conditions)
+        for (ActionCondition condition : conditions)
             if (condition.apply(action))
                 return true;
         return false;

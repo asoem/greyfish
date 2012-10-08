@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class AgentComponents {
+public final class AgentComponents {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AgentComponents.class);
 

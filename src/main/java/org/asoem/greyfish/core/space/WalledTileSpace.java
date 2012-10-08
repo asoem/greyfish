@@ -22,7 +22,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javolution.lang.MathLib.TWO_PI;
-import static org.asoem.greyfish.utils.space.Conversions.polarToCartesian;
+import static org.asoem.greyfish.utils.space.GeometricConversions.polarToCartesian;
 import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
 
 /**

@@ -12,26 +12,26 @@ import javax.annotation.Nullable;
  * Can be used to make a <code>AgentAction</code> conditional.
  * @author christoph
  */
-public abstract class AbstractCondition extends AbstractAgentComponent implements GFCondition {
+public abstract class AbstractCondition extends AbstractAgentComponent implements ActionCondition {
 
     @Nullable
-    private GFCondition parentCondition;
+    private ActionCondition parentCondition;
 
     protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.parentCondition = cloner.getClone(cloneable.parentCondition, GFCondition.class);
+        this.parentCondition = cloner.getClone(cloneable.parentCondition, ActionCondition.class);
     }
 
     protected AbstractCondition() {}
 
     @Override
     @Nullable
-    public GFCondition getParentCondition() {
+    public ActionCondition getParentCondition() {
         return parentCondition;
     }
 
     @Override
-    public void setParent(@Nullable GFCondition parent) {
+    public void setParent(@Nullable ActionCondition parent) {
         this.parentCondition = parent;
     }
 
@@ -41,14 +41,14 @@ public abstract class AbstractCondition extends AbstractAgentComponent implement
     }
 
     @Override
-    public final GFCondition getRoot() {
+    public final ActionCondition getRoot() {
         return (parentCondition == null) ? this : parentCondition.getRoot();
     }
 
     @Commit
     private void commit() {
         if (!isLeafCondition()) {
-            for (GFCondition condition : getChildConditions()) {
+            for (ActionCondition condition : getChildConditions()) {
                 condition.setParent(this);
             }
         }

@@ -5,7 +5,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.gui.utils.ClassGroup;
@@ -42,8 +42,8 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
     }
 
     @Override
-    public Iterable<Class<? extends GFCondition>> getAvailableConditionClasses() {
-        return findClasses(GFCondition.class, "conditions");
+    public Iterable<Class<? extends ActionCondition>> getAvailableConditionClasses() {
+        return findClasses(ActionCondition.class, "conditions");
     }
 
     private <T extends AgentComponent> Iterable<Class<? extends T>> findClasses(final Class<T> clazz, final String classGroupName) {

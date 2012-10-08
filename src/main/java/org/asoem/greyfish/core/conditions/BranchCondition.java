@@ -28,44 +28,44 @@ import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
  * @author christoph
  *
  */
-public abstract class BranchCondition extends AbstractCondition implements Iterable<GFCondition> {
+public abstract class BranchCondition extends AbstractCondition implements Iterable<ActionCondition> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BranchCondition.class);
 
     @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
-    protected List<GFCondition> conditions = Lists.newArrayList();
+    protected List<ActionCondition> conditions = Lists.newArrayList();
 
     protected BranchCondition(BranchCondition cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        for (GFCondition condition : cloneable.getChildConditions())
-            add(cloner.getClone(condition, GFCondition.class));
+        for (ActionCondition condition : cloneable.getChildConditions())
+            add(cloner.getClone(condition, ActionCondition.class));
     }
 
-    public BranchCondition(GFCondition... conditions) {
+    public BranchCondition(ActionCondition... conditions) {
         addAll(Arrays.asList(conditions));
         integrate(conditions);
     }
 
-    private void integrate(Iterable<? extends GFCondition> condition2) {
-        for (GFCondition gfCondition : condition2) {
-            integrate(gfCondition);
+    private void integrate(Iterable<? extends ActionCondition> condition2) {
+        for (ActionCondition actionCondition : condition2) {
+            integrate(actionCondition);
         }
     }
 
-    private void integrate(GFCondition ... conditions) {
-        for (GFCondition condition : conditions) {
+    private void integrate(ActionCondition... conditions) {
+        for (ActionCondition condition : conditions) {
             condition.setAgent(getAgent());
             condition.setParent(this);
         }
     }
 
-    private void disintegrate(GFCondition condition) {
+    private void disintegrate(ActionCondition condition) {
         condition.setParent(null);
         condition.setAgent(null);
     }
 
     @Override
-    public List<GFCondition> getChildConditions() {
+    public List<ActionCondition> getChildConditions() {
         return conditions;
     }
 
@@ -77,22 +77,22 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void initialize() {
         super.initialize();
-        for (GFCondition condition : conditions)
+        for (ActionCondition condition : conditions)
             condition.initialize();
     }
 
-    public void addAll(Iterable<? extends GFCondition> childConditions) {
+    public void addAll(Iterable<? extends ActionCondition> childConditions) {
         checkMutability(this);
         integrate(childConditions);
         Iterables.addAll(conditions, childConditions);
     }
 
-    public int indexOf(GFCondition currentCondition) {
+    public int indexOf(ActionCondition currentCondition) {
         return conditions.indexOf(currentCondition);
     }
 
     @Override
-    public void add(GFCondition newChild) {
+    public void add(ActionCondition newChild) {
         checkNotNull(newChild);
         checkMutability(this);
         integrate(newChild);
@@ -100,23 +100,23 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     }
 
     @Override
-    public void insert(GFCondition condition, int index) {
+    public void insert(ActionCondition condition, int index) {
         checkNotNull(condition);
         checkMutability(this);
         integrate(condition);
         conditions.add(index, condition);
     }
 
-    public GFCondition remove(int index) {
+    public ActionCondition remove(int index) {
         checkMutability(this);
         checkPositionIndex(index, conditions.size());
-        GFCondition ret = conditions.remove(index);
+        ActionCondition ret = conditions.remove(index);
         disintegrate(ret);
         return ret;
     }
 
     @Override
-    public void remove(GFCondition condition) {
+    public void remove(ActionCondition condition) {
         checkMutability(this);
         checkArgument(conditions.contains(condition));
         boolean remove = conditions.remove(condition);
@@ -125,7 +125,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
 
     @Override
     public void removeAll() {
-        for (GFCondition condition : conditions) {
+        for (ActionCondition condition : conditions) {
             remove(condition);
         }
     }
@@ -144,11 +144,11 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     }
 
     protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {
-        private final List<GFCondition> conditions = Lists.newArrayList();
+        private final List<ActionCondition> conditions = Lists.newArrayList();
 
-        protected T add(GFCondition condition) { condition.add(checkNotNull(condition)); return self(); }
-        protected T add(GFCondition ... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
-        protected T addAll(Iterable<? extends GFCondition> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
+        protected T add(ActionCondition condition) { condition.add(checkNotNull(condition)); return self(); }
+        protected T add(ActionCondition... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
+        protected T addAll(Iterable<? extends ActionCondition> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
     }
 
     @Override
@@ -157,7 +157,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     }
 
     @Override
-    public final Iterator<GFCondition> iterator() {
+    public final Iterator<ActionCondition> iterator() {
         return unmodifiableIterator(conditions.iterator());
     }
 

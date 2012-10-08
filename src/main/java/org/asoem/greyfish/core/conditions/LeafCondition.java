@@ -19,7 +19,7 @@ public abstract class LeafCondition extends AbstractCondition {
     }
 
     @Override
-	public final List<GFCondition> getChildConditions() {
+	public final List<ActionCondition> getChildConditions() {
 		return Collections.emptyList();
 	}
 
@@ -34,7 +34,7 @@ public abstract class LeafCondition extends AbstractCondition {
     }
 
     @Override
-    public final void remove(GFCondition condition) {
+    public final void remove(ActionCondition condition) {
         throw new UnsupportedOperationException();
     }
 
@@ -44,12 +44,12 @@ public abstract class LeafCondition extends AbstractCondition {
     }
 
     @Override
-    public final void add(GFCondition condition) {
+    public final void add(ActionCondition condition) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void insert(GFCondition condition, int index) {
+    public void insert(ActionCondition condition, int index) {
         throw new UnsupportedOperationException();
     }
 }

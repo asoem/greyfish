@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.Tile;
 
 import javax.annotation.Nullable;
 import java.util.Set;

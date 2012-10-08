@@ -5,11 +5,13 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.utils.space.Geometry2D;
 import org.asoem.greyfish.utils.space.Point2D;
+import org.asoem.greyfish.utils.space.Tile;
+import org.asoem.greyfish.utils.space.TileDirection;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
 
-import static org.asoem.greyfish.core.space.TileDirection.*;
+import static org.asoem.greyfish.utils.space.TileDirection.*;
 
 public class WalledTile implements Tile {
 

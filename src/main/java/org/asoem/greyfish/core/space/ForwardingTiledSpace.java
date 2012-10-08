@@ -3,6 +3,8 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.utils.space.MovingProjectable2D;
+import org.asoem.greyfish.utils.space.Tile;
+import org.asoem.greyfish.utils.space.TileDirection;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.agent.AgentNodes;
-import org.asoem.greyfish.core.conditions.GFCondition;
+import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -25,7 +25,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 public abstract class AbstractAgentAction extends AbstractAgentComponent implements AgentAction {
 
     @Nullable
-    private GFCondition rootCondition = null;
+    private ActionCondition rootCondition = null;
 
     private Callback<? super AbstractAgentAction, Void> onSuccess;
 
@@ -37,7 +37,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
 
     protected AbstractAgentAction(AbstractAgentAction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = map.getClone(cloneable.getCondition(), GFCondition.class);
+        this.rootCondition = map.getClone(cloneable.getCondition(), ActionCondition.class);
         this.onSuccess = cloneable.onSuccess;
     }
 
@@ -129,13 +129,13 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
 
     @Nullable
     @Element(name = "condition", required = false)
-    public GFCondition getCondition() {
+    public ActionCondition getCondition() {
         return rootCondition;
     }
 
     @Element(name = "condition", required = false)
     @Override
-    public void setCondition(@Nullable GFCondition rootCondition) {
+    public void setCondition(@Nullable ActionCondition rootCondition) {
         this.rootCondition = rootCondition;
         if (rootCondition != null)
             for (AgentComponent component : AgentNodes.<AgentComponent>postOrderIteration(rootCondition))
@@ -197,10 +197,10 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<A extends AbstractAgentAction, B extends AbstractBuilder<A, B>> extends AbstractAgentComponent.AbstractBuilder<A, B> {
-        private GFCondition condition;
+        private ActionCondition condition;
         private Callback<? super AbstractAgentAction, Void> onSuccess = Callbacks.emptyCallback();
 
-        public B executedIf(GFCondition condition) {
+        public B executedIf(ActionCondition condition) {
             this.condition = condition;
             return self();
         }

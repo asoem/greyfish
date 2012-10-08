@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 26.09.12
  * Time: 18:31
  */
-public class Agents {
+public final class Agents {
     public static ComponentAccessor<AgentProperty<?>> propertyAccessor(final String propertyName) {
         return new ComponentAccessor<AgentProperty<?>>() {
             private final Predicate<? super AgentProperty<?>> random_sperm = new Predicate<AgentProperty<?>>() {

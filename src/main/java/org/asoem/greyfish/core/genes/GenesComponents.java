@@ -8,7 +8,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 22.02.11
  * Time: 11:43
  */
-public class GenesComponents {
+public final class GenesComponents {
 
     public static <T> T mutate(AgentTrait<T> component) {
         return component.mutate(component.getAllele());

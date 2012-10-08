@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.space.Tile;
 import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.Tile;
 
 import java.util.Set;
 

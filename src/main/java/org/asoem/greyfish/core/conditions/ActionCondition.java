@@ -10,17 +10,17 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Root
-public interface GFCondition extends AgentComponent, Predicate<AgentAction> {
+public interface ActionCondition extends AgentComponent, Predicate<AgentAction> {
 
     @Nullable
-    GFCondition getParentCondition();
-	List<GFCondition> getChildConditions();
-	GFCondition getRoot();
+    ActionCondition getParentCondition();
+	List<ActionCondition> getChildConditions();
+	ActionCondition getRoot();
 
-	void setParent(@Nullable GFCondition parent);
-    void insert(GFCondition condition, int index);
-    void add(GFCondition condition);
-	void remove(GFCondition condition);
+	void setParent(@Nullable ActionCondition parent);
+    void insert(ActionCondition condition, int index);
+    void add(ActionCondition condition);
+	void remove(ActionCondition condition);
     void removeAll();
 
     boolean isLeafCondition();

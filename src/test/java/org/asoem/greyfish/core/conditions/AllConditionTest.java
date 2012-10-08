@@ -14,7 +14,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AllConditionTest {
 
-    @Mock GFCondition condition;
+    @Mock
+    ActionCondition condition;
 
     @Test
     public void testAll() throws Exception {
@@ -28,8 +29,8 @@ public class AllConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        GFCondition condition = mock(GFCondition.class);
-        GFCondition conditionClone = mock(GFCondition.class);
+        ActionCondition condition = mock(ActionCondition.class);
+        ActionCondition conditionClone = mock(ActionCondition.class);
         given(condition.deepClone(any(DeepCloner.class))).willReturn(conditionClone);
         AllCondition allCondition = AllCondition.evaluates(condition, condition);
 

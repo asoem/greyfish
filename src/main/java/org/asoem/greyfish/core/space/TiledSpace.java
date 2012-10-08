@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.space;
 
 import org.asoem.greyfish.utils.space.MovingProjectable2D;
+import org.asoem.greyfish.utils.space.Tile;
+import org.asoem.greyfish.utils.space.Tiled;
 
 /**
  * User: christoph

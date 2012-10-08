@@ -29,7 +29,7 @@ public class AllCondition extends BranchCondition {
 
     @Override
     public boolean apply(AgentAction action) {
-        for (GFCondition condition : conditions)
+        for (ActionCondition condition : conditions)
             if (!condition.apply(action))
                 return false;
         return true;
@@ -40,11 +40,11 @@ public class AllCondition extends BranchCondition {
         return new AllCondition(this, cloner);
     }
 
-    public static AllCondition evaluates(GFCondition... conditions) { return new Builder().add(conditions).build(); }
+    public static AllCondition evaluates(ActionCondition... conditions) { return new Builder().add(conditions).build(); }
 
     public static final class Builder extends AbstractBuilder<AllCondition, Builder> {
 
-        public Builder(GFCondition ... conditions) {
+        public Builder(ActionCondition... conditions) {
             add(conditions);
         }
 
