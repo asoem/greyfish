@@ -4,11 +4,13 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Module;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
@@ -30,7 +32,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -43,7 +45,7 @@ import static java.util.Arrays.asList;
  * Date: 30.05.12
  * Time: 10:36
  */
-public class GreyfishCLIApplication {
+public final class GreyfishCLIApplication {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GreyfishCLIApplication.class);
 
@@ -70,7 +72,8 @@ public class GreyfishCLIApplication {
             }
         });
 
-        LOGGER.info("Creating simulation for model {}", model);
+        LOGGER.info("Creating simulation for model {}", model.getClass());
+        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.asMap(model)));
         final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold,
                 SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
         final SimulationTemplate simulationTemplate = model.createTemplate();
@@ -203,22 +206,28 @@ public class GreyfishCLIApplication {
                 final String modelClassName = optionSet.nonOptionArguments().get(0);
 
                 try {
-                    final Class<? extends Model> modelFactoryClass =
+                    final Class<? extends Model> modelClass =
                             (Class<? extends Model>) Class.forName(modelClassName);
-                    bind(Model.class).to(modelFactoryClass);
+                    bind(Model.class).to(modelClass);
                 } catch (ClassNotFoundException e) {
                     optionExceptionHandler.handle("Could not find class " + modelClassName);
                 }
 
                 if (optionSet.has("D")) {
-                    final Properties properties = new Properties();
-                    try {
-                        properties.load(new StringReader(Joiner.on("\n").join(optionSet.valuesOf("D"))));
-                    } catch (IOException e) {
-                        throw new IOError(e);
+                    final Map<String, String> properties = Maps.newHashMap();
+                    for (Object s : optionSet.valuesOf("D")) {
+                        if (String.class.isInstance(s)) {
+                            final String[] split = ((String) s).split("=", 2);
+                            if (split.length == 2) {
+                                properties.put(split[0], split[1]);
+                            }
+                            else {
+                                optionExceptionHandler.handle("Invalid model property definition (-D): " + s + ". Expected 'key=value'.");
+                            }
+                        }
                     }
-                    ModelParameters.bindProperties(binder(), properties);
 
+                    bindListener(Matchers.any(), new ModelParameterTypeListener(properties));
                 }
 
                 bind(Integer.class).annotatedWith(Names.named("steps"))

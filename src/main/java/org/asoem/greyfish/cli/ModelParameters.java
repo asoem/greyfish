@@ -1,53 +1,30 @@
 package org.asoem.greyfish.cli;
 
-import com.google.inject.Binder;
-import com.google.inject.Key;
+import com.google.common.collect.Maps;
 
-import java.util.Enumeration;
+import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * User: christoph
- * Date: 30.05.12
- * Time: 15:16
+ * Date: 08.10.12
+ * Time: 14:51
  */
-public class ModelParameters {
-    private ModelParameters() {}
-
-    /**
-     * Creates a {@link ModelParameter} annotation with {@code name} as the value.
-     */
-    public static ModelParameter named(String name) {
-        return new ModelParameterImpl(name);
-    }
-
-    /**
-     * Creates a constant binding to {@code @Named(key)} for each entry in
-     * {@code properties}.
-     */
-    public static void bindProperties(Binder binder, Map<String, String> properties) {
-        binder = binder.skipSources(ModelParameter.class);
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            binder.bind(Key.get(String.class, new ModelParameterImpl(key))).toInstance(value);
+public final class ModelParameters {
+    public static Map<String, Object> asMap(Object model) {
+        final Map<String, Object> map = Maps.newHashMap();
+        for (Field field : model.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(ModelParameter.class)) {
+                try {
+                    field.setAccessible(true);
+                    final String annotationValue = field.getAnnotation(ModelParameter.class).value();
+                    final String key = (annotationValue.isEmpty()) ? field.getName() : annotationValue;
+                    map.put(key, field.get(model));
+                } catch (IllegalAccessException e) {
+                    throw new AssertionError(e);
+                }
+            }
         }
-    }
-
-    /**
-     * Creates a constant binding to {@code @Named(key)} for each property. This
-     * method binds all properties including those inherited from
-     * {@link Properties#defaults defaults}.
-     */
-    public static void bindProperties(Binder binder, Properties properties) {
-        binder = binder.skipSources(ModelParameter.class);
-
-        // use enumeration to include the default properties
-        for (Enumeration<?> e = properties.propertyNames(); e.hasMoreElements(); ) {
-            String propertyName = (String) e.nextElement();
-            String value = properties.getProperty(propertyName);
-            binder.bind(Key.get(String.class, new ModelParameterImpl(propertyName))).toInstance(value);
-        }
+        return map;
     }
 }
