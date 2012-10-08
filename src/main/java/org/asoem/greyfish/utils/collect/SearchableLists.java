@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
  * Date: 27.09.12
  * Time: 12:34
  */
-public class SearchableLists {
+public final class SearchableLists {
     public static <E> SearchableList<E> extend(List<E> es) {
         return new SearchableListAdaptor<E>(es);
     }

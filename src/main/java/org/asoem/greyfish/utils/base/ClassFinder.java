@@ -8,14 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class ClassFinder {
+public enum ClassFinder {
 
-    private static volatile ClassFinder instance;
-
-    /**
-     * Defined classpath
-     */
-    private static final String CLASSPATH = System.getProperty("java.class.path");
+    INSTANCE;
 
     /**
      * List with the directories on the classpath (containing .class files)
@@ -27,7 +22,11 @@ public class ClassFinder {
      * CLASSPATH, if they are not yet initialized.
      */
     private ClassFinder() {
-        final StringTokenizer st = new StringTokenizer(CLASSPATH, File.pathSeparator);
+        /*
+      Defined classpath
+     */
+        String classpath = System.getProperty("java.class.path");
+        final StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
         int count = st.countTokens();
         File[] classPathDirs = new File[count];
         //final ArrayList<String> jar = new ArrayList<String>();
@@ -48,10 +47,8 @@ public class ClassFinder {
         binDirs = bin.toArray(new String[bin.size()]);
     }
 
-    public static synchronized ClassFinder getInstance() {
-        if (instance == null)
-            instance = new ClassFinder();
-        return instance;
+    public static ClassFinder getInstance() {
+        return INSTANCE;
     }
 
     /**

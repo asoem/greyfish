@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 07.02.12
  * Time: 11:30
  */
-public class StaticMarkovChain<S> implements MarkovChain<S> {
+public final class StaticMarkovChain<S> implements MarkovChain<S> {
 
     private final Table<S, S, Double> markovMatrix;
 

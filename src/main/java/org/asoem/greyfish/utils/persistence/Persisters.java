@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 21.02.12
  * Time: 18:37
  */
-public class Persisters {
+public final class Persisters {
     /**
      * Create a copy of the given object {@code o} by serializing it with the given {@code Persister}.
      * No guarantees can be made about how exact the copy will be, as this is dependent of the {@code Persister} implementation.

@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 03.11.11
  * Time: 08:55
  */
-public class Chains {
+public final class Chains {
 
     public static <T> Iterable<T> of(@Nullable final T root, final Function<? super T, ? extends T> nextElementFunction) {
         checkNotNull(nextElementFunction);

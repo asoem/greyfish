@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Date: 26.07.12
  * Time: 10:52
  */
-public class UpdateRequests {
+public final class UpdateRequests {
 
     public static OutdateableUpdateRequest<Object> atomicRequest(final boolean initial) {
         return new OutdateableUpdateRequest<Object>() {

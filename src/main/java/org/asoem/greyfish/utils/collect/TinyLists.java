@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
  * Date: 21.09.12
  * Time: 15:46
  */
-public class TinyLists {
+public final class TinyLists {
 
     private static final GenericTinyList<Object> EMPTY_LIST = new GenericTinyList<Object>(ImmutableList.of());
 

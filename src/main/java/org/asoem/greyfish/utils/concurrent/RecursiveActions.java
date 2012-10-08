@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 19.10.11
  * Time: 14:24
  */
-public class RecursiveActions {
+public final class RecursiveActions {
 
     private static final RecursiveAction NULL_ACTION = new RecursiveAction() {
         @Override

@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
  * Date: 15.05.12
  * Time: 16:13
  */
-public class Callbacks {
+public final class Callbacks {
 
     private static final ArgumentMap ZERO_ARGUMENTS = new ArgumentMap(ImmutableMap.<String, Object>of());
 
