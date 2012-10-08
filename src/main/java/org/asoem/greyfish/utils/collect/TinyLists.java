@@ -16,6 +16,8 @@ import java.util.NoSuchElementException;
  */
 public final class TinyLists {
 
+    private TinyLists() {}
+
     private static final GenericTinyList<Object> EMPTY_LIST = new GenericTinyList<Object>(ImmutableList.of());
 
     public static <E> TinyList<E> copyOf(List<E> list) {

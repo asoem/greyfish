@@ -35,15 +35,15 @@ public class ArgumentMap extends ForwardingMap<String, Object> implements Argume
         return map.get(identifier);
     }
 
-    public static Arguments of(String identifier, Object o) {
+    public static ArgumentMap of(String identifier, Object o) {
         return new ArgumentMap(ImmutableMap.of(identifier, o));
     }
 
-    public static Arguments of(String i1, Object o1, String i2, Object o2) {
+    public static ArgumentMap of(String i1, Object o1, String i2, Object o2) {
         return new ArgumentMap(ImmutableMap.of(i1, o1, i2, o2));
     }
 
-    public static Arguments of() {
+    public static ArgumentMap of() {
         return EMPTY_MAP;
     }
 

@@ -16,6 +16,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Chains {
 
+    private Chains() {}
+
     public static <T> Iterable<T> of(@Nullable final T root, final Function<? super T, ? extends T> nextElementFunction) {
         checkNotNull(nextElementFunction);
 

@@ -9,6 +9,8 @@ import org.apache.commons.math3.util.FastMath;
  */
 public final class GeometricConversions {
 
+    private GeometricConversions() {}
+
     public static Point2D polarToCartesian(double angle, double radius) {
         return ImmutablePoint2D.at(
                 radius * FastMath.cos(angle),

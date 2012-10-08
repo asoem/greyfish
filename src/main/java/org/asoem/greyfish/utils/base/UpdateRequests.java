@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class UpdateRequests {
 
+    private UpdateRequests() {}
+
     public static OutdateableUpdateRequest<Object> atomicRequest(final boolean initial) {
         return new OutdateableUpdateRequest<Object>() {
 

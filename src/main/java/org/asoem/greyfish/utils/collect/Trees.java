@@ -17,6 +17,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Trees {
 
+    private Trees() {}
+
     /**
      * Create an iterator that traverses the tree from the given {@code root} node in postorder.
      * @param root the root node

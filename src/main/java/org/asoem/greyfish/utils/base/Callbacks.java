@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
  */
 public final class Callbacks {
 
+    private Callbacks() {}
+
     private static final ArgumentMap ZERO_ARGUMENTS = new ArgumentMap(ImmutableMap.<String, Object>of());
 
     public static <T> Callback<Object, T> constant(final T returnValue) {

@@ -20,11 +20,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 07.02.12
  * Time: 11:30
  */
-public final class StaticMarkovChain<S> implements MarkovChain<S> {
+public class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
     private final Table<S, S, Double> markovMatrix;
 
-    private StaticMarkovChain(Table<S, S, Double> markovMatrix) {
+    private ImmutableMarkovChain(Table<S, S, Double> markovMatrix) {
         this.markovMatrix = markovMatrix;
     }
 
@@ -68,7 +68,7 @@ public final class StaticMarkovChain<S> implements MarkovChain<S> {
         return new ChainBuilder<S>();
     }
 
-    public static StaticMarkovChain<String> parse(String rule) {
+    public static ImmutableMarkovChain<String> parse(String rule) {
         ChainBuilder<String> builder = builder();
 
         final Splitter splitter = Splitter.onPattern("\r?\n|;").trimResults();
@@ -92,7 +92,7 @@ public final class StaticMarkovChain<S> implements MarkovChain<S> {
         return builder.build();
     }
 
-    public static class ChainBuilder<S> implements Builder<StaticMarkovChain<S>> {
+    public static class ChainBuilder<S> implements Builder<ImmutableMarkovChain<S>> {
 
         private final Table<S, S, Double> table = HashBasedTable.create();
 
@@ -102,7 +102,7 @@ public final class StaticMarkovChain<S> implements MarkovChain<S> {
         }
 
         @Override
-        public StaticMarkovChain<S> build() throws IllegalStateException {
+        public ImmutableMarkovChain<S> build() throws IllegalStateException {
             // todo: check if sum of transition probabilities in rows are <= 1
             for (S state : table.rowKeySet()) {
                 double sum = 0.0;
@@ -112,7 +112,7 @@ public final class StaticMarkovChain<S> implements MarkovChain<S> {
                 if (sum < 0 || sum > 1)
                     throw new IllegalArgumentException("Sum of transition probabilities from state " + state + " must be in >= 0 and <= 1");
             }
-            return new StaticMarkovChain<S>(ImmutableTable.copyOf(table));
+            return new ImmutableMarkovChain<S>(ImmutableTable.copyOf(table));
         }
     }
     

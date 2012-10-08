@@ -7,6 +7,8 @@ package org.asoem.greyfish.utils.base;
  */
 public final class MorePreconditions {
 
+    private MorePreconditions() {}
+
     public static void checkMutability(Freezable freezable) {
         if (freezable.isFrozen()) throw new IllegalStateException("Component is frozen");
     }

@@ -20,8 +20,7 @@ public class DeepCloner {
 
     private final Map<DeepCloneable, DeepCloneable> map = Maps.newIdentityHashMap();
 
-    private DeepCloner() {
-    }
+    private DeepCloner() {}
 
     /**
      * Add the given {@code clone} as the clone of the {@code DeepCloneable} of the last

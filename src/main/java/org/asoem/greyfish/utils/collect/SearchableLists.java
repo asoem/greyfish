@@ -13,6 +13,9 @@ import java.util.NoSuchElementException;
  * Time: 12:34
  */
 public final class SearchableLists {
+
+    private SearchableLists() {}
+
     public static <E> SearchableList<E> extend(List<E> es) {
         return new SearchableListAdaptor<E>(es);
     }

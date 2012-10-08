@@ -6,6 +6,9 @@ package org.asoem.greyfish.utils.base;
  * Time: 13:27
  */
 public final class Initializers {
+
+    private Initializers() {}
+
     private enum EmptyInitializer implements Initializer<Object> {
         INSTANCE;
 

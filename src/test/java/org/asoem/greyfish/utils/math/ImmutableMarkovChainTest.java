@@ -9,11 +9,11 @@ import static org.fest.assertions.Assertions.assertThat;
  * Date: 08.02.12
  * Time: 13:11
  */
-public class StaticMarkovChainTest {
+public class ImmutableMarkovChainTest {
 
     @Test
     public void testSimpleChain() throws Exception {
-        final StaticMarkovChain<String> chain = StaticMarkovChain.<String>builder()
+        final ImmutableMarkovChain<String> chain = ImmutableMarkovChain.<String>builder()
                 .put("A", "B", 1)
                 .put("B", "C", 1)
                 .build();
@@ -31,7 +31,7 @@ public class StaticMarkovChainTest {
         final String rule = "A -> B : 1.0; B -> C : 1.0";
 
         // when
-        final StaticMarkovChain<String> chain = StaticMarkovChain.parse(rule);
+        final ImmutableMarkovChain<String> chain = ImmutableMarkovChain.parse(rule);
 
         // then
         final String endState = chain.apply(chain.apply("A"));

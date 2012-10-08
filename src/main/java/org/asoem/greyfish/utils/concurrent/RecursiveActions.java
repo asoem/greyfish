@@ -18,6 +18,8 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public final class RecursiveActions {
 
+    private RecursiveActions() {}
+
     private static final RecursiveAction NULL_ACTION = new RecursiveAction() {
         @Override
         protected void compute() {

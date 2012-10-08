@@ -9,7 +9,9 @@ import java.io.Serializable;
  * Date: 26.07.12
  * Time: 10:56
  */
-public class MoreSuppliers {
+public final class MoreSuppliers {
+
+    private MoreSuppliers() {}
 
     public static <T> Supplier<T> memoize(Supplier<T> delegate, UpdateRequest<? super T> updateRequest) {
         return new OutdateableMemoizingSupplier<T>(delegate, updateRequest);

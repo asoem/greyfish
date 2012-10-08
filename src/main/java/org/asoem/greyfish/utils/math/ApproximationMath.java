@@ -8,7 +8,9 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
  * Date: 23.07.12
  * Time: 16:06
  */
-public class ApproximationMath {
+public final class ApproximationMath {
+
+    private ApproximationMath() {}
 
     private static final double ZERO_CLOSEST_POSITIVE = Math.nextUp(0.0);
 
