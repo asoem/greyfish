@@ -10,6 +10,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class GenesComponents {
 
+    private GenesComponents() {}
+
     public static <T> T mutate(AgentTrait<T> component) {
         return component.mutate(component.getAllele());
     }

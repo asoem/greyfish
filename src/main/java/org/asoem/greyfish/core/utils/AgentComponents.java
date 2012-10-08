@@ -14,6 +14,8 @@ public final class AgentComponents {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AgentComponents.class);
 
+    private AgentComponents() {}
+
     public static <T extends AgentComponent> T createNewInstance(Class<T> clazz) throws RuntimeException {
         try {
             return clazz.getConstructor().newInstance();

@@ -11,6 +11,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Simulations {
 
+    private Simulations() {}
+
     /**
      * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}
      *

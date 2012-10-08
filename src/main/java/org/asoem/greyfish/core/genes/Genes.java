@@ -15,6 +15,9 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Time: 10:44
  */
 public final class Genes {
+
+    private Genes() {}
+
     public static List<Gene<?>> recombine(final List<? extends Gene<?>> thisGenes, final List<? extends Gene<?>> thatGenes) {
 
         checkArgument(thisGenes.size() == thatGenes.size(), "Gene lists must have the same length");

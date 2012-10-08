@@ -14,6 +14,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 18:31
  */
 public final class Agents {
+
+    private Agents() {}
+
     public static ComponentAccessor<AgentProperty<?>> propertyAccessor(final String propertyName) {
         return new ComponentAccessor<AgentProperty<?>>() {
             private final Predicate<? super AgentProperty<?>> random_sperm = new Predicate<AgentProperty<?>>() {

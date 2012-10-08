@@ -14,6 +14,9 @@ import java.util.Map;
  * Time: 14:22
  */
 public final class VariableResolvers {
+
+    private VariableResolvers() {}
+
     public static VariableResolver forMap(final Map<String, ?> map) {
 
         return new AbstractVariableResolver() {

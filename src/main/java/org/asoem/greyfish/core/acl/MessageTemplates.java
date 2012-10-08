@@ -16,6 +16,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @SuppressWarnings("unused")
 public final class MessageTemplates {
 
+    private MessageTemplates() {}
+
     public static MessageTemplate performative(final ACLPerformative performative) {
         return new MessageTemplate() {
             @Override
