@@ -11,6 +11,9 @@ import java.util.Map;
  * Time: 14:51
  */
 public final class ModelParameters {
+
+    private ModelParameters() {}
+
     public static Map<String, Object> asMap(Object model) {
         final Map<String, Object> map = Maps.newHashMap();
         for (Field field : model.getClass().getDeclaredFields()) {
