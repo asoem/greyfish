@@ -1,4 +1,4 @@
-package org.asoem.greyfish.utils.base;
+package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;

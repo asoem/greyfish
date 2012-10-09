@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils.base;
 
+import org.asoem.greyfish.utils.collect.Tuple3;
 import org.junit.Test;
 
 import java.util.Collections;

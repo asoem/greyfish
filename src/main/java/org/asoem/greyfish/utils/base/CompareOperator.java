@@ -4,38 +4,38 @@ import com.google.common.collect.Ordering;
 
 public enum CompareOperator {
 
-	Equal("equal to") {
+	EQUAL("equal to") {
 		
 		@Override
 		public <T> boolean apply(Comparable<T> a, Comparable<T> b) {
 			return compare(a, b) == 0;
 		}
 	},
-	NotEqual("not equal to") {
+	NOT_EQUAL("not equal to") {
 		@Override
 		public <T> boolean apply(Comparable<T> a, Comparable<T> b) {
 			return compare(a, b) != 0;
 		}
 	},
-	LessThan("less than") {
+	LESS_THAN("less than") {
 		@Override
 		public <T> boolean apply(Comparable<T> a, Comparable<T> b) {
 			return compare(a, b) < 0;
 		}
 	},
-    LessThanOrEquals("less than or equal") {
+    LESS_THAN_OR_EQUAL("less than or equal") {
 		@Override
 		public <T> boolean apply(Comparable<T> a, Comparable<T> b) {
 			return compare(a, b) <= 0;
 		}
 	},
-    GreaterThan("greater than") {
+    GREATER_THAN("greater than") {
 		@Override
 		public <T> boolean apply(Comparable<T> a, Comparable<T> b) {
 			return compare(a, b) > 0;
 		}
 	},
-    GreaterThanOrEquals("greater than or equal") {
+    GREATER_THAN_OR_EQUAL("greater than or equal") {
 		@Override
 		public <T> boolean apply(Comparable<T> a, Comparable<T> b) {
 			return compare(a, b) >= 0;

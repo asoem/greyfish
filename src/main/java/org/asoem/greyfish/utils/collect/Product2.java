@@ -1,4 +1,4 @@
-package org.asoem.greyfish.utils.base;
+package org.asoem.greyfish.utils.collect;
 
 /**
  * User: christoph

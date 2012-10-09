@@ -18,7 +18,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 10.02.12
  * Time: 12:56
  */
-public class ElementSelectionStrategies {
+public final class ElementSelectionStrategies {
+
+    private ElementSelectionStrategies() {}
 
     public static <E> ElementSelectionStrategy<E> rouletteWheelSelection(final Function<E, ? extends Double> function) {
         return new ElementSelectionStrategy<E>() {

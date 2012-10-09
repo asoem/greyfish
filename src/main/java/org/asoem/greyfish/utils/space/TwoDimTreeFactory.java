@@ -1,7 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 import com.google.common.base.Function;
-import org.asoem.greyfish.utils.base.Product2;
+import org.asoem.greyfish.utils.collect.Product2;
 
 /**
  * User: christoph
