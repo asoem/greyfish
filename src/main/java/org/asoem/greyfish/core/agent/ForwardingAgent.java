@@ -143,11 +143,6 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public AgentAction getLastExecutedAction() {
-        return delegate().getLastExecutedAction();
-    }
-
-    @Override
     public Body getBody() {
         return delegate().getBody();
     }

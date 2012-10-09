@@ -10,6 +10,8 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
 
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
@@ -26,8 +28,17 @@ public class ImmutableAgent extends AbstractAgent {
                            @Element(name = "properties") ComponentList<AgentProperty<?>> properties,
                            @Element(name = "actions") ComponentList<AgentAction> actions,
                            @Element(name = "agentTraitList") GeneComponentList<AgentTrait<?>> agentTraitList) {
-        super(body, properties, actions, agentTraitList);
+        super(body, properties, actions, agentTraitList, createDefaultActionExecutionStrategyFactory());
         freeze();
+    }
+
+    private static ActionExecutionStrategyFactory createDefaultActionExecutionStrategyFactory() {
+        return new ActionExecutionStrategyFactory() {
+            @Override
+            public ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions) {
+                return new DefaultActionExecutionStrategy(actions);
+            }
+        };
     }
 
     private ImmutableAgent(ImmutableAgent agent, DeepCloner cloner) {
@@ -38,7 +49,7 @@ public class ImmutableAgent extends AbstractAgent {
         super(new Body(),
                 ImmutableComponentList.copyOf(builder.properties),
                 ImmutableComponentList.copyOf(builder.actions),
-                ImmutableGeneComponentList.copyOf(builder.traits));
+                ImmutableGeneComponentList.copyOf(builder.traits), null);
         setPopulation(builder.population);
         freeze();
     }

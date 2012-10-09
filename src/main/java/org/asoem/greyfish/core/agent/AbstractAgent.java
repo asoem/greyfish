@@ -60,7 +60,9 @@ public abstract class AbstractAgent implements Agent {
     protected Population population;
 
     @Element(name = "simulationContext", required = false)
-    protected SimulationContext simulationContext = PassiveSimulationContext.INSTANCE;
+    protected SimulationContext simulationContext = PassiveSimulationContext.instance();
+
+    protected final ActionExecutionStrategy actionExecutionStrategy;
 
     @Element(name = "projection", required = false)
     @Nullable
@@ -71,14 +73,20 @@ public abstract class AbstractAgent implements Agent {
 
     private final AgentMessageBox inBox = new AgentMessageBox();
 
+    private final ActionExecutionStrategyFactory actionExecutionStrategyFactory;
+
     protected AbstractAgent(Body body,
                             ComponentList<AgentProperty<?>> properties,
                             ComponentList<AgentAction> actions,
-                            GeneComponentList<AgentTrait<?>> agentTraitList) {
+                            GeneComponentList<AgentTrait<?>> agentTraitList,
+                            ActionExecutionStrategyFactory factory) {
         this.body = checkNotNull(body);
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
         this.agentTraitList = checkNotNull(agentTraitList);
+        this.actionExecutionStrategyFactory = factory;
+        this.actionExecutionStrategy = factory.createStrategy(actions);
+        assert actionExecutionStrategy != null;
 
         initComponents();
     }
@@ -96,13 +104,19 @@ public abstract class AbstractAgent implements Agent {
     @SuppressWarnings("unchecked")
     protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner cloner) {
         cloner.addClone(abstractAgent, this);
+        // clone
         this.population = abstractAgent.population;
         this.actions = (ComponentList<AgentAction>) cloner.getClone(abstractAgent.actions, ComponentList.class);
         this.properties = (ComponentList<AgentProperty<?>>) cloner.getClone(abstractAgent.properties, ComponentList.class);
         this.agentTraitList = cloner.getClone(abstractAgent.agentTraitList, GeneComponentList.class);
         this.body = cloner.getClone(abstractAgent.body, Body.class);
+        // copy
         this.projection = abstractAgent.projection;
         this.motion = abstractAgent.motion;
+
+        this.actionExecutionStrategyFactory = abstractAgent.actionExecutionStrategyFactory;
+        this.actionExecutionStrategy = actionExecutionStrategyFactory.createStrategy(actions);
+        assert actionExecutionStrategy != null;
     }
 
     @Override
@@ -247,7 +261,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public int getId() {
-        return simulationContext.getId();
+        return simulationContext.getAgentId();
     }
 
     @Override
@@ -270,11 +284,6 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public AgentAction getLastExecutedAction() {
-        return simulationContext.getLastExecutedAction();
-    }
-
-    @Override
     public Iterable<AgentMessage> getMessages(MessageTemplate template) {
         return inBox.consume(template);
     }
@@ -286,8 +295,6 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void logEvent(Object eventOrigin, String title, String message) {
-        //checkState(isActive(), "Agents can only log events in an active simulation context");
-        //checkState(projection != null, "The Agent must have a projection present");
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);
@@ -297,7 +304,8 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public void execute() {
-        simulationContext.execute(this);
+        actionExecutionStrategy.execute();
+        LOGGER.info("{} executed {}", this, actionExecutionStrategy.lastExecutedAction());
     }
 
     @Override
@@ -467,7 +475,7 @@ public abstract class AbstractAgent implements Agent {
 
     @Override
     public String toString() {
-        return "Agent[" + population + ']' + "#" + simulationContext.getId() + "@" + simulationContext.getSimulationStep();
+        return "Agent[" + population + ']' + "#" + simulationContext.getAgentId() + "@" + simulationContext.getSimulationStep();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.simpleframework.xml.Root;
 
@@ -20,12 +19,7 @@ public enum PassiveSimulationContext implements SimulationContext {
     }
 
     @Override
-    public AgentAction getLastExecutedAction() {
-        return null;
-    }
-
-    @Override
-    public int getId() {
+    public int getAgentId() {
         return -1;
     }
 
@@ -37,11 +31,6 @@ public enum PassiveSimulationContext implements SimulationContext {
     @Override
     public int getAge() {
         return -1;
-    }
-
-    @Override
-    public void execute(Agent agent) {
-        throw new UnsupportedOperationException("An agent cannot get executed in a passive context: " + agent);
     }
 
     @Override

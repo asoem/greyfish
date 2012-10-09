@@ -88,8 +88,6 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     int getAge();
 
-    AgentAction getLastExecutedAction();
-
     void receive(AgentMessage message);
 
     void receiveAll(Iterable<? extends AgentMessage> message);

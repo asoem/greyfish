@@ -10,6 +10,8 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
 
+import java.util.List;
+
 public class MutableAgent extends AbstractAgent {
 
     protected MutableAgent(MutableAgent mutableAgent, DeepCloner map) {
@@ -20,7 +22,7 @@ public class MutableAgent extends AbstractAgent {
         super(new Body(),
                 new MutableComponentList<AgentProperty<?>>(builder.properties),
                 new MutableComponentList<AgentAction>(builder.actions),
-                new MutableGeneComponentList<AgentTrait<?>>(builder.traits));
+                new MutableGeneComponentList<AgentTrait<?>>(builder.traits), null);
         setPopulation(builder.population);
     }
 
@@ -29,15 +31,24 @@ public class MutableAgent extends AbstractAgent {
                            @Element(name = "properties") ComponentList<AgentProperty<?>> properties,
                            @Element(name = "actions") ComponentList<AgentAction> actions,
                            @Element(name = "agentTraitList") GeneComponentList<AgentTrait<?>> agentTraitList) {
-        super(body, properties, actions, agentTraitList);
+        super(body, properties, actions, agentTraitList, createDefaultActionExecutionStrategyFactory());
     }
 
     public MutableAgent(Agent agent) {
         super(new Body(agent.getBody()),
                 new MutableComponentList<AgentProperty<?>>(agent.getProperties()),
                 new MutableComponentList<AgentAction>(agent.getActions()),
-                new MutableGeneComponentList<AgentTrait<?>>(agent.getTraits()));
+                new MutableGeneComponentList<AgentTrait<?>>(agent.getTraits()), null);
         setPopulation(agent.getPopulation());
+    }
+
+    private static ActionExecutionStrategyFactory createDefaultActionExecutionStrategyFactory() {
+        return new ActionExecutionStrategyFactory() {
+            @Override
+            public ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions) {
+                return new DefaultActionExecutionStrategy(actions);
+            }
+        };
     }
 
     @Override

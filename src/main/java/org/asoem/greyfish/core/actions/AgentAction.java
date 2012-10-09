@@ -14,18 +14,16 @@ public interface AgentAction extends AgentComponent {
      * If so, the action will be in state {@link ActionState#PRECONDITIONS_MET} afterwards,
      * in {@link ActionState#PRECONDITIONS_FAILED} otherwise.
      *
-     * @param simulation the context
      * @return {@code true}, if all preconditions are met
      */
-    ActionState checkPreconditions(Simulation simulation);
+    ActionState checkPreconditions();
 
     /**
      * Apply the action on it's agent in the given simulation context
      *
-     * @param simulation the context of this action
      * @return the result of the application
      */
-    public ActionState apply(Simulation simulation);
+    public ActionState apply();
 
     /**
      * Reset this action, so that it will be in state {@link ActionState#INITIAL} afterwards.

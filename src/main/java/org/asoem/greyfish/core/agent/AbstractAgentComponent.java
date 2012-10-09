@@ -53,6 +53,11 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         return agent;
     }
 
+    /**
+     *
+     * @return the associated simulation
+     * @throws IllegalStateException if this component is not yet associated with an agent or thi agent is not associated with a simulation
+     */
     public Simulation simulation() throws IllegalStateException {
         return agent().simulation();
     }

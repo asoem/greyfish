@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.AgentComponent;
@@ -55,17 +54,17 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     /**
      * Called by the {@code Agent} which contains this {@code AgentAction}
      *
-     * @param simulation the simulation context
      */
     @Override
-    public ActionState apply(Simulation simulation) {
-        Preconditions.checkNotNull(simulation);
+    public ActionState apply() {
+
+        final Simulation simulation = simulation();
 
         assert stepAtLastSuccess < simulation.getStep() :
                 "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + simulation.getStep();
 
         if (INITIAL == actionState)
-            checkPreconditions(simulation);
+            checkPreconditions();
 
         if (PRECONDITIONS_MET == actionState
                 || INTERMEDIATE == actionState) {
@@ -103,7 +102,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     }
 
     @Override
-    public ActionState checkPreconditions(Simulation simulation) {
+    public ActionState checkPreconditions() {
         checkState(actionState == INITIAL, "Action not is state %s", INITIAL);
         final boolean preconditionsMet = evaluateCondition(simulation());
         if (preconditionsMet)

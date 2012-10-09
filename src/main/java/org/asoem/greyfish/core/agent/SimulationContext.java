@@ -1,9 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.simulation.Simulation;
-
-import javax.annotation.Nullable;
 
 /**
  * User: christoph
@@ -13,16 +10,11 @@ import javax.annotation.Nullable;
 public interface SimulationContext {
     int getActivationStep();
 
-    @Nullable
-    AgentAction getLastExecutedAction();
-
-    int getId();
+    int getAgentId();
 
     Simulation getSimulation();
 
     int getAge();
-
-    void execute(Agent agent);
 
     void logEvent(Agent agent, Object eventOrigin, String title, String message);
 
