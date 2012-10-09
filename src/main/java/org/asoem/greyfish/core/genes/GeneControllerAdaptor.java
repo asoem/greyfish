@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.utils.base.Product2;
+import org.asoem.greyfish.utils.collect.Product2;
 
 /**
  * User: christoph

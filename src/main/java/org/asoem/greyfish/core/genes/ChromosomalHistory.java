@@ -10,4 +10,6 @@ import java.util.Set;
 
 public interface ChromosomalHistory {
     Set<Integer> getParents();
+
+    int size();
 }

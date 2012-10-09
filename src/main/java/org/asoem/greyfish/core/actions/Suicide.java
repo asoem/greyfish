@@ -2,12 +2,12 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class Suicide extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);

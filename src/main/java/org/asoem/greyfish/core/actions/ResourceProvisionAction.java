@@ -6,10 +6,10 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.simpleframework.xml.Element;
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);

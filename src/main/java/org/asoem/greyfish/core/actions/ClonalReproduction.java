@@ -7,11 +7,7 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Initializer;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
@@ -19,7 +15,7 @@ import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class ClonalReproduction extends AbstractAgentAction {
 
     @Element(name = "nClones")
@@ -40,7 +36,7 @@ public class ClonalReproduction extends AbstractAgentAction {
                 public void initialize(Agent initializable) {
                     initializable.setProjection(MotionObject2DImpl.copyOf(initializable.getProjection()));
                     initializable.updateGeneComponents(
-                            new ChromosomeImpl(new UniparentalChromosomalHistory(agent().getId()),
+                            new ChromosomeImpl(ChromosomalHistories.uniparentalHistory(agent().getId()),
                                     Iterables.transform(agent().getTraits(), new Function<AgentTrait<?>, Gene<?>>() {
                                         @Override
                                         public Gene<?> apply(@Nullable AgentTrait<?> gene) {

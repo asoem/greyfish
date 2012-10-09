@@ -20,13 +20,25 @@ import java.util.Set;
  */
 public interface Simulation extends HasName {
 
+    /**
+     * Get all active {@code Agent}s which are part of the given {@code population}
+     * @param population The common population
+     * @return An iterable of all active {@code Agents} with population equal to {@code population}
+     */
     Iterable<Agent> getAgents(Population population);
 
     /**
-     * @return an unmodifiable view of evaluates active {@code Agent}s
+     * @return an unmodifiable view of all active {@code Agent}s
      */
     List<Agent> getAgents();
 
+    /**
+     * Create a new {@code Agent} as a clone of the prototype registered for given {@code population}
+     * and initialized with the given {@code initializer}.
+     * The clone will be active the at the next call to {@link #nextStep()}.
+     * @param population the population of the prototype to use for cloning
+     * @param initializer the initializer which will be applied on constructed {@code Agent}
+     */
     void createAgent(Population population, Initializer<? super Agent> initializer);
 
     void createAgent(Population population);
@@ -37,20 +49,50 @@ public interface Simulation extends HasName {
      */
     void removeAgent(Agent agent);
 
+    /**
+     * The number of registered populations which is equal to the number of register prototypes.
+     * @return The number of populations registered for this simulation
+     */
     int numberOfPopulations();
 
-    Iterable<Agent> findNeighbours(Agent agent, double radius);
+    /**
+     * Find all neighbours of {@code agent} within the given {@code distance}
+     *
+     * @param agent The focal {@code agent}
+     * @param distance The maximum allowed distance of an agent to count as a neighbour
+     * @return all neighbours of {@code agent} within the given distance
+     */
+    Iterable<Agent> findNeighbours(Agent agent, double distance);
 
+    /**
+     * Count all active Agents
+     * @return The number of active Agents
+     */
     int countAgents();
 
+    /**
+     * Count all active agents with population equal to {@code population}
+     * @param population the {@code Population} of the agents to count
+     * @return the number of all active agents with population equal to {@code population}
+     */
     int countAgents(Population population);
 
-    int generateAgentID();
-
+    /**
+     * Get all registered prototypes
+     * @return all registered {@code Agent}s which are used as prototypes
+     */
     Set<Agent> getPrototypes();
 
-    TiledSpace<Agent,WalledTile> getSpace();
+    /**
+     * Get the space used in this simulation
+     * @return the space used in this simulation
+     */
+    TiledSpace<Agent, WalledTile> getSpace();
 
+    /**
+     * Get the current step
+     * @return the current step
+     */
     int getStep();
 
     /**
@@ -58,12 +100,27 @@ public interface Simulation extends HasName {
      */
     void nextStep();
 
+    /**
+     * Set the name of this simulation
+     * @param name the new name for this simulation
+     */
     void setName(String name);
 
+    /**
+     * Deliver given {@code message} to its destination
+     * @param message the message to deliver
+     */
     void deliverMessage(ACLMessage<Agent> message);
 
+    /**
+     * Shutdown this simulation and clean up resources
+     */
     void shutdown();
 
+    /**
+     * Get the {@code SimulationLogger} used in this simulation
+     * @return the {@code SimulationLogger} used in this simulation
+     */
     SimulationLogger getSimulationLogger();
 
     void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);

@@ -4,11 +4,7 @@ import com.google.common.reflect.TypeToken;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.Arguments;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -20,7 +16,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class GenericMovement extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);

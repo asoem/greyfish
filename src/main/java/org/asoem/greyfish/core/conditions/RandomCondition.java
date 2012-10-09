@@ -1,15 +1,15 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-@ClassGroup(tags = "conditions")
+@Tagged(tags = "conditions")
 public class RandomCondition extends LeafCondition {
 
     @Element(name="probability")

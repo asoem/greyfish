@@ -10,10 +10,11 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
+import org.asoem.greyfish.utils.collect.Product2;
+import org.asoem.greyfish.utils.collect.Tuple2;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -31,7 +32,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
 import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class SexualReproduction extends AbstractAgentAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
@@ -81,7 +82,7 @@ public class SexualReproduction extends AbstractAgentAction {
 
             final ChromosomalHistory spermHistory = sperm.getHistory();
 
-            if ( ! (spermHistory instanceof UniparentalChromosomalHistory))
+            if ( spermHistory.size() != 1 )
                 throw new AssertionError("Sperm must have an uniparental history");
 
             final Chromosome blend = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
@@ -117,7 +118,7 @@ public class SexualReproduction extends AbstractAgentAction {
             }
         });
 
-        final ChromosomalHistory chromosomalHistory = new BiparentalChromosomalHistory(femaleID, maleID);
+        final ChromosomalHistory chromosomalHistory = ChromosomalHistories.biparentalHistory(femaleID, maleID);
 
         return new ChromosomeImpl(chromosomalHistory, genes);
     }

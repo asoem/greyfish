@@ -27,4 +27,6 @@ public interface SimulationContext {
     void logEvent(Agent agent, Object eventOrigin, String title, String message);
 
     int getSimulationStep();
+
+    boolean isActiveContext();
 }

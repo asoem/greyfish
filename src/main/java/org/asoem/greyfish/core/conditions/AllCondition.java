@@ -5,15 +5,15 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND operator.
  * @author christoph
  *
  */
-@ClassGroup(tags="conditions")
+@Tagged(tags="conditions")
 public class AllCondition extends BranchCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

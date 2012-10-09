@@ -8,8 +8,8 @@ import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.ClassFinder;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -56,7 +56,7 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
                                 @Override
                                 public boolean apply(Class<?> aClass) {
                                     if (clazz.isAssignableFrom(aClass)) {
-                                        ClassGroup annotation = aClass.getAnnotation(ClassGroup.class);
+                                        Tagged annotation = aClass.getAnnotation(Tagged.class);
                                         return annotation != null
                                                 && Arrays.binarySearch(annotation.tags(), classGroupName) >= 0;
                                     }

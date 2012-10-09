@@ -54,6 +54,11 @@ public enum PassiveSimulationContext implements SimulationContext {
         return -1;
     }
 
+    @Override
+    public boolean isActiveContext() {
+        return false;
+    }
+
     public static PassiveSimulationContext instance() {
         return INSTANCE;
     }

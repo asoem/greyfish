@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class CompareCondition<T extends Comparable<T>> extends LeafCondition {
 
     @Attribute(name="comparator")
-    protected CompareOperator compareOperator = CompareOperator.Equal;
+    protected CompareOperator compareOperator = CompareOperator.EQUAL;
 
     @Element(name="value")
     protected T value;

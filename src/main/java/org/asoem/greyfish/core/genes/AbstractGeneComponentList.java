@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.genes;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.AbstractComponentList;
-import org.asoem.greyfish.utils.base.Product2;
-import org.asoem.greyfish.utils.base.Tuple2;
+import org.asoem.greyfish.utils.collect.Product2;
+import org.asoem.greyfish.utils.collect.Tuple2;
 
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public abstract class AbstractGeneComponentList<E extends AgentTrait<?>> extends AbstractComponentList<E> implements GeneComponentList<E> {
 
-    private ChromosomalHistory chromosomalHistory = NoChromosomalHistory.INSTANCE;
+    private ChromosomalHistory chromosomalHistory = ChromosomalHistories.emptyHistory();
 
     protected AbstractGeneComponentList() {
     }

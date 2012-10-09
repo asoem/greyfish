@@ -2,11 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.*;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -17,7 +13,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
  * Date: 20.02.12
  * Time: 18:24
  */
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class GenericAction extends AbstractAgentAction {
 
     @Element

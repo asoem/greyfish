@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 
-@ClassGroup(tags="conditions")
+@Tagged(tags="conditions")
 public class AgeCondition extends IntCompareCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

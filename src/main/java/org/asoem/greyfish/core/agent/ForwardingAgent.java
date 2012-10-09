@@ -188,8 +188,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void shutDown() {
-        delegate().shutDown();
+    public void shutDown(PassiveSimulationContext context) {
+        delegate().shutDown(PassiveSimulationContext.instance());
     }
 
     @Override
@@ -203,7 +203,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void activate(Simulation context) {
+    public void activate(ActiveSimulationContext context) {
         delegate().activate(context);
     }
 

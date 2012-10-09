@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@ClassGroup(tags = "conditions")
+@Tagged(tags = "conditions")
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)

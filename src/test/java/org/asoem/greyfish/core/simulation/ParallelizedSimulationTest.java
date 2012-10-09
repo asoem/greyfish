@@ -22,7 +22,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParallelizedSimulationTest {
@@ -78,6 +79,7 @@ public class ParallelizedSimulationTest {
         given(agent.getPopulation()).willReturn(testPopulation);
         given(agent.hasPopulation(testPopulation)).willReturn(true);
         given(agent.getProjection()).willReturn(MotionObject2DImpl.of(0, 0));
+        @SuppressWarnings("unchecked")
         final Initializer<Agent> initializer = mock(Initializer.class);
 
         final KeyedObjectPool<Population, Agent> pool =
@@ -101,11 +103,10 @@ public class ParallelizedSimulationTest {
         final InOrder inOrder = inOrder(agent, initializer);
         inOrder.verify(agent).initialize();
         inOrder.verify(initializer).initialize(agent);
-        inOrder.verify(agent).activate(simulation);
 
-        assertThat(agent.isActive());
         assertThat(simulation.getAgents()).containsOnly(agent);
         assertThat(simulation.getAgents(testPopulation)).containsOnly(agent);
+        assertThat(agent.isActive()).isTrue();
     }
 
     @Test
@@ -138,6 +139,6 @@ public class ParallelizedSimulationTest {
         // then
         assertThat(simulation.getAgents()).isEmpty();
         assertThat(simulation.getAgents(testPopulation)).isEmpty();
-        verify(agent).shutDown();
+        assertThat(agent.isActive()).isFalse();
     }
 }

@@ -29,8 +29,8 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double radius) {
-        return delegate().findNeighbours(agent, radius);
+    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
+        return delegate().findNeighbours(agent, distance);
     }
 
     @Override
@@ -56,11 +56,6 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     @Override
     public int countAgents(Population population) {
         return delegate().countAgents(population);
-    }
-
-    @Override
-    public int generateAgentID() {
-        return delegate().generateAgentID();
     }
 
     @Override

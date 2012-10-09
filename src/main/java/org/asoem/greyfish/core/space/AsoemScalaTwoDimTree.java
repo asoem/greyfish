@@ -31,11 +31,11 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
 
     private AsoemScalaTwoDimTree(
             Iterable<? extends T> elements,
-            final Function<? super T, ? extends org.asoem.greyfish.utils.base.Product2<Double, Double>> mappingFunction) {
+            final Function<? super T, ? extends org.asoem.greyfish.utils.collect.Product2<Double, Double>> mappingFunction) {
         final Iterable<Product2<HyperPoint, T>> transform = Iterables.transform(elements, new Function<T, Product2<HyperPoint, T>>() {
             @Override
             public Product2<HyperPoint, T> apply(T t) {
-                final org.asoem.greyfish.utils.base.Product2<Double, Double> b = mappingFunction.apply(t);
+                final org.asoem.greyfish.utils.collect.Product2<Double, Double> b = mappingFunction.apply(t);
                 assert b != null;
                 return new Tuple2<HyperPoint, T>(new HyperPoint2(b._1(), b._2()), t);
             }
@@ -57,13 +57,13 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
     }
 
     public static <T> AsoemScalaTwoDimTree<T> of() {
-        final ImmutableMap<T, org.asoem.greyfish.utils.base.Product2<Double,Double>> map = ImmutableMap.of();
+        final ImmutableMap<T, org.asoem.greyfish.utils.collect.Product2<Double,Double>> map = ImmutableMap.of();
         return new AsoemScalaTwoDimTree<T>(map.keySet(), Functions.forMap(map));
     }
 
     public static <T> AsoemScalaTwoDimTree<T> of(
             Iterable<? extends T> elements,
-            final Function<? super T, ? extends org.asoem.greyfish.utils.base.Product2<Double, Double>> mappingFunction) {
+            final Function<? super T, ? extends org.asoem.greyfish.utils.collect.Product2<Double, Double>> mappingFunction) {
         return new AsoemScalaTwoDimTree<T>(elements, mappingFunction);
     }
 }

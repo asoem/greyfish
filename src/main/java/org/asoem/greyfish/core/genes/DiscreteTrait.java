@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -24,7 +23,7 @@ import static com.google.common.base.Preconditions.*;
  * Date: 07.02.12
  * Time: 11:28
  */
-@ClassGroup(tags = {"traits"})
+@Tagged(tags = {"traits"})
 public class DiscreteTrait extends AbstractTrait<String> {
 
     @Element(required = false)

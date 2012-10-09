@@ -3,10 +3,10 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class NullAction extends AbstractAgentAction {
 
     @SuppressWarnings("UnusedDeclaration")// Needed for construction by reflection / deserialization

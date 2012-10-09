@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -18,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 22.09.11
  * Time: 09:37
  */
-@ClassGroup(tags = "traits")
+@Tagged(tags = "traits")
 public class QuantitativeTrait extends AbstractTrait<Double> {
 
     @Element

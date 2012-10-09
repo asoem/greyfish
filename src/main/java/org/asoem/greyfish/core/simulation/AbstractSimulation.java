@@ -25,8 +25,8 @@ public abstract class AbstractSimulation implements Simulation {
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double radius) {
-        return getSpace().getVisibleNeighbours(agent, radius);
+    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
+        return getSpace().getVisibleNeighbours(agent, distance);
     }
 
     @Override

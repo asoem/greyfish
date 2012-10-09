@@ -32,18 +32,22 @@ public class ActiveSimulationContext implements SimulationContext {
     @Nullable
     private HistoryEntry historyEntry;
 
-    public ActiveSimulationContext(Simulation simulation) {
+    private ActiveSimulationContext(Simulation simulation, int agentId, int simulationStep) {
         this.simulation = checkNotNull(simulation);
-        this.id = simulation.generateAgentID();
-        this.activationStep = simulation.getStep() + 1;
+        this.id = agentId;
+        this.activationStep = simulationStep;
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    public ActiveSimulationContext(@Attribute(name = "activationStep") int activationStep,
+    private ActiveSimulationContext(@Attribute(name = "activationStep") int activationStep,
                                    @Attribute(name = "id") int id) {
         this.simulation = null;//checkNotNull(simulation);
         this.id = id;
         this.activationStep = activationStep;
+    }
+
+    public static ActiveSimulationContext create(Simulation simulation, int agentId, int simulationStep) {
+        return new ActiveSimulationContext(simulation, agentId, simulationStep);
     }
 
     @Override
@@ -137,6 +141,11 @@ public class ActiveSimulationContext implements SimulationContext {
     @Override
     public int getSimulationStep() {
         return simulation.getStep();
+    }
+
+    @Override
+    public boolean isActiveContext() {
+        return true;
     }
 
     private static class HistoryEntry {

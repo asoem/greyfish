@@ -7,7 +7,10 @@ import org.asoem.greyfish.core.agent.Agent;
  * Date: 16.08.12
  * Time: 16:50
  */
-public class SimulationLoggers {
+public final class SimulationLoggers {
+
+    private SimulationLoggers() {}
+
     public static SimulationLogger synchronizedLogger(SimulationLogger logger) {
         return new SynchronizedLogger(logger);
     }

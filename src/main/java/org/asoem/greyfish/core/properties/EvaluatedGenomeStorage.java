@@ -5,8 +5,8 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  * @author christoph
  *
  */
-@ClassGroup(tags="properties")
+@Tagged(tags="properties")
 public class EvaluatedGenomeStorage extends AbstractAgentProperty<List<Chromosome>> {
 
     final private List<Chromosome> spermList = Lists.newArrayList();

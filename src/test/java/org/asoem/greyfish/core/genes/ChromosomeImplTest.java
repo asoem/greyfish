@@ -15,9 +15,9 @@ public class ChromosomeImplTest {
     public void testRecombined() throws Exception {
         // given
         final Gene<String> foo = new Gene<String>("foo", 1.0);
-        ChromosomeImpl a = new ChromosomeImpl(new UniparentalChromosomalHistory(11), ImmutableList.of(foo));
+        ChromosomeImpl a = new ChromosomeImpl(ChromosomalHistories.uniparentalHistory(11), ImmutableList.of(foo));
         final Gene<String> bar = new Gene<String>("bar", 0.0);
-        ChromosomeImpl b = new ChromosomeImpl(new UniparentalChromosomalHistory(12), ImmutableList.of(bar));
+        ChromosomeImpl b = new ChromosomeImpl(ChromosomalHistories.uniparentalHistory(12), ImmutableList.of(bar));
 
         // when
         final Chromosome recombined = a.recombined(b);

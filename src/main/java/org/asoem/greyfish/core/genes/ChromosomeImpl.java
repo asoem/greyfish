@@ -36,14 +36,14 @@ public class ChromosomeImpl implements Chromosome {
 
     public ChromosomeImpl recombined(Chromosome other) {
         return new ChromosomeImpl(
-                ChromosomalOrigins.merge(this.history, other.getHistory()),
+                ChromosomalHistories.merge(this.history, other.getHistory()),
                 Genes.recombine(this.genes, other.getGenes()));
     }
 
     public static ChromosomeImpl forAgent(Agent agent) {
         checkNotNull(agent, "Agent is null");
         return new ChromosomeImpl(
-                new UniparentalChromosomalHistory(agent.getId()),
+                ChromosomalHistories.uniparentalHistory(agent.getId()),
                 Iterables.transform(agent.getTraits(), new Function<AgentTrait<?>, Gene<?>>() {
                     @Override
                     public Gene<?> apply(AgentTrait<?> input) {

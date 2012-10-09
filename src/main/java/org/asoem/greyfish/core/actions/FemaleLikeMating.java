@@ -15,11 +15,7 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.ArgumentMap;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -36,7 +32,7 @@ import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
 /**
  * @author christoph
  */
-@ClassGroup(tags = "actions")
+@Tagged(tags = "actions")
 public class FemaleLikeMating extends ContractNetInitiatorAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FemaleLikeMating.class);

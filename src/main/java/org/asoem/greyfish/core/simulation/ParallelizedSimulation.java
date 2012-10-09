@@ -10,10 +10,7 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.AgentMessage;
-import org.asoem.greyfish.core.agent.ImmutableAgent;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingTiledSpace;
@@ -137,16 +134,16 @@ public class ParallelizedSimulation extends AbstractSimulation {
 
         initializer.initialize(agent);
         space.insertObject(agent);
-        agent.activate(this);
+        agent.activate(ActiveSimulationContext.create(this, agentIdSequence.incrementAndGet(), getStep() + 1));
 
-        LOGGER.debug("Agent got activated: {}", agent);
+        LOGGER.debug("Agent activated: {}", agent);
 
         simulationLogger.logAgentCreation(agent);
     }
 
     private void passivateAgentsInternal(List<? extends Agent> agents) {
         for (Agent agent : agents) {
-            agent.shutDown();
+            agent.shutDown(PassiveSimulationContext.instance());
             releaseAgent(agent);
         }
         space.removeInactiveAgents();
@@ -170,11 +167,6 @@ public class ParallelizedSimulation extends AbstractSimulation {
     @Override
     public int countAgents(Population population) {
         return space.count(population);
-    }
-
-    @Override
-    public int generateAgentID() {
-        return agentIdSequence.incrementAndGet();
     }
 
     private Agent createAgentInternal(final Population population) {
@@ -215,7 +207,6 @@ public class ParallelizedSimulation extends AbstractSimulation {
         executeAllAgents();
 
         processAgentMessageDelivery();
-
         processRequestedAgentRemovals();
         processAgentsMovement();
         processRequestedAgentActivations();
@@ -243,7 +234,7 @@ public class ParallelizedSimulation extends AbstractSimulation {
                 agent.execute();
             }
         }, parallelizationThreshold);
-        tryInvoke(executeAllAgents);
+        forkJoinPool.invoke(executeAllAgents);
     }
 
     private void processRequestedAgentActivations() {
@@ -260,11 +251,7 @@ public class ParallelizedSimulation extends AbstractSimulation {
                 space.moveObject(agent);
             }
         }, parallelizationThreshold);
-        tryInvoke(moveAllAgents);
-    }
-
-    private void tryInvoke(RecursiveAction recursiveAction) {
-        forkJoinPool.invoke(recursiveAction);
+        forkJoinPool.invoke(moveAllAgents);
     }
 
     private void processRequestedAgentRemovals() {

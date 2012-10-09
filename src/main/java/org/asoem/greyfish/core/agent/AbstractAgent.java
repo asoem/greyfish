@@ -301,14 +301,15 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void shutDown() {
+    public void shutDown(PassiveSimulationContext context) {
+        checkNotNull(context);
+        this.simulationContext = context;
         inBox.clear();
-        simulationContext = PassiveSimulationContext.instance();
     }
 
     @Override
     public boolean isActive() {
-        return simulationContext != PassiveSimulationContext.instance();
+        return simulationContext.isActiveContext();
     }
 
     @Override
@@ -333,8 +334,9 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void activate(Simulation simulation) {
-        simulationContext = new ActiveSimulationContext(simulation);
+    public void activate(ActiveSimulationContext context) {
+        checkNotNull(context);
+        simulationContext = context;
         logEvent(this, "activated", "");
     }
 
