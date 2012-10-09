@@ -3,68 +3,48 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.genes.GeneComponentList;
-import org.asoem.greyfish.core.genes.MutableGeneComponentList;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.simpleframework.xml.Element;
 
-import java.util.List;
-
 public class MutableAgent extends AbstractAgent {
 
-    protected MutableAgent(MutableAgent mutableAgent, DeepCloner map) {
+    private MutableAgent(MutableAgent mutableAgent, DeepCloner map) {
         super(mutableAgent, map);
     }
 
-    protected MutableAgent(AbstractBuilder<?,?> builder) {
-        super(new Body(),
+    private MutableAgent(Builder builder) {
+        super(
                 new MutableComponentList<AgentProperty<?>>(builder.properties),
                 new MutableComponentList<AgentAction>(builder.actions),
-                new MutableGeneComponentList<AgentTrait<?>>(builder.traits), null);
+                new MutableComponentList<AgentTrait<?>>(builder.traits),
+                builder.agentInitializationFactory);
         setPopulation(builder.population);
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private MutableAgent(@Element(name = "body") Body body,
-                           @Element(name = "properties") ComponentList<AgentProperty<?>> properties,
-                           @Element(name = "actions") ComponentList<AgentAction> actions,
-                           @Element(name = "agentTraitList") GeneComponentList<AgentTrait<?>> agentTraitList) {
-        super(body, properties, actions, agentTraitList, createDefaultActionExecutionStrategyFactory());
-    }
-
-    public MutableAgent(Agent agent) {
-        super(new Body(agent.getBody()),
-                new MutableComponentList<AgentProperty<?>>(agent.getProperties()),
-                new MutableComponentList<AgentAction>(agent.getActions()),
-                new MutableGeneComponentList<AgentTrait<?>>(agent.getTraits()), null);
-        setPopulation(agent.getPopulation());
-    }
-
-    private static ActionExecutionStrategyFactory createDefaultActionExecutionStrategyFactory() {
-        return new ActionExecutionStrategyFactory() {
-            @Override
-            public ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions) {
-                return new DefaultActionExecutionStrategy(actions);
-            }
-        };
+    private MutableAgent(@Element(name = "properties") ComponentList<AgentProperty<?>> properties,
+                         @Element(name = "actions") ComponentList<AgentAction> actions,
+                         @Element(name = "traits") ComponentList<AgentTrait<?>> agentTraitList,
+                         AgentInitializationFactory factory) {
+        super(properties, actions, agentTraitList, factory);
     }
 
     @Override
     public String toString() {
-        return "MutableAgent[" + population + "]";
+        return "MutableAgent[" + getPopulation() + "]";
     }
 
     @Override
     public void changeActionExecutionOrder(final AgentAction object, final AgentAction object2) {
         Preconditions.checkNotNull(object);
         Preconditions.checkNotNull(object2);
-        if ( ! actions.contains(object) || ! actions.contains(object2))
+        if ( ! getActions().contains(object) || ! getActions().contains(object2))
             throw new IllegalArgumentException();
-        int index1 = actions.indexOf(object);
-        int index2 = actions.indexOf(object2);
-        actions.add(index2, actions.remove(index1));
+        int index1 = getActions().indexOf(object);
+        int index2 = getActions().indexOf(object2);
+        getActions().add(index2, getActions().remove(index1));
     }
 
     @Override
@@ -72,12 +52,12 @@ public class MutableAgent extends AbstractAgent {
         return new MutableAgent(this, cloner);
     }
 
-    public static Builder of(Population population) {
+    public static Builder builder(Population population) {
         return new Builder(population);
     }
 
-    public static final class Builder extends AbstractBuilder<MutableAgent, Builder> {
-        protected Builder(Population population) {
+    public static class Builder extends AbstractBuilder<MutableAgent, Builder> {
+        private Builder(Population population) {
             super(population);
         }
 

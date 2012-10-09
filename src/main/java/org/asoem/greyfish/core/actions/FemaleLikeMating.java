@@ -32,7 +32,7 @@ import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
 /**
  * @author christoph
  */
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class FemaleLikeMating extends ContractNetInitiatorAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FemaleLikeMating.class);

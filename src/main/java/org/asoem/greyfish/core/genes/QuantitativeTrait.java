@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 22.09.11
  * Time: 09:37
  */
-@Tagged(tags = "traits")
+@Tagged("traits")
 public class QuantitativeTrait extends AbstractTrait<Double> {
 
     @Element

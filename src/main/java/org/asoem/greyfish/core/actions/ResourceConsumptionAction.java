@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ResourceConsumptionAction.class);

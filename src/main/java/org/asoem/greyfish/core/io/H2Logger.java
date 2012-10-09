@@ -222,7 +222,7 @@ public class H2Logger implements SimulationLogger {
     @Override
     public void logAgentCreation(Agent agent) {
         addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
-        final Set<Integer> parents = agent.getTraits().getOrigin().getParents();
+        final Set<Integer> parents = agent.getParents();
         for (Integer parentId : parents) {
             addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
         }

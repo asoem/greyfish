@@ -12,7 +12,7 @@ import org.asoem.greyfish.utils.base.Tagged;
  * @author christoph
  *
  */
-@Tagged(tags="conditions")
+@Tagged("conditions")
 public class AnyCondition extends BranchCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

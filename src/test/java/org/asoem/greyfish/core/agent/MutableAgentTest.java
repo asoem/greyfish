@@ -36,7 +36,7 @@ public class MutableAgentTest {
     public void testAddGene() throws Exception {
         // given
         final AgentTrait gene = mock(AgentTrait.class);
-        MutableAgent agent = MutableAgent.of(mock(Population.class)).build();
+        MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
 
         // when
         boolean ret = agent.addGene(gene);
@@ -50,7 +50,7 @@ public class MutableAgentTest {
     public void testGetGene() throws Exception {
         // given
         final AgentTrait gene = mock(AgentTrait.class);
-        MutableAgent agent = MutableAgent.of(mock(Population.class)).build();
+        MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
         agent.addGene(gene);

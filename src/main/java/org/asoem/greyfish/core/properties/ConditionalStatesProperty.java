@@ -27,7 +27,7 @@ import java.util.Set;
  * Date: 06.09.11
  * Time: 10:28
  */
-@Tagged(tags = {"properties"})
+@Tagged("properties")
 public class ConditionalStatesProperty extends AbstractAgentProperty<String> implements FiniteStateProperty<String> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ConditionalStatesProperty.class);

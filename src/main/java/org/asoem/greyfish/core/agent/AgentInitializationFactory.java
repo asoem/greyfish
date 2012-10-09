@@ -9,6 +9,8 @@ import java.util.List;
  * Date: 09.10.12
  * Time: 13:06
  */
-public interface ActionExecutionStrategyFactory {
+public interface AgentInitializationFactory {
     ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions);
+
+    AgentMessageBox createMessageBox();
 }

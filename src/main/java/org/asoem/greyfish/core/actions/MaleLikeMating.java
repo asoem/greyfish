@@ -20,7 +20,7 @@ import org.simpleframework.xml.Element;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class MaleLikeMating extends ContractNetParticipantAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(MaleLikeMating.class);

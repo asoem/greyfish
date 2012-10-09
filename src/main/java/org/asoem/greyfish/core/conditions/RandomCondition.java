@@ -9,7 +9,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-@Tagged(tags = "conditions")
+@Tagged("conditions")
 public class RandomCondition extends LeafCondition {
 
     @Element(name="probability")

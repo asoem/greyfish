@@ -10,7 +10,10 @@ import java.util.Iterator;
  * Date: 05.07.12
  * Time: 13:35
  */
-public class AgentNodes {
+public final class AgentNodes {
+
+    private AgentNodes() {}
+
     public static <T extends AgentNode<T>> Iterable<T> postOrderIteration(final T node) {
         return new Iterable<T>() {
             @Override

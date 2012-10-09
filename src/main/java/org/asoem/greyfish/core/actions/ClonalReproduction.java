@@ -2,10 +2,14 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.genes.*;
+import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.genes.ChromosomeImpl;
+import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.GenesComponents;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -15,7 +19,7 @@ import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class ClonalReproduction extends AbstractAgentAction {
 
     @Element(name = "nClones")
@@ -36,14 +40,14 @@ public class ClonalReproduction extends AbstractAgentAction {
                 public void initialize(Agent initializable) {
                     initializable.setProjection(MotionObject2DImpl.copyOf(initializable.getProjection()));
                     initializable.updateGeneComponents(
-                            new ChromosomeImpl(ChromosomalHistories.uniparentalHistory(agent().getId()),
+                            new ChromosomeImpl(
                                     Iterables.transform(agent().getTraits(), new Function<AgentTrait<?>, Gene<?>>() {
                                         @Override
                                         public Gene<?> apply(@Nullable AgentTrait<?> gene) {
                                             assert gene != null;
                                             return new Gene<Object>(GenesComponents.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
                                         }
-                                    })));
+                                    }), Sets.newHashSet(agent().getId())));
                 }
             });
 

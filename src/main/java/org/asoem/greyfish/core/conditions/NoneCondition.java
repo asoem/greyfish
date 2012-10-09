@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
-@Tagged(tags="conditions")
+@Tagged("conditions")
 public class NoneCondition extends BranchCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

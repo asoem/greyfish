@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.*;
  * Date: 07.02.12
  * Time: 11:28
  */
-@Tagged(tags = {"traits"})
+@Tagged("traits")
 public class DiscreteTrait extends AbstractTrait<String> {
 
     @Element(required = false)

@@ -15,7 +15,7 @@ import java.util.List;
  * @author christoph
  *
  */
-@Tagged(tags="properties")
+@Tagged("properties")
 public class EvaluatedGenomeStorage extends AbstractAgentProperty<List<Chromosome>> {
 
     final private List<Chromosome> spermList = Lists.newArrayList();

@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
+import org.asoem.greyfish.core.agent.ActiveSimulationContext;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.ImmutableAgent;
 import org.asoem.greyfish.core.agent.Population;
@@ -22,8 +23,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParallelizedSimulationTest {
@@ -40,7 +41,7 @@ public class ParallelizedSimulationTest {
     public void newSimulationTest() {
         // given
         final Population population = new Population("testPopulation");
-        final Agent prototype = ImmutableAgent.of(population).build();
+        final Agent prototype = ImmutableAgent.builder(population).build();
         final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
 
         // when
@@ -106,7 +107,7 @@ public class ParallelizedSimulationTest {
 
         assertThat(simulation.getAgents()).containsOnly(agent);
         assertThat(simulation.getAgents(testPopulation)).containsOnly(agent);
-        assertThat(agent.isActive()).isTrue();
+        verify(agent).activate(any(ActiveSimulationContext.class));
     }
 
     @Test

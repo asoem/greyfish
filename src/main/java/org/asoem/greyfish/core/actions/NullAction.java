@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class NullAction extends AbstractAgentAction {
 
     @SuppressWarnings("UnusedDeclaration")// Needed for construction by reflection / deserialization

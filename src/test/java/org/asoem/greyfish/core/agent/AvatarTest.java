@@ -11,7 +11,9 @@ import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * User: christoph
@@ -30,16 +32,20 @@ public class AvatarTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
+        final DeepCloner clonerMock = mock(DeepCloner.class);
+        final Agent cloneMock = mock(Agent.class);
+        given(clonerMock.getClone(any(Agent.class), any(Class.class))).willReturn(cloneMock);
         final Agent agent = mock(Agent.class);
-        given(agent.deepClone(any(DeepCloner.class))).willReturn(agent);
         final Avatar avatar = new Avatar(agent);
         avatar.setProjection(mock(MotionObject2D.class));
 
         // when
-        final Avatar copy = DeepCloner.clone(avatar, Avatar.class);
+        final Avatar clone = avatar.deepClone(clonerMock);
 
         // then
-        assertThat(copy).isEqualTo(avatar);
+        verify(clonerMock).addClone(eq(avatar), any(Avatar.class));
+        verify(clonerMock).getClone(agent, Agent.class);
+        assertThat(clone.delegate()).isEqualTo(cloneMock);
     }
 
     @Test

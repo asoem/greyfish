@@ -11,7 +11,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Tagged(tags="conditions")
+@Tagged("conditions")
 public class LastExecutionTimeCondition extends LeafCondition {
 
 	@Element(name="action")

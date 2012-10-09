@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: christoph
@@ -8,7 +9,10 @@ import java.util.List;
  * Time: 09:35
  */
 public interface Chromosome {
-    ChromosomalHistory getHistory();
 
     List<Gene<?>> getGenes();
+
+    Set<Integer> getParents();
+
+    int size();
 }

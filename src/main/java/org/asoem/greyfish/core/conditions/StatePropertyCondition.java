@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Tagged(tags = "conditions")
+@Tagged("conditions")
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)

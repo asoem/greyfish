@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Motion2D;
@@ -14,6 +13,7 @@ import org.asoem.greyfish.utils.space.MotionObject2D;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Set;
 
 public abstract class ForwardingAgent extends ForwardingObject implements Agent {
 
@@ -143,11 +143,6 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Body getBody() {
-        return delegate().getBody();
-    }
-
-    @Override
     public Iterable<AgentMessage> getMessages(MessageTemplate template) {
         return delegate().getMessages(template);
     }
@@ -228,7 +223,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public GeneComponentList<AgentTrait<?>> getTraits() {
+    public ComponentList<AgentTrait<?>> getTraits() {
         return delegate().getTraits();
     }
 
@@ -275,5 +270,10 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Override
     public Iterable<AgentComponent> children() {
         return delegate().children();
+    }
+
+    @Override
+    public Set<Integer> getParents() {
+        return delegate().getParents();
     }
 }

@@ -1,16 +1,18 @@
 package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -45,24 +47,23 @@ public abstract class AbstractAgent implements Agent {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
     @Element(name = "properties")
-    protected final ComponentList<AgentProperty<?>> properties;
+    private final ComponentList<AgentProperty<?>> properties;
 
     @Element(name = "actions")
-    protected final ComponentList<AgentAction> actions;
+    private final ComponentList<AgentAction> actions;
 
-    @Element(name = "agentTraitList")
-    protected final GeneComponentList<AgentTrait<?>> agentTraitList;
+    @Element(name = "traits")
+    private final ComponentList<AgentTrait<?>> agentTraitList;
 
-    @Element(name = "body")
-    protected final Body body;
+    private final ActionExecutionStrategy actionExecutionStrategy;
+
+    private final AgentInitializationFactory agentInitializationFactory;
+
+    private final AgentMessageBox inBox;
 
     @Element(name = "population")
-    protected Population population;
-
-    @Element(name = "simulationContext", required = false)
-    protected SimulationContext simulationContext = PassiveSimulationContext.instance();
-
-    protected final ActionExecutionStrategy actionExecutionStrategy;
+    @Nullable
+    private Population population;
 
     @Element(name = "projection", required = false)
     @Nullable
@@ -71,22 +72,22 @@ public abstract class AbstractAgent implements Agent {
     @Element(name = "motion", required = false)
     private Motion2D motion = ImmutableMotion2D.noMotion();
 
-    private final AgentMessageBox inBox = new AgentMessageBox();
+    @Element(name = "simulationContext", required = false)
+    private SimulationContext simulationContext = PassiveSimulationContext.instance();
 
-    private final ActionExecutionStrategyFactory actionExecutionStrategyFactory;
+    private Set<Integer> parents = Collections.emptySet();
 
-    protected AbstractAgent(Body body,
-                            ComponentList<AgentProperty<?>> properties,
+    protected AbstractAgent(ComponentList<AgentProperty<?>> properties,
                             ComponentList<AgentAction> actions,
-                            GeneComponentList<AgentTrait<?>> agentTraitList,
-                            ActionExecutionStrategyFactory factory) {
-        this.body = checkNotNull(body);
+                            ComponentList<AgentTrait<?>> agentTraitList,
+                            AgentInitializationFactory factory) {
         this.properties = checkNotNull(properties);
         this.actions = checkNotNull(actions);
         this.agentTraitList = checkNotNull(agentTraitList);
-        this.actionExecutionStrategyFactory = factory;
-        this.actionExecutionStrategy = factory.createStrategy(actions);
-        assert actionExecutionStrategy != null;
+        this.agentInitializationFactory = checkNotNull(factory);
+
+        this.actionExecutionStrategy = checkNotNull(agentInitializationFactory.createStrategy(actions));
+        this.inBox = checkNotNull(agentInitializationFactory.createMessageBox());
 
         initComponents();
     }
@@ -105,33 +106,31 @@ public abstract class AbstractAgent implements Agent {
     protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner cloner) {
         cloner.addClone(abstractAgent, this);
         // clone
+        this.actions = cloner.getClone(abstractAgent.actions, ComponentList.class);
+        this.properties = cloner.getClone(abstractAgent.properties, ComponentList.class);
+        this.agentTraitList = cloner.getClone(abstractAgent.agentTraitList, ComponentList.class);
+        // share
         this.population = abstractAgent.population;
-        this.actions = (ComponentList<AgentAction>) cloner.getClone(abstractAgent.actions, ComponentList.class);
-        this.properties = (ComponentList<AgentProperty<?>>) cloner.getClone(abstractAgent.properties, ComponentList.class);
-        this.agentTraitList = cloner.getClone(abstractAgent.agentTraitList, GeneComponentList.class);
-        this.body = cloner.getClone(abstractAgent.body, Body.class);
-        // copy
-        this.projection = abstractAgent.projection;
-        this.motion = abstractAgent.motion;
-
-        this.actionExecutionStrategyFactory = abstractAgent.actionExecutionStrategyFactory;
-        this.actionExecutionStrategy = actionExecutionStrategyFactory.createStrategy(actions);
-        assert actionExecutionStrategy != null;
+        this.agentInitializationFactory = abstractAgent.agentInitializationFactory;
+        // reconstruct
+        this.actionExecutionStrategy = checkNotNull(agentInitializationFactory.createStrategy(actions));
+        this.inBox = checkNotNull(agentInitializationFactory.createMessageBox());
     }
 
+    @Nullable
     @Override
     public Population getPopulation() {
         return population;
     }
 
     @Override
-    public void setPopulation(Population population) {
+    public void setPopulation(@Nullable Population population) {
         this.population = population;
     }
 
     @Override
-    public boolean hasPopulation(Population population) {
-        return this.population.equals(population);
+    public boolean hasPopulation(@Nullable Population population) {
+        return Objects.equal(this.population, population);
     }
 
     private <E extends AgentComponent> boolean addComponent(ComponentList<E> list, E element) {
@@ -218,7 +217,7 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public GeneComponentList<AgentTrait<?>> getTraits() {
+    public ComponentList<AgentTrait<?>> getTraits() {
         return agentTraitList;
     }
 
@@ -238,7 +237,7 @@ public abstract class AbstractAgent implements Agent {
     public boolean isCloneOf(Object object) {
         // TODO: should be implemented differently. See JavaDoc.
         return object != null
-                && Agent.class.isInstance(object) && population.equals(Agent.class.cast(object).getPopulation());
+                && Agent.class.isInstance(object) && hasPopulation(Agent.class.cast(object).getPopulation());
 
     }
 
@@ -275,8 +274,9 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
+    @Nullable
     public Color getColor() {
-        return population.getColor();
+        return (population != null) ? population.getColor() : null;
     }
 
     @Override
@@ -365,11 +365,6 @@ public abstract class AbstractAgent implements Agent {
         return actions;
     }
 
-    @Override
-    public Body getBody() {
-        return body;
-    }
-
     @Nullable
     @Override
     public MotionObject2D getProjection() {
@@ -389,6 +384,11 @@ public abstract class AbstractAgent implements Agent {
     }
 
     @Override
+    public Set<Integer> getParents() {
+        return parents;
+    }
+
+    @Override
     public AgentTrait<?> findTrait(Predicate<? super AgentTrait<?>> traitPredicate) {
         return agentTraitList.find(traitPredicate);
     }
@@ -401,60 +401,14 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public void updateGeneComponents(Chromosome chromosome) {
         checkNotNull(chromosome);
-        agentTraitList.updateGenes(ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
+        AgentTraits.updateValues(agentTraitList, ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
             @Override
             public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
                 return o.getAllele();
             }
         })));
-        agentTraitList.setOrigin(chromosome.getHistory());
-    }
-
-    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> {
-        protected final ComponentList<AgentAction> actions = new MutableComponentList<AgentAction>();
-        protected final ComponentList<AgentProperty<?>> properties = new MutableComponentList<AgentProperty<?>>();
-        protected final Population population;
-        protected final ComponentList<AgentTrait<?>> traits = new MutableComponentList<AgentTrait<?>>();
-
-        protected AbstractBuilder(Population population) {
-            this.population = checkNotNull(population, "Population must not be null");
-        }
-
-        // todo: these builder methods are not able to control the mutability of the traits
-        public T addTraits(AgentTrait<?>... genes) {
-            this.traits.addAll(asList(checkNotNull(genes)));
-            return self();
-        }
-
-        public T addActions(AgentAction... actions) {
-            this.actions.addAll(asList(checkNotNull(actions)));
-            return self();
-        }
-
-        public T addProperties(AgentProperty<?>... properties) {
-            this.properties.addAll(asList(checkNotNull(properties)));
-            return self();
-        }
-
-        @Override
-        protected void checkBuilder() throws IllegalStateException {
-            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent, String>() {
-                @Override
-                public String apply(AgentComponent input) {
-                    return input.getName();
-                }
-            });
-            final String duplicate = Iterables.find(nameWithPossibleDuplicates, new Predicate<String>() {
-                private final Set<String> nameSet = Sets.newHashSet();
-
-                @Override
-                public boolean apply(@Nullable String input) {
-                    return ! nameSet.add(input);
-                }
-            }, null);
-            checkState(duplicate == null, "You assigned the following name more than once to a component: " + duplicate);
-        }
+        parents = checkNotNull(chromosome.getParents());
     }
 
     @Override
@@ -481,10 +435,85 @@ public abstract class AbstractAgent implements Agent {
     @Override
     public Iterable<AgentComponent> children() {
         return Iterables.concat(
-                Collections.singleton(getBody()),
                 getProperties(),
                 getActions(),
                 getTraits()
         );
+    }
+
+    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> {
+        protected final Population population;
+        protected final List<AgentAction> actions = Lists.newArrayList();
+        protected final List<AgentProperty<?>> properties = Lists.newArrayList();
+        protected final List<AgentTrait<?>> traits = Lists.newArrayList();
+        protected AgentInitializationFactory agentInitializationFactory = createDefaultInitializationFactory();
+
+        protected AbstractBuilder(Population population) {
+            this.population = checkNotNull(population, "Population must not be null");
+        }
+
+        // todo: these builder methods are not able to control the mutability of the traits
+        public T addTraits(AgentTrait<?>... genes) {
+            this.traits.addAll(asList(checkNotNull(genes)));
+            return self();
+        }
+
+        public T addTraits(Iterable<? extends AgentTrait<?>> traits) {
+            Iterables.addAll(this.traits, checkNotNull(traits));
+            return self();
+        }
+
+        public T addActions(AgentAction... actions) {
+            this.actions.addAll(asList(checkNotNull(actions)));
+            return self();
+        }
+
+        public T addActions(Iterable<? extends AgentAction> actions) {
+            Iterables.addAll(this.actions, checkNotNull(actions));
+            return self();
+        }
+
+        public T addProperties(AgentProperty<?>... properties) {
+            this.properties.addAll(asList(checkNotNull(properties)));
+            return self();
+        }
+
+        public T addProperties(Iterable<? extends AgentProperty<?>> properties) {
+            Iterables.addAll(this.properties, checkNotNull(properties));
+            return self();
+        }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent, String>() {
+                @Override
+                public String apply(AgentComponent input) {
+                    return input.getName();
+                }
+            });
+            final String duplicate = Iterables.find(nameWithPossibleDuplicates, new Predicate<String>() {
+                private final Set<String> nameSet = Sets.newHashSet();
+
+                @Override
+                public boolean apply(@Nullable String input) {
+                    return ! nameSet.add(input);
+                }
+            }, null);
+            checkState(duplicate == null, "You assigned the following name more than once to a component: " + duplicate);
+        }
+
+        private static AgentInitializationFactory createDefaultInitializationFactory() {
+            return new AgentInitializationFactory() {
+                @Override
+                public ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions) {
+                    return new DefaultActionExecutionStrategy(actions);
+                }
+
+                @Override
+                public AgentMessageBox createMessageBox() {
+                    return new FixedSizeMessageBox();
+                }
+            };
+        }
     }
 }

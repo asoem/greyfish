@@ -46,7 +46,7 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
         return findClasses(ActionCondition.class, "conditions");
     }
 
-    private <T extends AgentComponent> Iterable<Class<? extends T>> findClasses(final Class<T> clazz, final String classGroupName) {
+    private <T extends AgentComponent> Iterable<Class<? extends T>> findClasses(final Class<T> clazz, final String tag) {
         try {
             Iterable<Class<?>> classes = ClassFinder.getInstance().getAll(clazz.getPackage().getName());
 
@@ -55,10 +55,9 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
                             filter(classes, new Predicate<Class<?>>() {
                                 @Override
                                 public boolean apply(Class<?> aClass) {
-                                    if (clazz.isAssignableFrom(aClass)) {
-                                        Tagged annotation = aClass.getAnnotation(Tagged.class);
-                                        return annotation != null
-                                                && Arrays.binarySearch(annotation.tags(), classGroupName) >= 0;
+                                    if (clazz.isAssignableFrom(aClass) && aClass.isAnnotationPresent(Tagged.class)) {
+                                        String[] tags = aClass.getAnnotation(Tagged.class).value();
+                                        return Arrays.binarySearch(tags, tag) >= 0;
                                     }
                                     return false;
                                 }

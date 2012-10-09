@@ -18,6 +18,7 @@ import java.util.Collections;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -48,7 +49,7 @@ public class ImmutableAgentTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddGene() throws Exception {
         // given
-        ImmutableAgent agent = ImmutableAgent.of(population).build();
+        ImmutableAgent agent = ImmutableAgent.builder(population).build();
 
         // when
         agent.addGene(gene);
@@ -60,7 +61,7 @@ public class ImmutableAgentTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddAction() throws Exception {
         // given
-        ImmutableAgent agent = ImmutableAgent.of(population).build();
+        ImmutableAgent agent = ImmutableAgent.builder(population).build();
 
         // when
         agent.addAction(action);
@@ -72,7 +73,7 @@ public class ImmutableAgentTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddProperty() throws Exception {
         // given
-        ImmutableAgent agent = ImmutableAgent.of(population).build();
+        ImmutableAgent agent = ImmutableAgent.builder(population).build();
 
         // when
         agent.addProperty(property);
@@ -86,7 +87,7 @@ public class ImmutableAgentTest {
         // given
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
-        ImmutableAgent agent = ImmutableAgent.of(population).addTraits(gene).build();
+        ImmutableAgent agent = ImmutableAgent.builder(population).addTraits(gene).build();
 
         // when
         AgentTrait ret = agent.getGene("foo", AgentTrait.class);
@@ -98,68 +99,22 @@ public class ImmutableAgentTest {
 
     @Test
     public void testDeepClone() throws Exception {
-
         // given
+        final DeepCloner clonerMock = mock(DeepCloner.class);
+        final ComponentList componentListMock = mock(ComponentList.class);
+        given(clonerMock.getClone(any(ComponentList.class), eq(ComponentList.class))).willReturn(componentListMock);
+
         Population population = mock(Population.class);
 
-        final AgentAction actionMock = mock(AgentAction.class);
-        final AgentAction actionMockClone = mock(AgentAction.class);
-        given(actionMock.deepClone(any(DeepCloner.class))).willReturn(actionMockClone);
-
-        final AgentProperty propertyMock = mock(AgentProperty.class);
-        final AgentProperty propertyMockClone = mock(AgentProperty.class);
-        given(propertyMock.deepClone(any(DeepCloner.class))).willReturn(propertyMockClone);
-
-        final AgentTrait traitMock = mock(AgentTrait.class);
-        final AgentTrait traitMockClone = mock(AgentTrait.class);
-        given(traitMock.deepClone(any(DeepCloner.class))).willReturn(traitMockClone);
-
-        final ImmutableAgent agent = ImmutableAgent.of(population)
-                .addActions(actionMock)
-                .addProperties(propertyMock)
-                .addTraits(traitMock)
-                .build();
+        final ImmutableAgent agent = ImmutableAgent.builder(population).build();
 
         // when
-        final ImmutableAgent clone = DeepCloner.clone(agent, ImmutableAgent.class);
+        final ImmutableAgent clone = agent.deepClone(clonerMock);
 
         // then
         assertThat(clone.getPopulation()).isEqualTo(population);
-        assertThat(clone.getActions()).containsOnly(actionMockClone);
-        assertThat(clone.getProperties()).containsOnly(propertyMockClone);
-        assertThat(clone.getTraits()).containsOnly(traitMockClone);
-    }
-
-    @Test
-    public void testFromPrototype() {
-        // given
-        Population population = mock(Population.class);
-
-        final AgentAction actionMock = mock(AgentAction.class);
-        final AgentAction actionMockClone = mock(AgentAction.class);
-        given(actionMock.deepClone(any(DeepCloner.class))).willReturn(actionMockClone);
-
-        final AgentProperty propertyMock = mock(AgentProperty.class);
-        final AgentProperty propertyMockClone = mock(AgentProperty.class);
-        given(propertyMock.deepClone(any(DeepCloner.class))).willReturn(propertyMockClone);
-
-        final AgentTrait traitMock = mock(AgentTrait.class);
-        final AgentTrait traitMockClone = mock(AgentTrait.class);
-        given(traitMock.deepClone(any(DeepCloner.class))).willReturn(traitMockClone);
-
-        final ImmutableAgent agent = ImmutableAgent.of(population)
-                .addActions(actionMock)
-                .addProperties(propertyMock)
-                .addTraits(traitMock)
-                .build();
-
-        // when
-        ImmutableAgent clone = ImmutableAgent.fromPrototype(agent);
-
-        // then
-        assertThat(clone.getPopulation()).isEqualTo(population);
-        assertThat(clone.getActions()).containsOnly(actionMockClone);
-        assertThat(clone.getProperties()).containsOnly(propertyMockClone);
-        assertThat(clone.getTraits()).containsOnly(traitMockClone);
+        assertThat(clone.getActions()).isEqualTo(componentListMock);
+        assertThat(clone.getProperties()).isEqualTo(componentListMock);
+        assertThat(clone.getTraits()).isEqualTo(componentListMock);
     }
 }

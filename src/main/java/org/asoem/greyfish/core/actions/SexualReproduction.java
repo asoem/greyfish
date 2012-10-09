@@ -4,10 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.ComponentList;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
@@ -26,13 +28,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
 import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class SexualReproduction extends AbstractAgentAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
@@ -80,12 +83,11 @@ public class SexualReproduction extends AbstractAgentAction {
 
         for (Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
-            final ChromosomalHistory spermHistory = sperm.getHistory();
-
-            if ( spermHistory.size() != 1 )
+            final Set<Integer> parents = sperm.getParents();
+            if ( parents.size() != 1 )
                 throw new AssertionError("Sperm must have an uniparental history");
 
-            final Chromosome blend = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(spermHistory.getParents()));
+            final Chromosome blend = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(parents));
 
             simulation().createAgent(agent().getPopulation(), new Initializer<Agent>() {
                 @Override
@@ -103,7 +105,7 @@ public class SexualReproduction extends AbstractAgentAction {
         return COMPLETED;
     }
 
-    private static Chromosome blend(GeneComponentList<AgentTrait<?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static Chromosome blend(ComponentList<AgentTrait<?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
         final Tuple2.Zipped<AgentTrait<?>, Gene<?>> zip
@@ -118,9 +120,7 @@ public class SexualReproduction extends AbstractAgentAction {
             }
         });
 
-        final ChromosomalHistory chromosomalHistory = ChromosomalHistories.biparentalHistory(femaleID, maleID);
-
-        return new ChromosomeImpl(chromosomalHistory, genes);
+        return new ChromosomeImpl(genes, Sets.newHashSet(femaleID, maleID));
     }
 
     @Override

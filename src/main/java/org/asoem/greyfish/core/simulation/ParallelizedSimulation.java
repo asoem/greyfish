@@ -18,6 +18,7 @@ import org.asoem.greyfish.core.space.TiledSpace;
 import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.base.Builder;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
@@ -122,7 +123,13 @@ public class ParallelizedSimulation extends AbstractSimulation {
                         final Agent prototype = populationPrototypeMap.get(key);
                         assert prototype != null : "Found no Prototype for " + key;
 
-                        return ImmutableAgent.fromPrototype(prototype);
+                        final Agent clone = DeepCloner.clone(prototype, Agent.class);
+
+                        return ImmutableAgent.builder(prototype.getPopulation())
+                                .addActions(clone.getActions())
+                                .addProperties(clone.getProperties())
+                                .addTraits(clone.getTraits())
+                                .build();
                     }
                 },
                 10000, 100);

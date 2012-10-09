@@ -16,7 +16,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class GenericMovement extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);

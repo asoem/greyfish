@@ -13,7 +13,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
  * Date: 20.02.12
  * Time: 18:24
  */
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class GenericAction extends AbstractAgentAction {
 
     @Element

@@ -5,14 +5,15 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.GeneComponentList;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulatable2D;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
 
+import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Set;
 
 public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNode<AgentComponent> {
     /**
@@ -27,9 +28,10 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     void changeActionExecutionOrder(AgentAction object, AgentAction object2);
 
+    @Nullable
     Population getPopulation();
-    void setPopulation(Population population);
-    boolean hasPopulation(Population population);
+    void setPopulation(@Nullable Population population);
+    boolean hasPopulation(@Nullable Population population);
 
     boolean addAction(AgentAction action);
 
@@ -59,7 +61,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     void removeAllGenes();
 
-    GeneComponentList<AgentTrait<?>> getTraits();
+    ComponentList<AgentTrait<?>> getTraits();
 
     <T extends AgentTrait> T getGene(String name, Class<T> clazz);
 
@@ -72,8 +74,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
      */
     void updateGeneComponents(Chromosome vector);
 
-    Body getBody();
-
+    @Nullable
     Color getColor();
 
     void setColor(Color color);
@@ -99,4 +100,6 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
     void logEvent(Object eventOrigin, String title, String message);
 
     boolean didCollide();
+
+    Set<Integer> getParents();
 }

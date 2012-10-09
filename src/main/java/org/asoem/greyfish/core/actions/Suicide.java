@@ -7,7 +7,7 @@ import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class Suicide extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);

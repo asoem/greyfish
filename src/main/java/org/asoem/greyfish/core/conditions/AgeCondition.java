@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
-@Tagged(tags="conditions")
+@Tagged("conditions")
 public class AgeCondition extends IntCompareCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

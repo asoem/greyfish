@@ -10,7 +10,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
-@Tagged(tags="properties")
+@Tagged("properties")
 public class DoubleProperty extends AbstractRangeElementProperty<Double> implements MutableProperty<Double> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(DoubleProperty.class);

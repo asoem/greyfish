@@ -67,11 +67,11 @@ public class ResourceInteractionTest {
                 .provides(Callbacks.constant(1.0))
                 .build();
 
-        Agent consumer = ImmutableAgent.of(consumerPopulation)
+        Agent consumer = ImmutableAgent.builder(consumerPopulation)
                 .addProperties(energyStorage)
                 .addActions(consumptionAction)
                 .build();
-        Agent provisioner = ImmutableAgent.of(providerPopulation)
+        Agent provisioner = ImmutableAgent.builder(providerPopulation)
                 .addProperties(resourceProperty)
                 .addActions(provisionAction)
                 .build();

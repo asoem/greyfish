@@ -53,10 +53,10 @@ public class MatingInteractionTest {
                 .matingProbability(constant(1.0))
                 .build();
 
-        final Agent female = ImmutableAgent.of(receiverPopulation)
+        final Agent female = ImmutableAgent.builder(receiverPopulation)
                 .addActions(receiverAction)
                 .build();
-        final Agent male = ImmutableAgent.of(donorPopulation)
+        final Agent male = ImmutableAgent.builder(donorPopulation)
                 .addActions(transmitterAction)
                 .build();
 

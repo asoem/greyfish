@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-@Tagged(tags = "actions")
+@Tagged("actions")
 public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);

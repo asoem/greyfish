@@ -166,7 +166,7 @@ public class TiledSpaceTest {
     public void testCollision() throws Exception {
         // given
         final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1, 1);
-        Agent agent = ImmutableAgent.of(Population.named("test")).build();
+        Agent agent = ImmutableAgent.builder(Population.named("test")).build();
         agent.setMotion(ImmutableMotion2D.of(0, 1));
         space.insertObject(agent, 0, 0, 0);
 
@@ -185,7 +185,7 @@ public class TiledSpaceTest {
     public void testNoCollision() throws Exception {
         // given
         final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1, 1);
-        Agent agent = ImmutableAgent.of(Population.named("test")).build();
+        Agent agent = ImmutableAgent.builder(Population.named("test")).build();
         agent.setMotion(ImmutableMotion2D.of(0, 0.5));
         space.insertObject(agent, 0, 0, MathLib.HALF_PI / 2);
 

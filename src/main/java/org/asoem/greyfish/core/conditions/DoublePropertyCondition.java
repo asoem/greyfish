@@ -8,7 +8,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
-@Tagged(tags = "conditions")
+@Tagged("conditions")
 public class DoublePropertyCondition extends DoubleCompareCondition {
 
 	@Element(name="property")

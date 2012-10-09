@@ -4,7 +4,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
@@ -13,7 +12,7 @@ import org.asoem.greyfish.utils.base.Tagged;
  * @author christoph
  *
  */
-@Tagged(tags="conditions")
+@Tagged("conditions")
 public class AllCondition extends BranchCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -36,7 +35,7 @@ public class AllCondition extends BranchCondition {
     }
 
     @Override
-    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+    public AllCondition deepClone(DeepCloner cloner) {
         return new AllCondition(this, cloner);
     }
 

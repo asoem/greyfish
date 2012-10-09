@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.simpleframework.xml.Element;
@@ -36,7 +35,7 @@ public class Avatar extends ForwardingAgent {
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public Avatar deepClone(DeepCloner cloner) {
         return new Avatar(this, cloner);
     }
 
