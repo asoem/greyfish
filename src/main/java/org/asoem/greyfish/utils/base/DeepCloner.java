@@ -6,8 +6,7 @@ import com.google.common.collect.Maps;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * A {@code DeepCloner} is used to make deep copies of {@link DeepCloneable} objects.
@@ -32,7 +31,8 @@ public class DeepCloner {
     public <T extends DeepCloneable> void addClone(T original, T clone) {
         checkNotNull(original);
         checkNotNull(clone);
-        checkArgument(original.getClass().equals(clone.getClass()), "Classes are not the same: " + original.getClass() + " != " + clone.getClass());
+        checkArgument(original.getClass() == clone.getClass(),
+                "Classes of original and clone don't match: {} != {}", original.getClass(), clone.getClass());
         map.put(original, clone);
     }
 
@@ -43,6 +43,7 @@ public class DeepCloner {
      * @param clazz the class of {@code cloneable}
      * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
      */
+    @SuppressWarnings("unchecked") // key and value in map are always of the same class
     @Nullable
     public <T extends DeepCloneable> T getClone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
@@ -53,7 +54,8 @@ public class DeepCloner {
         }
         else {
             final DeepCloneable clone = cloneable.deepClone(this);
-            checkNotNull(clone, "Deep clone of a non-null cloneable must not be null: {}", cloneable);
+            checkState(map.get(cloneable) == clone,
+                    "Implementation error: You forgot to call DeepCloner.addClone() in constructor of {}", cloneable.getClass());
             return clazz.cast(clone);
         }
     }
