@@ -10,18 +10,19 @@ import java.util.AbstractList;
 import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkPositionIndex;
 
 /**
  * User: christoph
  * Date: 21.09.12
  * Time: 15:37
  */
-public class TinyList2<E> extends AbstractList<E> implements TinyList<E>, Serializable {
+class TinyAugmentedList2<E> extends AbstractList<E> implements AugmentedList<E>, Serializable {
 
     final private E e0;
     final private E e1;
 
-    private TinyList2(E e0, E e1) {
+    TinyAugmentedList2(E e0, E e1) {
         this.e0 = checkNotNull(e0);
         this.e1 = checkNotNull(e1);
     }
@@ -31,23 +32,13 @@ public class TinyList2<E> extends AbstractList<E> implements TinyList<E>, Serial
         switch (index) {
             case 0: return e0;
             case 1: return e1;
-            default: throw new IndexOutOfBoundsException(badElementIndex(index, 2, "index"));
+            default: checkPositionIndex(index, size()); throw new AssertionError("unreachable");
         }
     }
 
     @Override
     public int size() {
         return 2;
-    }
-
-    private static String badElementIndex(int index, int size, String desc) {
-        if (index < 0) {
-            return String.format("%s (%s) must not be negative", desc, index);
-        } else if (size < 0) {
-            throw new IllegalArgumentException("negative size: " + size);
-        } else { // index >= size
-            return String.format("%s (%s) must be less than size (%s)", desc, index, size);
-        }
     }
 
     @Override
@@ -77,7 +68,7 @@ public class TinyList2<E> extends AbstractList<E> implements TinyList<E>, Serial
             throw new InvalidObjectException("Class does not accept null values");
     }
 
-    public static <E> TinyList<E> of(E e, E e1) {
-        return new TinyList2<E>(e, e1);
+    public static <E> AugmentedList<E> of(E e, E e1) {
+        return new TinyAugmentedList2<E>(e, e1);
     }
 }
