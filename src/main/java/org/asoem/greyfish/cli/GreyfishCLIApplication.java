@@ -21,11 +21,7 @@ import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
-import org.asoem.greyfish.core.simulation.SimulationTemplate;
-import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.models.Model;
+import org.asoem.greyfish.core.simulation.*;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -165,7 +161,7 @@ public final class GreyfishCLIApplication {
         final Module commandLineModule = createCommandLineModule(optionSet, new OptionExceptionHandler() {
 
             @Override
-            public void handle(@Nullable String message) {
+            public void exitWithError(@Nullable String message) {
                 if (message != null)
                     System.out.println(message);
                 printHelp(optionParser);
@@ -200,17 +196,18 @@ public final class GreyfishCLIApplication {
             protected void configure() {
 
                 if (optionSet.nonOptionArguments().size() != 1) {
-                    optionExceptionHandler.handle("A single Model CLASS is required");
+                    optionExceptionHandler.exitWithError("A single Model CLASS is required");
                 }
 
                 final String modelClassName = optionSet.nonOptionArguments().get(0);
 
                 try {
-                    final Class<? extends Model> modelClass =
-                            (Class<? extends Model>) Class.forName(modelClassName);
-                    bind(Model.class).to(modelClass);
+                    final Class<?> modelClass = Class.forName(modelClassName);
+                    if (!Model.class.isAssignableFrom(modelClass))
+                        optionExceptionHandler.exitWithError("Specified Class does not implement " + Model.class);
+                    bind(Model.class).to((Class<Model>) modelClass);
                 } catch (ClassNotFoundException e) {
-                    optionExceptionHandler.handle("Could not find class " + modelClassName);
+                    optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
                 }
 
                 if (optionSet.has("D")) {
@@ -222,7 +219,7 @@ public final class GreyfishCLIApplication {
                                 properties.put(split[0], split[1]);
                             }
                             else {
-                                optionExceptionHandler.handle("Invalid model property definition (-D): " + s + ". Expected 'key=value'.");
+                                optionExceptionHandler.exitWithError("Invalid model property definition (-D): " + s + ". Expected 'key=value'.");
                             }
                         }
                     }
@@ -263,6 +260,6 @@ public final class GreyfishCLIApplication {
     }
 
     private static interface OptionExceptionHandler {
-        void handle(String message);
+        void exitWithError(String message);
     }
 }
