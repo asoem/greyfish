@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
-import org.simpleframework.xml.Element;
 
 import java.util.Iterator;
 
@@ -17,15 +16,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class Tuple2<E1, E2> implements Product2<E1, E2> {
 
-    @Element(name = "e1")
     private final E1 e1;
-
-    @Element(name = "e2")
     private final E2 e2;
 
-    public Tuple2(@Element(name = "e1")E1 e1, @Element(name = "e2")E2 e2) {
-        this.e1 = e1;
-        this.e2 = e2;
+    public Tuple2(E1 e1, E2 e2) {
+        this.e1 = checkNotNull(e1);
+        this.e2 = checkNotNull(e2);
     }
 
     @Override

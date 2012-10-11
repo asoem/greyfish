@@ -1,9 +1,10 @@
 package org.asoem.greyfish.utils.persistence;
 
-import java.io.*;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.Future;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,34 +24,33 @@ public final class Persisters {
      * @return a copy of {@code o}
      * @throws Exception if some errors occur during the serialization process
      */
-    public static <T> T createCopy(final Object o, Class<T> clazz, final Persister persister) throws Exception {
+    public static <T> T createCopy(final T o, final Class<T> clazz, final Persister persister) throws Exception {
         checkNotNull(o);
         checkNotNull(clazz);
         checkNotNull(persister);
 
         final PipedOutputStream pipedOutputStream = new PipedOutputStream();
         final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
-        final OutputStreamWriter writer = new OutputStreamWriter(pipedOutputStream, "UTF-8");
 
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
+        final Callable<T> callable = new Callable<T>() {
             @Override
-            public void run() {
+            public T call() throws Exception {
                 try {
-                    persister.serialize(o, writer);
-                } catch (Exception e) {
-                    Logger.getLogger(Persisters.class.getCanonicalName()).log(Level.SEVERE,
-                            "Error in serialization thread (persister=" + persister + "; object=" + o + "; writer=" + writer + ")", e);
+                    return persister.deserialize(pipedInputStream, clazz);
                 }
                 finally {
-                    try {
-                        writer.close();
-                    } catch (IOException e) {
-                        Logger.getLogger(Persisters.class.getCanonicalName()).warning("Failed to close writer");
-                    }
+                    pipedInputStream.close();
                 }
             }
-        });
+        };
+        final Future<T> future = Executors.newSingleThreadExecutor().submit(callable);
 
-        return persister.deserialize(new InputStreamReader(pipedInputStream, "UTF-8"), clazz);
+        try {
+            persister.serialize(o, pipedOutputStream);
+        } finally {
+            pipedOutputStream.close();
+        }
+
+        return future.get();
     }
 }

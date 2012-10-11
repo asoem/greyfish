@@ -1,19 +1,21 @@
 package org.asoem.greyfish.utils.base;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A {@code DeepCloner} is used to make deep copies of {@link DeepCloneable} objects.
  *
- * The usual way is to use the static {@link #clone(DeepCloneable, Class)} method to clone a certain object.
- * This method calls the {@link DeepCloneable#deepClone(DeepCloner)} method of the object whose implementation should do nothing but call the "Cloner"-Constructor.
- * Here, the object should pass evaluates fields to the {@link #getClone(DeepCloneable, Class)} method, which are required for a deep copy.
+ * The intended way is to call the static {@link #clone(DeepCloneable)} method to clone a certain object.
+ * This method calls the {@link DeepCloneable#deepClone(DeepCloner)} method of the passed object.
+ * This method should then call a special "Cloner"-Constructor where you must first add the cloneable x clone pair
+ * to this cloner using the {@link #addClone(DeepCloneable, DeepCloneable)} method and then
+ * clone all {@code DeepCloneable} fields using the {@link #getClone(DeepCloneable)} method.
  */
 public class DeepCloner {
 
@@ -22,9 +24,9 @@ public class DeepCloner {
     private DeepCloner() {}
 
     /**
-     * Add the given {@code clone} as the clone of the {@code DeepCloneable} of the last
-     * {@link #clone(DeepCloneable, Class)} or {@link #getClone(DeepCloneable, Class)} operation.
-     * This method must be called by the clone before the clone itself clones any of it's {@code DeepCloneable} fields.
+     * Register {@code clone} as the clone of {@code original}.
+     * This method must be called in the (super)constructor of {@code clone} before any of the fields get cloned using this cloner.
+     *
      * @param original a cloneable
      * @param clone the clone of original
      */
@@ -43,26 +45,42 @@ public class DeepCloner {
      * @param clazz the class of {@code cloneable}
      * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
      */
-    @SuppressWarnings("unchecked") // key and value in map are always of the same class
     @Nullable
     public <T extends DeepCloneable> T getClone(@Nullable T cloneable, Class<T> clazz) {
         checkNotNull(clazz);
-        if (cloneable == null)
+        return clazz.cast(getClone(cloneable));
+    }
+
+    /**
+     * Get the deep clone of {@code cloneable}
+     *
+     * @param cloneable the object to clone
+     * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
+     */
+    @Nullable
+    public DeepCloneable getClone(@Nullable DeepCloneable cloneable) {
+        if (cloneable == null) {
             return null;
+        }
         else if (map.containsKey(cloneable)) {
-            return clazz.cast(map.get(cloneable));
+            return map.get(cloneable);
         }
         else {
             final DeepCloneable clone = cloneable.deepClone(this);
-            checkState(map.get(cloneable) == clone,
-                    "Implementation error: You forgot to call DeepCloner.addClone() in constructor of {}", cloneable.getClass());
-            return clazz.cast(clone);
+
+            if (!map.containsKey(cloneable))
+                throw new IllegalStateException("Missing map entry: Did you forget to call DeepCloner.addClone() in constructor of " + cloneable.getClass());
+            if (clone != map.get(cloneable))
+                throw new IllegalStateException("Clone in map for cloneable is not the same as clone returned by cloneable.deepClone()");
+
+            return clone;
         }
     }
 
     /**
-     * Creates a deep clone of {@code cloneable}
-     * @param cloneable the object to clone deeply
+     * Create a deep clone of {@code cloneable} casted to {@code clazz}
+     *
+     * @param cloneable the object to make a deep clone of
      * @param clazz the class of {@code cloneable}
      * @param <T> the type of {@code cloneable}
      * @return a deep clone of {@code cloneable}
@@ -73,18 +91,12 @@ public class DeepCloner {
     }
 
     /**
-     * Creates a function which clones the element to which it is applied to using this cloner.
-     * This can be used for transforming lists using guava's {@code Lists.transform}
-     * @param <E> The type of the elements to clone
-     * @return a cloning function which delegates to {@link #getClone(DeepCloneable, Class)}
+     * Create a deep clone of {@code cloneable}
+     *
+     * @param cloneable the object to make a deep clone of
+     * @return a deep clone of {@code cloneable}
      */
-    public <E extends DeepCloneable> Function<E, E> cloneFunction() {
-        return new Function<E, E>() {
-            @SuppressWarnings("unchecked") // This is safe, if the E is implemented correctly
-            @Override
-            public E apply(@Nullable E e) {
-                return (E) getClone(e, DeepCloneable.class);
-            }
-        };
+    public static DeepCloneable clone(@Nullable DeepCloneable cloneable) {
+        return new DeepCloner().getClone(cloneable);
     }
 }

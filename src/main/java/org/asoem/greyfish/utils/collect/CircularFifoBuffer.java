@@ -3,6 +3,10 @@ package org.asoem.greyfish.utils.collect;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +15,7 @@ import java.util.List;
  * If the limit is reached, any further addition will replace the the oldest element.
  * Does not permit null values.
  */
-public class CircularFifoBuffer<E> extends HookedForwardingList<E> {
+public class CircularFifoBuffer<E> extends HookedForwardingList<E> implements Serializable {
 
 	private final LinkedList<E> delegate;
 
@@ -46,4 +50,14 @@ public class CircularFifoBuffer<E> extends HookedForwardingList<E> {
         if (size() > maxSize)
             delegate.removeFirst();
     }
+
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        if (maxSize <= 0)
+            throw new InvalidObjectException("box must not be null");
+        if (delegate == null)
+            throw new InvalidObjectException("delegate must not be null");
+    }
+
+    private static final long serialVersionUID = 0;
 }

@@ -2,6 +2,10 @@ package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Predicate;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.NoSuchElementException;
 
@@ -12,12 +16,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 21.09.12
  * Time: 15:37
  */
-public class TinyList2<E> extends AbstractList<E> implements TinyList<E> {
+public class TinyList2<E> extends AbstractList<E> implements TinyList<E>, Serializable {
 
     final private E e0;
     final private E e1;
 
-    public TinyList2(E e0, E e1) {
+    private TinyList2(E e0, E e1) {
         this.e0 = checkNotNull(e0);
         this.e1 = checkNotNull(e1);
     }
@@ -64,5 +68,16 @@ public class TinyList2<E> extends AbstractList<E> implements TinyList<E> {
         if (predicate.apply(e1))
             return e1;
         return defaultValue;
+    }
+
+    private void readObject(ObjectInputStream s)
+            throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        if (e0 == null || e1 == null)
+            throw new InvalidObjectException("Class does not accept null values");
+    }
+
+    public static <E> TinyList<E> of(E e, E e1) {
+        return new TinyList2<E>(e, e1);
     }
 }
