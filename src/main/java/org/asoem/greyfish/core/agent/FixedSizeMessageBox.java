@@ -1,11 +1,16 @@
 package org.asoem.greyfish.core.agent;
 
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.utils.collect.CircularFifoBuffer;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 /**
@@ -13,7 +18,7 @@ import java.util.ListIterator;
  * Date: 17.10.11
  * Time: 18:44
  */
-public class FixedSizeMessageBox implements AgentMessageBox {
+public class FixedSizeMessageBox implements AgentMessageBox, Serializable {
 
     private final CircularFifoBuffer<AgentMessage> box;
 
@@ -51,28 +56,9 @@ public class FixedSizeMessageBox implements AgentMessageBox {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FixedSizeMessageBox that = (FixedSizeMessageBox) o;
-
-        if (!box.equals(that.box)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return box.hashCode();
-    }
-
-    @Override
-    public Iterable<AgentMessage> consume(final MessageTemplate template) {
-        return new Iterable<AgentMessage>() {
-            @Override
-            public Iterator<AgentMessage> iterator() {
-                return new AbstractIterator<AgentMessage>() {
+    public List<AgentMessage> consume(final MessageTemplate template) {
+        return ImmutableList.copyOf(
+                new AbstractIterator<AgentMessage>() {
 
                     final ListIterator<AgentMessage> listIterator = box.listIterator();
 
@@ -88,8 +74,38 @@ public class FixedSizeMessageBox implements AgentMessageBox {
 
                         return endOfData();
                     }
-                };
-            }
-        };
+                });
     }
+
+    @Override
+    public List<AgentMessage> messages() {
+        return box;
+    }
+
+    private Object writeReplace() {
+        return new SerializedForm(this);
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Proxy required");
+    }
+
+    private static class SerializedForm implements Serializable {
+        private AgentMessage[] messages;
+
+        SerializedForm(FixedSizeMessageBox box) {
+            this.messages = box.messages().toArray(new AgentMessage[box.messages().size()]);
+        }
+
+        private Object readResolve() {
+            final FixedSizeMessageBox messageBox = new FixedSizeMessageBox(messages.length);
+            for (AgentMessage message : messages) {
+                messageBox.push(message);
+            }
+            return messageBox;
+        }
+    }
+
+    private static final long serialVersionUID = 0;
 }

@@ -16,9 +16,9 @@ public class MutableAgent extends AbstractAgent {
 
     private MutableAgent(Builder builder) {
         super(
-                new MutableComponentList<AgentProperty<?>>(builder.properties),
-                new MutableComponentList<AgentAction>(builder.actions),
-                new MutableComponentList<AgentTrait<?>>(builder.traits),
+                MutableComponentList.copyOf(builder.properties),
+                MutableComponentList.copyOf(builder.actions),
+                MutableComponentList.copyOf(builder.traits),
                 builder.agentInitializationFactory);
         setPopulation(builder.population);
     }

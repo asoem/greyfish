@@ -5,7 +5,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.SearchableList;
 
@@ -36,7 +35,12 @@ public abstract class AbstractComponentList<E extends AgentComponent> extends Fo
             return clazz.cast(found);
         else
             throw new NoSuchElementException("Couldn't find " + clazz + " with name '" + name + "'. " +
-                    "Possible candidates are: " + Joiner.on(", ").join(Lists.transform(this, componentName())));
+                    "Possible candidates are: " + Joiner.on(", ").join(Lists.transform(this, new Function<E, String>() {
+                @Override
+                public String apply(E input) {
+                    return input.getName();
+                }
+            })));
     }
 
     @Override
@@ -50,14 +54,5 @@ public abstract class AbstractComponentList<E extends AgentComponent> extends Fo
     }
 
     @Override
-    public abstract DeepCloneable deepClone(DeepCloner cloner);
-
-    private static <E extends AgentComponent> Function<E, String> componentName() {
-        return new Function<E, String>() {
-            @Override
-            public String apply(E input) {
-                return input.getName();
-            }
-        };
-    }
+    public abstract AbstractComponentList<E> deepClone(DeepCloner cloner);
 }

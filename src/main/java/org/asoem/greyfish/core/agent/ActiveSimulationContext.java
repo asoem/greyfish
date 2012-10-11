@@ -4,9 +4,11 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 
+import java.io.Serializable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ActiveSimulationContext implements SimulationContext {
+public class ActiveSimulationContext implements SimulationContext, Serializable {
 
     //@Element(name = "simulation")
     private final Simulation simulation;
@@ -70,4 +72,5 @@ public class ActiveSimulationContext implements SimulationContext {
         return true;
     }
 
+    private static final long serialVersionUID = 0;
 }

@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.acl.MessageTemplate;
 
+import java.util.List;
+
 /**
  * User: christoph
  * Date: 09.10.12
@@ -16,5 +18,7 @@ public interface AgentMessageBox extends Iterable<AgentMessage> {
 
     void pushAll(Iterable<? extends AgentMessage> message);
 
-    Iterable<AgentMessage> consume(MessageTemplate template);
+    List<AgentMessage> consume(MessageTemplate template);
+
+    List<AgentMessage> messages();
 }

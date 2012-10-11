@@ -4,9 +4,11 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_MET;
 
 /**
@@ -14,7 +16,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_ME
  * Date: 09.10.12
  * Time: 10:46
  */
-public class DefaultActionExecutionStrategy implements ActionExecutionStrategy {
+public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, Serializable {
 
     private final List<? extends AgentAction> actions;
 
@@ -23,6 +25,11 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy {
     public DefaultActionExecutionStrategy(List<? extends AgentAction> actions) {
         this.actions = checkNotNull(actions);
         this.executionLog = EMPTY_LOG;
+    }
+
+    private DefaultActionExecutionStrategy(List<? extends AgentAction> agentActions, ExecutionLog executionLog) {
+        this.actions = agentActions;
+        this.executionLog = executionLog;
     }
 
     @Override
@@ -66,6 +73,37 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy {
     @Nullable
     public ActionState lastExecutedActionState() {
         return executionLog.getState();
+    }
+
+    @Override
+    public void reset() {
+        executionLog = EMPTY_LOG;
+    }
+
+    private Object writeReplace() {
+        return new SerializedForm(this);
+    }
+
+    private static class SerializedForm implements Serializable {
+        private final List<? extends AgentAction> actions;
+        private final ExecutionLog executionLog;
+
+        SerializedForm(DefaultActionExecutionStrategy strategy) {
+            this.actions = strategy.actions;
+            this.executionLog = strategy.executionLog;
+        }
+
+        private Object writeReplace() {
+            checkNotNull(actions);
+            checkState(actions.contains(executionLog.getAction()));
+
+            return new DefaultActionExecutionStrategy(actions,
+                    executionLog.getAction() == null
+                            ? EMPTY_LOG
+                            : new BasicExecutionLog(executionLog.getAction(), executionLog.getState()));
+        }
+
+        private static final long serialVersionUID = 0;
     }
 
     private static class BasicExecutionLog implements ExecutionLog {
@@ -115,7 +153,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy {
      * Date: 09.10.12
      * Time: 12:00
      */
-    public static interface ExecutionLog {
+    private static interface ExecutionLog {
         boolean hasUncompletedAction();
         @Nullable
         AgentAction getAction();

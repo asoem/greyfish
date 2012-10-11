@@ -345,6 +345,7 @@ public abstract class AbstractAgent implements Agent {
     public void activate(ActiveSimulationContext context) {
         checkNotNull(context);
         simulationContext = context;
+        actionExecutionStrategy.reset();
         logEvent(this, "activated", "");
     }
 

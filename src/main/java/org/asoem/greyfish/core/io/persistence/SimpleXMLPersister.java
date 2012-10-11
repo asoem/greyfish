@@ -45,36 +45,40 @@ public class SimpleXMLPersister implements Persister {
     }
 
     @Override
-    public <T> T deserialize(File file, Class<T> clazz) throws Exception {
+    public <T> T deserialize(File file, Class<T> clazz) throws PersistenceException, FileNotFoundException {
         LOGGER.debug("Reading from: {}", file.getAbsolutePath());
-        return deserialize(new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")), clazz);
+        return deserialize(new FileInputStream(file), clazz);
     }
 
     @Override
-    public <T> T deserialize(Reader reader, Class<T> clazz) throws Exception {
+    public <T> T deserialize(InputStream inputStream, Class<T> clazz) throws PersistenceException {
         try {
-            return serializer.read(clazz, reader);
+            return serializer.read(clazz, new BufferedReader(new InputStreamReader(inputStream, "UTF-8")));
         } catch (Exception e1) {
             LOGGER.error("Deserialization failed", e1);
-            throw e1;
+            throw new PersistenceException(e1);
         }
         finally {
-            reader.close();
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
     @Override
-    public void serialize(Object object, File file) throws Exception {
+    public void serialize(Object object, File file) throws PersistenceException, FileNotFoundException {
         if (checkNotNull(file).exists())
             checkArgument(file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
-        serialize(object, new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8")));
+        serialize(object, new FileOutputStream(file));
         LOGGER.debug("Object written to: {}", file.getAbsolutePath());
     }
 
     @Override
-    public void serialize(Object object, Writer writer) throws Exception {
-        checkNotNull(writer);
+    public void serialize(Object object, OutputStream outputStream) throws PersistenceException {
+        checkNotNull(outputStream);
         checkNotNull(object);
 
         LOGGER.debug("Serializing object of type {}", object.getClass().getName());
@@ -83,12 +87,17 @@ public class SimpleXMLPersister implements Persister {
             final StringWriter stringWriter = new StringWriter();
             serializer.write(object, stringWriter);
             LOGGER.debug("Serialization result:\n{}", stringWriter.toString());
-            CharStreams.copy(new StringReader(stringWriter.toString()), writer);
+
+            CharStreams.copy(new StringReader(stringWriter.toString()), new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8")));
         } catch (Exception e) {
             LOGGER.error("Serialization failed", e);
             throw new RuntimeException("Object not serializable " + object, e);
         } finally {
-            writer.close();
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 }

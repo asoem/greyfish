@@ -1,41 +1,29 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.utils.base.HasName;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 
 import java.awt.*;
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Used to identify agents as being clones of the same prototype. Can be shared.
  */
-public class Population implements HasName, Comparable<Population> {
+public class Population implements HasName, Comparable<Population>, Serializable {
 
-	@Attribute(name="name")
 	private final String name;
-
-	@Element(name="color")
 	private final Color color;
 
-    /** Cache the hash code for the population */
-    private int hash; // Default to 0
-
-    public static Population newPopulation(String name, Color color) {
-        return new Population(name, color);
-    }
-
-    public Population(
-            @Attribute(name="name") String name) {
+    public Population(String name) {
         this(name, Color.black);
     }
 
-    public Population(
-            @Attribute(name="name") String name,
-            @Element(name="color") Color color) {
-        checkNotNull(name);
-        this.name = name;
+    public Population(String name, Color color) {
+        this.name = checkNotNull(name);
         this.color = checkNotNull(color);
     }
 
@@ -63,28 +51,20 @@ public class Population implements HasName, Comparable<Population> {
         return name.compareTo(o.name);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Population that = (Population) o;
-
-        return color.equals(that.color) && name.equals(that.name);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int h = hash;
-        if (h == 0) {
-            int result = name.hashCode();
-            hash = 31 * result + color.hashCode();
-        }
-        return hash;
-    }
-
     public static Population named(String asexualPopulation) {
         return newPopulation(asexualPopulation, Color.black);
     }
+
+    public static Population newPopulation(String name, Color color) {
+        return new Population(name, color);
+    }
+
+    private void readObject(ObjectInputStream s)
+            throws IOException, ClassNotFoundException {
+        s.defaultReadObject();
+        if (name == null || color == null)
+            throw new InvalidObjectException("Neither name nor color must be null");
+    }
+
+    private static final long serialVersionUID = 0;
 }

@@ -1,43 +1,55 @@
 package org.asoem.greyfish.core.agent;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.TinyList;
 import org.asoem.greyfish.utils.collect.TinyLists;
 import org.simpleframework.xml.ElementList;
+
+import javax.annotation.Nullable;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * This is an implementation of {@link ComponentList} which behaves like an {@link com.google.common.collect.ImmutableList}.
- * Therefore it is guaranteed to be immutable, cannot be subclassed and does not permit null elements.
+ * This is a immutable {@link ComponentList} implementation.
+ * It cannot be subclassed and does not permit null elements.
  *
- * <p><b>Note:</b> This implementation delegates to an {@link com.google.common.collect.ImmutableMap} internally to stepSize up name based retrieval.
  */
-public class ImmutableComponentList<E extends AgentComponent> extends AbstractComponentList<E> {
-
-    private static final ImmutableComponentList<AgentComponent> EMPTY_COMPONENT_LIST =
-            new ImmutableComponentList<AgentComponent>(TinyLists.<AgentComponent>of());
+public class ImmutableComponentList<E extends AgentComponent> extends AbstractComponentList<E> implements Serializable {
 
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
-    private final SearchableList<E> listDelegate;
+    private final TinyList<E> listDelegate;
 
-    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private ImmutableComponentList(
-            @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) SearchableList<E> components) {
+            @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) TinyList<E> components) {
         listDelegate = components;
     }
 
-    @SuppressWarnings("unchecked")
-    private ImmutableComponentList(ImmutableComponentList<E> list, DeepCloner cloner) {
+    private ImmutableComponentList(ImmutableComponentList<E> list, final DeepCloner cloner) {
         cloner.addClone(list, this);
-        listDelegate = TinyLists.transform(list.listDelegate, cloner.<E>cloneFunction());
+        listDelegate = TinyLists.transform(list.listDelegate, new Function<E, E>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public E apply(@Nullable E input) {
+                return (E) cloner.getClone(input);
+            }
+        });
     }
 
     @Override
     protected SearchableList<E> delegate() {
         return listDelegate;
+    }
+
+    @Override
+    public ImmutableComponentList<E> deepClone(DeepCloner cloner) {
+        return new ImmutableComponentList<E>(this, cloner);
     }
 
     public static <E extends AgentComponent> ImmutableComponentList<E> copyOf(Iterable<E> components) {
@@ -48,14 +60,34 @@ public class ImmutableComponentList<E extends AgentComponent> extends AbstractCo
             return new ImmutableComponentList<E>(TinyLists.copyOf(components));
     }
 
-    @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
-        return new ImmutableComponentList<E>(this, cloner);
-    }
+    private static final ImmutableComponentList<AgentComponent> EMPTY_COMPONENT_LIST =
+            new ImmutableComponentList<AgentComponent>(TinyLists.<AgentComponent>of());
 
     @SuppressWarnings("unchecked")
     public static <E extends AgentComponent> ImmutableComponentList<E> of() {
         return (ImmutableComponentList<E>) EMPTY_COMPONENT_LIST;
     }
 
+    private Object writeReplace() {
+        return new SerializedForm(this);
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Proxy required");
+    }
+
+    private static class SerializedForm implements Serializable {
+        private AgentComponent[] components;
+
+        SerializedForm(ImmutableComponentList<? extends AgentComponent> list) {
+            this.components = list.toArray(new AgentComponent[list.size()]);
+        }
+
+        private Object readResolve() {
+            return ImmutableComponentList.copyOf(Arrays.asList(components));
+        }
+
+        private static final long serialVersionUID = 0;
+    }
 }
