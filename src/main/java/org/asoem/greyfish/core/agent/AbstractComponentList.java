@@ -6,7 +6,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.AugmentedList;
 
 import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 public abstract class AbstractComponentList<E extends AgentComponent> extends ForwardingList<E> implements ComponentList<E> {
 
     @Override
-    protected abstract SearchableList<E> delegate();
+    protected abstract AugmentedList<E> delegate();
 
     @Nullable
     @Override

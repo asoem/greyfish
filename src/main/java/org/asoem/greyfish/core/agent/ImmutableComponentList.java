@@ -3,9 +3,8 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.SearchableList;
-import org.asoem.greyfish.utils.collect.TinyList;
-import org.asoem.greyfish.utils.collect.TinyLists;
+import org.asoem.greyfish.utils.collect.AugmentedList;
+import org.asoem.greyfish.utils.collect.AugmentedLists;
 import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
@@ -24,16 +23,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ImmutableComponentList<E extends AgentComponent> extends AbstractComponentList<E> implements Serializable {
 
     @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false)
-    private final TinyList<E> listDelegate;
+    private final AugmentedList<E> listDelegate;
 
     private ImmutableComponentList(
-            @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) TinyList<E> components) {
+            @ElementList(name = "components", entry = "component", inline = true, empty = false, required = false) AugmentedList<E> components) {
         listDelegate = components;
     }
 
     private ImmutableComponentList(ImmutableComponentList<E> list, final DeepCloner cloner) {
         cloner.addClone(list, this);
-        listDelegate = TinyLists.transform(list.listDelegate, new Function<E, E>() {
+        listDelegate = AugmentedLists.transform(list.listDelegate, new Function<E, E>() {
             @Override
             @SuppressWarnings("unchecked")
             public E apply(@Nullable E input) {
@@ -43,7 +42,7 @@ public class ImmutableComponentList<E extends AgentComponent> extends AbstractCo
     }
 
     @Override
-    protected SearchableList<E> delegate() {
+    protected AugmentedList<E> delegate() {
         return listDelegate;
     }
 
@@ -57,11 +56,11 @@ public class ImmutableComponentList<E extends AgentComponent> extends AbstractCo
         if (Iterables.size(components) == 0)
             return of();
         else
-            return new ImmutableComponentList<E>(TinyLists.copyOf(components));
+            return new ImmutableComponentList<E>(AugmentedLists.copyOf(components));
     }
 
     private static final ImmutableComponentList<AgentComponent> EMPTY_COMPONENT_LIST =
-            new ImmutableComponentList<AgentComponent>(TinyLists.<AgentComponent>of());
+            new ImmutableComponentList<AgentComponent>(AugmentedLists.<AgentComponent>of());
 
     @SuppressWarnings("unchecked")
     public static <E extends AgentComponent> ImmutableComponentList<E> of() {

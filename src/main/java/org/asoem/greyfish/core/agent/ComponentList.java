@@ -1,8 +1,9 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.Searchable;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -14,7 +15,7 @@ import java.util.NoSuchElementException;
  * Implementations should not permit {@code null} elements or duplicates and should block addition of new components,
  * if it has the same name as a different component in this list.</p>
  */
-public interface ComponentList<E extends AgentComponent> extends SearchableList<E>, DeepCloneable {
+public interface ComponentList<E extends AgentComponent> extends DeepCloneable, List<E>, Searchable<E> {
     /**
      * Find the first element which is named {@code name} and is an instance of {@code clazz}.
      * @param name the name of the {@code AgentComponent} to search for
