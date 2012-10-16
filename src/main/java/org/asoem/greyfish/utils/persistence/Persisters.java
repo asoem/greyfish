@@ -5,6 +5,7 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -14,6 +15,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 18:37
  */
 public final class Persisters {
+
+    private Persisters() {}
+
     /**
      * Create a copy of the given object {@code o} by serializing it with the given {@code Persister}.
      * No guarantees can be made about how exact the copy will be, as this is dependent of the {@code Persister} implementation.
@@ -32,25 +36,23 @@ public final class Persisters {
         final PipedOutputStream pipedOutputStream = new PipedOutputStream();
         final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
 
-        final Callable<T> callable = new Callable<T>() {
+        final Future<T> future = Executors.newSingleThreadExecutor().submit(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                try {
-                    return persister.deserialize(pipedInputStream, clazz);
-                }
-                finally {
-                    pipedInputStream.close();
-                }
+                return persister.deserialize(pipedInputStream, clazz);
             }
-        };
-        final Future<T> future = Executors.newSingleThreadExecutor().submit(callable);
+        });
 
         try {
             persister.serialize(o, pipedOutputStream);
-        } finally {
+            return future.get(3, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            future.cancel(true);
+            throw (e);
+        }
+        finally {
+            pipedInputStream.close();
             pipedOutputStream.close();
         }
-
-        return future.get();
     }
 }

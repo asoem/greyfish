@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 
 /**
  * User: christoph
@@ -39,6 +40,10 @@ public final class Callbacks {
         };
     }
 
+    public static <R> Callback<Object, R> returnArgument(String x, Class<R> clazz) {
+        return new ArgumentCallback(x, clazz);
+    }
+
     private static enum EmptyCallback implements Callback<Object, Void> {
         SINGLE_INSTANCE;
 
@@ -48,7 +53,7 @@ public final class Callbacks {
         }
     }
 
-    private static class ConstantCallback<T> implements Callback<Object, T> {
+    private static class ConstantCallback<T> implements Callback<Object, T>, Serializable {
 
         @Element(name = "value", required = false)
         @Nullable
@@ -85,6 +90,23 @@ public final class Callbacks {
             return "ConstantCallback{" +
                     "value=" + value +
                     '}';
+        }
+
+        private static final long serialVersionUID = 0;
+    }
+
+    private static class ArgumentCallback<R> implements Callback<Object, R>, Serializable {
+        private final String x;
+        private final Class<R> clazz;
+
+        public ArgumentCallback(String x, Class<R> clazz) {
+            this.x = x;
+            this.clazz = clazz;
+        }
+
+        @Override
+        public R apply(Object caller, Arguments arguments) {
+            return clazz.cast(arguments.get(x));
         }
     }
 }
