@@ -1,11 +1,15 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -37,5 +41,21 @@ public class SimulationStepPropertyTest {
 
         // then
         verify(callback, times(2)).apply(eq(property), any(Arguments.class));
+    }
+
+    @Test
+    public void testSerialization() throws Exception {
+        // given
+        SimulationStepProperty<Integer> property = SimulationStepProperty.<Integer>builder()
+                .name("foo")
+                .callback(Callbacks.constant(42))
+                .build();
+
+        // when
+        final SimulationStepProperty copy = Persisters.createCopy(property, SimulationStepProperty.class, JavaPersister.INSTANCE);
+
+        // then
+        assertThat(copy.getName()).isEqualTo(property.getName());
+        assertThat(copy.getCallback()).isEqualTo(copy.getCallback());
     }
 }

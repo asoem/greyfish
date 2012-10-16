@@ -7,6 +7,10 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 
 import javax.annotation.Nullable;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -22,12 +26,12 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
 
     private Supplier<T> value;
 
-    public SimulationStepProperty(SimulationStepProperty<T> simulationStepProperty, DeepCloner cloner) {
+    private SimulationStepProperty(SimulationStepProperty<T> simulationStepProperty, DeepCloner cloner) {
         super(simulationStepProperty, cloner);
         this.callback = simulationStepProperty.callback;
     }
 
-    public SimulationStepProperty(AbstractBuilder<T, ? extends SimulationStepProperty<T>, ? extends Builder> builder) {
+    private SimulationStepProperty(AbstractBuilder<T, ? extends SimulationStepProperty<T>, ? extends Builder> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -82,7 +86,11 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
         return new Builder<T>();
     }
 
-    public static class Builder<T> extends AbstractBuilder<T, SimulationStepProperty<T>, Builder<T>> {
+    public Callback<? super SimulationStepProperty<T>, T> getCallback() {
+        return callback;
+    }
+
+    public static class Builder<T> extends AbstractBuilder<T, SimulationStepProperty<T>, Builder<T>> implements Serializable {
 
         @Override
         protected Builder<T> self() {
@@ -93,14 +101,35 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
         protected SimulationStepProperty<T> checkedBuild() {
             return new SimulationStepProperty<T>(this);
         }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, P extends SimulationStepProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> {
+    private abstract static class AbstractBuilder<T, P extends SimulationStepProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
         public Callback<? super SimulationStepProperty<T>, T> callback;
 
         public B callback(Callback<? super SimulationStepProperty<T>, T> function) {
             this.callback = checkNotNull(function);
             return self();
         }
+    }
+
+    private Object writeReplace() {
+        return new Builder<T>()
+                .callback(callback)
+                .name(getName());
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
     }
 }

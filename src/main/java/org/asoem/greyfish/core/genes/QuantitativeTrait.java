@@ -9,6 +9,11 @@ import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.simpleframework.xml.Element;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -111,7 +116,11 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<QuantitativeTrait, Builder> {
+    public Callback<? super QuantitativeTrait, Double> getSegregationKernel() {
+        return segregationKernel;
+    }
+
+    public static class Builder extends AbstractBuilder<QuantitativeTrait, Builder> implements Serializable {
         @Override
         protected Builder self() {
             return this;
@@ -121,9 +130,19 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
         protected QuantitativeTrait checkedBuild() {
             return new QuantitativeTrait(this);
         }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getLocalizedMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<C extends QuantitativeTrait, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends QuantitativeTrait, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B> implements Serializable {
         private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractBuilder.class);
         private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.constant(0.0);
         private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.constant(0.0);
@@ -158,5 +177,19 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
             if (segregationKernel == DEFAULT_SEGREGATION_KERNEL)
                 LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_SEGREGATION_KERNEL);
         }
+    }
+
+    private Object writeReplace() {
+        // returns a Builder instead of this class.
+        return builder()
+                .initialization(initializationKernel)
+                .mutation(mutationKernel)
+                .segregation(segregationKernel)
+                .name(getName());
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException{
+        throw new InvalidObjectException("Builder required");
     }
 }

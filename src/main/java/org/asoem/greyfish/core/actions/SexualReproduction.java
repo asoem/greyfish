@@ -115,7 +115,7 @@ public class SexualReproduction extends AbstractAgentAction {
         final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<AgentTrait<?>, Gene<?>>, Gene<Object>>() {
             @Override
             public Gene<Object> apply(Product2<AgentTrait<?>, Gene<?>> tuple) {
-                final Object segregationProduct = GenesComponents.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
+                final Object segregationProduct = AgentTraits.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
                 return new Gene<Object>(segregationProduct, tuple._1().getRecombinationProbability());
             }
         });

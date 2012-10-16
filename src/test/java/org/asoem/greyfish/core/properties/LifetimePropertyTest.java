@@ -1,7 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -51,5 +54,21 @@ public class LifetimePropertyTest {
         // then
         verify(function, times(2)).apply(any(LifetimeProperty.class), any(Arguments.class));
         assertThat(value2).isNotEqualTo(value1);
+    }
+
+    @Test
+    public void testSerialization() throws Exception {
+        // given
+        LifetimeProperty<Integer> property = LifetimeProperty.<Integer>builder()
+                .name("foo")
+                .callback(Callbacks.constant(42))
+                .build();
+
+        // when
+        final LifetimeProperty copy = Persisters.createCopy(property, LifetimeProperty.class, JavaPersister.INSTANCE);
+
+        // then
+        assertThat(copy.getName()).isEqualTo(property.getName());
+        assertThat(copy.getCallback()).isEqualTo(copy.getCallback());
     }
 }

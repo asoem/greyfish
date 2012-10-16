@@ -14,18 +14,13 @@ import java.util.Collections;
  */
 public abstract class AbstractTrait<T> extends AbstractAgentComponent implements AgentTrait<T> {
 
-    protected AbstractTrait() {
-    }
+    protected AbstractTrait() {}
 
     protected AbstractTrait(AbstractAgentComponent cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    protected AbstractTrait(String name) {
-        super(name);
-    }
-
-    public AbstractTrait(AbstractBuilder<? extends AbstractTrait<?>, ? extends AbstractBuilder> builder) {
+    protected AbstractTrait(AbstractBuilder<? extends AbstractTrait<?>, ? extends AbstractBuilder> builder) {
         super(builder);
     }
 

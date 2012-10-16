@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
@@ -14,6 +15,10 @@ import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
@@ -24,7 +29,7 @@ import static com.google.common.base.Preconditions.*;
  * Time: 11:28
  */
 @Tagged("traits")
-public class DiscreteTrait extends AbstractTrait<String> {
+public class DiscreteTrait extends AbstractTrait<String> implements Serializable {
 
     @Element(required = false)
     private Table<String, String, Callback<? super DiscreteTrait, Double>> markovMatrix;
@@ -39,17 +44,11 @@ public class DiscreteTrait extends AbstractTrait<String> {
     private String currentState;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    private DiscreteTrait() {
-    }
+    private DiscreteTrait() {}
 
-    public DiscreteTrait(Table<String, String, Callback<? super DiscreteTrait, Double>> chain, Callback<? super DiscreteTrait, String> initialState) {
-        this.markovMatrix = checkNotNull(chain);
-        this.initializationKernel = checkNotNull(initialState);
-    }
-
-    public DiscreteTrait(AbstractBuilder<? extends DiscreteTrait, ? extends AbstractBuilder> builder) {
+    private DiscreteTrait(AbstractBuilder<? extends DiscreteTrait, ? extends AbstractBuilder> builder) {
         super(builder);
-        this.markovMatrix = builder.markovChain.build();
+        this.markovMatrix = builder.transitionTable;
         this.initializationKernel = builder.initializationKernel;
         this.segregationKernel = builder.segregationKernel;
     }
@@ -63,21 +62,18 @@ public class DiscreteTrait extends AbstractTrait<String> {
 
     @Override
     public void setAllele(Object allele) {
-        checkArgument(allele instanceof String, "Expected allele of type String. Actual value: " + allele);
+        checkValidState(allele);
         currentState = (String) allele;
     }
 
     @Override
     public String mutate(String allele) {
-        checkNotNull(allele, "State must not be null");
+        checkValidState(allele);
 
         if (!markovMatrix.containsRow(allele)) {
-            if (markovMatrix.containsColumn(allele)) {
-                return allele;
-            } else
-                throw new IllegalArgumentException("State '" + allele + "' does not match any of the defined states in set {" + Joiner.on(", ").join(Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet())) + "}");
+            assert markovMatrix.containsColumn(allele);
+            return allele;
         }
-
 
         final Map<String, Callback<? super DiscreteTrait, Double>> row = markovMatrix.row(allele);
 
@@ -95,6 +91,11 @@ public class DiscreteTrait extends AbstractTrait<String> {
         }
 
         return allele;
+    }
+
+    private void checkValidState(Object allele) {
+        checkArgument(markovMatrix.containsRow(allele) || markovMatrix.containsColumn(allele),
+                "State '{}' does not match any of the defined states [{}]", allele, Joiner.on(", ").join(Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet())));
     }
 
     @Override
@@ -153,7 +154,11 @@ public class DiscreteTrait extends AbstractTrait<String> {
         return new Builder();
     }
 
-    public static class Builder extends AbstractBuilder<DiscreteTrait, Builder> {
+    public Callback<? super DiscreteTrait, String> getSegregationKernel() {
+        return segregationKernel;
+    }
+
+    public static class Builder extends AbstractBuilder<DiscreteTrait, Builder> implements Serializable {
         @Override
         protected Builder self() {
             return this;
@@ -163,24 +168,29 @@ public class DiscreteTrait extends AbstractTrait<String> {
         protected DiscreteTrait checkedBuild() {
             return new DiscreteTrait(this);
         }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 
-    protected abstract static class AbstractBuilder<T extends DiscreteTrait, B extends AbstractBuilder<T, B>> extends AbstractAgentComponent.AbstractBuilder<T, B> {
+    protected abstract static class AbstractBuilder<T extends DiscreteTrait, B extends AbstractBuilder<T, B>> extends AbstractAgentComponent.AbstractBuilder<T, B> implements Serializable {
 
-        private static final Callback<Object, String> DEFAULT_SEGREGATION_KERNEL = new Callback<Object, String>() {
-            @Override
-            public String apply(Object caller, Arguments arguments) {
-                return (String) RandomUtils.sample(arguments.get("x"), arguments.get("y"));
-            }
-        };
+        private static final Callback<Object, String> DEFAULT_SEGREGATION_KERNEL = Callbacks.returnArgument("x", String.class);
         private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBuilder.class);
 
-        private ImmutableTable.Builder<String, String, Callback<? super DiscreteTrait, Double>> markovChain = ImmutableTable.builder();
+        private Table<String, String, Callback<? super DiscreteTrait, Double>> transitionTable = HashBasedTable.create();
         private Callback<? super DiscreteTrait, String> initializationKernel;
         private Callback<? super DiscreteTrait, String> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
 
         public B addMutation(String state1, String state2, Callback<? super DiscreteTrait, Double> transitionCallback) {
-            markovChain.put(state1, state2, transitionCallback);
+            transitionTable.put(state1, state2, transitionCallback);
             return self();
         }
 
@@ -197,10 +207,28 @@ public class DiscreteTrait extends AbstractTrait<String> {
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
-            checkState(markovChain != null);
+            this.transitionTable = ImmutableTable.copyOf(transitionTable);
             checkState(initializationKernel != null);
             if (segregationKernel == DEFAULT_SEGREGATION_KERNEL)
                 LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_SEGREGATION_KERNEL);
         }
+
+        public B mutation(Table<String, String, Callback<? super DiscreteTrait, Double>> table) {
+            transitionTable.putAll(table);
+            return self();
+        }
+    }
+
+    private Object writeReplace() {
+        return builder()
+                .initialization(initializationKernel)
+                .segregation(segregationKernel)
+                .mutation(markovMatrix)
+                .name(getName());
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
     }
 }

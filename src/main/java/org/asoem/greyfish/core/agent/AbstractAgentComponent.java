@@ -9,6 +9,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -125,7 +126,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         return name.hashCode();
     }
 
-    public static abstract class AbstractBuilder<C extends AbstractAgentComponent, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> {
+    public static abstract class AbstractBuilder<C extends AbstractAgentComponent, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> implements Serializable {
         protected String name = "";
 
         public B name(String name) {

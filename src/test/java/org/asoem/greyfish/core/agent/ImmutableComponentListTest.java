@@ -19,7 +19,7 @@ public class ImmutableComponentListTest {
         ImmutableComponentList<AgentComponent> list = ImmutableComponentList.of();
 
         // when
-        final ImmutableComponentList copy = Persisters.createCopy(list, ImmutableComponentList.class, new JavaPersister());
+        final ImmutableComponentList copy = Persisters.createCopy(list, ImmutableComponentList.class, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy.size()).isEqualTo(list.size());

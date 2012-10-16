@@ -42,7 +42,7 @@ import static java.util.Arrays.asList;
  * Time: 16:20
  */
 @Root(name = "agent")
-public abstract class AbstractAgent implements Agent {
+abstract class AbstractAgent implements Agent {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 

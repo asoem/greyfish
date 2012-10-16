@@ -6,6 +6,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Root;
 
+import java.io.Serializable;
 import java.util.Collections;
 
 @Root
@@ -28,5 +29,5 @@ public abstract class AbstractAgentProperty<T> extends AbstractAgentComponent im
         return Collections.emptyList();
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B> {}
+    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B>  implements Serializable {}
 }

@@ -9,7 +9,9 @@ import java.io.*;
  * Date: 10.10.12
  * Time: 19:45
  */
-public class JavaPersister implements Persister {
+public enum JavaPersister implements Persister {
+    INSTANCE;
+
     @Override
     public <T> T deserialize(File file, Class<T> clazz) throws PersistenceException, FileNotFoundException {
         return deserialize(new BufferedInputStream(new FileInputStream(file)), clazz);
@@ -58,7 +60,7 @@ public class JavaPersister implements Persister {
             out.writeObject(object);
 
         } catch (IOException ex) {
-            throw new PersistenceException(ex);
+            throw new PersistenceException("Failed to serialize " + object + " to " + outputStream, ex);
         } finally {
             try {
                 if (out != null) {

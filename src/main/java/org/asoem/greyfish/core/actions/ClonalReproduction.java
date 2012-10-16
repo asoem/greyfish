@@ -7,9 +7,9 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.genes.GenesComponents;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -45,7 +45,7 @@ public class ClonalReproduction extends AbstractAgentAction {
                                         @Override
                                         public Gene<?> apply(@Nullable AgentTrait<?> gene) {
                                             assert gene != null;
-                                            return new Gene<Object>(GenesComponents.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
+                                            return new Gene<Object>(AgentTraits.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
                                         }
                                     }), Sets.newHashSet(agent().getId())));
                 }
