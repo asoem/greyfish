@@ -24,7 +24,7 @@ public final class Callbacks {
 
     @SuppressWarnings("unchecked")
     public static <T> Callback<T, Void> emptyCallback() {
-        return (Callback<T, Void>) EmptyCallback.SINGLE_INSTANCE;
+        return (Callback<T, Void>) EmptyCallback.INSTANCE;
     }
 
     public static <C, T> T call(Callback<C, T> callback, C caller) {
@@ -45,7 +45,7 @@ public final class Callbacks {
     }
 
     private static enum EmptyCallback implements Callback<Object, Void> {
-        SINGLE_INSTANCE;
+        INSTANCE;
 
         @Override
         public Void apply(Object caller, Arguments arguments) {
