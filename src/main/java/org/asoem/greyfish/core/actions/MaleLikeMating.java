@@ -17,6 +17,10 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -36,8 +40,20 @@ public class MaleLikeMating extends ContractNetParticipantAction {
     private boolean proposalSent;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public MaleLikeMating() {
+    private MaleLikeMating() {
         this(new Builder());
+    }
+
+    private MaleLikeMating(MaleLikeMating cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.ontology = cloneable.ontology;
+        this.matingProbability = cloneable.matingProbability;
+    }
+
+    private MaleLikeMating(AbstractBuilder<? extends MaleLikeMating, ? extends AbstractBuilder> builder) {
+        super(builder);
+        this.ontology = builder.ontology;
+        this.matingProbability = builder.matingProbabilityExpression;
     }
 
     @Override
@@ -105,18 +121,6 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         return new MaleLikeMating(this, cloner);
     }
 
-    private MaleLikeMating(MaleLikeMating cloneable, DeepCloner cloner) {
-        super(cloneable, cloner);
-        this.ontology = cloneable.ontology;
-        this.matingProbability = cloneable.matingProbability;
-    }
-
-    protected MaleLikeMating(AbstractBuilder<? extends MaleLikeMating, ? extends AbstractBuilder> builder) {
-        super(builder);
-        this.ontology = builder.ontology;
-        this.matingProbability = builder.matingProbabilityExpression;
-    }
-
     public static Builder with() {
         return new Builder();
     }
@@ -129,6 +133,47 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         return matingCount;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        MaleLikeMating that = (MaleLikeMating) o;
+
+        if (matingCount != that.matingCount) return false;
+        if (proposalSent != that.proposalSent) return false;
+        if (matingProbability != null ? !matingProbability.equals(that.matingProbability) : that.matingProbability != null)
+            return false;
+        if (ontology != null ? !ontology.equals(that.ontology) : that.ontology != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (ontology != null ? ontology.hashCode() : 0);
+        result = 31 * result + (matingProbability != null ? matingProbability.hashCode() : 0);
+        result = 31 * result + matingCount;
+        result = 31 * result + (proposalSent ? 1 : 0);
+        return result;
+    }
+
+    private Object writeReplace() {
+        return new Builder()
+                .executedIf(getCondition())
+                .matingProbability(matingProbability)
+                .ontology(ontology)
+                .onSuccess(getSuccessCallback())
+                .name(getName());
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
+    }
+
     public static final class Builder extends AbstractBuilder<MaleLikeMating, Builder> {
         @Override
         protected Builder self() {
@@ -139,6 +184,16 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         public MaleLikeMating checkedBuild() {
             return new MaleLikeMating(this);
         }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 
     protected static abstract class AbstractBuilder<C extends MaleLikeMating, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {

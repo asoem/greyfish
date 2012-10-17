@@ -27,6 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -40,8 +44,8 @@ public class SexualReproduction extends AbstractAgentAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
-    @Element(name = "spermList")
-    private Callback<? super SexualReproduction, List<? extends Chromosome>> spermList;
+    @Element(name = "spermSupplier")
+    private Callback<? super SexualReproduction, ? extends List<? extends Chromosome>> spermSupplier;
 
     @Element(name = "clutchSize")
     private Callback<? super SexualReproduction, Integer> clutchSize;
@@ -50,18 +54,7 @@ public class SexualReproduction extends AbstractAgentAction {
 
     private Callback<? super SexualReproduction, Double> spermFitnessEvaluator;
 
-    private final BiMap<String, ElementSelectionStrategy<Chromosome>> strategies =
-            ImmutableBiMap.of(
-                    "Random", ElementSelectionStrategies.<Chromosome>randomSelection(),
-                    "Roulette Wheel", ElementSelectionStrategies.<Chromosome>rouletteWheelSelection(new Function<Chromosome, Double>() {
-                @Override
-                public Double apply(@Nullable Chromosome genes) {
-                    assert genes != null;
-                    return call(spermFitnessEvaluator, SexualReproduction.this);
-                }
-            }));
-
-    private int offspringCount = 0;
+    private int offspringCount;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public SexualReproduction() {
@@ -70,7 +63,7 @@ public class SexualReproduction extends AbstractAgentAction {
 
     @Override
     protected ActionState proceed(Simulation simulation) {
-        final List<? extends Chromosome> chromosomes = call(spermList, this);
+        final List<? extends Chromosome> chromosomes = call(spermSupplier, this);
 
         if (chromosomes == null)
             throw new AssertionError("chromosomes is null");
@@ -126,11 +119,22 @@ public class SexualReproduction extends AbstractAgentAction {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermList", this, new TypeToken<Callback<? super SexualReproduction, List<? extends Chromosome>>>() {
+        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermSupplier", this, new TypeToken<Callback<? super SexualReproduction, List<? extends Chromosome>>>() {
         }));
         e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, new TypeToken<Callback<? super SexualReproduction, Integer>>() {
         }));
         e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
+
+            private final BiMap<String, ElementSelectionStrategy<Chromosome>> strategies =
+                    ImmutableBiMap.of(
+                            "Random", ElementSelectionStrategies.<Chromosome>randomSelection(),
+                            "Roulette Wheel", ElementSelectionStrategies.<Chromosome>rouletteWheelSelection(new Function<Chromosome, Double>() {
+                        @Override
+                        public Double apply(@Nullable Chromosome genes) {
+                            assert genes != null;
+                            return call(spermFitnessEvaluator, SexualReproduction.this);
+                        }
+                    }));
 
             @Override
             public Iterable<String> values() {
@@ -156,7 +160,7 @@ public class SexualReproduction extends AbstractAgentAction {
 
     private SexualReproduction(SexualReproduction cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.spermList = cloneable.spermList;
+        this.spermSupplier = cloneable.spermSupplier;
         this.clutchSize = cloneable.clutchSize;
         this.spermSelectionStrategy = cloneable.spermSelectionStrategy;
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
@@ -164,7 +168,7 @@ public class SexualReproduction extends AbstractAgentAction {
 
     protected SexualReproduction(AbstractBuilder<? extends SexualReproduction, ? extends AbstractBuilder> builder) {
         super(builder);
-        this.spermList = builder.spermStorage;
+        this.spermSupplier = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
         this.spermSelectionStrategy = builder.spermSelectionStrategy;
         this.spermFitnessEvaluator = builder.spermFitnessEvaluator;
@@ -176,7 +180,7 @@ public class SexualReproduction extends AbstractAgentAction {
         offspringCount = 0;
     }
 
-    public static Builder with() {
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -188,9 +192,54 @@ public class SexualReproduction extends AbstractAgentAction {
         return clutchSize;
     }
 
-    public static final class Builder extends AbstractBuilder<SexualReproduction, Builder> {
-        private Builder() {
-        }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        SexualReproduction that = (SexualReproduction) o;
+
+        if (offspringCount != that.offspringCount) return false;
+        if (clutchSize != null ? !clutchSize.equals(that.clutchSize) : that.clutchSize != null) return false;
+        if (spermFitnessEvaluator != null ? !spermFitnessEvaluator.equals(that.spermFitnessEvaluator) : that.spermFitnessEvaluator != null)
+            return false;
+        if (spermSelectionStrategy != null ? !spermSelectionStrategy.equals(that.spermSelectionStrategy) : that.spermSelectionStrategy != null)
+            return false;
+        if (spermSupplier != null ? !spermSupplier.equals(that.spermSupplier) : that.spermSupplier != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (spermSupplier != null ? spermSupplier.hashCode() : 0);
+        result = 31 * result + (clutchSize != null ? clutchSize.hashCode() : 0);
+        result = 31 * result + (spermSelectionStrategy != null ? spermSelectionStrategy.hashCode() : 0);
+        result = 31 * result + (spermFitnessEvaluator != null ? spermFitnessEvaluator.hashCode() : 0);
+        result = 31 * result + offspringCount;
+        return result;
+    }
+
+    private Object writeReplace() {
+        return new Builder()
+                .clutchSize(clutchSize)
+                .spermSupplier(spermSupplier)
+                .spermSelectionStrategy(spermSelectionStrategy)
+                .spermFitnessCallback(spermFitnessEvaluator)
+                .executedIf(getCondition())
+                .name(getName());
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
+    }
+
+    public static final class Builder extends AbstractBuilder<SexualReproduction, Builder> implements Serializable {
+        private Builder() {}
 
         @Override
         protected Builder self() {
@@ -201,16 +250,26 @@ public class SexualReproduction extends AbstractAgentAction {
         protected SexualReproduction checkedBuild() {
             return new SexualReproduction(this);
         }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends SexualReproduction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
-        private Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage;
+    protected static abstract class AbstractBuilder<C extends SexualReproduction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> implements Serializable {
+        private Callback<? super SexualReproduction, ? extends List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
         private Callback<? super SexualReproduction, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
-        public B spermSupplier(Callback<? super SexualReproduction, List<? extends Chromosome>> spermStorage) {
+        public B spermSupplier(Callback<? super SexualReproduction, ? extends List<? extends Chromosome>> spermStorage) {
             this.spermStorage = checkNotNull(spermStorage);
             return self();
         }
@@ -222,6 +281,11 @@ public class SexualReproduction extends AbstractAgentAction {
 
         public B spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) {
             this.spermSelectionStrategy = checkNotNull(selectionStrategy);
+            return self();
+        }
+
+        public B spermFitnessCallback(Callback<? super SexualReproduction, Double> callback) {
+            this.spermFitnessEvaluator = checkNotNull(callback);
             return self();
         }
     }

@@ -7,14 +7,27 @@ import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 @Tagged("actions")
 public class Suicide extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public Suicide() {
+    private Suicide() {
         this(new Builder());
+    }
+
+    private Suicide(AbstractAgentAction cloneable, DeepCloner map) {
+        super(cloneable, map);
+    }
+
+    private Suicide(AbstractBuilder<? extends Suicide, ? extends AbstractBuilder> builder) {
+        super(builder);
     }
 
     @Override
@@ -30,21 +43,23 @@ public class Suicide extends AbstractAgentAction {
         return new Suicide(this, cloner);
     }
 
-    private Suicide(AbstractAgentAction cloneable, DeepCloner map) {
-        super(cloneable, map);
+    private Object writeReplace() {
+        return new Builder()
+                .executedIf(getCondition())
+                .name(getName());
     }
 
-    protected Suicide(AbstractBuilder<? extends Suicide, ? extends AbstractBuilder> builder) {
-        super(builder);
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
     }
 
-    public static Builder with() {
+    public static Builder builder() {
         return new Builder();
     }
 
-    public static final class Builder extends AbstractBuilder<Suicide, Builder> {
-        private Builder() {
-        }
+    public static final class Builder extends AbstractBuilder<Suicide, Builder> implements Serializable {
+        private Builder() {}
 
         @Override
         protected Builder self() {
@@ -55,5 +70,15 @@ public class Suicide extends AbstractAgentAction {
         protected Suicide checkedBuild() {
             return new Suicide(this);
         }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }

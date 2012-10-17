@@ -1,11 +1,15 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.utils.persistence.Persister;
+import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
+import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
+import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -13,39 +17,23 @@ import org.junit.Test;
  * Time: 18:34
  */
 public class SexualReproductionTest {
-
-    @Inject
-    private Persister persister;
-
-    @Inject
-    private GreyfishExpressionFactory expressionFactory;
-
-    public SexualReproductionTest() {
-        Guice.createInjector(new CoreModule()).injectMembers(this);
-    }
-
     @Test
-    public void testPersistence() throws Exception {
-        /*
+    public void testSerialization() throws Exception {
         // given
-        final AlwaysTrueCondition condition = new AlwaysTrueCondition();
-        final SexualReproduction action = SexualReproduction.with()
-
+        final SexualReproduction action = SexualReproduction.builder()
                 .name("test")
-                .clutchSize(constant(1))
-                .spermSupplier(Callbacks.<List<? extends Chromosome>>constant(null))
-                .executedIf(condition)
-
+                .clutchSize(Callbacks.constant(1))
+                .spermSupplier(Callbacks.constant(Lists.<Chromosome>newArrayList()))
+                .spermSelectionStrategy(ElementSelectionStrategies.<Chromosome>randomSelection())
+                .spermFitnessCallback(Callbacks.constant(0.42))
+                .onSuccess(Callbacks.emptyCallback())
+                .executedIf(new AlwaysTrueCondition())
                 .build();
 
         // when
-        SexualReproduction deserialized = Persisters.createCopy(action, SexualReproduction.class, persister);
+        SexualReproduction copy = Persisters.createCopy(action, SexualReproduction.class, JavaPersister.INSTANCE);
 
         // then
-        assertThat(deserialized.getName()).isEqualTo("test");
-        assertThat(deserialized.getClutchSize()).isEqualTo(constant(1));
-        //assertThat(deserialized.getSpermStorage()).isEqualTo(storage);
-        assertThat(deserialized.getCondition()).isInstanceOf(condition.getClass());
-        */
+        assertThat(copy).isEqualTo(action);
     }
 }

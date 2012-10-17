@@ -126,7 +126,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         return name.hashCode();
     }
 
-    public static abstract class AbstractBuilder<C extends AbstractAgentComponent, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<C extends AbstractAgentComponent, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> implements Serializable {
         protected String name = "";
 
         public B name(String name) {

@@ -10,25 +10,23 @@ import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * User: christoph
- * Date: 22.02.12
- * Time: 17:49
+ * Date: 16.10.12
+ * Time: 17:40
  */
-public class MaleLikeMatingTest {
+public class SuicideTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final MaleLikeMating action = MaleLikeMating.with()
+        Suicide suicide = Suicide.builder()
                 .name("foo")
-                .executedIf(AlwaysTrueCondition.builder().build())
+                .executedIf(AlwaysTrueCondition.builder().name("foo").build())
                 .onSuccess(Callbacks.emptyCallback())
-                .ontology("foo")
-                .matingProbability(Callbacks.constant(0.42))
                 .build();
 
         // when
-        final MaleLikeMating copy = Persisters.createCopy(action, MaleLikeMating.class, JavaPersister.INSTANCE);
+        final Suicide copy = Persisters.createCopy(suicide, Suicide.class, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualTo(action);
+        assertThat(copy).isEqualTo(suicide);
     }
 }

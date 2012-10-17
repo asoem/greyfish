@@ -10,25 +10,25 @@ import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * User: christoph
- * Date: 22.02.12
- * Time: 17:49
+ * Date: 16.10.12
+ * Time: 19:29
  */
-public class MaleLikeMatingTest {
+public class GenericMovementTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final MaleLikeMating action = MaleLikeMating.with()
+        GenericMovement genericMovement = GenericMovement.builder()
                 .name("foo")
-                .executedIf(AlwaysTrueCondition.builder().build())
+                .stepSize(Callbacks.constant(1.0))
+                .turningAngle(Callbacks.constant(0.42))
                 .onSuccess(Callbacks.emptyCallback())
-                .ontology("foo")
-                .matingProbability(Callbacks.constant(0.42))
+                .executedIf(AlwaysTrueCondition.builder().build())
                 .build();
 
         // when
-        final MaleLikeMating copy = Persisters.createCopy(action, MaleLikeMating.class, JavaPersister.INSTANCE);
+        final GenericMovement copy = Persisters.createCopy(genericMovement, GenericMovement.class, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualTo(action);
+        assertThat(copy).isEqualTo(genericMovement);
     }
 }

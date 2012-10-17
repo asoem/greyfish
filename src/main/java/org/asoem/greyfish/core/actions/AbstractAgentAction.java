@@ -14,6 +14,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -166,36 +167,12 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
         return rootCondition != null ? Collections.<AgentComponent>singletonList(getCondition()) : Collections.<AgentComponent>emptyList();
     }
 
-    @SuppressWarnings("RedundantIfStatement")
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        AbstractAgentAction that = (AbstractAgentAction) o;
-
-        if (successCount != that.successCount) return false;
-        if (stepAtLastSuccess != that.stepAtLastSuccess) return false;
-        if (actionState != that.actionState) return false;
-        if (rootCondition != null ? !rootCondition.equals(that.rootCondition) : that.rootCondition != null)
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (rootCondition != null ? rootCondition.hashCode() : 0);
-        result = 31 * result + successCount;
-        result = 31 * result + stepAtLastSuccess;
-        result = 31 * result + (actionState != null ? actionState.hashCode() : 0);
-        return result;
+    public Callback<? super AbstractAgentAction, Void> getSuccessCallback() {
+        return onSuccess;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends AbstractAgentAction, B extends AbstractBuilder<A, B>> extends AbstractAgentComponent.AbstractBuilder<A, B> {
+    protected static abstract class AbstractBuilder<A extends AbstractAgentAction, B extends AbstractBuilder<A, B>> extends AbstractAgentComponent.AbstractBuilder<A, B> implements Serializable {
         private ActionCondition condition;
         private Callback<? super AbstractAgentAction, Void> onSuccess = Callbacks.emptyCallback();
 
@@ -208,5 +185,34 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
             this.onSuccess = checkNotNull(expression);
             return self();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        AbstractAgentAction that = (AbstractAgentAction) o;
+
+        if (stepAtLastSuccess != that.stepAtLastSuccess) return false;
+        if (successCount != that.successCount) return false;
+        if (actionState != that.actionState) return false;
+        if (onSuccess != null ? !onSuccess.equals(that.onSuccess) : that.onSuccess != null) return false;
+        if (rootCondition != null ? !rootCondition.equals(that.rootCondition) : that.rootCondition != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (rootCondition != null ? rootCondition.hashCode() : 0);
+        result = 31 * result + (onSuccess != null ? onSuccess.hashCode() : 0);
+        result = 31 * result + successCount;
+        result = 31 * result + stepAtLastSuccess;
+        result = 31 * result + (actionState != null ? actionState.hashCode() : 0);
+        return result;
     }
 }
