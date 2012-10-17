@@ -15,6 +15,58 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DiscreteTraitTest {
 
     @Test
+    public void testMutation() throws Exception {
+        // given
+        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+                .initialization(Callbacks.constant("a"))
+                .addMutation("a", "b", Callbacks.constant(1.0))
+                .addMutation("b", "c", Callbacks.constant(1.0))
+                .build();
+
+        // when
+        final String mutated1 = discreteTrait.mutate("a");
+        final String mutated2 = discreteTrait.mutate("b");
+        final String mutated3 = discreteTrait.mutate("c");
+
+        // then
+        assertThat(mutated1).isEqualTo("b");
+        assertThat(mutated2).isEqualTo("c");
+        assertThat(mutated3).isEqualTo("c");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMutateIllegalArgument() throws Exception {
+        // given
+        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+                .initialization(Callbacks.constant("a"))
+                .addMutation("a", "b", Callbacks.constant(1.0))
+                .addMutation("b", "c", Callbacks.constant(1.0))
+                .build();
+
+        // when
+        discreteTrait.mutate("d");
+
+        // then
+        // IllegalArgumentException
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetAlleleIllegalArgument() throws Exception {
+        // given
+        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+                .initialization(Callbacks.constant("a"))
+                .addMutation("a", "b", Callbacks.constant(1.0))
+                .addMutation("b", "c", Callbacks.constant(1.0))
+                .build();
+
+        // when
+        discreteTrait.setAllele("d");
+
+        // then
+        // IllegalArgumentException
+    }
+
+    @Test
     public void testSerialization() throws Exception {
         // given
         final DiscreteTrait discreteTrait = DiscreteTrait.builder()

@@ -11,10 +11,8 @@ import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.simpleframework.xml.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
@@ -31,16 +29,10 @@ import static com.google.common.base.Preconditions.*;
 @Tagged("traits")
 public class DiscreteTrait extends AbstractTrait<String> implements Serializable {
 
-    @Element(required = false)
-    private Table<String, String, Callback<? super DiscreteTrait, Double>> markovMatrix;
-
-    @Element(required = false)
+    private Table<String, String, Callback<? super DiscreteTrait, Double>> mutationTable;
     private Callback<? super DiscreteTrait, String> initializationKernel;
-
-    @Element
     private Callback<? super DiscreteTrait, String> segregationKernel;
-
-    @Element(required = false)
+    @Nullable
     private String currentState;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -48,14 +40,14 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
 
     private DiscreteTrait(AbstractBuilder<? extends DiscreteTrait, ? extends AbstractBuilder> builder) {
         super(builder);
-        this.markovMatrix = builder.transitionTable;
+        this.mutationTable = builder.mutationTable;
         this.initializationKernel = builder.initializationKernel;
         this.segregationKernel = builder.segregationKernel;
     }
 
     private DiscreteTrait(DiscreteTrait markovGene, DeepCloner cloner) {
         super(markovGene, cloner);
-        this.markovMatrix = markovGene.markovMatrix;
+        this.mutationTable = markovGene.mutationTable;
         this.initializationKernel = markovGene.initializationKernel;
         this.segregationKernel = markovGene.segregationKernel;
     }
@@ -70,14 +62,10 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
     public String mutate(String allele) {
         checkValidState(allele);
 
-        if (!markovMatrix.containsRow(allele)) {
-            assert markovMatrix.containsColumn(allele);
-            return allele;
-        }
-
-        final Map<String, Callback<? super DiscreteTrait, Double>> row = markovMatrix.row(allele);
+        final Map<String, Callback<? super DiscreteTrait, Double>> row = mutationTable.row(allele);
 
         if (row.isEmpty()) {
+            assert mutationTable.containsColumn(allele);
             return allele;
         }
 
@@ -94,8 +82,8 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
     }
 
     private void checkValidState(Object allele) {
-        checkArgument(markovMatrix.containsRow(allele) || markovMatrix.containsColumn(allele),
-                "State '{}' does not match any of the defined states [{}]", allele, Joiner.on(", ").join(Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet())));
+        checkArgument(mutationTable.containsRow(allele) || mutationTable.containsColumn(allele),
+                "State '{}' does not match any of the defined states [{}]", allele, Joiner.on(", ").join(Sets.union(mutationTable.rowKeySet(), mutationTable.columnKeySet())));
     }
 
     @Override
@@ -120,7 +108,14 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
 
     @Override
     public String getAllele() {
+        checkState(currentState != null, "Allele has null state, trait was not initialized");
         return currentState;
+    }
+
+    @Override
+    public void initialize() {
+        super.initialize();
+        setAllele(createInitialValue());
     }
 
     @Override
@@ -143,22 +138,65 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
     }
 
     public Table<String, String, Callback<? super DiscreteTrait, Double>> getMarkovChain() {
-        return markovMatrix;
+        return mutationTable;
     }
 
     public Callback<? super DiscreteTrait, ? extends String> getInitializationKernel() {
         return initializationKernel;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public Callback<? super DiscreteTrait, String> getSegregationKernel() {
         return segregationKernel;
     }
 
+    private Object writeReplace() {
+        return builder()
+                .initialization(initializationKernel)
+                .segregation(segregationKernel)
+                .mutation(mutationTable)
+                .name(getName());
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DiscreteTrait)) return false;
+        if (!super.equals(o)) return false;
+
+        DiscreteTrait that = (DiscreteTrait) o;
+
+        if (currentState != null ? !currentState.equals(that.currentState) : that.currentState != null) return false;
+        if (initializationKernel != null ? !initializationKernel.equals(that.initializationKernel) : that.initializationKernel != null)
+            return false;
+        if (mutationTable != null ? !mutationTable.equals(that.mutationTable) : that.mutationTable != null) return false;
+        if (segregationKernel != null ? !segregationKernel.equals(that.segregationKernel) : that.segregationKernel != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (mutationTable != null ? mutationTable.hashCode() : 0);
+        result = 31 * result + (initializationKernel != null ? initializationKernel.hashCode() : 0);
+        result = 31 * result + (segregationKernel != null ? segregationKernel.hashCode() : 0);
+        result = 31 * result + (currentState != null ? currentState.hashCode() : 0);
+        return result;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static class Builder extends AbstractBuilder<DiscreteTrait, Builder> implements Serializable {
+        private Builder() {}
+
         @Override
         protected Builder self() {
             return this;
@@ -182,15 +220,12 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
 
     protected abstract static class AbstractBuilder<T extends DiscreteTrait, B extends AbstractBuilder<T, B>> extends AbstractAgentComponent.AbstractBuilder<T, B> implements Serializable {
 
-        private static final Callback<Object, String> DEFAULT_SEGREGATION_KERNEL = Callbacks.returnArgument("x", String.class);
-        private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBuilder.class);
-
-        private Table<String, String, Callback<? super DiscreteTrait, Double>> transitionTable = HashBasedTable.create();
-        private Callback<? super DiscreteTrait, String> initializationKernel;
-        private Callback<? super DiscreteTrait, String> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
+        private Table<String, String, Callback<? super DiscreteTrait, Double>> mutationTable = HashBasedTable.create();
+        private Callback<? super DiscreteTrait, String> initializationKernel = Callbacks.willThrow(new UnsupportedOperationException());
+        private Callback<? super DiscreteTrait, String> segregationKernel = Callbacks.willThrow(new UnsupportedOperationException());
 
         public B addMutation(String state1, String state2, Callback<? super DiscreteTrait, Double> transitionCallback) {
-            transitionTable.put(state1, state2, transitionCallback);
+            mutationTable.put(state1, state2, transitionCallback);
             return self();
         }
 
@@ -207,28 +242,12 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
-            this.transitionTable = ImmutableTable.copyOf(transitionTable);
-            checkState(initializationKernel != null);
-            if (segregationKernel == DEFAULT_SEGREGATION_KERNEL)
-                LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_SEGREGATION_KERNEL);
+            this.mutationTable = ImmutableTable.copyOf(mutationTable);
         }
 
         public B mutation(Table<String, String, Callback<? super DiscreteTrait, Double>> table) {
-            transitionTable.putAll(table);
+            mutationTable.putAll(table);
             return self();
         }
-    }
-
-    private Object writeReplace() {
-        return builder()
-                .initialization(initializationKernel)
-                .segregation(segregationKernel)
-                .mutation(markovMatrix)
-                .name(getName());
-    }
-
-    private void readObject(ObjectInputStream stream)
-            throws InvalidObjectException {
-        throw new InvalidObjectException("Builder required");
     }
 }
