@@ -7,6 +7,8 @@ import org.simpleframework.xml.Element;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * User: christoph
  * Date: 15.05.12
@@ -42,6 +44,10 @@ public final class Callbacks {
 
     public static <R> Callback<Object, R> returnArgument(String x, Class<R> clazz) {
         return new ArgumentCallback(x, clazz);
+    }
+
+    public static <R> Callback<Object, R> willThrow(RuntimeException exception) {
+        return new ThrowingCallable(exception);
     }
 
     private static enum EmptyCallback implements Callback<Object, Void> {
@@ -100,13 +106,30 @@ public final class Callbacks {
         private final Class<R> clazz;
 
         public ArgumentCallback(String x, Class<R> clazz) {
-            this.x = x;
-            this.clazz = clazz;
+            this.x = checkNotNull(x);
+            this.clazz = checkNotNull(clazz);
         }
 
         @Override
         public R apply(Object caller, Arguments arguments) {
             return clazz.cast(arguments.get(x));
         }
+
+        private static final long serialVersionUID = 0;
+    }
+
+    private static class ThrowingCallable<R> implements Callback<Object, R>, Serializable {
+        private final RuntimeException exception;
+
+        public ThrowingCallable(RuntimeException exception) {
+            this.exception = checkNotNull(exception);
+        }
+
+        @Override
+        public R apply(Object caller, Arguments arguments) {
+            throw exception;
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }
