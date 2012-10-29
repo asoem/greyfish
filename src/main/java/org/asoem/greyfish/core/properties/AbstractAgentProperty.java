@@ -29,5 +29,11 @@ public abstract class AbstractAgentProperty<T> extends AbstractAgentComponent im
         return Collections.emptyList();
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B>  implements Serializable {}
+    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B>  implements Serializable {
+        public AbstractBuilder(AbstractAgentProperty<?> simulationStepProperty) {
+            super(simulationStepProperty);
+        }
+
+        public AbstractBuilder() {}
+    }
 }

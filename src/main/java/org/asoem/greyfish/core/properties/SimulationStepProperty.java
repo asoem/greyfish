@@ -82,15 +82,22 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
         );
     }
 
-    public static <T> Builder<T> builder() {
-        return new Builder<T>();
-    }
 
     public Callback<? super SimulationStepProperty<T>, T> getCallback() {
         return callback;
     }
 
+    public static <T> Builder<T> builder() {
+        return new Builder<T>();
+    }
+
     public static class Builder<T> extends AbstractBuilder<T, SimulationStepProperty<T>, Builder<T>> implements Serializable {
+
+        private Builder() {}
+
+        private Builder(SimulationStepProperty<T> simulationStepProperty) {
+            super(simulationStepProperty);
+        }
 
         @Override
         protected Builder<T> self() {
@@ -114,7 +121,14 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
     }
 
     private abstract static class AbstractBuilder<T, P extends SimulationStepProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
-        public Callback<? super SimulationStepProperty<T>, T> callback;
+        private Callback<? super SimulationStepProperty<T>, T> callback;
+
+        protected AbstractBuilder() {}
+
+        protected AbstractBuilder(SimulationStepProperty<T> simulationStepProperty) {
+            super(simulationStepProperty);
+            this.callback = simulationStepProperty.callback;
+        }
 
         public B callback(Callback<? super SimulationStepProperty<T>, T> function) {
             this.callback = checkNotNull(function);
@@ -123,9 +137,7 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
     }
 
     private Object writeReplace() {
-        return new Builder<T>()
-                .callback(callback)
-                .name(getName());
+        return new Builder<T>(this);
     }
 
     private void readObject(ObjectInputStream stream)

@@ -27,9 +27,9 @@ public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
 
     private Supplier<T> memoizer;
 
-    public LifetimeProperty(LifetimeProperty<T> functionProperty, DeepCloner cloner) {
-        super(functionProperty, cloner);
-        this.callback = functionProperty.callback;
+    public LifetimeProperty(LifetimeProperty<T> lifetimeProperty, DeepCloner cloner) {
+        super(lifetimeProperty, cloner);
+        this.callback = lifetimeProperty.callback;
     }
 
     public LifetimeProperty(AbstractBuilder<T, ? extends LifetimeProperty<T>, ? extends Builder> builder) {
@@ -76,6 +76,12 @@ public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
 
     public static class Builder<T> extends AbstractBuilder<T, LifetimeProperty<T>, Builder<T>> implements Serializable {
 
+        public Builder(LifetimeProperty<T> lifetimeProperty) {
+            super(lifetimeProperty);
+        }
+
+        public Builder() {}
+
         @Override
         protected Builder<T> self() {
             return this;
@@ -98,7 +104,14 @@ public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
     }
 
     private abstract static class AbstractBuilder<T, P extends LifetimeProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
-        public Callback<? super LifetimeProperty<T>, T> callback;
+        private Callback<? super LifetimeProperty<T>, T> callback;
+
+        protected AbstractBuilder(LifetimeProperty<T> lifetimeProperty) {
+            super(lifetimeProperty);
+            this.callback = lifetimeProperty.callback;
+        }
+
+        protected AbstractBuilder() {}
 
         public B callback(Callback<? super LifetimeProperty<T>, T> callback) {
             this.callback = checkNotNull(callback);
@@ -107,9 +120,7 @@ public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
     }
 
     private Object writeReplace() {
-        return new Builder<T>()
-                .callback(callback)
-                .name(getName());
+        return new Builder<T>(this);
     }
 
     private void readObject(ObjectInputStream stream)

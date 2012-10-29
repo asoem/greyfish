@@ -5,8 +5,6 @@ import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.simpleframework.xml.Element;
 
 import java.io.InvalidObjectException;
@@ -37,21 +35,22 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
     private Double value = 0.0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public QuantitativeTrait() {
-    }
+    private QuantitativeTrait() {}
 
-    protected QuantitativeTrait(QuantitativeTrait doubleMutableGene, DeepCloner cloner) {
+    private QuantitativeTrait(QuantitativeTrait doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
         this.initializationKernel = doubleMutableGene.initializationKernel;
         this.mutationKernel = doubleMutableGene.mutationKernel;
         this.segregationKernel = doubleMutableGene.segregationKernel;
+        this.value = doubleMutableGene.value;
     }
 
-    protected QuantitativeTrait(AbstractBuilder<? extends QuantitativeTrait, ? extends AbstractBuilder> builder) {
+    private QuantitativeTrait(AbstractBuilder<? extends QuantitativeTrait, ? extends AbstractBuilder> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
         this.segregationKernel = builder.segregationKernel;
+        this.value = builder.value;
     }
 
     @Override
@@ -112,15 +111,30 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
         e.add("Recombination(x,y)", TypedValueModels.forField("segregationKernel", this, new TypeToken<Callback<? super QuantitativeTrait, Double>>() {}));
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public Callback<? super QuantitativeTrait, Double> getSegregationKernel() {
         return segregationKernel;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private Object writeReplace() {
+        return new Builder(this);
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException{
+        throw new InvalidObjectException("Builder required");
+    }
+
     public static class Builder extends AbstractBuilder<QuantitativeTrait, Builder> implements Serializable {
+        private Builder() {}
+
+        private Builder(QuantitativeTrait quantitativeTrait) {
+            super(quantitativeTrait);
+        }
+
         @Override
         protected Builder self() {
             return this;
@@ -135,7 +149,7 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
             try {
                 return build();
             } catch (IllegalStateException e) {
-                throw new InvalidObjectException("Build failed with: " + e.getLocalizedMessage());
+                throw new InvalidObjectException("Build failed: " + e);
             }
         }
 
@@ -143,14 +157,25 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
     }
 
     protected static abstract class AbstractBuilder<C extends QuantitativeTrait, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B> implements Serializable {
-        private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractBuilder.class);
-        private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.constant(0.0);
-        private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.constant(0.0);
-        private static final Callback<Object,Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.constant(0.0);
+
+        private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object,Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
 
         private Callback<? super QuantitativeTrait, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
         private Callback<? super QuantitativeTrait, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
         private Callback<? super QuantitativeTrait, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
+        private double value;
+
+        protected AbstractBuilder(QuantitativeTrait quantitativeTrait) {
+            super(quantitativeTrait);
+            this.initializationKernel = quantitativeTrait.initializationKernel;
+            this.mutationKernel = quantitativeTrait.mutationKernel;
+            this.segregationKernel = quantitativeTrait.segregationKernel;
+            this.value = quantitativeTrait.value;
+        }
+
+        protected AbstractBuilder() {}
 
         public B initialization(Callback<? super QuantitativeTrait, Double> callback) {
             this.initializationKernel = checkNotNull(callback);
@@ -167,29 +192,10 @@ public class QuantitativeTrait extends AbstractTrait<Double> {
             return self();
         }
 
-        @Override
-        protected void checkBuilder() throws IllegalStateException {
-            super.checkBuilder();
-            if (initializationKernel == DEFAULT_INITIALIZATION_KERNEL)
-                LOGGER.warn("Builder uses default initialization kernel for {}: {}", name, DEFAULT_INITIALIZATION_KERNEL);
-            if (mutationKernel == DEFAULT_MUTATION_KERNEL)
-                LOGGER.warn("Builder uses default mutation kernel for {}: {}", name, DEFAULT_MUTATION_KERNEL);
-            if (segregationKernel == DEFAULT_SEGREGATION_KERNEL)
-                LOGGER.warn("Builder uses default segregation kernel for {}: {}", name, DEFAULT_SEGREGATION_KERNEL);
+        // only used internally for serialization
+        protected B value(double value) {
+            this.value = value;
+            return self();
         }
-    }
-
-    private Object writeReplace() {
-        // returns a Builder instead of this class.
-        return builder()
-                .initialization(initializationKernel)
-                .mutation(mutationKernel)
-                .segregation(segregationKernel)
-                .name(getName());
-    }
-
-    private void readObject(ObjectInputStream stream)
-            throws InvalidObjectException{
-        throw new InvalidObjectException("Builder required");
     }
 }

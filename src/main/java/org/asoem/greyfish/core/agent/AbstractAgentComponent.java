@@ -16,26 +16,31 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Attribute(name = "name", required = false)
-    private String name = "";
+    private String name;
 
     @Nullable
     private Agent agent;
 
     protected AbstractAgentComponent() {
+        initializeObject("", null);
     }
 
     protected AbstractAgentComponent(AbstractAgentComponent cloneable, DeepCloner map) {
         map.addClone(cloneable, this);
-        this.agent = map.getClone(agent, Agent.class);
-        this.name = cloneable.name;
+        initializeObject(cloneable.name, map.getClone(agent, Agent.class));
     }
 
     protected AbstractAgentComponent(AbstractBuilder<? extends AbstractAgentComponent, ? extends AbstractBuilder> builder) {
-        this.name = builder.name;
+        initializeObject(builder.name, builder.agent);
     }
 
     protected AbstractAgentComponent(String name) {
+        initializeObject(name, null);
+    }
+
+    protected void initializeObject(String name, Agent agent) {
         this.name = name;
+        this.agent = agent;
     }
 
     @Override
@@ -127,7 +132,18 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     }
 
     protected static abstract class AbstractBuilder<C extends AbstractAgentComponent, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> implements Serializable {
-        protected String name = "";
+        private String name = "";
+
+        // for serialization only
+        private Agent agent;
+
+        protected AbstractBuilder(AbstractAgentComponent quantitativeTrait) {
+            this.agent = quantitativeTrait.agent;
+            this.name = quantitativeTrait.name;
+        }
+
+        protected AbstractBuilder() {
+        }
 
         public B name(String name) {
             this.name = name;

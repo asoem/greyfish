@@ -50,12 +50,15 @@ public class SimulationStepPropertyTest {
                 .name("foo")
                 .callback(Callbacks.constant(42))
                 .build();
+        final Agent agent = mock(Agent.class, withSettings().serializable());
+        property.setAgent(agent);
 
         // when
         final SimulationStepProperty copy = Persisters.createCopy(property, SimulationStepProperty.class, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy.getName()).isEqualTo(property.getName());
-        assertThat(copy.getCallback()).isEqualTo(copy.getCallback());
+        assertThat(copy.getCallback()).isEqualTo(property.getCallback());
+        assertThat(copy.getAgent()).isInstanceOf(agent.getClass());
     }
 }

@@ -33,7 +33,7 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
     private Callback<? super DiscreteTrait, String> initializationKernel;
     private Callback<? super DiscreteTrait, String> segregationKernel;
     @Nullable
-    private String currentState;
+    private String state;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private DiscreteTrait() {}
@@ -43,19 +43,21 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
         this.mutationTable = builder.mutationTable;
         this.initializationKernel = builder.initializationKernel;
         this.segregationKernel = builder.segregationKernel;
+        this.state = builder.state;
     }
 
-    private DiscreteTrait(DiscreteTrait markovGene, DeepCloner cloner) {
-        super(markovGene, cloner);
-        this.mutationTable = markovGene.mutationTable;
-        this.initializationKernel = markovGene.initializationKernel;
-        this.segregationKernel = markovGene.segregationKernel;
+    private DiscreteTrait(DiscreteTrait discreteTrait, DeepCloner cloner) {
+        super(discreteTrait, cloner);
+        this.mutationTable = discreteTrait.mutationTable;
+        this.initializationKernel = discreteTrait.initializationKernel;
+        this.segregationKernel = discreteTrait.segregationKernel;
+        this.state = discreteTrait.state;
     }
 
     @Override
     public void setAllele(Object allele) {
         checkValidState(allele);
-        currentState = (String) allele;
+        state = (String) allele;
     }
 
     @Override
@@ -108,8 +110,8 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
 
     @Override
     public String getAllele() {
-        checkState(currentState != null, "Allele has null state, trait was not initialized");
-        return currentState;
+        checkState(state != null, "Allele has null state, trait was not initialized");
+        return state;
     }
 
     @Override
@@ -150,44 +152,12 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
     }
 
     private Object writeReplace() {
-        return builder()
-                .initialization(initializationKernel)
-                .segregation(segregationKernel)
-                .mutation(mutationTable)
-                .name(getName());
+        return new Builder(this);
     }
 
     private void readObject(ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DiscreteTrait)) return false;
-        if (!super.equals(o)) return false;
-
-        DiscreteTrait that = (DiscreteTrait) o;
-
-        if (currentState != null ? !currentState.equals(that.currentState) : that.currentState != null) return false;
-        if (initializationKernel != null ? !initializationKernel.equals(that.initializationKernel) : that.initializationKernel != null)
-            return false;
-        if (mutationTable != null ? !mutationTable.equals(that.mutationTable) : that.mutationTable != null) return false;
-        if (segregationKernel != null ? !segregationKernel.equals(that.segregationKernel) : that.segregationKernel != null)
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (mutationTable != null ? mutationTable.hashCode() : 0);
-        result = 31 * result + (initializationKernel != null ? initializationKernel.hashCode() : 0);
-        result = 31 * result + (segregationKernel != null ? segregationKernel.hashCode() : 0);
-        result = 31 * result + (currentState != null ? currentState.hashCode() : 0);
-        return result;
     }
 
     public static Builder builder() {
@@ -196,6 +166,10 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
 
     public static class Builder extends AbstractBuilder<DiscreteTrait, Builder> implements Serializable {
         private Builder() {}
+
+        private Builder(DiscreteTrait discreteTrait) {
+            super(discreteTrait);
+        }
 
         @Override
         protected Builder self() {
@@ -223,6 +197,17 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
         private Table<String, String, Callback<? super DiscreteTrait, Double>> mutationTable = HashBasedTable.create();
         private Callback<? super DiscreteTrait, String> initializationKernel = Callbacks.willThrow(new UnsupportedOperationException());
         private Callback<? super DiscreteTrait, String> segregationKernel = Callbacks.willThrow(new UnsupportedOperationException());
+        private String state;
+
+        protected AbstractBuilder() {}
+
+        protected AbstractBuilder(DiscreteTrait discreteTrait) {
+            super(discreteTrait);
+            this.mutationTable = HashBasedTable.create(discreteTrait.mutationTable);
+            this.segregationKernel = discreteTrait.segregationKernel;
+            this.initializationKernel = discreteTrait.initializationKernel;
+            this.state = discreteTrait.state;
+        }
 
         public B addMutation(String state1, String state2, Callback<? super DiscreteTrait, Double> transitionCallback) {
             mutationTable.put(state1, state2, transitionCallback);
@@ -243,11 +228,6 @@ public class DiscreteTrait extends AbstractTrait<String> implements Serializable
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
             this.mutationTable = ImmutableTable.copyOf(mutationTable);
-        }
-
-        public B mutation(Table<String, String, Callback<? super DiscreteTrait, Double>> table) {
-            mutationTable.putAll(table);
-            return self();
         }
     }
 }

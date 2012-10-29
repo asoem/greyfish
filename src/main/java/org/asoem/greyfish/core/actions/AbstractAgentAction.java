@@ -25,15 +25,11 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 public abstract class AbstractAgentAction extends AbstractAgentComponent implements AgentAction {
 
     @Nullable
-    private ActionCondition rootCondition = null;
-
+    private ActionCondition rootCondition;
     private Callback<? super AbstractAgentAction, Void> onSuccess;
-
     private int successCount;
-
-    private int stepAtLastSuccess = -1;
-
-    private ActionState actionState = ActionState.INITIAL;
+    private int stepAtLastSuccess;
+    private ActionState actionState;
 
     protected AbstractAgentAction(AbstractAgentAction cloneable, DeepCloner map) {
         super(cloneable, map);
@@ -45,6 +41,9 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
         super(builder);
         this.rootCondition = builder.condition;
         this.onSuccess = builder.onSuccess;
+        this.successCount = builder.successCount;
+        this.stepAtLastSuccess = builder.stepAtLastSuccess;
+        this.actionState = builder.actionState;
     }
 
     @Override
@@ -121,6 +120,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     @Override
     public void initialize() {
         super.initialize();
+        reset();
         if (rootCondition != null)
             rootCondition.initialize();
         successCount = 0;
@@ -175,6 +175,20 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     protected static abstract class AbstractBuilder<A extends AbstractAgentAction, B extends AbstractBuilder<A, B>> extends AbstractAgentComponent.AbstractBuilder<A, B> implements Serializable {
         private ActionCondition condition;
         private Callback<? super AbstractAgentAction, Void> onSuccess = Callbacks.emptyCallback();
+        private int successCount;
+        private int stepAtLastSuccess = -1;
+        private ActionState actionState = ActionState.INITIAL;
+
+        protected AbstractBuilder() {}
+
+        protected AbstractBuilder(AbstractAgentAction action) {
+            super(action);
+            this.condition = action.rootCondition;
+            this.onSuccess = action.onSuccess;
+            this.successCount = action.successCount;
+            this.stepAtLastSuccess = action.stepAtLastSuccess;
+            this.actionState = action.actionState;
+        }
 
         public B executedIf(ActionCondition condition) {
             this.condition = condition;
@@ -185,34 +199,5 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
             this.onSuccess = checkNotNull(expression);
             return self();
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        AbstractAgentAction that = (AbstractAgentAction) o;
-
-        if (stepAtLastSuccess != that.stepAtLastSuccess) return false;
-        if (successCount != that.successCount) return false;
-        if (actionState != that.actionState) return false;
-        if (onSuccess != null ? !onSuccess.equals(that.onSuccess) : that.onSuccess != null) return false;
-        if (rootCondition != null ? !rootCondition.equals(that.rootCondition) : that.rootCondition != null)
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (rootCondition != null ? rootCondition.hashCode() : 0);
-        result = 31 * result + (onSuccess != null ? onSuccess.hashCode() : 0);
-        result = 31 * result + successCount;
-        result = 31 * result + stepAtLastSuccess;
-        result = 31 * result + (actionState != null ? actionState.hashCode() : 0);
-        return result;
     }
 }

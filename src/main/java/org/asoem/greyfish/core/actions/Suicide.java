@@ -44,9 +44,7 @@ public class Suicide extends AbstractAgentAction {
     }
 
     private Object writeReplace() {
-        return new Builder()
-                .executedIf(getCondition())
-                .name(getName());
+        return new Builder(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -60,6 +58,10 @@ public class Suicide extends AbstractAgentAction {
 
     public static final class Builder extends AbstractBuilder<Suicide, Builder> implements Serializable {
         private Builder() {}
+
+        private Builder(Suicide suicide) {
+            super(suicide);
+        }
 
         @Override
         protected Builder self() {
