@@ -22,15 +22,13 @@ public final class Persisters {
      * Create a copy of the given object {@code o} by serializing it with the given {@code Persister}.
      * No guarantees can be made about how exact the copy will be, as this is dependent of the {@code Persister} implementation.
      * @param o the object you wish to copy
-     * @param clazz the clazz of the object
      * @param persister the {@code Persister} to use for the serialization process
      * @param <T> the type of the object
      * @return a copy of {@code o}
      * @throws Exception if some errors occur during the serialization process
      */
-    public static <T> T createCopy(final T o, final Class<T> clazz, final Persister persister) throws Exception {
+    public static <T> T createCopy(final T o, final Persister persister) throws Exception {
         checkNotNull(o);
-        checkNotNull(clazz);
         checkNotNull(persister);
 
         final PipedOutputStream pipedOutputStream = new PipedOutputStream();
@@ -39,7 +37,7 @@ public final class Persisters {
         final Future<T> future = Executors.newSingleThreadExecutor().submit(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                return persister.deserialize(pipedInputStream, clazz);
+                return (T) persister.deserialize(pipedInputStream, o.getClass());
             }
         });
 

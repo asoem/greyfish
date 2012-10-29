@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
