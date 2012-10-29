@@ -47,7 +47,7 @@ dependencies {
 
     runtime group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.0', transitive: true
 
-    testCompile "org.easytesting:fest-assert:1.4", "junit:junit:4.10", "org.mockito:mockito-all:1.9.0"
+    testCompile "org.easytesting:fest-assert-core:2.0M8", "junit:junit:4.10", "org.mockito:mockito-all:1.9.0"
 }
 
 String jgoodies_dependency(String name, String version) {

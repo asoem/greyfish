@@ -55,6 +55,20 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         this(new Builder());
     }
 
+    private FemaleLikeMating(FemaleLikeMating cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.ontology = cloneable.ontology;
+        this.interactionRadius = cloneable.interactionRadius;
+        this.matingProbability = cloneable.matingProbability;
+    }
+
+    protected FemaleLikeMating(AbstractBuilder<? extends FemaleLikeMating, ? extends AbstractBuilder> builder) {
+        super(builder);
+        this.ontology = builder.ontology;
+        this.interactionRadius = builder.sensorRange;
+        this.matingProbability = builder.matingProbability;
+    }
+
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
@@ -140,20 +154,6 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         return new FemaleLikeMating(this, cloner);
     }
 
-    private FemaleLikeMating(FemaleLikeMating cloneable, DeepCloner cloner) {
-        super(cloneable, cloner);
-        this.ontology = cloneable.ontology;
-        this.interactionRadius = cloneable.interactionRadius;
-        this.matingProbability = cloneable.matingProbability;
-    }
-
-    protected FemaleLikeMating(AbstractBuilder<? extends FemaleLikeMating, ? extends AbstractBuilder> builder) {
-        super(builder);
-        this.ontology = builder.ontology;
-        this.interactionRadius = builder.sensorRange;
-        this.matingProbability = builder.matingProbability;
-    }
-
     public static Builder with() {
         return new Builder();
     }
@@ -179,7 +179,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends FemaleLikeMating, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends FemaleLikeMating, B extends AbstractBuilder<C, B>> extends ContractNetInitiatorAction.AbstractBuilder<C, B> {
         protected String ontology = "mate";
         protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);

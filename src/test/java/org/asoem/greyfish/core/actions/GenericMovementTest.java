@@ -6,7 +6,7 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -26,9 +26,9 @@ public class GenericMovementTest {
                 .build();
 
         // when
-        final GenericMovement copy = Persisters.createCopy(genericMovement, GenericMovement.class, JavaPersister.INSTANCE);
+        final GenericMovement copy = Persisters.createCopy(genericMovement, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualTo(genericMovement);
+        assertThat(copy).isEqualsToByComparingFields(genericMovement);
     }
 }

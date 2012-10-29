@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -31,9 +31,9 @@ public class SexualReproductionTest {
                 .build();
 
         // when
-        SexualReproduction copy = Persisters.createCopy(action, SexualReproduction.class, JavaPersister.INSTANCE);
+        SexualReproduction copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualTo(action);
+        assertThat(copy).isEqualsToByComparingFields(action);
     }
 }

@@ -137,9 +137,9 @@ public abstract class AbstractAgentComponent implements AgentComponent {
         // for serialization only
         private Agent agent;
 
-        protected AbstractBuilder(AbstractAgentComponent quantitativeTrait) {
-            this.agent = quantitativeTrait.agent;
-            this.name = quantitativeTrait.name;
+        protected AbstractBuilder(AbstractAgentComponent component) {
+            this.agent = component.agent;
+            this.name = component.name;
         }
 
         protected AbstractBuilder() {

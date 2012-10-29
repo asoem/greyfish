@@ -28,7 +28,7 @@ public class AllCondition extends BranchCondition {
 
     @Override
     public boolean apply(AgentAction action) {
-        for (ActionCondition condition : conditions)
+        for (ActionCondition condition : this)
             if (!condition.apply(action))
                 return false;
         return true;
@@ -39,13 +39,12 @@ public class AllCondition extends BranchCondition {
         return new AllCondition(this, cloner);
     }
 
-    public static AllCondition evaluates(ActionCondition... conditions) { return new Builder().add(conditions).build(); }
+    public static AllCondition evaluates(ActionCondition... conditions) {
+        return new Builder().add(conditions).build(); }
 
-    public static final class Builder extends AbstractBuilder<AllCondition, Builder> {
+    private static final class Builder extends AbstractBuilder<AllCondition, Builder> {
 
-        public Builder(ActionCondition... conditions) {
-            add(conditions);
-        }
+        private Builder() {}
 
         @Override protected Builder self() { return this; }
         @Override protected AllCondition checkedBuild() { return new AllCondition(this); }

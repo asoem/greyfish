@@ -3,14 +3,10 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.simpleframework.xml.ElementList;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
-import static com.google.common.collect.Iterators.unmodifiableIterator;
 import static java.util.Arrays.asList;
 import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
 
@@ -30,20 +25,25 @@ import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
  */
 public abstract class BranchCondition extends AbstractCondition implements Iterable<ActionCondition> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BranchCondition.class);
-
-    @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
-    protected List<ActionCondition> conditions = Lists.newArrayList();
+    private final List<ActionCondition> conditions;
 
     protected BranchCondition(BranchCondition cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
+        this.conditions = Lists.newArrayList();
         for (ActionCondition condition : cloneable.getChildConditions())
             add(cloner.getClone(condition, ActionCondition.class));
     }
 
     public BranchCondition(ActionCondition... conditions) {
+        this.conditions = Lists.newArrayList();
         addAll(Arrays.asList(conditions));
         integrate(conditions);
+    }
+
+    protected BranchCondition(AbstractBuilder<?, ?> builder) {
+        super(builder);
+        this.conditions = Lists.newArrayList();
+        addAll(builder.conditions);
     }
 
     private void integrate(Iterable<? extends ActionCondition> condition2) {
@@ -130,19 +130,6 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
         }
     }
 
-    protected BranchCondition(AbstractBuilder<?, ?> builder) {
-        super(builder);
-        addAll(builder.conditions);
-    }
-
-    @Override
-    public void freeze() {
-        super.freeze();
-        conditions = ImmutableList.copyOf(conditions);
-        if (conditions.isEmpty())
-            LOGGER.debug("BranchCondition '" + getName() + "' has no subconditions");
-    }
-
     protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {
         private final List<ActionCondition> conditions = Lists.newArrayList();
 
@@ -158,7 +145,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
 
     @Override
     public final Iterator<ActionCondition> iterator() {
-        return unmodifiableIterator(conditions.iterator());
+        return conditions.iterator();
     }
 
     @Override

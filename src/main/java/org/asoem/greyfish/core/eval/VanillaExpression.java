@@ -20,13 +20,12 @@ public class VanillaExpression implements Expression {
 
     @Override
     public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
-        evaluator.setResolver(resolver);
-        return evaluator.evaluate();
+        return evaluator.evaluate(resolver);
     }
 
     @Override
     public EvaluationResult evaluate() throws EvaluationException {
-        return evaluator.evaluate();
+        return evaluator.evaluate(null);
     }
 
     @Override

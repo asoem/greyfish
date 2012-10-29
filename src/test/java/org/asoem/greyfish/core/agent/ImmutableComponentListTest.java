@@ -4,7 +4,8 @@ import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
+
 
 /**
  * User: christoph
@@ -19,7 +20,7 @@ public class ImmutableComponentListTest {
         ImmutableComponentList<AgentComponent> list = ImmutableComponentList.of();
 
         // when
-        final ImmutableComponentList copy = Persisters.createCopy(list, ImmutableComponentList.class, JavaPersister.INSTANCE);
+        final ImmutableComponentList copy = Persisters.createCopy(list, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy.size()).isEqualTo(list.size());

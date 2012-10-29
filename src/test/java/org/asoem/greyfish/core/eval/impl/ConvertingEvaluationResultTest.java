@@ -3,7 +3,8 @@ package org.asoem.greyfish.core.eval.impl;
 import org.asoem.greyfish.core.eval.EvaluationResult;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
+
 
 /**
  * User: christoph

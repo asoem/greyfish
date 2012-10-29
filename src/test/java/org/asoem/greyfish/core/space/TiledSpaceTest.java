@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.space;
 
+import com.google.common.collect.Iterables;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import javolution.lang.MathLib;
@@ -11,7 +12,7 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.*;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -37,7 +38,7 @@ public class TiledSpaceTest {
         Tiled tiledSpace = WalledTileSpace.ofSize(width, height);
 
         // then
-        assertThat(tiledSpace.getTiles()).hasSize(width * height);
+        assertThat(Iterables.size(tiledSpace.getTiles())).isEqualTo(width * height);
     }
 
     @Test

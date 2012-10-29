@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -54,7 +54,7 @@ public class SimulationStepPropertyTest {
         property.setAgent(agent);
 
         // when
-        final SimulationStepProperty copy = Persisters.createCopy(property, SimulationStepProperty.class, JavaPersister.INSTANCE);
+        final SimulationStepProperty copy = Persisters.createCopy(property, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy.getName()).isEqualTo(property.getName());

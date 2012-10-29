@@ -4,12 +4,12 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.core.utils.GreyfishExpressionCallback;
-import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -20,9 +20,6 @@ public class GreyfishExpressionCallbackTest {
 
     @Inject
     private GreyfishExpressionFactory expressionFactory;
-
-    @Inject
-    private Persister persister;
 
     public GreyfishExpressionCallbackTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
@@ -35,9 +32,9 @@ public class GreyfishExpressionCallbackTest {
                 = new GreyfishExpressionCallback<Object, Double>(expressionFactory.compile("1.0"), Double.class);
 
         // when
-        final GreyfishExpressionCallback copy = Persisters.createCopy(callback, GreyfishExpressionCallback.class, persister);
+        final GreyfishExpressionCallback copy = Persisters.createCopy(callback, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualTo(callback);
+        assertThat(copy).isEqualsToByComparingFields(callback);
     }
 }

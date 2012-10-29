@@ -7,6 +7,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -17,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 13.09.11
  * Time: 14:09
  */
-public class GreyfishExpression implements Expression {
+public class GreyfishExpression implements Expression, Serializable {
 
     private static final Pattern DOLLAR_FUNCTION_PATTERN = Pattern.compile("\\$\\(([^\\)]+)\\)");
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GreyfishExpression.class);
@@ -55,15 +56,14 @@ public class GreyfishExpression implements Expression {
 
     @Override
     public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
-        evaluator.setResolver(resolver);
-        final EvaluationResult result = evaluator.evaluate();
+        final EvaluationResult result = evaluator.evaluate(resolver);
         LOGGER.debug("{} got evaluated to {} with resolver {}", expression, result, resolver);
         return result;
     }
 
     @Override
     public EvaluationResult evaluate() throws EvaluationException {
-        return evaluator.evaluate();
+        return evaluator.evaluate(null);
     }
 
     private static String parameterizeDollarFunction(String expression) {
@@ -109,4 +109,6 @@ public class GreyfishExpression implements Expression {
     public Evaluator getEvaluator() {
         return evaluator;
     }
+
+    private static final long serialVersionUID = 0;
 }

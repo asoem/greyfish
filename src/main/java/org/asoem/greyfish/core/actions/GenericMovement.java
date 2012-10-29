@@ -12,7 +12,6 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.simpleframework.xml.Element;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -26,10 +25,7 @@ public class GenericMovement extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
 
-    @Element(required = false)
     private Callback<? super GenericMovement, Double> stepSize;
-
-    @Element(required = false)
     private Callback<? super GenericMovement, Double> turningAngle;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -45,8 +41,8 @@ public class GenericMovement extends AbstractAgentAction {
 
     protected GenericMovement(AbstractBuilder<? extends GenericMovement, ? extends AbstractBuilder> builder) {
         super(builder);
-        this.stepSize = builder.speed;
-        this.turningAngle = builder.rotation;
+        this.stepSize = builder.stepSize;
+        this.turningAngle = builder.turningAngle;
     }
 
     @Override
@@ -88,35 +84,8 @@ public class GenericMovement extends AbstractAgentAction {
         return turningAngle;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        GenericMovement that = (GenericMovement) o;
-
-        if (stepSize != null ? !stepSize.equals(that.stepSize) : that.stepSize != null) return false;
-        if (turningAngle != null ? !turningAngle.equals(that.turningAngle) : that.turningAngle != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (stepSize != null ? stepSize.hashCode() : 0);
-        result = 31 * result + (turningAngle != null ? turningAngle.hashCode() : 0);
-        return result;
-    }
-
     private Object writeReplace() {
-        return new Builder()
-                .executedIf(getCondition())
-                .stepSize(stepSize)
-                .turningAngle(turningAngle)
-                .onSuccess(getSuccessCallback())
-                .name(getName());
+        return new Builder(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -126,6 +95,10 @@ public class GenericMovement extends AbstractAgentAction {
 
     public static final class Builder extends AbstractBuilder<GenericMovement, Builder> implements Serializable {
         private Builder() {
+        }
+
+        private Builder(GenericMovement genericMovement) {
+            super(genericMovement);
         }
 
         @Override
@@ -151,21 +124,30 @@ public class GenericMovement extends AbstractAgentAction {
 
     @SuppressWarnings({"UnusedDeclaration"})
     protected static abstract class AbstractBuilder<C extends GenericMovement, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> implements Serializable {
-        private Callback<? super GenericMovement, Double> speed = Callbacks.constant(0.1);
-        private Callback<? super GenericMovement, Double> rotation = new Callback<GenericMovement, Double>() {
+        private Callback<? super GenericMovement, Double> stepSize = Callbacks.constant(0.1);
+        private Callback<? super GenericMovement, Double> turningAngle = new Callback<GenericMovement, Double>() {
             @Override
             public Double apply(GenericMovement caller, Arguments arguments) {
                 return RandomUtils.rnorm(0.0, MathLib.HALF_PI);
             }
         };
 
+        protected AbstractBuilder(GenericMovement genericMovement) {
+            super(genericMovement);
+            this.stepSize = genericMovement.stepSize;
+            this.turningAngle = genericMovement.turningAngle;
+        }
+
+        protected AbstractBuilder() {
+        }
+
         public B turningAngle(Callback<? super GenericMovement, Double> rotation) {
-            this.rotation = checkNotNull(rotation);
+            this.turningAngle = checkNotNull(rotation);
             return self();
         }
 
         public B stepSize(Callback<? super GenericMovement, Double> speedFunction) {
-            this.speed = checkNotNull(speedFunction);
+            this.stepSize = checkNotNull(speedFunction);
             return self();
         }
     }

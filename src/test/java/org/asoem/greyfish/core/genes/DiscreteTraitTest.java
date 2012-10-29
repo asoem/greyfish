@@ -1,14 +1,11 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.withSettings;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -79,18 +76,13 @@ public class DiscreteTraitTest {
                 .addMutation("a", "b", Callbacks.constant(3.0))
                 .build();
         discreteTrait.setAllele("a");
-        final Agent agent = mock(Agent.class, withSettings().serializable());
-        discreteTrait.setAgent(agent);
+        //final Agent agent = mock(Agent.class, withSettings().serializable());
+        //discreteTrait.setAgent(agent);
 
         // when
-        final DiscreteTrait copy = Persisters.createCopy(discreteTrait, DiscreteTrait.class, JavaPersister.INSTANCE);
+        final DiscreteTrait copy = Persisters.createCopy(discreteTrait, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy.getName()).isEqualTo(discreteTrait.getName());
-        assertThat(copy.getInitializationKernel()).isEqualTo(discreteTrait.getInitializationKernel());
-        assertThat(copy.getSegregationKernel()).isEqualTo(discreteTrait.getSegregationKernel());
-        assertThat(copy.getMarkovChain()).isEqualTo(discreteTrait.getMarkovChain());
-        assertThat(copy.getAllele()).isEqualTo(discreteTrait.getAllele());
-        assertThat(copy.getAgent()).isInstanceOf(agent.getClass());
+        assertThat(copy).isEqualsToByComparingFields(discreteTrait);
     }
 }

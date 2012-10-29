@@ -7,35 +7,21 @@ import org.asoem.greyfish.core.eval.*;
 * Date: 21.02.12
 * Time: 16:31
 */
-public class EvaluatorFake implements Evaluator {
-
-    private static final String EQUALIZER = "";
+public enum EvaluatorFake implements Evaluator {
+    INSTANCE;
 
     @Override
-    public EvaluationResult evaluate() throws EvaluationException {
+    public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
         return null;
+    }
+
+    @Override
+    public String getExpression() {
+        return "";
     }
 
     @Override
     public void setExpression(String expression) throws SyntaxException {
     }
 
-    @Override
-    public void setResolver(VariableResolver resolver) {
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        EvaluatorFake that = (EvaluatorFake) o;
-
-        return EQUALIZER.equals(that.EQUALIZER);
-    }
-
-    @Override
-    public int hashCode() {
-        return EQUALIZER.hashCode();
-    }
 }

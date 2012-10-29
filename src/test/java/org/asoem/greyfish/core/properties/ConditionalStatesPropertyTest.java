@@ -2,19 +2,15 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -23,21 +19,13 @@ import static org.fest.assertions.Assertions.assertThat;
  */
 public class ConditionalStatesPropertyTest {
 
-    @Inject
-    private GreyfishExpressionFactory expressionFactory;
-    @Inject
-    private Persister persister;
-
-    public ConditionalStatesPropertyTest() {
-        Guice.createInjector(new CoreModule()).injectMembers(this);
-    }
     @Test
     public void testPersistence() throws Exception {
         // given
         ConditionalStatesProperty statesProperty = ConditionalStatesProperty.with().addState("A", "true").build();
         
         // when
-        ConditionalStatesProperty persistent = Persisters.createCopy(statesProperty, ConditionalStatesProperty.class, persister);
+        ConditionalStatesProperty persistent = Persisters.createCopy(statesProperty, JavaPersister.INSTANCE);
 
         // then
         final Map<String,GreyfishExpression> conditionMap = persistent.getConditionMap();

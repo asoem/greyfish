@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
-import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
@@ -16,7 +15,6 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
 @Tagged("actions")
 public class GenericAction extends AbstractAgentAction {
 
-    @Element
     private Callback<? super GenericAction, Void> callback;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

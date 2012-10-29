@@ -10,6 +10,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -17,15 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetInitiatorAction.class);
-
-    private static enum State {
-        SEND_CFP,
-        WAIT_FOR_PROPOSALS,
-        WAIT_FOR_INFORM,
-        END,
-        NO_RECEIVERS, TIMEOUT
-    }
-
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
     private static final int INFORM_TIMEOUT_STEPS = 1;
 
@@ -223,4 +215,15 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
 
     protected abstract String getOntology();
 
+    protected static abstract class AbstractBuilder<C extends ContractNetInitiatorAction, B extends AbstractBuilder<C, B>> extends FiniteStateAction.AbstractBuilder<C, B> implements Serializable {
+
+    }
+
+    private static enum State {
+        SEND_CFP,
+        WAIT_FOR_PROPOSALS,
+        WAIT_FOR_INFORM,
+        END,
+        NO_RECEIVERS, TIMEOUT
+    }
 }

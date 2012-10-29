@@ -6,7 +6,7 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -24,9 +24,9 @@ public class SuicideTest {
                 .build();
 
         // when
-        final Suicide copy = Persisters.createCopy(suicide, Suicide.class, JavaPersister.INSTANCE);
+        final Suicide copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualTo(suicide);
+        assertThat(copy).isEqualsToByComparingFields(suicide);
     }
 }

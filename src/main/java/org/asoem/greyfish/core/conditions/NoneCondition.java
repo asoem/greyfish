@@ -22,7 +22,7 @@ public class NoneCondition extends BranchCondition {
 
     @Override
     public boolean apply(AgentAction action) {
-        for (ActionCondition condition : conditions)
+        for (ActionCondition condition : this)
             if (condition.apply(action))
                 return false;
         return true;

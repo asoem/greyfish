@@ -6,7 +6,7 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -26,9 +26,9 @@ public class MaleLikeMatingTest {
                 .build();
 
         // when
-        final MaleLikeMating copy = Persisters.createCopy(action, MaleLikeMating.class, JavaPersister.INSTANCE);
+        final MaleLikeMating copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualTo(action);
+        assertThat(copy).isEqualsToByComparingFields(action);
     }
 }

@@ -1,15 +1,11 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.utils.GreyfishExpressionCallback;
-import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * User: christoph
@@ -18,27 +14,16 @@ import static org.fest.assertions.Assertions.assertThat;
  */
 public class ClonalReproductionTest {
 
-    @Inject
-    private Persister persister;
-
-    @Inject
-    private GreyfishExpressionFactory expressionFactory;
-    
-    public ClonalReproductionTest() {
-        Guice.createInjector(new CoreModule()).injectMembers(this);
-    }
-
     @Test
     public void testPersistence() throws Exception {
         // given
-        final ClonalReproduction action = new ClonalReproduction();
-        final GreyfishExpressionCallback<Object, Integer> nClones = GreyfishExpressionCallback.create(expressionFactory.compile("42"), Integer.class);
-        action.setnClones(nClones);
-        
+        final ClonalReproduction action = ClonalReproduction.with()
+                .nClones(Callbacks.constant(5))
+                .build();
         // when
-        final ClonalReproduction copy = Persisters.createCopy(action, ClonalReproduction.class, persister);
+        final ClonalReproduction copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy.getnClones()).isEqualTo(nClones);
+        assertThat(copy).isEqualsToByComparingFields(action);
     }
 }

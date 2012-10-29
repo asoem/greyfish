@@ -22,7 +22,6 @@ import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
-import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,16 +43,10 @@ public class SexualReproduction extends AbstractAgentAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
-    @Element(name = "spermSupplier")
     private Callback<? super SexualReproduction, ? extends List<? extends Chromosome>> spermSupplier;
-
-    @Element(name = "clutchSize")
     private Callback<? super SexualReproduction, Integer> clutchSize;
-
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
-
     private Callback<? super SexualReproduction, Double> spermFitnessEvaluator;
-
     private int offspringCount;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -190,37 +183,6 @@ public class SexualReproduction extends AbstractAgentAction {
 
     public Callback<? super SexualReproduction, Integer> getClutchSize() {
         return clutchSize;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        SexualReproduction that = (SexualReproduction) o;
-
-        if (offspringCount != that.offspringCount) return false;
-        if (clutchSize != null ? !clutchSize.equals(that.clutchSize) : that.clutchSize != null) return false;
-        if (spermFitnessEvaluator != null ? !spermFitnessEvaluator.equals(that.spermFitnessEvaluator) : that.spermFitnessEvaluator != null)
-            return false;
-        if (spermSelectionStrategy != null ? !spermSelectionStrategy.equals(that.spermSelectionStrategy) : that.spermSelectionStrategy != null)
-            return false;
-        if (spermSupplier != null ? !spermSupplier.equals(that.spermSupplier) : that.spermSupplier != null)
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (spermSupplier != null ? spermSupplier.hashCode() : 0);
-        result = 31 * result + (clutchSize != null ? clutchSize.hashCode() : 0);
-        result = 31 * result + (spermSelectionStrategy != null ? spermSelectionStrategy.hashCode() : 0);
-        result = 31 * result + (spermFitnessEvaluator != null ? spermFitnessEvaluator.hashCode() : 0);
-        result = 31 * result + offspringCount;
-        return result;
     }
 
     private Object writeReplace() {

@@ -4,7 +4,8 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
-import org.simpleframework.xml.Element;
+
+import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -13,15 +14,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 15.05.12
  * Time: 12:13
  */
-public class GreyfishExpressionCallback<C, T> implements Callback<C, T> {
+public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Serializable {
 
-    @Element(name = "expression")
     private final GreyfishExpression expression;
-
-    @Element(name = "returnType")
     private final Class<? super T> returnType;
 
-    public GreyfishExpressionCallback(@Element(name = "expression") GreyfishExpression expression, @Element(name = "returnType") Class<? super T> returnType) {
+    public GreyfishExpressionCallback(GreyfishExpression expression, Class<? super T> returnType) {
         this.returnType = checkNotNull(returnType);
         this.expression = checkNotNull(expression);
     }
@@ -68,4 +66,6 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T> {
         result = 31 * result + returnType.hashCode();
         return result;
     }
+
+    private static final long serialVersionUID = 0;
 }

@@ -6,22 +6,29 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import java.io.Serializable;
+
 public abstract class FiniteStateAction extends AbstractAgentAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FiniteStateAction.class);
 
     private int statefulExecutionCount;
+    private Object nextStateKey = initialState();
+    private boolean endStateReached = false;
 
-    protected FiniteStateAction(AbstractBuilder<?, ?> builder) {
+    protected FiniteStateAction(AbstractBuilder<? extends FiniteStateAction, ? extends AbstractBuilder> builder) {
         super(builder);
+        this.statefulExecutionCount = builder.statefulExecutionCount;
+        this.nextStateKey = builder.nextStateKey;
+        this.endStateReached = builder.endStateReached;
     }
 
     protected FiniteStateAction(FiniteStateAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
+        this.statefulExecutionCount = cloneable.statefulExecutionCount;
+        this.nextStateKey = cloneable.nextStateKey;
+        this.endStateReached = cloneable.endStateReached;
     }
-
-    private Object nextStateKey = initialState();
-    private boolean endStateReached = false;
 
     @Override
     protected final ActionState proceed(Simulation simulation) {
@@ -95,5 +102,20 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
 
     public int getStatefulExecutionCount() {
         return statefulExecutionCount;
+    }
+
+    protected static abstract class AbstractBuilder<C extends FiniteStateAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> implements Serializable {
+        private int statefulExecutionCount;
+        private Object nextStateKey;
+        private boolean endStateReached;
+
+        protected AbstractBuilder() {}
+
+        protected AbstractBuilder(FiniteStateAction action) {
+            super(action);
+            this.statefulExecutionCount = action.statefulExecutionCount;
+            this.nextStateKey = action.nextStateKey;
+            this.endStateReached = action.endStateReached;
+        }
     }
 }

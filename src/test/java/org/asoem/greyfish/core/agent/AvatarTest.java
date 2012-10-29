@@ -8,7 +8,7 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

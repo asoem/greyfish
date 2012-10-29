@@ -136,7 +136,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         }
     }
 
-    protected static abstract class AbstractBuilder<C extends ResourceProvisionAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends ResourceProvisionAction, B extends AbstractBuilder<C, B>> extends ContractNetParticipantAction.AbstractBuilder<C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction, Double> provides;
 

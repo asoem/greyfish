@@ -15,11 +15,11 @@ import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.simpleframework.xml.Element;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -29,14 +29,9 @@ public class MaleLikeMating extends ContractNetParticipantAction {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(MaleLikeMating.class);
 
-    @Element(name = "ontology", required = false)
     private String ontology;
-
-    @Element(name = "matingProbability", required = false)
     private Callback<? super MaleLikeMating, Double> matingProbability;
-
     private int matingCount;
-
     private boolean proposalSent;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -48,12 +43,16 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.matingProbability = cloneable.matingProbability;
+        this.matingCount = cloneable.matingCount;
+        this.proposalSent = cloneable.proposalSent;
     }
 
     private MaleLikeMating(AbstractBuilder<? extends MaleLikeMating, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.matingProbability = builder.matingProbabilityExpression;
+        this.matingCount = builder.matingCount;
+        this.proposalSent = builder.proposalSent;
     }
 
     @Override
@@ -133,40 +132,8 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         return matingCount;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        MaleLikeMating that = (MaleLikeMating) o;
-
-        if (matingCount != that.matingCount) return false;
-        if (proposalSent != that.proposalSent) return false;
-        if (matingProbability != null ? !matingProbability.equals(that.matingProbability) : that.matingProbability != null)
-            return false;
-        if (ontology != null ? !ontology.equals(that.ontology) : that.ontology != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (ontology != null ? ontology.hashCode() : 0);
-        result = 31 * result + (matingProbability != null ? matingProbability.hashCode() : 0);
-        result = 31 * result + matingCount;
-        result = 31 * result + (proposalSent ? 1 : 0);
-        return result;
-    }
-
     private Object writeReplace() {
-        return new Builder()
-                .executedIf(getCondition())
-                .matingProbability(matingProbability)
-                .ontology(ontology)
-                .onSuccess(getSuccessCallback())
-                .name(getName());
+        return new Builder(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -175,6 +142,12 @@ public class MaleLikeMating extends ContractNetParticipantAction {
     }
 
     public static final class Builder extends AbstractBuilder<MaleLikeMating, Builder> {
+        private Builder(MaleLikeMating maleLikeMating) {
+            super(maleLikeMating);
+        }
+
+        private Builder() {}
+
         @Override
         protected Builder self() {
             return this;
@@ -196,9 +169,21 @@ public class MaleLikeMating extends ContractNetParticipantAction {
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<C extends MaleLikeMating, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<C extends MaleLikeMating, B extends AbstractBuilder<C, B>> extends ContractNetParticipantAction.AbstractBuilder<C, B> implements Serializable {
         private String ontology = "mate";
-        public Callback<? super MaleLikeMating, Double> matingProbabilityExpression = Callbacks.constant(1.0);
+        private Callback<? super MaleLikeMating, Double> matingProbabilityExpression = Callbacks.constant(1.0);
+        private int matingCount;
+        private boolean proposalSent;
+
+        protected AbstractBuilder(MaleLikeMating maleLikeMating) {
+            super(maleLikeMating);
+            this.ontology = maleLikeMating.ontology;
+            this.matingProbabilityExpression = maleLikeMating.matingProbability;
+            this.matingCount = maleLikeMating.matingCount;
+            this.proposalSent = maleLikeMating.proposalSent;
+        }
+
+        protected AbstractBuilder() {}
 
         public B matingProbability(Callback<? super MaleLikeMating, Double> matingProbability) {
             this.matingProbabilityExpression = checkNotNull(matingProbability);

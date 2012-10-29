@@ -15,7 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Set;
 
 import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -54,7 +54,7 @@ public class BasicSimulationTemplateTest {
                 .hasSize(1);
         assertThat(agents)
                 .hasSize(2)
-                .excludes(new Object[] {null});
+                .doesNotContainNull();
     }
 
     @Test
