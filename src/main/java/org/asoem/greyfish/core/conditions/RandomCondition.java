@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
@@ -21,7 +20,7 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(AgentAction action) {
+    public boolean evaluate() {
         return Math.random() < probability;
     }
 

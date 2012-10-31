@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.utils.base.CompareOperator;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -29,7 +28,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
     }
 
     @Override
-    public boolean apply(AgentAction action) {
+    public boolean evaluate() {
         return compareOperator.apply(getCompareValue(), value);
     }
 

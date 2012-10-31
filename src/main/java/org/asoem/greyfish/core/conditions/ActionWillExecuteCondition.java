@@ -19,8 +19,8 @@ public class ActionWillExecuteCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(AgentAction action) {
-        return parameterAction.evaluateCondition(simulation());
+    public boolean evaluate() {
+        return parameterAction.evaluateCondition();
     }
 
     @Override

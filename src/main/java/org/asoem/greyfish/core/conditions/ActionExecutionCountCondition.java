@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -57,7 +56,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @Override
-    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+    public ActionExecutionCountCondition deepClone(DeepCloner cloner) {
         return new ActionExecutionCountCondition(this, cloner);
     }
 

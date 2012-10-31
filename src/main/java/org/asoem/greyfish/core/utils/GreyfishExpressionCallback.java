@@ -29,18 +29,9 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Seriali
         this.expression = checkNotNull(expression);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T apply(C caller, Arguments arguments) {
         return (T) expression.evaluateForContext(caller, arguments).as(returnType);
-    }
-
-    public static <C, T> GreyfishExpressionCallback<C, T> create(GreyfishExpression expression, Class<T> returnType) {
-        return new GreyfishExpressionCallback<C, T>(expression, returnType);
-    }
-
-    public static <C, T> GreyfishExpressionCallback<C, T> create(GreyfishExpression expression, TypeToken<T> returnType) {
-        return new GreyfishExpressionCallback<C, T>(expression, returnType);
     }
 
     public GreyfishExpression getExpression() {
@@ -65,6 +56,14 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Seriali
         int result = expression.hashCode();
         result = 31 * result + returnType.hashCode();
         return result;
+    }
+
+    public static <C, T> GreyfishExpressionCallback<C, T> create(GreyfishExpression expression, Class<T> returnType) {
+        return new GreyfishExpressionCallback<C, T>(expression, returnType);
+    }
+
+    public static <C, T> GreyfishExpressionCallback<C, T> create(GreyfishExpression expression, TypeToken<T> returnType) {
+        return new GreyfishExpressionCallback<C, T>(expression, returnType);
     }
 
     private static final long serialVersionUID = 0;

@@ -55,6 +55,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
      * @see #getAgent()
      */
     public Agent agent() throws IllegalStateException {
+        final Agent agent = getAgent();
         checkState(agent != null, "This component is not attached to an agent");
         return agent;
     }
@@ -87,7 +88,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + ']';
+        return this.getClass().getSimpleName() + "[" + getName() + ']';
     }
 
     @Override
@@ -96,6 +97,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Override
     public boolean isFrozen() {
+        final Agent agent = getAgent();
         return agent != null && agent.isFrozen();
     }
 
@@ -105,8 +107,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
 
     @Override
     public void configure(ConfigurationHandler e) {
-        checkState(agent != null);
-
+        checkState(getAgent() != null);
         e.setWriteProtection(new Supplier<Boolean>() {
             @Override
             public Boolean get() {

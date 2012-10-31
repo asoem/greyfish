@@ -3,7 +3,6 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
@@ -29,9 +28,9 @@ public class AnyCondition extends BranchCondition {
     }
 
     @Override
-    public boolean apply(AgentAction action) {
+    public boolean evaluate() {
         for (ActionCondition condition : this)
-            if (condition.apply(action))
+            if (condition.evaluate())
                 return true;
         return false;
     }

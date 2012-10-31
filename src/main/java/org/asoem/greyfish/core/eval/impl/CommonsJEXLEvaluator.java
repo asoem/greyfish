@@ -36,27 +36,27 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
             .put("E", MathLib.E)
             .build();
 
-    private final Expression expression;
+    private final Expression jexlCompiledExpression;
 
     public CommonsJEXLEvaluator(String expression) {
         checkNotNull(expression);
-        this.expression = JEXL_ENGINE.createExpression(prepare(expression));
+        this.jexlCompiledExpression = JEXL_ENGINE.createExpression(prepare(expression));
         assert expression != null;
     }
 
     @Override
     public EvaluationResult evaluate(VariableResolver resolver) {
         checkNotNull(resolver);
-        final Object result = expression.evaluate(addGlobalVariables(resolver));
+        final Object result = jexlCompiledExpression.evaluate(addGlobalVariables(resolver));
         return new ConvertingEvaluationResult(result);
     }
 
     @Override
     public String getExpression() {
-        return expression.getExpression();
+        return jexlCompiledExpression.getExpression();
     }
 
-    private String prepare(String expression) {
+    private static String prepare(String expression) {
         // This will lift some function in the global namespace and allows users to write 'fun' instead of 'ns:fun'.
         return expression
                 .replaceAll("\\$\\(([^\\)]+)\\)", "fish:\\$($1)")
@@ -64,7 +64,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
                 .replaceAll("((min|max|abs|sin|cos|tan|log|log10)\\([^\\)]+\\))", "math:$1");
     }
 
-    private JEXLResolverAdaptor addGlobalVariables(VariableResolver resolver) {
+    private static JEXLResolverAdaptor addGlobalVariables(VariableResolver resolver) {
         assert resolver != null;
 
         final VariableResolver variableResolver = VariableResolvers.forMap(GLOBAL_VARIABLES);
@@ -76,7 +76,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
     @Override
     public String toString() {
         return Objects.toStringHelper(CommonsJEXLEvaluator.class)
-                .addValue(expression)
+                .addValue(jexlCompiledExpression)
                 .toString();
     }
 
@@ -87,14 +87,14 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
         CommonsJEXLEvaluator that = (CommonsJEXLEvaluator) o;
 
-        if (!expression.getExpression().equals(that.expression.getExpression())) return false;
+        if (!jexlCompiledExpression.getExpression().equals(that.jexlCompiledExpression.getExpression())) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return expression.getExpression().hashCode();
+        return jexlCompiledExpression.getExpression().hashCode();
     }
 
     private static class SerializedForm implements Serializable {
@@ -110,7 +110,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
     }
 
     Object writeReplace() {
-        return new SerializedForm(expression == null ? null : expression.getExpression());
+        return new SerializedForm(jexlCompiledExpression == null ? null : jexlCompiledExpression.getExpression());
     }
 
     private static class JEXLResolverAdaptor extends ForwardingVariableResolver implements JexlContext, Serializable {

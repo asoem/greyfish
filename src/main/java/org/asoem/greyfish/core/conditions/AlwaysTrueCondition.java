@@ -1,7 +1,5 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 public class AlwaysTrueCondition extends LeafCondition {
@@ -20,12 +18,12 @@ public class AlwaysTrueCondition extends LeafCondition {
     }
 
     @Override
-    public boolean apply(AgentAction action) {
+    public boolean evaluate() {
         return true;
     }
 
     @Override
-    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+    public AlwaysTrueCondition deepClone(DeepCloner cloner) {
         return new AlwaysTrueCondition(this, cloner);
     }
 

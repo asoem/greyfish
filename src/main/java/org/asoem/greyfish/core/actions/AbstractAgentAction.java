@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.agent.AgentNodes;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.Callback;
@@ -47,8 +46,8 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     }
 
     @Override
-    public final boolean evaluateCondition(Simulation simulation) {
-        return rootCondition == null || rootCondition.apply(this);
+    public final boolean evaluateCondition() {
+        return rootCondition == null || rootCondition.evaluate();
     }
 
     /**
@@ -104,7 +103,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     @Override
     public ActionState checkPreconditions() {
         checkState(actionState == INITIAL, "Action not is state %s", INITIAL);
-        final boolean preconditionsMet = evaluateCondition(simulation());
+        final boolean preconditionsMet = evaluateCondition();
         if (preconditionsMet)
             setState(PRECONDITIONS_MET);
         else
@@ -137,9 +136,9 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     @Override
     public void setCondition(@Nullable ActionCondition rootCondition) {
         this.rootCondition = rootCondition;
-        if (rootCondition != null)
-            for (AgentComponent component : AgentNodes.<AgentComponent>postOrderIteration(rootCondition))
-                component.setAgent(this.getAgent());
+        if (rootCondition != null) {
+            rootCondition.setAction(this);
+        }
     }
 
     @Override

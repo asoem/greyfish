@@ -21,7 +21,7 @@ public class SuicideTest {
         // given
         Suicide suicide = Suicide.builder()
                 .name("foo")
-                .executedIf(AlwaysTrueCondition.builder().name("foo").build())
+                .executedIf(AlwaysTrueCondition.builder().build())
                 .onSuccess(Callbacks.emptyCallback())
                 .build();
 

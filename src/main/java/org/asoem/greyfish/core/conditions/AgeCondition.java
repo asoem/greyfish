@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
@@ -19,7 +18,7 @@ public class AgeCondition extends IntCompareCondition {
     }
 
     @Override
-    public AbstractAgentComponent deepClone(DeepCloner cloner) {
+    public AgeCondition deepClone(DeepCloner cloner) {
         return new AgeCondition(this, cloner);
     }
 

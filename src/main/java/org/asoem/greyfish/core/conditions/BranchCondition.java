@@ -5,17 +5,17 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-import java.util.Arrays;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
 import static java.util.Arrays.asList;
-import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
 
 
 /**
@@ -34,34 +34,14 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
             add(cloner.getClone(condition, ActionCondition.class));
     }
 
-    public BranchCondition(ActionCondition... conditions) {
-        this.conditions = Lists.newArrayList();
-        addAll(Arrays.asList(conditions));
-        integrate(conditions);
-    }
-
     protected BranchCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.conditions = Lists.newArrayList();
         addAll(builder.conditions);
     }
 
-    private void integrate(Iterable<? extends ActionCondition> condition2) {
-        for (ActionCondition actionCondition : condition2) {
-            integrate(actionCondition);
-        }
-    }
-
-    private void integrate(ActionCondition... conditions) {
-        for (ActionCondition condition : conditions) {
-            condition.setAgent(getAgent());
-            condition.setParent(this);
-        }
-    }
-
-    private void disintegrate(ActionCondition condition) {
-        condition.setParent(null);
-        condition.setAgent(null);
+    protected BranchCondition() {
+        this.conditions = Lists.newArrayList();
     }
 
     @Override
@@ -82,9 +62,10 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     }
 
     public void addAll(Iterable<? extends ActionCondition> childConditions) {
-        checkMutability(this);
-        integrate(childConditions);
-        Iterables.addAll(conditions, childConditions);
+        checkState(!isFrozen());
+        for (ActionCondition childCondition : childConditions) {
+            add(childCondition);
+        }
     }
 
     public int indexOf(ActionCondition currentCondition) {
@@ -93,40 +74,53 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
 
     @Override
     public void add(ActionCondition newChild) {
-        checkNotNull(newChild);
-        checkMutability(this);
-        integrate(newChild);
-        conditions.add(newChild);
+        checkState(!isFrozen());
+        insert(newChild, conditions.size());
     }
 
     @Override
     public void insert(ActionCondition condition, int index) {
+        checkState(!isFrozen());
         checkNotNull(condition);
-        checkMutability(this);
-        integrate(condition);
         conditions.add(index, condition);
+        condition.setParent(this);
     }
 
     public ActionCondition remove(int index) {
-        checkMutability(this);
+        checkState(!isFrozen());
         checkPositionIndex(index, conditions.size());
         ActionCondition ret = conditions.remove(index);
-        disintegrate(ret);
+        ret.setParent(null);
         return ret;
     }
 
     @Override
     public void remove(ActionCondition condition) {
-        checkMutability(this);
-        checkArgument(conditions.contains(condition));
-        boolean remove = conditions.remove(condition);
-        assert remove;
+        checkState(!isFrozen());
+        remove(conditions.indexOf(condition));
     }
 
     @Override
     public void removeAll() {
+        checkState(!isFrozen());
         for (ActionCondition condition : conditions) {
             remove(condition);
+        }
+    }
+
+    @Override
+    public void setAction(AgentAction action) {
+        super.setAction(action);
+        for (ActionCondition condition : conditions) {
+            condition.setAction(action);
+        }
+    }
+
+    @Override
+    public void setParent(@Nullable ActionCondition parent) {
+        super.setParent(parent);
+        for (ActionCondition condition : conditions) {
+            condition.setParent(this);
         }
     }
 
