@@ -2,7 +2,8 @@ package org.asoem.greyfish.utils.math;
 
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -22,7 +23,7 @@ public class ImmutableMarkovChainTest {
         
         final String endState = chain.apply(chain.apply(chain.apply(initialState)));
         
-        assertThat(endState).isEqualTo("C");
+        assertThat(endState, is("C"));
     }
 
     @Test
@@ -35,6 +36,6 @@ public class ImmutableMarkovChainTest {
 
         // then
         final String endState = chain.apply(chain.apply("A"));
-        assertThat(endState).isEqualTo("C");
+        assertThat(endState, is("C"));
     }
 }
