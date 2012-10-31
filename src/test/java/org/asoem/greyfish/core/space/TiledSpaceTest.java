@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.collect.Iterables;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import javolution.lang.MathLib;
@@ -12,7 +11,8 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.*;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  * User: christoph
@@ -38,7 +38,7 @@ public class TiledSpaceTest {
         Tiled tiledSpace = WalledTileSpace.ofSize(width, height);
 
         // then
-        assertThat(Iterables.size(tiledSpace.getTiles())).isEqualTo(width * height);
+        assertThat(tiledSpace.getTiles(), is(iterableWithSize(width * height)));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(0.0, 0.0));
+        assertThat(maxTransition, is(equalTo((Point2D) ImmutablePoint2D.at(0.0, 0.0))));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), 0.0));
+        assertThat(maxTransition, is(equalTo((Point2D) ImmutablePoint2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), 0.0))));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(0.0, Math.nextAfter(1.0, -Double.MIN_VALUE)));
+        assertThat(maxTransition, is(equalTo((Point2D) ImmutablePoint2D.at(0.0, Math.nextAfter(1.0, -Double.MIN_VALUE)))));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(0.0, 0.0));
+        assertThat(maxTransition, is(equalTo((Point2D) ImmutablePoint2D.at(0.0, 0.0))));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(ImmutablePoint2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), Math.nextAfter(1.0, -Double.MIN_VALUE)));
+        assertThat(maxTransition, is(equalTo((Point2D) ImmutablePoint2D.at(Math.nextAfter(1.0, -Double.MIN_VALUE), Math.nextAfter(1.0, -Double.MIN_VALUE)))));
     }
 
     @Test
@@ -127,7 +127,7 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        assertThat(maxTransition).isEqualTo(destination);
+        assertThat(maxTransition, is(equalTo(destination)));
     }
 
     /*
@@ -158,8 +158,8 @@ public class TiledSpaceTest {
         final Point2D maxTransition = space.maxTransition(origin, destination);
 
         // then
-        final ImmutablePoint2D expected = ImmutablePoint2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE));
-        assertThat(maxTransition).isEqualTo(expected);
+        final Point2D expected = ImmutablePoint2D.at(4.835470690767176, Math.nextAfter(10.0, -Double.MIN_VALUE));
+        assertThat(maxTransition, is(equalTo(expected)));
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -176,8 +176,8 @@ public class TiledSpaceTest {
 
         // then
         final MotionObject2D projection = agent.getProjection();
-        assertThat(projection).isNotNull();
-        assertThat(projection.didCollide()).isTrue();
+        assertThat(projection, is(notNullValue()));
+        assertThat(projection.didCollide(), is(true));
     }
 
 
@@ -195,17 +195,17 @@ public class TiledSpaceTest {
 
         // then
         final MotionObject2D projection = agent.getProjection();
-        assertThat(projection).isNotNull();
-        assertThat(projection.didCollide()).isFalse();
+        assertThat(projection, is(notNullValue()));
+        assertThat(projection.didCollide(), is(false));
     }
 
     @Test
     public void testFindVisibleNeighbours() throws Exception {
         // given
         final WalledTileSpace<MovingProjectable2D> space = WalledTileSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
-        final MovingProjectable2DImpl focal = new MovingProjectable2DImpl();
-        final MovingProjectable2DImpl neighbour1 = new MovingProjectable2DImpl();
-        final MovingProjectable2DImpl neighbour2 = new MovingProjectable2DImpl();
+        final MovingProjectable2D focal = new MovingProjectable2DImpl();
+        final MovingProjectable2D neighbour1 = new MovingProjectable2DImpl();
+        final MovingProjectable2D neighbour2 = new MovingProjectable2DImpl();
 
         space.insertObject(focal, 1.5, 0.5, 0);
         space.insertObject(neighbour1, 0.5, 0.5, 0);
@@ -215,6 +215,6 @@ public class TiledSpaceTest {
         final Iterable<MovingProjectable2D> visibleNeighbours = space.getVisibleNeighbours(focal, 2.0);
 
         // then
-        assertThat(visibleNeighbours).containsOnly(neighbour2);
+        assertThat(visibleNeighbours, contains(neighbour2));
     }
 }

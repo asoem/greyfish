@@ -11,7 +11,4 @@ public interface Evaluator {
     EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException;
 
     String getExpression();
-
-    void setExpression(String expression) throws SyntaxException;
-
 }

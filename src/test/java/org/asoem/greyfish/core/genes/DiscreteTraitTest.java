@@ -5,7 +5,9 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -29,9 +31,9 @@ public class DiscreteTraitTest {
         final String mutated3 = discreteTrait.mutate("c");
 
         // then
-        assertThat(mutated1).isEqualTo("b");
-        assertThat(mutated2).isEqualTo("c");
-        assertThat(mutated3).isEqualTo("c");
+        assertThat(mutated1, is("b"));
+        assertThat(mutated2, is("c"));
+        assertThat(mutated3, is("c"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -83,6 +85,6 @@ public class DiscreteTraitTest {
         final DiscreteTrait copy = Persisters.createCopy(discreteTrait, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualsToByComparingFields(discreteTrait);
+        assertThat(copy, is(equalTo(discreteTrait)));
     }
 }

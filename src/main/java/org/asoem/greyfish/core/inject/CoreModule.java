@@ -3,10 +3,7 @@ package org.asoem.greyfish.core.inject;
 import com.google.inject.AbstractModule;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.asoem.greyfish.core.eval.Evaluator;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
-import org.asoem.greyfish.core.eval.GreyfishVariableFactory;
+import org.asoem.greyfish.core.eval.*;
 import org.asoem.greyfish.core.eval.impl.CachedGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.eval.impl.CommonsJEXLEvaluator;
 import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
@@ -43,7 +40,12 @@ public class CoreModule extends AbstractModule {
         bind(Persister.class).to(SimpleXMLPersister.class);
 
         // GreyfishExpression
-        bind(Evaluator.class).to(CommonsJEXLEvaluator.class);
+        bind(EvaluatorFactory.class).toInstance(new EvaluatorFactory() {
+            @Override
+            public Evaluator createEvaluator(String expression) throws SyntaxException {
+                return new CommonsJEXLEvaluator(expression);
+            }
+        });
         bind(GreyfishVariableAccessorFactory.class).toInstance(
                 new CachedGreyfishVariableAccessorFactory(
                         new DefaultGreyfishVariableAccessorFactory()));

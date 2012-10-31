@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
@@ -21,7 +20,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -51,7 +52,7 @@ public class ParallelizedSimulationTest {
         simulation.nextStep();
 
         // then
-        assertThat(Iterables.size(simulation.getAgents())).isEqualTo(2);
+        assertThat(simulation.getAgents(), hasSize(2));
     }
 
     @Test
@@ -105,8 +106,8 @@ public class ParallelizedSimulationTest {
         inOrder.verify(agent).initialize();
         inOrder.verify(initializer).initialize(agent);
 
-        assertThat(simulation.getAgents()).containsOnly(agent);
-        assertThat(simulation.getAgents(testPopulation)).containsOnly(agent);
+        assertThat(simulation.getAgents(), contains(agent));
+        assertThat(simulation.getAgents(testPopulation), contains(agent));
         verify(agent).activate(any(ActiveSimulationContext.class));
     }
 
@@ -138,8 +139,8 @@ public class ParallelizedSimulationTest {
         simulation.nextStep();
 
         // then
-        assertThat(simulation.getAgents()).isEmpty();
-        assertThat(simulation.getAgents(testPopulation)).isEmpty();
-        assertThat(agent.isActive()).isFalse();
+        assertThat(simulation.getAgents(), is(empty()));
+        assertThat(simulation.getAgents(testPopulation), is(emptyIterable()));
+        assertThat(agent.isActive(), is(false));
     }
 }

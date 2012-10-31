@@ -4,10 +4,12 @@ import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import static org.asoem.greyfish.utils.base.Callbacks.constant;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -31,6 +33,6 @@ public class DoubleGeneTest {
         final QuantitativeTrait copy = Persisters.createCopy(doubleGene, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualsToByComparingFields(doubleGene);
+        MatcherAssert.assertThat(copy, is(equalTo(doubleGene)));
     }
 }

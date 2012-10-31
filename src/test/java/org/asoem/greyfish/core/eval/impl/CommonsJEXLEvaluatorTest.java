@@ -1,11 +1,12 @@
 package org.asoem.greyfish.core.eval.impl;
 
-import com.google.inject.Guice;
 import org.asoem.greyfish.core.eval.Evaluator;
-import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.eval.VariableResolvers;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * User: christoph
@@ -14,20 +15,15 @@ import static org.fest.assertions.api.Assertions.assertThat;
  */
 public class CommonsJEXLEvaluatorTest {
 
-    public CommonsJEXLEvaluatorTest() {
-        Guice.createInjector(new CoreModule());
-    }
-
     @Test
     public void testDollarFunction() throws Exception {
-        Evaluator evaluator = new CommonsJEXLEvaluator();
-
-        evaluator.setExpression("$('testVal', 'hello')");
+        // given
+        Evaluator evaluator = new CommonsJEXLEvaluator("$('testVal', 'hello')");
 
         // when
-        final double ret = evaluator.evaluate(null).asDouble();
+        final double ret = evaluator.evaluate(VariableResolvers.emptyResolver()).asDouble();
 
         // then
-        assertThat(ret).isEqualTo(42.0);
+        assertThat(ret, is(equalTo(42.0)));
     }
 }

@@ -3,7 +3,8 @@ package org.asoem.greyfish.core.eval.impl;
 import org.asoem.greyfish.core.eval.EvaluationResult;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 /**
@@ -21,7 +22,7 @@ public class ConvertingEvaluationResultTest {
         final double b = result.asDouble();
 
         // then
-        assertThat(b).isEqualTo(42.0);
+        assertThat(b, is(42.0));
     }
 
     @Test
@@ -33,7 +34,7 @@ public class ConvertingEvaluationResultTest {
         final boolean b = result.asBoolean();
 
         // then
-        assertThat(b).isTrue();
+        assertThat(b, is(true));
     }
 
     @Test
@@ -45,7 +46,7 @@ public class ConvertingEvaluationResultTest {
         final double b = result.asDouble();
 
         // then
-        assertThat(b).isEqualTo(42.0);
+        assertThat(b, is(42.0));
     }
 
     @Test
@@ -57,6 +58,6 @@ public class ConvertingEvaluationResultTest {
         final boolean b = result.asBoolean();
 
         // then
-        assertThat(b).isTrue();
+        assertThat(b, is(true));
     }
 }

@@ -6,7 +6,9 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -27,6 +29,6 @@ public class SuicideTest {
         final Suicide copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualsToByComparingFields(suicide);
+        assertThat(copy, is(equalTo(suicide)));
     }
 }

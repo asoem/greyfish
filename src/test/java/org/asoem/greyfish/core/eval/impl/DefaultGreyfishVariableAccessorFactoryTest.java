@@ -4,11 +4,13 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -103,8 +105,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         Object ret = converter.get("this.agent.age", AgentAction.class).apply(action);
 
         // then
-        assertThat(ret).isInstanceOf(Integer.class);
-        assertThat(ret).isEqualTo(23);
+        MatcherAssert.assertThat(ret, is(equalTo((Object)23)));
     }
 
     @SuppressWarnings({"NullableProblems"})

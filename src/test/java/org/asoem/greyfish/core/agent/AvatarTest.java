@@ -8,7 +8,9 @@ import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -35,8 +37,7 @@ public class AvatarTest {
         final DeepCloner clonerMock = mock(DeepCloner.class);
         final Agent cloneMock = mock(Agent.class);
         given(clonerMock.getClone(any(Agent.class), any(Class.class))).willReturn(cloneMock);
-        final Agent agent = mock(Agent.class);
-        final Avatar avatar = new Avatar(agent);
+        final Avatar avatar = new Avatar(cloneMock);
         avatar.setProjection(mock(MotionObject2D.class));
 
         // when
@@ -44,8 +45,8 @@ public class AvatarTest {
 
         // then
         verify(clonerMock).addClone(eq(avatar), any(Avatar.class));
-        verify(clonerMock).getClone(agent, Agent.class);
-        assertThat(clone.delegate()).isEqualTo(cloneMock);
+        verify(clonerMock).getClone(cloneMock, Agent.class);
+        assertThat(clone, is(equalTo(avatar)));
     }
 
     @Test

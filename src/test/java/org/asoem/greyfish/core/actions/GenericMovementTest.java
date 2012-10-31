@@ -6,7 +6,9 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -29,6 +31,6 @@ public class GenericMovementTest {
         final GenericMovement copy = Persisters.createCopy(genericMovement, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualsToByComparingFields(genericMovement);
+        assertThat(copy, is(equalTo(genericMovement)));
     }
 }

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 /**
  * User: christoph
@@ -10,15 +9,15 @@ import com.google.inject.Provider;
  */
 public class VanillaExpressionFactory implements ExpressionFactory {
 
-    private final Provider<Evaluator> evaluatorProvider;
+    private final EvaluatorFactory evaluatorProvider;
 
     @Inject
-    public VanillaExpressionFactory(Provider<Evaluator> evaluatorProvider) {
-        this.evaluatorProvider = evaluatorProvider;
+    public VanillaExpressionFactory(EvaluatorFactory evaluatorFactory) {
+        this.evaluatorProvider = evaluatorFactory;
     }
 
     @Override
     public Expression compile(String expression) {
-        return new VanillaExpression(expression, evaluatorProvider.get());
+        return new VanillaExpression(expression, evaluatorProvider);
     }
 }

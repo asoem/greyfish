@@ -27,10 +27,13 @@ public class GreyfishExpression implements Expression, Serializable {
     private final String expression;
 
     @Inject
-    public GreyfishExpression(@Assisted String expression, Evaluator evaluator) {
-        this.evaluator = checkNotNull(evaluator);
-        this.expression = checkNotNull(expression);
-        this.evaluator.setExpression(parameterizeDollarFunction(expression));
+    public GreyfishExpression(@Assisted String expression, EvaluatorFactory evaluatorFactory) {
+        checkNotNull(expression);
+        checkNotNull(evaluatorFactory);
+
+        this.evaluator = evaluatorFactory.createEvaluator(parameterizeDollarFunction(expression));
+        checkNotNull(evaluator);
+        this.expression = expression;
     }
 
     public EvaluationResult evaluateForContext(Object context) throws EvaluationException {
@@ -81,10 +84,7 @@ public class GreyfishExpression implements Expression, Serializable {
 
     @Override
     public String toString() {
-        return "GreyfishExpression{" +
-                "evaluator=" + evaluator +
-                ", expression='" + expression + '\'' +
-                '}';
+        return "GreyfishExpression{"+ evaluator + " evaluating '" + expression + "'}";
     }
 
     @Override
@@ -95,7 +95,6 @@ public class GreyfishExpression implements Expression, Serializable {
         GreyfishExpression that = (GreyfishExpression) o;
 
         return evaluator.equals(that.evaluator) && expression.equals(that.expression);
-
     }
 
     @Override

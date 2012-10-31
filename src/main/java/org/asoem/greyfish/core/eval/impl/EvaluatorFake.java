@@ -1,6 +1,9 @@
 package org.asoem.greyfish.core.eval.impl;
 
-import org.asoem.greyfish.core.eval.*;
+import org.asoem.greyfish.core.eval.EvaluationException;
+import org.asoem.greyfish.core.eval.EvaluationResult;
+import org.asoem.greyfish.core.eval.Evaluator;
+import org.asoem.greyfish.core.eval.VariableResolver;
 
 /**
 * User: christoph
@@ -20,8 +23,9 @@ public enum EvaluatorFake implements Evaluator {
         return "";
     }
 
-    @Override
-    public void setExpression(String expression) throws SyntaxException {
-    }
 
+    @Override
+    public String toString() {
+        return "EvaluatorFake";
+    }
 }

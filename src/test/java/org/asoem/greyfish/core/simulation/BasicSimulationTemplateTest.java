@@ -8,6 +8,8 @@ import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.persistence.Persister;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -15,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Set;
 
 import static org.asoem.greyfish.utils.space.MutableObject2D.locatedAt;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -50,11 +52,8 @@ public class BasicSimulationTemplateTest {
         Iterable<Agent> agents = simulationTemplate.getPlaceholder();
 
         // then
-        assertThat(prototypes)
-                .hasSize(1);
-        assertThat(agents)
-                .hasSize(2)
-                .doesNotContainNull();
+        MatcherAssert.assertThat(prototypes, hasSize(1));
+        MatcherAssert.assertThat(agents, Matchers.<Iterable<Agent>>both(is(Matchers.<Agent>iterableWithSize(2))).and(not(contains(nullValue()))));
     }
 
     @Test

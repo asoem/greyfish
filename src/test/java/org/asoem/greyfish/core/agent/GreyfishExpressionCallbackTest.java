@@ -9,7 +9,9 @@ import org.asoem.greyfish.core.utils.GreyfishExpressionCallback;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * User: christoph
@@ -32,9 +34,9 @@ public class GreyfishExpressionCallbackTest {
                 = new GreyfishExpressionCallback<Object, Double>(expressionFactory.compile("1.0"), Double.class);
 
         // when
-        final GreyfishExpressionCallback copy = Persisters.createCopy(callback, JavaPersister.INSTANCE);
+        final GreyfishExpressionCallback<Object, Double> copy = Persisters.createCopy(callback, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualsToByComparingFields(callback);
+        assertThat(copy, is(equalTo(callback)));
     }
 }

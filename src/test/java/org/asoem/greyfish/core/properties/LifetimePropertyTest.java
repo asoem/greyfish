@@ -7,7 +7,9 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -34,7 +36,7 @@ public class LifetimePropertyTest {
 
         // then
         verify(function, times(1)).apply(any(LifetimeProperty.class), any(Arguments.class));
-        assertThat(value2).isEqualTo(value1);
+        assertThat(value2, is(equalTo(value1)));
     }
 
     @SuppressWarnings("unchecked")
@@ -42,7 +44,7 @@ public class LifetimePropertyTest {
     public void testInitialization() throws Exception {
         // given
         final Callback<LifetimeProperty<Object>, Object> function = mock(Callback.class);
-        given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class), mock(Object.class));
+        given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class));
         final LifetimeProperty<Object> lifetimeProperty = LifetimeProperty.builder().callback(function).build();
 
         // when
@@ -53,7 +55,7 @@ public class LifetimePropertyTest {
 
         // then
         verify(function, times(2)).apply(any(LifetimeProperty.class), any(Arguments.class));
-        assertThat(value2).isNotEqualTo(value1);
+        assertThat(value2, is(equalTo(value1)));
     }
 
     @Test
@@ -68,7 +70,7 @@ public class LifetimePropertyTest {
         final LifetimeProperty copy = Persisters.createCopy(property, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy.getName()).isEqualTo(property.getName());
-        assertThat(copy.getCallback()).isEqualTo(copy.getCallback());
+        assertThat(copy.getName(), is(equalTo(property.getName())));
+        assertThat(copy.getCallback(), is(equalTo(copy.getCallback())));
     }
 }

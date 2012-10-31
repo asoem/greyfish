@@ -4,7 +4,8 @@ import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 
 /**
@@ -23,6 +24,6 @@ public class ImmutableComponentListTest {
         final ImmutableComponentList copy = Persisters.createCopy(list, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy.size()).isEqualTo(list.size());
+        assertThat(copy, hasSize(list.size()));
     }
 }

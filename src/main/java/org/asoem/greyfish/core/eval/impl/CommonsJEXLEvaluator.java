@@ -12,7 +12,6 @@ import org.asoem.greyfish.utils.math.RandomUtils;
 import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * User: christoph
@@ -22,7 +21,12 @@ import static com.google.common.base.Preconditions.checkState;
 public class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
     private static final JexlEngine JEXL_ENGINE = new JexlEngine();
-
+    static {
+        JEXL_ENGINE.setFunctions(ImmutableMap.<String, Object>of(
+                "fish", GreyfishVariableFactory.class,
+                "math", Math.class,
+                "rand", RandomUtils.class));
+    }
     private static final ImmutableMap<String, Object> GLOBAL_VARIABLES = ImmutableMap.<String, Object>builder()
             .put("PI", MathLib.PI)
             .put("HALF_PI", MathLib.HALF_PI)
@@ -32,26 +36,19 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
             .put("E", MathLib.E)
             .build();
 
-    static {
-        JEXL_ENGINE.setFunctions(ImmutableMap.<String, Object>of(
-                "fish", GreyfishVariableFactory.class,
-                "math", Math.class,
-                "rand", RandomUtils.class));
-    }
-
-    private Expression expression;
+    private final Expression expression;
 
     public CommonsJEXLEvaluator(String expression) {
-        setExpression(expression);
-    }
-
-    public CommonsJEXLEvaluator() {
+        checkNotNull(expression);
+        this.expression = JEXL_ENGINE.createExpression(prepare(expression));
+        assert expression != null;
     }
 
     @Override
     public EvaluationResult evaluate(VariableResolver resolver) {
-        checkState(expression != null, "No expression has been defined");
-        return new ConvertingEvaluationResult(expression.evaluate(createResolver(resolver)));
+        checkNotNull(resolver);
+        final Object result = expression.evaluate(addGlobalVariables(resolver));
+        return new ConvertingEvaluationResult(result);
     }
 
     @Override
@@ -59,13 +56,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
         return expression.getExpression();
     }
 
-    @Override
-    public void setExpression(String expression) throws SyntaxException {
-        checkNotNull(expression);
-        this.expression = JEXL_ENGINE.createExpression(prepare(expression));
-    }
-
-    private String prepare(String expression) {        
+    private String prepare(String expression) {
         // This will lift some function in the global namespace and allows users to write 'fun' instead of 'ns:fun'.
         return expression
                 .replaceAll("\\$\\(([^\\)]+)\\)", "fish:\\$($1)")
@@ -73,8 +64,8 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
                 .replaceAll("((min|max|abs|sin|cos|tan|log|log10)\\([^\\)]+\\))", "math:$1");
     }
 
-    private JEXLResolverAdaptor createResolver(VariableResolver resolver) {
-        checkNotNull(resolver);
+    private JEXLResolverAdaptor addGlobalVariables(VariableResolver resolver) {
+        assert resolver != null;
 
         final VariableResolver variableResolver = VariableResolvers.forMap(GLOBAL_VARIABLES);
         variableResolver.append(resolver);
@@ -82,15 +73,28 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
         return new JEXLResolverAdaptor(variableResolver);
     }
 
-    private static boolean expressionsAreEqual(Expression expression, CommonsJEXLEvaluator that) {
-        return expression.getExpression().equals(that.expression.getExpression());
-    }
-
     @Override
     public String toString() {
         return Objects.toStringHelper(CommonsJEXLEvaluator.class)
                 .addValue(expression)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CommonsJEXLEvaluator that = (CommonsJEXLEvaluator) o;
+
+        if (!expression.getExpression().equals(that.expression.getExpression())) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return expression.getExpression().hashCode();
     }
 
     private static class SerializedForm implements Serializable {

@@ -24,7 +24,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.asoem.greyfish.utils.base.Callbacks.constant;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatingInteractionTest {
@@ -83,6 +84,6 @@ public class MatingInteractionTest {
         Simulations.runFor(simulation, 4);
 
         // then
-        assertThat(receiverAction.getReceivedSperm().size()).isEqualTo(1);
+        assertThat(receiverAction.getReceivedSperm(), hasSize(1));
     }
 }

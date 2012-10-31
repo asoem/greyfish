@@ -3,9 +3,11 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -30,6 +32,6 @@ public class QuantitativeTraitTest {
         final QuantitativeTrait copy = Persisters.createCopy(quantitativeTrait, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualsToByComparingFields(quantitativeTrait);
+        MatcherAssert.assertThat(copy, is(equalTo(quantitativeTrait)));
     }
 }

@@ -5,7 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
@@ -26,6 +27,6 @@ public class AllConditionTest {
         AllCondition clone = allCondition.deepClone(clonerMock);
 
         // then
-        assertThat(clone).containsOnly(mock, mock);
+        assertThat(clone, contains(mock, mock));
     }
 }

@@ -2,9 +2,11 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 
 /**
  * User: christoph
@@ -24,7 +26,7 @@ public class ChromosomeImplTest {
         final Chromosome recombined = a.recombined(b);
 
         // then
-        assertThat(recombined.getGenes()).containsOnly(bar);
-        assertThat(recombined.getParents()).containsOnly(11, 12);
+        assertThat(recombined.getGenes(), Matchers.<Gene<?>>contains(bar));
+        assertThat(recombined.getParents(), contains(11, 12));
     }
 }

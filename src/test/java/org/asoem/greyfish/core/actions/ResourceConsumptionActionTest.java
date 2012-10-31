@@ -6,7 +6,9 @@ import org.junit.Test;
 
 import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.asoem.greyfish.utils.base.Callbacks.emptyCallback;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -29,6 +31,6 @@ public class ResourceConsumptionActionTest {
         final ResourceConsumptionAction copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy).isEqualsToByComparingFields(action);
+        assertThat(copy, is(equalTo(action)));
     }
 }

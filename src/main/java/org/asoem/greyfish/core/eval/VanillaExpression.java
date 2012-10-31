@@ -12,10 +12,9 @@ public class VanillaExpression implements Expression {
     private final String expression;
     private final Evaluator evaluator;
 
-    public VanillaExpression(String expression, Evaluator evaluator) {
+    public VanillaExpression(String expression, EvaluatorFactory evaluator) {
         this.expression = expression;
-        this.evaluator = evaluator;
-        this.evaluator.setExpression(expression);
+        this.evaluator = evaluator.createEvaluator(expression);
     }
 
     @Override
