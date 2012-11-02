@@ -38,11 +38,12 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
 
     protected AbstractAgentAction(AbstractBuilder<? extends AbstractAgentAction, ? extends AbstractBuilder> builder) {
         super(builder);
-        this.rootCondition = builder.condition;
         this.onSuccess = builder.onSuccess;
         this.successCount = builder.successCount;
         this.stepAtLastSuccess = builder.stepAtLastSuccess;
         this.actionState = builder.actionState;
+
+        setCondition(builder.condition);
     }
 
     @Override

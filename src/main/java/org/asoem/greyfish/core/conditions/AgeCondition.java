@@ -9,11 +9,11 @@ public class AgeCondition extends IntCompareCondition {
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AgeCondition() {}
 
-    public AgeCondition(AgeCondition condition, DeepCloner map) {
+    private AgeCondition(AgeCondition condition, DeepCloner map) {
         super(condition, map);
     }
 
-    private AgeCondition(AbstractBuilder<?,?> builder) {
+    private AgeCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
     }
 

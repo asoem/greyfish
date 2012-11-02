@@ -10,12 +10,12 @@ public abstract class LeafCondition extends AbstractCondition {
 
     protected LeafCondition() {}
 
-    protected LeafCondition(AbstractBuilder<?,?> builder) {
-        super(builder);
-	}
+    protected LeafCondition(LeafCondition cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+    }
 
-    public LeafCondition(LeafCondition condition, DeepCloner map) {
-        super(condition, map);
+    protected LeafCondition(AbstractBuilder<? extends LeafCondition, ? extends AbstractBuilder> builder) {
+        super(builder);
     }
 
     @Override
@@ -51,5 +51,8 @@ public abstract class LeafCondition extends AbstractCondition {
     @Override
     public void insert(ActionCondition condition, int index) {
         throw new UnsupportedOperationException();
+    }
+
+    protected static abstract class AbstractBuilder<C extends AbstractCondition, B extends AbstractBuilder<C, B>> extends AbstractCondition.AbstractBuilder<C, B> {
     }
 }

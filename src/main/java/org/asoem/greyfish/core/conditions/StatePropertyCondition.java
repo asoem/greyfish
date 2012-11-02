@@ -31,13 +31,13 @@ public class StatePropertyCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected StatePropertyCondition(AbstractBuilder<?,?> builder) {
+    private StatePropertyCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.state = builder.state;
         this.stateProperty = builder.property;
     }
 
-    protected StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
+    private StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
         this.stateProperty = map.getClone(condition.stateProperty, FiniteStateProperty.class);
         this.state = condition.state;

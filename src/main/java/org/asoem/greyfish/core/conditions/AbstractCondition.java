@@ -26,12 +26,11 @@ public abstract class AbstractCondition implements ActionCondition {
 
     protected AbstractCondition() {}
 
-    protected AbstractCondition(AbstractBuilder<? extends AbstractCondition, ? extends AbstractBuilder> builder) {
-    }
-
     protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
         cloner.addClone(cloneable, this);
-        this.parentCondition = cloner.getClone(cloneable.parentCondition, ActionCondition.class);
+    }
+
+    public AbstractCondition(AbstractBuilder<? extends AbstractCondition, ? extends AbstractBuilder> builder) {
     }
 
     @Override
@@ -41,14 +40,8 @@ public abstract class AbstractCondition implements ActionCondition {
     }
 
     @Override
-    public final boolean isRootCondition() {
-        return parentCondition == null;
-    }
-
-    @Override
-    @Nullable
-    public AgentAction getAction() {
-        return action;
+    public ActionCondition getParent() {
+        return parentCondition;
     }
 
     @Override
@@ -59,14 +52,25 @@ public abstract class AbstractCondition implements ActionCondition {
     }
 
     @Override
+    @Nullable
+    public AgentAction getAction() {
+        return action;
+    }
+
+    @Override
+    public final boolean isRootCondition() {
+        return getParent() == null;
+    }
+
+    @Override
     public void setAgent(@Nullable Agent agent) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public final ActionCondition getRoot() {
-        return (parentCondition != null)
-                ? parentCondition.getRoot()
+        return (getParent() != null)
+                ? getParent().getRoot()
                 : this;
     }
 
@@ -86,6 +90,7 @@ public abstract class AbstractCondition implements ActionCondition {
     @Override
     @Nullable
     public Agent getAgent() {
+        final AgentAction action = getAction();
         return action != null ? action.getAgent() : null;
     }
 
@@ -107,6 +112,7 @@ public abstract class AbstractCondition implements ActionCondition {
 
     @Override
     public boolean isFrozen() {
+        final AgentAction action = getAction();
         return action != null && action.isFrozen();
     }
 
@@ -128,6 +134,6 @@ public abstract class AbstractCondition implements ActionCondition {
 
     @Override
     public String toString() {
-        return parentCondition + "<-" + this.getClass().getSimpleName();
+        return getParent() + "<-" + this.getClass().getSimpleName();
     }
 }

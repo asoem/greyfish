@@ -14,7 +14,7 @@ public class RandomCondition extends LeafCondition {
     @Element(name="probability")
     private double probability;
 
-    public RandomCondition(RandomCondition condition, DeepCloner map) {
+    private RandomCondition(RandomCondition condition, DeepCloner map) {
         super(condition, map);
         this.probability = condition.probability;
     }
@@ -49,7 +49,7 @@ public class RandomCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected RandomCondition(AbstractBuilder<?,?> builder) {
+    private RandomCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
     }
 

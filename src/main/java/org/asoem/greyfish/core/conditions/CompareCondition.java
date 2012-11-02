@@ -27,6 +27,12 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
         this.value = condition.value;
     }
 
+    protected CompareCondition(AbstractBuilder<?,?,T> builder) {
+        super(builder);
+        this.compareOperator = builder.compareOperator;
+        this.value = builder.value;
+    }
+
     @Override
     public boolean evaluate() {
         return compareOperator.apply(getCompareValue(), value);
@@ -52,12 +58,6 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
                 return Arrays.asList(CompareOperator.values());
             }
         });
-    }
-
-    protected CompareCondition(AbstractBuilder<?,?,T> builder) {
-        super(builder);
-        this.compareOperator = builder.compareOperator;
-        this.value = builder.value;
     }
 
     protected static abstract class AbstractBuilder<C extends CompareCondition<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<C,T> {

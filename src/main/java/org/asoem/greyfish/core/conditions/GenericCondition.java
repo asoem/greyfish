@@ -21,7 +21,7 @@ public class GenericCondition extends LeafCondition {
         this.callback = callback;
     }
 
-    protected GenericCondition(GenericCondition genericCondition, DeepCloner cloner) {
+    private GenericCondition(GenericCondition genericCondition, DeepCloner cloner) {
         super(genericCondition, cloner);
         this.callback = genericCondition.callback;
     }

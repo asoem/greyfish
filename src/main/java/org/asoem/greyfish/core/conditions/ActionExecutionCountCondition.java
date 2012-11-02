@@ -18,12 +18,12 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
         this(new Builder());
     }
 
-    protected ActionExecutionCountCondition(AbstractBuilder<?, ?> builder) {
+    private ActionExecutionCountCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.action = builder.action;
     }
 
-    public ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
+    private ActionExecutionCountCondition(ActionExecutionCountCondition condition, DeepCloner map) {
         super(condition, map);
         this.action = map.getClone(condition.action, AgentAction.class);
     }

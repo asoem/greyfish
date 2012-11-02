@@ -10,8 +10,8 @@ import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
@@ -23,25 +23,18 @@ import static java.util.Arrays.asList;
  * @author christoph
  *
  */
-public abstract class BranchCondition extends AbstractCondition implements Iterable<ActionCondition> {
+public abstract class BranchCondition extends AbstractCondition {
 
-    private final List<ActionCondition> conditions;
+    private final List<ActionCondition> conditions = Lists.newArrayList();
 
     protected BranchCondition(BranchCondition cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
-        this.conditions = Lists.newArrayList();
         for (ActionCondition condition : cloneable.getChildConditions())
             add(cloner.getClone(condition, ActionCondition.class));
     }
 
     protected BranchCondition(AbstractBuilder<?, ?> builder) {
-        super(builder);
-        this.conditions = Lists.newArrayList();
         addAll(builder.conditions);
-    }
-
-    protected BranchCondition() {
-        this.conditions = Lists.newArrayList();
     }
 
     @Override
@@ -57,7 +50,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void initialize() {
         super.initialize();
-        for (ActionCondition condition : conditions)
+        for (ActionCondition condition : getChildConditions())
             condition.initialize();
     }
 
@@ -69,27 +62,27 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     }
 
     public int indexOf(ActionCondition currentCondition) {
-        return conditions.indexOf(currentCondition);
+        return getChildConditions().indexOf(currentCondition);
     }
 
     @Override
     public void add(ActionCondition newChild) {
         checkState(!isFrozen());
-        insert(newChild, conditions.size());
+        insert(newChild, getChildConditions().size());
     }
 
     @Override
     public void insert(ActionCondition condition, int index) {
         checkState(!isFrozen());
         checkNotNull(condition);
-        conditions.add(index, condition);
+        getChildConditions().add(index, condition);
         condition.setParent(this);
     }
 
     public ActionCondition remove(int index) {
         checkState(!isFrozen());
-        checkPositionIndex(index, conditions.size());
-        ActionCondition ret = conditions.remove(index);
+        checkPositionIndex(index, getChildConditions().size());
+        ActionCondition ret = getChildConditions().remove(index);
         ret.setParent(null);
         return ret;
     }
@@ -97,13 +90,13 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void remove(ActionCondition condition) {
         checkState(!isFrozen());
-        remove(conditions.indexOf(condition));
+        remove(getChildConditions().indexOf(condition));
     }
 
     @Override
     public void removeAll() {
         checkState(!isFrozen());
-        for (ActionCondition condition : conditions) {
+        for (ActionCondition condition : getChildConditions()) {
             remove(condition);
         }
     }
@@ -111,7 +104,7 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void setAction(AgentAction action) {
         super.setAction(action);
-        for (ActionCondition condition : conditions) {
+        for (ActionCondition condition : getChildConditions()) {
             condition.setAction(action);
         }
     }
@@ -119,27 +112,14 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void setParent(@Nullable ActionCondition parent) {
         super.setParent(parent);
-        for (ActionCondition condition : conditions) {
+        for (ActionCondition condition : getChildConditions()) {
             condition.setParent(this);
         }
     }
 
-    protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {
-        private final List<ActionCondition> conditions = Lists.newArrayList();
-
-        protected T add(ActionCondition condition) { condition.add(checkNotNull(condition)); return self(); }
-        protected T add(ActionCondition... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
-        protected T addAll(Iterable<? extends ActionCondition> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
-    }
-
     @Override
     public final Iterable<AgentComponent> children() {
-        return Collections.<AgentComponent>unmodifiableList(conditions);
-    }
-
-    @Override
-    public final Iterator<ActionCondition> iterator() {
-        return conditions.iterator();
+        return Collections.<AgentComponent>unmodifiableList(getChildConditions());
     }
 
     @Override
@@ -160,5 +140,20 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
         int result = super.hashCode();
         result = 31 * result + conditions.hashCode();
         return result;
+    }
+
+    protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> implements Serializable {
+        private final List<ActionCondition> conditions = Lists.newArrayList();
+
+        protected AbstractBuilder() {
+        }
+
+        protected AbstractBuilder(BranchCondition branchCondition) {
+            addAll(branchCondition.conditions);
+        }
+
+        protected T add(ActionCondition condition) { condition.add(checkNotNull(condition)); return self(); }
+        protected T add(ActionCondition... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
+        protected T addAll(Iterable<? extends ActionCondition> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
     }
 }

@@ -6,6 +6,11 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical OR operator.
  * @author christoph
@@ -14,22 +19,17 @@ import org.asoem.greyfish.utils.base.Tagged;
 @Tagged("conditions")
 public class AnyCondition extends BranchCondition {
 
-    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public AnyCondition() {
-        this(new Builder());
-    }
-
-    protected AnyCondition(AbstractBuilder<?,?> builder) {
+    private AnyCondition(Builder builder) {
         super(builder);
     }
 
-    public AnyCondition(AnyCondition condition, DeepCloner map) {
+    private AnyCondition(AnyCondition condition, DeepCloner map) {
         super(condition, map);
     }
 
     @Override
     public boolean evaluate() {
-        for (ActionCondition condition : this)
+        for (ActionCondition condition : getChildConditions())
             if (condition.evaluate())
                 return true;
         return false;
@@ -40,8 +40,42 @@ public class AnyCondition extends BranchCondition {
         return new AnyCondition(this, cloner);
     }
 
-    public static final class Builder extends AbstractBuilder<AnyCondition,Builder> {
+    private Object writeReplace() {
+        return new Builder(this);
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static AnyCondition evaluates(ActionCondition... conditions) {
+        return new Builder().add(conditions).build();
+    }
+
+    private static final class Builder extends BranchCondition.AbstractBuilder<AnyCondition,Builder> implements Serializable {
+        private Builder() {
+        }
+
+        private Builder(AnyCondition anyCondition) {
+            super(anyCondition);
+        }
+
         @Override protected Builder self() { return this; }
         @Override public AnyCondition checkedBuild() { return new AnyCondition(this); }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }

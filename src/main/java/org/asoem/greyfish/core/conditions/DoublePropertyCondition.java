@@ -24,12 +24,12 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
         return new DoublePropertyCondition(this, cloner);
     }
 
-    protected DoublePropertyCondition(AbstractBuilder<?,?> builder) {
+    private DoublePropertyCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.doubleProperty = builder.doubleProperty;
     }
 
-    protected DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
+    private DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
         super(condition, map);
         this.doubleProperty = map.getClone(condition.doubleProperty, DoubleProperty.class);
     }

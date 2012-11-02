@@ -17,6 +17,7 @@ public interface ActionCondition extends AgentComponent {
 	List<ActionCondition> getChildConditions();
     ActionCondition getRoot();
     void setParent(@Nullable ActionCondition parent);
+    ActionCondition getParent();
 
     void insert(ActionCondition condition, int index);
     void add(ActionCondition condition);

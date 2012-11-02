@@ -13,7 +13,7 @@ public class ActionWillExecuteCondition extends LeafCondition {
 
     private final AgentAction parameterAction;
 
-    public ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
+    private ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
         super(condition, map);
         this.parameterAction = map.getClone(condition.parameterAction, AgentAction.class);
     }
@@ -28,7 +28,7 @@ public class ActionWillExecuteCondition extends LeafCondition {
         return new ActionWillExecuteCondition(this, cloner);
     }
 
-    protected ActionWillExecuteCondition(AbstractBuilder<?,?> builder) {
+    private ActionWillExecuteCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.parameterAction = builder.parameterAction;
     }
