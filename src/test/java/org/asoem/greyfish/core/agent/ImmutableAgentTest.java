@@ -54,7 +54,7 @@ public class ImmutableAgentTest {
         ImmutableAgent agent = ImmutableAgent.builder(population).build();
 
         // when
-        agent.addGene(gene);
+        agent.addTrait(gene);
 
         // then
         // UnsupportedOperationException
@@ -88,7 +88,7 @@ public class ImmutableAgentTest {
     public void testGetGene() throws Exception {
         // given
         given(gene.getName()).willReturn("foo");
-        given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
+        given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
         ImmutableAgent agent = ImmutableAgent.builder(population).addTraits(gene).build();
 
         // when

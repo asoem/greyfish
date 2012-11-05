@@ -72,8 +72,6 @@ public abstract class AbstractAgentComponent implements AgentComponent {
     @Override
     public void setAgent(@Nullable Agent agent) {
         this.agent = agent;
-        for (AgentComponent component : children())
-            component.setAgent(agent);
     }
 
     public void setName(String name) {

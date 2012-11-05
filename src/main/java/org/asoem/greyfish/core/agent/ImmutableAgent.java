@@ -1,11 +1,10 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.simpleframework.xml.Element;
+
+import java.util.List;
 
 
 /**
@@ -16,25 +15,13 @@ import org.simpleframework.xml.Element;
  */
 public class ImmutableAgent extends AbstractAgent {
 
-    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private ImmutableAgent(@Element(name = "properties") ComponentList<AgentProperty<?>> properties,
-                           @Element(name = "actions") ComponentList<AgentAction> actions,
-                           @Element(name = "traits") ComponentList<AgentTrait<?>> agentTraitList,
-                           AgentInitializationFactory factory) {
-        super(properties, actions, agentTraitList, factory);
+    private ImmutableAgent(ImmutableAgent agent, DeepCloner cloner) {
+        super(agent, cloner);
         freeze();
     }
 
-    private ImmutableAgent(ImmutableAgent agent, DeepCloner cloner) {
-        super(agent, cloner);
-    }
-
     private ImmutableAgent(Builder builder) {
-        super(ImmutableComponentList.copyOf(builder.properties),
-                ImmutableComponentList.copyOf(builder.actions),
-                ImmutableComponentList.copyOf(builder.traits),
-                builder.agentInitializationFactory);
-        setPopulation(builder.population);
+        super(builder);
         freeze();
     }
 
@@ -54,18 +41,14 @@ public class ImmutableAgent extends AbstractAgent {
         return true;
     }
 
-    @Override
-    public boolean addGene(AgentTrait<?> gene) {
-        throw new UnsupportedOperationException();
-    }
-
     public static Builder builder(Population population) {
         return new Builder(population);
     }
 
     public static class Builder extends AbstractAgent.AbstractBuilder<ImmutableAgent, Builder> {
         private Builder(Population population) {
-            super(population);
+            super(population, createDefaultInitializationFactory());
+
         }
 
         @Override
@@ -78,6 +61,25 @@ public class ImmutableAgent extends AbstractAgent {
         @Override
         protected Builder self() {
             return this;
+        }
+
+        private static AgentInitializationFactory createDefaultInitializationFactory() {
+            return new AgentInitializationFactory() {
+                @Override
+                public ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions) {
+                    return new DefaultActionExecutionStrategy(actions);
+                }
+
+                @Override
+                public <T extends AgentComponent> ComponentList<T> createComponentList(Iterable<T> elements) {
+                    return ImmutableComponentList.copyOf(elements);
+                }
+
+                @Override
+                public AgentMessageBox createMessageBox() {
+                    return new FixedSizeMessageBox();
+                }
+            };
         }
     }
 }

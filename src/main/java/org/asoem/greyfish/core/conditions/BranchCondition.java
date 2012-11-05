@@ -6,7 +6,7 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
@@ -118,28 +118,8 @@ public abstract class BranchCondition extends AbstractCondition {
     }
 
     @Override
-    public final Iterable<AgentComponent> children() {
-        return Collections.<AgentComponent>unmodifiableList(getChildConditions());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        BranchCondition that = (BranchCondition) o;
-
-        if (!conditions.equals(that.conditions)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + conditions.hashCode();
-        return result;
+    public final Iterable<AgentNode> children() {
+        return Collections.<AgentNode>unmodifiableList(getChildConditions());
     }
 
     protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> implements Serializable {

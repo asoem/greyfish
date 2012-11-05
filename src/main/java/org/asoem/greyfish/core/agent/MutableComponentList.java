@@ -18,11 +18,11 @@ import java.util.List;
  * Date: 18.09.11
  * Time: 15:53
  */
-class MutableComponentList<E extends AgentComponent> extends AbstractComponentList<E> {
+class MutableComponentList<E extends AgentComponent> extends AbstractComponentList<E> implements Serializable {
 
     private final AugmentedList<E> delegate;
 
-    MutableComponentList(Iterable<? extends E> components) {
+    private MutableComponentList(Iterable<? extends E> components) {
         delegate = AugmentedLists.newAugmentedArrayList(components);
     }
 
@@ -35,6 +35,10 @@ class MutableComponentList<E extends AgentComponent> extends AbstractComponentLi
                 return (E) cloner.getClone(e);
             }
         }));
+    }
+
+    public MutableComponentList() {
+        delegate = AugmentedLists.newAugmentedArrayList();
     }
 
     @Override

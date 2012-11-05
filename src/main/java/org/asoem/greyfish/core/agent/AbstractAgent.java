@@ -24,7 +24,6 @@ import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.MotionObject2D;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -77,32 +76,6 @@ abstract class AbstractAgent implements Agent {
 
     private Set<Integer> parents = Collections.emptySet();
 
-    protected AbstractAgent(ComponentList<AgentProperty<?>> properties,
-                            ComponentList<AgentAction> actions,
-                            ComponentList<AgentTrait<?>> agentTraitList,
-                            AgentInitializationFactory factory) {
-        this.properties = checkNotNull(properties);
-        this.actions = checkNotNull(actions);
-        this.agentTraitList = checkNotNull(agentTraitList);
-        this.agentInitializationFactory = checkNotNull(factory);
-
-        this.actionExecutionStrategy = checkNotNull(agentInitializationFactory.createStrategy(actions));
-        this.inBox = checkNotNull(agentInitializationFactory.createMessageBox());
-
-        initComponents();
-    }
-
-    private void initComponents() {
-        for (AgentComponent component : children())
-            component.setAgent(this);
-    }
-
-    @Commit
-    private void commit() {
-        initComponents();
-    }
-
-    @SuppressWarnings("unchecked")
     protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner cloner) {
         cloner.addClone(abstractAgent, this);
         // clone
@@ -113,6 +86,25 @@ abstract class AbstractAgent implements Agent {
         this.population = abstractAgent.population;
         this.agentInitializationFactory = abstractAgent.agentInitializationFactory;
         // reconstruct
+        this.actionExecutionStrategy = checkNotNull(agentInitializationFactory.createStrategy(actions));
+        this.inBox = checkNotNull(agentInitializationFactory.createMessageBox());
+    }
+
+    protected AbstractAgent(AbstractBuilder<? extends AbstractAgent, ? extends AbstractBuilder> builder) {
+        this.agentInitializationFactory = checkNotNull(builder.agentInitializationFactory);
+        this.properties = agentInitializationFactory.createComponentList(builder.properties);
+        for (AgentProperty property : builder.properties) {
+            property.setAgent(this);
+        }
+        this.actions = agentInitializationFactory.createComponentList(builder.actions);
+        for (AgentAction action : builder.actions) {
+            action.setAgent(this);
+        }
+        this.agentTraitList = agentInitializationFactory.createComponentList(builder.traits);
+        for (AgentTrait<?> trait : builder.traits) {
+            trait.setAgent(this);
+        }
+        this.population = builder.population;
         this.actionExecutionStrategy = checkNotNull(agentInitializationFactory.createStrategy(actions));
         this.inBox = checkNotNull(agentInitializationFactory.createMessageBox());
     }
@@ -202,7 +194,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public boolean addGene(AgentTrait<?> gene) {
+    public boolean addTrait(AgentTrait<?> gene) {
         return addComponent(agentTraitList, gene);
     }
 
@@ -413,43 +405,33 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    @Deprecated // use #children() instead
-    public Iterable<AgentComponent> getComponents() {
-        return children();
-    }
-
-    @Override
-    public AgentComponent getComponent(final String name) {
-        return Iterables.find(children(), new Predicate<AgentComponent>() {
-            @Override
-            public boolean apply(AgentComponent agentComponent) {
-                return agentComponent.getName().equals(name);
-            }
-        });
-    }
-
-    @Override
     public String toString() {
         return "Agent[" + population + ']' + "#" + simulationContext.getAgentId() + "@" + simulationContext.getSimulationStep();
     }
 
     @Override
-    public Iterable<AgentComponent> children() {
-        return Iterables.concat(
+    public Iterable<AgentNode> children() {
+        return Iterables.<AgentNode>concat(
                 getProperties(),
                 getActions(),
                 getTraits()
         );
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> {
-        protected final Population population;
-        protected final List<AgentAction> actions = Lists.newArrayList();
-        protected final List<AgentProperty<?>> properties = Lists.newArrayList();
-        protected final List<AgentTrait<?>> traits = Lists.newArrayList();
-        protected AgentInitializationFactory agentInitializationFactory = createDefaultInitializationFactory();
+    @Override
+    public AgentNode parent() {
+        return null;
+    }
 
-        protected AbstractBuilder(Population population) {
+    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> {
+        private final Population population;
+        private final List<AgentAction> actions = Lists.newArrayList();
+        private final List<AgentProperty<?>> properties = Lists.newArrayList();
+        private final List<AgentTrait<?>> traits = Lists.newArrayList();
+        private final AgentInitializationFactory agentInitializationFactory;
+
+        protected AbstractBuilder(Population population, AgentInitializationFactory agentInitializationFactory) {
+            this.agentInitializationFactory = checkNotNull(agentInitializationFactory);
             this.population = checkNotNull(population, "Population must not be null");
         }
 
@@ -501,20 +483,6 @@ abstract class AbstractAgent implements Agent {
                 }
             }, null);
             checkState(duplicate == null, "You assigned the following name more than once to a component: " + duplicate);
-        }
-
-        private static AgentInitializationFactory createDefaultInitializationFactory() {
-            return new AgentInitializationFactory() {
-                @Override
-                public ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions) {
-                    return new DefaultActionExecutionStrategy(actions);
-                }
-
-                @Override
-                public AgentMessageBox createMessageBox() {
-                    return new FixedSizeMessageBox();
-                }
-            };
         }
     }
 }

@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.Callback;
@@ -163,8 +163,13 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     }
 
     @Override
-    public Iterable<AgentComponent> children() {
-        return rootCondition != null ? Collections.<AgentComponent>singletonList(getCondition()) : Collections.<AgentComponent>emptyList();
+    public Iterable<AgentNode> children() {
+        return rootCondition != null ? Collections.<AgentNode>singletonList(getCondition()) : Collections.<AgentNode>emptyList();
+    }
+
+    @Override
+    public AgentNode parent() {
+        return getAgent();
     }
 
     public Callback<? super AbstractAgentAction, Void> getSuccessCallback() {

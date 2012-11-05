@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
@@ -35,8 +35,13 @@ public abstract class AbstractTrait<T> extends AbstractAgentComponent implements
     }
 
     @Override
-    public Iterable<AgentComponent> children() {
+    public Iterable<AgentNode> children() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public AgentNode parent() {
+        return getAgent();
     }
 
     @Override

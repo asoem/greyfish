@@ -2,11 +2,10 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.simpleframework.xml.Element;
+
+import java.util.List;
 
 public class MutableAgent extends AbstractAgent {
 
@@ -15,20 +14,7 @@ public class MutableAgent extends AbstractAgent {
     }
 
     private MutableAgent(Builder builder) {
-        super(
-                MutableComponentList.copyOf(builder.properties),
-                MutableComponentList.copyOf(builder.actions),
-                MutableComponentList.copyOf(builder.traits),
-                builder.agentInitializationFactory);
-        setPopulation(builder.population);
-    }
-
-    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private MutableAgent(@Element(name = "properties") ComponentList<AgentProperty<?>> properties,
-                         @Element(name = "actions") ComponentList<AgentAction> actions,
-                         @Element(name = "traits") ComponentList<AgentTrait<?>> agentTraitList,
-                         AgentInitializationFactory factory) {
-        super(properties, actions, agentTraitList, factory);
+        super(builder);
     }
 
     @Override
@@ -58,7 +44,7 @@ public class MutableAgent extends AbstractAgent {
 
     public static class Builder extends AbstractBuilder<MutableAgent, Builder> {
         private Builder(Population population) {
-            super(population);
+            super(population, createDefaultInitializationFactory());
         }
 
         @Override
@@ -68,6 +54,25 @@ public class MutableAgent extends AbstractAgent {
         @Override
         protected Builder self() {
             return this;
+        }
+
+        private static AgentInitializationFactory createDefaultInitializationFactory() {
+            return new AgentInitializationFactory() {
+                @Override
+                public ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions) {
+                    return new DefaultActionExecutionStrategy(actions);
+                }
+
+                @Override
+                public <T extends AgentComponent> ComponentList<T> createComponentList(Iterable<T> elements) {
+                    return MutableComponentList.copyOf(elements);
+                }
+
+                @Override
+                public AgentMessageBox createMessageBox() {
+                    return new FixedSizeMessageBox();
+                }
+            };
         }
     }
 }

@@ -11,6 +11,6 @@ import java.util.List;
  */
 public interface AgentInitializationFactory {
     ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions);
-
+    <T extends AgentComponent> ComponentList<T> createComponentList(Iterable<T> elements);
     AgentMessageBox createMessageBox();
 }

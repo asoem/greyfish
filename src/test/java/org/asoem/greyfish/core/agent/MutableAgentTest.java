@@ -41,7 +41,7 @@ public class MutableAgentTest {
         MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
 
         // when
-        boolean ret = agent.addGene(gene);
+        boolean ret = agent.addTrait(gene);
 
         // then
         assertTrue(ret);
@@ -54,8 +54,8 @@ public class MutableAgentTest {
         final AgentTrait gene = mock(AgentTrait.class);
         MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
         given(gene.getName()).willReturn("foo");
-        given(gene.children()).willReturn(Collections.<AgentComponent>emptyList());
-        agent.addGene(gene);
+        given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
+        agent.addTrait(gene);
 
         // when
         AgentTrait ret = agent.getGene("foo", AgentTrait.class);

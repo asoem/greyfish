@@ -98,16 +98,6 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Iterable<AgentComponent> getComponents() {
-        return delegate().getComponents();
-    }
-
-    @Override
-    public AgentComponent getComponent(String name) {
-        return delegate().getComponent(name);
-    }
-
-    @Override
     public void changeActionExecutionOrder(AgentAction object, AgentAction object2) {
         delegate().changeActionExecutionOrder(object, object2);
     }
@@ -208,8 +198,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public boolean addGene(AgentTrait<?> gene) {
-        return delegate().addGene(gene);
+    public boolean addTrait(AgentTrait<?> gene) {
+        return delegate().addTrait(gene);
     }
 
     @Override
@@ -268,8 +258,13 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Iterable<AgentComponent> children() {
+    public Iterable<AgentNode> children() {
         return delegate().children();
+    }
+
+    @Override
+    public AgentNode parent() {
+        return delegate().parent();
     }
 
     @Override

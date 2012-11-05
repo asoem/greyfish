@@ -7,7 +7,7 @@ import org.asoem.greyfish.utils.gui.Configurable;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
-public interface AgentComponent extends HasName, Configurable, AgentNode<AgentComponent>, Serializable {
+public interface AgentComponent extends HasName, Configurable, AgentNode, Serializable {
 
     /**
      * Get the agent this component is part of.

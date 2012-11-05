@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Root;
@@ -25,8 +25,13 @@ public abstract class AbstractAgentProperty<T> extends AbstractAgentComponent im
     }
 
     @Override
-    public Iterable<AgentComponent> children() {
+    public Iterable<AgentNode> children() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public AgentNode parent() {
+        return getAgent();
     }
 
     protected static abstract class AbstractBuilder<C extends AbstractAgentProperty, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B>  implements Serializable {

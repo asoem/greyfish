@@ -15,16 +15,12 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNode<AgentComponent> {
+public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNode {
     /**
      * @param object a possible clone
      * @return {@code true} if object is a clone of this agent, {@code false} otherwise
      */
     boolean isCloneOf(Object object);
-
-    Iterable<AgentComponent> getComponents();
-
-    AgentComponent getComponent(String name);
 
     void changeActionExecutionOrder(AgentAction object, AgentAction object2);
 
@@ -55,7 +51,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     AgentProperty<?> findProperty(Predicate<? super AgentProperty<?>> predicate);
 
-    boolean addGene(AgentTrait<?> gene);
+    boolean addTrait(AgentTrait<?> gene);
 
     boolean removeGene(AgentTrait<?> gene);
 

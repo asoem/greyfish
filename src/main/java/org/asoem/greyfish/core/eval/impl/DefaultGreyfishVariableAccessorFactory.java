@@ -126,7 +126,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             Agent agent = component.getAgent();
                             if (agent == null)
                                 throw new AssertionError("Agent must not be null at this point");
-                            final Iterable<AgentComponent> components = agent.getComponents();
+                            final Iterable<AgentComponent> components = Iterables.concat(agent.getActions(), agent.getProperties(), agent.getTraits());
                             AgentComponent target = AgentComponents.findByName(components, componentName);
 
                             if (target == null)

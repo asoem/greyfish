@@ -1,29 +1,34 @@
 package org.asoem.greyfish.core.conditions;
 
-import com.google.inject.Inject;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.ArgumentMap;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.DeepCloner;
+
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * User: christoph
  * Date: 04.05.12
  * Time: 11:47
  */
-public class GenericCondition extends LeafCondition {
+public class GenericCondition extends LeafCondition implements Serializable {
 
     private final Callback<? super GenericCondition, Boolean> callback;
-
-    @Inject
-    private GenericCondition() {
-        callback = Callbacks.constant(true);
-    }
-
-    public GenericCondition(Callback<? super GenericCondition, Boolean> callback) {
-        this.callback = callback;
-    }
 
     private GenericCondition(GenericCondition genericCondition, DeepCloner cloner) {
         super(genericCondition, cloner);
         this.callback = genericCondition.callback;
+    }
+
+    private GenericCondition(Builder builder) {
+        super(builder);
+        this.callback = builder.callback;
     }
 
     @Override
@@ -32,17 +37,71 @@ public class GenericCondition extends LeafCondition {
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public GenericCondition deepClone(DeepCloner cloner) {
         return new GenericCondition(this, cloner);
-    }
-
-    public static GenericCondition evaluate(Callback<? super GenericCondition, Boolean> callback) {
-        return new GenericCondition(callback);
     }
 
     @Override
     public void initialize() {
         super.initialize();
+    }
 
+    public Callback<? super GenericCondition, Boolean> getCallback() {
+        return callback;
+    }
+
+    private Object writeReplace() {
+        return new Builder(this);
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
+    }
+
+    public static GenericCondition evaluate(Callback<? super GenericCondition, Boolean> callback) {
+        return builder().callback(callback).build();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static final class Builder extends LeafCondition.AbstractBuilder<GenericCondition, Builder> implements Serializable {
+        public Callback<? super GenericCondition, Boolean> callback;
+
+        private Builder() {
+        }
+
+        private Builder(GenericCondition genericCondition) {
+            super(genericCondition);
+            this.callback = genericCondition.callback;
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected GenericCondition checkedBuild() {
+            checkState(callback != null, "Cannot build without a callback");
+            return new GenericCondition(this);
+        }
+
+        public Builder callback(Callback<? super GenericCondition, Boolean> callback) {
+            this.callback = checkNotNull(callback);
+            return self();
+        }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.util.Collections;
@@ -29,7 +29,7 @@ public abstract class LeafCondition extends AbstractCondition {
 	}
 
     @Override
-    public final Iterable<AgentComponent> children() {
+    public final Iterable<AgentNode> children() {
         return Collections.emptyList();
     }
 
@@ -54,5 +54,11 @@ public abstract class LeafCondition extends AbstractCondition {
     }
 
     protected static abstract class AbstractBuilder<C extends AbstractCondition, B extends AbstractBuilder<C, B>> extends AbstractCondition.AbstractBuilder<C, B> {
+        protected AbstractBuilder(LeafCondition leafCondition) {
+            super(leafCondition);
+        }
+
+        protected AbstractBuilder() {
+        }
     }
 }

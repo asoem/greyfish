@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
@@ -28,9 +29,11 @@ public abstract class AbstractCondition implements ActionCondition {
 
     protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
         cloner.addClone(cloneable, this);
+        this.action = cloner.getClone(cloneable.action, AgentAction.class);
+        this.parentCondition = cloner.getClone(cloneable.parentCondition, ActionCondition.class);
     }
 
-    public AbstractCondition(AbstractBuilder<? extends AbstractCondition, ? extends AbstractBuilder> builder) {
+    protected AbstractCondition(AbstractBuilder<? extends AbstractCondition, ? extends AbstractBuilder> builder) {
     }
 
     @Override
@@ -47,7 +50,6 @@ public abstract class AbstractCondition implements ActionCondition {
     @Override
     public void setAction(@Nullable AgentAction action) {
         this.action = action;
-        setAgent(action != null ? action.getAgent() : null);
         assert parentCondition == null || parentCondition.getAction() == action;
     }
 
@@ -129,7 +131,17 @@ public abstract class AbstractCondition implements ActionCondition {
         return agent().simulation();
     }
 
+    @Override
+    public AgentNode parent() {
+        return parentCondition != null ? parentCondition : action;
+    }
+
     protected static abstract class AbstractBuilder<C extends AbstractCondition, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> {
+        public AbstractBuilder(AbstractCondition leafCondition) {
+        }
+
+        protected AbstractBuilder() {
+        }
     }
 
     @Override
