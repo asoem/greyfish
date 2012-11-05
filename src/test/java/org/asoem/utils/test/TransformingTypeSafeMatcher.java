@@ -16,7 +16,7 @@ public class TransformingTypeSafeMatcher<I, O> extends CustomTypeSafeMatcher<I> 
     private final Matcher<O> transformMatcher;
 
     public TransformingTypeSafeMatcher(String description, Function<I, O> transformation, Matcher<O> transformMatcher) {
-        super(description);
+        super("has " + description);
         this.transformation = transformation;
         this.transformMatcher = transformMatcher;
     }
@@ -28,7 +28,7 @@ public class TransformingTypeSafeMatcher<I, O> extends CustomTypeSafeMatcher<I> 
 
     @Override
     protected void describeMismatchSafely(I item, Description mismatchDescription) {
-        mismatchDescription.appendText("requires that ");
+        mismatchDescription.appendText("failed: ");
         transformMatcher.describeMismatch(transformation.apply(item), mismatchDescription);
     }
 

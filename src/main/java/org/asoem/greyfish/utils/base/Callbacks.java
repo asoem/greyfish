@@ -2,7 +2,6 @@ package org.asoem.greyfish.utils.base;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
-import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -61,11 +60,10 @@ public final class Callbacks {
 
     private static class ConstantCallback<T> implements Callback<Object, T>, Serializable {
 
-        @Element(name = "value", required = false)
         @Nullable
         private final T value;
 
-        public ConstantCallback(@Element(name = "value", required = false) T returnValue) {
+        public ConstantCallback(T returnValue) {
             this.value = returnValue;
         }
 

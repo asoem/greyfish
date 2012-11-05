@@ -55,4 +55,8 @@ public final class AugmentedLists {
     public static <E> AugmentedList<E> newAugmentedArrayList(Iterable<? extends E> components) {
         return new ForwardingAugmentedList<E>(Lists.newArrayList(components));
     }
+
+    public static <E> AugmentedList<E> newAugmentedArrayList() {
+        return new ForwardingAugmentedList<E>(Lists.<E>newArrayList());
+    }
 }
