@@ -8,6 +8,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.MotionObject2D;
 
@@ -54,7 +55,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public ComponentList<AgentAction> getActions() {
+    public SearchableList<AgentAction> getActions() {
         return delegate().getActions();
     }
 
@@ -77,7 +78,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public ComponentList<AgentProperty<?>> getProperties() {
+    public SearchableList<AgentProperty<?>> getProperties() {
         return delegate().getProperties();
     }
 
@@ -90,11 +91,6 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Override
     public AgentProperty<?> findProperty(Predicate<? super AgentProperty<?>> predicate) {
         return delegate().findProperty(predicate);
-    }
-
-    @Override
-    public boolean isCloneOf(Object object) {
-        return delegate().isCloneOf(object);
     }
 
     @Override
@@ -193,8 +189,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public <T extends AgentTrait> T getGene(String geneName, Class<T> geneClass) {
-        return delegate().getGene(geneName, geneClass);
+    public <T extends AgentTrait> T getTrait(String geneName, Class<T> geneClass) {
+        return delegate().getTrait(geneName, geneClass);
     }
 
     @Override
@@ -213,7 +209,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public ComponentList<AgentTrait<?>> getTraits() {
+    public SearchableList<AgentTrait<?>> getTraits() {
         return delegate().getTraits();
     }
 

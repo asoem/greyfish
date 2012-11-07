@@ -25,12 +25,12 @@ import static org.mockito.Mockito.verify;
  * Time: 12:00
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MutableAgentTest {
+public class BasicAgentTest {
 
     @Inject
     private Persister persister;
 
-    public MutableAgentTest() {
+    public BasicAgentTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
     
@@ -38,7 +38,7 @@ public class MutableAgentTest {
     public void testAddGene() throws Exception {
         // given
         final AgentTrait gene = mock(AgentTrait.class);
-        MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
+        BasicAgent agent = BasicAgent.builder(mock(Population.class)).build();
 
         // when
         boolean ret = agent.addTrait(gene);
@@ -52,13 +52,13 @@ public class MutableAgentTest {
     public void testGetGene() throws Exception {
         // given
         final AgentTrait gene = mock(AgentTrait.class);
-        MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
+        BasicAgent agent = BasicAgent.builder(mock(Population.class)).build();
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
         agent.addTrait(gene);
 
         // when
-        AgentTrait ret = agent.getGene("foo", AgentTrait.class);
+        AgentTrait ret = agent.getTrait("foo", AgentTrait.class);
 
         // then
         assertThat(ret, is(equalTo(gene)));
@@ -69,10 +69,10 @@ public class MutableAgentTest {
         /*
         // given
         final Population population = Population.newPopulation("Test", Color.green);
-        final Agent agent = MutableAgent.of(population).build();
+        final Agent agent = BasicAgent.of(population).build();
 
         // when
-        final Agent deserializedAgent = Persisters.createCopy(agent, ImmutableAgent.class, persister);
+        final Agent deserializedAgent = Persisters.createCopy(agent, FrozenAgent.class, persister);
 
         // then
         assertThat(deserializedAgent.getPopulation()).isEqualTo(population);

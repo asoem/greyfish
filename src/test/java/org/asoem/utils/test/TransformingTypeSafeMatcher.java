@@ -13,9 +13,9 @@ import org.hamcrest.Matcher;
 public class TransformingTypeSafeMatcher<I, O> extends CustomTypeSafeMatcher<I> {
 
     private final Function<I, O> transformation;
-    private final Matcher<O> transformMatcher;
+    private final Matcher<? super O> transformMatcher;
 
-    public TransformingTypeSafeMatcher(String description, Function<I, O> transformation, Matcher<O> transformMatcher) {
+    public TransformingTypeSafeMatcher(String description, Function<I, O> transformation, Matcher<? super O> transformMatcher) {
         super("has " + description);
         this.transformation = transformation;
         this.transformMatcher = transformMatcher;
@@ -32,7 +32,7 @@ public class TransformingTypeSafeMatcher<I, O> extends CustomTypeSafeMatcher<I> 
         transformMatcher.describeMismatch(transformation.apply(item), mismatchDescription);
     }
 
-    public static <I,O> TransformingTypeSafeMatcher<I, O> has(String description, Function<I, O> transformation, Matcher<O> transformMatcher) {
+    public static <I,O> TransformingTypeSafeMatcher<I, O> has(String description, Function<I, O> transformation, Matcher<? super O> transformMatcher) {
         return new TransformingTypeSafeMatcher<I, O>(description, transformation, transformMatcher);
     }
 }

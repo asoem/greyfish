@@ -125,7 +125,7 @@ public class ParallelizedSimulation extends AbstractSimulation {
 
                         final Agent clone = DeepCloner.clone(prototype, Agent.class);
 
-                        return ImmutableAgent.builder(prototype.getPopulation())
+                        return FrozenAgent.builder(prototype.getPopulation())
                                 .addActions(clone.getActions())
                                 .addProperties(clone.getProperties())
                                 .addTraits(clone.getTraits())

@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentInitializers;
-import org.asoem.greyfish.core.agent.ImmutableAgent;
+import org.asoem.greyfish.core.agent.FrozenAgent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
@@ -54,10 +54,10 @@ public class MatingInteractionTest {
                 .matingProbability(constant(1.0))
                 .build();
 
-        final Agent female = ImmutableAgent.builder(receiverPopulation)
+        final Agent female = FrozenAgent.builder(receiverPopulation)
                 .addActions(receiverAction)
                 .build();
-        final Agent male = ImmutableAgent.builder(donorPopulation)
+        final Agent male = FrozenAgent.builder(donorPopulation)
                 .addActions(transmitterAction)
                 .build();
 

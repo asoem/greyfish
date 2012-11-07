@@ -37,8 +37,7 @@ public class AvatarTest {
         final DeepCloner clonerMock = mock(DeepCloner.class);
         final Agent cloneMock = mock(Agent.class);
         given(clonerMock.getClone(any(Agent.class), any(Class.class))).willReturn(cloneMock);
-        final Avatar avatar = new Avatar(cloneMock);
-        avatar.setProjection(mock(MotionObject2D.class));
+        final Avatar avatar = new Avatar(cloneMock, mock(MotionObject2D.class));
 
         // when
         final Avatar clone = avatar.deepClone(clonerMock);
@@ -54,7 +53,7 @@ public class AvatarTest {
         /*
         // given
         final Population population = Population.newPopulation("Test", Color.green);
-        final Agent agent = ImmutableAgent.of(population).build();
+        final Agent agent = FrozenAgent.of(population).build();
         final Avatar avatar = new Avatar(agent);
 
         // when

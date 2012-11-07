@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.utils.collect.SearchableList;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ import java.util.List;
  */
 public interface AgentInitializationFactory {
     ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions);
-    <T extends AgentComponent> ComponentList<T> createComponentList(Iterable<T> elements);
+    <T extends AgentComponent> SearchableList<T> newSearchableList(Iterable<T> elements);
     AgentMessageBox createMessageBox();
 }

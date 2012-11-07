@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.Avatar;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.space.WalledTileSpace;
 import org.asoem.greyfish.utils.base.Initializer;
@@ -73,7 +74,7 @@ public class BasicSimulationTemplate implements SimulationTemplate {
         addAsPrototypeIfUnknown(prototype);
 
         final Point2D anchorPoint = projection.getAnchorPoint();
-        space.insertObject(prototype, anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
+        space.insertObject(new Avatar(prototype), anchorPoint.getX(), anchorPoint.getY(), projection.getOrientationAngle());
         return true;
     }
 

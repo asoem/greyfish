@@ -9,7 +9,7 @@ import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.ImmutableAgent;
+import org.asoem.greyfish.core.agent.FrozenAgent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
@@ -69,11 +69,11 @@ public class ResourceInteractionTest {
                 .provides(Callbacks.constant(1.0))
                 .build();
 
-        Agent consumer = ImmutableAgent.builder(consumerPopulation)
+        Agent consumer = FrozenAgent.builder(consumerPopulation)
                 .addProperties(energyStorage)
                 .addActions(consumptionAction)
                 .build();
-        Agent provisioner = ImmutableAgent.builder(providerPopulation)
+        Agent provisioner = FrozenAgent.builder(providerPopulation)
                 .addProperties(resourceProperty)
                 .addActions(provisionAction)
                 .build();

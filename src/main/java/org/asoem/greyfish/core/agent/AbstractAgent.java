@@ -16,7 +16,9 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
+import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
@@ -27,6 +29,7 @@ import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -46,17 +49,15 @@ abstract class AbstractAgent implements Agent {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
     @Element(name = "properties")
-    private final ComponentList<AgentProperty<?>> properties;
+    private final SearchableList<AgentProperty<?>> properties;
 
     @Element(name = "actions")
-    private final ComponentList<AgentAction> actions;
+    private final SearchableList<AgentAction> actions;
 
     @Element(name = "traits")
-    private final ComponentList<AgentTrait<?>> agentTraitList;
+    private final SearchableList<AgentTrait<?>> traits;
 
     private final ActionExecutionStrategy actionExecutionStrategy;
-
-    private final AgentInitializationFactory agentInitializationFactory;
 
     private final AgentMessageBox inBox;
 
@@ -76,31 +77,44 @@ abstract class AbstractAgent implements Agent {
 
     private Set<Integer> parents = Collections.emptySet();
 
-    protected AbstractAgent(AbstractAgent abstractAgent, DeepCloner cloner) {
+    protected AbstractAgent(AbstractAgent abstractAgent, final DeepCloner cloner, AgentInitializationFactory agentInitializationFactory) {
         cloner.addClone(abstractAgent, this);
-        // clone
-        this.actions = cloner.getClone(abstractAgent.actions, ComponentList.class);
-        this.properties = cloner.getClone(abstractAgent.properties, ComponentList.class);
-        this.agentTraitList = cloner.getClone(abstractAgent.agentTraitList, ComponentList.class);
         // share
         this.population = abstractAgent.population;
-        this.agentInitializationFactory = abstractAgent.agentInitializationFactory;
+        // clone
+        this.actions = agentInitializationFactory.newSearchableList(Iterables.transform(abstractAgent.actions, new Function<AgentAction, AgentAction>() {
+            @Override
+            public AgentAction apply(@Nullable AgentAction agentAction) {
+                return cloner.getClone(agentAction, AgentAction.class);
+            }
+        }));
+        this.properties = agentInitializationFactory.newSearchableList(Iterables.transform(abstractAgent.properties, new Function<AgentProperty<?>, AgentProperty<?>>() {
+            @Override
+            public AgentProperty<?> apply(@Nullable AgentProperty<?> agentProperty) {
+                return cloner.getClone(agentProperty, AgentProperty.class);
+            }
+        }));
+        this.traits = agentInitializationFactory.newSearchableList(Iterables.transform(abstractAgent.traits, new Function<AgentTrait<?>, AgentTrait<?>>() {
+            @Override
+            public AgentTrait<?> apply(@Nullable AgentTrait<?> agentTrait) {
+                return cloner.getClone(agentTrait, AgentTrait.class);
+            }
+        }));
         // reconstruct
         this.actionExecutionStrategy = checkNotNull(agentInitializationFactory.createStrategy(actions));
         this.inBox = checkNotNull(agentInitializationFactory.createMessageBox());
     }
 
-    protected AbstractAgent(AbstractBuilder<? extends AbstractAgent, ? extends AbstractBuilder> builder) {
-        this.agentInitializationFactory = checkNotNull(builder.agentInitializationFactory);
-        this.properties = agentInitializationFactory.createComponentList(builder.properties);
+    protected AbstractAgent(AbstractBuilder<? extends AbstractAgent, ? extends AbstractBuilder> builder, AgentInitializationFactory agentInitializationFactory) {
+        this.properties = agentInitializationFactory.newSearchableList(builder.properties);
         for (AgentProperty property : builder.properties) {
             property.setAgent(this);
         }
-        this.actions = agentInitializationFactory.createComponentList(builder.actions);
+        this.actions = agentInitializationFactory.newSearchableList(builder.actions);
         for (AgentAction action : builder.actions) {
             action.setAgent(this);
         }
-        this.agentTraitList = agentInitializationFactory.createComponentList(builder.traits);
+        this.traits = agentInitializationFactory.newSearchableList(builder.traits);
         for (AgentTrait<?> trait : builder.traits) {
             trait.setAgent(this);
         }
@@ -125,7 +139,7 @@ abstract class AbstractAgent implements Agent {
         return Objects.equal(this.population, population);
     }
 
-    private <E extends AgentComponent> boolean addComponent(ComponentList<E> list, E element) {
+    private <E extends AgentComponent> boolean addComponent(SearchableList<E> list, E element) {
         if (list.add(element)) {
             element.setAgent(this);
             return true;
@@ -133,7 +147,7 @@ abstract class AbstractAgent implements Agent {
         return false;
     }
 
-    private static <E extends AgentComponent> boolean removeComponent(ComponentList<? extends E> list, E element) {
+    private static <E extends AgentComponent> boolean removeComponent(SearchableList<? extends E> list, E element) {
         if (list.remove(element)) {
             element.setAgent(null);
             return true;
@@ -141,7 +155,7 @@ abstract class AbstractAgent implements Agent {
         return false;
     }
 
-    private static void clearComponentList(ComponentList<? extends AgentComponent> list) {
+    private static void clearComponentList(SearchableList<? extends AgentComponent> list) {
         List<AgentComponent> temp = ImmutableList.copyOf(list);
         list.clear();
         for (AgentComponent component : temp)
@@ -165,7 +179,7 @@ abstract class AbstractAgent implements Agent {
 
     @Override
     public <T extends AgentAction> T getAction(String name, Class<T> clazz) {
-        return actions.find(name, clazz);
+        return checkNotNull(clazz).cast(findByName(actions, name));
     }
 
     @Override
@@ -185,7 +199,7 @@ abstract class AbstractAgent implements Agent {
 
     @Override
     public <T extends AgentProperty> T getProperty(String name, Class<T> clazz) {
-        return properties.find(name, clazz);
+        return checkNotNull(clazz).cast(findByName(properties, name));
     }
 
     @Override
@@ -195,42 +209,28 @@ abstract class AbstractAgent implements Agent {
 
     @Override
     public boolean addTrait(AgentTrait<?> gene) {
-        return addComponent(agentTraitList, gene);
+        return addComponent(traits, gene);
     }
 
     @Override
     public boolean removeGene(AgentTrait<?> gene) {
-        return removeComponent(agentTraitList, gene);
+        return removeComponent(traits, gene);
     }
 
     @Override
     public void removeAllGenes() {
-        clearComponentList(agentTraitList);
+        clearComponentList(traits);
     }
 
     @Override
-    public ComponentList<AgentTrait<?>> getTraits() {
-        return agentTraitList;
+    public SearchableList<AgentTrait<?>> getTraits() {
+        return traits;
     }
 
     @Override
     @Nullable
-    public <T extends AgentTrait> T getGene(String name, Class<T> clazz) {
-        checkNotNull(clazz);
-
-        return agentTraitList.find(name, clazz);
-    }
-
-    /**
-     * WARNING: This implementation just checks if {@code object} is an {@link Agent} and shares the same population with this agent.
-     * It does not check if they are or have been derived from the same prototype via {@link #deepClone}.
-     */
-    @Override
-    public boolean isCloneOf(Object object) {
-        // TODO: should be implemented differently. See JavaDoc.
-        return object != null
-                && Agent.class.isInstance(object) && hasPopulation(Agent.class.cast(object).getPopulation());
-
+    public <T extends AgentTrait> T getTrait(String name, Class<T> clazz) {
+        return checkNotNull(clazz).cast(findByName(traits, name));
     }
 
     @Override
@@ -349,12 +349,12 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public ComponentList<AgentProperty<?>> getProperties() {
+    public SearchableList<AgentProperty<?>> getProperties() {
         return properties;
     }
 
     @Override
-    public ComponentList<AgentAction> getActions() {
+    public SearchableList<AgentAction> getActions() {
         return actions;
     }
 
@@ -383,7 +383,7 @@ abstract class AbstractAgent implements Agent {
 
     @Override
     public AgentTrait<?> findTrait(Predicate<? super AgentTrait<?>> traitPredicate) {
-        return agentTraitList.find(traitPredicate);
+        return traits.find(traitPredicate);
     }
 
     @Override
@@ -394,7 +394,7 @@ abstract class AbstractAgent implements Agent {
     @Override
     public void updateGeneComponents(Chromosome chromosome) {
         checkNotNull(chromosome);
-        AgentTraits.updateValues(agentTraitList, ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
+        AgentTraits.updateValues(traits, ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
             @Override
             public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
@@ -423,21 +423,34 @@ abstract class AbstractAgent implements Agent {
         return null;
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> {
+    private static <E extends HasName> E findByName(SearchableList<E> searchableList, final String name) {
+        return searchableList.find(new Predicate<HasName>() {
+            @Override
+            public boolean apply(HasName agentAction) {
+                return agentAction.getName().equals(name);
+            }
+        });
+    }
+
+    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> implements Serializable {
         private final Population population;
         private final List<AgentAction> actions = Lists.newArrayList();
         private final List<AgentProperty<?>> properties = Lists.newArrayList();
         private final List<AgentTrait<?>> traits = Lists.newArrayList();
-        private final AgentInitializationFactory agentInitializationFactory;
 
-        protected AbstractBuilder(Population population, AgentInitializationFactory agentInitializationFactory) {
-            this.agentInitializationFactory = checkNotNull(agentInitializationFactory);
+        protected AbstractBuilder(Population population) {
             this.population = checkNotNull(population, "Population must not be null");
         }
 
-        // todo: these builder methods are not able to control the mutability of the traits
-        public T addTraits(AgentTrait<?>... genes) {
-            this.traits.addAll(asList(checkNotNull(genes)));
+        protected AbstractBuilder(AbstractAgent abstractAgent) {
+            this.population = abstractAgent.population;
+            this.actions.addAll(abstractAgent.actions);
+            this.properties.addAll(abstractAgent.properties);
+            this.traits.addAll(abstractAgent.traits);
+        }
+
+        public T addTraits(AgentTrait<?>... traits) {
+            this.traits.addAll(asList(checkNotNull(traits)));
             return self();
         }
 

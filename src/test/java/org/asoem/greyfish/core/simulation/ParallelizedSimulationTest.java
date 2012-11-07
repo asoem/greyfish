@@ -8,7 +8,7 @@ import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.agent.ActiveSimulationContext;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.ImmutableAgent;
+import org.asoem.greyfish.core.agent.FrozenAgent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.WalledTileSpace;
@@ -42,7 +42,7 @@ public class ParallelizedSimulationTest {
     public void newSimulationTest() {
         // given
         final Population population = new Population("testPopulation");
-        final Agent prototype = ImmutableAgent.builder(population).build();
+        final Agent prototype = FrozenAgent.builder(population).build();
         final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
 
         // when

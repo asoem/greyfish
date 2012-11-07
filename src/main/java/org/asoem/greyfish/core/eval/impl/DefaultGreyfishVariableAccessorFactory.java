@@ -159,7 +159,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                                         final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
                                         if (agent1 == null)
                                             throw new AssertionError("Agent must not be null at this point");
-                                        return agent1.getGene(componentName, AgentTrait.class);
+                                        return agent1.getTrait(componentName, AgentTrait.class);
                                     }
                                 });
                             } else
@@ -343,7 +343,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                     @Override
                     public AgentTrait apply(Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen
-                        return checkNotNull(agent).getGene(geneName, AgentTrait.class);
+                        return checkNotNull(agent).getTrait(geneName, AgentTrait.class);
                     }
                 }, ret));
             }

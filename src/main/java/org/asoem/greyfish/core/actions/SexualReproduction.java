@@ -9,14 +9,10 @@ import com.google.common.reflect.TypeToken;
 import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.ComponentList;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
-import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
-import org.asoem.greyfish.utils.collect.Product2;
-import org.asoem.greyfish.utils.collect.Tuple2;
+import org.asoem.greyfish.utils.collect.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -91,7 +87,7 @@ public class SexualReproduction extends AbstractAgentAction {
         return COMPLETED;
     }
 
-    private static Chromosome blend(ComponentList<AgentTrait<?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static Chromosome blend(SearchableList<AgentTrait<?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
         final Tuple2.Zipped<AgentTrait<?>, Gene<?>> zip

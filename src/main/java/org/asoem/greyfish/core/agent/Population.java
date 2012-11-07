@@ -47,6 +47,26 @@ public class Population implements HasName, Comparable<Population>, Serializable
 	}
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Population that = (Population) o;
+
+        if (!color.equals(that.color)) return false;
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + color.hashCode();
+        return result;
+    }
+
+    @Override
     public int compareTo(Population o) {
         return name.compareTo(o.name);
     }

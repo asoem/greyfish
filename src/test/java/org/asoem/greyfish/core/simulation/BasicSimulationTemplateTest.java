@@ -59,7 +59,7 @@ public class BasicSimulationTemplateTest {
     @Test
     public void testPersistence() throws Exception {
         /*
-        final Agent prototype = ImmutableAgent.of(Population.newPopulation("TestPopulation", Color.blue)).build();
+        final Agent prototype = FrozenAgent.of(Population.newPopulation("TestPopulation", Color.blue)).build();
         // given
         SimulationTemplate simulationTemplate = BasicSimulationTemplate.builder("TestScenario", WalledTileSpace.<Agent>ofSize(3, 4))
                 .addAgent(prototype, locatedAt(0.42, 1.42))
