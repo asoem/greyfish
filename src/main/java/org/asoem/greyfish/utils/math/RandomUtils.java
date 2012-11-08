@@ -1,37 +1,52 @@
 package org.asoem.greyfish.utils.math;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
+import com.google.inject.Inject;
 import org.apache.commons.math3.distribution.BinomialDistribution;
-import org.apache.commons.math3.random.*;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.apache.commons.math3.random.RandomData;
+import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Random;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class RandomUtils {
-    public static final RandomGenerator RANDOM_GENERATOR = new Well19937c();
+@SuppressWarnings("UnusedDeclaration")
+public final class RandomUtils {
 
-    public static final RandomData RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
-    private static final Logger LOGGER = LoggerFactory.getLogger(RandomUtils.class);
+    private RandomUtils() {}
+
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(RandomUtils.class);
+
+    private static RandomGenerator RANDOM_GENERATOR;
+    private static RandomData RANDOM_DATA;
+
+    static {
+        setRandomGenerator(new Well19937c());
+    }
+
+    @Inject
+    private static void setRandomGenerator(RandomGenerator randomGenerator) {
+        RANDOM_GENERATOR = checkNotNull(randomGenerator);
+        RANDOM_DATA = new RandomDataImpl(RANDOM_GENERATOR);
+    }
 
     /**
      * @return the next pseudorandom, uniformly distributed double value between 0.0 and 1.0 from this random number generator's sequence
-     * @see java.util.Random#nextDouble()
+     * @see RandomGenerator#nextDouble()
      */
     public static double nextDouble() {
         return RANDOM_GENERATOR.nextDouble();
-    }
-
-    public static Random randomInstance() {
-        return new RandomAdaptor(RANDOM_GENERATOR);
     }
 
     public static int nextInt(final Integer minIncl, final Integer maxExcl) {
@@ -51,24 +66,20 @@ public class RandomUtils {
         return RANDOM_DATA.nextUniform(minExcl, maxExcl);
     }
 
-    public static float nextFloat(float minIncl, float maxExcl) {
-        Preconditions.checkArgument(maxExcl >= minIncl);
-        return (float) RANDOM_DATA.nextUniform(minIncl, maxExcl);
-    }
-
     public static boolean nextBoolean() {
         return RANDOM_GENERATOR.nextBoolean();
     }
 
-    public static boolean trueWithProbability(double probability) {
-        if (probability == 0)
-            return false;
-        else if (probability == 1)
-            return true;
-        else if (probability > 0 && probability < 1)
-            return nextDouble() < probability;
-        else
-            throw new IllegalArgumentException("Probability not in [0,1]: " + probability);
+    /**
+     * Get a boolean value which is {@code true} with probability {@code p}
+     * @param p the probability for {@code true}
+     * @return {@code true} with probability {@code p}, false with probability {@code 1-p}
+     */
+    public static boolean nextBoolean(double p) {
+        if (p < 0 || p > 1)
+            throw new IllegalArgumentException("Probability not in [0,1]: " + p);
+
+        return nextDouble() < p;
     }
 
     /**
@@ -82,16 +93,6 @@ public class RandomUtils {
     }
 
     /**
-     * Generates a uniformly distributed random value from the open interval (0,upper) (i.e., endpoints excluded).
-     *
-     * @param sum the upper bound
-     * @return a uniformly distributed random value from the open interval (0,upper)
-     */
-    public static double nextDouble(double sum) {
-        return nextDouble(0, sum);
-    }
-
-    /**
      * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
      *
      * @param mean the mean of the distribution
@@ -99,7 +100,21 @@ public class RandomUtils {
      * @return a random value for the given normal distribution
      */
     public static double rnorm(double mean, double sd) {
-        return RANDOM_DATA.nextGaussian(mean, sd);
+        double v;
+        do {
+            v = RANDOM_DATA.nextGaussian(mean, sd);
+        }
+        while (Double.isNaN(v)); // bug?
+        return v;
+    }
+
+    public static Supplier<Double> normalDistribution(final double mean, final double sd) {
+        return new Supplier<Double>() {
+            @Override
+            public Double get() {
+                return rnorm(mean, sd);
+            }
+        };
     }
 
     /**
@@ -134,13 +149,14 @@ public class RandomUtils {
         return runif(range.lowerEndpoint(), range.upperEndpoint());
     }
 
+    @Nullable
     public static <S> S sample(Collection<S> elements) {
         checkNotNull(elements);
         checkArgument(!elements.isEmpty(), "Cannot take a sample out of 0 elements");
-        final S sample = Iterables.get(elements, nextInt(elements.size()));
-        assert elements.contains(sample);
-        LOGGER.debug("Sampled {} out of [{}]", sample, Joiner.on(',').join(elements));
-        return sample;
+        final int index = nextInt(elements.size());
+        return (elements instanceof List)
+                ? ((List<S>) elements).get(index)
+                : Iterables.get(elements, index);
     }
 
     public static <S> S sample(S... elements) {
@@ -171,5 +187,38 @@ public class RandomUtils {
 
     public static int rbinom(int size, double p) {
         return new BinomialDistribution(size, p).sample();
+    }
+
+    /**
+     * Finds smallest prime p such that p is greater than or equal to n.
+     * @param n a number
+     * @return a prime number
+     */
+    public static int nextPrime(int n) {
+        // taken from http://svn.apache.org/repos/asf/mahout/trunk/math/src/main/java/org/apache/mahout/common/RandomUtils.java
+        if (n <= 2) {
+            return 2;
+        }
+        // Make sure the number is odd. Is this too clever?
+        n |= 0x1;
+        // There is no problem with overflow since Integer.MAX_INT is prime, as it happens
+        while (isNotPrime(n)) {
+            n += 2;
+        }
+        return n;
+    }
+
+    /** @return {@code true} iff n is not a prime */
+    public static boolean isNotPrime(int n) {
+        if (n < 2 || (n & 0x1) == 0) { // < 2 or even
+            return n != 2;
+        }
+        int max = 1 + (int) Math.sqrt(n);
+        for (int d = 3; d <= max; d += 2) {
+            if (n % d == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }

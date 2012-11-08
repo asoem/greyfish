@@ -1,8 +1,11 @@
 package org.asoem.greyfish.utils.persistence;
 
+import org.asoem.greyfish.core.io.persistence.PersistenceException;
+
 import java.io.File;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * User: christoph
@@ -10,8 +13,8 @@ import java.io.Writer;
  * Time: 18:11
  */
 public interface Persister {
-    public <T> T deserialize(File file, Class<T> clazz) throws Exception;
-    public <T> T deserialize(Reader reader, Class<T> clazz) throws Exception;
-    public void serialize(Object object, File file) throws Exception;
-    public void serialize(Object object, Writer writer) throws Exception;
+    public <T> T deserialize(File file, Class<T> clazz) throws PersistenceException, FileNotFoundException;
+    public <T> T deserialize(InputStream inputStream, Class<T> clazz) throws PersistenceException;
+    public void serialize(Object object, File file) throws PersistenceException, FileNotFoundException;
+    public void serialize(Object object, OutputStream outputStream) throws PersistenceException;
 }

@@ -5,11 +5,12 @@ import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.VanillaExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -40,7 +41,7 @@ public class EvaluatingMarkovChainTest {
         final String endState = chain.apply(chain.apply(chain.apply(initialState)));
 
         // then
-        assertThat(endState).isEqualTo("C");
+        MatcherAssert.assertThat(endState, is("C"));
     }
 
     @Test
@@ -53,7 +54,7 @@ public class EvaluatingMarkovChainTest {
 
         // then
         final String endState = chain.apply(chain.apply("A"));
-        assertThat(endState).isEqualTo("C");
+        MatcherAssert.assertThat(endState, is("C"));
     }
     
 }

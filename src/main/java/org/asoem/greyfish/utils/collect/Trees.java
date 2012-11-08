@@ -15,7 +15,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 05.10.11
  * Time: 10:00
  */
-public class Trees {
+public final class Trees {
+
+    private Trees() {}
 
     /**
      * Create an iterator that traverses the tree from the given {@code root} node in postorder.

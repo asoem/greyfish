@@ -3,12 +3,14 @@ package org.asoem.greyfish.utils.space;
 import com.google.common.base.Objects;
 import org.simpleframework.xml.Attribute;
 
+import java.io.Serializable;
+
 /**
  * User: christoph
  * Date: 20.10.11
  * Time: 15:37
  */
-public class ImmutableMotion2D implements Motion2D {
+public class ImmutableMotion2D implements Motion2D, Serializable {
 
     @Attribute(name = "translation")
     private final double translation;
@@ -123,4 +125,6 @@ public class ImmutableMotion2D implements Motion2D {
             return rotationVector;
         }
     }
+
+    private static final long serialVersionUID = 0;
 }

@@ -18,7 +18,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 10.02.12
  * Time: 12:56
  */
-public class ElementSelectionStrategies {
+public final class ElementSelectionStrategies {
+
+    private ElementSelectionStrategies() {}
 
     public static <E> ElementSelectionStrategy<E> rouletteWheelSelection(final Function<E, ? extends Double> function) {
         return new ElementSelectionStrategy<E>() {
@@ -36,8 +38,8 @@ public class ElementSelectionStrategies {
 
                             @Override
                             protected T computeNext() {
-                                final double rand = RandomUtils.nextDouble(f_sum);
-                                double step_sum = 0;
+                                final double rand = RandomUtils.nextDouble(0,f_sum);
+                                Double step_sum = 0.0;
                                 for (T element : elements) {
                                     step_sum += function.apply(element);
                                     if (rand < step_sum)
@@ -51,7 +53,7 @@ public class ElementSelectionStrategies {
             }
 
             private double cumulative_fitness(Iterable<? extends E> elements) {
-                double sum = 0;
+                Double sum = 0.0;
                 for (E element : elements)
                     sum += function.apply(element);
 

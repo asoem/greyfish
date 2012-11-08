@@ -5,7 +5,9 @@ import java.util.BitSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class BitSets {
+public final class BitSets {
+
+    private BitSets() {}
 
     public static BitSet copyOf(BigInteger bigInteger) {
         BitSet ret = new BitSet(bigInteger.bitCount());
