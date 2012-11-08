@@ -11,7 +11,7 @@ import org.simpleframework.xml.stream.OutputNode;
  * Date: 22.02.12
  * Time: 15:17
  */
-public class EvaluatingMarkovChainConverter implements Converter<EvaluatingMarkovChain> {
+class EvaluatingMarkovChainConverter implements Converter<EvaluatingMarkovChain> {
     @Override
     public EvaluatingMarkovChain read(InputNode inputNode) throws Exception {
         return EvaluatingMarkovChain.parse(inputNode.getValue(), GreyfishExpressionFactoryHolder.get());

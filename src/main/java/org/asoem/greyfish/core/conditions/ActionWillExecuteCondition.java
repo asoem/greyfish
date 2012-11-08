@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -12,16 +11,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ActionWillExecuteCondition extends LeafCondition {
 
-    private final GFAction parameterAction;
+    private final AgentAction parameterAction;
 
-    public ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
+    private ActionWillExecuteCondition(ActionWillExecuteCondition condition, DeepCloner map) {
         super(condition, map);
-        this.parameterAction = map.cloneField(condition.parameterAction, GFAction.class);
+        this.parameterAction = map.getClone(condition.parameterAction, AgentAction.class);
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
-        return parameterAction.evaluateCondition(simulation);
+    public boolean evaluate() {
+        return parameterAction.evaluateCondition();
     }
 
     @Override
@@ -29,7 +28,7 @@ public class ActionWillExecuteCondition extends LeafCondition {
         return new ActionWillExecuteCondition(this, cloner);
     }
 
-    protected ActionWillExecuteCondition(AbstractBuilder<?,?> builder) {
+    private ActionWillExecuteCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.parameterAction = builder.parameterAction;
     }
@@ -41,8 +40,8 @@ public class ActionWillExecuteCondition extends LeafCondition {
     }
 
     protected static abstract class AbstractBuilder<E extends ActionWillExecuteCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
-        private GFAction parameterAction;
+        private AgentAction parameterAction;
 
-        public T followingActionWillExecute(GFAction action) { this.parameterAction = checkNotNull(action); return self(); }
+        public T followingActionWillExecute(AgentAction action) { this.parameterAction = checkNotNull(action); return self(); }
     }
 }

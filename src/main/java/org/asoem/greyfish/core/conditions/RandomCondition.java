@@ -1,27 +1,26 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-@ClassGroup(tags = "conditions")
+@Tagged("conditions")
 public class RandomCondition extends LeafCondition {
 
     @Element(name="probability")
     private double probability;
 
-    public RandomCondition(RandomCondition condition, DeepCloner map) {
+    private RandomCondition(RandomCondition condition, DeepCloner map) {
         super(condition, map);
         this.probability = condition.probability;
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate() {
         return Math.random() < probability;
     }
 
@@ -50,7 +49,7 @@ public class RandomCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected RandomCondition(AbstractBuilder<?,?> builder) {
+    private RandomCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
     }
 

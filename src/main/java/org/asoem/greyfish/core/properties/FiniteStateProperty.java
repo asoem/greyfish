@@ -2,6 +2,6 @@ package org.asoem.greyfish.core.properties;
 
 import java.util.Set;
 
-public interface FiniteStateProperty<T> extends GFProperty<T> {
+public interface FiniteStateProperty<T> extends AgentProperty<T> {
     Set<T> getStates();
 }

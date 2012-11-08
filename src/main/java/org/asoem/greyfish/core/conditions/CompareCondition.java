@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.Comparator;
+import org.asoem.greyfish.utils.base.CompareOperator;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -15,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class CompareCondition<T extends Comparable<T>> extends LeafCondition {
 
     @Attribute(name="comparator")
-    protected Comparator comparator = Comparator.EQ;
+    protected CompareOperator compareOperator = CompareOperator.EQUAL;
 
     @Element(name="value")
     protected T value;
@@ -24,48 +23,48 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
 
     protected CompareCondition(CompareCondition<T> condition, DeepCloner map) {
         super(condition, map);
-        this.comparator = condition.comparator;
+        this.compareOperator = condition.compareOperator;
         this.value = condition.value;
-    }
-
-    @Override
-    public boolean evaluate(Simulation simulation) {
-        return comparator.compare(getCompareValue(simulation), value);
-    }
-
-    protected abstract T getCompareValue(Simulation simulation);
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        e.add("", new SetAdaptor<Comparator>(Comparator.class) {
-            @Override
-            protected void set(Comparator arg0) {
-                comparator = checkNotNull(arg0);
-            }
-
-            @Override
-            public Comparator get() {
-                return comparator;
-            }
-
-            @Override
-            public Iterable<Comparator> values() {
-                return Arrays.asList(Comparator.values());
-            }
-        });
     }
 
     protected CompareCondition(AbstractBuilder<?,?,T> builder) {
         super(builder);
-        this.comparator = builder.comparator;
+        this.compareOperator = builder.compareOperator;
         this.value = builder.value;
     }
 
+    @Override
+    public boolean evaluate() {
+        return compareOperator.apply(getCompareValue(), value);
+    }
+
+    protected abstract T getCompareValue();
+
+    @Override
+    public void configure(ConfigurationHandler e) {
+        e.add("", new SetAdaptor<CompareOperator>(CompareOperator.class) {
+            @Override
+            protected void set(CompareOperator arg0) {
+                compareOperator = checkNotNull(arg0);
+            }
+
+            @Override
+            public CompareOperator get() {
+                return compareOperator;
+            }
+
+            @Override
+            public Iterable<CompareOperator> values() {
+                return Arrays.asList(CompareOperator.values());
+            }
+        });
+    }
+
     protected static abstract class AbstractBuilder<C extends CompareCondition<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<C,T> {
-        private Comparator comparator;
+        private CompareOperator compareOperator;
         private E value;
 
-        public T is(Comparator comparator) { this.comparator = checkNotNull(comparator); return self(); }
+        public T is(CompareOperator compareOperator) { this.compareOperator = checkNotNull(compareOperator); return self(); }
         public T to(E value) { this.value = checkNotNull(value); return self(); }
     }
 }

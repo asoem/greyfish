@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions.utils;
 
-import org.asoem.greyfish.core.individual.Agent;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Motion2D;
 

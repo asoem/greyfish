@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.util.Collections;
@@ -10,16 +10,16 @@ public abstract class LeafCondition extends AbstractCondition {
 
     protected LeafCondition() {}
 
-    protected LeafCondition(AbstractBuilder<?,?> builder) {
-        super(builder);
-	}
+    protected LeafCondition(LeafCondition cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+    }
 
-    public LeafCondition(LeafCondition condition, DeepCloner map) {
-        super(condition, map);
+    protected LeafCondition(AbstractBuilder<? extends LeafCondition, ? extends AbstractBuilder> builder) {
+        super(builder);
     }
 
     @Override
-	public final List<GFCondition> getChildConditions() {
+	public final List<ActionCondition> getChildConditions() {
 		return Collections.emptyList();
 	}
 
@@ -29,12 +29,12 @@ public abstract class LeafCondition extends AbstractCondition {
 	}
 
     @Override
-    public final Iterable<AgentComponent> children() {
+    public final Iterable<AgentNode> children() {
         return Collections.emptyList();
     }
 
     @Override
-    public final void remove(GFCondition condition) {
+    public final void remove(ActionCondition condition) {
         throw new UnsupportedOperationException();
     }
 
@@ -44,12 +44,21 @@ public abstract class LeafCondition extends AbstractCondition {
     }
 
     @Override
-    public final void add(GFCondition condition) {
+    public final void add(ActionCondition condition) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void insert(GFCondition condition, int index) {
+    public void insert(ActionCondition condition, int index) {
         throw new UnsupportedOperationException();
+    }
+
+    protected static abstract class AbstractBuilder<C extends AbstractCondition, B extends AbstractBuilder<C, B>> extends AbstractCondition.AbstractBuilder<C, B> {
+        protected AbstractBuilder(LeafCondition leafCondition) {
+            super(leafCondition);
+        }
+
+        protected AbstractBuilder() {
+        }
     }
 }

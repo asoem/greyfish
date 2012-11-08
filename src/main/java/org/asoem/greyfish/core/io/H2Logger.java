@@ -1,17 +1,20 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool;
-import org.asoem.greyfish.core.genes.GeneComponent;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
+import com.google.common.collect.Maps;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOError;
 import java.sql.*;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -20,171 +23,403 @@ import java.util.UUID;
  */
 public class H2Logger implements SimulationLogger {
 
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(H2Logger.class);
+    private static final int COMMIT_THRESHOLD = 1000;
     private final Connection connection;
-    private final KeyedObjectPool<String, PreparedStatement> statementPool;
+    private final List<UpdateOperation> updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
+    private final NameIdMap nameIdMap = new NameIdMap();
 
-    private int event_commit_counter = 0;
+    public H2Logger(String path) {
+        checkNotNull(path, "path is null");
+        Connection connection = null;
 
-    @Inject
-    private H2Logger(@Assisted Simulation simulation) {
         try {
             Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection("jdbc:h2:~/greyfish-data/" + simulation.getUUID().toString(), "sa", "");
-
-            connection.createStatement().execute(
-                    "CREATE TABLE agents (id int NOT NULL PRIMARY KEY, population VARCHAR(255) NOT NULL, activated_at int NOT NULL, created_at TIMESTAMP NOT NULL)");
-            connection.createStatement().execute(
-                    "CREATE TABLE chromosome_tree (id int NOT NULL, parent_id int NOT NULL)"
-            );
-            connection.createStatement().execute(
-                    "CREATE TABLE genes_double (agent_id int NOT NULL, name VARCHAR(80) NOT NULL, value DOUBLE NOT NULL)");
-            connection.createStatement().execute(
-                    "CREATE TABLE genes_string (agent_id int NOT NULL, name VARCHAR(80) NOT NULL, value VARCHAR(255) NOT NULL)");
-            connection.createStatement().execute(
-                    "CREATE TABLE agent_events (id int NOT NULL PRIMARY KEY, created_at TIMESTAMP NOT NULL, simulation_step int NOT NULL, agent_id int NOT NULL, source VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, message VARCHAR(255) NOT NULL)");
-
+            connection = DriverManager.getConnection(
+                    String.format("jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
+                            path), "sa", "");
+            LOGGER.info("Connection opened to database {}", path);
+            this.connection = connection;
+            initDatabase();
             connection.setAutoCommit(false);
-
-        } catch (SQLException e) {
-            close();
-            throw new IOError(e);
-        } catch (ClassNotFoundException e) {
-            throw new AssertionError("The H2 db library seems not to be loaded");
         }
-
-        statementPool = new GenericKeyedObjectPool<String, PreparedStatement>(
-                new BaseKeyedPoolableObjectFactory<String, PreparedStatement>() {
-                    @Override
-                    public PreparedStatement makeObject(String sql) throws Exception {
-                        return connection.prepareStatement(sql);
-                    }
-                }, -1, GenericKeyedObjectPool.WHEN_EXHAUSTED_GROW, -1);
-    }
-
-    @Override
-    public void close() {
-        try {
-            commit();
-            statementPool.clear();
-            connection.close();
-        } catch (SQLException e) {
-            throw new IOError(e);
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    @Override
-    public void addAgent(Agent agent) {
-        try {
-            final String insertAgentQuery = "INSERT INTO agents (id, population, activated_at, created_at) VALUES (?, ?, ?, ?)";
-            final PreparedStatement insertAgentStatement = borrowStatement(insertAgentQuery);
-            insertAgentStatement.setInt(1, agent.getId());
-            insertAgentStatement.setString(2, agent.getPopulation().getName());
-            insertAgentStatement.setInt(3, agent.getSimulationContext().getActivationStep());
-            insertAgentStatement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-            insertAgentStatement.execute();
-            returnStatement(insertAgentQuery, insertAgentStatement);
-
-            final String insertChromosomeQuery = "INSERT INTO chromosome_tree (id, parent_id) VALUES (?, ?)";
-            final PreparedStatement insertChromosomeStatement = borrowStatement(insertChromosomeQuery);
-            insertChromosomeStatement.setInt(1, agent.getId());
-            for (Integer parentId : agent.getGeneComponentList().getOrigin().getParents()) {
-                insertChromosomeStatement.setInt(2, parentId);
-                insertChromosomeStatement.execute();
+        catch (SQLException e) {
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (SQLException e1) {
+                LOGGER.warn("Exception during connection.close()", e1);
             }
-            returnStatement(insertChromosomeQuery, insertChromosomeStatement);
+            throw new IOError(e);
+        }
+        catch (ClassNotFoundException e) {
+            throw new AssertionError("The H2 database driver could not be found");
+        }
 
-            final String insertGeneAsDoubleQuery = "INSERT INTO genes_double (agent_id, name, value) VALUES (?, ?, ?)";
-            final PreparedStatement insertGeneAsDoubleStatement = borrowStatement(insertGeneAsDoubleQuery);
-            final String insertGeneAsStringQuery = "INSERT INTO genes_string (agent_id, name, value) VALUES (?, ?, ?)";
-            final PreparedStatement insertGeneAsStringStatement = borrowStatement(insertGeneAsStringQuery);
-
-            for (GeneComponent<?> gene : agent.getGeneComponentList()) {
-                assert gene != null;
-
-                if (Double.class.equals(gene.getSupplierClass())) {
-                    insertGeneAsDoubleStatement.setInt(1, agent.getId());
-                    insertGeneAsDoubleStatement.setString(2, gene.getName());
-                    insertGeneAsDoubleStatement.setDouble(3, ((GeneComponent<Double>) gene).getAllele());
-                    insertGeneAsDoubleStatement.execute();
-                } else {
-                    insertGeneAsStringStatement.setInt(1, agent.getId());
-                    insertGeneAsStringStatement.setString(2, gene.getName());
-                    insertGeneAsStringStatement.setString(3, String.valueOf(gene.getAllele()));
-                    insertGeneAsStringStatement.execute();
-
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    finalizeAndShutdownDatabase();
+                } catch (SQLException e) {
+                    LOGGER.warn("Exception while finalizing the database", e);
                 }
             }
+        });
+    }
 
-            returnStatement(insertGeneAsDoubleQuery, insertGeneAsDoubleStatement);
-            returnStatement(insertGeneAsStringQuery, insertGeneAsStringStatement);
+    private void initDatabase() throws SQLException {
+        Statement statement = connection.createStatement();
+        try {
+            statement.execute(
+                    "CREATE TABLE agents (" +
+                            "id INT NOT NULL PRIMARY KEY," +
+                            "population_name_id TINYINT NOT NULL," +
+                            "activated_at INT NOT NULL" +
+                            ")");
+            statement.execute(
+                    "CREATE TABLE chromosome_tree (" +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            "child_id INT NOT NULL," +
+                            "parent_id INT NOT NULL" +
+                            ")");
+            statement.execute(
+                    "CREATE TABLE names (" +
+                            "id TINYINT NOT NULL PRIMARY KEY," +
+                            "name VARCHAR(255) UNIQUE NOT NULL" +
+                            ")");
+            statement.execute(
+                    "CREATE TABLE genes_double (" +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            "agent_id INT NOT NULL," +
+                            "gene_name_id TINYINT NOT NULL," +
+                            "value REAL NOT NULL" +
+                            ")");
+            statement.execute(
+                    "CREATE TABLE genes_string (" +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                            "agent_id INT NOT NULL, " +
+                            "gene_name_id TINYINT NOT NULL, " +
+                            "value VARCHAR(255) NOT NULL" +
+                            ")");
+            statement.execute(
+                    "CREATE TABLE agent_events (" +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                            "simulation_step INT NOT NULL, " +
+                            "agent_id INT NOT NULL, " +
+                            "source_name_id TINYINT NOT NULL, " +
+                            "title_name_id TINYINT NOT NULL, " +
+                            "message VARCHAR(255) NOT NULL, " +
+                            "x REAL NOT NULL, " +
+                            "y REAL NOT NULL " +
+                            ")");
+        } finally {
+            closeStatement(statement);
+        }
+    }
 
-        } catch (SQLException e) {
+    private void finalizeAndShutdownDatabase() throws SQLException {
+        LOGGER.info("Finalizing and shutting down the database");
+
+        commit();
+        connection.setAutoCommit(true);
+
+        Statement statement = connection.createStatement();
+        statement.execute(
+                "CREATE INDEX ON genes_double(agent_id)");
+        statement.execute(
+                "CREATE INDEX ON genes_double(gene_name_id)");
+        statement.execute(
+                "CREATE INDEX ON genes_string(agent_id)");
+        statement.execute(
+                "CREATE INDEX ON genes_string(gene_name_id)");
+        statement.execute(
+                "CREATE INDEX ON agent_events(agent_id)");
+        statement.execute(
+                "CREATE INDEX ON agent_events(title_name_id)");
+        statement.execute(
+                "CREATE INDEX ON agent_events(simulation_step)");
+        statement.execute(
+                "CREATE UNIQUE HASH INDEX ON names(name)");
+        statement.execute(
+                "CREATE INDEX ON chromosome_tree(child_id)");
+        statement.execute(
+                "CREATE INDEX ON chromosome_tree(parent_id)");
+        statement.execute(
+                "SHUTDOWN COMPACT"); // This causes all connections to it to get closed
+
+        LOGGER.debug("Shutdown complete");
+    }
+
+    private void tryCommit() {
+        try {
+            if (shouldCommit())
+                commit();
+        }
+        catch (SQLException e) {
             throw new IOError(e);
         }
-
-        if (shouldCommit()) {
-            commit();
-        }
     }
 
-    private void returnStatement(String query, PreparedStatement statement) {
+    private void commit() throws SQLException {
+        final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
+
         try {
-            statementPool.returnObject(query, statement);
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
+            for (UpdateOperation updateOperation : updateOperationList) {
+                final String sql = updateOperation.sqlString();
+                if (!preparedStatementMap.containsKey(sql)) {
+                    preparedStatementMap.put(sql, connection.prepareStatement(sql));
+                }
+                final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
+                updateOperation.update(preparedStatement);
+                preparedStatement.addBatch();
+            }
+            updateOperationList.clear();
 
-    private PreparedStatement borrowStatement(String s) {
-        try {
-            return statementPool.borrowObject(s);
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    }
+            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                preparedStatement.executeBatch();
+            }
 
-    @Override
-    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
-        try {
-            final String insertEventQuery = "INSERT INTO agent_events (id, created_at, simulation_step, agent_id, source, title, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            final PreparedStatement insertEventStatement = borrowStatement(insertEventQuery);
-            insertEventStatement.setInt(1, eventId);
-            insertEventStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-
-            //insertEventStatement.setBytes(1, Bytes.concat(Longs.toByteArray(uuid.getMostSignificantBits()), Longs.toByteArray(uuid.getLeastSignificantBits())));
-            insertEventStatement.setInt(3, currentStep);
-            insertEventStatement.setInt(4, agentId);
-            // coordinates
-            insertEventStatement.setString(5, source);
-            insertEventStatement.setString(6, title);
-            insertEventStatement.setString(7, message);
-
-            insertEventStatement.execute();
-
-            returnStatement(insertEventQuery, insertEventStatement);
-        } catch (SQLException e) {
-            throw new IOError(e);
-        }
-
-        if (shouldCommit()) {
-            commit();
+            connection.commit();
+        } finally {
+            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+                closeStatement(preparedStatement);
+            }
         }
     }
 
     private boolean shouldCommit() {
-        final boolean shouldCommit = ++event_commit_counter == 1000;
-        if (shouldCommit)
-            event_commit_counter = 0;
-        return shouldCommit;
+        return updateOperationList.size() >= COMMIT_THRESHOLD;
     }
 
-    private void commit() {
-        try {
-            connection.commit();
-        } catch (SQLException e) {
-            throw new IOError(e);
+    private static void closeStatement(@Nullable Statement statement) {
+        if (statement == null)
+            return;
+        try{
+            if (!statement.isClosed())
+                statement.close();
+        }
+        catch (SQLException e) {
+            LOGGER.warn("Exception occurred while closing statement {}", statement, e);
+        }
+    }
+
+    private void addUpdateOperation(UpdateOperation updateOperation) {
+        updateOperationList.add(updateOperation);
+    }
+
+    private short idForName(String name) {
+        if (nameIdMap.contains(name)) {
+            return nameIdMap.get(name);
+        }
+        else {
+            final short id = nameIdMap.create(name);
+            addUpdateOperation(new InsertNameOperation(id, name));
+            return id;
+        }
+    }
+
+    @Override
+    public void logAgentCreation(Agent agent) {
+        addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
+        final Set<Integer> parents = agent.getParents();
+        for (Integer parentId : parents) {
+            addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
+        }
+        for (AgentTrait<?> gene : agent.getTraits()) {
+            assert gene != null;
+            if (Double.class.equals(gene.getAlleleClass())) {
+                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));
+            } else {
+                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));
+            }
+        }
+        tryCommit();
+    }
+
+    @Override
+    public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+        addUpdateOperation(new InsertEventOperation(currentStep, agentId, idForName(populationName), coordinates, idForName(source), idForName(title), message));
+        tryCommit();
+    }
+
+    private static interface UpdateOperation {
+        public String sqlString();
+        public void update(PreparedStatement statement) throws SQLException;
+    }
+
+    private static class InsertEventOperation implements UpdateOperation {
+        private final int currentStep;
+        private final int agentId;
+        private final double[] coordinates;
+        private final short sourceNameId;
+        private final short titleNameId;
+        private final String message;
+
+        public InsertEventOperation(int currentStep, int agentId, short populationNameId, double[] coordinates, short sourceNameId, short titleNameId, String message) {
+            this.currentStep = currentStep;
+            this.agentId = agentId;
+            this.coordinates = coordinates;
+            assert coordinates.length >= 2;
+            this.sourceNameId = sourceNameId;
+            this.titleNameId = titleNameId;
+            this.message = message;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO agent_events (simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setInt(1, currentStep);
+            statement.setInt(2, agentId);
+            statement.setShort(3, sourceNameId);
+            statement.setShort(4, titleNameId);
+            statement.setString(5, message);
+            statement.setFloat(6, (float) coordinates[0]);
+            statement.setFloat(7, (float) coordinates[1]);
+        }
+    }
+
+    private static class InsertAgentOperation implements UpdateOperation {
+        private final int id;
+        private final short populationNameId;
+        private final int timeOfBirth;
+
+        public InsertAgentOperation(int id, short populationNameId, int timeOfBirth) {
+            this.id = id;
+            this.populationNameId = populationNameId;
+            this.timeOfBirth = timeOfBirth;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO agents (id, population_name_id, activated_at) VALUES (?, ?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setInt(1, id);
+            statement.setShort(2, populationNameId);
+            statement.setInt(3, timeOfBirth);
+        }
+    }
+
+    private static class InsertChromosomeOperation implements UpdateOperation {
+        private final int childAgentId;
+        private final int parentAgentId;
+
+        public InsertChromosomeOperation(int childAgentId, int parentAgentId) {
+            this.childAgentId = childAgentId;
+            this.parentAgentId = parentAgentId;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO chromosome_tree (child_id, parent_id) VALUES (?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setInt(1, childAgentId);
+            statement.setInt(2, parentAgentId);
+        }
+    }
+
+    private static class InsertGeneAsDoubleOperation implements UpdateOperation {
+        private final int agentId;
+        private final short geneNameId;
+        private final Double allele;
+
+        public InsertGeneAsDoubleOperation(int agentId, short geneNameId, Double allele) {
+            this.agentId = agentId;
+            this.geneNameId = geneNameId;
+            this.allele = allele;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO genes_double (agent_id, gene_name_id, value) VALUES (?, ?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setInt(1, agentId);
+            statement.setShort(2, geneNameId);
+            statement.setDouble(3, allele);
+        }
+    }
+
+    private static class InsertGeneAsStringOperation implements UpdateOperation {
+        private final int agentId;
+        private final short geneNameId;
+        private final String allele;
+
+        public InsertGeneAsStringOperation(int agentId, short geneNameId, String allele) {
+            this.agentId = agentId;
+            this.geneNameId = geneNameId;
+            this.allele = allele;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO genes_string (agent_id, gene_name_id, value) VALUES (?, ?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setInt(1, agentId);
+            statement.setShort(2, geneNameId);
+            statement.setString(3, allele);
+        }
+    }
+
+    private static class InsertNameOperation implements UpdateOperation {
+        private final String name;
+        private final short id;
+
+        public InsertNameOperation(short id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO names (id, name) VALUES(?, ?)";
+        }
+
+        @Override
+        public void update(PreparedStatement statement) throws SQLException {
+            statement.setShort(1, id);
+            statement.setString(2, name);
+        }
+    }
+
+    private static class NameIdMap {
+        private final Map<String, Short> map = Maps.newHashMap();
+        private short maxId = 0;
+
+        public short create(String s) {
+            assert s != null;
+
+            if (map.containsKey(s))
+                throw new IllegalArgumentException("Key already exists: " + s);
+
+            final short value = ++maxId;
+            final Short previous = map.put(s, value);
+            assert previous == null;
+
+            return value;
+        }
+
+        public boolean contains(String name) {
+            return map.containsKey(name);
+        }
+
+        public short get(String name) {
+            return map.get(name);
         }
     }
 }

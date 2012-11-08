@@ -1,301 +1,190 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import jsr166y.ForkJoinPool;
+import jsr166y.RecursiveAction;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.AgentMessage;
-import org.asoem.greyfish.core.individual.ImmutableAgent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggerProvider;
-import org.asoem.greyfish.core.scenario.Scenario;
+import org.asoem.greyfish.core.space.ForwardingTiledSpace;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTile;
+import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.utils.base.Builder;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.base.VoidFunction;
-import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.asoem.greyfish.utils.space.ImmutableMotion2D;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.concurrent.RecursiveActions;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.concurrent.SingletonForkJoinPool.invoke;
-import static org.asoem.greyfish.utils.parallel.ParallelIterables.apply;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public class ParallelizedSimulation implements Simulation {
+public class ParallelizedSimulation extends AbstractSimulation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParallelizedSimulation.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
     @Element(name = "space")
-    private final TiledSpace<Agent> space;
-
+    private final AgentSpace space;
     @Attribute
-    private int currentStep = -1;
-
+    private final AtomicInteger currentStep = new AtomicInteger(-1);
+    @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true)
+    private final List<AddAgentMessage> addAgentMessages;
+    @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true)
+    private final List<RemoveAgentMessage> removeAgentMessages;
+    @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true)
+    private final List<DeliverAgentMessageMessage> deliverAgentMessageMessages;
+    private final KeyedObjectPool<Population, Agent> agentPool;
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+    private final ConcurrentMap<String, Object> snapshotValues;
+    @Attribute(name = "parallelizationThreshold")
+    private final int parallelizationThreshold;
+    @ElementList(name = "prototypes")
+    private final Set<Agent> prototypes;
+    @Element(name = "simulationLogger")
+    private final SimulationLogger simulationLogger;
+    private final AtomicInteger agentIdSequence = new AtomicInteger();
     @Attribute
     private String title = "untitled";
 
-    @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true)
-    private final List<AddAgentMessage> addAgentMessages =
-            Collections.synchronizedList(Lists.<AddAgentMessage>newArrayList());
-
-    @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true)
-    private final List<RemoveAgentMessage> removeAgentMessages =
-            Collections.synchronizedList(Lists.<RemoveAgentMessage>newArrayList());
-
-    @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true)
-    private final List<DeliverAgentMessageMessage> deliverAgentMessageMessages =
-            Collections.synchronizedList(Lists.<DeliverAgentMessageMessage>newArrayList());
-
-    private final Map<Population, AtomicInteger> populationCounterMap;
-
-    private final KeyedObjectPool<Population, Agent> objectPool = new StackKeyedObjectPool<Population, Agent>(
-            new BaseKeyedPoolableObjectFactory<Population, Agent>() {
-
-                @Override
-                public Agent makeObject(Population key) throws Exception {
-                    assert key != null;
-
-                    final Agent prototype = getPrototype(key);
-                    assert prototype != null : "Found no Prototype for " + key;
-
-                    return ImmutableAgent.cloneOf(prototype);
-                }
-
-                @Override
-                public void activateObject(Population key, Agent obj) throws Exception {
-                    assert obj != null;
-                    obj.initialize();
-                }
-            },
-            10000, 100);
-
-    private final Set<Agent> prototypes;
-
-    private final UUID uuid = UUID.randomUUID();
-
-    private final SimulationLogger simulationLogger;
-
-    @Nullable
-    private Agent getPrototype(final Population population) {
-        return Iterables.find(prototypes, new Predicate<Agent>() {
-            @Override
-            public boolean apply(@Nullable Agent agent) {
-                assert agent != null;
-                return agent.getPopulation().equals(population);
-            }
-        }, null);
+    private ParallelizedSimulation(ParallelizedSimulationBuilder builder) {
+        this(builder.space,
+                builder.prototypes,
+                builder.parallelizationThreshold,
+                builder.simulationLogger,
+                builder.agentPool,
+                Collections.synchronizedList(Lists.<AddAgentMessage>newArrayList()),
+                Collections.synchronizedList(Lists.<RemoveAgentMessage>newArrayList()),
+                Collections.synchronizedList(Lists.<DeliverAgentMessageMessage>newArrayList()));
     }
 
-    private final AtomicInteger agentIdSequence = new AtomicInteger();
-
-    private final AtomicInteger eventIdSequence = new AtomicInteger();
-
-    /**
-     * 
-     * @param scenario the scenario
-     */
-    public ParallelizedSimulation(final Scenario scenario) {
-        this(scenario.getSpace());
-    }
-
-    @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space,
+    private ParallelizedSimulation(
+                                  @Element(name = "space") WalledTileSpace<Agent> space,
+                                  @ElementList(name = "prototypes") Set<Agent> prototypes,
+                                  @Attribute(name = "parallelizationThreshold") int parallelizationThreshold,
+                                  @Element(name = "simulationLogger") SimulationLogger simulationLogger,
+                                  @Element(name = "agentPool") KeyedObjectPool<Population, Agent> agentPool,
                                   @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true) List<AddAgentMessage> addAgentMessages,
                                   @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true) List<RemoveAgentMessage> removeAgentMessages,
                                   @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true) List<DeliverAgentMessageMessage> deliverAgentMessageMessages) {
-        this(space);
-        this.addAgentMessages.addAll(addAgentMessages);
-        this.removeAgentMessages.addAll(removeAgentMessages);
-        this.deliverAgentMessageMessages.addAll(deliverAgentMessageMessages);
+
+        this.prototypes = prototypes;
+        this.parallelizationThreshold = parallelizationThreshold;
+        this.agentPool = agentPool;
+        this.space = new AgentSpace(space);
+        this.simulationLogger = simulationLogger;
+
+        this.addAgentMessages = addAgentMessages;
+        this.removeAgentMessages = removeAgentMessages;
+        this.deliverAgentMessageMessages = deliverAgentMessageMessages;
+
+        this.snapshotValues = Maps.newConcurrentMap();
     }
 
-    public ParallelizedSimulation(@Element(name = "space") TiledSpace<Agent> space) {
-        checkNotNull(space);
+    private static KeyedObjectPool<Population, Agent> createDefaultAgentPool(final Set<Agent> prototypes) {
+        checkArgument(!prototypes.contains(null));
 
-        this.space = TiledSpace.createEmptyCopy(space);
+        return new StackKeyedObjectPool<Population, Agent>(
+                new BaseKeyedPoolableObjectFactory<Population, Agent>() {
 
-        this.simulationLogger = SimulationLoggerProvider.getLogger(this);
+                    final Map<Population, Agent> populationPrototypeMap =
+                            Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {
+                                @Override
+                                public Population apply(Agent input) {
+                                    return input.getPopulation();
+                                }
+                            });
 
-        this.prototypes = ImmutableSet.copyOf(Iterables.transform(space.getObjects(), new Function<Agent, Agent>() {
-            final Map<Population, Agent> populationAgentMap = Maps.newHashMap();
-            @Override
-            public Agent apply(@Nullable Agent agent) {
-                assert agent != null;
-                final Population population = agent.getPopulation();
-                if (! populationAgentMap.containsKey(population))
-                    populationAgentMap.put(population, agent);
-                return populationAgentMap.get(population);
-            }
-        }));
+                    @Override
+                    public Agent makeObject(Population key) throws Exception {
+                        assert key != null;
 
-        this.populationCounterMap = ImmutableMapBuilder.<Population, AtomicInteger>newInstance().
-                putAll(prototypes,
-                        new Function<Agent, Population>() {
-                            @Override
-                            public Population apply(Agent agent) {
-                                return agent.getPopulation();
-                            }
-                        },
-                        Functions.forSupplier(new Supplier<AtomicInteger>() {
-                            @Override
-                            public AtomicInteger get() {
-                                return new AtomicInteger(0);
-                            }
-                        })).
-                build();
+                        final Agent prototype = populationPrototypeMap.get(key);
+                        assert prototype != null : "Found no Prototype for " + key;
 
-        for (Agent agent : space.getObjects()) {
-            activateAgentInternal(createAgent(agent.getPopulation()), agent.getProjection());
-        }
+                        final Agent clone = DeepCloner.clone(prototype, Agent.class);
+
+                        return FrozenAgent.builder(prototype.getPopulation())
+                                .addActions(clone.getActions())
+                                .addProperties(clone.getProperties())
+                                .addTraits(clone.getTraits())
+                                .build();
+                    }
+                },
+                10000, 100);
     }
 
-    public static ParallelizedSimulation newSimulation(final Scenario scenario) {
-        return new ParallelizedSimulation(scenario);
+    private void activateAgentInternal(Agent agent, Initializer<? super Agent> initializer) {
+        assert agent != null : "population is null";
+        assert initializer != null : "initializer is null";
+
+        initializer.initialize(agent);
+        space.insertObject(agent);
+        agent.activate(ActiveSimulationContext.create(this, agentIdSequence.incrementAndGet(), getStep() + 1));
+
+        LOGGER.debug("Agent activated: {}", agent);
+
+        simulationLogger.logAgentCreation(agent);
     }
 
-    @Override
-    public int numberOfPopulations() {
-        return getPrototypes().size();
-    }
-
-    @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double radius) {
-        return Iterables.filter(space.getVisibleNeighbours(agent, radius), Agent.class);
-    }
-
-    @Override
-    public Iterable<Agent> getAgents(final Population population) {
-        checkNotNull(population);
-
-        return Iterables.filter(getAgents(), new Predicate<Agent>() {
-            @Override
-            public boolean apply(Agent agent) {
-                return agent.getPopulation().equals(population);
-            }
-        });
-    }
-
-    @Override
-    public Iterable<Agent> getAgents() {
-        return space.getObjects();
-    }
-
-    private void activateAgentInternal(Agent agent, Object2D projection) {
-        assert agent != null;
-        assert projection != null;
-
-        space.addObject(agent, projection);
-        agent.activate(this);
-
-        agentActivated(agent);
-    }
-
-    private void agentActivated(Agent agent) {
-        AtomicInteger counter = populationCounterMap.get(agent.getPopulation());
-        counter.incrementAndGet();
-        LOGGER.debug("Agent got activated: {}", agent);
-        simulationLogger.addAgent(agent);
-    }
-
-    private void passivateAgentsInternal(Collection<? extends Agent> agents) {
+    private void passivateAgentsInternal(List<? extends Agent> agents) {
         for (Agent agent : agents) {
-            space.removeObject(agent);
-            populationCounterMap.get(agent.getPopulation()).decrementAndGet();
-            agent.shutDown();
+            agent.shutDown(PassiveSimulationContext.instance());
             releaseAgent(agent);
         }
-    }
-
-    /**
-     * Check if the given {@code agent} can be added to this simulation
-     * @param agent an {@code Agent}
-     */
-    private void checkCanAddAgent(final Agent agent) {
-        checkArgument(ImmutableAgent.class.isInstance(agent), // also checks for null
-                "Agent must be of type " + ImmutableAgent.class);
-
+        space.removeInactiveAgents();
     }
 
     @Override
     public void removeAgent(final Agent agent) {
         checkNotNull(agent);
-        checkArgument(agent.getSimulationContext().getSimulation().equals(this));
+        checkArgument(agent.simulation().equals(this));
         removeAgentMessages.add(new RemoveAgentMessage(agent));
     }
 
     private void releaseAgent(final Agent agent) {
-        checkCanAddAgent(agent);
         try {
-            objectPool.returnObject(agent.getPopulation(), agent);
+            agentPool.returnObject(agent.getPopulation(), agent);
         } catch (Exception e) {
             LOGGER.error("Error in prototype pool", e);
         }
     }
 
     @Override
-    public int countAgents() {
-        return space.countObjects();
-    }
-
-    @Override
     public int countAgents(Population population) {
-        checkArgument(populationCounterMap.containsKey(population), "Population unknown: " + population);
-        return populationCounterMap.get(population).get();
+        return space.count(population);
     }
 
-    @Override
-    public int countAgents(String populationName) {
-        return countAgents(Population.named(populationName));
-    }
-
-    @Override
-    public int generateAgentID() {
-        return agentIdSequence.incrementAndGet();
-    }
-
-    @Override
-    public void activateAgent(Agent agent, Object2D projection) {
-        checkNotNull(agent);
-        checkNotNull(projection);
-
-        checkArgument(getPrototype(agent.getPopulation()) != null,
-                "The population " + agent.getPopulation() + " of the given agent is unknown for this simulation");
-        checkArgument(space.contains(projection),
-                "Coordinates of " + projection + " do not fall inside the area of this simulation's space: " + space);
-
-        addAgentMessages.add(new AddAgentMessage(agent, projection));
-    }
-
-    @Override
-    public Agent createAgent(final Population population) {
+    private Agent createAgentInternal(final Population population) {
         checkNotNull(population);
         try {
-            return objectPool.borrowObject(population);
+            final Agent agent = agentPool.borrowObject(population);
+            checkNotNull(agent, "borrowObject in agentPool returned null");
+            agent.initialize();
+            return agent;
         } catch (Exception e) {
-            LOGGER.error("Couldn't borrow Agent from objectPool for population {}", population.getName(), e);
+            LOGGER.error("Couldn't borrow Agent from agentPool for population {}", population.getName(), e);
             throw new AssertionError(e);
         }
     }
@@ -306,20 +195,21 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public TiledSpace<Agent> getSpace() {
+    public TiledSpace<Agent, WalledTile> getSpace() {
         return space;
     }
 
     @Override
     public int getStep() {
-        return currentStep;
+        return currentStep.get();
     }
 
     @Override
     public synchronized void nextStep() {
-        ++currentStep;
 
-        LOGGER.info("{}: Entering step {}; {}", this, currentStep, countAgents());
+        final int step = currentStep.incrementAndGet();
+
+        LOGGER.info("{}: Entering step {}; {}", this, step, countAgents());
 
         executeAllAgents();
 
@@ -328,6 +218,11 @@ public class ParallelizedSimulation implements Simulation {
         processAgentsMovement();
         processRequestedAgentActivations();
 
+        afterStepCleanUp();
+    }
+
+    private void afterStepCleanUp() {
+        snapshotValues.clear();
     }
 
     private void processAgentMessageDelivery() {
@@ -340,44 +235,66 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     private void executeAllAgents() {
-        invoke(apply(getAgents(), new VoidFunction<Simulatable>() {
+        final RecursiveAction executeAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Simulatable>() {
             @Override
-            public void apply(Simulatable agent) {
+            public void process(Simulatable agent) {
                 agent.execute();
             }
-        }, 1000));
+        }, parallelizationThreshold);
+        forkJoinPool.invoke(executeAllAgents);
     }
 
     private void processRequestedAgentActivations() {
         for (AddAgentMessage addAgentMessage : addAgentMessages) {
-            activateAgentInternal(addAgentMessage.agent, addAgentMessage.location);
+            activateAgentInternal(createAgentInternal(addAgentMessage.population), addAgentMessage.initializer);
         }
         addAgentMessages.clear();
     }
 
     private void processAgentsMovement() {
-        invoke(apply(getAgents(), new VoidFunction<Agent>() {
+        final RecursiveAction moveAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Agent>() {
             @Override
-            public void apply(Agent agent) {
-                if (agent.getMotion() != ImmutableMotion2D.noMotion())
-                    space.moveObject(agent, agent.getMotion());
+            public void process(Agent agent) {
+                space.moveObject(agent);
             }
-        }, 1000));
+        }, parallelizationThreshold);
+        forkJoinPool.invoke(moveAllAgents);
     }
 
     private void processRequestedAgentRemovals() {
-        passivateAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage, Agent>() {
-            @Override
-            public Agent apply(RemoveAgentMessage removeAgentMessage) {
-                return removeAgentMessage.agent;
-            }
-        }));
-        removeAgentMessages.clear();
+        LOGGER.debug("Removing {} agent(s)", removeAgentMessages.size());
+        if (removeAgentMessages.size() > 0) {
+            passivateAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage, Agent>() {
+                @Override
+                public Agent apply(RemoveAgentMessage removeAgentMessage) {
+                    return removeAgentMessage.agent;
+                }
+            }));
+            removeAgentMessages.clear();
+        }
     }
 
     @Override
-    public String toString() {
-        return "Simulation['" + getName() + "', " + getUUID() + "]";
+    public void deliverMessage(final ACLMessage<Agent> message) {
+        checkNotNull(message);
+        deliverAgentMessageMessages.add(new DeliverAgentMessageMessage(message));
+    }
+
+    @Override
+    public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
+        if (!snapshotValues.containsKey(key))
+            snapshotValues.putIfAbsent(key, valueCalculator.get());
+        return snapshotValues.get(key);
+    }
+
+    @Override
+    public void createAgent(Population population, Initializer<? super Agent> initializer) {
+        addAgentMessages.add(new AddAgentMessage(population, initializer));
+    }
+
+    @Override
+    public SimulationLogger getSimulationLogger() {
+        return simulationLogger;
     }
 
     @Override
@@ -391,61 +308,20 @@ public class ParallelizedSimulation implements Simulation {
     }
 
     @Override
-    public void deliverMessage(final ACLMessage<Agent> message) {
-        checkNotNull(message);
-        deliverAgentMessageMessages.add(new DeliverAgentMessageMessage(message));
-    }
-
-    @Override
-    public void shutdown() {
-        SimulationLoggerProvider.getLogger(this).close();
-    }
-
-    @Override
-    public UUID getUUID() {
-        return uuid;
-    }
-
-    /**
-     * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}
-     * @param predicate the {@code Predicate} which will be checked after each step
-     */
-    public void runWhile(Predicate<? super ParallelizedSimulation> predicate) {
-        checkNotNull(predicate);
-
-        while (predicate.apply(this)) {
-            nextStep();
-        }
-    }
-
-    @Override
-    public void createEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
-        simulationLogger.addEvent(
-                eventIdSequence.incrementAndGet(), uuid, currentStep,
-                agentId, populationName, coordinates,
-                eventOrigin.getClass().getSimpleName(), title, message);
-    }
-
-    /**
-     * Creates a new {@code Simulation}
-     *
-     * @param scenario the {@code Scenario} used to initialize this Simulation
-     * @return the newly created simulation
-     */
-    @SuppressWarnings("UnusedDeclaration")
-    public static ParallelizedSimulation create(Scenario scenario) {
-        checkNotNull(scenario);
-        return new ParallelizedSimulation(scenario);
+    public Iterable<Agent> getAgents(Population population) {
+        return space.getAgents(population);
     }
 
     private static class AddAgentMessage {
 
-        private final Agent agent;
-        private final Object2D location;
+        private final Population population;
+        private final Initializer<? super Agent> initializer;
 
-        private AddAgentMessage(Agent agent, Object2D location) {
-            this.agent = agent;
-            this.location = location;
+        private AddAgentMessage(Population population, Initializer<? super Agent> initializer) {
+            assert population != null;
+            assert initializer != null;
+            this.population = population;
+            this.initializer = initializer;
         }
     }
 
@@ -454,6 +330,7 @@ public class ParallelizedSimulation implements Simulation {
         private final Agent agent;
 
         public RemoveAgentMessage(Agent agent) {
+            assert agent != null;
             this.agent = agent;
         }
 
@@ -467,5 +344,123 @@ public class ParallelizedSimulation implements Simulation {
             this.message = message;
         }
 
+    }
+
+    private static class AgentSpace extends ForwardingTiledSpace<Agent, WalledTile> {
+
+        private final TiledSpace<Agent, WalledTile> delegate;
+        private final Multimap<Population, Agent> agentsByPopulation;
+        private static final Predicate<Agent> INACTIVE_AGENT_PREDICATE = new Predicate<Agent>() {
+            @Override
+            public boolean apply(Agent input) {
+                return !input.isActive();
+            }
+        };
+
+        private AgentSpace(TiledSpace<Agent, WalledTile> delegate) {
+            assert delegate != null;
+
+            this.delegate = delegate;
+            this.agentsByPopulation = LinkedListMultimap.create();
+        }
+
+        @Override
+        protected TiledSpace<Agent, WalledTile> delegate() {
+            return delegate;
+        }
+
+        public int count(Population population) {
+            assert population != null;
+            return agentsByPopulation.get(population).size();
+        }
+
+        @Override
+        public boolean insertObject(Agent agent, double x, double y, double orientation) {
+            assert agent != null;
+            if (super.insertObject(agent, x, y, orientation)) {
+                final boolean add = agentsByPopulation.get(agent.getPopulation()).add(agent);
+                assert add : "Could not add " + agent;
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean insertObject(Agent agent) {
+            assert agent != null;
+            if (super.insertObject(agent)) {
+                final boolean add = agentsByPopulation.get(agent.getPopulation()).add(agent);
+                assert add : "Could not add " + agent;
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean removeObject(Agent agent) {
+            assert agent != null;
+            if (super.removeObject(agent)) {
+                final boolean remove = agentsByPopulation.get(agent.getPopulation()).remove(agent);
+                assert remove : "Could not remove " + agent;
+                return true;
+            }
+            return false;
+        }
+
+        public void removeInactiveAgents() {
+            if (super.removeIf(INACTIVE_AGENT_PREDICATE)) {
+                Iterables.removeIf(agentsByPopulation.values(), INACTIVE_AGENT_PREDICATE);
+            }
+        }
+
+        public Iterable<Agent> getAgents(Population population) {
+            assert population != null;
+            return agentsByPopulation.get(population);
+        }
+    }
+
+    public static ParallelizedSimulationBuilder builder(WalledTileSpace<Agent> space, Set<Agent> prototypes) {
+        return new ParallelizedSimulationBuilder(space, prototypes);
+    }
+
+    public static class ParallelizedSimulationBuilder implements Builder<ParallelizedSimulation> {
+
+        private KeyedObjectPool<Population, Agent> agentPool;
+        private int parallelizationThreshold = 1000;
+        private WalledTileSpace<Agent> space;
+        private Set<Agent> prototypes;
+        private SimulationLogger simulationLogger = new ConsoleLogger();
+
+        public ParallelizedSimulationBuilder(WalledTileSpace<Agent> space, Set<Agent> prototypes) {
+            this.space = checkNotNull(space);
+            this.prototypes = checkNotNull(prototypes);
+        }
+
+        @Override
+        public ParallelizedSimulation build() throws IllegalStateException {
+            if (agentPool == null)
+                agentPool = createDefaultAgentPool(prototypes);
+
+            checkState(!prototypes.contains(null), "Prototypes contains null");
+            checkState(space.isEmpty(), "Space is not empty");
+
+            return new ParallelizedSimulation(this);
+        }
+
+        public ParallelizedSimulationBuilder agentPool(KeyedObjectPool<Population, Agent> pool) {
+            this.agentPool = checkNotNull(pool);
+            return this;
+        }
+
+        public ParallelizedSimulationBuilder parallelizationThreshold(int parallelizationThreshold) {
+            checkArgument(parallelizationThreshold > 0, "parallelizationThreshold must be positive");
+            this.parallelizationThreshold = parallelizationThreshold;
+            return this;
+        }
+
+        public ParallelizedSimulationBuilder simulationLogger(SimulationLogger simulationLogger) {
+            this.simulationLogger = simulationLogger;
+            return this;
+        }
     }
 }

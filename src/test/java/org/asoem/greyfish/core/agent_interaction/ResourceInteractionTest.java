@@ -1,43 +1,40 @@
 package org.asoem.greyfish.core.agent_interaction;
 
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
+import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
-import org.asoem.greyfish.core.individual.*;
-import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.FrozenAgent;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.scenario.BasicScenario;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.simulation.Simulations;
+import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.utils.base.Arguments;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Map;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResourceInteractionTest {
-    @Mock
-    Population population;
-
-    public ResourceInteractionTest() {
-        Guice.createInjector(new CoreModule());
-    }
 
     @Test
     public void testNormalInteraction() throws Exception {
         // given
-        given(population.getName()).willReturn("TestPopulation");
+        Population consumerPopulation = Population.named("ConsumerPopulation");
+        Population providerPopulation = Population.named("ProviderPopulation");
 
         String messageClassifier = "mate";
 
@@ -53,7 +50,7 @@ public class ResourceInteractionTest {
                 .requestAmount(Callbacks.constant(1.0))
                 .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
                     @Override
-                    public Void apply(ResourceConsumptionAction caller, Map<String, ?> arguments) {
+                    public Void apply(ResourceConsumptionAction caller, Arguments arguments) {
                         caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) arguments.get("offer") * 2);
                         return null;
                     }
@@ -72,35 +69,40 @@ public class ResourceInteractionTest {
                 .provides(Callbacks.constant(1.0))
                 .build();
 
-        Agent consumer = spy(ImmutableAgent.of(population)
+        Agent consumer = FrozenAgent.builder(consumerPopulation)
                 .addProperties(energyStorage)
                 .addActions(consumptionAction)
-                .build());
-        Agent provisioner = spy(ImmutableAgent.of(population)
+                .build();
+        Agent provisioner = FrozenAgent.builder(providerPopulation)
                 .addProperties(resourceProperty)
                 .addActions(provisionAction)
-                .build());
+                .build();
 
-        Simulation simulationSpy = spy(new ParallelizedSimulation(BasicScenario.builder("TestScenario", TiledSpace.<Agent>ofSize(0, 0)).build()));
-        given(simulationSpy.getAgents()).willReturn(ImmutableList.<Agent>of(provisioner, consumer));
-        doReturn(ImmutableList.of(consumer)).when(simulationSpy).findNeighbours(eq(provisioner), anyDouble());
-        doReturn(ImmutableList.of(provisioner)).when(simulationSpy).findNeighbours(eq(consumer), anyDouble());
 
-        consumptionAction.setAgent(consumer);
-        provisionAction.setAgent(provisioner);
+        final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
+        final ImmutableSet<Agent> prototypes = ImmutableSet.of(consumer, provisioner);
+        final Simulation simulation = ParallelizedSimulation.builder(space, prototypes)
+                .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
+                    final ImmutableMap<Population, Agent> populationPrototypeMap =
+                            Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {
+                                @Override
+                                public Population apply(Agent input) {
+                                    return input.getPopulation();
+                                }
+                            });
 
-        consumer.initialize();
-        consumer.activate(simulationSpy);
+                    @Override
+                    public Agent makeObject(Population population) throws Exception {
+                        return populationPrototypeMap.get(population);
+                    }
+                }))
+                .build();
 
-        provisioner.initialize();
-        provisioner.activate(simulationSpy);
-
-        // when
-        for (int i = 0; i < 5; ++i) {
-            simulationSpy.nextStep();
-        }
+        simulation.createAgent(consumerPopulation);
+        simulation.createAgent(providerPopulation);
+        Simulations.runFor(simulation, 6);
 
         // then
-        assertThat(energyStorage.getValue()).isEqualTo(2);
+        assertThat(energyStorage.getValue(), is(equalTo(2.0)));
     }
 }

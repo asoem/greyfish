@@ -2,14 +2,13 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
 
-@ClassGroup(tags = "conditions")
+@Tagged("conditions")
 public class DoublePropertyCondition extends DoubleCompareCondition {
 
 	@Element(name="property")
@@ -25,14 +24,14 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
         return new DoublePropertyCondition(this, cloner);
     }
 
-    protected DoublePropertyCondition(AbstractBuilder<?,?> builder) {
+    private DoublePropertyCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.doubleProperty = builder.doubleProperty;
     }
 
-    protected DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
+    private DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.doubleProperty = map.cloneField(condition.doubleProperty, DoubleProperty.class);
+        this.doubleProperty = map.getClone(condition.doubleProperty, DoubleProperty.class);
     }
 
     @Override
@@ -59,7 +58,7 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 	}
 
 	@Override
-	protected Double getCompareValue(Simulation simulation) {
+	protected Double getCompareValue() {
 		return doubleProperty.getValue();
 	}
 

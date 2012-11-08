@@ -1,18 +1,15 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.utils.base.Product2;
-import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -21,32 +18,21 @@ import static org.fest.assertions.Assertions.assertThat;
  */
 public class DoubleGeneTest {
 
-    @Inject
-    private GreyfishExpressionFactory expressionFactory;
-    @Inject
-    private Persister persister;
-
-    public DoubleGeneTest() {
-        Guice.createInjector(new CoreModule()).injectMembers(this);
-    }
-
     @Test
     public void testPersistence() throws Exception {
         // given
-        final Callback<Object, Product2<Double, Double>> callback = Callbacks.constant(null);
-        final DoubleGeneComponent doubleGene = DoubleGeneComponent.builder()
+        final Callback<Object, Double> callback = Callbacks.constant(1.0);
+        final QuantitativeTrait doubleGene = QuantitativeTrait.builder()
                 .name("test")
-                .initialAllele(constant(1.0))
+                .initialization(constant(1.0))
                 .mutation(constant(1.0))
-                .recombination(callback)
+                .segregation(callback)
                 .build();
 
         // when
-        final DoubleGeneComponent persistentGene = Persisters.createCopy(doubleGene, DoubleGeneComponent.class, persister);
+        final QuantitativeTrait copy = Persisters.createCopy(doubleGene, JavaPersister.INSTANCE);
 
         // then
-        assertThat(persistentGene.getName()).isEqualTo("test");
-        assertThat(persistentGene.getInitialValue()).isEqualTo(constant(1.0));
-        assertThat(persistentGene.getMutation()).isEqualTo(constant(1.0));
+        MatcherAssert.assertThat(copy, is(equalTo(doubleGene)));
     }
 }

@@ -7,26 +7,14 @@ package org.asoem.greyfish.core.eval;
  *
  * This {@code Expression} implementation will evaluate a given {@code Expression} without any modifications using a given {@code Evaluator}
  */
-public class VanillaExpression implements Expression {
+public class VanillaExpression extends AbstractExpression {
 
     private final String expression;
     private final Evaluator evaluator;
 
-    public VanillaExpression(String expression, Evaluator evaluator) {
+    public VanillaExpression(String expression, EvaluatorFactory evaluator) {
         this.expression = expression;
-        this.evaluator = evaluator;
-        this.evaluator.setExpression(expression);
-    }
-
-    @Override
-    public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
-        evaluator.setResolver(resolver);
-        return evaluator.evaluate();
-    }
-
-    @Override
-    public EvaluationResult evaluate() throws EvaluationException {
-        return evaluator.evaluate();
+        this.evaluator = evaluator.createEvaluator(expression);
     }
 
     @Override

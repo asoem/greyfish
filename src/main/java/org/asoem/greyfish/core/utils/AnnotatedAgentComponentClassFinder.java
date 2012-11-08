@@ -3,15 +3,15 @@ package org.asoem.greyfish.core.utils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import org.asoem.greyfish.core.actions.GFAction;
-import org.asoem.greyfish.core.conditions.GFCondition;
-import org.asoem.greyfish.core.genes.GeneComponent;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.core.properties.GFProperty;
-import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.conditions.ActionCondition;
+import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.base.ClassFinder;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.base.Tagged;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import java.util.Arrays;
 
@@ -24,29 +24,29 @@ import static com.google.common.collect.Iterables.transform;
  * Time: 13:58
  */
 public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFinder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnnotatedAgentComponentClassFinder.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AnnotatedAgentComponentClassFinder.class);
 
     @Override
-    public Iterable<Class<? extends GFAction>> getAvailableActions() {
-        return findClasses(GFAction.class, "actions");
+    public Iterable<Class<? extends AgentAction>> getAvailableActions() {
+        return findClasses(AgentAction.class, "actions");
     }
 
     @Override
-    public Iterable<Class<? extends GFProperty>> getAvailableProperties() {
-        return findClasses(GFProperty.class, "properties");
+    public Iterable<Class<? extends AgentProperty>> getAvailableProperties() {
+        return findClasses(AgentProperty.class, "properties");
     }
 
     @Override
-    public Iterable<Class<? extends GeneComponent>> getAvailableGenes() {
-        return findClasses(GeneComponent.class, "genes");
+    public Iterable<Class<? extends AgentTrait>> getAvailableGenes() {
+        return findClasses(AgentTrait.class, "traits");
     }
 
     @Override
-    public Iterable<Class<? extends GFCondition>> getAvailableConditionClasses() {
-        return findClasses(GFCondition.class, "conditions");
+    public Iterable<Class<? extends ActionCondition>> getAvailableConditionClasses() {
+        return findClasses(ActionCondition.class, "conditions");
     }
 
-    private <T extends AgentComponent> Iterable<Class<? extends T>> findClasses(final Class<T> clazz, final String classGroupName) {
+    private <T extends AgentComponent> Iterable<Class<? extends T>> findClasses(final Class<T> clazz, final String tag) {
         try {
             Iterable<Class<?>> classes = ClassFinder.getInstance().getAll(clazz.getPackage().getName());
 
@@ -55,10 +55,9 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
                             filter(classes, new Predicate<Class<?>>() {
                                 @Override
                                 public boolean apply(Class<?> aClass) {
-                                    if (clazz.isAssignableFrom(aClass)) {
-                                        ClassGroup annotation = aClass.getAnnotation(ClassGroup.class);
-                                        return annotation != null
-                                                && Arrays.binarySearch(annotation.tags(), classGroupName) >= 0;
+                                    if (clazz.isAssignableFrom(aClass) && aClass.isAnnotationPresent(Tagged.class)) {
+                                        String[] tags = aClass.getAnnotation(Tagged.class).value();
+                                        return Arrays.binarySearch(tags, tag) >= 0;
                                     }
                                     return false;
                                 }

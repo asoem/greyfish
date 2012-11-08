@@ -1,20 +1,12 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
-import javax.annotation.Nullable;
-import java.util.Map;
-
-import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -23,32 +15,15 @@ import static org.fest.assertions.Assertions.assertThat;
  */
 public class ConditionalStatesPropertyTest {
 
-    @Inject
-    private GreyfishExpressionFactory expressionFactory;
-    @Inject
-    private Persister persister;
-
-    public ConditionalStatesPropertyTest() {
-        Guice.createInjector(new CoreModule()).injectMembers(this);
-    }
     @Test
     public void testPersistence() throws Exception {
         // given
         ConditionalStatesProperty statesProperty = ConditionalStatesProperty.with().addState("A", "true").build();
         
         // when
-        ConditionalStatesProperty persistent = Persisters.createCopy(statesProperty, ConditionalStatesProperty.class, persister);
+        ConditionalStatesProperty persistent = Persisters.createCopy(statesProperty, JavaPersister.INSTANCE);
 
         // then
-        final Map<String,GreyfishExpression> conditionMap = persistent.getConditionMap();
-        assertThat(conditionMap).hasSize(1);
-        assertThat(conditionMap.keySet()).containsOnly("A");
-        assertThat(Iterables.transform(conditionMap.values(), new Function<GreyfishExpression, String>() {
-            @Override
-            public String apply(@Nullable GreyfishExpression greyfishExpression) {
-                assert greyfishExpression != null;
-                return greyfishExpression.getExpression();
-            }
-        })).containsOnly("true");
+        MatcherAssert.assertThat(persistent, is(equalTo(statesProperty)));
     }
 }

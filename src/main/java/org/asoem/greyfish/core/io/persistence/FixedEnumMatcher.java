@@ -44,6 +44,7 @@ class FixedEnumMatcher implements Matcher {
 
             };
         }
+
         return null;
     }
 }

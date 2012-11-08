@@ -1,26 +1,20 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
-import org.simpleframework.xml.Element;
+import org.asoem.greyfish.utils.base.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.core.individual.Callbacks.call;
+import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 /**
  * User: christoph
  * Date: 20.02.12
  * Time: 18:24
  */
-@ClassGroup(tags = "actions")
-public class GenericAction extends AbstractGFAction {
+@Tagged("actions")
+public class GenericAction extends AbstractAgentAction {
 
-    @Element
     private Callback<? super GenericAction, Void> callback;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -41,7 +35,7 @@ public class GenericAction extends AbstractGFAction {
     @Override
     protected ActionState proceed(Simulation simulation) {
         call(callback, this);
-        return ActionState.SUCCESS;
+        return ActionState.COMPLETED;
     }
 
     @Override
@@ -71,11 +65,11 @@ public class GenericAction extends AbstractGFAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends GenericAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends GenericAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
 
         public Callback<? super GenericAction, Void> callback = Callbacks.emptyCallback();
 
-        public T executes(Callback<? super GenericAction, Void> callback) {
+        public B executes(Callback<? super GenericAction, Void> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }

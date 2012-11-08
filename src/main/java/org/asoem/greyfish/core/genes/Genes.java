@@ -14,7 +14,10 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Date: 27.04.12
  * Time: 10:44
  */
-public class Genes {
+public final class Genes {
+
+    private Genes() {}
+
     public static List<Gene<?>> recombine(final List<? extends Gene<?>> thisGenes, final List<? extends Gene<?>> thatGenes) {
 
         checkArgument(thisGenes.size() == thatGenes.size(), "Gene lists must have the same length");
@@ -42,7 +45,7 @@ public class Genes {
                 if (recombinationProbability < 0 || recombinationProbability > 1)
                     throw new AssertionError("Recombination probability has an invalid value: " + recombinationProbability);
 
-                final boolean recombine = RandomUtils.trueWithProbability(recombinationProbability);
+                final boolean recombine = RandomUtils.nextBoolean(recombinationProbability);
                 if (recombine)
                     thisOrThat = !thisOrThat;
 

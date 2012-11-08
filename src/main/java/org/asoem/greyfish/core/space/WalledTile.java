@@ -4,20 +4,18 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.utils.space.Geometry2D;
-import org.asoem.greyfish.utils.space.Location2D;
+import org.asoem.greyfish.utils.space.Point2D;
+import org.asoem.greyfish.utils.space.Tile;
+import org.asoem.greyfish.utils.space.TileDirection;
 import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
 
-import static org.asoem.greyfish.core.space.TileDirection.*;
+import static org.asoem.greyfish.utils.space.TileDirection.*;
 
 public class WalledTile implements Tile {
 
-    public static final double CLOSEST_TO_ZERO_RIGHT = 0.000000000001;
-
-    public static final double CLOSEST_TO_ONE_LEFT = 0.999999999999;
-
-    private final int borderFlagsMask;
+    private final int wallFlagsMask;
 
     @Attribute(name = "x")
     private final int x;
@@ -25,26 +23,26 @@ public class WalledTile implements Tile {
     @Attribute(name = "y")
     private final int y;
 
-    @Attribute(name = "border", required = false)
-    private int borderFlags = 0;
+    @Attribute(name = "wallFlags", required = false)
+    private int wallFlags = 0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
     private WalledTile(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
         this.x = x;
         this.y = y;
-        this.borderFlagsMask = 0;
+        this.wallFlagsMask = 0;
     }
 
-    WalledTile(TiledSpace<?> space, int x, int y) {
+    WalledTile(TiledSpace<?, WalledTile> space, int x, int y) {
         this.x = x;
         this.y = y;
 
         int mask = 0;
-        if (x == 0)                     mask |= (1 << WEST.ordinal());
-        if (x == space.getWidth() -1)   mask |= (1 << EAST.ordinal());
-        if (y == 0)                     mask |= (1 << NORTH.ordinal());
-        if (y == space.getHeight() -1)  mask |= (1 << SOUTH.ordinal());
-        borderFlagsMask = mask;
+        if (x == 0) mask |= (1 << WEST.ordinal());
+        if (x == space.getWidth() - 1) mask |= (1 << EAST.ordinal());
+        if (y == 0) mask |= (1 << NORTH.ordinal());
+        if (y == space.getHeight() - 1) mask |= (1 << SOUTH.ordinal());
+        wallFlagsMask = mask;
     }
 
     @Override
@@ -58,15 +56,16 @@ public class WalledTile implements Tile {
     }
 
     /**
-     * Checks for a border in the given {@code direction} of this tile and for a border in the opposite {@code direction} of the tile in the given direction if present.
+     * Checks for a wall in the given {@code direction} of this tile and for a wall in the opposite {@code direction} of the tile in the given direction if present.
      * For combined directions (e.g. {@code NORTHWEST}) the function will return
-     * {@code true} if there is a border for any of the single directions (e.g. {@code NORTH} or {@code WEST})
+     * {@code true} if there is a wall for any of the single directions (e.g. {@code NORTH} or {@code WEST})
+     *
      * @param direction The direction to check
-     * @return {@code true} if this location has a border in the given {@code direction}
-     * or the location in the given {@code direction}, if present, has a border in the opposite direction,
-     * {@code false} otherwise.
+     * @return {@code true} if this location has a wall in the given {@code direction}
+     *         or the location in the given {@code direction}, if present, has a border in the opposite direction,
+     *         {@code false} otherwise.
      */
-    public boolean hasBorder(TileDirection direction) {
+    public boolean hasWall(TileDirection direction) {
 
         switch (direction) {
             case CENTER:
@@ -76,24 +75,24 @@ public class WalledTile implements Tile {
             case SOUTH:
             case WEST:
             case EAST:
-                if (isBorderFlagSet(1 << direction.ordinal()))
+                if (isWallFlagSet(1 << direction.ordinal()))
                     return true;
                 break;
 
             case NORTHEAST:
-                if (isBorderFlagSet(1 << NORTH.ordinal() | 1 << EAST.ordinal()))
+                if (isWallFlagSet(1 << NORTH.ordinal() | 1 << EAST.ordinal()))
                     return true;
                 break;
             case SOUTHEAST:
-                if (isBorderFlagSet(1 << SOUTH.ordinal() | 1 << EAST.ordinal()))
+                if (isWallFlagSet(1 << SOUTH.ordinal() | 1 << EAST.ordinal()))
                     return true;
                 break;
             case SOUTHWEST:
-                if (isBorderFlagSet(1 << SOUTH.ordinal() | 1 << WEST.ordinal()))
+                if (isWallFlagSet(1 << SOUTH.ordinal() | 1 << WEST.ordinal()))
                     return true;
                 break;
             case NORTHWEST:
-                if (isBorderFlagSet(1 << NORTH.ordinal() | 1 << WEST.ordinal()))
+                if (isWallFlagSet(1 << NORTH.ordinal() | 1 << WEST.ordinal()))
                     return true;
                 break;
         }
@@ -101,54 +100,54 @@ public class WalledTile implements Tile {
         return false;
     }
 
-    private boolean isBorderFlagSet(int flags) {
-        return ((borderFlags | borderFlagsMask) & flags) != 0;
+    private boolean isWallFlagSet(int flags) {
+        return ((wallFlags | wallFlagsMask) & flags) != 0;
     }
 
-    public void setBorder(TileDirection direction, boolean b) {
+    public void setWall(TileDirection direction, boolean b) {
         switch (direction) {
             case CENTER:
                 throw new IllegalArgumentException("A border at CENTER makes no sense");
             case NORTHEAST:
-                setBorder(NORTH, b);
-                setBorder(SOUTH, b);
+                setWall(NORTH, b);
+                setWall(SOUTH, b);
                 return;
             case SOUTHEAST:
-                setBorder(SOUTH, b);
-                setBorder(EAST, b);
+                setWall(SOUTH, b);
+                setWall(EAST, b);
                 return;
             case SOUTHWEST:
-                setBorder(SOUTH, b);
-                setBorder(WEST, b);
+                setWall(SOUTH, b);
+                setWall(WEST, b);
                 return;
             case NORTHWEST:
-                setBorder(NORTH, b);
-                setBorder(WEST, b);
+                setWall(NORTH, b);
+                setWall(WEST, b);
                 return;
             default:
                 break;
         }
 
         if (b) {
-            borderFlags |= (1 << direction.ordinal());
+            wallFlags |= (1 << direction.ordinal());
         } else {
-            borderFlags &= (~(1 << direction.ordinal()));
+            wallFlags &= (~(1 << direction.ordinal()));
         }
     }
 
-    public int getBorderFlags() {
-        return borderFlags;
+    public int getWallFlags() {
+        return wallFlags;
     }
 
-    public void setBorderFlags(int borderFlags) {
-        this.borderFlags = borderFlags;
+    public void setWallFlags(int borderFlags) {
+        this.wallFlags = borderFlags;
     }
 
-    public void toggleBorder(TileDirection direction) {
-        setBorder(direction, !hasBorder(direction));
+    public void toggleWall(TileDirection direction) {
+        setWall(direction, !hasWall(direction));
     }
 
-    public boolean covers(Location2D locatable) {
+    public boolean covers(Point2D locatable) {
         return covers(locatable.getX(), locatable.getY());
     }
 
@@ -175,18 +174,18 @@ public class WalledTile implements Tile {
 
     @Override
     public String toString() {
-        ArrayList<String> borderList = Lists.newArrayList();
+        ArrayList<String> walls = Lists.newArrayList();
 
-        if (hasBorder(NORTH))       borderList.add("N");
-        if (hasBorder(NORTHEAST))   borderList.add("NE");
-        if (hasBorder(EAST))        borderList.add("E");
-        if (hasBorder(SOUTHEAST))   borderList.add("SE");
-        if (hasBorder(SOUTH))       borderList.add("S");
-        if (hasBorder(SOUTHWEST))   borderList.add("SW");
-        if (hasBorder(WEST))        borderList.add("W");
-        if (hasBorder(NORTHWEST))   borderList.add("NW");
+        if (hasWall(NORTH)) walls.add("N");
+        if (hasWall(NORTHEAST)) walls.add("NE");
+        if (hasWall(EAST)) walls.add("E");
+        if (hasWall(SOUTHEAST)) walls.add("SE");
+        if (hasWall(SOUTH)) walls.add("S");
+        if (hasWall(SOUTHWEST)) walls.add("SW");
+        if (hasWall(WEST)) walls.add("W");
+        if (hasWall(NORTHWEST)) walls.add("NW");
 
-        return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(borderList) + ")";
+        return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(walls) + ")";
     }
 
     public boolean covers(double x, double y) {

@@ -3,25 +3,32 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
-public abstract class FiniteStateAction extends AbstractGFAction {
+import java.io.Serializable;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
+public abstract class FiniteStateAction extends AbstractAgentAction {
+
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FiniteStateAction.class);
 
     private int statefulExecutionCount;
+    private Object nextStateKey = initialState();
+    private boolean endStateReached = false;
 
-    protected FiniteStateAction(AbstractActionBuilder<?,?> builder) {
+    protected FiniteStateAction(AbstractBuilder<? extends FiniteStateAction, ? extends AbstractBuilder> builder) {
         super(builder);
+        this.statefulExecutionCount = builder.statefulExecutionCount;
+        this.nextStateKey = builder.nextStateKey;
+        this.endStateReached = builder.endStateReached;
     }
 
     protected FiniteStateAction(FiniteStateAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
+        this.statefulExecutionCount = cloneable.statefulExecutionCount;
+        this.nextStateKey = cloneable.nextStateKey;
+        this.endStateReached = cloneable.endStateReached;
     }
-
-    private Object nextStateKey = initialState();
-    private boolean endStateReached = false;
 
     @Override
     protected final ActionState proceed(Simulation simulation) {
@@ -34,7 +41,7 @@ public abstract class FiniteStateAction extends AbstractGFAction {
         ++statefulExecutionCount;
 
         if (endStateReached)
-            return ActionState.SUCCESS;
+            return ActionState.COMPLETED;
         else
             return ActionState.INTERMEDIATE;
     }
@@ -89,11 +96,26 @@ public abstract class FiniteStateAction extends AbstractGFAction {
      * Won't report the number af actual invocations of this {@code FiniteStateAction}. Use {@link #getStatefulExecutionCount}
      */
     @Override
-    public int getSuccessCount() {
-        return super.getSuccessCount();
+    public int getCompletionCount() {
+        return super.getCompletionCount();
     }
 
     public int getStatefulExecutionCount() {
         return statefulExecutionCount;
+    }
+
+    protected static abstract class AbstractBuilder<C extends FiniteStateAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> implements Serializable {
+        private int statefulExecutionCount;
+        private Object nextStateKey;
+        private boolean endStateReached;
+
+        protected AbstractBuilder() {}
+
+        protected AbstractBuilder(FiniteStateAction action) {
+            super(action);
+            this.statefulExecutionCount = action.statefulExecutionCount;
+            this.nextStateKey = action.nextStateKey;
+            this.endStateReached = action.endStateReached;
+        }
     }
 }

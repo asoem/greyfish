@@ -4,9 +4,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
@@ -17,7 +16,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@ClassGroup(tags = "conditions")
+@Tagged("conditions")
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
@@ -32,20 +31,20 @@ public class StatePropertyCondition extends LeafCondition {
         this(new Builder());
     }
 
-    protected StatePropertyCondition(AbstractBuilder<?,?> builder) {
+    private StatePropertyCondition(AbstractBuilder<?, ?> builder) {
         super(builder);
         this.state = builder.state;
         this.stateProperty = builder.property;
     }
 
-    protected StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
+    private StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.stateProperty = map.cloneField(condition.stateProperty, FiniteStateProperty.class);
+        this.stateProperty = map.getClone(condition.stateProperty, FiniteStateProperty.class);
         this.state = condition.state;
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate() {
         return stateProperty != null &&
                 Objects.equal(stateProperty.getValue(), state);
     }

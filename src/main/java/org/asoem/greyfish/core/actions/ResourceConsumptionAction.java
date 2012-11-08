@@ -1,34 +1,30 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Callback;
-import org.asoem.greyfish.core.individual.Callbacks;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
-import static org.asoem.greyfish.core.individual.Callbacks.call;
+import static org.asoem.greyfish.utils.base.Callbacks.call;
 
-@ClassGroup(tags = "actions")
+@Tagged("actions")
 public class ResourceConsumptionAction extends ContractNetInitiatorAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceConsumptionAction.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ResourceConsumptionAction.class);
 
     @Element(name = "ontology", required = false)
     private String ontology;
@@ -80,7 +76,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {
         final double offer = message.getContent(Double.class);
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
-        uptakeUtilization.apply(this, ImmutableMap.of("offer", offer));
+        uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
     }
 
     @Override
@@ -130,7 +126,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.classification = cloneable.classification;
     }
 
-    protected ResourceConsumptionAction(AbstractBuilder<?, ?> builder) {
+    protected ResourceConsumptionAction(AbstractBuilder<? extends ResourceConsumptionAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.requestAmount = builder.requestAmount;
@@ -168,7 +164,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ResourceConsumptionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends ResourceConsumptionAction, B extends AbstractBuilder<C, B>> extends ContractNetInitiatorAction.AbstractBuilder<C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);
@@ -176,27 +172,27 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         private Callback<? super ResourceConsumptionAction, Void> uptakeUtilization = Callbacks.emptyCallback();
         private Callback<? super ResourceConsumptionAction, ?> classification = Callbacks.constant(0.42);
 
-        public T ontology(String parameterMessageType) {
+        public B ontology(String parameterMessageType) {
             this.ontology = checkNotNull(parameterMessageType);
             return self();
         }
 
-        public T requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) {
+        public B requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) {
             this.requestAmount = amountPerRequest;
             return self();
         }
 
-        public T interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) {
+        public B interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) {
             this.interactionRadius = sensorRange;
             return self();
         }
 
-        public T uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) {
+        public B uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) {
             this.uptakeUtilization = checkNotNull(uptakeUtilization);
             return self();
         }
 
-        public T classification(Callback<? super ResourceConsumptionAction, Object> classification) {
+        public B classification(Callback<? super ResourceConsumptionAction, Object> classification) {
             this.classification = checkNotNull(classification);
             return self();
         }

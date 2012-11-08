@@ -1,14 +1,12 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -17,27 +15,20 @@ import static org.fest.assertions.Assertions.assertThat;
  */
 public class DoublePropertyTest {
 
-    @Inject
-    private GreyfishExpressionFactory expressionFactory;
-    @Inject
-    private Persister persister;
-
-    public DoublePropertyTest() {
-        Guice.createInjector(new CoreModule()).injectMembers(this);
-    }
-
     @Test
     public void testPersistence() throws Exception {
         // given
-        final DoubleProperty doubleProperty = DoubleProperty.with().name("test").lowerBound(3.0).upperBound(7.0).initialValue(4.0).build();
+        final DoubleProperty doubleProperty = DoubleProperty.with()
+                .name("test")
+                .lowerBound(3.0)
+                .upperBound(7.0)
+                .initialValue(4.0)
+                .build();
         
         // when
-        final DoubleProperty persistent = Persisters.createCopy(doubleProperty, DoubleProperty.class, persister);
+        final DoubleProperty persistent = Persisters.createCopy(doubleProperty, JavaPersister.INSTANCE);
         
         // then
-        assertThat(persistent.getName()).isEqualTo("test");
-        assertThat(persistent.getInitialValue()).isEqualTo(4.0);
-        assertThat(persistent.getRange().lowerEndpoint()).isEqualTo(3.0);
-        assertThat(persistent.getRange().upperEndpoint()).isEqualTo(7.0);
+        MatcherAssert.assertThat(persistent, is(equalTo(doubleProperty)));
     }
 }

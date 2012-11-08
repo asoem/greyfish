@@ -1,9 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.primitives.Doubles;
-import org.asoem.greyfish.core.individual.Agent;
-
-import java.util.UUID;
+import org.asoem.greyfish.core.agent.Agent;
 
 /**
  * User: christoph
@@ -13,20 +11,13 @@ import java.util.UUID;
 public class ConsoleLogger implements SimulationLogger {
 
     @Override
-    public void close() {
-        /* NOP */
+    public void logAgentCreation(Agent agent) {
     }
 
     @Override
-    public void addAgent(Agent agent) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+    public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         System.out.println(
-                eventId + "\t" +
-                        currentStep + "\t" +
+                currentStep + "\t" +
                         populationName + "\t" +
                         agentId + "\t" +
                         source + "\t" +

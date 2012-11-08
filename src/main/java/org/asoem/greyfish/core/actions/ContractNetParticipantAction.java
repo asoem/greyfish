@@ -4,45 +4,42 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.AgentMessage;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.AgentMessage;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetParticipantAction.class);
-
-    private static enum State {
-        CHECK_CFP,
-        WAIT_FOR_ACCEPT,
-        END,
-        ACCEPT_TIMEOUT,
-        NO_CFP
-    }
-
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetParticipantAction.class);
     private static final int TIMEOUT_ACCEPT_STEPS = 1;
-
     private int timeoutCounter;
     private int nExpectedProposeAnswers;
     private MessageTemplate template = MessageTemplates.alwaysFalse();
 
     protected ContractNetParticipantAction(ContractNetParticipantAction cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
+        this.timeoutCounter = cloneable.timeoutCounter;
+        this.nExpectedProposeAnswers = cloneable.nExpectedProposeAnswers;
+        this.template = cloneable.template;
+    }
+
+    protected ContractNetParticipantAction(AbstractBuilder<? extends ContractNetParticipantAction,? extends AbstractBuilder> builder) {
+        super(builder);
+        this.timeoutCounter = builder.timeoutCounter;
+        this.nExpectedProposeAnswers = builder.nExpectedProposeAnswers;
+        this.template = builder.template;
     }
 
     private MessageTemplate getTemplate() {
         return template;
-    }
-
-    public ContractNetParticipantAction(AbstractActionBuilder<?,?> builder) {
-        super(builder);
     }
 
     @Override
@@ -161,7 +158,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected void prepareForCommunication() {};
+    protected void prepareForCommunication() {}
 
     protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation);
 
@@ -178,4 +175,26 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         );
     }
 
+    protected static abstract class AbstractBuilder<C extends ContractNetParticipantAction, B extends AbstractBuilder<C, B>> extends FiniteStateAction.AbstractBuilder<C, B> implements Serializable {
+        private int timeoutCounter;
+        private int nExpectedProposeAnswers;
+        private MessageTemplate template = MessageTemplates.alwaysFalse();
+
+        protected AbstractBuilder() {}
+
+        protected AbstractBuilder(ContractNetParticipantAction action) {
+            super(action);
+            this.timeoutCounter = action.timeoutCounter;
+            this.nExpectedProposeAnswers = action.nExpectedProposeAnswers;
+            this.template = action.template;
+        }
+    }
+
+    private static enum State {
+        CHECK_CFP,
+        WAIT_FOR_ACCEPT,
+        END,
+        ACCEPT_TIMEOUT,
+        NO_CFP
+    }
 }

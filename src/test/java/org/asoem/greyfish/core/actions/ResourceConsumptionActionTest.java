@@ -1,16 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
-import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.utils.persistence.Persister;
+import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
-import static org.asoem.greyfish.core.individual.Callbacks.constant;
-import static org.asoem.greyfish.core.individual.Callbacks.emptyCallback;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.asoem.greyfish.utils.base.Callbacks.constant;
+import static org.asoem.greyfish.utils.base.Callbacks.emptyCallback;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -18,14 +16,6 @@ import static org.fest.assertions.Assertions.assertThat;
  * Time: 18:01
  */
 public class ResourceConsumptionActionTest {
-    @Inject
-    private GreyfishExpressionFactory expressionFactory;
-    @Inject
-    private Persister persister;
-
-    public ResourceConsumptionActionTest() {
-        Guice.createInjector(new CoreModule()).injectMembers(this);
-    }
 
     @Test
     public void testPersistence() throws Exception {
@@ -38,12 +28,9 @@ public class ResourceConsumptionActionTest {
                 .build();
 
         // when
-        final ResourceConsumptionAction copy = Persisters.createCopy(action, ResourceConsumptionAction.class, persister);
+        final ResourceConsumptionAction copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy.getInteractionRadius()).isEqualTo(constant(0.42));
-        assertThat(copy.getRequestAmount()).isEqualTo(constant(0.42));
-        assertThat(copy.getUptakeUtilization()).isEqualTo(emptyCallback());
-        assertThat(copy.getOntology()).isEqualTo("foo");
+        assertThat(copy, is(equalTo(action)));
     }
 }

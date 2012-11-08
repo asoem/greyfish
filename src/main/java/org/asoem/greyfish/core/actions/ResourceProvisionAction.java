@@ -1,15 +1,15 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Callback;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.gui.utils.ClassGroup;
+import org.asoem.greyfish.utils.base.ArgumentMap;
+import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.simpleframework.xml.Element;
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-@ClassGroup(tags = "actions")
+@Tagged("actions")
 public class ResourceProvisionAction extends ContractNetParticipantAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
@@ -57,7 +57,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
         final ResourceRequestMessage requestMessage = message.getContent(ResourceRequestMessage.class);
         final double requestAmount = requestMessage.getRequestAmount();
-        final double providedAmount = provides.apply(this, ImmutableMap.of("classifier", requestMessage.getRequestClassifier()));
+        final double providedAmount = provides.apply(this, ArgumentMap.of("classifier", requestMessage.getRequestClassifier()));
         final double offeredAmount = Math.min(requestAmount, providedAmount);
 
         if (offeredAmount > 0) {
@@ -104,7 +104,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         this.ontology = cloneable.ontology;
     }
 
-    protected ResourceProvisionAction(AbstractBuilder<?, ?> builder) {
+    protected ResourceProvisionAction(AbstractBuilder<? extends ResourceProvisionAction, ? extends AbstractBuilder> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.provides = builder.provides;
@@ -136,16 +136,16 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         }
     }
 
-    protected static abstract class AbstractBuilder<E extends ResourceProvisionAction, T extends AbstractBuilder<E, T>> extends AbstractActionBuilder<E, T> {
+    protected static abstract class AbstractBuilder<C extends ResourceProvisionAction, B extends AbstractBuilder<C, B>> extends ContractNetParticipantAction.AbstractBuilder<C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction, Double> provides;
 
-        public T ontology(String ontology) {
+        public B ontology(String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public T provides(Callback<? super ResourceProvisionAction, Double> expression) {
+        public B provides(Callback<? super ResourceProvisionAction, Double> expression) {
             this.provides = checkNotNull(expression);
             return self();
         }

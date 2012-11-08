@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.eval;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 /**
  * User: christoph
@@ -10,15 +9,15 @@ import com.google.inject.Provider;
  */
 public class GreyfishExpressionFactory implements ExpressionFactory {
 
-    private final Provider<Evaluator> evaluatorProvider;
+    private final EvaluatorFactory evaluatorProvider;
 
     @Inject
-    public GreyfishExpressionFactory(Provider<Evaluator> evaluatorProvider) {
+    public GreyfishExpressionFactory(EvaluatorFactory evaluatorProvider) {
         this.evaluatorProvider = evaluatorProvider;
     }
 
     @Override
     public GreyfishExpression compile(String expression) {
-        return new GreyfishExpression(expression, evaluatorProvider.get());
+        return new GreyfishExpression(expression, evaluatorProvider);
     }
 }

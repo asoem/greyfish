@@ -1,13 +1,17 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.individual.Population;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.TiledSpace;
+import org.asoem.greyfish.core.space.WalledTile;
+import org.asoem.greyfish.utils.base.Initializer;
 
+import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * User: christoph
@@ -25,8 +29,8 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double radius) {
-        return delegate().findNeighbours(agent, radius);
+    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
+        return delegate().findNeighbours(agent, distance);
     }
 
     @Override
@@ -35,7 +39,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Iterable<Agent> getAgents() {
+    public List<Agent> getAgents() {
         return delegate().getAgents();
     }
 
@@ -55,22 +59,12 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public int countAgents(String populationName) {
-        return delegate().countAgents(populationName);
-    }
-
-    @Override
-    public int generateAgentID() {
-        return delegate().generateAgentID();
-    }
-
-    @Override
     public Set<Agent> getPrototypes() {
         return delegate().getPrototypes();
     }
 
     @Override
-    public TiledSpace<Agent> getSpace() {
+    public TiledSpace<Agent,WalledTile> getSpace() {
         return delegate().getSpace();
     }
 
@@ -100,8 +94,18 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public UUID getUUID() {
-        return delegate().getUUID();
+    public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
+        return delegate().snapshotValue(key, valueCalculator);
+    }
+
+    @Override
+    public void createAgent(Population population, Initializer<? super Agent> initializer) {
+        delegate().createAgent(population, initializer);
+    }
+
+    @Override
+    public void createAgent(Population population) {
+        delegate().createAgent(population);
     }
 
     @Override
@@ -109,4 +113,13 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
         return delegate().getName();
     }
 
+    @Override
+    public SimulationLogger getSimulationLogger() {
+        return delegate().getSimulationLogger();
+    }
+
+    @Override
+    public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
+        delegate().logAgentEvent(agentId, populationName, coordinates, eventOrigin, title, message);
+    }
 }

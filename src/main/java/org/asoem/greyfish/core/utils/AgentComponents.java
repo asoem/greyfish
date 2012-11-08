@@ -2,17 +2,19 @@ package org.asoem.greyfish.core.utils;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.AgentComponent;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
+import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class AgentComponents {
+public final class AgentComponents {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentComponents.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AgentComponents.class);
+
+    private AgentComponents() {}
 
     public static <T extends AgentComponent> T createNewInstance(Class<T> clazz) throws RuntimeException {
         try {

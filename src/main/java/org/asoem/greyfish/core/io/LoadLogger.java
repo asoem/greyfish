@@ -1,12 +1,9 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.primitives.Doubles;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.common.util.concurrent.Service;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.asoem.greyfish.core.individual.Agent;
-
-import java.util.UUID;
+import org.asoem.greyfish.core.agent.Agent;
 
 /**
  * User: christoph
@@ -42,19 +39,12 @@ public class LoadLogger implements SimulationLogger {
     }
 
     @Override
-    public void close() {
-        service.stopAndWait();
-        System.out.println(statistics.toString());
-        System.out.println(Doubles.join(" ", statistics.getValues()));
-    }
-
-    @Override
-    public void addAgent(Agent agent) {
+    public void logAgentCreation(Agent agent) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void addEvent(int eventId, UUID uuid, int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+    public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
         ++logCount;
     }
 }

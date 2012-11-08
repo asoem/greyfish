@@ -3,24 +3,19 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.individual.AgentComponent;
+import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.Logger;
-import org.asoem.greyfish.utils.logging.LoggerFactory;
-import org.simpleframework.xml.ElementList;
 
-import java.util.Arrays;
+import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
-import static com.google.common.collect.Iterators.unmodifiableIterator;
 import static java.util.Arrays.asList;
-import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
 
 
 /**
@@ -28,44 +23,22 @@ import static org.asoem.greyfish.utils.base.MorePreconditions.checkMutability;
  * @author christoph
  *
  */
-public abstract class BranchCondition extends AbstractCondition implements Iterable<GFCondition> {
+public abstract class BranchCondition extends AbstractCondition {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BranchCondition.class);
+    private final List<ActionCondition> conditions = Lists.newArrayList();
 
-    @ElementList(name="child_conditions", entry="condition", inline=true, empty=true, required = false)
-    protected List<GFCondition> conditions = Lists.newArrayList();
-
-    protected BranchCondition(BranchCondition cloneable, DeepCloner map) {
-        super(cloneable, map);
-        for (GFCondition condition : cloneable.getChildConditions())
-            add(map.cloneField(condition, GFCondition.class));
+    protected BranchCondition(BranchCondition cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        for (ActionCondition condition : cloneable.getChildConditions())
+            add(cloner.getClone(condition, ActionCondition.class));
     }
 
-    public BranchCondition(GFCondition... conditions) {
-        addAll(Arrays.asList(conditions));
-        integrate(conditions);
-    }
-
-    private void integrate(Iterable<? extends GFCondition> condition2) {
-        for (GFCondition gfCondition : condition2) {
-            integrate(gfCondition);
-        }
-    }
-
-    private void integrate(GFCondition ... conditions) {
-        for (GFCondition condition : conditions) {
-            condition.setAgent(getAgent());
-            condition.setParent(this);
-        }
-    }
-
-    private void disintegrate(GFCondition condition) {
-        condition.setParent(null);
-        condition.setAgent(null);
+    protected BranchCondition(AbstractBuilder<?, ?> builder) {
+        addAll(builder.conditions);
     }
 
     @Override
-    public List<GFCondition> getChildConditions() {
+    public List<ActionCondition> getChildConditions() {
         return conditions;
     }
 
@@ -77,107 +50,90 @@ public abstract class BranchCondition extends AbstractCondition implements Itera
     @Override
     public void initialize() {
         super.initialize();
-        for (GFCondition condition : conditions)
+        for (ActionCondition condition : getChildConditions())
             condition.initialize();
     }
 
-    public void addAll(Iterable<? extends GFCondition> childConditions) {
-        checkMutability(this);
-        integrate(childConditions);
-        Iterables.addAll(conditions, childConditions);
+    public void addAll(Iterable<? extends ActionCondition> childConditions) {
+        checkState(!isFrozen());
+        for (ActionCondition childCondition : childConditions) {
+            add(childCondition);
+        }
     }
 
-    public int indexOf(GFCondition currentCondition) {
-        return conditions.indexOf(currentCondition);
-    }
-
-    @Override
-    public void add(GFCondition newChild) {
-        checkNotNull(newChild);
-        checkMutability(this);
-        integrate(newChild);
-        conditions.add(newChild);
+    public int indexOf(ActionCondition currentCondition) {
+        return getChildConditions().indexOf(currentCondition);
     }
 
     @Override
-    public void insert(GFCondition condition, int index) {
+    public void add(ActionCondition newChild) {
+        checkState(!isFrozen());
+        insert(newChild, getChildConditions().size());
+    }
+
+    @Override
+    public void insert(ActionCondition condition, int index) {
+        checkState(!isFrozen());
         checkNotNull(condition);
-        checkMutability(this);
-        integrate(condition);
-        conditions.add(index, condition);
+        getChildConditions().add(index, condition);
+        condition.setParent(this);
     }
 
-    public GFCondition remove(int index) {
-        checkMutability(this);
-        checkPositionIndex(index, conditions.size());
-        GFCondition ret = conditions.remove(index);
-        disintegrate(ret);
+    public ActionCondition remove(int index) {
+        checkState(!isFrozen());
+        checkPositionIndex(index, getChildConditions().size());
+        ActionCondition ret = getChildConditions().remove(index);
+        ret.setParent(null);
         return ret;
     }
 
     @Override
-    public void remove(GFCondition condition) {
-        checkMutability(this);
-        checkArgument(conditions.contains(condition));
-        boolean remove = conditions.remove(condition);
-        assert remove;
+    public void remove(ActionCondition condition) {
+        checkState(!isFrozen());
+        remove(getChildConditions().indexOf(condition));
     }
 
     @Override
     public void removeAll() {
-        for (GFCondition condition : conditions) {
+        checkState(!isFrozen());
+        for (ActionCondition condition : getChildConditions()) {
             remove(condition);
         }
     }
 
-    protected BranchCondition(AbstractBuilder<?, ?> builder) {
-        super(builder);
-        addAll(builder.conditions);
+    @Override
+    public void setAction(AgentAction action) {
+        super.setAction(action);
+        for (ActionCondition condition : getChildConditions()) {
+            condition.setAction(action);
+        }
     }
 
     @Override
-    public void freeze() {
-        super.freeze();
-        conditions = ImmutableList.copyOf(conditions);
-        if (conditions.isEmpty())
-            LOGGER.debug("BranchCondition '" + getName() + "' has no subconditions");
-    }
-
-    protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> {
-        private final List<GFCondition> conditions = Lists.newArrayList();
-
-        protected T add(GFCondition condition) { condition.add(checkNotNull(condition)); return self(); }
-        protected T add(GFCondition ... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
-        protected T addAll(Iterable<? extends GFCondition> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
+    public void setParent(@Nullable ActionCondition parent) {
+        super.setParent(parent);
+        for (ActionCondition condition : getChildConditions()) {
+            condition.setParent(this);
+        }
     }
 
     @Override
-    public final Iterable<AgentComponent> children() {
-        return Collections.<AgentComponent>unmodifiableList(conditions);
+    public final Iterable<AgentNode> children() {
+        return Collections.<AgentNode>unmodifiableList(getChildConditions());
     }
 
-    @Override
-    public final Iterator<GFCondition> iterator() {
-        return unmodifiableIterator(conditions.iterator());
-    }
+    protected static abstract class AbstractBuilder<E extends BranchCondition, T extends AbstractBuilder<E, T>> extends AbstractCondition.AbstractBuilder<E,T> implements Serializable {
+        private final List<ActionCondition> conditions = Lists.newArrayList();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        protected AbstractBuilder() {
+        }
 
-        BranchCondition that = (BranchCondition) o;
+        protected AbstractBuilder(BranchCondition branchCondition) {
+            addAll(branchCondition.conditions);
+        }
 
-        if (!conditions.equals(that.conditions)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + conditions.hashCode();
-        return result;
+        protected T add(ActionCondition condition) { condition.add(checkNotNull(condition)); return self(); }
+        protected T add(ActionCondition... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
+        protected T addAll(Iterable<? extends ActionCondition> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
     }
 }

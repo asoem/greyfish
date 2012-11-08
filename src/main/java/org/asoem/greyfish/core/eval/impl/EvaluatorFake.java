@@ -1,41 +1,31 @@
 package org.asoem.greyfish.core.eval.impl;
 
-import org.asoem.greyfish.core.eval.*;
+import org.asoem.greyfish.core.eval.EvaluationException;
+import org.asoem.greyfish.core.eval.EvaluationResult;
+import org.asoem.greyfish.core.eval.Evaluator;
+import org.asoem.greyfish.core.eval.VariableResolver;
 
 /**
 * User: christoph
 * Date: 21.02.12
 * Time: 16:31
 */
-public class EvaluatorFake implements Evaluator {
-
-    private final String EQUALIZER = "";
+public enum EvaluatorFake implements Evaluator {
+    INSTANCE;
 
     @Override
-    public EvaluationResult evaluate() throws EvaluationException {
+    public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
         return null;
     }
 
     @Override
-    public void setExpression(String expression) throws SyntaxException {
+    public String getExpression() {
+        return "";
     }
 
-    @Override
-    public void setResolver(VariableResolver resolver) {
-    }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        EvaluatorFake that = (EvaluatorFake) o;
-
-        return EQUALIZER.equals(that.EQUALIZER);
-    }
-
-    @Override
-    public int hashCode() {
-        return EQUALIZER.hashCode();
+    public String toString() {
+        return "EvaluatorFake";
     }
 }

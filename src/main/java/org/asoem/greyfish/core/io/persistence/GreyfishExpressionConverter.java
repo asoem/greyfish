@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.io.persistence;
 
-import org.asoem.greyfish.core.eval.Evaluator;
+import org.asoem.greyfish.core.eval.EvaluatorFactory;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.simpleframework.xml.convert.Converter;
 import org.simpleframework.xml.stream.InputNode;
@@ -18,10 +18,10 @@ class GreyfishExpressionConverter implements Converter<GreyfishExpression> {
     public GreyfishExpression read(InputNode node) throws Exception {
         checkNotNull(node);
 
-        String evaluatorClass = node.getAttribute("evaluator").getValue();
+        String evaluatorClass = node.getAttribute("evaluatorFactory").getValue();
         String expression = node.getValue();
 
-        return new GreyfishExpression(expression, (Evaluator) Class.forName(evaluatorClass).newInstance());
+        return new GreyfishExpression(expression, (EvaluatorFactory) Class.forName(evaluatorClass).newInstance());
     }
 
     public void write(OutputNode node, GreyfishExpression external) {

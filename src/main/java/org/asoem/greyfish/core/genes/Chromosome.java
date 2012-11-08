@@ -1,37 +1,18 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Set;
 
 /**
  * User: christoph
- * Date: 25.04.12
- * Time: 15:27
+ * Date: 20.08.12
+ * Time: 09:35
  */
-public class Chromosome {
+public interface Chromosome {
 
-    final List<Gene<?>> genes;
-    final ChromosomalOrigin origin;
+    List<Gene<?>> getGenes();
 
-    public Chromosome(ChromosomalOrigin origin, Iterable<? extends Gene<?>> genes) {
-        this.origin = checkNotNull(origin);
-        this.genes = ImmutableList.copyOf(genes);
-    }
+    Set<Integer> getParents();
 
-    public ChromosomalOrigin getOrigin() {
-        return origin;
-    }
-
-    public List<Gene<?>> getGenes() {
-        return genes;
-    }
-
-    public Chromosome recombined(Chromosome other) {
-        return new Chromosome(
-                ChromosomalOrigins.merge(this.origin, other.origin),
-                Genes.recombine(this.genes, other.genes));
-    }
+    int size();
 }
