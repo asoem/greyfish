@@ -21,7 +21,10 @@ import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
-import org.asoem.greyfish.core.simulation.*;
+import org.asoem.greyfish.core.simulation.Model;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
+import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
+import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -70,11 +73,11 @@ public final class GreyfishCLIApplication {
 
         LOGGER.info("Creating simulation for model {}", model.getClass());
         LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.asMap(model)));
+
         final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold,
                 SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
-        final SimulationTemplate simulationTemplate = model.createTemplate();
-        assert simulationTemplate != null;
-        final ParallelizedSimulation simulation = simulationTemplate.createSimulation(simulationFactory);
+        final ParallelizedSimulation simulation = simulationFactory.createSimulation(model.createSpace(), model.createPrototypes());
+        model.initialize(simulation);
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
