@@ -18,6 +18,9 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.CloneFactory;
+import org.asoem.greyfish.core.agent.FrozenAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
@@ -25,6 +28,8 @@ import org.asoem.greyfish.core.simulation.Model;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.Simulations;
+import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -57,7 +62,7 @@ public final class GreyfishCLIApplication {
     private State state = State.STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(Model model,
+    private GreyfishCLIApplication(Model<?,?> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
                                    @Named("parallelizationThreshold") int parallelizationThreshold,
@@ -74,9 +79,21 @@ public final class GreyfishCLIApplication {
         LOGGER.info("Creating simulation for model {}", model.getClass());
         LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.asMap(model)));
 
-        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold,
-                SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
-        final ParallelizedSimulation simulation = simulationFactory.createSimulation(model.createSpace(), model.createPrototypes());
+        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory<Agent, WalledTileSpace<Agent>>(parallelizationThreshold,
+                SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))), new CloneFactory<Agent>() {
+            @Override
+            public Agent cloneAgent(Agent prototype) {
+
+                final Agent clone = DeepCloner.clone(prototype, Agent.class);
+
+                return FrozenAgent.builder(prototype.getPopulation())
+                        .addActions(clone.getActions())
+                        .addProperties(clone.getProperties())
+                        .addTraits(clone.getTraits())
+                        .build();
+            }
+        });
+        final ParallelizedSimulation<Agent, WalledTileSpace<Agent>> simulation = simulationFactory.createSimulation(model.createSpace(), model.createPrototypes());
         model.initialize(simulation);
 
         if (verbose != null) {
