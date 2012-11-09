@@ -6,8 +6,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.space.TiledSpace;
-import org.asoem.greyfish.core.space.WalledTile;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Initializer;
 
 import java.util.List;
@@ -18,10 +17,10 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class ForwardingSimulation extends ForwardingObject implements Simulation {
+public abstract class ForwardingSimulation<A extends Agent, S extends Space2D<A>> extends ForwardingObject implements Simulation<A, S> {
 
     @Override
-    protected abstract Simulation delegate();
+    protected abstract Simulation<A, S> delegate();
 
     @Override
     public int numberOfPopulations() {
@@ -29,22 +28,22 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
+    public Iterable<A> findNeighbours(A agent, double distance) {
         return delegate().findNeighbours(agent, distance);
     }
 
     @Override
-    public Iterable<Agent> getAgents(Population population) {
+    public Iterable<A> getAgents(Population population) {
         return delegate().getAgents(population);
     }
 
     @Override
-    public List<Agent> getAgents() {
+    public List<A> getAgents() {
         return delegate().getAgents();
     }
 
     @Override
-    public void removeAgent(Agent agent) {
+    public void removeAgent(A agent) {
         delegate().removeAgent(agent);
     }
 
@@ -59,12 +58,12 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Set<Agent> getPrototypes() {
+    public Set<A> getPrototypes() {
         return delegate().getPrototypes();
     }
 
     @Override
-    public TiledSpace<Agent,WalledTile> getSpace() {
+    public S getSpace() {
         return delegate().getSpace();
     }
 
@@ -84,7 +83,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public void deliverMessage(ACLMessage<Agent> message) {
+    public void deliverMessage(ACLMessage<A> message) {
         delegate().deliverMessage(message);
     }
 
@@ -99,7 +98,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public void createAgent(Population population, Initializer<? super Agent> initializer) {
+    public void createAgent(Population population, Initializer<? super A> initializer) {
         delegate().createAgent(population, initializer);
     }
 

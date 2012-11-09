@@ -71,7 +71,7 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     private final TwoDimTreeFactory<T> treeFactory;
 
     public WalledTileSpace(WalledTileSpace<T> space) {
-        this(checkNotNull(space).getWidth(), space.getHeight());
+        this(checkNotNull(space).colCount(), space.rowCount());
         setWalledTiles(space.getWalledTiles());
     }
 
@@ -136,12 +136,12 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public int getHeight() {
+    public int rowCount() {
         return height;
     }
 
     @Override
-    public int getWidth() {
+    public int colCount() {
         return width;
     }
 

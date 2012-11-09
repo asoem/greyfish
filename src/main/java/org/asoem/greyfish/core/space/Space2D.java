@@ -86,4 +86,8 @@ public interface Space2D<T extends MovingProjectable2D> {
     boolean insertObject(T agent);
 
     boolean isEmpty();
+
+    double width();
+
+    double height();
 }

@@ -39,9 +39,9 @@ public class WalledTile implements Tile {
 
         int mask = 0;
         if (x == 0) mask |= (1 << WEST.ordinal());
-        if (x == space.getWidth() - 1) mask |= (1 << EAST.ordinal());
+        if (x == space.colCount() - 1) mask |= (1 << EAST.ordinal());
         if (y == 0) mask |= (1 << NORTH.ordinal());
-        if (y == space.getHeight() - 1) mask |= (1 << SOUTH.ordinal());
+        if (y == space.rowCount() - 1) mask |= (1 << SOUTH.ordinal());
         wallFlagsMask = mask;
     }
 

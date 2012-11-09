@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentInitializers;
 import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
 
@@ -17,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 03.10.12
  * Time: 22:08
  */
-public abstract class AbstractSimulation implements Simulation {
+public abstract class AbstractSimulation<A extends Agent, S extends Space2D<A>> implements Simulation<A, S> {
 
     @Override
     public int numberOfPopulations() {
@@ -25,12 +26,12 @@ public abstract class AbstractSimulation implements Simulation {
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
+    public Iterable<A> findNeighbours(A agent, double distance) {
         return getSpace().getVisibleNeighbours(agent, distance);
     }
 
     @Override
-    public Iterable<Agent> getAgents(final Population population) {
+    public Iterable<A> getAgents(final Population population) {
         checkNotNull(population);
 
         return Iterables.filter(getAgents(), new Predicate<Agent>() {
@@ -42,7 +43,7 @@ public abstract class AbstractSimulation implements Simulation {
     }
 
     @Override
-    public List<Agent> getAgents() {
+    public List<A> getAgents() {
         return getSpace().getObjects();
     }
 
@@ -70,7 +71,7 @@ public abstract class AbstractSimulation implements Simulation {
 
     @Override
     public void createAgent(Population population) {
-        final MotionObject2DImpl randomProjection = MotionObject2DImpl.of(RandomUtils.nextDouble(0, getSpace().getWidth()), RandomUtils.nextDouble(0, getSpace().getHeight()));
+        final MotionObject2DImpl randomProjection = MotionObject2DImpl.of(RandomUtils.nextDouble(0, getSpace().width()), RandomUtils.nextDouble(0, getSpace().height()));
         createAgent(population, AgentInitializers.projection(randomProjection));
     }
 }

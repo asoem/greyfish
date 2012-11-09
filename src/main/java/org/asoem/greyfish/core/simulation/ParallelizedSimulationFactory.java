@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.simulation;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.core.space.Space2D;
 
 import java.util.Set;
 
@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 06.07.12
  * Time: 11:57
  */
-public class ParallelizedSimulationFactory implements SimulationFactory<ParallelizedSimulation> {
+public class ParallelizedSimulationFactory<A extends Agent, S extends Space2D<A>> implements SimulationFactory<ParallelizedSimulation,A,S> {
 
     private final int parallelizationThreshold;
     private final SimulationLogger simulationLogger;
@@ -30,7 +30,7 @@ public class ParallelizedSimulationFactory implements SimulationFactory<Parallel
     }
 
     @Override
-    public ParallelizedSimulation createSimulation(WalledTileSpace<Agent> space, Set<Agent> prototypes) {
+    public ParallelizedSimulation createSimulation(S space, Set<A> prototypes) {
         return ParallelizedSimulation.builder(space, prototypes)
                 .parallelizationThreshold(parallelizationThreshold)
                 .simulationLogger(simulationLogger)
