@@ -376,6 +376,16 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
+    public double width() {
+        return width;
+    }
+
+    @Override
+    public double height() {
+        return height;
+    }
+
+    @Override
     public List<T> getObjects() {
         return Collections.unmodifiableList(projectables);
     }

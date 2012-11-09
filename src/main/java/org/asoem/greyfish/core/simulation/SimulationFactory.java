@@ -11,5 +11,5 @@ import java.util.Set;
  * Time: 15:55
  */
 public interface SimulationFactory<T extends Simulation, A extends Agent, S extends Space2D<A>> {
-    T createSimulation(S space, Set<A> prototypes);
+    public T createSimulation(S space, Set<? extends A> prototypes);
 }

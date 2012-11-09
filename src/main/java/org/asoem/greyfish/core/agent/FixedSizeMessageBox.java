@@ -18,9 +18,9 @@ import java.util.ListIterator;
  * Date: 17.10.11
  * Time: 18:44
  */
-public class FixedSizeMessageBox implements AgentMessageBox, Serializable {
+public class FixedSizeMessageBox<A extends Agent> implements AgentMessageBox<A>, Serializable {
 
-    private final CircularFifoBuffer<AgentMessage> box;
+    private final CircularFifoBuffer<AgentMessage<A>> box;
 
     public FixedSizeMessageBox() {
         this.box = CircularFifoBuffer.newInstance(8);
@@ -31,12 +31,12 @@ public class FixedSizeMessageBox implements AgentMessageBox, Serializable {
     }
 
     @Override
-    public void push(AgentMessage message) {
+    public void push(AgentMessage<A> message) {
         box.add(message);
     }
 
     @Override
-    public Iterable<AgentMessage> filter(MessageTemplate template) {
+    public Iterable<AgentMessage<A>> filter(MessageTemplate template) {
         return Iterables.filter(box, template);
     }
 
@@ -46,26 +46,26 @@ public class FixedSizeMessageBox implements AgentMessageBox, Serializable {
     }
 
     @Override
-    public void pushAll(Iterable<? extends AgentMessage> message) {
+    public void pushAll(Iterable<? extends AgentMessage<A>> message) {
         Iterables.addAll(box, message);
     }
 
     @Override
-    public Iterator<AgentMessage> iterator() {
+    public Iterator<AgentMessage<A>> iterator() {
         return box.iterator();
     }
 
     @Override
-    public List<AgentMessage> consume(final MessageTemplate template) {
+    public List<AgentMessage<A>> consume(final MessageTemplate template) {
         return ImmutableList.copyOf(
-                new AbstractIterator<AgentMessage>() {
+                new AbstractIterator<AgentMessage<A>>() {
 
-                    final ListIterator<AgentMessage> listIterator = box.listIterator();
+                    final ListIterator<AgentMessage<A>> listIterator = box.listIterator();
 
                     @Override
-                    protected AgentMessage computeNext() {
+                    protected AgentMessage<A> computeNext() {
                         while (listIterator.hasNext()) {
-                            final AgentMessage message = listIterator.next();
+                            final AgentMessage<A> message = listIterator.next();
                             if (template.apply(message)) {
                                 listIterator.remove();
                                 return message;
@@ -78,12 +78,12 @@ public class FixedSizeMessageBox implements AgentMessageBox, Serializable {
     }
 
     @Override
-    public List<AgentMessage> messages() {
+    public List<AgentMessage<A>> messages() {
         return box;
     }
 
     private Object writeReplace() {
-        return new SerializedForm(this);
+        return new SerializedForm<A>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -91,16 +91,16 @@ public class FixedSizeMessageBox implements AgentMessageBox, Serializable {
         throw new InvalidObjectException("Proxy required");
     }
 
-    private static class SerializedForm implements Serializable {
-        private AgentMessage[] messages;
+    private static class SerializedForm<A extends Agent> implements Serializable {
+        private List<AgentMessage<A>> messages;
 
-        SerializedForm(FixedSizeMessageBox box) {
-            this.messages = box.messages().toArray(new AgentMessage[box.messages().size()]);
+        SerializedForm(FixedSizeMessageBox<A> box) {
+            this.messages = box.messages();
         }
 
         private Object readResolve() {
-            final FixedSizeMessageBox messageBox = new FixedSizeMessageBox(messages.length);
-            for (AgentMessage message : messages) {
+            final FixedSizeMessageBox<A> messageBox = new FixedSizeMessageBox<A>(messages.size());
+            for (AgentMessage<A> message : messages) {
                 messageBox.push(message);
             }
             return messageBox;

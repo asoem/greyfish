@@ -59,7 +59,7 @@ abstract class AbstractAgent implements Agent {
 
     private final ActionExecutionStrategy actionExecutionStrategy;
 
-    private final AgentMessageBox inBox;
+    private final AgentMessageBox<Agent> inBox;
 
     @Element(name = "population")
     @Nullable
@@ -245,7 +245,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void receiveAll(Iterable<? extends AgentMessage> messages) {
+    public void receiveAll(Iterable<? extends AgentMessage<Agent>> messages) {
         LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
         inBox.pushAll(messages);
     }
@@ -276,7 +276,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterable<AgentMessage> getMessages(MessageTemplate template) {
+    public Iterable<AgentMessage<Agent>> getMessages(MessageTemplate template) {
         return inBox.consume(template);
     }
 

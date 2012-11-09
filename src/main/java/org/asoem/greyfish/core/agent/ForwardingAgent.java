@@ -129,7 +129,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Iterable<AgentMessage> getMessages(MessageTemplate template) {
+    public Iterable<AgentMessage<Agent>> getMessages(MessageTemplate template) {
         return delegate().getMessages(template);
     }
 
@@ -144,7 +144,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void receiveAll(Iterable<? extends AgentMessage> messages) {
+    public void receiveAll(Iterable<? extends AgentMessage<Agent>> messages) {
         delegate().receiveAll(messages);
     }
 

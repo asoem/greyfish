@@ -48,14 +48,14 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     }
 
     @Override
-    protected void executeState(Object state, Simulation simulation) {
+    protected void executeState(Object state, Simulation<Agent, ?> simulation) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<Agent>> cfpReplies = Lists.newArrayList();
-            final Iterable<AgentMessage> proposalCalls = agent().getMessages(template);
+            final Iterable<AgentMessage<Agent>> proposalCalls = agent().getMessages(template);
             for (ACLMessage<Agent> cfp : proposalCalls) {
 
                 ACLMessage<Agent> cfpReply;
@@ -85,7 +85,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT == state) {
-            final Iterable<AgentMessage> receivedMessages = agent().getMessages(getTemplate());
+            final Iterable<AgentMessage<Agent>> receivedMessages = agent().getMessages(getTemplate());
             for (ACLMessage<Agent> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:

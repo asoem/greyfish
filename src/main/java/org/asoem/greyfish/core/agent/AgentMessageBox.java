@@ -9,16 +9,16 @@ import java.util.List;
  * Date: 09.10.12
  * Time: 14:37
  */
-public interface AgentMessageBox extends Iterable<AgentMessage> {
-    void push(AgentMessage message);
+public interface AgentMessageBox<A extends Agent> extends Iterable<AgentMessage<A>> {
+    void push(AgentMessage<A> message);
 
-    Iterable<AgentMessage> filter(MessageTemplate template);
+    Iterable<AgentMessage<A>> filter(MessageTemplate template);
 
     void clear();
 
-    void pushAll(Iterable<? extends AgentMessage> message);
+    void pushAll(Iterable<? extends AgentMessage<A>> message);
 
-    List<AgentMessage> consume(MessageTemplate template);
+    List<AgentMessage<A>> consume(MessageTemplate template);
 
-    List<AgentMessage> messages();
+    List<AgentMessage<A>> messages();
 }

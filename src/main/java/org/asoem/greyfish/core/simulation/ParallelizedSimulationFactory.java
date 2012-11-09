@@ -1,12 +1,22 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
+import org.apache.commons.pool.KeyedObjectPool;
+import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.CloneFactory;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.Space2D;
 
+import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -18,22 +28,54 @@ public class ParallelizedSimulationFactory<A extends Agent, S extends Space2D<A>
 
     private final int parallelizationThreshold;
     private final SimulationLogger simulationLogger;
+    private final CloneFactory<A> cloneFactory;
 
-    public ParallelizedSimulationFactory(int parallelizationThreshold) {
+    public ParallelizedSimulationFactory(int parallelizationThreshold, CloneFactory<A> cloneFactory) {
         this.parallelizationThreshold = parallelizationThreshold;
+        this.cloneFactory = cloneFactory;
         this.simulationLogger = new ConsoleLogger();
     }
 
-    public ParallelizedSimulationFactory(int parallelizationThreshold, SimulationLogger simulationLogger) {
+    public ParallelizedSimulationFactory(int parallelizationThreshold, SimulationLogger simulationLogger, CloneFactory<A> cloneFactory) {
         this.parallelizationThreshold = parallelizationThreshold;
+        this.cloneFactory = cloneFactory;
         this.simulationLogger = checkNotNull(simulationLogger);
     }
 
     @Override
-    public ParallelizedSimulation createSimulation(S space, Set<A> prototypes) {
-        return ParallelizedSimulation.builder(space, prototypes)
+    public ParallelizedSimulation createSimulation(S space, Set<? extends A> prototypes) {
+        return ParallelizedSimulation.builder(space, ImmutableSet.copyOf(prototypes))
                 .parallelizationThreshold(parallelizationThreshold)
                 .simulationLogger(simulationLogger)
+                .agentPool(createDefaultAgentPool(prototypes, cloneFactory))
                 .build();
+    }
+
+    private KeyedObjectPool<Population, A> createDefaultAgentPool(final Set<? extends A> prototypes, final CloneFactory<A> cloneFactory) {
+        checkArgument(!prototypes.contains(null));
+
+        return new StackKeyedObjectPool<Population, A>(
+                new BaseKeyedPoolableObjectFactory<Population, A>() {
+
+                    final Map<Population, ? extends A> populationPrototypeMap =
+                            Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {
+                                @Override
+                                public Population apply(Agent input) {
+                                    return input.getPopulation();
+                                }
+                            });
+
+                    @Override
+                    public A makeObject(Population key) throws Exception {
+                        assert key != null;
+
+
+                        final A prototype = populationPrototypeMap.get(key);
+                        assert prototype != null : "Found no Prototype for " + key;
+
+                        return cloneFactory.cloneAgent(prototype);
+                    }
+                },
+                10000, 100);
     }
 }
