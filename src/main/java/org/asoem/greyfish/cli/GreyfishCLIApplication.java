@@ -75,7 +75,7 @@ public final class GreyfishCLIApplication {
                 new ParallelizedSimulationFactory(
                         parallelizationThreshold,
                         SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
-        final Simulation<?, ?> simulation = model.createSimulation(simulationFactory);
+        final Simulation simulation = model.createSimulation(simulationFactory);
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
@@ -206,7 +206,7 @@ public final class GreyfishCLIApplication {
                     final Class<?> modelClass = Class.forName(modelClassName);
                     if (!Model.class.isAssignableFrom(modelClass))
                         optionExceptionHandler.exitWithError("Specified Class does not implement " + Model.class);
-                    bind(new TypeLiteral<Model<?,?>>(){}).to((Class<Model<?,?>>) modelClass);
+                    bind(new TypeLiteral<Model<?,?>>(){}).to((Class<Model<?, ?>>) modelClass);
                 } catch (ClassNotFoundException e) {
                     optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
                 }
