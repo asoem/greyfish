@@ -1,16 +1,17 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Predicate;
-import org.asoem.greyfish.utils.space.MovingProjectable2D;
+import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * User: christoph
  * Date: 29.02.12
  * Time: 18:56
  */
-public interface Space2D<T extends MovingProjectable2D> {
+public interface Space2D<T> {
 
     /**
      * The number of objects in this space
@@ -30,7 +31,7 @@ public interface Space2D<T extends MovingProjectable2D> {
      * Get the list of objects which have been added to this space
      * @return all objects for this space
      */
-    List<T> getObjects();
+    Collection<T> getObjects();
 
     /**
      * Add the given {@code projectable} to this space initially located at the point
@@ -42,6 +43,8 @@ public interface Space2D<T extends MovingProjectable2D> {
      * @return {@code true} if the object could be added, {@code false} otherwise
      */
     boolean insertObject(T projectable, double x, double y, double orientation);
+
+    boolean insertObject(T object, Object2D projection);
 
     /**
      * Remove the given {@code object} from this space
@@ -59,10 +62,12 @@ public interface Space2D<T extends MovingProjectable2D> {
 
     /**
      * Move given object using it's motion
+     *
      * @param object2d the object to move
+     * @param motion2D the motion defining the move
      * @see org.asoem.greyfish.utils.space.MovingProjectable2D#getMotion()
      */
-    void moveObject(T object2d);
+    void moveObject(T object2d, Motion2D motion2D);
 
     /**
      * Find all objects in this space with are contained in the circle
@@ -83,11 +88,11 @@ public interface Space2D<T extends MovingProjectable2D> {
      */
     Iterable<T> getVisibleNeighbours(T object, double radius);
 
-    boolean insertObject(T agent);
-
     boolean isEmpty();
 
     double width();
 
     double height();
+
+    Object2D getProjection(T object);
 }

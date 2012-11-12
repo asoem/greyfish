@@ -17,10 +17,10 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class ForwardingSimulation<A extends Agent, S extends Space2D<A>> extends ForwardingObject implements Simulation<A, S> {
+public abstract class ForwardingSimulation extends ForwardingObject implements Simulation {
 
     @Override
-    protected abstract Simulation<A, S> delegate();
+    protected abstract Simulation delegate();
 
     @Override
     public int numberOfPopulations() {
@@ -28,22 +28,22 @@ public abstract class ForwardingSimulation<A extends Agent, S extends Space2D<A>
     }
 
     @Override
-    public Iterable<A> findNeighbours(A agent, double distance) {
+    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
         return delegate().findNeighbours(agent, distance);
     }
 
     @Override
-    public Iterable<A> getAgents(Population population) {
+    public Iterable<Agent> getAgents(Population population) {
         return delegate().getAgents(population);
     }
 
     @Override
-    public List<A> getAgents() {
+    public List<Agent> getAgents() {
         return delegate().getAgents();
     }
 
     @Override
-    public void removeAgent(A agent) {
+    public void removeAgent(Agent agent) {
         delegate().removeAgent(agent);
     }
 
@@ -58,12 +58,12 @@ public abstract class ForwardingSimulation<A extends Agent, S extends Space2D<A>
     }
 
     @Override
-    public Set<A> getPrototypes() {
+    public Set<Agent> getPrototypes() {
         return delegate().getPrototypes();
     }
 
     @Override
-    public S getSpace() {
+    public Space2D<Agent> getSpace() {
         return delegate().getSpace();
     }
 
@@ -83,7 +83,7 @@ public abstract class ForwardingSimulation<A extends Agent, S extends Space2D<A>
     }
 
     @Override
-    public void deliverMessage(ACLMessage<A> message) {
+    public void deliverMessage(ACLMessage<Agent> message) {
         delegate().deliverMessage(message);
     }
 
@@ -98,7 +98,7 @@ public abstract class ForwardingSimulation<A extends Agent, S extends Space2D<A>
     }
 
     @Override
-    public void createAgent(Population population, Initializer<? super A> initializer) {
+    public void createAgent(Population population, Initializer<? super Agent> initializer) {
         delegate().createAgent(population, initializer);
     }
 

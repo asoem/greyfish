@@ -2,9 +2,11 @@ package org.asoem.greyfish.core.space;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
+import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.MovingProjectable2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * User: christoph
@@ -26,7 +28,7 @@ public abstract class ForwardingSpace2D<O extends MovingProjectable2D> extends F
     }
 
     @Override
-    public List<O> getObjects() {
+    public Collection<O> getObjects() {
         return delegate().getObjects();
     }
 
@@ -41,8 +43,8 @@ public abstract class ForwardingSpace2D<O extends MovingProjectable2D> extends F
     }
 
     @Override
-    public void moveObject(O object2d) {
-        delegate().moveObject(object2d);
+    public void moveObject(O object2d, Motion2D motion2D) {
+        delegate().moveObject(object2d, motion2D);
     }
 
     @Override
@@ -51,8 +53,8 @@ public abstract class ForwardingSpace2D<O extends MovingProjectable2D> extends F
     }
 
     @Override
-    public boolean insertObject(O agent) {
-        return delegate().insertObject(agent);
+    public boolean insertObject(O object, Object2D projection) {
+        return delegate().insertObject(object, projection);
     }
 
     @Override

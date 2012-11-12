@@ -127,7 +127,7 @@ public abstract class AbstractCondition implements ActionCondition {
     public void initialize() {
     }
 
-    public Simulation<?,?> simulation() {
+    public Simulation simulation() {
         return agent().simulation();
     }
 

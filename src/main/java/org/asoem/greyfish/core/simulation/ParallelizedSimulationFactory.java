@@ -40,7 +40,7 @@ public class ParallelizedSimulationFactory implements SimulationFactory {
     }
 
     @Override
-    public <A extends Agent, S extends Space2D<A>> ParallelizedSimulation<A,S> createSimulation(S space, Set<? extends A> prototypes, CloneFactory<A> cloneFactory) {
+    public ParallelizedSimulation createSimulation(Space2D<Agent> space, Set<? extends Agent> prototypes, CloneFactory<Agent> cloneFactory) {
         checkNotNull(space);
         checkNotNull(prototypes);
         checkArgument(!prototypes.contains(null));

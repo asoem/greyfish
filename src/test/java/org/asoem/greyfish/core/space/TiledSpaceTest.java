@@ -172,7 +172,7 @@ public class TiledSpaceTest {
         space.insertObject(agent, 0, 0, 0);
 
         // when
-        space.moveObject(agent);
+        space.moveObject(agent, agent.getMotion());
 
         // then
         final MotionObject2D projection = agent.getProjection();
@@ -191,7 +191,7 @@ public class TiledSpaceTest {
         space.insertObject(agent, 0, 0, MathLib.HALF_PI / 2);
 
         // when
-        space.moveObject(agent);
+        space.moveObject(agent, agent.getMotion());
 
         // then
         final MotionObject2D projection = agent.getProjection();

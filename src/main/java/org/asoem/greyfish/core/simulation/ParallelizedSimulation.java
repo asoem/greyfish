@@ -19,6 +19,7 @@ import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -35,58 +36,58 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> extends AbstractSimulation<A, S> {
+public class ParallelizedSimulation extends AbstractSimulation {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
     @Element(name = "space")
-    private final AgentSpace<A, S> space;
+    private final AgentSpace space;
     @Attribute
     private final AtomicInteger currentStep = new AtomicInteger(-1);
     @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true)
-    private final List<AddAgentMessage<A>> addAgentMessages;
+    private final List<AddAgentMessage> addAgentMessages;
     @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true)
-    private final List<RemoveAgentMessage<A>> removeAgentMessages;
+    private final List<RemoveAgentMessage<Agent>> removeAgentMessages;
     @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true)
-    private final List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages;
-    private final KeyedObjectPool<Population, A> agentPool;
+    private final List<DeliverAgentMessageMessage> deliverAgentMessageMessages;
+    private final KeyedObjectPool<Population, Agent> agentPool;
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final ConcurrentMap<String, Object> snapshotValues;
     @Attribute(name = "parallelizationThreshold")
     private final int parallelizationThreshold;
     @ElementList(name = "prototypes")
-    private final Set<A> prototypes;
+    private final Set<Agent> prototypes;
     @Element(name = "simulationLogger")
     private final SimulationLogger simulationLogger;
     private final AtomicInteger agentIdSequence = new AtomicInteger();
     @Attribute
     private String title = "untitled";
 
-    private ParallelizedSimulation(ParallelizedSimulationBuilder<A, S> builder) {
+    private ParallelizedSimulation(ParallelizedSimulationBuilder builder) {
         this(builder.space,
                 builder.prototypes,
                 builder.parallelizationThreshold,
                 builder.simulationLogger,
                 builder.agentPool,
-                Collections.synchronizedList(Lists.<AddAgentMessage<A>>newArrayList()),
-                Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()),
-                Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
+                Collections.synchronizedList(Lists.<AddAgentMessage>newArrayList()),
+                Collections.synchronizedList(Lists.<RemoveAgentMessage<Agent>>newArrayList()),
+                Collections.synchronizedList(Lists.<DeliverAgentMessageMessage>newArrayList()));
     }
 
     private ParallelizedSimulation(
-                                  @Element(name = "space") S space,
-                                  @ElementList(name = "prototypes") Set<A> prototypes,
+                                  @Element(name = "space") Space2D<Agent> space,
+                                  @ElementList(name = "prototypes") Set<Agent> prototypes,
                                   @Attribute(name = "parallelizationThreshold") int parallelizationThreshold,
                                   @Element(name = "simulationLogger") SimulationLogger simulationLogger,
-                                  @Element(name = "agentPool") KeyedObjectPool<Population, A> agentPool,
-                                  @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true) List<AddAgentMessage<A>> addAgentMessages,
-                                  @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true) List<RemoveAgentMessage<A>> removeAgentMessages,
-                                  @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true) List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages) {
+                                  @Element(name = "agentPool") KeyedObjectPool<Population, Agent> agentPool,
+                                  @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true) List<AddAgentMessage> addAgentMessages,
+                                  @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true) List<RemoveAgentMessage<Agent>> removeAgentMessages,
+                                  @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true) List<DeliverAgentMessageMessage> deliverAgentMessageMessages) {
 
         this.prototypes = prototypes;
         this.parallelizationThreshold = parallelizationThreshold;
         this.agentPool = agentPool;
-        this.space = new AgentSpace<A, S>(space);
+        this.space = new AgentSpace(space);
         this.simulationLogger = simulationLogger;
 
         this.addAgentMessages = addAgentMessages;
@@ -96,12 +97,12 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
         this.snapshotValues = Maps.newConcurrentMap();
     }
 
-    private void activateAgentInternal(A agent, Initializer<? super A> initializer) {
+    private void activateAgentInternal(Agent agent, Initializer<? super Agent> initializer) {
         assert agent != null : "population is null";
         assert initializer != null : "initializer is null";
 
         initializer.initialize(agent);
-        space.insertObject(agent);
+        space.insertObject(agent, agent.getProjection());
         agent.activate(ActiveSimulationContext.create(this, agentIdSequence.incrementAndGet(), getStep() + 1));
 
         LOGGER.debug("Agent activated: {}", agent);
@@ -109,8 +110,8 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
         simulationLogger.logAgentCreation(agent);
     }
 
-    private void passivateAgentsInternal(List<? extends A> agents) {
-        for (A agent : agents) {
+    private void passivateAgentsInternal(List<? extends Agent> agents) {
+        for (Agent agent : agents) {
             agent.shutDown(PassiveSimulationContext.instance());
             releaseAgent(agent);
         }
@@ -118,13 +119,13 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     }
 
     @Override
-    public void removeAgent(final A agent) {
+    public void removeAgent(final Agent agent) {
         checkNotNull(agent);
         checkArgument(agent.simulation().equals(this));
-        removeAgentMessages.add(new RemoveAgentMessage<A>(agent));
+        removeAgentMessages.add(new RemoveAgentMessage<Agent>(agent));
     }
 
-    private void releaseAgent(final A agent) {
+    private void releaseAgent(final Agent agent) {
         try {
             agentPool.returnObject(agent.getPopulation(), agent);
         } catch (Exception e) {
@@ -137,10 +138,10 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
         return space.count(population);
     }
 
-    private A createAgentInternal(final Population population) {
+    private Agent createAgentInternal(final Population population) {
         checkNotNull(population);
         try {
-            final A agent = agentPool.borrowObject(population);
+            final Agent agent = agentPool.borrowObject(population);
             checkNotNull(agent, "borrowObject in agentPool returned null");
             agent.initialize();
             return agent;
@@ -151,12 +152,12 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     }
 
     @Override
-    public Set<A> getPrototypes() {
+    public Set<Agent> getPrototypes() {
         return prototypes;
     }
 
     @Override
-    public S getSpace() {
+    public Space2D<Agent> getSpace() {
         return space.delegate();
     }
 
@@ -187,9 +188,9 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     }
 
     private void processAgentMessageDelivery() {
-        for (DeliverAgentMessageMessage<A> message : deliverAgentMessageMessages) {
-            for (A agent : message.message.getRecipients()) {
-                agent.receive(new AgentMessage<A>(message.message, getStep()));
+        for (DeliverAgentMessageMessage message : deliverAgentMessageMessages) {
+            for (Agent agent : message.message.getRecipients()) {
+                agent.receive(new AgentMessage<Agent>(message.message, getStep()));
             }
         }
         deliverAgentMessageMessages.clear();
@@ -206,17 +207,17 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     }
 
     private void processRequestedAgentActivations() {
-        for (AddAgentMessage<A> addAgentMessage : addAgentMessages) {
+        for (AddAgentMessage addAgentMessage : addAgentMessages) {
             activateAgentInternal(createAgentInternal(addAgentMessage.population), addAgentMessage.initializer);
         }
         addAgentMessages.clear();
     }
 
     private void processAgentsMovement() {
-        final RecursiveAction moveAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<A>() {
+        final RecursiveAction moveAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Agent>() {
             @Override
-            public void process(A agent) {
-                space.moveObject(agent);
+            public void process(Agent agent) {
+                space.moveObject(agent, agent.getMotion());
             }
         }, parallelizationThreshold);
         forkJoinPool.invoke(moveAllAgents);
@@ -225,9 +226,9 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     private void processRequestedAgentRemovals() {
         LOGGER.debug("Removing {} agent(s)", removeAgentMessages.size());
         if (removeAgentMessages.size() > 0) {
-            passivateAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage<A>, A>() {
+            passivateAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage<Agent>, Agent>() {
                 @Override
-                public A apply(RemoveAgentMessage<A> removeAgentMessage) {
+                public Agent apply(RemoveAgentMessage<Agent> removeAgentMessage) {
                     return removeAgentMessage.agent;
                 }
             }));
@@ -236,9 +237,9 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     }
 
     @Override
-    public void deliverMessage(final ACLMessage<A> message) {
+    public void deliverMessage(final ACLMessage<Agent> message) {
         checkNotNull(message);
-        deliverAgentMessageMessages.add(new DeliverAgentMessageMessage<A>(message));
+        deliverAgentMessageMessages.add(new DeliverAgentMessageMessage(message));
     }
 
     @Override
@@ -249,8 +250,8 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     }
 
     @Override
-    public void createAgent(Population population, Initializer<? super A> initializer) {
-        addAgentMessages.add(new AddAgentMessage<A>(population, initializer));
+    public void createAgent(Population population, Initializer<? super Agent> initializer) {
+        addAgentMessages.add(new AddAgentMessage(population, initializer));
     }
 
     @Override
@@ -269,16 +270,16 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
     }
 
     @Override
-    public Iterable<A> getAgents(Population population) {
+    public Iterable<Agent> getAgents(Population population) {
         return space.getAgents(population);
     }
 
-    private static class AddAgentMessage<A extends Agent> {
+    private static class AddAgentMessage {
 
         private final Population population;
-        private final Initializer<? super A> initializer;
+        private final Initializer<? super Agent> initializer;
 
-        private AddAgentMessage(Population population, Initializer<? super A> initializer) {
+        private AddAgentMessage(Population population, Initializer<? super Agent> initializer) {
             assert population != null;
             assert initializer != null;
             this.population = population;
@@ -297,28 +298,28 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
 
     }
 
-    private static class DeliverAgentMessageMessage<A extends Agent> {
+    private static class DeliverAgentMessageMessage {
 
-        private final ACLMessage<A> message;
+        private final ACLMessage<Agent> message;
 
-        public DeliverAgentMessageMessage(ACLMessage<A> message) {
+        public DeliverAgentMessageMessage(ACLMessage<Agent> message) {
             this.message = message;
         }
 
     }
 
-    private static class AgentSpace<A extends Agent, S extends Space2D<A>> extends ForwardingSpace2D<A> {
+    private static class AgentSpace extends ForwardingSpace2D<Agent> {
 
-        private final S delegate;
-        private final Multimap<Population, A> agentsByPopulation;
-        private final Predicate<A> INACTIVE_AGENT_PREDICATE = new Predicate<A>() {
+        private final Space2D delegate;
+        private final Multimap<Population, Agent> agentsByPopulation;
+        private final Predicate<Agent> INACTIVE_AGENT_PREDICATE = new Predicate<Agent>() {
             @Override
-            public boolean apply(A input) {
+            public boolean apply(Agent input) {
                 return !input.isActive();
             }
         };
 
-        private AgentSpace(S delegate) {
+        private AgentSpace(Space2D delegate) {
             assert delegate != null;
 
             this.delegate = delegate;
@@ -326,7 +327,7 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
         }
 
         @Override
-        protected S delegate() {
+        protected Space2D delegate() {
             return delegate;
         }
 
@@ -336,7 +337,7 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
         }
 
         @Override
-        public boolean insertObject(A agent, double x, double y, double orientation) {
+        public boolean insertObject(Agent agent, double x, double y, double orientation) {
             assert agent != null;
             if (super.insertObject(agent, x, y, orientation)) {
                 final boolean add = agentsByPopulation.get(agent.getPopulation()).add(agent);
@@ -347,18 +348,18 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
         }
 
         @Override
-        public boolean insertObject(A agent) {
-            assert agent != null;
-            if (super.insertObject(agent)) {
-                final boolean add = agentsByPopulation.get(agent.getPopulation()).add(agent);
-                assert add : "Could not add " + agent;
+        public boolean insertObject(Agent object, Object2D projection) {
+            assert object != null;
+            if (super.insertObject(object, projection)) {
+                final boolean add = agentsByPopulation.get(object.getPopulation()).add(object);
+                assert add : "Could not add " + object;
                 return true;
             }
             return false;
         }
 
         @Override
-        public boolean removeObject(A agent) {
+        public boolean removeObject(Agent agent) {
             assert agent != null;
             if (super.removeObject(agent)) {
                 final boolean remove = agentsByPopulation.get(agent.getPopulation()).remove(agent);
@@ -374,50 +375,50 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
             }
         }
 
-        public Iterable<A> getAgents(Population population) {
+        public Iterable<Agent> getAgents(Population population) {
             assert population != null;
             return agentsByPopulation.get(population);
         }
     }
 
-    public static <A extends Agent, S extends Space2D<A>> ParallelizedSimulationBuilder<A,S> builder(S space, Set<A> prototypes) {
-        return new ParallelizedSimulationBuilder<A,S>(space, prototypes);
+    public static ParallelizedSimulationBuilder builder(Space2D<Agent> space, Set<? extends Agent> prototypes) {
+        return new ParallelizedSimulationBuilder(space, prototypes);
     }
 
-    public static class ParallelizedSimulationBuilder<A extends Agent, S extends Space2D<A>> implements Builder<ParallelizedSimulation<A, S>> {
+    public static class ParallelizedSimulationBuilder implements Builder<ParallelizedSimulation> {
 
-        private KeyedObjectPool<Population, A> agentPool;
+        private KeyedObjectPool<Population, Agent> agentPool;
         private int parallelizationThreshold = 1000;
-        private S space;
-        private Set<A> prototypes;
+        private final Space2D space;
+        private final Set<Agent> prototypes;
         private SimulationLogger simulationLogger = new ConsoleLogger();
 
-        public ParallelizedSimulationBuilder(S space, Set<A> prototypes) {
+        public ParallelizedSimulationBuilder(Space2D space, Set<? extends Agent> prototypes) {
             this.space = checkNotNull(space);
-            this.prototypes = checkNotNull(prototypes);
+            this.prototypes = ImmutableSet.copyOf(checkNotNull(prototypes));
         }
 
         @Override
-        public ParallelizedSimulation<A,S> build() throws IllegalStateException {
+        public ParallelizedSimulation build() throws IllegalStateException {
             checkState(agentPool != null, "No AgentPool has been defined");
             checkState(!prototypes.contains(null), "Prototypes contains null");
             checkState(space.isEmpty(), "Space is not empty");
 
-            return new ParallelizedSimulation<A,S>(this);
+            return new ParallelizedSimulation(this);
         }
 
-        public ParallelizedSimulationBuilder<A,S> agentPool(KeyedObjectPool<Population, A> pool) {
+        public ParallelizedSimulationBuilder agentPool(KeyedObjectPool<Population, Agent> pool) {
             this.agentPool = checkNotNull(pool);
             return this;
         }
 
-        public ParallelizedSimulationBuilder<A,S> parallelizationThreshold(int parallelizationThreshold) {
+        public ParallelizedSimulationBuilder parallelizationThreshold(int parallelizationThreshold) {
             checkArgument(parallelizationThreshold > 0, "parallelizationThreshold must be positive");
             this.parallelizationThreshold = parallelizationThreshold;
             return this;
         }
 
-        public ParallelizedSimulationBuilder<A,S> simulationLogger(SimulationLogger simulationLogger) {
+        public ParallelizedSimulationBuilder simulationLogger(SimulationLogger simulationLogger) {
             this.simulationLogger = simulationLogger;
             return this;
         }

@@ -17,19 +17,19 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:50
  */
-public interface Simulation<A extends Agent, S extends Space2D<A>> extends HasName {
+public interface Simulation extends HasName {
 
     /**
      * Get all active {@code Agent}s which are part of the given {@code population}
      * @param population The common population
      * @return An iterable of all active {@code Agents} with population equal to {@code population}
      */
-    Iterable<A> getAgents(Population population);
+    Iterable<Agent> getAgents(Population population);
 
     /**
      * @return an unmodifiable view of all active {@code Agent}s
      */
-    List<A> getAgents();
+    List<Agent> getAgents();
 
     /**
      * Create a new {@code Agent} as a clone of the prototype registered for given {@code population}
@@ -38,7 +38,7 @@ public interface Simulation<A extends Agent, S extends Space2D<A>> extends HasNa
      * @param population the population of the prototype to use for cloning
      * @param initializer the initializer which will be applied on constructed {@code Agent}
      */
-    void createAgent(Population population, Initializer<? super A> initializer);
+    void createAgent(Population population, Initializer<? super Agent> initializer);
 
     void createAgent(Population population);
 
@@ -46,7 +46,7 @@ public interface Simulation<A extends Agent, S extends Space2D<A>> extends HasNa
      * Remove agent from this {@code Simulation}
      * @param agent the {@code Agent} to be removed from this {@code Simulation}
      */
-    void removeAgent(A agent);
+    void removeAgent(Agent agent);
 
     /**
      * The number of registered populations which is equal to the number of register prototypes.
@@ -61,7 +61,7 @@ public interface Simulation<A extends Agent, S extends Space2D<A>> extends HasNa
      * @param distance The maximum allowed distance of an agent to count as a neighbour
      * @return all neighbours of {@code agent} within the given distance
      */
-    Iterable<A> findNeighbours(A agent, double distance);
+    Iterable<Agent> findNeighbours(Agent agent, double distance);
 
     /**
      * Count all active Agents
@@ -80,13 +80,13 @@ public interface Simulation<A extends Agent, S extends Space2D<A>> extends HasNa
      * Get all registered prototypes
      * @return all registered {@code Agent}s which are used as prototypes
      */
-    Set<A> getPrototypes();
+    Set<Agent> getPrototypes();
 
     /**
      * Get the space used in this simulation
      * @return the space used in this simulation
      */
-    S getSpace();
+    Space2D<Agent> getSpace();
 
     /**
      * Get the current step
@@ -109,7 +109,7 @@ public interface Simulation<A extends Agent, S extends Space2D<A>> extends HasNa
      * Deliver given {@code message} to its destination
      * @param message the message to deliver
      */
-    void deliverMessage(ACLMessage<A> message);
+    void deliverMessage(ACLMessage<Agent> message);
 
     /**
      * Shutdown this simulation and clean up resources

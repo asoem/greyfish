@@ -46,7 +46,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     }
 
     @Override
-    protected void executeState(Object state, Simulation<Agent, ?> simulation) {
+    protected void executeState(Object state, Simulation simulation) {
         if (State.SEND_CFP.equals(state)) {
             if (!canInitiate(simulation)) {
                 endTransition(State.NO_RECEIVERS);

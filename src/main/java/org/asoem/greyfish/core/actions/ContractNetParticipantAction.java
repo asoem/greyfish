@@ -48,7 +48,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     }
 
     @Override
-    protected void executeState(Object state, Simulation<Agent, ?> simulation) {
+    protected void executeState(Object state, Simulation simulation) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();

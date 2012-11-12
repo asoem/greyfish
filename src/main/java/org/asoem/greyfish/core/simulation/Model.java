@@ -9,5 +9,5 @@ import org.asoem.greyfish.core.space.Space2D;
  * Time: 14:56
  */
 public interface Model<A extends Agent, S extends Space2D<A>> {
-    Simulation<A, S> createSimulation(SimulationFactory simulationFactory);
+    Simulation createSimulation(SimulationFactory simulationFactory);
 }
