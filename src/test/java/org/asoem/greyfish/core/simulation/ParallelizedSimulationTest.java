@@ -46,7 +46,13 @@ public class ParallelizedSimulationTest {
         final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
 
         // when
-        ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, ImmutableSet.of(prototype)).build();
+        ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, ImmutableSet.of(prototype))
+                .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
+                    @Override
+                    public Agent makeObject(Population o) throws Exception {
+                        return prototype;
+                    }
+                })).build();
         simulation.createAgent(population);
         simulation.createAgent(population);
         simulation.nextStep();

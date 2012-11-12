@@ -24,26 +24,28 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 06.07.12
  * Time: 11:57
  */
-public class ParallelizedSimulationFactory<A extends Agent, S extends Space2D<A>> implements SimulationFactory<ParallelizedSimulation,A,S> {
+public class ParallelizedSimulationFactory implements SimulationFactory {
 
     private final int parallelizationThreshold;
     private final SimulationLogger simulationLogger;
-    private final CloneFactory<A> cloneFactory;
 
-    public ParallelizedSimulationFactory(int parallelizationThreshold, CloneFactory<A> cloneFactory) {
+    public ParallelizedSimulationFactory(int parallelizationThreshold) {
         this.parallelizationThreshold = parallelizationThreshold;
-        this.cloneFactory = cloneFactory;
         this.simulationLogger = new ConsoleLogger();
     }
 
-    public ParallelizedSimulationFactory(int parallelizationThreshold, SimulationLogger simulationLogger, CloneFactory<A> cloneFactory) {
+    public ParallelizedSimulationFactory(int parallelizationThreshold, SimulationLogger simulationLogger) {
         this.parallelizationThreshold = parallelizationThreshold;
-        this.cloneFactory = cloneFactory;
         this.simulationLogger = checkNotNull(simulationLogger);
     }
 
     @Override
-    public ParallelizedSimulation createSimulation(S space, Set<? extends A> prototypes) {
+    public <A extends Agent, S extends Space2D<A>> ParallelizedSimulation<A,S> createSimulation(S space, Set<? extends A> prototypes, CloneFactory<A> cloneFactory) {
+        checkNotNull(space);
+        checkNotNull(prototypes);
+        checkArgument(!prototypes.contains(null));
+        checkNotNull(cloneFactory);
+
         return ParallelizedSimulation.builder(space, ImmutableSet.copyOf(prototypes))
                 .parallelizationThreshold(parallelizationThreshold)
                 .simulationLogger(simulationLogger)
@@ -51,9 +53,7 @@ public class ParallelizedSimulationFactory<A extends Agent, S extends Space2D<A>
                 .build();
     }
 
-    private KeyedObjectPool<Population, A> createDefaultAgentPool(final Set<? extends A> prototypes, final CloneFactory<A> cloneFactory) {
-        checkArgument(!prototypes.contains(null));
-
+    private <A extends Agent> KeyedObjectPool<Population, A> createDefaultAgentPool(final Set<? extends A> prototypes, final CloneFactory<A> cloneFactory) {
         return new StackKeyedObjectPool<Population, A>(
                 new BaseKeyedPoolableObjectFactory<Population, A>() {
 

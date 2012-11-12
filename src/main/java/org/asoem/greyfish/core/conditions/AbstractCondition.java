@@ -23,7 +23,7 @@ public abstract class AbstractCondition implements ActionCondition {
     @Nullable
     private ActionCondition parentCondition;
     @Nullable
-    private AgentAction action;
+    private transient AgentAction action;
 
     protected AbstractCondition() {}
 

@@ -73,7 +73,7 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
 
     boolean isActive();
 
-    Simulation simulation();
+    Simulation<?,?> simulation();
 
     int getId();
 

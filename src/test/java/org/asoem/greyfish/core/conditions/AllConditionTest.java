@@ -29,7 +29,7 @@ public class AllConditionTest {
         // given
         final DeepCloner clonerMock = mock(DeepCloner.class);
         final ActionCondition mock = mock(ActionCondition.class);
-        given(clonerMock.getClone(any(ActionCondition.class), eq(ActionCondition.class))).willReturn(mock);
+        given(clonerMock.getClone(any(ActionCondition.class), eq(ActionCondition.class))).willReturn(mock(ActionCondition.class));
         final AllCondition allCondition = AllCondition.evaluates(mock, mock);
 
         // when

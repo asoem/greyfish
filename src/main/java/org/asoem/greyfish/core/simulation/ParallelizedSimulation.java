@@ -399,7 +399,7 @@ public class ParallelizedSimulation<A extends Agent, S extends Space2D<A>> exten
 
         @Override
         public ParallelizedSimulation<A,S> build() throws IllegalStateException {
-            checkState(agentPool != null);
+            checkState(agentPool != null, "No AgentPool has been defined");
             checkState(!prototypes.contains(null), "Prototypes contains null");
             checkState(space.isEmpty(), "Space is not empty");
 
