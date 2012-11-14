@@ -24,6 +24,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -59,11 +60,11 @@ public final class GreyfishCLIApplication {
                                    @Nullable @Named("verbose") final String verbose,
                                    @Named("parallelizationThreshold") int parallelizationThreshold,
                                    @Named("databasePath") String dbPath) {
-        final List<Predicate<Simulation>> predicateList = Lists.newArrayList();
+        final List<Predicate<Simulation<SpatialObject>>> predicateList = Lists.newArrayList();
 
-        predicateList.add(new Predicate<Simulation>() {
+        predicateList.add(new Predicate<Simulation<SpatialObject>>() {
             @Override
-            public boolean apply(Simulation parallelizedSimulation) {
+            public boolean apply(Simulation<SpatialObject> parallelizedSimulation) {
                 return parallelizedSimulation.getStep() < steps;
             }
         });
@@ -75,7 +76,7 @@ public final class GreyfishCLIApplication {
                 new ParallelizedSimulationFactory(
                         parallelizationThreshold,
                         SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
-        final Simulation simulation = model.createSimulation(simulationFactory);
+        final Simulation<SpatialObject> simulation = model.createSimulation(simulationFactory);
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
@@ -104,7 +105,7 @@ public final class GreyfishCLIApplication {
         }
     }
 
-    private void startSimulationMonitor(final Simulation simulation, final String verbose) {
+    private void startSimulationMonitor(final Simulation<SpatialObject> simulation, final String verbose) {
         OutputStream outputStream = null;
         try {
             if (verbose.equals("-")) {
