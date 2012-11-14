@@ -76,7 +76,7 @@ public final class GreyfishCLIApplication {
                 new ParallelizedSimulationFactory(
                         parallelizationThreshold,
                         SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
-        final Simulation<SpatialObject> simulation = model.createSimulation(simulationFactory);
+        final Simulation<SpatialObject> simulation = model.createSimulation();
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
