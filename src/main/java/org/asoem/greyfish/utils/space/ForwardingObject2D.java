@@ -13,27 +13,12 @@ public abstract class ForwardingObject2D extends ForwardingObject implements Obj
     protected abstract Object2D delegate();
 
     @Override
-    public double getOrientationAngle() {
-        return delegate().getOrientationAngle();
+    public int getDimension() {
+        return delegate().getDimension();
     }
 
     @Override
-    public int getDimensions() {
-        return delegate().getDimensions();
-    }
-
-    @Override
-    public double[] getOrientation() {
-        return delegate().getOrientation();
-    }
-
-    @Override
-    public double[] getBoundingVolume() {
-        return delegate().getBoundingVolume();
-    }
-
-    @Override
-    public Point2D getAnchorPoint() {
-        return delegate().getAnchorPoint();
+    public Point2D getCentroid() {
+        return delegate().getCentroid();
     }
 }

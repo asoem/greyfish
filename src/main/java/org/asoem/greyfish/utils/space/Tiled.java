@@ -16,5 +16,5 @@ public interface Tiled<T extends Tile> {
 
     Iterable<T> getTiles();
 
-    T getAdjacentTile(T borderedTile, TileDirection direction);
+    T getAdjacentTile(T tile, TileDirection direction);
 }
