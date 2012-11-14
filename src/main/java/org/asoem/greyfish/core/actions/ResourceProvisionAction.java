@@ -12,6 +12,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) {
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
         final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, getAgent());
         if (proposalSent)
             return reply.performative(ACLPerformative.REFUSE);
@@ -73,7 +74,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
+    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
         double offer = message.getContent(Double.class);
 
         LOGGER.info("{}: Provided {}", agent(), offer);

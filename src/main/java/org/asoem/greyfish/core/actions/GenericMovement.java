@@ -12,6 +12,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -46,7 +47,7 @@ public class GenericMovement extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation simulation) {
+    protected ActionState proceed(Simulation<SpatialObject> simulation) {
         final double evaluatedTurningAngle = Callbacks.call(turningAngle, this);
         final double evaluatedStepSize = Callbacks.call(stepSize, this);
 

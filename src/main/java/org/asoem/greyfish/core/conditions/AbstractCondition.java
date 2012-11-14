@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
@@ -127,7 +128,7 @@ public abstract class AbstractCondition implements ActionCondition {
     public void initialize() {
     }
 
-    public Simulation simulation() {
+    public Simulation<SpatialObject> simulation() {
         return agent().simulation();
     }
 

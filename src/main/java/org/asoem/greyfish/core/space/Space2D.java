@@ -11,7 +11,7 @@ import java.util.Collection;
  * Date: 29.02.12
  * Time: 18:56
  */
-public interface Space2D<T> {
+public interface Space2D<T, P extends Object2D> {
 
     /**
      * The number of objects in this space
@@ -44,7 +44,7 @@ public interface Space2D<T> {
      */
     boolean insertObject(T projectable, double x, double y, double orientation);
 
-    boolean insertObject(T object, Object2D projection);
+    boolean insertObject(T object, P projection);
 
     /**
      * Remove the given {@code object} from this space
@@ -94,5 +94,5 @@ public interface Space2D<T> {
 
     double height();
 
-    Object2D getProjection(T object);
+    P getProjection(T object);
 }

@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.Serializable;
 
@@ -31,7 +32,7 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
     }
 
     @Override
-    protected final ActionState proceed(Simulation simulation) {
+    protected final ActionState proceed(Simulation<SpatialObject> simulation) {
 
         if (endStateReached)
             resetTransition();
@@ -48,7 +49,7 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
 
     protected abstract Object initialState();
 
-    protected abstract void executeState(Object state, Simulation simulation);
+    protected abstract void executeState(Object state, Simulation<SpatialObject> simulation);
 
     protected final void resetTransition() {
         LOGGER.debug("{}: Reset state to {}", this, initialState());

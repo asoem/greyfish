@@ -15,6 +15,7 @@ import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
@@ -31,7 +32,7 @@ public class ClonalReproduction extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation simulation) {
+    protected ActionState proceed(Simulation<SpatialObject> simulation) {
         final int nClones = Callbacks.call(this.nClones, this);
         for (int i = 0; i < nClones; i++) {
 

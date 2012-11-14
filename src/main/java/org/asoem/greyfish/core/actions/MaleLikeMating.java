@@ -15,6 +15,7 @@ import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -80,7 +81,7 @@ public class MaleLikeMating extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation) {
+    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
         final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, agent());
 
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
@@ -105,7 +106,7 @@ public class MaleLikeMating extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation) {
+    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
         // costs for mating define quality of the agentTraitList
 //        DoubleProperty doubleProperty = null;
 //        GeneComponentList sperm = null;

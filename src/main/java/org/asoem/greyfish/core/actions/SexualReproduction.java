@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
-import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.*;
@@ -16,8 +15,8 @@ import org.asoem.greyfish.utils.collect.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,7 @@ public class SexualReproduction extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation simulation) {
+    protected ActionState proceed(Simulation<SpatialObject> simulation) {
         final List<? extends Chromosome> chromosomes = call(spermSupplier, this);
 
         if (chromosomes == null)
@@ -74,7 +73,7 @@ public class SexualReproduction extends AbstractAgentAction {
             simulation().createAgent(agent().getPopulation(), new Initializer<Agent>() {
                 @Override
                 public void initialize(Agent agent) {
-                    agent.setProjection(MotionObject2DImpl.reorientated(agent().getProjection(), RandomUtils.nextDouble(0, MathUtils.TWO_PI)));
+                    agent.setProjection(MotionObject2DImpl.reorientated(agent().getProjection()));
                     agent.updateGeneComponents(blend);
                 }
             });

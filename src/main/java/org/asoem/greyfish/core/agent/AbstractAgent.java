@@ -24,6 +24,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.MotionObject2D;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -313,7 +314,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Simulation simulation() {
+    public Simulation<SpatialObject> simulation() {
         checkState(isActive(), "A passive Agent has no associated simulation");
         return simulationContext.getSimulation();
     }

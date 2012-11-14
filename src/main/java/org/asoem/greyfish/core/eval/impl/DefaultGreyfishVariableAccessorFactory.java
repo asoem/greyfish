@@ -14,6 +14,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.utils.AgentComponents;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -75,19 +76,19 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 }
             } else if ("sim".equals(root) || "simulation".equals(root)) {
                 if (AgentComponent.class.isAssignableFrom(contextClass)) {
-                    return simulation(gomParts, new Function<T, Simulation>() {
+                    return simulation(gomParts, new Function<T, Simulation<SpatialObject>>() {
                         @Override
-                        public Simulation apply(T gfComponent) {
+                        public Simulation<SpatialObject> apply(T gfComponent) {
                             Agent agent = AgentComponent.class.cast(gfComponent).getAgent();
                             return checkNotNull(agent).simulation();
                             // TODO: We should have direct access to simulation object through a component
                         }
                     });
-                } else if (Simulation.class.isAssignableFrom(contextClass)) {
-                    return simulation(gomParts, new Function<T, Simulation>() {
+                } else if (Simulation<SpatialObject>.class.isAssignableFrom(contextClass)) {
+                    return simulation(gomParts, new Function<T, Simulation<SpatialObject>>() {
                         @Override
-                        public Simulation apply(T t) {
-                            return Simulation.class.cast(t);
+                        public Simulation<SpatialObject> apply(T t) {
+                            return Simulation<SpatialObject>.class.cast(t);
                         }
                     });
                 } else {
@@ -247,16 +248,16 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         }
     }
 
-    private <T> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation> ret) {
+    private <T> Function<T, ?> simulation(Iterator<String> parts, Function<T, Simulation<SpatialObject>> ret) {
         if (parts.hasNext()) {
             String nextPart = parts.next();
 
             Pattern.compile("agents\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
 
             if (nextPart.matches("agents\\[.+\\]")) {
-                return agent(parts, Functions.compose(new Function<Simulation, Agent>() {
+                return agent(parts, Functions.compose(new Function<Simulation<SpatialObject>, Agent>() {
                     @Override
-                    public Agent apply(Simulation simulation) {
+                    public Agent apply(Simulation<SpatialObject> simulation) {
                         return Iterables.find(checkNotNull(simulation).getAgents(), new Predicate<Agent>() {
                             @Override
                             public boolean apply(Agent agent) {
@@ -266,9 +267,9 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                     }
                 }, ret));
             } else if ("agentCount".equals(nextPart)) {
-                return Functions.compose(new Function<Simulation, Object>() {
+                return Functions.compose(new Function<Simulation<SpatialObject>, Object>() {
                     @Override
-                    public Object apply(Simulation simulation) {
+                    public Object apply(Simulation<SpatialObject> simulation) {
                         return simulation.countAgents();
                     }
                 }, ret);
@@ -303,9 +304,9 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             Matcher matcher;
 
             if ("simulation".equals(nextPart)) {
-                return simulation(parts, Functions.compose(new Function<Agent, Simulation>() {
+                return simulation(parts, Functions.compose(new Function<Agent, Simulation<SpatialObject>>() {
                     @Override
-                    public Simulation apply(Agent agent) {
+                    public Simulation<SpatialObject> apply(Agent agent) {
                         return checkNotNull(agent).simulation();
                     }
                 }, ret));

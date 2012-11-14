@@ -12,6 +12,7 @@ import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,7 @@ public class ParallelizedSimulationFactory implements SimulationFactory {
     }
 
     @Override
-    public ParallelizedSimulation createSimulation(Space2D<Agent> space, Set<? extends Agent> prototypes, CloneFactory<Agent> cloneFactory) {
+    public ParallelizedSimulation createSimulation(Space2D<Agent, Object2D> space, Set<? extends Agent> prototypes, CloneFactory<Agent> cloneFactory) {
         checkNotNull(space);
         checkNotNull(prototypes);
         checkArgument(!prototypes.contains(null));

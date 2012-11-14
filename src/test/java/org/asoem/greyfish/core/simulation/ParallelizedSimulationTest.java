@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.FrozenAgent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.core.space.WalledPointSpace;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
@@ -43,7 +43,7 @@ public class ParallelizedSimulationTest {
         // given
         final Population population = new Population("testPopulation");
         final Agent prototype = FrozenAgent.builder(population).build();
-        final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1).build();
+        final WalledPointSpace<Agent> space = WalledPointSpace.builder(1, 1).build();
 
         // when
         ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, ImmutableSet.of(prototype))
@@ -65,7 +65,7 @@ public class ParallelizedSimulationTest {
     public void testBasicPersistence() throws Exception {
         /*
         // given
-        final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1)
+        final WalledPointSpace<Agent> space = WalledPointSpace.<Agent>builder(1, 1)
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicSimulationTemplate scenario = BasicSimulationTemplate.builder("TestScenario", space).build();
@@ -97,7 +97,7 @@ public class ParallelizedSimulationTest {
                         return agent;
                     }
                 });
-        final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1,1);
+        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
         final ImmutableSet<Agent> prototypes = ImmutableSet.of(agent);
         final ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, prototypes)
                 .agentPool(pool)
@@ -131,7 +131,7 @@ public class ParallelizedSimulationTest {
                         return agent;
                     }
                 });
-        final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1,1);
+        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
         final ImmutableSet<Agent> prototypes = ImmutableSet.of(agent);
         final ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, prototypes)
                 .agentPool(pool)

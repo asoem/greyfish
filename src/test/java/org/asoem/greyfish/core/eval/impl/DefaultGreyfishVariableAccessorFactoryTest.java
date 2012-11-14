@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +57,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         // given
         final AgentAction action = mock(AgentAction.class);
         final Agent agent = mock(Agent.class);
-        final Simulation simulation = mock(Simulation.class);
+        final Simulation<SpatialObject> simulation = mock(Simulation<SpatialObject>.class);
         given(action.getAgent()).willReturn(agent);
         given(agent.simulation()).willReturn(simulation);
 

@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
@@ -33,7 +34,7 @@ public class GenericAction extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation simulation) {
+    protected ActionState proceed(Simulation<SpatialObject> simulation) {
         call(callback, this);
         return ActionState.COMPLETED;
     }

@@ -8,8 +8,9 @@ import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Initializer;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -17,10 +18,10 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class ForwardingSimulation extends ForwardingObject implements Simulation {
+public abstract class ForwardingSimulation extends ForwardingObject implements Simulation<SpatialObject> {
 
     @Override
-    protected abstract Simulation delegate();
+    protected abstract Simulation<SpatialObject> delegate();
 
     @Override
     public int numberOfPopulations() {
@@ -38,7 +39,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public List<Agent> getAgents() {
+    public Collection<Agent> getAgents() {
         return delegate().getAgents();
     }
 
@@ -63,7 +64,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Space2D<Agent> getSpace() {
+    public Space2D<Agent, SpatialObject> getSpace() {
         return delegate().getSpace();
     }
 

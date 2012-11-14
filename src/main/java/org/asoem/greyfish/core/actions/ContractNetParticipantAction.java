@@ -10,6 +10,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.Serializable;
 import java.util.List;
@@ -48,7 +49,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     }
 
     @Override
-    protected void executeState(Object state, Simulation simulation) {
+    protected void executeState(Object state, Simulation<SpatialObject> simulation) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();
@@ -160,12 +161,12 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
     protected void prepareForCommunication() {}
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation simulation);
+    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation<SpatialObject> simulation);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleReject(ACLMessage<Agent> message, Simulation simulation) {}
+    protected void handleReject(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation simulation);
+    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation<SpatialObject> simulation);
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         assert ontology != null;

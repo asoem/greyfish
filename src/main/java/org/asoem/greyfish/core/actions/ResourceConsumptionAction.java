@@ -15,6 +15,7 @@ import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -48,7 +49,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
+    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation<SpatialObject> simulation) {
         final Agent receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
         return ImmutableACLMessage.<Agent>with()
@@ -61,7 +62,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) throws NotUnderstoodException {
 
         final double offer = message.getContent(Double.class);
 
@@ -73,7 +74,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {
+    protected void handleInform(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
         final double offer = message.getContent(Double.class);
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
         uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
@@ -85,7 +86,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(Simulation simulation) {
+    protected boolean canInitiate(Simulation<SpatialObject> simulation) {
         sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
         return !isEmpty(sensedMates);
     }

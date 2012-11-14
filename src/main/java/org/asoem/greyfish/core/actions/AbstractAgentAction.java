@@ -9,6 +9,7 @@ import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -58,7 +59,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     @Override
     public ActionState apply() {
 
-        final Simulation simulation = simulation();
+        final Simulation<SpatialObject> simulation = simulation();
 
         assert stepAtLastSuccess < simulation.getStep() :
                 "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + simulation.getStep();
@@ -89,7 +90,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
         return actionState;
     }
 
-    protected abstract ActionState proceed(Simulation simulation);
+    protected abstract ActionState proceed(Simulation<SpatialObject> simulation);
 
     protected void setState(ActionState state) {
         assert state != null;

@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 /**
  * User: christoph
@@ -12,7 +13,7 @@ public interface SimulationContext {
 
     int getAgentId();
 
-    Simulation getSimulation();
+    Simulation<SpatialObject> getSimulation();
 
     int getAge();
 

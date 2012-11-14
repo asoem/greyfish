@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
@@ -65,7 +66,7 @@ public abstract class AbstractAgentComponent implements AgentComponent {
      * @return the associated simulation
      * @throws IllegalStateException if this component is not yet associated with an agent or thi agent is not associated with a simulation
      */
-    public Simulation simulation() throws IllegalStateException {
+    public Simulation<SpatialObject> simulation() throws IllegalStateException {
         return agent().simulation();
     }
 

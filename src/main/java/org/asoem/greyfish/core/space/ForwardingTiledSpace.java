@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.space;
 
-import org.asoem.greyfish.utils.space.MovingProjectable2D;
 import org.asoem.greyfish.utils.space.Tile;
 import org.asoem.greyfish.utils.space.TileDirection;
 
@@ -9,10 +8,10 @@ import org.asoem.greyfish.utils.space.TileDirection;
  * Date: 30.08.12
  * Time: 09:39
  */
-public abstract class ForwardingTiledSpace<O extends MovingProjectable2D, T extends Tile> extends ForwardingSpace2D<O> implements TiledSpace<O, T> {
+public abstract class ForwardingTiledSpace<O, P, T extends Tile> extends ForwardingSpace2D<O, P> implements TiledSpace<O, P, T> {
 
     @Override
-    protected abstract TiledSpace<O, T> delegate();
+    protected abstract TiledSpace<O, P, T> delegate();
 
     @Override
     public int rowCount() {
@@ -40,8 +39,8 @@ public abstract class ForwardingTiledSpace<O extends MovingProjectable2D, T exte
     }
 
     @Override
-    public T getAdjacentTile(T borderedTile, TileDirection direction) {
-        return delegate().getAdjacentTile(borderedTile, direction);
+    public T getAdjacentTile(T tile, TileDirection direction) {
+        return delegate().getAdjacentTile(tile, direction);
     }
 
     @Override

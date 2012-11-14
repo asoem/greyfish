@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Predicate;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,7 +19,7 @@ public final class Simulations {
      *
      * @param predicate the {@code Predicate} which will be checked after each step
      */
-    public static <T extends Simulation> void runWhile(T simulation, Predicate<? super T> predicate) {
+    public static <T extends Simulation<SpatialObject>> void runWhile(T simulation, Predicate<? super T> predicate) {
         checkNotNull(predicate);
 
         while (predicate.apply(simulation)) {
@@ -26,7 +27,7 @@ public final class Simulations {
         }
     }
 
-    public static void runFor(Simulation simulation, int steps) {
+    public static void runFor(Simulation<SpatialObject> simulation, int steps) {
         for (int i = 0; i < steps; i++) {
             simulation.nextStep();
         }

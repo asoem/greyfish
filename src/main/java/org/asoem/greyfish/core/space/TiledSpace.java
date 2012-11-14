@@ -8,6 +8,6 @@ import org.asoem.greyfish.utils.space.Tiled;
  * Date: 30.08.12
  * Time: 09:41
  */
-public interface TiledSpace<O, T extends Tile> extends Space2D<O>, Tiled<T> {
+public interface TiledSpace<O, P, T extends Tile> extends Space2D<O, P>, Tiled<T> {
     Iterable<O> getObjects(Iterable<? extends Tile> tiles);
 }

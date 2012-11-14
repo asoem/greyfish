@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.MotionObject2D;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -174,7 +175,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Simulation simulation() {
+    public Simulation<SpatialObject> simulation() {
         return delegate().simulation();
     }
 

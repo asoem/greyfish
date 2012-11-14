@@ -17,8 +17,9 @@ import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.core.space.WalledTileSpace;
+import org.asoem.greyfish.core.space.WalledPointSpace;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -61,9 +62,9 @@ public class MatingInteractionTest {
                 .addActions(transmitterAction)
                 .build();
 
-        final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1, 1);
+        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
         final ImmutableSet<Agent> prototypes = ImmutableSet.of(male, female);
-        final Simulation simulation = ParallelizedSimulation.builder(space, prototypes)
+        final Simulation<SpatialObject> simulation = ParallelizedSimulation.builder(space, prototypes)
                 .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
                     final ImmutableMap<Population, Agent> populationPrototypeMap =
                             Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {

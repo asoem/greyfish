@@ -7,6 +7,7 @@ import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,7 +32,7 @@ public class SimulationStepPropertyTest {
         final Agent agent = mock(Agent.class);
         property.setAgent(agent);
         property.initialize();
-        final Simulation simulation = mock(Simulation.class);
+        final Simulation<SpatialObject> simulation = mock(Simulation<SpatialObject>.class);
         given(simulation.getStep()).willReturn(0,0,0,1);
         given(agent.simulation()).willReturn(simulation);
 

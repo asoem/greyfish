@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Attribute;
 
 import java.io.Serializable;
@@ -11,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ActiveSimulationContext implements SimulationContext, Serializable {
 
     //@Element(name = "simulation")
-    private final Simulation simulation;
+    private final Simulation<SpatialObject> simulation;
 
     @Attribute(name = "activationStep")
     private final int activationStep;
@@ -19,13 +20,13 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     @Attribute(name = "agentId")
     private final int agentId;
 
-    private ActiveSimulationContext(Simulation simulation, int agentId, int simulationStep) {
+    private ActiveSimulationContext(Simulation<SpatialObject> simulation, int agentId, int simulationStep) {
         this.simulation = checkNotNull(simulation);
         this.agentId = agentId;
         this.activationStep = simulationStep;
     }
 
-    public static ActiveSimulationContext create(Simulation simulation, int agentId, int simulationStep) {
+    public static ActiveSimulationContext create(Simulation<SpatialObject> simulation, int agentId, int simulationStep) {
         return new ActiveSimulationContext(simulation, agentId, simulationStep);
     }
 
@@ -40,7 +41,7 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     }
 
     @Override
-    public Simulation getSimulation() {
+    public Simulation<SpatialObject> getSimulation() {
         return simulation;
     }
 
@@ -59,7 +60,7 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
         final Object2D projection = agent.getProjection();
         assert projection != null;
 
-        simulation.logAgentEvent(agentId, agent.getPopulation().getName(), projection.getAnchorPoint().getCoordinates(), eventOrigin, title, message);
+        simulation.logAgentEvent(agentId, agent.getPopulation().getName(), projection.getCentroid().getCoordinate(), eventOrigin, title, message);
     }
 
     @Override

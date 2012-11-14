@@ -8,8 +8,9 @@ import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Initializer;
+import org.asoem.greyfish.utils.space.Object2D;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -17,7 +18,7 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:50
  */
-public interface Simulation extends HasName {
+public interface Simulation<P extends Object2D> extends HasName {
 
     /**
      * Get all active {@code Agent}s which are part of the given {@code population}
@@ -29,7 +30,7 @@ public interface Simulation extends HasName {
     /**
      * @return an unmodifiable view of all active {@code Agent}s
      */
-    List<Agent> getAgents();
+    Collection<Agent> getAgents();
 
     /**
      * Create a new {@code Agent} as a clone of the prototype registered for given {@code population}
@@ -86,7 +87,7 @@ public interface Simulation extends HasName {
      * Get the space used in this simulation
      * @return the space used in this simulation
      */
-    Space2D<Agent> getSpace();
+    Space2D<Agent, P> getSpace();
 
     /**
      * Get the current step

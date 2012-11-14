@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -46,7 +47,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     }
 
     @Override
-    protected void executeState(Object state, Simulation simulation) {
+    protected void executeState(Object state, Simulation<SpatialObject> simulation) {
         if (State.SEND_CFP.equals(state)) {
             if (!canInitiate(simulation)) {
                 endTransition(State.NO_RECEIVERS);
@@ -172,7 +173,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             throw unknownState();
     }
 
-    protected abstract boolean canInitiate(Simulation simulation);
+    protected abstract boolean canInitiate(Simulation<SpatialObject> simulation);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))
@@ -201,17 +202,17 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation);
+    protected abstract ImmutableACLMessage.Builder<Agent> createCFP(Simulation<SpatialObject> simulation);
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException;
-
-    @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleRefuse(ACLMessage<Agent> message, Simulation simulation) {}
+    protected abstract ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) throws NotUnderstoodException;
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleFailure(ACLMessage<Agent> message, Simulation simulation) {}
+    protected void handleRefuse(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
 
-    protected void handleInform(ACLMessage<Agent> message, Simulation simulation) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleFailure(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
+
+    protected void handleInform(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
 
     protected abstract String getOntology();
 

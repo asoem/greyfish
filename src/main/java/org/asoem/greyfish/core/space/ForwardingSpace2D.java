@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.space;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MovingProjectable2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Collection;
@@ -13,9 +12,9 @@ import java.util.Collection;
  * Date: 09.11.12
  * Time: 14:41
  */
-public abstract class ForwardingSpace2D<O extends MovingProjectable2D> extends ForwardingObject implements Space2D<O> {
+public abstract class ForwardingSpace2D<O, P extends Object2D> extends ForwardingObject implements Space2D<O, P> {
     @Override
-    protected abstract Space2D<O> delegate();
+    protected abstract Space2D<O, P> delegate();
 
     @Override
     public int countObjects() {
@@ -53,7 +52,7 @@ public abstract class ForwardingSpace2D<O extends MovingProjectable2D> extends F
     }
 
     @Override
-    public boolean insertObject(O object, Object2D projection) {
+    public boolean insertObject(O object, P projection) {
         return delegate().insertObject(object, projection);
     }
 

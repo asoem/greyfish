@@ -3,12 +3,11 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.AgentInitializers;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.MotionObject2DImpl;
+import org.asoem.greyfish.utils.base.Initializers;
+import org.asoem.greyfish.utils.space.Object2D;
 
-import java.util.List;
+import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -17,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 03.10.12
  * Time: 22:08
  */
-public abstract class AbstractSimulation implements Simulation {
+public abstract class AbstractSimulation<P extends Object2D> implements Simulation<P> {
 
     @Override
     public int numberOfPopulations() {
@@ -42,7 +41,7 @@ public abstract class AbstractSimulation implements Simulation {
     }
 
     @Override
-    public List<Agent> getAgents() {
+    public Collection<Agent> getAgents() {
         return getSpace().getObjects();
     }
 
@@ -70,7 +69,7 @@ public abstract class AbstractSimulation implements Simulation {
 
     @Override
     public void createAgent(Population population) {
-        final MotionObject2DImpl randomProjection = MotionObject2DImpl.of(RandomUtils.nextDouble(0, getSpace().width()), RandomUtils.nextDouble(0, getSpace().height()));
-        createAgent(population, AgentInitializers.projection(randomProjection));
+        //final MotionObject2DImpl randomProjection = MotionObject2DImpl.of(RandomUtils.nextDouble(0, getSpace().width()), RandomUtils.nextDouble(0, getSpace().height()));
+        createAgent(population, Initializers.emptyInitializer());
     }
 }

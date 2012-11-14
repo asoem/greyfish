@@ -35,7 +35,7 @@ public class TiledSpaceTest {
         int height = 3;
 
         // when
-        Tiled tiledSpace = WalledTileSpace.ofSize(width, height);
+        Tiled tiledSpace = WalledPointSpace.ofSize(width, height);
 
         // then
         assertThat(tiledSpace.getTiles(), is(iterableWithSize(width * height)));
@@ -46,7 +46,7 @@ public class TiledSpaceTest {
         // given
         Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
         Point2D destination = ImmutablePoint2D.at(0.0, -1.0);
-        WalledTileSpace space = new WalledTileSpace(3, 3);
+        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.NORTH, true);
 
         // when
@@ -61,7 +61,7 @@ public class TiledSpaceTest {
         // given
         Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
         Point2D destination = ImmutablePoint2D.at(2.0, 0.0);
-        WalledTileSpace space = new WalledTileSpace(3, 3);
+        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.EAST, true);
 
         // when
@@ -76,7 +76,7 @@ public class TiledSpaceTest {
         // given
         Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
         Point2D destination = ImmutablePoint2D.at(0.0, 2.0);
-        WalledTileSpace space = new WalledTileSpace(3, 3);
+        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
@@ -91,7 +91,7 @@ public class TiledSpaceTest {
         // given
         Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
         Point2D destination = ImmutablePoint2D.at(-1.0, 0.0);
-        WalledTileSpace space = new WalledTileSpace(3, 3);
+        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.WEST, true);
 
         // when
@@ -106,7 +106,7 @@ public class TiledSpaceTest {
         // given
         Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
         Point2D destination = ImmutablePoint2D.at(2.0, 2.0);
-        WalledTileSpace space = new WalledTileSpace(3, 3);
+        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
@@ -121,7 +121,7 @@ public class TiledSpaceTest {
         // given
         Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
         Point2D destination = ImmutablePoint2D.at(0.5, 0.5);
-        WalledTileSpace space = new WalledTileSpace(1, 1);
+        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(1, 1);
 
         // when
         final Point2D maxTransition = space.maxTransition(origin, destination);
@@ -135,12 +135,12 @@ public class TiledSpaceTest {
     @Test
     public void testBasicPersistence() throws Exception {
         // given
-        final WalledTileSpace<Agent> space = WalledTileSpace.<Agent>builder(1, 1)
+        final WalledPointSpace<Agent> space = WalledPointSpace.<Agent>builder(1, 1)
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
 
         // when
-        final TiledSpace<MovingProjectable2D, Tile> copy = Persisters.createCopy(space, WalledTileSpace.class, persister);
+        final TiledSpace<MovingProjectable2D, Tile> copy = Persisters.createCopy(space, WalledPointSpace.class, persister);
 
         // then
         assertThat(copy).isEqualTo(space);
@@ -152,7 +152,7 @@ public class TiledSpaceTest {
         // given
         Point2D origin = ImmutablePoint2D.at(4.835470690262208, 9.9999999997506);
         Point2D destination = ImmutablePoint2D.at(4.9251314448644665, 10.044282607873617);
-        WalledTileSpace space = new WalledTileSpace(10, 10);
+        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(10, 10);
 
         // when
         final Point2D maxTransition = space.maxTransition(origin, destination);
@@ -166,7 +166,7 @@ public class TiledSpaceTest {
     @Test
     public void testCollision() throws Exception {
         // given
-        final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1, 1);
+        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
         Agent agent = FrozenAgent.builder(Population.named("test")).build();
         agent.setMotion(ImmutableMotion2D.of(0, 1));
         space.insertObject(agent, 0, 0, 0);
@@ -185,7 +185,7 @@ public class TiledSpaceTest {
     @Test
     public void testNoCollision() throws Exception {
         // given
-        final WalledTileSpace<Agent> space = WalledTileSpace.ofSize(1, 1);
+        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
         Agent agent = FrozenAgent.builder(Population.named("test")).build();
         agent.setMotion(ImmutableMotion2D.of(0, 0.5));
         space.insertObject(agent, 0, 0, MathLib.HALF_PI / 2);
@@ -202,7 +202,7 @@ public class TiledSpaceTest {
     @Test
     public void testFindVisibleNeighbours() throws Exception {
         // given
-        final WalledTileSpace<MovingProjectable2D> space = WalledTileSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
+        final WalledPointSpace<Agent> space = WalledPointSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
         final MovingProjectable2D focal = new MovingProjectable2DImpl();
         final MovingProjectable2D neighbour1 = new MovingProjectable2DImpl();
         final MovingProjectable2D neighbour2 = new MovingProjectable2DImpl();

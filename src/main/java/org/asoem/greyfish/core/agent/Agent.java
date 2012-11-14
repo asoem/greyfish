@@ -6,17 +6,20 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.Simulatable2D;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Simulatable;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.MotionObject2D;
+import org.asoem.greyfish.utils.space.Moving;
+import org.asoem.greyfish.utils.space.Projectable;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNode {
+public interface Agent extends DeepCloneable, Freezable, Simulatable, Moving<Motion2D>, Projectable<MotionObject2D>, AgentNode {
 
     void changeActionExecutionOrder(AgentAction object, AgentAction object2);
 
@@ -72,8 +75,6 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable2D, AgentNod
     void setColor(Color color);
 
     boolean isActive();
-
-    Simulation simulation();
 
     int getId();
 

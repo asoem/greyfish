@@ -20,6 +20,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 
 import java.util.List;
@@ -77,14 +78,14 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         e.add("Mating Probability", forField("matingProbability", this, Callback.class));
     }
 
-    private void receiveSperm(Chromosome chromosome, Agent sender, Simulation simulation) {
+    private void receiveSperm(Chromosome chromosome, Agent sender, Simulation<SpatialObject> simulation) {
         receivedSperm.add(chromosome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
         LOGGER.info(getAgent() + " received sperm: " + chromosome);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
+    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation<SpatialObject> simulation) {
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert (sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
@@ -100,7 +101,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) throws NotUnderstoodException {
         final ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             Chromosome chromosome = message.getContent(ChromosomeImpl.class);
@@ -144,7 +145,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(Simulation simulation) {
+    protected boolean canInitiate(Simulation<SpatialObject> simulation) {
         sensedMates = ImmutableList.copyOf(simulation.findNeighbours(agent(), call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
