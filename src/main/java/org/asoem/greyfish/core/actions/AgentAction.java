@@ -1,12 +1,16 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.ActionCondition;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 
-public interface AgentAction extends AgentComponent {
+public interface AgentAction<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AgentComponent<A, S, Z, P> {
 
     /**
      * Check if all precondition are met for this action.
@@ -34,7 +38,7 @@ public interface AgentAction extends AgentComponent {
      *
      * @param rootCondition the condition set for this action
      */
-    public void setCondition(@Nullable ActionCondition rootCondition);
+    public void setCondition(@Nullable ActionCondition<A,S,Z,P> rootCondition);
 
     /**
      * Get the condition set for this action
@@ -42,7 +46,7 @@ public interface AgentAction extends AgentComponent {
      * @return the condition set for this action or {@code null}
      */
     @Nullable
-    public ActionCondition getCondition();
+    public ActionCondition<A,S,Z,P> getCondition();
 
     /**
      * Evaluate the this action's condition.

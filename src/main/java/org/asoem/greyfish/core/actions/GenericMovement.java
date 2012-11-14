@@ -3,7 +3,9 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.reflect.TypeToken;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -12,7 +14,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.SpatialObject;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -22,7 +24,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("actions")
-public class GenericMovement extends AbstractAgentAction {
+public class GenericMovement<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgentAction<A,S,Z,P> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
 
@@ -47,7 +49,7 @@ public class GenericMovement extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation<SpatialObject> simulation) {
+    protected ActionState proceed() {
         final double evaluatedTurningAngle = Callbacks.call(turningAngle, this);
         final double evaluatedStepSize = Callbacks.call(stepSize, this);
 

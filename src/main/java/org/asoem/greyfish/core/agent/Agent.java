@@ -7,19 +7,19 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulatable;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
+import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
-import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MotionObject2D;
-import org.asoem.greyfish.utils.space.Moving;
-import org.asoem.greyfish.utils.space.Projectable;
+import org.asoem.greyfish.utils.space.*;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public interface Agent extends DeepCloneable, Freezable, Simulatable, Moving<Motion2D>, Projectable<MotionObject2D>, AgentNode {
+public interface Agent<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends DeepCloneable, Freezable, Simulatable<S,A,Z,P>, Moving<Motion2D>, Projectable<P>, AgentNode {
 
     void changeActionExecutionOrder(AgentAction object, AgentAction object2);
 
@@ -28,15 +28,15 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable, Moving<Mot
     void setPopulation(@Nullable Population population);
     boolean hasPopulation(@Nullable Population population);
 
-    boolean addAction(AgentAction action);
+    boolean addAction(AgentAction<A, S, Z, P> action);
 
-    boolean removeAction(AgentAction action);
+    boolean removeAction(AgentAction<A, S, Z, P> action);
 
     void removeAllActions();
 
-    SearchableList<AgentAction> getActions();
+    SearchableList<AgentAction<A, S, Z, P>> getActions();
 
-    <T extends AgentAction> T getAction(String name, Class<T> clazz);
+    <T extends AgentAction<A, S, Z, P>> T getAction(String name, Class<T> clazz);
 
     boolean addProperty(AgentProperty property);
 
@@ -84,9 +84,9 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable, Moving<Mot
 
     void receive(AgentMessage message);
 
-    void receiveAll(Iterable<? extends AgentMessage<Agent>> message);
+    void receiveAll(Iterable<? extends AgentMessage<A>> message);
 
-    Iterable<AgentMessage<Agent>> getMessages(MessageTemplate template);
+    Iterable<AgentMessage<A>> getMessages(MessageTemplate template);
 
     boolean hasMessages(MessageTemplate template);
 
@@ -95,4 +95,14 @@ public interface Agent extends DeepCloneable, Freezable, Simulatable, Moving<Mot
     boolean didCollide();
 
     Set<Integer> getParents();
+
+    int getSimulationStep();
+
+    void reproduce(Initializer<? super A> initializer);
+
+    Iterable<A> getAllAgents();
+
+    Iterable<A> getAgents(Predicate<? super A> predicate);
+
+    void die();
 }

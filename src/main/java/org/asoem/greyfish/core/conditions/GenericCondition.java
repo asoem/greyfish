@@ -1,8 +1,12 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -17,11 +21,11 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 04.05.12
  * Time: 11:47
  */
-public class GenericCondition extends LeafCondition implements Serializable {
+public class GenericCondition<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends LeafCondition<A,S,Z,P> implements Serializable {
 
-    private final Callback<? super GenericCondition, Boolean> callback;
+    private final Callback<? super GenericCondition<A,S,Z,P>, Boolean> callback;
 
-    private GenericCondition(GenericCondition genericCondition, DeepCloner cloner) {
+    private GenericCondition(GenericCondition<A,S,Z,P> genericCondition, DeepCloner cloner) {
         super(genericCondition, cloner);
         this.callback = genericCondition.callback;
     }

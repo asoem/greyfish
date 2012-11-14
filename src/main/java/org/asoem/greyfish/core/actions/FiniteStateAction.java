@@ -32,12 +32,12 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
     }
 
     @Override
-    protected final ActionState proceed(Simulation<SpatialObject> simulation) {
+    protected final ActionState proceed() {
 
         if (endStateReached)
             resetTransition();
 
-        executeState(nextStateKey, simulation);
+        executeState(nextStateKey, simulation());
 
         ++statefulExecutionCount;
 

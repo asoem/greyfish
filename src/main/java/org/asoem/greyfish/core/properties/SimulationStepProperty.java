@@ -71,12 +71,12 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
 
                     @Override
                     public void done() {
-                        stepForValue = simulation().getStep();
+                        stepForValue = agent().getSimulationStep();
                     }
 
                     @Override
                     public boolean apply(@Nullable T input) {
-                        return simulation().getStep() > stepForValue;
+                        return agent().getSimulationStep() > stepForValue;
                     }
                 }
         );

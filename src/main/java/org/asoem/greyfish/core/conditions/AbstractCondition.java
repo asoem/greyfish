@@ -4,10 +4,11 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.space.SpatialObject;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
@@ -19,16 +20,16 @@ import static com.google.common.base.Preconditions.checkState;
  * Can be used to make a <code>AgentAction</code> conditional.
  * @author christoph
  */
-public abstract class AbstractCondition implements ActionCondition {
+public abstract class AbstractCondition<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements ActionCondition<A,S,Z,P> {
 
     @Nullable
-    private ActionCondition parentCondition;
+    private ActionCondition<A,S,Z,P> parentCondition;
     @Nullable
-    private transient AgentAction action;
+    private transient AgentAction<A,S,Z,P> action;
 
     protected AbstractCondition() {}
 
-    protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
+    protected AbstractCondition(AbstractCondition<A,S,Z,P> cloneable, DeepCloner cloner) {
         cloner.addClone(cloneable, this);
         this.action = cloner.getClone(cloneable.action, AgentAction.class);
         this.parentCondition = cloner.getClone(cloneable.parentCondition, ActionCondition.class);
@@ -38,25 +39,25 @@ public abstract class AbstractCondition implements ActionCondition {
     }
 
     @Override
-    public void setParent(@Nullable ActionCondition parent) {
+    public void setParent(@Nullable ActionCondition<A,S,Z,P> parent) {
         this.parentCondition = parent;
         setAction(parent != null ? parent.getAction() : null);
     }
 
     @Override
-    public ActionCondition getParent() {
+    public ActionCondition<A,S,Z,P> getParent() {
         return parentCondition;
     }
 
     @Override
-    public void setAction(@Nullable AgentAction action) {
+    public void setAction(@Nullable AgentAction<A,S,Z,P> action) {
         this.action = action;
         assert parentCondition == null || parentCondition.getAction() == action;
     }
 
     @Override
     @Nullable
-    public AgentAction getAction() {
+    public AgentAction<A,S,Z,P> getAction() {
         return action;
     }
 
@@ -71,7 +72,7 @@ public abstract class AbstractCondition implements ActionCondition {
     }
 
     @Override
-    public final ActionCondition getRoot() {
+    public final ActionCondition<A,S,Z,P> getRoot() {
         return (getParent() != null)
                 ? getParent().getRoot()
                 : this;
@@ -92,13 +93,13 @@ public abstract class AbstractCondition implements ActionCondition {
 
     @Override
     @Nullable
-    public Agent getAgent() {
-        final AgentAction action = getAction();
+    public A getAgent() {
+        final AgentAction<A,S,Z,P> action = getAction();
         return action != null ? action.getAgent() : null;
     }
 
-    public Agent agent() {
-        Agent agent = getAgent();
+    public A agent() {
+        A agent = getAgent();
         checkState(agent != null);
         return agent;
     }
@@ -128,7 +129,7 @@ public abstract class AbstractCondition implements ActionCondition {
     public void initialize() {
     }
 
-    public Simulation<SpatialObject> simulation() {
+    public S simulation() {
         return agent().simulation();
     }
 

@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -32,8 +30,8 @@ public class Suicide extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation<SpatialObject> simulation) {
-        simulation.removeAgent(agent());
+    protected ActionState proceed() {
+        agent().die();
         LOGGER.info("{}: Dying", agent());
         agent().logEvent(this, "dies", "");
         return ActionState.COMPLETED;

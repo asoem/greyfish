@@ -10,13 +10,13 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.collect.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.MotionObject2DImpl;
-import org.asoem.greyfish.utils.space.SpatialObject;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class SexualReproduction extends AbstractAgentAction {
+public class SexualReproduction<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgentAction<A,S,Z,P> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -50,7 +50,7 @@ public class SexualReproduction extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation<SpatialObject> simulation) {
+    protected ActionState proceed() {
         final List<? extends Chromosome> chromosomes = call(spermSupplier, this);
 
         if (chromosomes == null)
@@ -70,10 +70,10 @@ public class SexualReproduction extends AbstractAgentAction {
 
             final Chromosome blend = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(parents));
 
-            simulation().createAgent(agent().getPopulation(), new Initializer<Agent>() {
+            agent().reproduce(new Initializer<Agent>() {
                 @Override
                 public void initialize(Agent agent) {
-                    agent.setProjection(MotionObject2DImpl.reorientated(agent().getProjection()));
+                    agent.setProjection(null/*MotionObject2DImpl.reorientated(agent().getProjection())*/);
                     agent.updateGeneComponents(blend);
                 }
             });

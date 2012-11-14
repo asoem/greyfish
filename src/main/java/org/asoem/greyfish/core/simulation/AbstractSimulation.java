@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Initializers;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -16,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 03.10.12
  * Time: 22:08
  */
-public abstract class AbstractSimulation<P extends Object2D> implements Simulation<P> {
+public abstract class AbstractSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements Simulation<S,A,Z,P> {
 
     @Override
     public int numberOfPopulations() {
@@ -24,12 +25,12 @@ public abstract class AbstractSimulation<P extends Object2D> implements Simulati
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
+    public Iterable<A> findNeighbours(A agent, double distance) {
         return getSpace().getVisibleNeighbours(agent, distance);
     }
 
     @Override
-    public Iterable<Agent> getAgents(final Population population) {
+    public Iterable<A> getAgents(final Population population) {
         checkNotNull(population);
 
         return Iterables.filter(getAgents(), new Predicate<Agent>() {
@@ -41,7 +42,7 @@ public abstract class AbstractSimulation<P extends Object2D> implements Simulati
     }
 
     @Override
-    public Collection<Agent> getAgents() {
+    public Collection<A> getAgents() {
         return getSpace().getObjects();
     }
 

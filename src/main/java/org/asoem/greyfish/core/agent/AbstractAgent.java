@@ -15,16 +15,15 @@ import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
+import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.space.ImmutableMotion2D;
-import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MotionObject2D;
-import org.asoem.greyfish.utils.space.SpatialObject;
+import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -45,7 +44,7 @@ import static java.util.Arrays.asList;
  * Time: 16:20
  */
 @Root(name = "agent")
-abstract class AbstractAgent implements Agent {
+abstract class AbstractAgent<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements Agent<S, A, Z, P> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
@@ -53,14 +52,14 @@ abstract class AbstractAgent implements Agent {
     private final SearchableList<AgentProperty<?>> properties;
 
     @Element(name = "actions")
-    private final SearchableList<AgentAction> actions;
+    private final SearchableList<AgentAction<A,S,Z,P>> actions;
 
     @Element(name = "traits")
     private final SearchableList<AgentTrait<?>> traits;
 
     private final ActionExecutionStrategy actionExecutionStrategy;
 
-    private final AgentMessageBox<Agent> inBox;
+    private final AgentMessageBox<A> inBox;
 
     @Element(name = "population")
     @Nullable
@@ -68,13 +67,13 @@ abstract class AbstractAgent implements Agent {
 
     @Element(name = "projection", required = false)
     @Nullable
-    private MotionObject2D projection;
+    private P projection;
 
     @Element(name = "motion", required = false)
     private Motion2D motion = ImmutableMotion2D.noMotion();
 
     @Element(name = "simulationContext", required = false)
-    private SimulationContext simulationContext = PassiveSimulationContext.instance();
+    private SimulationContext<S,A,Z,P> simulationContext = PassiveSimulationContext.instance();
 
     private Set<Integer> parents = Collections.emptySet();
 
@@ -179,7 +178,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public <T extends AgentAction> T getAction(String name, Class<T> clazz) {
+    public <T extends AgentAction<A,S,Z,P>> T getAction(String name, Class<T> clazz) {
         return checkNotNull(clazz).cast(findByName(actions, name));
     }
 
@@ -246,7 +245,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void receiveAll(Iterable<? extends AgentMessage<Agent>> messages) {
+    public void receiveAll(Iterable<? extends AgentMessage<A>> messages) {
         LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
         inBox.pushAll(messages);
     }
@@ -277,7 +276,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Iterable<AgentMessage<Agent>> getMessages(MessageTemplate template) {
+    public Iterable<AgentMessage<A>> getMessages(MessageTemplate template) {
         return inBox.consume(template);
     }
 
@@ -302,7 +301,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void shutDown(PassiveSimulationContext context) {
+    public void shutDown(SimulationContext<S, A, Z, P> context) {
         checkNotNull(context);
         this.simulationContext = context;
         inBox.clear();
@@ -314,7 +313,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public Simulation<SpatialObject> simulation() {
+    public S simulation() {
         checkState(isActive(), "A passive Agent has no associated simulation");
         return simulationContext.getSimulation();
     }
@@ -335,7 +334,7 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public void activate(ActiveSimulationContext context) {
+    public void activate(SimulationContext<S, A, Z, P> context) {
         checkNotNull(context);
         simulationContext = context;
         actionExecutionStrategy.reset();
@@ -355,18 +354,18 @@ abstract class AbstractAgent implements Agent {
     }
 
     @Override
-    public SearchableList<AgentAction> getActions() {
+    public SearchableList<AgentAction<A,S,Z,P>> getActions() {
         return actions;
     }
 
     @Nullable
     @Override
-    public MotionObject2D getProjection() {
+    public P getProjection() {
         return projection;
     }
 
     @Override
-    public void setProjection(@Nullable MotionObject2D projection) {
+    public void setProjection(@Nullable P projection) {
         this.projection = projection;
     }
 
@@ -380,6 +379,26 @@ abstract class AbstractAgent implements Agent {
     @Override
     public Set<Integer> getParents() {
         return parents;
+    }
+
+    @Override
+    public int getSimulationStep() {
+        return simulationContext.getSimulationStep();
+    }
+
+    @Override
+    public void reproduce(Initializer<? super A> initializer) {
+        simulation().createAgent(population, initializer);
+    }
+
+    @Override
+    public Iterable<A> getAllAgents() {
+        return simulation().getAgents();
+    }
+
+    @Override
+    public void die() {
+        simulation().removeAgent(self());
     }
 
     @Override
@@ -433,9 +452,9 @@ abstract class AbstractAgent implements Agent {
         });
     }
 
-    protected static abstract class AbstractBuilder<E extends AbstractAgent, T extends AbstractBuilder<E, T>> extends InheritableBuilder<E, T> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<S,A,Z,P>, S extends Simulation<S,A,Z,P>, Z extends Space2D<A,P>, P extends Object2D, E extends AbstractAgent, T extends AbstractBuilder<A,S,Z,P,E,T>> extends InheritableBuilder<E, T> implements Serializable {
         private final Population population;
-        private final List<AgentAction> actions = Lists.newArrayList();
+        private final List<AgentAction<A,S,Z,P>> actions = Lists.newArrayList();
         private final List<AgentProperty<?>> properties = Lists.newArrayList();
         private final List<AgentTrait<?>> traits = Lists.newArrayList();
 
@@ -460,12 +479,12 @@ abstract class AbstractAgent implements Agent {
             return self();
         }
 
-        public T addActions(AgentAction... actions) {
+        public T addActions(AgentAction<A,S,Z,P>... actions) {
             this.actions.addAll(asList(checkNotNull(actions)));
             return self();
         }
 
-        public T addActions(Iterable<? extends AgentAction> actions) {
+        public T addActions(Iterable<? extends AgentAction<A,S,Z,P>> actions) {
             Iterables.addAll(this.actions, checkNotNull(actions));
             return self();
         }

@@ -1,18 +1,18 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.space.Object2D;
-import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Attribute;
 
 import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ActiveSimulationContext implements SimulationContext, Serializable {
+public class ActiveSimulationContext<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements SimulationContext<S,A,Z,P>, Serializable {
 
     //@Element(name = "simulation")
-    private final Simulation<SpatialObject> simulation;
+    private final S simulation;
 
     @Attribute(name = "activationStep")
     private final int activationStep;
@@ -20,13 +20,13 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     @Attribute(name = "agentId")
     private final int agentId;
 
-    private ActiveSimulationContext(Simulation<SpatialObject> simulation, int agentId, int simulationStep) {
+    private ActiveSimulationContext(S simulation, int agentId, int simulationStep) {
         this.simulation = checkNotNull(simulation);
         this.agentId = agentId;
         this.activationStep = simulationStep;
     }
 
-    public static ActiveSimulationContext create(Simulation<SpatialObject> simulation, int agentId, int simulationStep) {
+    public static <S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> ActiveSimulationContext create(S simulation, int agentId, int simulationStep) {
         return new ActiveSimulationContext(simulation, agentId, simulationStep);
     }
 
@@ -41,7 +41,7 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     }
 
     @Override
-    public Simulation<SpatialObject> getSimulation() {
+    public S getSimulation() {
         return simulation;
     }
 
@@ -52,7 +52,7 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     }
 
     @Override
-    public void logEvent(Agent agent, Object eventOrigin, String title, String message) {
+    public void logEvent(A agent, Object eventOrigin, String title, String message) {
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);

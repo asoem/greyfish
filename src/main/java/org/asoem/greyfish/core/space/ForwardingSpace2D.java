@@ -80,4 +80,9 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     public double height() {
         return delegate().height();
     }
+
+    @Override
+    public P getProjection(O object) {
+        return delegate().getProjection(object);
+    }
 }

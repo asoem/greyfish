@@ -2,10 +2,8 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.space.SpatialObject;
 
 @Tagged("actions")
 public class NullAction extends AbstractAgentAction {
@@ -16,7 +14,7 @@ public class NullAction extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation<SpatialObject> simulation) {
+    protected ActionState proceed() {
         /* NOP */
         return ActionState.COMPLETED;
     }

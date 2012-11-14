@@ -11,7 +11,7 @@ import java.util.List;
  * Time: 13:06
  */
 public interface AgentInitializationFactory {
-    ActionExecutionStrategy createStrategy(List<? extends AgentAction> actions);
+    ActionExecutionStrategy createStrategy(List<? extends AgentAction<?,?,?,?>> actions);
     <T extends AgentComponent> SearchableList<T> newSearchableList(Iterable<T> elements);
     AgentMessageBox createMessageBox();
 }

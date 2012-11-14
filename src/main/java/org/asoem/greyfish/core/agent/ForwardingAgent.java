@@ -8,19 +8,20 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MotionObject2D;
-import org.asoem.greyfish.utils.space.SpatialObject;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public abstract class ForwardingAgent extends ForwardingObject implements Agent {
+public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Agent<S,A,Z,P> {
 
     @Override
-    protected abstract Agent delegate();
+    protected abstract Agent<S,A,Z,P> delegate();
 
     @Override
     public Population getPopulation() {
@@ -56,7 +57,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public SearchableList<AgentAction> getActions() {
+    public SearchableList<AgentAction<A,S,Z,P>> getActions() {
         return delegate().getActions();
     }
 
@@ -145,7 +146,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void receiveAll(Iterable<? extends AgentMessage<Agent>> messages) {
+    public void receiveAll(Iterable<? extends AgentMessage<A>> messages) {
         delegate().receiveAll(messages);
     }
 
@@ -165,7 +166,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void shutDown(PassiveSimulationContext context) {
+    public void shutDown(SimulationContext<S, A, Z, P> context) {
         delegate().shutDown(PassiveSimulationContext.instance());
     }
 
@@ -175,17 +176,17 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Simulation<SpatialObject> simulation() {
+    public S simulation() {
         return delegate().simulation();
     }
 
     @Override
-    public void activate(ActiveSimulationContext context) {
+    public void activate(SimulationContext<S, A, Z, P> context) {
         delegate().activate(context);
     }
 
     @Override
-    public <T extends AgentAction> T getAction(String actionName, Class<T> gfActionClass) {
+    public <T extends AgentAction<A,S,Z,P>> T getAction(String actionName, Class<T> gfActionClass) {
         return delegate().getAction(actionName, gfActionClass);
     }
 
@@ -225,12 +226,12 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public MotionObject2D getProjection() {
+    public P getProjection() {
         return delegate().getProjection();
     }
 
     @Override
-    public void setProjection(MotionObject2D projection) {
+    public void setProjection(P projection) {
         delegate().setProjection(projection);
     }
 
@@ -267,5 +268,30 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Override
     public Set<Integer> getParents() {
         return delegate().getParents();
+    }
+
+    @Override
+    public void die() {
+        delegate().die();
+    }
+
+    @Override
+    public Iterable<A> getAgents(Predicate<? super A> predicate) {
+        return delegate().getAgents(predicate);
+    }
+
+    @Override
+    public Iterable<A> getAllAgents() {
+        return delegate().getAllAgents();
+    }
+
+    @Override
+    public void reproduce(Initializer<? super A> initializer) {
+        delegate().reproduce(initializer);
+    }
+
+    @Override
+    public int getSimulationStep() {
+        return delegate().getSimulationStep();
     }
 }

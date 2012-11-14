@@ -10,12 +10,10 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
-import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
@@ -32,11 +30,11 @@ public class ClonalReproduction extends AbstractAgentAction {
     }
 
     @Override
-    protected ActionState proceed(Simulation<SpatialObject> simulation) {
+    protected ActionState proceed() {
         final int nClones = Callbacks.call(this.nClones, this);
         for (int i = 0; i < nClones; i++) {
 
-            simulation.createAgent(agent().getPopulation(), new Initializer<Agent>() {
+            agent().reproduce(new Initializer<Agent>() {
                 @Override
                 public void initialize(Agent initializable) {
                     initializable.setProjection(MotionObject2DImpl.copyOf(initializable.getProjection()));

@@ -204,7 +204,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         if (translation != 0) {
             final Point2D preferredPoint = ImmutablePoint2D.sum(anchorPoint, polarToCartesian(newOrientation, translation));
             final Point2D maxPoint = maxTransition(anchorPoint, preferredPoint);
-            final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), !preferredPoint.equals(maxPoint));
+            //final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), !preferredPoint.equals(maxPoint));
             //object.setProjection(projection);
         }
         else {
@@ -423,7 +423,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         checkNotNull(agent);
         checkArgument(contains(x, y));
 
-        final MotionObject2D projection = MotionObject2DImpl.of(x, y, false);
+        //final MotionObject2D projection = MotionObject2DImpl.of(x, y, false);
         //agent.setProjection(projection);
 
         synchronized (this) {
