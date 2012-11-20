@@ -10,7 +10,7 @@ import org.asoem.greyfish.utils.space.Object2D;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class LeafCondition<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractCondition<A,S,Z,P> {
+public abstract class LeafCondition<A extends Agent<S, A, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractCondition<A,S,Z,P> {
 
     protected LeafCondition() {}
 
@@ -23,7 +23,7 @@ public abstract class LeafCondition<A extends Agent<S, A, Z, P>, S extends Simul
     }
 
     @Override
-	public final List<ActionCondition<A,S,Z,P>> getChildConditions() {
+	public final List<ActionCondition<A>> getChildConditions() {
 		return Collections.emptyList();
 	}
 
@@ -38,7 +38,7 @@ public abstract class LeafCondition<A extends Agent<S, A, Z, P>, S extends Simul
     }
 
     @Override
-    public final void remove(ActionCondition<A,S,Z,P> condition) {
+    public final void remove(ActionCondition<A> condition) {
         throw new UnsupportedOperationException();
     }
 
@@ -48,12 +48,12 @@ public abstract class LeafCondition<A extends Agent<S, A, Z, P>, S extends Simul
     }
 
     @Override
-    public final void add(ActionCondition<A,S,Z,P> condition) {
+    public final void add(ActionCondition<A> condition) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void insert(ActionCondition<A,S,Z,P> condition, int index) {
+    public void insert(ActionCondition<A> condition, int index) {
         throw new UnsupportedOperationException();
     }
 

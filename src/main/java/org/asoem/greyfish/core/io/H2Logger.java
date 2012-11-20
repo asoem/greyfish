@@ -226,7 +226,7 @@ public class H2Logger implements SimulationLogger {
         for (Integer parentId : parents) {
             addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
         }
-        for (AgentTrait<?> gene : agent.getTraits()) {
+        for (AgentTrait<?, A> gene : agent.getTraits()) {
             assert gene != null;
             if (Double.class.equals(gene.getAlleleClass())) {
                 addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));

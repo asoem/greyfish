@@ -37,23 +37,23 @@ public final class Agents {
         return cast(propertyAccessor(propertyName), clazz);
     }
 
-    public static ComponentAccessor<AgentTrait<?>> traitAccessor(final String traitName) {
-        return new ComponentAccessor<AgentTrait<?>>() {
-            private final Predicate<? super AgentTrait<?>> traitPredicate = new Predicate<AgentTrait<?>>() {
+    public static ComponentAccessor<AgentTrait<?, A>> traitAccessor(final String traitName) {
+        return new ComponentAccessor<AgentTrait<?, A>>() {
+            private final Predicate<? super AgentTrait<?, A>> traitPredicate = new Predicate<AgentTrait<?, A>>() {
                 @Override
-                public boolean apply(AgentTrait<?> input) {
+                public boolean apply(AgentTrait<?, A> input) {
                     return traitName.equals(input.getName());
                 }
             };
 
             @Override
-            public AgentTrait<?> apply(Agent input) {
+            public AgentTrait<?, A> apply(Agent input) {
                 return checkNotNull(input).findTrait(traitPredicate);
             }
         };
     }
 
-    public static <T extends AgentTrait<?>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
+    public static <T extends AgentTrait<?, A>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
         return cast(traitAccessor(traitName), geneComponentClass);
     }
 

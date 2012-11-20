@@ -18,7 +18,7 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:50
  */
-public interface Simulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends HasName {
+public interface Simulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> extends HasName {
 
     /**
      * Get all active {@code Agent}s which are part of the given {@code population}

@@ -40,9 +40,9 @@ public class ClonalReproduction extends AbstractAgentAction {
                     initializable.setProjection(MotionObject2DImpl.copyOf(initializable.getProjection()));
                     initializable.updateGeneComponents(
                             new ChromosomeImpl(
-                                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<?>, Gene<?>>() {
+                                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<?, A>, Gene<?>>() {
                                         @Override
-                                        public Gene<?> apply(@Nullable AgentTrait<?> gene) {
+                                        public Gene<?> apply(@Nullable AgentTrait<?, A> gene) {
                                             assert gene != null;
                                             return new Gene<Object>(AgentTraits.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
                                         }

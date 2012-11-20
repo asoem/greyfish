@@ -9,6 +9,6 @@ import org.asoem.greyfish.utils.space.Object2D;
  * Date: 08.10.12
  * Time: 14:56
  */
-public interface Model<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> {
+public interface Model<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> {
     S createSimulation();
 }

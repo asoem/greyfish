@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -10,17 +11,17 @@ import java.io.Serializable;
 import java.util.Collections;
 
 @Root
-public abstract class AbstractAgentProperty<T> extends AbstractAgentComponent implements AgentProperty<T> {
+public abstract class AbstractAgentProperty<T, A extends Agent<?,A,?>> extends AbstractAgentComponent<A> implements AgentProperty<T,A> {
 
     @Override
     public void configure(ConfigurationHandler e) {
     }
 
-    protected AbstractAgentProperty(AbstractBuilder<? extends AbstractAgentProperty, ? extends AbstractBuilder> builder) {
+    protected AbstractAgentProperty(AbstractBuilder<? extends AbstractAgentProperty<T,A>, A, ? extends AbstractBuilder<?,A,?>> builder) {
         super(builder);
     }
 
-    protected AbstractAgentProperty(AbstractAgentProperty<T> cloneable, DeepCloner map) {
+    protected AbstractAgentProperty(AbstractAgentProperty<T,A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
@@ -34,9 +35,9 @@ public abstract class AbstractAgentProperty<T> extends AbstractAgentComponent im
         return getAgent();
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty, B extends AbstractBuilder<C, B>> extends AbstractAgentComponent.AbstractBuilder<C, B>  implements Serializable {
-        public AbstractBuilder(AbstractAgentProperty<?> simulationStepProperty) {
-            super(simulationStepProperty);
+    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty<?,A>, A extends Agent<?,A,?>, B extends AbstractBuilder<C,A,B>> extends AbstractAgentComponent.AbstractBuilder<A,C,B>  implements Serializable {
+        protected AbstractBuilder(AbstractAgentProperty<?,A> abstractAgentProperty) {
+            super(abstractAgentProperty);
         }
 
         public AbstractBuilder() {}

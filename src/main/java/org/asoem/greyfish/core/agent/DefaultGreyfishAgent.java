@@ -13,18 +13,18 @@ import org.asoem.greyfish.utils.space.Point2D;
  */
 public class DefaultGreyfishAgent extends ForwardingAgent<DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> {
 
-    private final Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> agent;
+    private final Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, Point2D> agent;
 
-    public DefaultGreyfishAgent(Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> agent) {
+    public DefaultGreyfishAgent(Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, Point2D> agent) {
         this.agent = agent;
     }
 
     private DefaultGreyfishAgent(DefaultGreyfishAgent defaultGreyfishAgent, DeepCloner cloner) {
-        this.agent = (Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D>) cloner.getClone(defaultGreyfishAgent.agent);
+        this.agent = (Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, Point2D>) cloner.getClone(defaultGreyfishAgent.agent);
     }
 
     @Override
-    protected Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> delegate() {
+    protected Agent<DefaultGreyfishSimulation, DefaultGreyfishAgent, Point2D> delegate() {
         return agent;
     }
 

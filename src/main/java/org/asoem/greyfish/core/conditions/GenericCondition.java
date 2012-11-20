@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 04.05.12
  * Time: 11:47
  */
-public class GenericCondition<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends LeafCondition<A,S,Z,P> implements Serializable {
+public class GenericCondition<A extends Agent<S, A, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends LeafCondition<A,S,Z,P> implements Serializable {
 
     private final Callback<? super GenericCondition<A,S,Z,P>, Boolean> callback;
 

@@ -12,7 +12,7 @@ import java.util.Collections;
  * Date: 07.02.12
  * Time: 12:15
  */
-public abstract class AbstractTrait<T> extends AbstractAgentComponent implements AgentTrait<T> {
+public abstract class AbstractTrait<T> extends AbstractAgentComponent implements AgentTrait<T, A> {
 
     protected AbstractTrait() {}
 
@@ -45,7 +45,7 @@ public abstract class AbstractTrait<T> extends AbstractAgentComponent implements
     }
 
     @Override
-    public boolean isMutatedCopy(@Nullable AgentTrait<?> gene) {
+    public boolean isMutatedCopy(@Nullable AgentTrait<?, A> gene) {
         return gene != null && gene.getAlleleClass().equals(this.getAlleleClass());
     }
 

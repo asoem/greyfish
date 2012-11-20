@@ -3,11 +3,9 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
@@ -15,7 +13,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class AbstractAgentComponent<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements AgentComponent<A,S,Z,P> {
+public abstract class AbstractAgentComponent<A extends Agent<?, A, ?>> implements AgentComponent<A> {
 
     @Attribute(name = "name", required = false)
     private String name;
@@ -27,12 +25,13 @@ public abstract class AbstractAgentComponent<A extends Agent<S, A, Z, P>, S exte
         initializeObject("", null);
     }
 
-    protected AbstractAgentComponent(AbstractAgentComponent<A,S,Z,P> cloneable, DeepCloner map) {
+    @SuppressWarnings("unchecked") // cloning is save
+    protected AbstractAgentComponent(AbstractAgentComponent<A> cloneable, DeepCloner map) {
         map.addClone(cloneable, this);
-        initializeObject(cloneable.name, (A) map.getClone(agent));
+        initializeObject(cloneable.name, (A) map.getClone(cloneable.agent));
     }
 
-    protected AbstractAgentComponent(AbstractBuilder<A,S,Z,P, ? extends AbstractAgentComponent<A,S,Z,P>, ? extends AbstractBuilder<A,S,Z,P,?,?>> builder) {
+    protected AbstractAgentComponent(AbstractBuilder<A, ? extends AbstractAgentComponent<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         initializeObject(builder.name, builder.agent);
     }
 
@@ -67,7 +66,7 @@ public abstract class AbstractAgentComponent<A extends Agent<S, A, Z, P>, S exte
      * @return the associated simulation
      * @throws IllegalStateException if this component is not yet associated with an agent or thi agent is not associated with a simulation
      */
-    public S simulation() throws IllegalStateException {
+    public Simulation simulation() throws IllegalStateException {
         return agent().simulation();
     }
 
@@ -132,13 +131,13 @@ public abstract class AbstractAgentComponent<A extends Agent<S, A, Z, P>, S exte
         return name.hashCode();
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D, C extends AbstractAgentComponent, B extends AbstractBuilder<A,S,Z,P,C,B>> extends InheritableBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<?, A, ?>, C extends AbstractAgentComponent, B extends AbstractBuilder<A, C,B>> extends InheritableBuilder<C, B> implements Serializable {
         private String name = "";
 
         // for serialization only
         private A agent;
 
-        protected AbstractBuilder(AbstractAgentComponent<A,S,Z,P> component) {
+        protected AbstractBuilder(AbstractAgentComponent<A> component) {
             this.agent = component.agent;
             this.name = component.name;
         }

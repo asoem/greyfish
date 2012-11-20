@@ -36,7 +36,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSimulation<S,A,Z,P> {
+public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSimulation<S,A,Z,P> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
@@ -308,7 +308,7 @@ public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends 
 
     }
 
-    private static class AgentSpace<Z extends Space2D<T, P>, T extends Agent<?,?,?,P>, P extends Object2D> extends ForwardingSpace2D<T, P> {
+    private static class AgentSpace<Z extends Space2D<T, P>, T extends Agent<?,?, P>, P extends Object2D> extends ForwardingSpace2D<T, P> {
 
         private final Z delegate;
         private final Multimap<Population, T> agentsByPopulation;
@@ -386,11 +386,11 @@ public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends 
         }
     }
 
-    public static <S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<S,A,Z,P> builder(Z space, Set<A> prototypes) {
+    public static <S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<S,A,Z,P> builder(Z space, Set<A> prototypes) {
         return new ParallelizedSimulationBuilder(space, prototypes);
     }
 
-    public static class ParallelizedSimulationBuilder<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<S,A,Z,P>> {
+    public static class ParallelizedSimulationBuilder<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<S,A,Z,P>> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;

@@ -20,12 +20,12 @@ import static com.google.common.base.Preconditions.checkState;
  * Can be used to make a <code>AgentAction</code> conditional.
  * @author christoph
  */
-public abstract class AbstractCondition<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements ActionCondition<A,S,Z,P> {
+public abstract class AbstractCondition<A extends Agent<S, A, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements ActionCondition<A> {
 
     @Nullable
-    private ActionCondition<A,S,Z,P> parentCondition;
+    private ActionCondition<A> parentCondition;
     @Nullable
-    private transient AgentAction<A,S,Z,P> action;
+    private transient AgentAction<A> action;
 
     protected AbstractCondition() {}
 
@@ -39,25 +39,25 @@ public abstract class AbstractCondition<A extends Agent<S, A, Z, P>, S extends S
     }
 
     @Override
-    public void setParent(@Nullable ActionCondition<A,S,Z,P> parent) {
+    public void setParent(@Nullable ActionCondition<A> parent) {
         this.parentCondition = parent;
         setAction(parent != null ? parent.getAction() : null);
     }
 
     @Override
-    public ActionCondition<A,S,Z,P> getParent() {
+    public ActionCondition<A> getParent() {
         return parentCondition;
     }
 
     @Override
-    public void setAction(@Nullable AgentAction<A,S,Z,P> action) {
+    public void setAction(@Nullable AgentAction<A> action) {
         this.action = action;
         assert parentCondition == null || parentCondition.getAction() == action;
     }
 
     @Override
     @Nullable
-    public AgentAction<A,S,Z,P> getAction() {
+    public AgentAction<A> getAction() {
         return action;
     }
 
@@ -72,7 +72,7 @@ public abstract class AbstractCondition<A extends Agent<S, A, Z, P>, S extends S
     }
 
     @Override
-    public final ActionCondition<A,S,Z,P> getRoot() {
+    public final ActionCondition<A> getRoot() {
         return (getParent() != null)
                 ? getParent().getRoot()
                 : this;
@@ -94,7 +94,7 @@ public abstract class AbstractCondition<A extends Agent<S, A, Z, P>, S extends S
     @Override
     @Nullable
     public A getAgent() {
-        final AgentAction<A,S,Z,P> action = getAction();
+        final AgentAction<A> action = getAction();
         return action != null ? action.getAgent() : null;
     }
 

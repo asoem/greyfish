@@ -5,13 +5,10 @@ import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.conditions.ActionCondition;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -24,22 +21,23 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
 @Root
-public abstract class AbstractAgentAction<A extends Agent<S,A,Z,P>, S extends Simulation<S,A,Z,P>, Z extends Space2D<A,P>, P extends Object2D> extends AbstractAgentComponent<A,S,Z,P> implements AgentAction<A,S,Z,P> {
+public abstract class AbstractAgentAction<A extends Agent<?,A,?>> extends AbstractAgentComponent<A> implements AgentAction<A> {
 
     @Nullable
-    private ActionCondition<A,S,Z,P> rootCondition;
-    private Callback<? super AbstractAgentAction<A,S,Z,P>, Void> onSuccess;
+    private ActionCondition<A> rootCondition;
+    private Callback<? super AbstractAgentAction<A>, Void> onSuccess;
     private int successCount;
     private int stepAtLastSuccess;
     private ActionState actionState;
 
-    protected AbstractAgentAction(AbstractAgentAction cloneable, DeepCloner map) {
+    @SuppressWarnings("unchecked")
+    protected AbstractAgentAction(AbstractAgentAction<A> cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = map.getClone(cloneable.getCondition(), ActionCondition.class);
+        this.rootCondition = (ActionCondition<A>) map.getClone(cloneable.rootCondition);
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractAgentAction(AbstractBuilder<A,S,Z,P,? extends AbstractAgentAction, ? extends AbstractBuilder<A,S,Z,P,?,?>> builder) {
+    protected AbstractAgentAction(AbstractBuilder<A, ? extends AbstractAgentAction, ? extends AbstractBuilder<A, ?,?>> builder) {
         super(builder);
         this.onSuccess = builder.onSuccess;
         this.successCount = builder.successCount;
@@ -130,13 +128,13 @@ public abstract class AbstractAgentAction<A extends Agent<S,A,Z,P>, S extends Si
 
     @Nullable
     @Element(name = "condition", required = false)
-    public ActionCondition<A,S,Z,P> getCondition() {
+    public ActionCondition<A> getCondition() {
         return rootCondition;
     }
 
     @Element(name = "condition", required = false)
     @Override
-    public void setCondition(@Nullable ActionCondition<A,S,Z,P> rootCondition) {
+    public void setCondition(@Nullable ActionCondition<A> rootCondition) {
         this.rootCondition = rootCondition;
         if (rootCondition != null) {
             rootCondition.setAction(this);
@@ -173,21 +171,21 @@ public abstract class AbstractAgentAction<A extends Agent<S,A,Z,P>, S extends Si
         return getAgent();
     }
 
-    public Callback<? super AbstractAgentAction<A,S,Z,P>, Void> getSuccessCallback() {
+    public Callback<? super AbstractAgentAction<A>, Void> getSuccessCallback() {
         return onSuccess;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D, T extends AbstractAgentAction, B extends AbstractBuilder<A,S,Z,P,T,B>> extends AbstractAgentComponent.AbstractBuilder<A,S,Z,P,T,B> implements Serializable {
-        private ActionCondition<A,S,Z,P> condition;
-        private Callback<? super AbstractAgentAction<A,S,Z,P>, Void> onSuccess = Callbacks.emptyCallback();
+    protected static abstract class AbstractBuilder<A extends Agent<?, A, ?>, T extends AbstractAgentAction, B extends AbstractBuilder<A, T,B>> extends AbstractAgentComponent.AbstractBuilder<A,T,B> implements Serializable {
+        private ActionCondition<A> condition;
+        private Callback<? super AbstractAgentAction<A>, Void> onSuccess = Callbacks.emptyCallback();
         private int successCount;
         private int stepAtLastSuccess = -1;
         private ActionState actionState = ActionState.INITIAL;
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(AbstractAgentAction action) {
+        protected AbstractBuilder(AbstractAgentAction<A> action) {
             super(action);
             this.condition = action.rootCondition;
             this.onSuccess = action.onSuccess;
@@ -196,12 +194,12 @@ public abstract class AbstractAgentAction<A extends Agent<S,A,Z,P>, S extends Si
             this.actionState = action.actionState;
         }
 
-        public B executedIf(ActionCondition<A,S,Z,P> condition) {
+        public B executedIf(ActionCondition<A> condition) {
             this.condition = condition;
             return self();
         }
 
-        public B onSuccess(Callback<? super AbstractAgentAction<A,S,Z,P>, Void> expression) {
+        public B onSuccess(Callback<? super AbstractAgentAction<A>, Void> expression) {
             this.onSuccess = checkNotNull(expression);
             return self();
         }

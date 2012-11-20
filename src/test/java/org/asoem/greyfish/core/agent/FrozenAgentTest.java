@@ -73,7 +73,7 @@ public class FrozenAgentTest {
     @Test
     public void testGetGene() throws Exception {
         // given
-        AgentTrait<?> gene = mock(AgentTrait.class);
+        AgentTrait<?, A> gene = mock(AgentTrait.class);
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
         FrozenAgent agent = FrozenAgent.builder(mock(Population.class)).addTraits(gene).build();
@@ -148,9 +148,9 @@ public class FrozenAgentTest {
                         return frozenAgent.getProperties();
                     }
                 }, hasSize(agent.getProperties().size())),
-                has(agent.getTraits().size() + " traits", new Function<FrozenAgent, SearchableList<AgentTrait<?>>>() {
+                has(agent.getTraits().size() + " traits", new Function<FrozenAgent, SearchableList<AgentTrait<?, A>>>() {
                     @Override
-                    public SearchableList<AgentTrait<?>> apply(FrozenAgent frozenAgent) {
+                    public SearchableList<AgentTrait<?, A>> apply(FrozenAgent frozenAgent) {
                         return frozenAgent.getTraits();
                     }
                 }, hasSize(agent.getTraits().size()))

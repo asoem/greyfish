@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 03.10.12
  * Time: 22:08
  */
-public abstract class AbstractSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements Simulation<S,A,Z,P> {
+public abstract class AbstractSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> implements Simulation<S,A,Z,P> {
 
     @Override
     public int numberOfPopulations() {

@@ -34,7 +34,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class SexualReproduction<A extends Agent<S, A, Z, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgentAction<A,S,Z,P> {
+public class SexualReproduction<A extends Agent<S, A, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -86,16 +86,16 @@ public class SexualReproduction<A extends Agent<S, A, Z, P>, S extends Simulatio
         return COMPLETED;
     }
 
-    private static Chromosome blend(SearchableList<AgentTrait<?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static Chromosome blend(SearchableList<AgentTrait<?, A>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
-        final Tuple2.Zipped<AgentTrait<?>, Gene<?>> zip
+        final Tuple2.Zipped<AgentTrait<?, A>, Gene<?>> zip
                 = Tuple2.Zipped.of(egg, sperm.getGenes());
 
         // segregate and mutate
-        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<AgentTrait<?>, Gene<?>>, Gene<Object>>() {
+        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<AgentTrait<?, A>, Gene<?>>, Gene<Object>>() {
             @Override
-            public Gene<Object> apply(Product2<AgentTrait<?>, Gene<?>> tuple) {
+            public Gene<Object> apply(Product2<AgentTrait<?, A>, Gene<?>> tuple) {
                 final Object segregationProduct = AgentTraits.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
                 return new Gene<Object>(segregationProduct, tuple._1().getRecombinationProbability());
             }

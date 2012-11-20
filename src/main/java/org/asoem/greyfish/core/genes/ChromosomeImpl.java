@@ -49,9 +49,9 @@ public class ChromosomeImpl implements Chromosome {
     public static ChromosomeImpl forAgent(Agent agent) {
         checkNotNull(agent, "Agent is null");
         return new ChromosomeImpl(
-                Lists.transform(agent.getTraits(), new Function<AgentTrait<?>, Gene<?>>() {
+                Lists.transform(agent.getTraits(), new Function<AgentTrait<?, A>, Gene<?>>() {
                     @Override
-                    public Gene<?> apply(AgentTrait<?> input) {
+                    public Gene<?> apply(AgentTrait<?, A> input) {
                         return new Gene<Object>(input.getAllele(), 0);
                     }
                 }), Sets.newHashSet(agent.getId()));
