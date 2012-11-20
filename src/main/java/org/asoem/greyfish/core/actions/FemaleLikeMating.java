@@ -20,7 +20,6 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 
 import java.util.List;
@@ -34,7 +33,7 @@ import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
  * @author christoph
  */
 @Tagged("actions")
-public class FemaleLikeMating extends ContractNetInitiatorAction {
+public class FemaleLikeMating<A extends Agent<?,A,?>> extends ContractNetInitiatorAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FemaleLikeMating.class);
 
@@ -47,7 +46,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     @Element(name = "matingProbability", required = false)
     private Callback<? super FemaleLikeMating, Double> matingProbability;
 
-    private List<Agent> sensedMates = ImmutableList.of();
+    private List<A> sensedMates = ImmutableList.of();
 
     private List<Chromosome> receivedSperm = Lists.newArrayList();
 
@@ -63,7 +62,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         this.matingProbability = cloneable.matingProbability;
     }
 
-    protected FemaleLikeMating(AbstractBuilder<? extends FemaleLikeMating, ? extends AbstractBuilder> builder) {
+    protected FemaleLikeMating(AbstractBuilder<A, ? extends FemaleLikeMating<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
@@ -78,21 +77,21 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         e.add("Mating Probability", forField("matingProbability", this, Callback.class));
     }
 
-    private void receiveSperm(Chromosome chromosome, Agent sender, Simulation<SpatialObject> simulation) {
+    private void receiveSperm(Chromosome chromosome, A sender, Simulation<?,A,?,?> simulation) {
         receivedSperm.add(chromosome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
         LOGGER.info(getAgent() + " received sperm: " + chromosome);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation<SpatialObject> simulation) {
+    protected ImmutableACLMessage.Builder<A> createCFP(Simulation<?,A,?,?> simulation) {
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert (sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
-        final Agent receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
+        final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
         sensedMates = ImmutableList.of();
 
-        return ImmutableACLMessage.<Agent>with()
+        return ImmutableACLMessage.<A>with()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
@@ -101,8 +100,8 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) throws NotUnderstoodException {
-        final ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
+    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, Simulation<?,A,?,?> simulation) throws NotUnderstoodException {
+        final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, agent());
         try {
             Chromosome chromosome = message.getContent(ChromosomeImpl.class);
             final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
@@ -145,7 +144,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(Simulation<SpatialObject> simulation) {
+    protected boolean canInitiate(Simulation<?,A,?,?> simulation) {
         sensedMates = ImmutableList.copyOf(simulation.findNeighbours(agent(), call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
@@ -167,20 +166,20 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         return interactionRadius;
     }
 
-    public static final class Builder extends AbstractBuilder<FemaleLikeMating, Builder> {
+    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, FemaleLikeMating, Builder<A>> {
         @Override
         protected Builder self() {
             return this;
         }
 
         @Override
-        protected FemaleLikeMating checkedBuild() {
+        protected FemaleLikeMating<A> checkedBuild() {
             return new FemaleLikeMating(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends FemaleLikeMating, B extends AbstractBuilder<C, B>> extends ContractNetInitiatorAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends FemaleLikeMating, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
         protected String ontology = "mate";
         protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);

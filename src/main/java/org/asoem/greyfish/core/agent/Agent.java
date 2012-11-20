@@ -104,7 +104,7 @@ public interface Agent<S extends Simulation<S, A, ?, P>, A extends Agent<S, A, P
 
     Iterable<A> getAllAgents();
 
-    Iterable<A> getAgents(Predicate<? super A> predicate);
+    Iterable<A> filterAgents(Predicate<? super A> predicate);
 
     void die();
 }

@@ -18,10 +18,10 @@ public class ConditionalStatesPropertyTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        ConditionalStatesProperty statesProperty = ConditionalStatesProperty.with().addState("A", "true").build();
+        ConditionalStatesProperty<A> statesProperty = ConditionalStatesProperty.with().addState("A", "true").build();
         
         // when
-        ConditionalStatesProperty persistent = Persisters.createCopy(statesProperty, JavaPersister.INSTANCE);
+        ConditionalStatesProperty<A> persistent = Persisters.createCopy(statesProperty, JavaPersister.INSTANCE);
 
         // then
         MatcherAssert.assertThat(persistent, is(equalTo(statesProperty)));

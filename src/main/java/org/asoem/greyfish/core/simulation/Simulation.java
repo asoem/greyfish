@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
@@ -133,4 +134,6 @@ public interface Simulation<S extends Simulation<S, A, Z, P>, A extends Agent<S,
      * @return The stored value for {@code key}
      */
     Object snapshotValue(String key, Supplier<Object> valueCalculator);
+
+    Iterable<A> filterAgents(Predicate<? super A> predicate);
 }

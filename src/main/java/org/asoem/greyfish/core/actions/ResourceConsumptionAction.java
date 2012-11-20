@@ -15,7 +15,6 @@ import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -23,7 +22,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class ResourceConsumptionAction extends ContractNetInitiatorAction {
+public class ResourceConsumptionAction<A extends Agent<?,A,?>> extends ContractNetInitiatorAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ResourceConsumptionAction.class);
 
@@ -31,17 +30,17 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     private String ontology;
 
     @Element(name = "interactionRadius")
-    private Callback<? super ResourceConsumptionAction, Double> interactionRadius;
+    private Callback<? super ResourceConsumptionAction<A>, Double> interactionRadius;
 
     @Element(name = "requestAmount", required = false)
-    protected Callback<? super ResourceConsumptionAction, Double> requestAmount;
+    protected Callback<? super ResourceConsumptionAction<A>, Double> requestAmount;
 
     @Element(name = "uptakeUtilization", required = false)
-    protected Callback<? super ResourceConsumptionAction, Void> uptakeUtilization;
+    protected Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization;
 
-    private Iterable<Agent> sensedMates = ImmutableList.of();
+    private Iterable<A> sensedMates = ImmutableList.of();
 
-    private Callback<? super ResourceConsumptionAction, ?> classification;
+    private Callback<? super ResourceConsumptionAction<A>, ?> classification;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceConsumptionAction() {
@@ -49,10 +48,10 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation<SpatialObject> simulation) {
-        final Agent receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
+    protected ImmutableACLMessage.Builder<A> createCFP(Simulation<?,A,?,?> simulation) {
+        final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
-        return ImmutableACLMessage.<Agent>with()
+        return ImmutableACLMessage.<A>with()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
@@ -62,7 +61,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, Simulation<?,A,?,?> simulation) throws NotUnderstoodException {
 
         final double offer = message.getContent(Double.class);
 
@@ -74,7 +73,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected void handleInform(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
+    protected void handleInform(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
         final double offer = message.getContent(Double.class);
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
         uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
@@ -86,7 +85,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(Simulation<SpatialObject> simulation) {
+    protected boolean canInitiate(Simulation<?,A,?,?> simulation) {
         sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
         return !isEmpty(sensedMates);
     }
@@ -127,7 +126,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         this.classification = cloneable.classification;
     }
 
-    protected ResourceConsumptionAction(AbstractBuilder<? extends ResourceConsumptionAction, ? extends AbstractBuilder> builder) {
+    protected ResourceConsumptionAction(AbstractBuilder<A, ? extends ResourceConsumptionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.requestAmount = builder.requestAmount;
@@ -152,7 +151,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
         return uptakeUtilization;
     }
 
-    public static final class Builder extends AbstractBuilder<ResourceConsumptionAction, Builder> {
+    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
         @Override
         protected Builder self() {
             return this;
@@ -165,7 +164,7 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends ResourceConsumptionAction, B extends AbstractBuilder<C, B>> extends ContractNetInitiatorAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ResourceConsumptionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);
@@ -178,22 +177,22 @@ public class ResourceConsumptionAction extends ContractNetInitiatorAction {
             return self();
         }
 
-        public B requestAmount(Callback<? super ResourceConsumptionAction, Double> amountPerRequest) {
+        public B requestAmount(Callback<? super ResourceConsumptionAction<A>, Double> amountPerRequest) {
             this.requestAmount = amountPerRequest;
             return self();
         }
 
-        public B interactionRadius(Callback<? super ResourceConsumptionAction, Double> sensorRange) {
+        public B interactionRadius(Callback<? super ResourceConsumptionAction<A>, Double> sensorRange) {
             this.interactionRadius = sensorRange;
             return self();
         }
 
-        public B uptakeUtilization(Callback<? super ResourceConsumptionAction, Void> uptakeUtilization) {
+        public B uptakeUtilization(Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization) {
             this.uptakeUtilization = checkNotNull(uptakeUtilization);
             return self();
         }
 
-        public B classification(Callback<? super ResourceConsumptionAction, Object> classification) {
+        public B classification(Callback<? super ResourceConsumptionAction<A>, Object> classification) {
             this.classification = checkNotNull(classification);
             return self();
         }

@@ -9,14 +9,13 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.Serializable;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetInitiatorAction extends FiniteStateAction {
+public abstract class ContractNetInitiatorAction<A extends Agent<?,A,?>> extends FiniteStateAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
@@ -26,7 +25,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     private int nProposalsReceived;
     private int nInformReceived;
 
-    protected ContractNetInitiatorAction(AbstractBuilder<? extends ContractNetInitiatorAction, ? extends AbstractBuilder> builder) {
+    protected ContractNetInitiatorAction(AbstractBuilder<A, ? extends ContractNetInitiatorAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
     }
 
@@ -47,13 +46,13 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     }
 
     @Override
-    protected void executeState(Object state, Simulation<SpatialObject> simulation) {
+    protected void executeState(Object state, Simulation<?,A,?,?> simulation) {
         if (State.SEND_CFP.equals(state)) {
             if (!canInitiate(simulation)) {
                 endTransition(State.NO_RECEIVERS);
             }
             else {
-                ImmutableACLMessage<Agent> cfpMessage = createCFP(simulation)
+                ImmutableACLMessage<A> cfpMessage = createCFP(simulation)
                         .sender(agent())
                         .performative(ACLPerformative.CFP).build();
                 LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
@@ -69,10 +68,10 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         }
         else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
             Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-            for (ACLMessage<Agent> receivedMessage : agent().getMessages(getTemplate())) {
+            for (ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
                 assert (receivedMessage != null);
 
-                ACLMessage<Agent> proposeReply;
+                ACLMessage<A> proposeReply;
                 switch (receivedMessage.getPerformative()) {
 
                     case PROPOSE:
@@ -136,7 +135,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
         else if (State.WAIT_FOR_INFORM.equals(state)) {
             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-            for (ACLMessage<Agent> receivedMessage : agent().getMessages(getTemplate())) {
+            for (ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
                 assert receivedMessage != null;
 
                 switch (receivedMessage.getPerformative()) {
@@ -173,7 +172,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
             throw unknownState();
     }
 
-    protected abstract boolean canInitiate(Simulation<SpatialObject> simulation);
+    protected abstract boolean canInitiate(Simulation<?,A,?,?> simulation);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))
@@ -190,7 +189,7 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                             MessageTemplate.class));
     }
 
-    private static MessageTemplate createCFPReplyTemplate(final ImmutableACLMessage<Agent> cfp) {
+    private static <A extends Agent<?,A,?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
         return MessageTemplates.isReplyTo(cfp);
     }
 
@@ -202,21 +201,21 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder<Agent> createCFP(Simulation<SpatialObject> simulation);
+    protected abstract ImmutableACLMessage.Builder<A> createCFP(Simulation<?,A,?,?> simulation);
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) throws NotUnderstoodException;
-
-    @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleRefuse(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
+    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, Simulation<?,A,?,?> simulation) throws NotUnderstoodException;
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleFailure(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
+    protected void handleRefuse(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {}
 
-    protected void handleInform(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleFailure(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {}
+
+    protected void handleInform(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {}
 
     protected abstract String getOntology();
 
-    protected static abstract class AbstractBuilder<C extends ContractNetInitiatorAction, B extends AbstractBuilder<C, B>> extends FiniteStateAction.AbstractBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ContractNetInitiatorAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
 
     }
 

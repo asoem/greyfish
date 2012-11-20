@@ -80,18 +80,18 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public SearchableList<AgentProperty<?>> getProperties() {
+    public SearchableList<AgentProperty<?,A>> getProperties() {
         return delegate().getProperties();
     }
 
     @Override
     @Nullable
-    public <T extends AgentProperty> T getProperty(String name, Class<T> propertyClass) {
+    public <T extends AgentProperty<?,A>> T getProperty(String name, Class<T> propertyClass) {
         return delegate().getProperty(name, propertyClass);
     }
 
     @Override
-    public AgentProperty<?> findProperty(Predicate<? super AgentProperty<?>> predicate) {
+    public AgentProperty<?,A> findProperty(Predicate<? super AgentProperty<?,A>> predicate) {
         return delegate().findProperty(predicate);
     }
 
@@ -131,7 +131,7 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public Iterable<AgentMessage<Agent>> getMessages(MessageTemplate template) {
+    public Iterable<AgentMessage<A>> getMessages(MessageTemplate template) {
         return delegate().getMessages(template);
     }
 
@@ -167,7 +167,7 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
 
     @Override
     public void shutDown(SimulationContext<S, A> context) {
-        delegate().shutDown(PassiveSimulationContext.instance());
+        delegate().shutDown(PassiveSimulationContext.<S,A>instance());
     }
 
     @Override
@@ -276,8 +276,8 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public Iterable<A> getAgents(Predicate<? super A> predicate) {
-        return delegate().getAgents(predicate);
+    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+        return delegate().filterAgents(predicate);
     }
 
     @Override

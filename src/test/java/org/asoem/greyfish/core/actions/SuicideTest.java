@@ -19,14 +19,14 @@ public class SuicideTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        Suicide suicide = Suicide.builder()
+        Suicide<A> suicide = Suicide.builder()
                 .name("foo")
                 .executedIf(AlwaysTrueCondition.builder().build())
                 .onSuccess(Callbacks.emptyCallback())
                 .build();
 
         // when
-        final Suicide copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
+        final Suicide<A> copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, is(equalTo(suicide)));

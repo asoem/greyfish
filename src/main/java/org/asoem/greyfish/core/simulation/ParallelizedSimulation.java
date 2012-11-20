@@ -36,7 +36,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSimulation<S,A,Z,P> {
+public class ParallelizedSimulation<A extends Agent<ParallelizedSimulation<A,Z,P>, A, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSimulation<ParallelizedSimulation<A,Z,P>,A,Z,P> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
@@ -63,7 +63,7 @@ public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends 
     @Attribute
     private String title = "untitled";
 
-    private ParallelizedSimulation(ParallelizedSimulationBuilder<S,A,Z,P> builder) {
+    private ParallelizedSimulation(ParallelizedSimulationBuilder<A,Z,P> builder) {
         this(builder.space,
                 builder.prototypes,
                 builder.parallelizationThreshold,
@@ -112,7 +112,7 @@ public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends 
 
     private void passivateAgentsInternal(List<? extends A> agents) {
         for (A agent : agents) {
-            agent.shutDown(PassiveSimulationContext.instance());
+            agent.shutDown(PassiveSimulationContext.<ParallelizedSimulation<A,Z,P>,A>instance());
             releaseAgent(agent);
         }
         space.removeInactiveAgents();
@@ -337,17 +337,6 @@ public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends 
         }
 
         @Override
-        public boolean insertObject(T agent, double x, double y, double orientation) {
-            assert agent != null;
-            if (super.insertObject(agent, x, y, orientation)) {
-                final boolean add = agentsByPopulation.get(agent.getPopulation()).add(agent);
-                assert add : "Could not add " + agent;
-                return true;
-            }
-            return false;
-        }
-
-        @Override
         public boolean insertObject(T object, P projection) {
             assert object != null;
             if (super.insertObject(object, projection)) {
@@ -386,11 +375,11 @@ public class ParallelizedSimulation<S extends Simulation<S, A, Z, P>, A extends 
         }
     }
 
-    public static <S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<S,A,Z,P> builder(Z space, Set<A> prototypes) {
+    public static <A extends Agent<ParallelizedSimulation<A,Z,P>, A, P>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<A,Z,P> builder(Z space, Set<A> prototypes) {
         return new ParallelizedSimulationBuilder(space, prototypes);
     }
 
-    public static class ParallelizedSimulationBuilder<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<S,A,Z,P>> {
+    public static class ParallelizedSimulationBuilder<A extends Agent<ParallelizedSimulation<A,Z,P>, A, P>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<A,Z,P>> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;

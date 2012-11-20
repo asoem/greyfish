@@ -39,7 +39,7 @@ public class ResourceInteractionTest {
 
         String messageClassifier = "mate";
 
-        DoubleProperty energyStorage = DoubleProperty.with()
+        DoubleProperty<A> energyStorage = DoubleProperty.with()
                 .name("resourceStorage")
                 .lowerBound(0.0)
                 .upperBound(2.0)
@@ -52,14 +52,14 @@ public class ResourceInteractionTest {
                 .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
                     @Override
                     public Void apply(ResourceConsumptionAction caller, Arguments arguments) {
-                        caller.agent().getProperty("resourceStorage", DoubleProperty.class).add((Double) arguments.get("offer") * 2);
+                        caller.agent().getProperty("resourceStorage", DoubleProperty<A>.class).add((Double) arguments.get("offer") * 2);
                         return null;
                     }
                 })
                 .build();
 
 
-        DoubleProperty resourceProperty = new DoubleProperty.Builder()
+        DoubleProperty<A> resourceProperty = new DoubleProperty.Builder()
                 .lowerBound(0.0)
                 .upperBound(1.0)
                 .initialValue(1.0)

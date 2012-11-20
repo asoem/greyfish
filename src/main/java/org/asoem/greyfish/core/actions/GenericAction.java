@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -12,7 +13,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
  * Time: 18:24
  */
 @Tagged("actions")
-public class GenericAction extends AbstractAgentAction {
+public class GenericAction<A extends Agent<?,A,?>> extends AbstractAgentAction<A> {
 
     private Callback<? super GenericAction, Void> callback;
 
@@ -26,7 +27,7 @@ public class GenericAction extends AbstractAgentAction {
         this.callback = genericAction.callback;
     }
 
-    protected GenericAction(AbstractBuilder<? extends GenericAction, ? extends AbstractBuilder> builder) {
+    protected GenericAction(AbstractBuilder<A, ? extends GenericAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -50,7 +51,7 @@ public class GenericAction extends AbstractAgentAction {
         return callback;
     }
 
-    public static class Builder extends AbstractBuilder<GenericAction, Builder> {
+    public static class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, GenericAction, Builder<A>> {
 
         @Override
         protected Builder self() {
@@ -64,7 +65,7 @@ public class GenericAction extends AbstractAgentAction {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends GenericAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends GenericAction, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
 
         public Callback<? super GenericAction, Void> callback = Callbacks.emptyCallback();
 

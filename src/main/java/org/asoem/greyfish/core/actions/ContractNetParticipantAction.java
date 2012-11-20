@@ -10,14 +10,13 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.io.Serializable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetParticipantAction extends FiniteStateAction {
+public abstract class ContractNetParticipantAction<A extends Agent<?,A,?>> extends FiniteStateAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetParticipantAction.class);
     private static final int TIMEOUT_ACCEPT_STEPS = 1;
@@ -32,7 +31,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         this.template = cloneable.template;
     }
 
-    protected ContractNetParticipantAction(AbstractBuilder<? extends ContractNetParticipantAction,? extends AbstractBuilder> builder) {
+    protected ContractNetParticipantAction(AbstractBuilder<A, ? extends ContractNetParticipantAction<A>,? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.timeoutCounter = builder.timeoutCounter;
         this.nExpectedProposeAnswers = builder.nExpectedProposeAnswers;
@@ -49,17 +48,17 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
     }
 
     @Override
-    protected void executeState(Object state, Simulation<SpatialObject> simulation) {
+    protected void executeState(Object state, Simulation<?,A,?,?> simulation) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();
             template = createCFPTemplate(getOntology());
 
-            final List<ACLMessage<Agent>> cfpReplies = Lists.newArrayList();
-            final Iterable<AgentMessage<Agent>> proposalCalls = agent().getMessages(template);
-            for (ACLMessage<Agent> cfp : proposalCalls) {
+            final List<ACLMessage<A>> cfpReplies = Lists.newArrayList();
+            final Iterable<AgentMessage<A>> proposalCalls = agent().getMessages(template);
+            for (ACLMessage<A> cfp : proposalCalls) {
 
-                ACLMessage<Agent> cfpReply;
+                ACLMessage<A> cfpReply;
                 try {
                     cfpReply = checkNotNull(handleCFP(cfp, simulation)).build();
                 } catch (NotUnderstoodException e) {
@@ -86,11 +85,11 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
                 endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT == state) {
-            final Iterable<AgentMessage<Agent>> receivedMessages = agent().getMessages(getTemplate());
-            for (ACLMessage<Agent> receivedMessage : receivedMessages) {
+            final Iterable<AgentMessage<A>> receivedMessages = agent().getMessages(getTemplate());
+            for (ACLMessage<A> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:
-                        ACLMessage<Agent> informMessage;
+                        ACLMessage<A> informMessage;
                         try {
                             informMessage = handleAccept(receivedMessage, simulation).build();
                         } catch (NotUnderstoodException e) {
@@ -161,12 +160,12 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
 
     protected void prepareForCommunication() {}
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation<SpatialObject> simulation);
+    protected abstract ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message, Simulation<?,A,?,?> simulation);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleReject(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {}
+    protected void handleReject(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {}
 
-    protected abstract ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation<SpatialObject> simulation);
+    protected abstract ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message, Simulation<?,A,?,?> simulation);
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         assert ontology != null;
@@ -176,7 +175,7 @@ public abstract class ContractNetParticipantAction extends FiniteStateAction {
         );
     }
 
-    protected static abstract class AbstractBuilder<C extends ContractNetParticipantAction, B extends AbstractBuilder<C, B>> extends FiniteStateAction.AbstractBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ContractNetParticipantAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
         private int timeoutCounter;
         private int nExpectedProposeAnswers;
         private MessageTemplate template = MessageTemplates.alwaysFalse();

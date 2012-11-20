@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
 import com.google.common.reflect.TypeToken;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -20,18 +21,18 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 09.05.12
  * Time: 11:29
  */
-public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
+public class SimulationStepProperty<T, A extends Agent<?,A,?>> extends AbstractAgentProperty<T,A> {
 
-    private Callback<? super SimulationStepProperty<T>, T> callback;
+    private Callback<? super SimulationStepProperty<T, A>, T> callback;
 
     private Supplier<T> value;
 
-    private SimulationStepProperty(SimulationStepProperty<T> simulationStepProperty, DeepCloner cloner) {
+    private SimulationStepProperty(SimulationStepProperty<T, A> simulationStepProperty, DeepCloner cloner) {
         super(simulationStepProperty, cloner);
         this.callback = simulationStepProperty.callback;
     }
 
-    private SimulationStepProperty(AbstractBuilder<T, ? extends SimulationStepProperty<T>, ? extends Builder> builder) {
+    private SimulationStepProperty(AbstractBuilder<T, A, ? extends SimulationStepProperty<T, A>, ? extends Builder> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -44,13 +45,13 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new SimulationStepProperty<T>(this, cloner);
+        return new SimulationStepProperty<T, A>(this, cloner);
     }
 
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<T>, T>>() {
+        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<T, A>, T>>() {
         }));
     }
 
@@ -83,30 +84,30 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
     }
 
 
-    public Callback<? super SimulationStepProperty<T>, T> getCallback() {
+    public Callback<? super SimulationStepProperty<T, A>, T> getCallback() {
         return callback;
     }
 
-    public static <T> Builder<T> builder() {
-        return new Builder<T>();
+    public static <T, A extends Agent<?,A,?>> Builder<T, A> builder() {
+        return new Builder<T, A>();
     }
 
-    public static class Builder<T> extends AbstractBuilder<T, SimulationStepProperty<T>, Builder<T>> implements Serializable {
+    public static class Builder<T, A extends Agent<?,A,?>> extends AbstractBuilder<T, A, SimulationStepProperty<T, A>, Builder<T, A>> implements Serializable {
 
         private Builder() {}
 
-        private Builder(SimulationStepProperty<T> simulationStepProperty) {
+        private Builder(SimulationStepProperty<T, A> simulationStepProperty) {
             super(simulationStepProperty);
         }
 
         @Override
-        protected Builder<T> self() {
+        protected Builder<T, A> self() {
             return this;
         }
 
         @Override
-        protected SimulationStepProperty<T> checkedBuild() {
-            return new SimulationStepProperty<T>(this);
+        protected SimulationStepProperty<T, A> checkedBuild() {
+            return new SimulationStepProperty<T, A>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -120,24 +121,24 @@ public class SimulationStepProperty<T> extends AbstractAgentProperty<T> {
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, P extends SimulationStepProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
-        private Callback<? super SimulationStepProperty<T>, T> callback;
+    private abstract static class AbstractBuilder<T, A extends Agent<?,A,?>, P extends SimulationStepProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+        private Callback<? super SimulationStepProperty<T, A>, T> callback;
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(SimulationStepProperty<T> simulationStepProperty) {
+        protected AbstractBuilder(SimulationStepProperty<T, A> simulationStepProperty) {
             super(simulationStepProperty);
             this.callback = simulationStepProperty.callback;
         }
 
-        public B callback(Callback<? super SimulationStepProperty<T>, T> function) {
+        public B callback(Callback<? super SimulationStepProperty<T, A>, T> function) {
             this.callback = checkNotNull(function);
             return self();
         }
     }
 
     private Object writeReplace() {
-        return new Builder<T>(this);
+        return new Builder<T, A>(this);
     }
 
     private void readObject(ObjectInputStream stream)

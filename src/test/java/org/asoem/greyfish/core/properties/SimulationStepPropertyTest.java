@@ -28,7 +28,7 @@ public class SimulationStepPropertyTest {
     public void testLazyValueComputation() throws Exception {
         // given
         final Callback<Object, Integer> callback = mock(Callback.class);
-        final SimulationStepProperty<Integer> property = SimulationStepProperty.<Integer>builder().callback(callback).build();
+        final SimulationStepProperty<Integer, A> property = SimulationStepProperty.<Integer>builder().callback(callback).build();
         final Agent agent = mock(Agent.class);
         property.setAgent(agent);
         property.initialize();
@@ -48,7 +48,7 @@ public class SimulationStepPropertyTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        SimulationStepProperty<Integer> property = SimulationStepProperty.<Integer>builder()
+        SimulationStepProperty<Integer, A> property = SimulationStepProperty.<Integer>builder()
                 .name("foo")
                 .callback(Callbacks.constant(42))
                 .build();

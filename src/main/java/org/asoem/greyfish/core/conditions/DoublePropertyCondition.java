@@ -12,7 +12,7 @@ import org.simpleframework.xml.Element;
 public class DoublePropertyCondition extends DoubleCompareCondition {
 
 	@Element(name="property")
-	private DoubleProperty doubleProperty;
+	private DoubleProperty<A> doubleProperty;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public DoublePropertyCondition() {
@@ -31,28 +31,28 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
     private DoublePropertyCondition(DoublePropertyCondition condition, DeepCloner map) {
         super(condition, map);
-        this.doubleProperty = map.getClone(condition.doubleProperty, DoubleProperty.class);
+        this.doubleProperty = map.getClone(condition.doubleProperty, DoubleProperty<A>.class);
     }
 
     @Override
 	public void configure(ConfigurationHandler e) {
 		super.configure(e);
-		e.add("", new SetAdaptor<DoubleProperty>(DoubleProperty.class
+		e.add("", new SetAdaptor<DoubleProperty<A>>(DoubleProperty<A>.class
         ) {
 
             @Override
-            protected void set(DoubleProperty arg0) {
+            protected void set(DoubleProperty<A> arg0) {
                 doubleProperty = arg0;
             }
 
             @Override
-            public DoubleProperty get() {
+            public DoubleProperty<A> get() {
                 return doubleProperty;
             }
 
             @Override
-            public Iterable<DoubleProperty> values() {
-                return Iterables.filter(agent().getProperties(), DoubleProperty.class);
+            public Iterable<DoubleProperty<A>> values() {
+                return Iterables.filter(agent().getProperties(), DoubleProperty<A>.class);
             }
         });
 	}
@@ -71,8 +71,8 @@ public class DoublePropertyCondition extends DoubleCompareCondition {
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends DoublePropertyCondition, T extends AbstractBuilder<E,T>> extends DoubleCompareCondition.AbstractBuilder<E,T> {
-        private DoubleProperty doubleProperty;
+        private DoubleProperty<A> doubleProperty;
 
-        public T valueOf(DoubleProperty doubleProperty) { this.doubleProperty = doubleProperty; return self(); }
+        public T valueOf(DoubleProperty<A> doubleProperty) { this.doubleProperty = doubleProperty; return self(); }
     }
 }

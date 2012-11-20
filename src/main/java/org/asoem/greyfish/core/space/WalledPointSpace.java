@@ -1,9 +1,6 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.lang.MathLib;
@@ -12,6 +9,7 @@ import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.base.MoreSuppliers;
 import org.asoem.greyfish.utils.base.OutdateableUpdateRequest;
 import org.asoem.greyfish.utils.base.UpdateRequests;
+import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
@@ -19,10 +17,7 @@ import org.simpleframework.xml.ElementArray;
 import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -369,8 +364,14 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     public boolean insertObject(O object, Point2D projection) {
         checkNotNull(object);
         checkNotNull(projection);
-        final Point2D point = projection.getCentroid();
-        return insertObject(object, point.getX(), point.getY(), 0);
+
+        synchronized (this) {
+            if (projectables.add(object)) {
+                updateRequest.outdate();
+                return true;
+            }
+            return false;
+        }
     }
 
     @Override
@@ -391,6 +392,16 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     @Override
     public Point2D getProjection(O object) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<O, Point2D> asMap() {
+        return ImmutableMapBuilder.<O, Point2D>newInstance().putAll(projectables, Functions.<O>identity(), new Function<O, Point2D>() {
+            @Override
+            public Point2D apply(@Nullable O input) {
+                return null;
+            }
+        }).build();
     }
 
     @Override
@@ -416,23 +427,6 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                 });
             }
         }));
-    }
-
-    @Override
-    public boolean insertObject(O agent, double x, double y, double orientation) {
-        checkNotNull(agent);
-        checkArgument(contains(x, y));
-
-        //final MotionObject2D projection = MotionObject2DImpl.of(x, y, false);
-        //agent.setProjection(projection);
-
-        synchronized (this) {
-            if (projectables.add(agent)) {
-                updateRequest.outdate();
-                return true;
-            }
-            return false;
-        }
     }
 
     @Override

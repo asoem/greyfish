@@ -6,6 +6,7 @@ import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * User: christoph
@@ -29,11 +30,6 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     @Override
     public Collection<O> getObjects() {
         return delegate().getObjects();
-    }
-
-    @Override
-    public boolean insertObject(O projectable, double x, double y, double orientation) {
-        return delegate().insertObject(projectable, x, y, orientation);
     }
 
     @Override
@@ -84,5 +80,10 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     @Override
     public P getProjection(O object) {
         return delegate().getProjection(object);
+    }
+
+    @Override
+    public Map<O, P> asMap() {
+        return delegate().asMap();
     }
 }

@@ -18,7 +18,7 @@ public class DoublePropertyTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final DoubleProperty doubleProperty = DoubleProperty.with()
+        final DoubleProperty<A> doubleProperty = DoubleProperty.with()
                 .name("test")
                 .lowerBound(3.0)
                 .upperBound(7.0)
@@ -26,7 +26,7 @@ public class DoublePropertyTest {
                 .build();
         
         // when
-        final DoubleProperty persistent = Persisters.createCopy(doubleProperty, JavaPersister.INSTANCE);
+        final DoubleProperty<A> persistent = Persisters.createCopy(doubleProperty, JavaPersister.INSTANCE);
         
         // then
         MatcherAssert.assertThat(persistent, is(equalTo(doubleProperty)));

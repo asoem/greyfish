@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class StatePropertyCondition extends LeafCondition {
 
     @Element(name="property",required=false)
-    private FiniteStateProperty<?> stateProperty;
+    private FiniteStateProperty<?, A> stateProperty;
     // TODO: The stateProperty might get modified during construction phase. Observe this!
 
     @Element(name="state",required=false)
@@ -94,10 +94,10 @@ public class StatePropertyCondition extends LeafCondition {
 
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<E extends StatePropertyCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
-        private FiniteStateProperty<?> property;
+        private FiniteStateProperty<?, A> property;
         private Object state;
 
-        public T property(FiniteStateProperty<?> property) { this.property = checkNotNull(property); return self(); }
+        public T property(FiniteStateProperty<?, A> property) { this.property = checkNotNull(property); return self(); }
         public T hasState(Object state) { this.state = checkNotNull(state); return self(); }
     }
 }

@@ -6,15 +6,13 @@ import com.google.inject.Inject;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
-import org.asoem.greyfish.core.agent.ActiveSimulationContext;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.FrozenAgent;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.WalledPointSpace;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.MotionObject2DImpl;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -42,7 +40,8 @@ public class ParallelizedSimulationTest {
     public void newSimulationTest() {
         // given
         final Population population = new Population("testPopulation");
-        final Agent prototype = FrozenAgent.builder(population).build();
+        final FrozenAgent<ParallelizedSimulation<FrozenAgent, >, A, Object2D> prototype = FrozenAgent.builder(population).build();
+        DefaultGreyfishAgent agent = new DefaultGreyfishAgent(FrozenAgent.<DefaultGreyfishSimulation, >builder(population).build());
         final WalledPointSpace<Agent> space = WalledPointSpace.builder(1, 1).build();
 
         // when

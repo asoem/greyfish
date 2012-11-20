@@ -5,6 +5,7 @@ import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * User: christoph
@@ -34,16 +35,11 @@ public interface Space2D<T, P extends Object2D> {
     Collection<T> getObjects();
 
     /**
-     * Add the given {@code projectable} to this space initially located at the point
-     * defined by {@code x} and {@code y} and the given {@code orientation}
-     * @param projectable the object to add
-     * @param x the x coordinate of the insertion point
-     * @param y the y coordinate of the insertion point
-     * @param orientation the initial orientation of this object
-     * @return {@code true} if the object could be added, {@code false} otherwise
+     * Add the given {@code object} to this space
+     * @param object the object to project
+     * @param projection the projection
+     * @return {@code true} if the object and it's projection could be added, {@code false} otherwise
      */
-    boolean insertObject(T projectable, double x, double y, double orientation);
-
     boolean insertObject(T object, P projection);
 
     /**
@@ -95,4 +91,6 @@ public interface Space2D<T, P extends Object2D> {
     double height();
 
     P getProjection(T object);
+
+    Map<T, P> asMap();
 }

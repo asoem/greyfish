@@ -69,6 +69,11 @@ public abstract class AbstractSimulation<S extends Simulation<S, A, Z, P>, A ext
     }
 
     @Override
+    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+        return Iterables.filter(getAgents(), predicate);
+    }
+
+    @Override
     public void createAgent(Population population) {
         //final MotionObject2DImpl randomProjection = MotionObject2DImpl.of(RandomUtils.nextDouble(0, getSpace().width()), RandomUtils.nextDouble(0, getSpace().height()));
         createAgent(population, Initializers.emptyInitializer());

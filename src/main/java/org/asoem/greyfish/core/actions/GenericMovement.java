@@ -4,8 +4,6 @@ import com.google.common.reflect.TypeToken;
 import javolution.lang.MathLib;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -14,7 +12,6 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -24,7 +21,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("actions")
-public class GenericMovement<A extends Agent<S, A, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgentAction<A> {
+public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
 
@@ -42,7 +39,7 @@ public class GenericMovement<A extends Agent<S, A, P>, S extends Simulation<S, A
         this.turningAngle = cloneable.turningAngle;
     }
 
-    protected GenericMovement(AbstractBuilder<? extends GenericMovement, ? extends AbstractBuilder> builder) {
+    protected GenericMovement(AbstractBuilder<A, ? extends GenericMovement, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.stepSize = builder.stepSize;
         this.turningAngle = builder.turningAngle;
@@ -70,12 +67,12 @@ public class GenericMovement<A extends Agent<S, A, P>, S extends Simulation<S, A
     }
 
     @Override
-    public GenericMovement deepClone(DeepCloner cloner) {
+    public GenericMovement<A> deepClone(DeepCloner cloner) {
         return new GenericMovement(this, cloner);
     }
 
 
-    public static Builder builder() {
+    public static <A extends Agent<?,A,?>> Builder<A> builder() {
         return new Builder();
     }
 
@@ -96,11 +93,11 @@ public class GenericMovement<A extends Agent<S, A, P>, S extends Simulation<S, A
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder extends AbstractBuilder<GenericMovement, Builder> implements Serializable {
+    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, GenericMovement, Builder<A>> implements Serializable {
         private Builder() {
         }
 
-        private Builder(GenericMovement genericMovement) {
+        private Builder(GenericMovement<A> genericMovement) {
             super(genericMovement);
         }
 
@@ -110,8 +107,8 @@ public class GenericMovement<A extends Agent<S, A, P>, S extends Simulation<S, A
         }
 
         @Override
-        protected GenericMovement checkedBuild() {
-            return new GenericMovement(this);
+        protected GenericMovement<A> checkedBuild() {
+            return new GenericMovement<A>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -126,7 +123,7 @@ public class GenericMovement<A extends Agent<S, A, P>, S extends Simulation<S, A
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<C extends GenericMovement, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<?, A, ?>, C extends GenericMovement, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super GenericMovement, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement, Double> turningAngle = new Callback<GenericMovement, Double>() {
             @Override

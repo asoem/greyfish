@@ -12,7 +12,6 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.SpatialObject;
 import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ResourceProvisionAction extends ContractNetParticipantAction {
+public class ResourceProvisionAction<A extends Agent<?,A,?>> extends ContractNetParticipantAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
@@ -29,7 +28,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     private String ontology;
 
     @Element(name = "provides")
-    private Callback<? super ResourceProvisionAction, Double> provides;
+    private Callback<? super ResourceProvisionAction<A>, Double> provides;
 
     private double providedAmount;
 
@@ -51,8 +50,8 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleCFP(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
-        final ImmutableACLMessage.Builder<Agent> reply = ImmutableACLMessage.createReply(message, getAgent());
+    protected ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
+        final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, getAgent());
         if (proposalSent)
             return reply.performative(ACLPerformative.REFUSE);
 
@@ -74,7 +73,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handleAccept(ACLMessage<Agent> message, Simulation<SpatialObject> simulation) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
         double offer = message.getContent(Double.class);
 
         LOGGER.info("{}: Provided {}", agent(), offer);
@@ -95,8 +94,8 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
     }
 
     @Override
-    public ResourceProvisionAction deepClone(DeepCloner cloner) {
-        return new ResourceProvisionAction(this, cloner);
+    public ResourceProvisionAction<A> deepClone(DeepCloner cloner) {
+        return new ResourceProvisionAction<A>(this, cloner);
     }
 
     protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
@@ -105,7 +104,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         this.ontology = cloneable.ontology;
     }
 
-    protected ResourceProvisionAction(AbstractBuilder<? extends ResourceProvisionAction, ? extends AbstractBuilder> builder) {
+    protected ResourceProvisionAction(AbstractBuilder<A, ? extends ResourceProvisionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.provides = builder.provides;
@@ -125,7 +124,7 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
         providedAmount = 0;
     }
 
-    public static final class Builder extends AbstractBuilder<ResourceProvisionAction, Builder> {
+    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
         @Override
         protected Builder self() {
             return this;
@@ -133,20 +132,20 @@ public class ResourceProvisionAction extends ContractNetParticipantAction {
 
         @Override
         protected ResourceProvisionAction checkedBuild() {
-            return new ResourceProvisionAction(this);
+            return new ResourceProvisionAction<A>(this);
         }
     }
 
-    protected static abstract class AbstractBuilder<C extends ResourceProvisionAction, B extends AbstractBuilder<C, B>> extends ContractNetParticipantAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ResourceProvisionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
         private String ontology;
-        private Callback<? super ResourceProvisionAction, Double> provides;
+        private Callback<? super ResourceProvisionAction<A>, Double> provides;
 
         public B ontology(String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public B provides(Callback<? super ResourceProvisionAction, Double> expression) {
+        public B provides(Callback<? super ResourceProvisionAction<A>, Double> expression) {
             this.provides = checkNotNull(expression);
             return self();
         }

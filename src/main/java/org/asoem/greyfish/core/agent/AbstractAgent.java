@@ -110,7 +110,7 @@ abstract class AbstractAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S
         this.inBox = checkNotNull(agentInitializationFactory.<A>createMessageBox());
     }
 
-    protected AbstractAgent(AbstractBuilder<A,?,?,?,?,?> builder, AgentInitializationFactory agentInitializationFactory) {
+    protected AbstractAgent(AbstractBuilder<A,?, ?,?,?> builder, AgentInitializationFactory agentInitializationFactory) {
         this.properties = agentInitializationFactory.newSearchableList(builder.properties);
         for (AgentProperty<?,A> property : builder.properties) {
             property.setAgent(self());
@@ -404,6 +404,11 @@ abstract class AbstractAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S
     }
 
     @Override
+    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+        return simulation().filterAgents(predicate);
+    }
+
+    @Override
     public void die() {
         simulation().removeAgent(self());
     }
@@ -459,7 +464,7 @@ abstract class AbstractAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S
         });
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<S,A, P>, S extends Simulation<S,A,Z,P>, Z extends Space2D<A,P>, P extends Object2D, E extends AbstractAgent, T extends AbstractBuilder<A,S,Z,P,E,T>> extends InheritableBuilder<E, T> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<S,A, P>, S extends Simulation<S,A,?,P>, P extends Object2D, E extends AbstractAgent, T extends AbstractBuilder<A,S,P,E,T>> extends InheritableBuilder<E, T> implements Serializable {
         private final Population population;
         private final List<AgentAction<A>> actions = Lists.newArrayList();
         private final List<AgentProperty<?,A>> properties = Lists.newArrayList();

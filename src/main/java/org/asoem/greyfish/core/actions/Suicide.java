@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -12,7 +13,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 @Tagged("actions")
-public class Suicide extends AbstractAgentAction {
+public class Suicide<A extends Agent<?,A,?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);
 
@@ -21,11 +22,11 @@ public class Suicide extends AbstractAgentAction {
         this(new Builder());
     }
 
-    private Suicide(AbstractAgentAction cloneable, DeepCloner map) {
+    private Suicide(Suicide<A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    private Suicide(AbstractBuilder<? extends Suicide, ? extends AbstractBuilder> builder) {
+    private Suicide(AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
     }
 
@@ -38,8 +39,8 @@ public class Suicide extends AbstractAgentAction {
     }
 
     @Override
-    public Suicide deepClone(DeepCloner cloner) {
-        return new Suicide(this, cloner);
+    public Suicide<A> deepClone(DeepCloner cloner) {
+        return new Suicide<A>(this, cloner);
     }
 
     private Object writeReplace() {
@@ -51,14 +52,14 @@ public class Suicide extends AbstractAgentAction {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static <A extends Agent<?,A,?>> Builder<A> builder() {
+        return new Builder<A>();
     }
 
-    public static final class Builder extends AbstractBuilder<Suicide, Builder> implements Serializable {
+    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
-        private Builder(Suicide suicide) {
+        private Builder(Suicide<A> suicide) {
             super(suicide);
         }
 
@@ -68,8 +69,8 @@ public class Suicide extends AbstractAgentAction {
         }
 
         @Override
-        protected Suicide checkedBuild() {
-            return new Suicide(this);
+        protected Suicide<A> checkedBuild() {
+            return new Suicide<A>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {

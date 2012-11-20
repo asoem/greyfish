@@ -25,9 +25,9 @@ public class LifetimePropertyTest {
     @Test
     public void testLazyness() throws Exception {
         // given
-        final Callback<LifetimeProperty<Object>, Object> function = mock(Callback.class);
+        final Callback<LifetimeProperty<Object, A>, Object> function = mock(Callback.class);
         given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class), mock(Object.class));
-        final LifetimeProperty<Object> lifetimeProperty = LifetimeProperty.builder().callback(function).build();
+        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().callback(function).build();
 
         // when
         lifetimeProperty.initialize();
@@ -43,9 +43,9 @@ public class LifetimePropertyTest {
     @Test
     public void testInitialization() throws Exception {
         // given
-        final Callback<LifetimeProperty<Object>, Object> function = mock(Callback.class);
+        final Callback<LifetimeProperty<Object, A>, Object> function = mock(Callback.class);
         given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class));
-        final LifetimeProperty<Object> lifetimeProperty = LifetimeProperty.builder().callback(function).build();
+        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().callback(function).build();
 
         // when
         lifetimeProperty.initialize();
@@ -61,7 +61,7 @@ public class LifetimePropertyTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        LifetimeProperty<Integer> property = LifetimeProperty.<Integer>builder()
+        LifetimeProperty<Integer, A> property = LifetimeProperty.<Integer>builder()
                 .name("foo")
                 .callback(Callbacks.constant(42))
                 .build();

@@ -37,7 +37,7 @@ public abstract class AbstractAgentAction<A extends Agent<?,A,?>> extends Abstra
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractAgentAction(AbstractBuilder<A, ? extends AbstractAgentAction, ? extends AbstractBuilder<A, ?,?>> builder) {
+    protected AbstractAgentAction(AbstractBuilder<A, ? extends AbstractAgentAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.onSuccess = builder.onSuccess;
         this.successCount = builder.successCount;

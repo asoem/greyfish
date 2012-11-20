@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -121,5 +122,10 @@ public abstract class ForwardingSimulation<S extends Simulation<S, A, Z, P>, A e
     @Override
     public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
         delegate().logAgentEvent(agentId, populationName, coordinates, eventOrigin, title, message);
+    }
+
+    @Override
+    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+        return delegate().filterAgents(predicate);
     }
 }

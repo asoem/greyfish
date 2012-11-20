@@ -167,15 +167,15 @@ public class TiledSpaceTest {
     public void testCollision() throws Exception {
         // given
         final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
-        Agent agent = FrozenAgent.builder(Population.named("test")).build();
+        Agent<?,FrozenAgent,Point2D> agent = FrozenAgent.builder(Population.named("test")).build();
         agent.setMotion(ImmutableMotion2D.of(0, 1));
-        space.insertObject(agent, 0, 0, 0);
+        space.insertObject(agent, agent.getProjection());
 
         // when
-        space.moveObject(agent, agent.getMotion());
+        space.moveObject(agent, ImmutableMotion2D.of(0, 1));
 
         // then
-        final MotionObject2D projection = agent.getProjection();
+        final Point2D projection = agent.getProjection();
         assertThat(projection, is(notNullValue()));
         assertThat(projection.didCollide(), is(true));
     }
@@ -188,10 +188,10 @@ public class TiledSpaceTest {
         final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
         Agent agent = FrozenAgent.builder(Population.named("test")).build();
         agent.setMotion(ImmutableMotion2D.of(0, 0.5));
-        space.insertObject(agent, 0, 0, MathLib.HALF_PI / 2);
+        space.insertObject(agent, ImmutablePoint2D.at(0, 0));
 
         // when
-        space.moveObject(agent, agent.getMotion());
+        space.moveObject(agent, ImmutableMotion2D.of(MathLib.HALF_PI / 2, 1));
 
         // then
         final MotionObject2D projection = agent.getProjection();
@@ -202,14 +202,14 @@ public class TiledSpaceTest {
     @Test
     public void testFindVisibleNeighbours() throws Exception {
         // given
-        final WalledPointSpace<Agent> space = WalledPointSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
+        final WalledPointSpace<MovingProjectable2D> space = WalledPointSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
         final MovingProjectable2D focal = new MovingProjectable2DImpl();
         final MovingProjectable2D neighbour1 = new MovingProjectable2DImpl();
         final MovingProjectable2D neighbour2 = new MovingProjectable2DImpl();
 
-        space.insertObject(focal, 1.5, 0.5, 0);
-        space.insertObject(neighbour1, 0.5, 0.5, 0);
-        space.insertObject(neighbour2, 2.5, 0.5, 0);
+        space.insertObject(focal, ImmutablePoint2D.at(1.5, 0.5));
+        space.insertObject(neighbour1, ImmutablePoint2D.at(0.5, 0.5));
+        space.insertObject(neighbour2, ImmutablePoint2D.at(2.5, 0.5));
 
         // when
         final Iterable<MovingProjectable2D> visibleNeighbours = space.getVisibleNeighbours(focal, 2.0);
