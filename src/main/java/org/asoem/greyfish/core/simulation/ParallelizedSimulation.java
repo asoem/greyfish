@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Builder;
@@ -36,7 +37,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public class ParallelizedSimulation<A extends Agent<A, ParallelizedSimulation<A,Z,P>, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSimulation<ParallelizedSimulation<A,Z,P>,A,Z,P> {
+public abstract class ParallelizedSimulation<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
@@ -63,7 +64,7 @@ public class ParallelizedSimulation<A extends Agent<A, ParallelizedSimulation<A,
     @Attribute
     private String title = "untitled";
 
-    private ParallelizedSimulation(ParallelizedSimulationBuilder<A,Z,P> builder) {
+    private ParallelizedSimulation(ParallelizedSimulationBuilder<A, S, Z, P> builder) {
         this(builder.space,
                 builder.prototypes,
                 builder.parallelizationThreshold,
@@ -74,7 +75,7 @@ public class ParallelizedSimulation<A extends Agent<A, ParallelizedSimulation<A,
                 Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
     }
 
-    private ParallelizedSimulation(
+    protected ParallelizedSimulation(
                                   @Element(name = "space") Z space,
                                   @ElementList(name = "prototypes") Set<A> prototypes,
                                   @Attribute(name = "parallelizationThreshold") int parallelizationThreshold,
@@ -97,22 +98,35 @@ public class ParallelizedSimulation<A extends Agent<A, ParallelizedSimulation<A,
         this.snapshotValues = Maps.newConcurrentMap();
     }
 
+    protected ParallelizedSimulation(Z space, Set<A> prototypes, int parallelizationThreshold, SimulationLogger simulationLogger, KeyedObjectPool<Population, A> agentPool) {
+        this(space,
+                prototypes,
+                parallelizationThreshold,
+                simulationLogger,
+                agentPool,
+                Collections.synchronizedList(Lists.<AddAgentMessage<A>>newArrayList()),
+                Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()),
+                Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
+    }
+
     private void activateAgentInternal(A agent, Initializer<? super A> initializer) {
         assert agent != null : "population is null";
         assert initializer != null : "initializer is null";
 
         initializer.initialize(agent);
         space.insertObject(agent, agent.getProjection());
-        agent.activate(ActiveSimulationContext.create((Simulation) this, agentIdSequence.incrementAndGet(), getStep() + 1));
+        agent.activate(ActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getStep() + 1));
 
         LOGGER.debug("Agent activated: {}", agent);
 
         simulationLogger.logAgentCreation(agent);
     }
 
+    protected abstract S self();
+
     private void passivateAgentsInternal(List<? extends A> agents) {
         for (A agent : agents) {
-            agent.shutDown(PassiveSimulationContext.<ParallelizedSimulation<A,Z,P>,A>instance());
+            agent.shutDown(PassiveSimulationContext.<S,A>instance());
             releaseAgent(agent);
         }
         space.removeInactiveAgents();
@@ -375,11 +389,11 @@ public class ParallelizedSimulation<A extends Agent<A, ParallelizedSimulation<A,
         }
     }
 
-    public static <A extends Agent<A, ParallelizedSimulation<A,Z,P>, P>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<A,Z,P> builder(Z space, Set<A> prototypes) {
+    public static <A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<A,S,Z,P> builder(Z space, Set<A> prototypes) {
         return new ParallelizedSimulationBuilder(space, prototypes);
     }
 
-    public static class ParallelizedSimulationBuilder<A extends Agent<A, ParallelizedSimulation<A,Z,P>, P>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<A,Z,P>> {
+    public static class ParallelizedSimulationBuilder<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<A, S, Z,P>> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;

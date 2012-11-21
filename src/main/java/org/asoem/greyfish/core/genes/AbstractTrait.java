@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -12,15 +13,15 @@ import java.util.Collections;
  * Date: 07.02.12
  * Time: 12:15
  */
-public abstract class AbstractTrait<T> extends AbstractAgentComponent implements AgentTrait<A, T> {
+public abstract class AbstractTrait<A extends Agent<A, ?, ?>, T> extends AbstractAgentComponent<A> implements AgentTrait<A, T> {
 
     protected AbstractTrait() {}
 
-    protected AbstractTrait(AbstractAgentComponent cloneable, DeepCloner map) {
+    protected AbstractTrait(AbstractAgentComponent<A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    protected AbstractTrait(AbstractBuilder<? extends AbstractTrait<?>, ? extends AbstractBuilder> builder) {
+    public AbstractTrait(AbstractBuilder<A, ? extends AbstractTrait<A, T>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
     }
 

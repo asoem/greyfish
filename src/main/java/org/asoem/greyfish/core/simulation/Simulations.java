@@ -15,11 +15,11 @@ public final class Simulations {
     private Simulations() {}
 
     /**
-     * Calls {@link Simulation#nextStep()} until the given {@code predicate} returns {@code false}
+     * Calls {@link SpatialSimulation#nextStep()} until the given {@code predicate} returns {@code false}
      *
      * @param predicate the {@code Predicate} which will be checked after each step
      */
-    public static <T extends Simulation<SpatialObject>> void runWhile(T simulation, Predicate<? super T> predicate) {
+    public static <T extends SpatialSimulation<SpatialObject>> void runWhile(T simulation, Predicate<? super T> predicate) {
         checkNotNull(predicate);
 
         while (predicate.apply(simulation)) {

@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.agent.SimulationContext;
  * Date: 29.02.12
  * Time: 12:54
  */
-public interface Simulatable<S extends Simulation<S, A, ?, ?>, A extends Agent<A, S, ?>> {
+public interface Simulatable<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> {
     S simulation();
     void activate(SimulationContext<S, A> context);
     void execute();

@@ -7,6 +7,7 @@ import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentMessage;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -48,7 +49,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?, ?>> ext
     }
 
     @Override
-    protected void executeState(Object state, Simulation<?,A,?,?> simulation) {
+    protected void executeState(Object state, SpatialSimulation<A,?> simulation) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();

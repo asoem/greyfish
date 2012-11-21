@@ -4,29 +4,19 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Initializers;
-import org.asoem.greyfish.utils.space.Object2D;
-
-import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
- * Date: 03.10.12
- * Time: 22:08
+ * Date: 21.11.12
+ * Time: 15:44
  */
-public abstract class AbstractSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> implements Simulation<S,A,Z,P> {
-
+public abstract class AbstractSimulation<A extends Agent<A, ?, ?>> implements Simulation<A> {
     @Override
     public int numberOfPopulations() {
         return getPrototypes().size();
-    }
-
-    @Override
-    public Iterable<A> findNeighbours(A agent, double distance) {
-        return getSpace().getVisibleNeighbours(agent, distance);
     }
 
     @Override
@@ -39,16 +29,6 @@ public abstract class AbstractSimulation<S extends Simulation<S, A, Z, P>, A ext
                 return agent.hasPopulation(population);
             }
         });
-    }
-
-    @Override
-    public Collection<A> getAgents() {
-        return getSpace().getObjects();
-    }
-
-    @Override
-    public int countAgents() {
-        return getSpace().countObjects();
     }
 
     @Override

@@ -58,7 +58,7 @@ public class MutableAgentTest {
         agent.addTrait(gene);
 
         // when
-        AgentTrait ret = agent.getTrait("foo", AgentTrait.class);
+        AgentTrait ret = agent.getTrait("foo");
 
         // then
         assertThat(ret, is(equalTo(gene)));

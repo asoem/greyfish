@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
 import org.asoem.greyfish.utils.collect.SearchableList;
@@ -10,7 +10,7 @@ import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.List;
 
-public class MutableAgent<S extends Simulation<S, A, ?, P>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent<S,A,P> {
+public class MutableAgent<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent<S,A,P> {
 
     private MutableAgent(MutableAgent<S,A,P> mutableAgent, DeepCloner map) {
         super(mutableAgent, map, INITIALIZATION_FACTORY);
@@ -50,7 +50,7 @@ public class MutableAgent<S extends Simulation<S, A, ?, P>, A extends Agent<A, S
         return new Builder(population);
     }
 
-    public static class Builder<A extends Agent<A, S, P>, S extends Simulation<S,A,?,P>, P extends Object2D> extends AbstractBuilder<A,S,P,MutableAgent<S,A,P>,Builder<A,S,P>> {
+    public static class Builder<A extends Agent<A, S, P>, S extends SpatialSimulation<A,?>, P extends Object2D> extends AbstractBuilder<A,S,P,MutableAgent<S,A,P>,Builder<A,S,P>> {
         private Builder(Population population) {
             super(population);
         }

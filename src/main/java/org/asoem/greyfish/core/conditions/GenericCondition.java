@@ -69,7 +69,7 @@ public class GenericCondition<A extends Agent<A, ?, ?>> extends LeafCondition<A>
     }
 
     private static final class Builder<A extends Agent<A, ?, ?>> extends LeafCondition.AbstractBuilder<A, GenericCondition<A>, Builder<A>> implements Serializable {
-        public Callback<? super GenericCondition, Boolean> callback;
+        public Callback<? super GenericCondition<A>, Boolean> callback;
 
         private Builder() {
         }

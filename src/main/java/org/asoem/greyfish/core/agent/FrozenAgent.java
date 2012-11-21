@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
 import org.asoem.greyfish.utils.collect.SearchableList;
@@ -22,7 +22,7 @@ import java.util.List;
  * However, no guarantees can be made about the {@code AgentComponent}s themselves,
  * but should generally act according to the frozen state of their parent component.
  */
-public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent<S,A,P> implements Serializable {
+public class FrozenAgent<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent<S,A,P> implements Serializable {
 
     private FrozenAgent(FrozenAgent<S,A,P> agent, DeepCloner cloner) {
         super(agent, cloner, INITIALIZATION_FACTORY);
@@ -64,11 +64,11 @@ public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<A, S,
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <S extends Simulation<S, A, ?, P>, A extends Agent<A, S, P>, P extends Object2D> Builder<S, A, P> builder(Population population) {
+    public static <S extends SpatialSimulation<A, ?>, A extends Agent<A, S, P>, P extends Object2D> Builder<S, A, P> builder(Population population) {
         return new Builder<S,A,P>(population);
     }
 
-    public static class Builder<S extends Simulation<S, A, ?, P>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent.AbstractBuilder<A, S, P, FrozenAgent<S,A,P>, Builder<S, A, P>> implements Serializable {
+    public static class Builder<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent.AbstractBuilder<A, S, P, FrozenAgent<S,A,P>, Builder<S, A, P>> implements Serializable {
         private Builder(Population population) {
             super(population);
         }

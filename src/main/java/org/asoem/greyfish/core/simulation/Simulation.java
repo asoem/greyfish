@@ -6,21 +6,18 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Initializer;
-import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Collection;
 import java.util.Set;
 
 /**
  * User: christoph
- * Date: 08.10.11
- * Time: 10:50
+ * Date: 21.11.12
+ * Time: 15:32
  */
-public interface Simulation<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends HasName {
-
+public interface Simulation<A extends Agent<A, ?, ?>> extends HasName {
     /**
      * Get all active {@code Agent}s which are part of the given {@code population}
      * @param population The common population
@@ -57,15 +54,6 @@ public interface Simulation<S extends Simulation<S, A, Z, P>, A extends Agent<A,
     int numberOfPopulations();
 
     /**
-     * Find all neighbours of {@code agent} within the given {@code distance}
-     *
-     * @param agent The focal {@code agent}
-     * @param distance The maximum allowed distance of an agent to count as a neighbour
-     * @return all neighbours of {@code agent} within the given distance
-     */
-    Iterable<A> findNeighbours(A agent, double distance);
-
-    /**
      * Count all active Agents
      * @return The number of active Agents
      */
@@ -83,12 +71,6 @@ public interface Simulation<S extends Simulation<S, A, Z, P>, A extends Agent<A,
      * @return all registered {@code Agent}s which are used as prototypes
      */
     Set<A> getPrototypes();
-
-    /**
-     * Get the space used in this simulation
-     * @return the space used in this simulation
-     */
-    Z getSpace();
 
     /**
      * Get the current step

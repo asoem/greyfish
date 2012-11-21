@@ -9,6 +9,7 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -85,7 +86,7 @@ public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends Contrac
     }
 
     @Override
-    protected boolean canInitiate(Simulation<?,A,?,?> simulation) {
+    protected boolean canInitiate(SpatialSimulation<A,?> simulation) {
         sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
         return !isEmpty(sensedMates);
     }

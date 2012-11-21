@@ -8,7 +8,7 @@ import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
@@ -32,7 +32,7 @@ import static java.util.Arrays.asList;
  * Date: 19.09.11
  * Time: 16:20
  */
-abstract class BasicAgent<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgent<A, S, Z,P> {
+abstract class BasicAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgent<A, S, Z,P> {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;
@@ -190,7 +190,7 @@ abstract class BasicAgent<S extends Simulation<S, A, Z, P>, A extends Agent<A, S
         this.parents = parents;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, S, P>, S extends Simulation<S,A,Z,P>, Z extends Space2D<A,P>, P extends Object2D, E extends BasicAgent, T extends AbstractBuilder<A,S,Z,P,E,T>> extends InheritableBuilder<E, T> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, S, P>, S extends SpatialSimulation<A,Z>, Z extends Space2D<A,P>, P extends Object2D, E extends BasicAgent, T extends AbstractBuilder<A,S,Z,P,E,T>> extends InheritableBuilder<E, T> implements Serializable {
         private final Population population;
         private final List<AgentAction<A>> actions = Lists.newArrayList();
         private final List<AgentProperty<A, ?>> properties = Lists.newArrayList();

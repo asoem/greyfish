@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulatable;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.Initializer;
@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public interface Agent<A extends Agent<A, S, P>, S extends Simulation<S, A, ?, P>, P extends Object2D> extends DeepCloneable, Freezable, Simulatable<S, A>, Moving<Motion2D>, Projectable<P>, AgentNode {
+public interface Agent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, ?>, P extends Object2D> extends DeepCloneable, Freezable, Simulatable<S, A>, Moving<Motion2D>, Projectable<P>, AgentNode {
 
     void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2);
 
@@ -38,7 +38,7 @@ public interface Agent<A extends Agent<A, S, P>, S extends Simulation<S, A, ?, P
 
     SearchableList<AgentAction<A>> getActions();
 
-    <T extends AgentAction<A>> T getAction(String name, Class<T> clazz);
+    AgentAction<A> getAction(String name);
 
     boolean addProperty(AgentProperty<A, ?> property);
 
@@ -60,7 +60,7 @@ public interface Agent<A extends Agent<A, S, P>, S extends Simulation<S, A, ?, P
 
     SearchableList<AgentTrait<A, ?>> getTraits();
 
-    <T extends AgentTrait<A, T>> T getTrait(String name, Class<T> clazz);
+    AgentTrait<A, ?> getTrait(String name);
 
     AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate);
 

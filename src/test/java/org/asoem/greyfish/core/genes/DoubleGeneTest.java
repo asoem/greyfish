@@ -22,7 +22,7 @@ public class DoubleGeneTest {
     public void testPersistence() throws Exception {
         // given
         final Callback<Object, Double> callback = Callbacks.constant(1.0);
-        final QuantitativeTrait doubleGene = QuantitativeTrait.builder()
+        final QuantitativeTrait<A> doubleGene = QuantitativeTrait.builder()
                 .name("test")
                 .initialization(constant(1.0))
                 .mutation(constant(1.0))
@@ -30,7 +30,7 @@ public class DoubleGeneTest {
                 .build();
 
         // when
-        final QuantitativeTrait copy = Persisters.createCopy(doubleGene, JavaPersister.INSTANCE);
+        final QuantitativeTrait<A> copy = Persisters.createCopy(doubleGene, JavaPersister.INSTANCE);
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(doubleGene)));

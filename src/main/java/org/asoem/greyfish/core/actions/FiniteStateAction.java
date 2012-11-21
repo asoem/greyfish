@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -49,7 +49,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ?, ?>> extends Abstra
 
     protected abstract Object initialState();
 
-    protected abstract void executeState(Object state, Simulation<?,A,?,?> simulation);
+    protected abstract void executeState(Object state, SpatialSimulation<A,?> simulation);
 
     protected final void resetTransition() {
         LOGGER.debug("{}: Reset state to {}", this, initialState());

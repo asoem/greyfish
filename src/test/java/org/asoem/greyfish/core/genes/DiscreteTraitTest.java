@@ -19,7 +19,7 @@ public class DiscreteTraitTest {
     @Test
     public void testMutation() throws Exception {
         // given
-        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -39,7 +39,7 @@ public class DiscreteTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMutateIllegalArgument() throws Exception {
         // given
-        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -55,7 +55,7 @@ public class DiscreteTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetAlleleIllegalArgument() throws Exception {
         // given
-        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -71,7 +71,7 @@ public class DiscreteTraitTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        final DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
                 .name("test")
                 .initialization(Callbacks.constant("foo"))
                 .segregation(Callbacks.constant("bar"))
@@ -82,7 +82,7 @@ public class DiscreteTraitTest {
         //discreteTrait.setAgent(agent);
 
         // when
-        final DiscreteTrait copy = Persisters.createCopy(discreteTrait, JavaPersister.INSTANCE);
+        final DiscreteTrait<A> copy = Persisters.createCopy(discreteTrait, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, is(equalTo(discreteTrait)));

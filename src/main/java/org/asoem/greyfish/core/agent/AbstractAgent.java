@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Initializer;
@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 20.11.12
  * Time: 17:18
  */
-public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements Agent<A, S, P> {
+public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> implements Agent<A, S, P> {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BasicAgent.class);
 
     private static <E extends HasName> E findByName(SearchableList<E> searchableList, final String name) {
@@ -96,8 +96,8 @@ public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends Simulati
     }
 
     @Override
-    public <T extends AgentAction<A>> T getAction(String name, Class<T> clazz) {
-        return checkNotNull(clazz).cast(findByName(getActions(), name));
+    public AgentAction<A> getAction(String name) {
+        return findByName(getActions(), name);
     }
 
     @Override
@@ -145,8 +145,8 @@ public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends Simulati
 
     @Override
     @Nullable
-    public <T extends AgentTrait<A, T>> T getTrait(String name, Class<T> clazz) {
-        return checkNotNull(clazz).cast(findByName(getTraits(), name));
+    public AgentTrait<A, ?> getTrait(String name) {
+        return findByName(getTraits(), name);
     }
 
     @Override

@@ -7,31 +7,23 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Initializer;
-import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Collection;
 import java.util.Set;
 
 /**
  * User: christoph
- * Date: 08.10.11
- * Time: 10:51
+ * Date: 21.11.12
+ * Time: 15:39
  */
-public abstract class ForwardingSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Simulation<S,A,Z,P> {
-
+public abstract class ForwardingSimulation<A extends Agent<A, ?, ?>> extends ForwardingObject implements Simulation<A> {
     @Override
-    protected abstract Simulation<S,A,Z,P> delegate();
+    protected abstract Simulation<A> delegate();
 
     @Override
     public int numberOfPopulations() {
         return delegate().numberOfPopulations();
-    }
-
-    @Override
-    public Iterable<A> findNeighbours(A agent, double distance) {
-        return delegate().findNeighbours(agent, distance);
     }
 
     @Override
@@ -62,11 +54,6 @@ public abstract class ForwardingSimulation<S extends Simulation<S, A, Z, P>, A e
     @Override
     public Set<A> getPrototypes() {
         return delegate().getPrototypes();
-    }
-
-    @Override
-    public Z getSpace() {
-        return delegate().getSpace();
     }
 
     @Override

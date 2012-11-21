@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Agent<A, S, P> {
+public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Agent<A, S, P> {
 
     @Override
     protected abstract Agent<A, S, P> delegate();
@@ -186,13 +186,13 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public <T extends AgentAction<A>> T getAction(String actionName, Class<T> gfActionClass) {
-        return delegate().getAction(actionName, gfActionClass);
+    public <T extends AgentAction<A>> AgentAction<A> getAction(String actionName) {
+        return delegate().getAction(actionName);
     }
 
     @Override
     public <T extends AgentTrait> T getTrait(String geneName, Class<T> geneClass) {
-        return delegate().getTrait(geneName, geneClass);
+        return delegate().getTrait(geneName);
     }
 
     @Override

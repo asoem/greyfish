@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 
@@ -9,7 +8,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ActiveSimulationContext<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> implements SimulationContext<S,A>, Serializable {
+public class ActiveSimulationContext<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> implements SimulationContext<S,A>, Serializable {
 
     //@Element(name = "simulation")
     private final S simulation;
@@ -26,7 +25,7 @@ public class ActiveSimulationContext<S extends Simulation<S, A, Z, P>, A extends
         this.activationStep = simulationStep;
     }
 
-    public static <S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> ActiveSimulationContext create(S simulation, int agentId, int simulationStep) {
+    public static <S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> ActiveSimulationContext create(S simulation, int agentId, int simulationStep) {
         return new ActiveSimulationContext(simulation, agentId, simulationStep);
     }
 

@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -46,7 +47,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
     }
 
     @Override
-    protected void executeState(Object state, Simulation<?,A,?,?> simulation) {
+    protected void executeState(Object state, SpatialSimulation<A,?> simulation) {
         if (State.SEND_CFP.equals(state)) {
             if (!canInitiate(simulation)) {
                 endTransition(State.NO_RECEIVERS);
@@ -172,7 +173,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
             throw unknownState();
     }
 
-    protected abstract boolean canInitiate(Simulation<?,A,?,?> simulation);
+    protected abstract boolean canInitiate(SpatialSimulation<A,?> simulation);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))

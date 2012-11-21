@@ -18,7 +18,7 @@ public class QuantitativeTraitTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final QuantitativeTrait quantitativeTrait = QuantitativeTrait.builder()
+        final QuantitativeTrait<A> quantitativeTrait = QuantitativeTrait.builder()
                 .name("Test")
                 .initialization(Callbacks.constant(1.0))
                 .mutation(Callbacks.constant(2.0))
@@ -29,7 +29,7 @@ public class QuantitativeTraitTest {
         //quantitativeTrait.setAgent(agent);
 
         // when
-        final QuantitativeTrait copy = Persisters.createCopy(quantitativeTrait, JavaPersister.INSTANCE);
+        final QuantitativeTrait<A> copy = Persisters.createCopy(quantitativeTrait, JavaPersister.INSTANCE);
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(quantitativeTrait)));

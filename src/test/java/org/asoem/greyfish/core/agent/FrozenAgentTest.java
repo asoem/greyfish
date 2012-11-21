@@ -79,7 +79,7 @@ public class FrozenAgentTest {
         FrozenAgent agent = FrozenAgent.builder(mock(Population.class)).addTraits(gene).build();
 
         // when
-        AgentTrait ret = agent.getTrait("foo", AgentTrait.class);
+        AgentTrait ret = agent.getTrait("foo");
 
         // then
         verify(gene).setAgent(agent);

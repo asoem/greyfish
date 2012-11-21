@@ -15,6 +15,7 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -144,7 +145,7 @@ public class FemaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetIniti
     }
 
     @Override
-    protected boolean canInitiate(Simulation<?,A,?,?> simulation) {
+    protected boolean canInitiate(SpatialSimulation<A,?> simulation) {
         sensedMates = ImmutableList.copyOf(simulation.findNeighbours(agent(), call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
