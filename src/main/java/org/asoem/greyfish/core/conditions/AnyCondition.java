@@ -17,7 +17,7 @@ import java.io.Serializable;
  *
  */
 @Tagged("conditions")
-public class AnyCondition extends BranchCondition {
+public class AnyCondition extends BranchCondition<A> {
 
     private AnyCondition(Builder builder) {
         super(builder);
@@ -57,7 +57,7 @@ public class AnyCondition extends BranchCondition {
         return new Builder().add(conditions).build();
     }
 
-    private static final class Builder extends BranchCondition.AbstractBuilder<AnyCondition,Builder> implements Serializable {
+    private static final class Builder extends BranchCondition.AbstractBuilder<A, AnyCondition,Builder> implements Serializable {
         private Builder() {
         }
 

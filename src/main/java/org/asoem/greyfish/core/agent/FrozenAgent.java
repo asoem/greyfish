@@ -22,14 +22,14 @@ import java.util.List;
  * However, no guarantees can be made about the {@code AgentComponent}s themselves,
  * but should generally act according to the frozen state of their parent component.
  */
-public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S,A,P>, P extends Object2D> extends AbstractAgent<S,A,P> implements Serializable {
+public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent<S,A,P> implements Serializable {
 
-    private FrozenAgent(FrozenAgent agent, DeepCloner cloner) {
+    private FrozenAgent(FrozenAgent<S,A,P> agent, DeepCloner cloner) {
         super(agent, cloner, INITIALIZATION_FACTORY);
         freeze();
     }
 
-    private FrozenAgent(Builder builder) {
+    private FrozenAgent(Builder<S,A,P> builder) {
         super(builder, INITIALIZATION_FACTORY);
         freeze();
     }
@@ -40,7 +40,7 @@ public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S,A,P
     }
 
     @Override
-    protected FrozenAgent self() {
+    protected A self() {
         return this;
     }
 
@@ -56,7 +56,7 @@ public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S,A,P
     }
 
     private Object writeReplace() {
-        return new Builder(this);
+        return new Builder<S,A,P>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -64,28 +64,28 @@ public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S,A,P
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <S extends Simulation<S, A, ?, P>, A extends Agent<S,A,P>, P extends Object2D> Builder<S, A, P> builder(Population population) {
-        return new Builder(population);
+    public static <S extends Simulation<S, A, ?, P>, A extends Agent<A, S, P>, P extends Object2D> Builder<S, A, P> builder(Population population) {
+        return new Builder<S,A,P>(population);
     }
 
-    public static class Builder<S extends Simulation<S, A, ?, P>, A extends Agent<S, A, P>, P extends Object2D> extends AbstractAgent.AbstractBuilder<A, S, P, FrozenAgent<S,A,P>, Builder<S, A, P>> implements Serializable {
+    public static class Builder<S extends Simulation<S, A, ?, P>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent.AbstractBuilder<A, S, P, FrozenAgent<S,A,P>, Builder<S, A, P>> implements Serializable {
         private Builder(Population population) {
             super(population);
         }
 
-        private Builder(FrozenAgent frozenAgent) {
+        private Builder(FrozenAgent<S,A,P> frozenAgent) {
             super(frozenAgent);
         }
 
         @Override
         protected FrozenAgent<S,A,P> checkedBuild() {
-            final FrozenAgent agent = new FrozenAgent(this);
+            final FrozenAgent<S,A,P> agent = new FrozenAgent<S,A,P>(this);
             agent.initialize();
             return agent;
         }
 
         @Override
-        protected Builder self() {
+        protected Builder<S,A,P> self() {
             return this;
         }
 
@@ -112,8 +112,8 @@ public class FrozenAgent<S extends Simulation<S, A, ?, P>, A extends Agent<S,A,P
         }
 
         @Override
-        public AgentMessageBox createMessageBox() {
-            return new FixedSizeMessageBox();
+        public <A extends Agent> AgentMessageBox<A> createMessageBox() {
+            return new FixedSizeMessageBox<A>();
         }
     };
 }

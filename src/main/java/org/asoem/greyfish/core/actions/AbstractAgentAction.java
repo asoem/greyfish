@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
 @Root
-public abstract class AbstractAgentAction<A extends Agent<?,A,?>> extends AbstractAgentComponent<A> implements AgentAction<A> {
+public abstract class AbstractAgentAction<A extends Agent<A, ?, ?>> extends AbstractAgentComponent<A> implements AgentAction<A> {
 
     @Nullable
     private ActionCondition<A> rootCondition;
@@ -176,7 +176,7 @@ public abstract class AbstractAgentAction<A extends Agent<?,A,?>> extends Abstra
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<?, A, ?>, T extends AbstractAgentAction, B extends AbstractBuilder<A, T,B>> extends AbstractAgentComponent.AbstractBuilder<A,T,B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, T extends AbstractAgentAction, B extends AbstractBuilder<A, T,B>> extends AbstractAgentComponent.AbstractBuilder<A,T,B> implements Serializable {
         private ActionCondition<A> condition;
         private Callback<? super AbstractAgentAction<A>, Void> onSuccess = Callbacks.emptyCallback();
         private int successCount;

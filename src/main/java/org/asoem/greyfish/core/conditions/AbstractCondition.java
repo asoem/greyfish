@@ -4,11 +4,9 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
@@ -20,7 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Can be used to make a <code>AgentAction</code> conditional.
  * @author christoph
  */
-public abstract class AbstractCondition<A extends Agent<S, A, P>, S extends Simulation<S, A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> implements ActionCondition<A> {
+public abstract class AbstractCondition<A extends Agent<A, ?, ?>> implements ActionCondition<A> {
 
     @Nullable
     private ActionCondition<A> parentCondition;
@@ -29,13 +27,13 @@ public abstract class AbstractCondition<A extends Agent<S, A, P>, S extends Simu
 
     protected AbstractCondition() {}
 
-    protected AbstractCondition(AbstractCondition<A,S,Z,P> cloneable, DeepCloner cloner) {
+    protected AbstractCondition(AbstractCondition<A> cloneable, DeepCloner cloner) {
         cloner.addClone(cloneable, this);
         this.action = cloner.getClone(cloneable.action, AgentAction.class);
         this.parentCondition = cloner.getClone(cloneable.parentCondition, ActionCondition.class);
     }
 
-    protected AbstractCondition(AbstractBuilder<? extends AbstractCondition, ? extends AbstractBuilder> builder) {
+    protected AbstractCondition(AbstractBuilder<A, ? extends AbstractCondition, ? extends AbstractBuilder> builder) {
     }
 
     @Override
@@ -129,7 +127,7 @@ public abstract class AbstractCondition<A extends Agent<S, A, P>, S extends Simu
     public void initialize() {
     }
 
-    public S simulation() {
+    public Simulation simulation() {
         return agent().simulation();
     }
 
@@ -138,7 +136,7 @@ public abstract class AbstractCondition<A extends Agent<S, A, P>, S extends Simu
         return parentCondition != null ? parentCondition : action;
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractCondition, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
         public AbstractBuilder(AbstractCondition leafCondition) {
         }
 

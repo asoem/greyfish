@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class AgentComponentCallback<C extends AgentComponent, R> implements Callback<C, R> {
 
-    protected static <E extends AgentTrait<?, A>> Function<Agent, E> traitAccessor(final String name, final Class<E> clazz) {
+    protected static <E extends AgentTrait<A, ?>> Function<Agent, E> traitAccessor(final String name, final Class<E> clazz) {
         return new Function<Agent, E>() {
             public AtomicInteger index = new AtomicInteger(-1);
 
@@ -25,9 +25,9 @@ public abstract class AgentComponentCallback<C extends AgentComponent, R> implem
             public E apply(Agent input) {
                 int i = index.get();
                 if (i == -1) {
-                    final int newValue = Iterables.indexOf(input.getTraits(), new Predicate<AgentTrait<?, A>>() {
+                    final int newValue = Iterables.indexOf(input.getTraits(), new Predicate<AgentTrait<A, ?>>() {
                         @Override
-                        public boolean apply(AgentTrait<?, A> input) {
+                        public boolean apply(AgentTrait<A, ?> input) {
                             return input.getName().equals(name);
                         }
                     });

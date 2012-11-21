@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import java.io.Serializable;
 
-public abstract class FiniteStateAction<A extends Agent<?,A,?>> extends AbstractAgentAction<A> {
+public abstract class FiniteStateAction<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FiniteStateAction.class);
 
@@ -105,7 +105,7 @@ public abstract class FiniteStateAction<A extends Agent<?,A,?>> extends Abstract
         return statefulExecutionCount;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends FiniteStateAction, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends FiniteStateAction, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private int statefulExecutionCount;
         private Object nextStateKey;
         private boolean endStateReached;

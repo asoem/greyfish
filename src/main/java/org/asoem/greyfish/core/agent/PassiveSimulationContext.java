@@ -49,7 +49,7 @@ public enum PassiveSimulationContext implements SimulationContext {
     }
 
     @SuppressWarnings("unchecked")
-    public static <S extends Simulation<S, A, ?, ?>, A extends Agent<S, A, ?>> SimulationContext<S,A> instance() {
+    public static <S extends Simulation<S, A, ?, ?>, A extends Agent<A, S, ?>> SimulationContext<S,A> instance() {
         return (SimulationContext<S,A>) INSTANCE;
     }
 }

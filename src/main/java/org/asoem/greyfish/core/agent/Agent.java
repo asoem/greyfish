@@ -21,9 +21,9 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public interface Agent<S extends Simulation<S, A, ?, P>, A extends Agent<S, A, P>, P extends Object2D> extends DeepCloneable, Freezable, Simulatable<S, A>, Moving<Motion2D>, Projectable<P>, AgentNode {
+public interface Agent<A extends Agent<A, S, P>, S extends Simulation<S, A, ?, P>, P extends Object2D> extends DeepCloneable, Freezable, Simulatable<S, A>, Moving<Motion2D>, Projectable<P>, AgentNode {
 
-    void changeActionExecutionOrder(AgentAction object, AgentAction object2);
+    void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2);
 
     @Nullable
     Population getPopulation();
@@ -40,29 +40,29 @@ public interface Agent<S extends Simulation<S, A, ?, P>, A extends Agent<S, A, P
 
     <T extends AgentAction<A>> T getAction(String name, Class<T> clazz);
 
-    boolean addProperty(AgentProperty<?, A> property);
+    boolean addProperty(AgentProperty<A, ?> property);
 
-    boolean removeProperty(AgentProperty<?, A> property);
+    boolean removeProperty(AgentProperty<A, ?> property);
 
     void removeAllProperties();
 
-    SearchableList<AgentProperty<?,A>> getProperties();
+    SearchableList<AgentProperty<A, ?>> getProperties();
 
-    <T extends AgentProperty<?,A>> T getProperty(String name, Class<T> clazz);
+    <T extends AgentProperty<A, ?>> T getProperty(String name, Class<T> clazz);
 
-    AgentProperty<?,A> findProperty(Predicate<? super AgentProperty<?,A>> predicate);
+    AgentProperty<A, ?> findProperty(Predicate<? super AgentProperty<A, ?>> predicate);
 
-    boolean addTrait(AgentTrait<?, A> gene);
+    boolean addTrait(AgentTrait<A, ?> gene);
 
-    boolean removeGene(AgentTrait<?, A> gene);
+    boolean removeGene(AgentTrait<A, ?> gene);
 
     void removeAllGenes();
 
-    SearchableList<AgentTrait<?, A>> getTraits();
+    SearchableList<AgentTrait<A, ?>> getTraits();
 
-    <T extends AgentTrait> T getTrait(String name, Class<T> clazz);
+    <T extends AgentTrait<A, T>> T getTrait(String name, Class<T> clazz);
 
-    AgentTrait<?, A> findTrait(Predicate<? super AgentTrait<?, A>> traitPredicate);
+    AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate);
 
     /**
      * Update the agent's agentTraitList with the values of the {@link org.asoem.greyfish.core.genes.Gene}s in the given {@code vector}

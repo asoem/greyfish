@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ClonalReproduction<A extends Agent<?,A,P>, P extends Object2D> extends AbstractAgentAction<A> {
+public class ClonalReproduction<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractAgentAction<A> {
 
     private Callback<? super ClonalReproduction, Integer> clutchSize;
     private Callback<? super ClonalReproduction, P> projectionFactory;
@@ -43,9 +43,9 @@ public class ClonalReproduction<A extends Agent<?,A,P>, P extends Object2D> exte
                     initializable.setProjection(projectionFactory.apply(ClonalReproduction.this, ArgumentMap.of()));
                     initializable.updateGeneComponents(
                             new ChromosomeImpl(
-                                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<?, A>, Gene<?>>() {
+                                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, Gene<?>>() {
                                         @Override
-                                        public Gene<?> apply(@Nullable AgentTrait<?, A> gene) {
+                                        public Gene<?> apply(@Nullable AgentTrait<A, ?> gene) {
                                             assert gene != null;
                                             return new Gene<Object>(AgentTraits.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
                                         }
@@ -93,7 +93,7 @@ public class ClonalReproduction<A extends Agent<?,A,P>, P extends Object2D> exte
         return new Builder();
     }
 
-    public static final class Builder<A extends Agent<?, A, P>, P extends Object2D> extends AbstractBuilder<A, P, ClonalReproduction<A,P>, Builder<A,P>> {
+    public static final class Builder<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractBuilder<A, P, ClonalReproduction<A,P>, Builder<A,P>> {
         @Override
         protected Builder self() {
             return this;
@@ -106,7 +106,7 @@ public class ClonalReproduction<A extends Agent<?,A,P>, P extends Object2D> exte
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<?, A, P>, P extends Object2D, C extends ClonalReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, P>, P extends Object2D, C extends ClonalReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
         private Callback<? super ClonalReproduction, Integer> nClones;
         private Callback<? super ClonalReproduction, P> projectionFactory;
 

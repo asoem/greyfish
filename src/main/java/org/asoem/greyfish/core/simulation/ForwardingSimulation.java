@@ -19,7 +19,7 @@ import java.util.Set;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class ForwardingSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Simulation<S,A,Z,P> {
+public abstract class ForwardingSimulation<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Simulation<S,A,Z,P> {
 
     @Override
     protected abstract Simulation<S,A,Z,P> delegate();

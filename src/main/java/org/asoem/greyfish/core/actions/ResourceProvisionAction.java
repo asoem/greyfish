@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ResourceProvisionAction<A extends Agent<?,A,?>> extends ContractNetParticipantAction<A> {
+public class ResourceProvisionAction<A extends Agent<A, ?, ?>> extends ContractNetParticipantAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
@@ -124,7 +124,7 @@ public class ResourceProvisionAction<A extends Agent<?,A,?>> extends ContractNet
         providedAmount = 0;
     }
 
-    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
         @Override
         protected Builder self() {
             return this;
@@ -136,7 +136,7 @@ public class ResourceProvisionAction<A extends Agent<?,A,?>> extends ContractNet
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ResourceProvisionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends ResourceProvisionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction<A>, Double> provides;
 

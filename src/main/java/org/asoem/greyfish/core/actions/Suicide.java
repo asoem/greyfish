@@ -13,7 +13,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 @Tagged("actions")
-public class Suicide<A extends Agent<?,A,?>> extends AbstractAgentAction<A> {
+public class Suicide<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);
 
@@ -52,11 +52,11 @@ public class Suicide<A extends Agent<?,A,?>> extends AbstractAgentAction<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<?,A,?>> Builder<A> builder() {
+    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
         private Builder(Suicide<A> suicide) {

@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * A {@code AgentProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
  */
-public class LifetimeProperty<T, A extends Agent<?,A,?>> extends AbstractAgentProperty<T,A> {
+public class LifetimeProperty<T, A extends Agent<A, ?, ?>> extends AbstractAgentProperty<T,A> {
 
     private Callback<? super LifetimeProperty<T, A>, T> callback;
 
@@ -67,7 +67,7 @@ public class LifetimeProperty<T, A extends Agent<?,A,?>> extends AbstractAgentPr
         });
     }
 
-    public static <T, A extends Agent<?,A,?>> Builder<T,A> builder() {
+    public static <T, A extends Agent<A, ?, ?>> Builder<T,A> builder() {
         return new Builder<T,A>();
     }
 
@@ -75,7 +75,7 @@ public class LifetimeProperty<T, A extends Agent<?,A,?>> extends AbstractAgentPr
         return callback;
     }
 
-    public static class Builder<T, A extends Agent<?,A,?>> extends AbstractBuilder<T, A, LifetimeProperty<T, A>, Builder<T,A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ?, ?>> extends AbstractBuilder<T, A, LifetimeProperty<T, A>, Builder<T,A>> implements Serializable {
 
         public Builder(LifetimeProperty<T, A> lifetimeProperty) {
             super(lifetimeProperty);
@@ -104,7 +104,7 @@ public class LifetimeProperty<T, A extends Agent<?,A,?>> extends AbstractAgentPr
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<?,A,?>, P extends LifetimeProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ?, ?>, P extends LifetimeProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
         private Callback<? super LifetimeProperty<T, A>, T> callback;
 
         protected AbstractBuilder(LifetimeProperty<T, A> lifetimeProperty) {

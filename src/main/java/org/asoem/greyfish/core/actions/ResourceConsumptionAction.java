@@ -22,7 +22,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class ResourceConsumptionAction<A extends Agent<?,A,?>> extends ContractNetInitiatorAction<A> {
+public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ResourceConsumptionAction.class);
 
@@ -151,7 +151,7 @@ public class ResourceConsumptionAction<A extends Agent<?,A,?>> extends ContractN
         return uptakeUtilization;
     }
 
-    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
         @Override
         protected Builder self() {
             return this;
@@ -164,7 +164,7 @@ public class ResourceConsumptionAction<A extends Agent<?,A,?>> extends ContractN
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ResourceConsumptionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends ResourceConsumptionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);

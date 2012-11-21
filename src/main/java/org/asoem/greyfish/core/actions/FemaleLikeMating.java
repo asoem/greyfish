@@ -33,7 +33,7 @@ import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
  * @author christoph
  */
 @Tagged("actions")
-public class FemaleLikeMating<A extends Agent<?,A,?>> extends ContractNetInitiatorAction<A> {
+public class FemaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FemaleLikeMating.class);
 
@@ -52,10 +52,10 @@ public class FemaleLikeMating<A extends Agent<?,A,?>> extends ContractNetInitiat
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public FemaleLikeMating() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    private FemaleLikeMating(FemaleLikeMating cloneable, DeepCloner cloner) {
+    private FemaleLikeMating(FemaleLikeMating<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
@@ -150,12 +150,12 @@ public class FemaleLikeMating<A extends Agent<?,A,?>> extends ContractNetInitiat
     }
 
     @Override
-    public FemaleLikeMating deepClone(DeepCloner cloner) {
-        return new FemaleLikeMating(this, cloner);
+    public FemaleLikeMating<A> deepClone(DeepCloner cloner) {
+        return new FemaleLikeMating<A>(this, cloner);
     }
 
-    public static Builder with() {
-        return new Builder();
+    public static <A extends Agent<A, ?, ?>> Builder<A> with() {
+        return new Builder<A>();
     }
 
     public Callback<? super FemaleLikeMating, Double> getMatingProbability() {
@@ -166,20 +166,20 @@ public class FemaleLikeMating<A extends Agent<?,A,?>> extends ContractNetInitiat
         return interactionRadius;
     }
 
-    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, FemaleLikeMating, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, FemaleLikeMating, Builder<A>> {
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
         @Override
         protected FemaleLikeMating<A> checkedBuild() {
-            return new FemaleLikeMating(this);
+            return new FemaleLikeMating<A>(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends FemaleLikeMating, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends FemaleLikeMating, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
         protected String ontology = "mate";
         protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);

@@ -9,7 +9,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 @Tagged("conditions")
-public class NoneCondition extends BranchCondition {
+public class NoneCondition extends BranchCondition<A> {
 
     private NoneCondition(NoneCondition condition, DeepCloner map) {
         super(condition, map);
@@ -49,7 +49,7 @@ public class NoneCondition extends BranchCondition {
         return new Builder();
     }
 
-    public static final class Builder extends BranchCondition.AbstractBuilder<NoneCondition, Builder> implements Serializable {
+    public static final class Builder extends BranchCondition.AbstractBuilder<A, NoneCondition, Builder> implements Serializable {
         private Builder() {
         }
 

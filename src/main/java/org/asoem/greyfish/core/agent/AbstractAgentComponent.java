@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class AbstractAgentComponent<A extends Agent<?, A, ?>> implements AgentComponent<A> {
+public abstract class AbstractAgentComponent<A extends Agent<A, ?, ?>> implements AgentComponent<A> {
 
     @Attribute(name = "name", required = false)
     private String name;
@@ -131,7 +131,7 @@ public abstract class AbstractAgentComponent<A extends Agent<?, A, ?>> implement
         return name.hashCode();
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?, A, ?>, C extends AbstractAgentComponent, B extends AbstractBuilder<A, C,B>> extends InheritableBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A,C,B>> extends InheritableBuilder<C, B> implements Serializable {
         private String name = "";
 
         // for serialization only

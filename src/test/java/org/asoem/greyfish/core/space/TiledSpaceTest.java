@@ -167,7 +167,7 @@ public class TiledSpaceTest {
     public void testCollision() throws Exception {
         // given
         final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
-        Agent<?,FrozenAgent,Point2D> agent = FrozenAgent.builder(Population.named("test")).build();
+        Agent<FrozenAgent, ?, Point2D> agent = FrozenAgent.builder(Population.named("test")).build();
         agent.setMotion(ImmutableMotion2D.of(0, 1));
         space.insertObject(agent, agent.getProjection());
 

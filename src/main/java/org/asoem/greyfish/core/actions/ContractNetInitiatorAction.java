@@ -15,7 +15,7 @@ import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetInitiatorAction<A extends Agent<?,A,?>> extends FiniteStateAction<A> {
+public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> extends FiniteStateAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
@@ -189,7 +189,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<?,A,?>> extends
                             MessageTemplate.class));
     }
 
-    private static <A extends Agent<?,A,?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
+    private static <A extends Agent<A, ?, ?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
         return MessageTemplates.isReplyTo(cfp);
     }
 
@@ -215,7 +215,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<?,A,?>> extends
 
     protected abstract String getOntology();
 
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ContractNetInitiatorAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends ContractNetInitiatorAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
 
     }
 

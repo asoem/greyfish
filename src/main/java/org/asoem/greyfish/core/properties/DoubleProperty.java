@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @Tagged("properties")
-public class DoubleProperty<A extends Agent<?,A,?>> extends AbstractRangeElementProperty<Double, A> implements MutableProperty<Double, A> {
+public class DoubleProperty<A extends Agent<A, ?, ?>> extends AbstractRangeElementProperty<Double, A> implements MutableProperty<Double, A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(DoubleProperty.class);
 
@@ -59,9 +59,9 @@ public class DoubleProperty<A extends Agent<?,A,?>> extends AbstractRangeElement
         return value;
     }
 
-    public static <A extends Agent<?,A,?>> Builder<A> with() { return new Builder<A>(); }
+    public static <A extends Agent<A, ?, ?>> Builder<A> with() { return new Builder<A>(); }
 
-    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, DoubleProperty<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, DoubleProperty<A>, Builder<A>> {
         public Builder() {lowerBound(0.0).upperBound(0.0).initialValue(0.0);}
         @Override protected Builder self() { return this; }
         @Override public DoubleProperty<A> checkedBuild() {
@@ -72,5 +72,5 @@ public class DoubleProperty<A extends Agent<?,A,?>> extends AbstractRangeElement
             return new DoubleProperty<A>(this); }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, E extends DoubleProperty<A>, T extends AbstractBuilder<A, E, T>> extends AbstractRangeElementProperty.AbstractBuilder<A, E, T, Double> {   }
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, E extends DoubleProperty<A>, T extends AbstractBuilder<A, E, T>> extends AbstractRangeElementProperty.AbstractBuilder<A, E, T, Double> {   }
 }

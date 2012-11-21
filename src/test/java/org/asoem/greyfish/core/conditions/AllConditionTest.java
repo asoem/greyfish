@@ -30,10 +30,10 @@ public class AllConditionTest {
         final DeepCloner clonerMock = mock(DeepCloner.class);
         final ActionCondition mock = mock(ActionCondition.class);
         given(clonerMock.getClone(any(ActionCondition.class), eq(ActionCondition.class))).willReturn(mock(ActionCondition.class));
-        final AllCondition allCondition = AllCondition.evaluates(mock, mock);
+        final AllCondition<A> allCondition = AllCondition.evaluates(mock, mock);
 
         // when
-        AllCondition clone = allCondition.deepClone(clonerMock);
+        AllCondition<A> clone = allCondition.deepClone(clonerMock);
 
         // then
         assertThat(clone, isCopyOf(allCondition));
@@ -43,22 +43,22 @@ public class AllConditionTest {
     public void testSerialization() throws Exception {
         // given
         final ActionCondition condition = mock(ActionCondition.class, withSettings().serializable());
-        AllCondition allCondition = AllCondition.evaluates(condition);
+        AllCondition<A> allCondition = AllCondition.evaluates(condition);
 
         // when
-        final AllCondition copy = Persisters.createCopy(allCondition, JavaPersister.INSTANCE);
+        final AllCondition<A> copy = Persisters.createCopy(allCondition, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, isCopyOf(allCondition));
     }
 
-    private static Matcher<? super AllCondition> isCopyOf(final AllCondition allCondition) {
-        return Matchers.<AllCondition>allOf(
+    private static Matcher<? super AllCondition<A>> isCopyOf(final AllCondition<A> allCondition) {
+        return Matchers.<AllCondition<A>>allOf(
                 is(not(sameInstance(allCondition))),
                 has("equal child conditions",
-                        new Function<AllCondition, List<ActionCondition>>() {
+                        new Function<AllCondition<A>, List<ActionCondition>>() {
                             @Override
-                            public List<ActionCondition> apply(AllCondition input) {
+                            public List<ActionCondition> apply(AllCondition<A> input) {
                                 return input.getChildConditions();
                             }
                         },

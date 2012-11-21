@@ -21,7 +21,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("actions")
-public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction<A> {
+public class GenericMovement<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
 
@@ -30,10 +30,10 @@ public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public GenericMovement() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    private GenericMovement(GenericMovement cloneable, DeepCloner map) {
+    private GenericMovement(GenericMovement<A> cloneable, DeepCloner map) {
         super(cloneable, map);
         this.stepSize = cloneable.stepSize;
         this.turningAngle = cloneable.turningAngle;
@@ -68,12 +68,12 @@ public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction
 
     @Override
     public GenericMovement<A> deepClone(DeepCloner cloner) {
-        return new GenericMovement(this, cloner);
+        return new GenericMovement<A>(this, cloner);
     }
 
 
-    public static <A extends Agent<?,A,?>> Builder<A> builder() {
-        return new Builder();
+    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
+        return new Builder<A>();
     }
 
     public Callback<? super GenericMovement, Double> getStepSize() {
@@ -85,7 +85,7 @@ public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction
     }
 
     private Object writeReplace() {
-        return new Builder(this);
+        return new Builder<A>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -93,7 +93,7 @@ public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, GenericMovement, Builder<A>> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, GenericMovement, Builder<A>> implements Serializable {
         private Builder() {
         }
 
@@ -102,7 +102,7 @@ public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction
         }
 
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
@@ -123,7 +123,7 @@ public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<A extends Agent<?, A, ?>, C extends GenericMovement, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends GenericMovement, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super GenericMovement, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement, Double> turningAngle = new Callback<GenericMovement, Double>() {
             @Override
@@ -132,7 +132,7 @@ public class GenericMovement<A extends Agent<?,A,?>> extends AbstractAgentAction
             }
         };
 
-        protected AbstractBuilder(GenericMovement genericMovement) {
+        protected AbstractBuilder(GenericMovement<A> genericMovement) {
             super(genericMovement);
             this.stepSize = genericMovement.stepSize;
             this.turningAngle = genericMovement.turningAngle;

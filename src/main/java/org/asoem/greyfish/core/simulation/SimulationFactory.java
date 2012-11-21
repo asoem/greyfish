@@ -12,6 +12,6 @@ import java.util.Set;
  * Date: 05.07.12
  * Time: 15:55
  */
-public interface SimulationFactory<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D>  {
+public interface SimulationFactory<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D>  {
     public Simulation<S,A,Z,P> createSimulation(S space, Set<? extends A> prototypes, CloneFactory<A> cloneFactory);
 }

@@ -16,7 +16,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetParticipantAction<A extends Agent<?,A,?>> extends FiniteStateAction<A> {
+public abstract class ContractNetParticipantAction<A extends Agent<A, ?, ?>> extends FiniteStateAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetParticipantAction.class);
     private static final int TIMEOUT_ACCEPT_STEPS = 1;
@@ -175,7 +175,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<?,A,?>> exten
         );
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends ContractNetParticipantAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends ContractNetParticipantAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
         private int timeoutCounter;
         private int nExpectedProposeAnswers;
         private MessageTemplate template = MessageTemplates.alwaysFalse();

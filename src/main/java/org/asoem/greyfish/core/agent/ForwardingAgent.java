@@ -18,10 +18,10 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extends Agent<S, A, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Agent<S,A, P> {
+public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Agent<A, S, P> {
 
     @Override
-    protected abstract Agent<S,A, P> delegate();
+    protected abstract Agent<A, S, P> delegate();
 
     @Override
     public Population getPopulation() {
@@ -65,12 +65,12 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
      * If you wish overwrite {@link Agent#addProperty}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
-    public boolean addProperty(AgentProperty<?, A> property) {
+    public boolean addProperty(AgentProperty<A, ?> property) {
         return delegate().addProperty(property);
     }
 
     @Override
-    public boolean removeProperty(AgentProperty<?, A> property) {
+    public boolean removeProperty(AgentProperty<A, ?> property) {
         return delegate().removeProperty(property);
     }
 
@@ -80,23 +80,23 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public SearchableList<AgentProperty<?,A>> getProperties() {
+    public SearchableList<AgentProperty<A, ?>> getProperties() {
         return delegate().getProperties();
     }
 
     @Override
     @Nullable
-    public <T extends AgentProperty<?,A>> T getProperty(String name, Class<T> propertyClass) {
+    public <T extends AgentProperty<A, ?>> T getProperty(String name, Class<T> propertyClass) {
         return delegate().getProperty(name, propertyClass);
     }
 
     @Override
-    public AgentProperty<?,A> findProperty(Predicate<? super AgentProperty<?,A>> predicate) {
+    public AgentProperty<A, ?> findProperty(Predicate<? super AgentProperty<A, ?>> predicate) {
         return delegate().findProperty(predicate);
     }
 
     @Override
-    public void changeActionExecutionOrder(AgentAction object, AgentAction object2) {
+    public void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2) {
         delegate().changeActionExecutionOrder(object, object2);
     }
 
@@ -196,12 +196,12 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public boolean addTrait(AgentTrait<?, A> gene) {
+    public boolean addTrait(AgentTrait<A, ?> gene) {
         return delegate().addTrait(gene);
     }
 
     @Override
-    public boolean removeGene(AgentTrait<?, A> gene) {
+    public boolean removeGene(AgentTrait<A, ?> gene) {
         return delegate().removeGene(gene);
     }
 
@@ -211,7 +211,7 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public SearchableList<AgentTrait<?, A>> getTraits() {
+    public SearchableList<AgentTrait<A, ?>> getTraits() {
         return delegate().getTraits();
     }
 
@@ -251,7 +251,7 @@ public abstract class ForwardingAgent<S extends Simulation<S, A, Z, P>, A extend
     }
 
     @Override
-    public AgentTrait<?, A> findTrait(Predicate<? super AgentTrait<?, A>> traitPredicate) {
+    public AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate) {
         return delegate().findTrait(traitPredicate);
     }
 

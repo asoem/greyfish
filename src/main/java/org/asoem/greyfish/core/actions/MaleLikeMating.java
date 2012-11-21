@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class MaleLikeMating<A extends Agent<?,A,?>> extends ContractNetParticipantAction<A> {
+public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetParticipantAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(MaleLikeMating.class);
 
@@ -120,7 +120,7 @@ public class MaleLikeMating<A extends Agent<?,A,?>> extends ContractNetParticipa
         return new MaleLikeMating(this, cloner);
     }
 
-    public static <A extends Agent<?,A,?>> Builder<A> with() {
+    public static <A extends Agent<A, ?, ?>> Builder<A> with() {
         return new Builder<A>();
     }
 
@@ -141,7 +141,7 @@ public class MaleLikeMating<A extends Agent<?,A,?>> extends ContractNetParticipa
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends Agent<?,A,?>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
         private Builder(MaleLikeMating maleLikeMating) {
             super(maleLikeMating);
         }
@@ -169,7 +169,7 @@ public class MaleLikeMating<A extends Agent<?,A,?>> extends ContractNetParticipa
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,?>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
         private String ontology = "mate";
         private Callback<? super MaleLikeMating, Double> matingProbabilityExpression = Callbacks.constant(1.0);
         private int matingCount;

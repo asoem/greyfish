@@ -33,7 +33,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class SexualReproduction<A extends Agent<?,A,P>, P extends Object2D> extends AbstractAgentAction<A> {
+public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -105,16 +105,16 @@ public class SexualReproduction<A extends Agent<?,A,P>, P extends Object2D> exte
         return COMPLETED;
     }
 
-    private static <A extends Agent<?,A,?>> Chromosome blend(SearchableList<AgentTrait<?, A>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static <A extends Agent<A, ?, ?>> Chromosome blend(SearchableList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
-        final Tuple2.Zipped<AgentTrait<?, A>, Gene<?>> zip
+        final Tuple2.Zipped<AgentTrait<A, ?>, Gene<?>> zip
                 = Tuple2.Zipped.of(egg, sperm.getGenes());
 
         // segregate and mutate
-        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<AgentTrait<?, A>, Gene<?>>, Gene<Object>>() {
+        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<AgentTrait<A, ?>, Gene<?>>, Gene<Object>>() {
             @Override
-            public Gene<Object> apply(Product2<AgentTrait<?, A>, Gene<?>> tuple) {
+            public Gene<Object> apply(Product2<AgentTrait<A, ?>, Gene<?>> tuple) {
                 final Object segregationProduct = AgentTraits.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
                 return new Gene<Object>(segregationProduct, tuple._1().getRecombinationProbability());
             }
@@ -171,7 +171,7 @@ public class SexualReproduction<A extends Agent<?,A,P>, P extends Object2D> exte
         offspringCount = 0;
     }
 
-    public static <A extends Agent<?,A,P>, P extends Object2D> Builder<A,P> builder() {
+    public static <A extends Agent<A, ?, P>, P extends Object2D> Builder<A,P> builder() {
         return new Builder<A,P>();
     }
 
@@ -198,7 +198,7 @@ public class SexualReproduction<A extends Agent<?,A,P>, P extends Object2D> exte
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends Agent<?,A,P>, P extends Object2D> extends AbstractBuilder<A, P, SexualReproduction<A,P>, Builder<A,P>> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractBuilder<A, P, SexualReproduction<A,P>, Builder<A,P>> implements Serializable {
         private Builder() {}
 
         @Override
@@ -223,7 +223,7 @@ public class SexualReproduction<A extends Agent<?,A,P>, P extends Object2D> exte
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<?,A,P>, P extends Object2D, C extends SexualReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?, P>, P extends Object2D, C extends SexualReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super SexualReproduction<A,P>, ? extends List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction<A,P>, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();

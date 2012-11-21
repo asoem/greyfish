@@ -25,12 +25,12 @@ import static org.mockito.Mockito.verify;
  * Time: 12:00
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BasicAgentTest {
+public class MutableAgentTest {
 
     @Inject
     private Persister persister;
 
-    public BasicAgentTest() {
+    public MutableAgentTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
     
@@ -38,7 +38,7 @@ public class BasicAgentTest {
     public void testAddGene() throws Exception {
         // given
         final AgentTrait gene = mock(AgentTrait.class);
-        BasicAgent agent = BasicAgent.builder(mock(Population.class)).build();
+        MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
 
         // when
         boolean ret = agent.addTrait(gene);
@@ -52,7 +52,7 @@ public class BasicAgentTest {
     public void testGetGene() throws Exception {
         // given
         final AgentTrait gene = mock(AgentTrait.class);
-        BasicAgent agent = BasicAgent.builder(mock(Population.class)).build();
+        MutableAgent agent = MutableAgent.builder(mock(Population.class)).build();
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
         agent.addTrait(gene);
@@ -69,7 +69,7 @@ public class BasicAgentTest {
         /*
         // given
         final Population population = Population.newPopulation("Test", Color.green);
-        final Agent agent = BasicAgent.of(population).build();
+        final Agent agent = MutableAgent.of(population).build();
 
         // when
         final Agent deserializedAgent = Persisters.createCopy(agent, FrozenAgent.class, persister);

@@ -3,6 +3,7 @@
  */
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
@@ -17,13 +18,13 @@ import java.io.Serializable;
  *
  */
 @Tagged("conditions")
-public class AllCondition extends BranchCondition {
+public class AllCondition<A extends Agent<A, ?, ?>> extends BranchCondition<A> {
 
-    private AllCondition(AllCondition cloneable, DeepCloner map) {
+    private AllCondition(AllCondition<A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    private AllCondition(Builder builder) {
+    private AllCondition(Builder<A> builder) {
         super(builder);
     }
 
@@ -36,12 +37,12 @@ public class AllCondition extends BranchCondition {
     }
 
     @Override
-    public AllCondition deepClone(DeepCloner cloner) {
-        return new AllCondition(this, cloner);
+    public AllCondition<A> deepClone(DeepCloner cloner) {
+        return new AllCondition<A>(this, cloner);
     }
 
     private Object writeReplace() {
-        return new Builder(this);
+        return new Builder<A>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -49,24 +50,24 @@ public class AllCondition extends BranchCondition {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static AllCondition evaluates(ActionCondition... conditions) {
-        return builder().add(conditions).build();
+    public static <A extends Agent<A, ?, ?>> AllCondition<A> evaluates(ActionCondition<A>... conditions) {
+        return new Builder<A>().add(conditions).build();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
+        return new Builder<A>();
     }
 
-    private static final class Builder extends BranchCondition.AbstractBuilder<AllCondition, Builder> implements Serializable {
+    private static final class Builder<A extends Agent<A, ?, ?>> extends BranchCondition.AbstractBuilder<A, AllCondition<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 
-        private Builder(AllCondition allCondition) {
+        private Builder(AllCondition<A> allCondition) {
             super(allCondition);
         }
 
-        @Override protected Builder self() { return this; }
-        @Override protected AllCondition checkedBuild() { return new AllCondition(this); }
+        @Override protected Builder<A> self() { return this; }
+        @Override protected AllCondition<A> checkedBuild() { return new AllCondition<A>(this); }
 
         private Object readResolve() throws ObjectStreamException {
             try {

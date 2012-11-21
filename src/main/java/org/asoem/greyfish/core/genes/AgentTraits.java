@@ -26,16 +26,16 @@ public final class AgentTraits {
         }
     }
 
-    public static <T> T mutate(AgentTrait<T, ?> component) {
+    public static <T> T mutate(AgentTrait<?, T> component) {
         return component.mutate(component.getAllele());
     }
 
-    public static <T> T mutate(AgentTrait<T, ?> component, Object t) {
+    public static <T> T mutate(AgentTrait<?, T> component, Object t) {
         return component.mutate(component.getAlleleClass().cast(t));
     }
 
     @SuppressWarnings("unchecked") // is checked
-    public static <T> T segregate(AgentTrait<T, ?> agentTrait, Object allele1, Object allele2) {
+    public static <T> T segregate(AgentTrait<?, T> agentTrait, Object allele1, Object allele2) {
         checkNotNull(agentTrait);
         final Class<T> alleleClass = agentTrait.getAlleleClass();
 
