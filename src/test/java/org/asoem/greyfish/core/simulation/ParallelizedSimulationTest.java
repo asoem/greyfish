@@ -40,7 +40,7 @@ public class ParallelizedSimulationTest {
     public void newSimulationTest() {
         // given
         final Population population = new Population("testPopulation");
-        final FrozenAgent<ParallelizedSimulation<FrozenAgent, >, A, Object2D> prototype = FrozenAgent.builder(population).build();
+        final FrozenAgent<A, ParallelizedSimulation<FrozenAgent, >, Object2D, Z> prototype = FrozenAgent.builder(population).build();
         DefaultGreyfishAgent agent = new DefaultGreyfishAgent(FrozenAgent.<DefaultGreyfishSimulation, >builder(population).build());
         final WalledPointSpace<Agent> space = WalledPointSpace.builder(1, 1).build();
 

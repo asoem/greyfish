@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -32,7 +33,7 @@ import static java.util.Arrays.asList;
  * Date: 19.09.11
  * Time: 16:20
  */
-abstract class BasicAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractAgent<A, S, Z,P> {
+abstract class BasicAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A, S, P> {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;
@@ -46,8 +47,9 @@ abstract class BasicAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, 
     private Motion2D motion = ImmutableMotion2D.noMotion();
     private SimulationContext<S,A> simulationContext = PassiveSimulationContext.instance();
     private Set<Integer> parents = Collections.emptySet();
+    private final Supplier<A> selfSupplier;
 
-    protected BasicAgent(BasicAgent<S, A, Z, P> abstractAgent, final DeepCloner cloner, AgentInitializationFactory agentInitializationFactory) {
+    protected BasicAgent(BasicAgent<A, S, P, Z> abstractAgent, final DeepCloner cloner, AgentInitializationFactory agentInitializationFactory) {
         cloner.addClone(abstractAgent, this);
         // share
         this.population = abstractAgent.population;
@@ -94,6 +96,11 @@ abstract class BasicAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, 
         this.population = builder.population;
         this.actionExecutionStrategy = checkNotNull(agentInitializationFactory.createStrategy(actions));
         this.inBox = checkNotNull(agentInitializationFactory.<A>createMessageBox());
+    }
+
+    @Override
+    protected A self() {
+        return selfSupplier.get();
     }
 
     @Nullable
@@ -144,13 +151,6 @@ abstract class BasicAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, 
     }
 
     @Override
-    public boolean didCollide() {
-        if (projection == null)
-            throw new IllegalStateException("This agent has no projection");
-        return projection.didCollide();
-    }
-
-    @Override
     public Set<Integer> getParents() {
         return parents;
     }
@@ -190,7 +190,7 @@ abstract class BasicAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, 
         this.parents = parents;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, S, P>, S extends SpatialSimulation<A,Z>, Z extends Space2D<A,P>, P extends Object2D, E extends BasicAgent, T extends AbstractBuilder<A,S,Z,P,E,T>> extends InheritableBuilder<E, T> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, S, P>, S extends SpatialSimulation<A,Z>, Z extends Space2D<A,P>, P extends Object2D, E extends BasicAgent<A, S, P, Z>, T extends AbstractBuilder<A,S,Z,P,E,T>> extends InheritableBuilder<E, T> implements Serializable {
         private final Population population;
         private final List<AgentAction<A>> actions = Lists.newArrayList();
         private final List<AgentProperty<A, ?>> properties = Lists.newArrayList();
@@ -200,7 +200,7 @@ abstract class BasicAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, 
             this.population = checkNotNull(population, "Population must not be null");
         }
 
-        protected AbstractBuilder(BasicAgent<S,A,Z,P> abstractAgent) {
+        protected AbstractBuilder(BasicAgent<A, S, P, Z> abstractAgent) {
             this.population = abstractAgent.population;
             this.actions.addAll(abstractAgent.actions);
             this.properties.addAll(abstractAgent.properties);

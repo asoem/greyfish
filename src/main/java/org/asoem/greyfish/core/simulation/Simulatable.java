@@ -12,5 +12,5 @@ public interface Simulatable<S extends SpatialSimulation<A, ?>, A extends Agent<
     S simulation();
     void activate(SimulationContext<S, A> context);
     void execute();
-    void shutDown(SimulationContext<S, A> context);
+    void deactivate(SimulationContext<S, A> context);
 }

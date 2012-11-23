@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.SpatialSimulation;
-import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
@@ -34,7 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 20.11.12
  * Time: 17:18
  */
-public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> implements Agent<A, S, P> {
+public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, ?>, P extends Object2D> implements Agent<A, S, P> {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BasicAgent.class);
 
     private static <E extends HasName> E findByName(SearchableList<E> searchableList, final String name) {
@@ -218,7 +217,7 @@ public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends SpatialS
     }
 
     @Override
-    public void shutDown(SimulationContext<S, A> context) {
+    public void deactivate(SimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
         getInBox().clear();

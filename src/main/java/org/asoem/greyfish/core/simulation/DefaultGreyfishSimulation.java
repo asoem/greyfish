@@ -1,30 +1,42 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.apache.commons.pool.KeyedObjectPool;
+import org.asoem.greyfish.core.agent.ActiveSimulationContext;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.agent.PassiveSimulationContext;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
-import org.asoem.greyfish.utils.space.Point2D;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * User: christoph
  * Date: 14.11.12
  * Time: 14:46
  */
-public class DefaultGreyfishSimulation extends ParallelizedSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> {
+public class DefaultGreyfishSimulation extends ForwardingSpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSpace> {
 
-    private DefaultGreyfishSimulation(DefaultGreyfishSpace space,
-                                      Set<DefaultGreyfishAgent> prototypes,
-                                      int parallelizationThreshold, SimulationLogger simulationLogger,
-                                      KeyedObjectPool<Population, DefaultGreyfishAgent> agentPool) {
-        super(space, prototypes, parallelizationThreshold, simulationLogger, agentPool);
+    private final SpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSpace> delegate;
+
+    public DefaultGreyfishSimulation(DefaultGreyfishSpace space, Set<DefaultGreyfishAgent> prototypes) {
+        this.delegate = ParallelizedSimulation.builder(space, prototypes)
+                .agentActivator(new AgentActivator<DefaultGreyfishAgent>() {
+                    private final AtomicInteger agentIdSequence = new AtomicInteger();
+
+                    @Override
+                    public void activate(DefaultGreyfishAgent agent) {
+                        agent.activate(ActiveSimulationContext.create(DefaultGreyfishSimulation.this, agentIdSequence.incrementAndGet(), getStep() + 1));
+                    }
+
+                    @Override
+                    public void deactivate(DefaultGreyfishAgent agent) {
+                        agent.deactivate(PassiveSimulationContext.<DefaultGreyfishSimulation, DefaultGreyfishAgent>instance());
+                    }
+                })
+                .build();
     }
 
     @Override
-    protected DefaultGreyfishSimulation self() {
-        return this;
+    protected SpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSpace> delegate() {
+        return delegate;
     }
 }

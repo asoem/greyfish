@@ -86,4 +86,9 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     public Map<O, P> asMap() {
         return delegate().asMap();
     }
+
+    @Override
+    public double distance(O agent, double degrees) {
+        return delegate().distance(agent, degrees);
+    }
 }

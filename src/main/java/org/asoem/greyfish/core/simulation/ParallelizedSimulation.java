@@ -8,7 +8,9 @@ import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.AgentMessage;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
@@ -20,9 +22,6 @@ import org.asoem.greyfish.utils.concurrent.RecursiveActions;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +35,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public abstract class ParallelizedSimulation<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
+public class ParallelizedSimulation<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
@@ -51,52 +50,22 @@ public abstract class ParallelizedSimulation<A extends Agent<A, S, P>, S extends
     private final int parallelizationThreshold;
     private final Set<A> prototypes;
     private final SimulationLogger simulationLogger;
-    private final AtomicInteger agentIdSequence = new AtomicInteger();
     private String title = "untitled";
+    private final AgentActivator<A> activator;
 
     private ParallelizedSimulation(ParallelizedSimulationBuilder<A, S, Z, P> builder) {
-        this(builder.space,
-                builder.prototypes,
-                builder.parallelizationThreshold,
-                builder.simulationLogger,
-                builder.agentPool,
-                Collections.synchronizedList(Lists.<AddAgentMessage<A>>newArrayList()),
-                Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()),
-                Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
-    }
+        this.prototypes = checkNotNull(builder.prototypes);
+        this.parallelizationThreshold = builder.parallelizationThreshold;
+        this.agentPool = checkNotNull(builder.agentPool);
+        this.activator = checkNotNull(builder.activator);
+        this.space = new AgentSpace<Z, A, P>(checkNotNull(builder.space));
+        this.simulationLogger = checkNotNull(builder.simulationLogger);
 
-    protected ParallelizedSimulation(
-                                  @Element(name = "space") Z space,
-                                  @ElementList(name = "prototypes") Set<A> prototypes,
-                                  @Attribute(name = "parallelizationThreshold") int parallelizationThreshold,
-                                  @Element(name = "simulationLogger") SimulationLogger simulationLogger,
-                                  @Element(name = "agentPool") KeyedObjectPool<Population, A> agentPool,
-                                  @ElementList(name = "addAgentMessages", required = false, empty = false, entry = "addAgentMessage", inline = true) List<AddAgentMessage<A>> addAgentMessages,
-                                  @ElementList(name = "removeAgentMessages", required = false, empty = false, entry = "removeAgentMessage", inline = true) List<RemoveAgentMessage<A>> removeAgentMessages,
-                                  @ElementList(name = "deliverAgentMessageMessages", required = false, empty = false, entry = "deliverAgentMessageMessage", inline = true) List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages) {
-
-        this.prototypes = prototypes;
-        this.parallelizationThreshold = parallelizationThreshold;
-        this.agentPool = agentPool;
-        this.space = new AgentSpace<Z, A, P>(space);
-        this.simulationLogger = simulationLogger;
-
-        this.addAgentMessages = addAgentMessages;
-        this.removeAgentMessages = removeAgentMessages;
-        this.deliverAgentMessageMessages = deliverAgentMessageMessages;
+        this.addAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<AddAgentMessage<A>>newArrayList()));
+        this.removeAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()));
+        this.deliverAgentMessageMessages = checkNotNull(Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
 
         this.snapshotValues = Maps.newConcurrentMap();
-    }
-
-    protected ParallelizedSimulation(Z space, Set<A> prototypes, int parallelizationThreshold, SimulationLogger simulationLogger, KeyedObjectPool<Population, A> agentPool) {
-        this(space,
-                prototypes,
-                parallelizationThreshold,
-                simulationLogger,
-                agentPool,
-                Collections.synchronizedList(Lists.<AddAgentMessage<A>>newArrayList()),
-                Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()),
-                Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
     }
 
     private void activateAgentInternal(A agent, Initializer<? super A> initializer) {
@@ -105,18 +74,16 @@ public abstract class ParallelizedSimulation<A extends Agent<A, S, P>, S extends
 
         initializer.initialize(agent);
         space.insertObject(agent, agent.getProjection());
-        agent.activate(ActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getStep() + 1));
+        activator.activate(agent);
 
         LOGGER.debug("Agent activated: {}", agent);
 
         simulationLogger.logAgentCreation(agent);
     }
 
-    protected abstract S self();
-
     private void passivateAgentsInternal(List<? extends A> agents) {
         for (A agent : agents) {
-            agent.shutDown(PassiveSimulationContext.<S,A>instance());
+            activator.deactivate(agent);
             releaseAgent(agent);
         }
         space.removeInactiveAgents();
@@ -163,6 +130,11 @@ public abstract class ParallelizedSimulation<A extends Agent<A, S, P>, S extends
     @Override
     public Z getSpace() {
         return space.delegate();
+    }
+
+    @Override
+    public double distance(A agent, double degrees) {
+        return space.distance(agent, degrees);
     }
 
     @Override
@@ -390,6 +362,7 @@ public abstract class ParallelizedSimulation<A extends Agent<A, S, P>, S extends
         private final Z space;
         private final Set<A> prototypes;
         private SimulationLogger simulationLogger = new ConsoleLogger();
+        private AgentActivator<A> activator;
 
         public ParallelizedSimulationBuilder(Z space, Set<A> prototypes) {
             this.space = checkNotNull(space);
@@ -401,23 +374,29 @@ public abstract class ParallelizedSimulation<A extends Agent<A, S, P>, S extends
             checkState(agentPool != null, "No AgentPool has been defined");
             checkState(!prototypes.contains(null), "Prototypes contains null");
             checkState(space.isEmpty(), "Space is not empty");
+            checkState(activator != null, "Missing activator");
 
             return new ParallelizedSimulation<A, S, Z, P>(this);
         }
 
-        public ParallelizedSimulationBuilder agentPool(KeyedObjectPool<Population, A> pool) {
+        public ParallelizedSimulationBuilder<A, S, Z, P> agentPool(KeyedObjectPool<Population, A> pool) {
             this.agentPool = checkNotNull(pool);
             return this;
         }
 
-        public ParallelizedSimulationBuilder parallelizationThreshold(int parallelizationThreshold) {
+        public ParallelizedSimulationBuilder<A, S, Z, P> parallelizationThreshold(int parallelizationThreshold) {
             checkArgument(parallelizationThreshold > 0, "parallelizationThreshold must be positive");
             this.parallelizationThreshold = parallelizationThreshold;
             return this;
         }
 
-        public ParallelizedSimulationBuilder simulationLogger(SimulationLogger simulationLogger) {
+        public ParallelizedSimulationBuilder<A, S, Z, P> simulationLogger(SimulationLogger simulationLogger) {
             this.simulationLogger = simulationLogger;
+            return this;
+        }
+
+        public ParallelizedSimulationBuilder<A, S, Z, P> agentActivator(AgentActivator<A> agentActivator) {
+            this.activator = agentActivator;
             return this;
         }
     }

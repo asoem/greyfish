@@ -166,8 +166,8 @@ public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A exten
     }
 
     @Override
-    public void shutDown(SimulationContext<S, A> context) {
-        delegate().shutDown(PassiveSimulationContext.<S,A>instance());
+    public void deactivate(SimulationContext<S, A> context) {
+        delegate().deactivate(PassiveSimulationContext.<S, A>instance());
     }
 
     @Override
@@ -186,12 +186,12 @@ public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A exten
     }
 
     @Override
-    public <T extends AgentAction<A>> AgentAction<A> getAction(String actionName) {
+    public AgentAction<A> getAction(String actionName) {
         return delegate().getAction(actionName);
     }
 
     @Override
-    public <T extends AgentTrait> T getTrait(String geneName, Class<T> geneClass) {
+    public AgentTrait<A, ?> getTrait(String geneName) {
         return delegate().getTrait(geneName);
     }
 
@@ -243,11 +243,6 @@ public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A exten
     @Override
     public void updateGeneComponents(Chromosome vector) {
         delegate().updateGeneComponents(vector);
-    }
-
-    @Override
-    public boolean didCollide() {
-        return delegate().didCollide();
     }
 
     @Override

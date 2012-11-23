@@ -93,4 +93,6 @@ public interface Space2D<T, P extends Object2D> {
     P getProjection(T object);
 
     Map<T, P> asMap();
+
+    double distance(T agent, double degrees);
 }

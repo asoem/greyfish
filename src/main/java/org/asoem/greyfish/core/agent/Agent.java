@@ -94,8 +94,6 @@ public interface Agent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, 
 
     void logEvent(Object eventOrigin, String title, String message);
 
-    boolean didCollide();
-
     Set<Integer> getParents();
 
     int getSimulationStep();

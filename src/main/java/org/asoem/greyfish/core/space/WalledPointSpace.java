@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import javolution.lang.MathLib;
 import javolution.util.FastList;
+import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.base.MoreSuppliers;
 import org.asoem.greyfish.utils.base.OutdateableUpdateRequest;
@@ -22,8 +23,8 @@ import java.util.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javolution.lang.MathLib.TWO_PI;
-import static org.asoem.greyfish.utils.space.GeometricConversions.polarToCartesian;
 import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
+import static org.asoem.greyfish.utils.space.Geometry2D.polarToCartesian;
 
 /**
  * @author christoph
@@ -402,6 +403,50 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                 return null;
             }
         }).build();
+    }
+
+    @Override
+    public double distance(O agent, double degrees) {
+        checkNotNull(agent);
+        checkArgument(degrees >= 0 && degrees < MathUtils.TWO_PI, "Degrees must be in [0, TWO_PI), was %s", degrees);
+
+        Point2D borderIntersection;
+
+        final Point2D origin = getProjection(agent);
+        final ImmutablePoint2D destination = ImmutablePoint2D.sum(origin, Geometry2D.polarToCartesian(degrees, Double.MAX_VALUE));
+
+        if (degrees < 90) {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+            0, 0, width(), 0);
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        width(), 0, width(), height());
+        }
+        else if (degrees < 180) {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                    width(), 0, width(), height());
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        0, height(), width(), height());
+        }
+        else if (degrees < 270) {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                    0, height(), width(), height());
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        0, 0, 0, height());
+        }
+        else {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                    0, 0, 0, height());
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        0, 0, width(), 0);
+        }
+
+        assert borderIntersection != null; // There must always be an intersection with one border
+
+        return Geometry2D.distance(origin, maxTransition(origin, borderIntersection));
     }
 
     @Override

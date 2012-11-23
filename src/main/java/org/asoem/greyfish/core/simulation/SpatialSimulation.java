@@ -24,4 +24,13 @@ public interface SpatialSimulation<A extends Agent<A, ?, ?>, Z extends Space2D<A
      * @return the space used in this simulation
      */
     Z getSpace();
+
+    /**
+     * Measure the distance from given agent to the first obstacle in the given direction (in degrees [0, 360))
+     *
+     * @param agent
+     * @param degrees
+     * @return
+     */
+    double distance(A agent, double degrees);
 }

@@ -22,4 +22,9 @@ public abstract class ForwardingSpatialSimulation<A extends Agent<A, ?, ?>, Z ex
     public Z getSpace() {
         return delegate().getSpace();
     }
+
+    @Override
+    public double distance(A agent, double degrees) {
+        return delegate().distance(agent, degrees);
+    }
 }
