@@ -25,8 +25,8 @@ public class ActiveSimulationContext<S extends SpatialSimulation<A, ?>, A extend
         this.activationStep = simulationStep;
     }
 
-    public static <S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> ActiveSimulationContext create(S simulation, int agentId, int simulationStep) {
-        return new ActiveSimulationContext(simulation, agentId, simulationStep);
+    public static <S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> ActiveSimulationContext<S, A> create(S simulation, int agentId, int simulationStep) {
+        return new ActiveSimulationContext<S, A>(simulation, agentId, simulationStep);
     }
 
     @Override
