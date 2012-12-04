@@ -24,7 +24,7 @@ import static java.util.Arrays.asList;
  * @author christoph
  *
  */
-public abstract class BranchCondition<A extends Agent<A, ?, ?>> extends AbstractCondition<A> {
+public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCondition<A> {
 
     private final List<ActionCondition<A>> conditions = Lists.newArrayList();
 
@@ -123,7 +123,7 @@ public abstract class BranchCondition<A extends Agent<A, ?, ?>> extends Abstract
         return Collections.<AgentNode>unmodifiableList(getChildConditions());
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, E extends BranchCondition<A>, T extends AbstractBuilder<A, E, T>> extends AbstractCondition.AbstractBuilder<A,E,T> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends BranchCondition<A>, T extends AbstractBuilder<A, E, T>> extends AbstractCondition.AbstractBuilder<A,E,T> implements Serializable {
         private final List<ActionCondition> conditions = Lists.newArrayList();
 
         protected AbstractBuilder() {

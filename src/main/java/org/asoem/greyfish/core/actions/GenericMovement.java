@@ -21,7 +21,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("actions")
-public class GenericMovement<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
+public class GenericMovement<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
 
@@ -72,7 +72,7 @@ public class GenericMovement<A extends Agent<A, ?, ?>> extends AbstractAgentActi
     }
 
 
-    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
@@ -93,7 +93,7 @@ public class GenericMovement<A extends Agent<A, ?, ?>> extends AbstractAgentActi
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, GenericMovement, Builder<A>> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, GenericMovement<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 
@@ -123,7 +123,7 @@ public class GenericMovement<A extends Agent<A, ?, ?>> extends AbstractAgentActi
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends GenericMovement, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends GenericMovement<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super GenericMovement, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement, Double> turningAngle = new Callback<GenericMovement, Double>() {
             @Override

@@ -52,7 +52,7 @@ public class ResourceInteractionTest {
                 .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
                     @Override
                     public Void apply(ResourceConsumptionAction caller, Arguments arguments) {
-                        caller.agent().getProperty("resourceStorage", DoubleProperty<A>.class).add((Double) arguments.get("offer") * 2);
+                        caller.agent().getProperty("resourceStorage".class).add((Double) arguments.get("offer") * 2);
                         return null;
                     }
                 })
@@ -72,11 +72,11 @@ public class ResourceInteractionTest {
 
         Agent consumer = FrozenAgent.builder(consumerPopulation)
                 .addProperties(energyStorage)
-                .addActions(consumptionAction)
+                .addAction(consumptionAction)
                 .build();
         Agent provisioner = FrozenAgent.builder(providerPopulation)
                 .addProperties(resourceProperty)
-                .addActions(provisionAction)
+                .addAction(provisionAction)
                 .build();
 
 

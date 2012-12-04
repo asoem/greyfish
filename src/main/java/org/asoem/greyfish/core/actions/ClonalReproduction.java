@@ -21,14 +21,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ClonalReproduction<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractAgentAction<A> {
+public class ClonalReproduction<A extends Agent<A, ?>, P extends Object2D> extends AbstractAgentAction<A> {
 
     private Callback<? super ClonalReproduction, Integer> clutchSize;
     private Callback<? super ClonalReproduction, P> projectionFactory;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ClonalReproduction() {
-        this(new Builder());
+        this(new Builder<A, P>());
     }
 
     @Override
@@ -60,10 +60,10 @@ public class ClonalReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
 
     @Override
     public ClonalReproduction deepClone(DeepCloner cloner) {
-        return new ClonalReproduction(this, cloner);
+        return new ClonalReproduction<A, P>(this, cloner);
     }
 
-    public ClonalReproduction(ClonalReproduction cloneable, DeepCloner map) {
+    public ClonalReproduction(ClonalReproduction<A, P> cloneable, DeepCloner map) {
         super(cloneable, map);
         this.clutchSize = cloneable.clutchSize;
         this.projectionFactory = cloneable.projectionFactory;
@@ -89,24 +89,24 @@ public class ClonalReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
         this.clutchSize = clutchSize;
     }
 
-    public static Builder with() {
-        return new Builder();
+    public static <A extends Agent<A, ?>, P extends Object2D> Builder<A, P> with() {
+        return new Builder<A, P>();
     }
 
-    public static final class Builder<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractBuilder<A, P, ClonalReproduction<A,P>, Builder<A,P>> {
+    public static final class Builder<A extends Agent<A, ?>, P extends Object2D> extends AbstractBuilder<A, P, ClonalReproduction<A,P>, Builder<A,P>> {
         @Override
-        protected Builder self() {
+        protected Builder<A, P> self() {
             return this;
         }
 
         @Override
-        protected ClonalReproduction checkedBuild() {
-            return new ClonalReproduction(this);
+        protected ClonalReproduction<A, P> checkedBuild() {
+            return new ClonalReproduction<A, P>(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, P>, P extends Object2D, C extends ClonalReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, P extends Object2D, C extends ClonalReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
         private Callback<? super ClonalReproduction, Integer> nClones;
         private Callback<? super ClonalReproduction, P> projectionFactory;
 

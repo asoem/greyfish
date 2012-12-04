@@ -97,7 +97,7 @@ public class FrozenAgentTest {
             }
         });
         final FrozenAgent agent = FrozenAgent.builder(mock(Population.class))
-                .addActions(mock(AgentAction.class))
+                .addAction(mock(AgentAction.class))
                 .addProperties(mock(AgentProperty.class))
                 .addTraits(mock(AgentTrait.class))
                 .build();
@@ -114,7 +114,7 @@ public class FrozenAgentTest {
     public void testSerialization() throws Exception {
         // given
         final FrozenAgent frozenAgent = FrozenAgent.builder(Population.named("foo"))
-                .addActions(mock(AgentAction.class, withSettings().serializable()))
+                .addAction(mock(AgentAction.class, withSettings().serializable()))
                 .addProperties(mock(AgentProperty.class, withSettings().serializable()))
                 .addTraits(mock(AgentTrait.class, withSettings().serializable()))
                 .build();

@@ -5,6 +5,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
@@ -33,8 +34,8 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 20.11.12
  * Time: 17:18
  */
-public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, ?>, P extends Object2D> implements Agent<A, S, P> {
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BasicAgent.class);
+public abstract class AbstractAgent<A extends Agent<A, S>, S extends SpatialSimulation<A, ?>, P extends Object2D> implements Agent<A, S> {
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends HasName> E findByName(SearchableList<E> searchableList, final String name) {
         return searchableList.find(new Predicate<HasName>() {
@@ -115,8 +116,8 @@ public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends SpatialS
     }
 
     @Override
-    public <T extends AgentProperty<A, ?>> T getProperty(String name, Class<T> clazz) {
-        return checkNotNull(clazz).cast(findByName(getProperties(), name));
+    public AgentProperty<A, ?> getProperty(String name) {
+        return findByName(getProperties(), name);
     }
 
     @Override
@@ -278,6 +279,11 @@ public abstract class AbstractAgent<A extends Agent<A, S, P>, S extends SpatialS
     @Override
     public void die() {
         simulation().removeAgent(self());
+    }
+
+    @Override
+    public void sendMessage(ACLMessage<A> message) {
+        simulation().deliverMessage(message);
     }
 
     @Override

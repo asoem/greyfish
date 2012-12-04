@@ -24,7 +24,7 @@ public final class SimulationLoggers {
         }
 
         @Override
-        public void logAgentCreation(Agent agent) {
+        public void logAgentCreation(Agent<?, ?> agent) {
             synchronized (this) {
                 logger.logAgentCreation(agent);
             }

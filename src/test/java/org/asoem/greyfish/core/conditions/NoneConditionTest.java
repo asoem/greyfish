@@ -26,22 +26,22 @@ public class NoneConditionTest {
     public void testSerialization() throws Exception {
         // given
         final ActionCondition condition = mock(ActionCondition.class, withSettings().serializable());
-        NoneCondition noneCondition = NoneCondition.evaluates(condition);
+        NoneCondition<A> noneCondition = NoneCondition.evaluates(condition);
 
         // when
-        final NoneCondition copy = Persisters.createCopy(noneCondition, JavaPersister.INSTANCE);
+        final NoneCondition<A> copy = Persisters.createCopy(noneCondition, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, isCopyOf(noneCondition));
     }
 
-    private static Matcher<? super NoneCondition> isCopyOf(final NoneCondition allCondition) {
-        return Matchers.<NoneCondition>allOf(
+    private static Matcher<? super NoneCondition<A>> isCopyOf(final NoneCondition<A> allCondition) {
+        return Matchers.<NoneCondition<A>>allOf(
                 is(not(sameInstance(allCondition))),
                 has("equal child conditions",
-                        new Function<NoneCondition, List<ActionCondition>>() {
+                        new Function<NoneCondition<A>, List<ActionCondition>>() {
                             @Override
-                            public List<ActionCondition> apply(NoneCondition input) {
+                            public List<ActionCondition> apply(NoneCondition<A> input) {
                                 return input.getChildConditions();
                             }
                         },

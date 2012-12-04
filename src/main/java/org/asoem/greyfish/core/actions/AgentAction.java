@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.conditions.ActionCondition;
 
 import javax.annotation.Nullable;
 
-public interface AgentAction<A extends Agent<A, ?, ?>> extends AgentComponent<A> {
+public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
 
     /**
      * Check if all precondition are met for this action.

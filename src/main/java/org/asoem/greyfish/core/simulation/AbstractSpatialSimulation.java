@@ -10,7 +10,7 @@ import java.util.Collection;
  * Date: 03.10.12
  * Time: 22:08
  */
-public abstract class AbstractSpatialSimulation<A extends Agent<A, ?, ?>, Z extends Space2D<A, ?>> extends AbstractSimulation<A> implements SpatialSimulation<A, Z> {
+public abstract class AbstractSpatialSimulation<A extends Agent<A, ?>, Z extends Space2D<A, ?>> extends AbstractSimulation<A> implements SpatialSimulation<A, Z> {
 
     @Override
     public Iterable<A> findNeighbours(A agent, double distance) {

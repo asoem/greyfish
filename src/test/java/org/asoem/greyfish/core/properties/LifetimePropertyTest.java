@@ -27,7 +27,7 @@ public class LifetimePropertyTest {
         // given
         final Callback<LifetimeProperty<Object, A>, Object> function = mock(Callback.class);
         given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class), mock(Object.class));
-        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().callback(function).build();
+        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().initialization(function).build();
 
         // when
         lifetimeProperty.initialize();
@@ -45,7 +45,7 @@ public class LifetimePropertyTest {
         // given
         final Callback<LifetimeProperty<Object, A>, Object> function = mock(Callback.class);
         given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class));
-        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().callback(function).build();
+        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().initialization(function).build();
 
         // when
         lifetimeProperty.initialize();
@@ -63,7 +63,7 @@ public class LifetimePropertyTest {
         // given
         LifetimeProperty<Integer, A> property = LifetimeProperty.<Integer>builder()
                 .name("foo")
-                .callback(Callbacks.constant(42))
+                .initialization(Callbacks.constant(42))
                 .build();
 
         // when
@@ -71,6 +71,6 @@ public class LifetimePropertyTest {
 
         // then
         assertThat(copy.getName(), is(equalTo(property.getName())));
-        assertThat(copy.getCallback(), is(equalTo(copy.getCallback())));
+        assertThat(copy.getInitializer(), is(equalTo(copy.getInitializer())));
     }
 }

@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.*;
  * Time: 11:28
  */
 @Tagged("traits")
-public class DiscreteTrait<A extends Agent<A, ?, ?>> extends AbstractTrait<A, String> implements Serializable {
+public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, String> implements Serializable {
 
     private Table<String, String, Callback<? super DiscreteTrait<A>, Double>> mutationTable;
     private Callback<? super DiscreteTrait<A>, String> initializationKernel;
@@ -161,11 +161,11 @@ public class DiscreteTrait<A extends Agent<A, ?, ?>> extends AbstractTrait<A, St
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, DiscreteTrait<A>, Builder<A>> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, DiscreteTrait<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
         private Builder(DiscreteTrait<A> discreteTrait) {
@@ -193,7 +193,7 @@ public class DiscreteTrait<A extends Agent<A, ?, ?>> extends AbstractTrait<A, St
         private static final long serialVersionUID = 0;
     }
 
-    protected abstract static class AbstractBuilder<A extends Agent<A, ?, ?>, T extends DiscreteTrait<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
+    protected abstract static class AbstractBuilder<A extends Agent<A, ?>, T extends DiscreteTrait<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
 
         private Table<String, String, Callback<? super DiscreteTrait<A>, Double>> mutationTable = HashBasedTable.create();
         private Callback<? super DiscreteTrait<A>, String> initializationKernel = Callbacks.willThrow(new UnsupportedOperationException());

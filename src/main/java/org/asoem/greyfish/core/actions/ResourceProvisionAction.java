@@ -5,7 +5,6 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -20,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ResourceProvisionAction<A extends Agent<A, ?, ?>> extends ContractNetParticipantAction<A> {
+public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetParticipantAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
@@ -36,7 +35,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?, ?>> extends ContractN
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceProvisionAction() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
     @Override
@@ -50,7 +49,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?, ?>> extends ContractN
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
+    protected ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message) {
         final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, getAgent());
         if (proposalSent)
             return reply.performative(ACLPerformative.REFUSE);
@@ -73,7 +72,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?, ?>> extends ContractN
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message) {
         double offer = message.getContent(Double.class);
 
         LOGGER.info("{}: Provided {}", agent(), offer);
@@ -98,7 +97,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?, ?>> extends ContractN
         return new ResourceProvisionAction<A>(this, cloner);
     }
 
-    protected ResourceProvisionAction(ResourceProvisionAction cloneable, DeepCloner cloner) {
+    protected ResourceProvisionAction(ResourceProvisionAction<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.provides = cloneable.provides;
         this.ontology = cloneable.ontology;
@@ -124,19 +123,19 @@ public class ResourceProvisionAction<A extends Agent<A, ?, ?>> extends ContractN
         providedAmount = 0;
     }
 
-    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
         @Override
-        protected ResourceProvisionAction checkedBuild() {
+        protected ResourceProvisionAction<A> checkedBuild() {
             return new ResourceProvisionAction<A>(this);
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends ResourceProvisionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ResourceProvisionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction<A>, Double> provides;
 

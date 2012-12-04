@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -25,7 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetParticipantAction<A> {
+public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipantAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(MaleLikeMating.class);
 
@@ -36,10 +35,10 @@ public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetPartici
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private MaleLikeMating() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    private MaleLikeMating(MaleLikeMating cloneable, DeepCloner cloner) {
+    private MaleLikeMating(MaleLikeMating<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.matingProbability = cloneable.matingProbability;
@@ -80,7 +79,7 @@ public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetPartici
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
+    protected ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message) {
         final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, agent());
 
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
@@ -105,22 +104,22 @@ public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetPartici
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message) {
         // costs for mating define quality of the agentTraitList
 //        DoubleProperty doubleProperty = null;
 //        GeneComponentList sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.parallelApply(sperm));
         ++matingCount;
-        return ImmutableACLMessage.createReply(message, getAgent())
+        return ImmutableACLMessage.createReply(message, agent())
                 .performative(ACLPerformative.INFORM);
     }
 
     @Override
     public MaleLikeMating deepClone(DeepCloner cloner) {
-        return new MaleLikeMating(this, cloner);
+        return new MaleLikeMating<A>(this, cloner);
     }
 
-    public static <A extends Agent<A, ?, ?>> Builder<A> with() {
+    public static <A extends Agent<A, ?>> Builder<A> with() {
         return new Builder<A>();
     }
 
@@ -141,7 +140,7 @@ public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetPartici
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
         private Builder(MaleLikeMating maleLikeMating) {
             super(maleLikeMating);
         }
@@ -149,7 +148,7 @@ public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetPartici
         private Builder() {}
 
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
@@ -169,13 +168,13 @@ public class MaleLikeMating<A extends Agent<A, ?, ?>> extends ContractNetPartici
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
         private String ontology = "mate";
         private Callback<? super MaleLikeMating, Double> matingProbabilityExpression = Callbacks.constant(1.0);
         private int matingCount;
         private boolean proposalSent;
 
-        protected AbstractBuilder(MaleLikeMating maleLikeMating) {
+        protected AbstractBuilder(MaleLikeMating<A> maleLikeMating) {
             super(maleLikeMating);
             this.ontology = maleLikeMating.ontology;
             this.matingProbabilityExpression = maleLikeMating.matingProbability;

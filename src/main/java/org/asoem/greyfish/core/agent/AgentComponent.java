@@ -7,13 +7,20 @@ import org.asoem.greyfish.utils.gui.Configurable;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
-public interface AgentComponent<A extends Agent<A, ?, ?>> extends HasName, Configurable, AgentNode, Serializable {
+public interface AgentComponent<A extends Agent<A, ?>> extends HasName, Configurable, AgentNode, Serializable {
 
     /**
-     * Get the agent this component is part of.
-     * @return the connected agent
+     * Get the agent this component was added to or {@code null} if it was not.
+     * @return the agent for this component
      */
     @Nullable A getAgent();
+
+    /**
+     * Get the agent this component was added to.
+     * This method throws an {@code IllegalStateException} if the agent is {@code null}.
+     * @return the agent for this component
+     */
+    A agent() throws IllegalStateException;
 
     /**
      * Sets the connected agent. This method should only be called by an Agent implementation in an addXXX method.

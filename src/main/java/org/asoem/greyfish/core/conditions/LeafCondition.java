@@ -7,7 +7,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class LeafCondition<A extends Agent<A, ?, ?>> extends AbstractCondition<A> {
+public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondition<A> {
 
     protected LeafCondition() {}
 
@@ -54,7 +54,7 @@ public abstract class LeafCondition<A extends Agent<A, ?, ?>> extends AbstractCo
         throw new UnsupportedOperationException();
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends AbstractCondition.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends AbstractCondition.AbstractBuilder<A, C, B> {
         protected AbstractBuilder(LeafCondition leafCondition) {
             super(leafCondition);
         }

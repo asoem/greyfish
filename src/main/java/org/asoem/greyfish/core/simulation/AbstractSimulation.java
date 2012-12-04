@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 21.11.12
  * Time: 15:44
  */
-public abstract class AbstractSimulation<A extends Agent<A, ?, ?>> implements Simulation<A> {
+public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simulation<A> {
     @Override
     public int numberOfPopulations() {
         return getPrototypes().size();

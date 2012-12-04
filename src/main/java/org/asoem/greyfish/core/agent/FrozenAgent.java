@@ -39,7 +39,7 @@ import static java.util.Arrays.asList;
  * However, no guarantees can be made about the {@code AgentComponent}s themselves,
  * but should generally act according to the frozen state of their parent component.
  */
-public class FrozenAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A, S, P> implements Serializable {
+public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A, S, P> implements SpatialAgent<A, S, P>, Serializable {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;
@@ -55,6 +55,7 @@ public class FrozenAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A
     private Set<Integer> parents = Collections.emptySet();
     private final A self;
 
+    @SuppressWarnings("unchecked") // casting a clone is safe
     private FrozenAgent(FrozenAgent<A, S, P, Z> frozenAgent, final DeepCloner cloner) {
         cloner.addClone(frozenAgent, this);
         // share
@@ -212,11 +213,21 @@ public class FrozenAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> Builder<A, S, P, Z> builder(Population population) {
+    public static <A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> Builder<A, S, P, Z> builder(Population population) {
         return new Builder<A, S, P, Z>(population);
     }
 
-    public static class Builder<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> implements org.asoem.greyfish.utils.base.Builder<FrozenAgent<A, S, P, Z>>, Serializable {
+    @Override
+    public double distance(A agent, double degrees) {
+        return simulation().distance(agent, degrees);
+    }
+
+    @Override
+    public Iterable<A> findNeighbours(double radius) {
+        return simulation().findNeighbours(self, radius);
+    }
+
+    public static class Builder<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> implements org.asoem.greyfish.utils.base.Builder<FrozenAgent<A, S, P, Z>>, Serializable {
         private final Population population;
         private final List<AgentAction<A>> actions = Lists.newArrayList();
         private final List<AgentProperty<A, ?>> properties = Lists.newArrayList();
@@ -241,6 +252,11 @@ public class FrozenAgent<A extends Agent<A, S, P>, S extends SpatialSimulation<A
 
         public Builder<A, S, P, Z> addTraits(Iterable<? extends AgentTrait<A, ?>> traits) {
             Iterables.addAll(this.traits, checkNotNull(traits));
+            return this;
+        }
+
+        public Builder<A, S, P, Z> addAction(AgentAction<A> action) {
+            this.actions.add(checkNotNull(action));
             return this;
         }
 

@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -13,7 +12,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class AbstractAgentComponent<A extends Agent<A, ?, ?>> implements AgentComponent<A> {
+public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements AgentComponent<A> {
 
     @Attribute(name = "name", required = false)
     private String name;
@@ -55,19 +54,11 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?, ?>> implement
      * @throws IllegalStateException if this components {@code Agent} is {@code null}
      * @see #getAgent()
      */
+    @Override
     public A agent() throws IllegalStateException {
         final A agent = getAgent();
         checkState(agent != null, "This component is not attached to an agent");
         return agent;
-    }
-
-    /**
-     *
-     * @return the associated simulation
-     * @throws IllegalStateException if this component is not yet associated with an agent or thi agent is not associated with a simulation
-     */
-    public SpatialSimulation simulation() throws IllegalStateException {
-        return agent().simulation();
     }
 
     @Override
@@ -131,7 +122,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?, ?>> implement
         return name.hashCode();
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A,C,B>> extends InheritableBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A,C,B>> extends InheritableBuilder<C, B> implements Serializable {
         private String name = "";
 
         // for serialization only

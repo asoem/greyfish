@@ -1,33 +1,170 @@
 package org.asoem.greyfish.core.agent;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
 import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.space.ImmutableMotion2D;
+import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
-import java.util.List;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Set;
 
-public class MutableAgent<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, P>, P extends Object2D> extends BasicAgent<S,A,P> {
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    private MutableAgent(MutableAgent<S,A,P> mutableAgent, DeepCloner map) {
-        super(mutableAgent, map, INITIALIZATION_FACTORY);
-    }
+public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, S>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A,S,P> {
 
-    private MutableAgent(Builder<A, S, P> builder) {
-        super(builder, INITIALIZATION_FACTORY);
-    }
+    private final SearchableList<AgentProperty<A, ?>> properties;
+    private final SearchableList<AgentAction<A>> actions;
+    private final SearchableList<AgentTrait<A, ?>> traits;
+    private final ActionExecutionStrategy actionExecutionStrategy;
+    private final AgentMessageBox<A> inBox;
+    @Nullable
+    private Population population;
+    @Nullable
+    private P projection;
+    private Motion2D motion = ImmutableMotion2D.noMotion();
+    private SimulationContext<S,A> simulationContext = PassiveSimulationContext.instance();
+    private Set<Integer> parents = Collections.emptySet();
+    private final A self;
 
-    @Override
-    public String toString() {
-        return "MutableAgent[" + getPopulation() + "]";
+    @SuppressWarnings("unchecked") // casting a clone is safe
+    private MutableAgent(MutableAgent<S, A, P, Z> frozenAgent, final DeepCloner cloner) {
+        cloner.addClone(frozenAgent, this);
+        // share
+        this.population = frozenAgent.population;
+        // clone
+        this.actions = AugmentedLists.newAugmentedArrayList(Iterables.transform(frozenAgent.actions, new Function<AgentAction<A>, AgentAction<A>>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public AgentAction<A> apply(@Nullable AgentAction<A> agentAction) {
+                return (AgentAction<A>) cloner.getClone(agentAction);
+            }
+        }));
+        this.properties = AugmentedLists.newAugmentedArrayList(Iterables.transform(frozenAgent.properties, new Function<AgentProperty<A, ?>, AgentProperty<A, ?>>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public AgentProperty<A, ?> apply(@Nullable AgentProperty<A, ?> agentProperty) {
+                return (AgentProperty<A, ?>) cloner.getClone(agentProperty);
+            }
+        }));
+        this.traits = AugmentedLists.newAugmentedArrayList(Iterables.transform(frozenAgent.traits, new Function<AgentTrait<A, ?>, AgentTrait<A, ?>>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public AgentTrait<A, ?> apply(@Nullable AgentTrait<A, ?> agentTrait) {
+                return (AgentTrait<A, ?>) cloner.getClone(agentTrait);
+            }
+        }));
+        // reconstruct
+        this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
+        this.inBox = new FixedSizeMessageBox<A>();
+        this.self = (A) cloner.getClone(frozenAgent.self);
     }
 
     @Override
     protected A self() {
-        return null;
+        return self;
+    }
+
+    @Nullable
+    @Override
+    public Population getPopulation() {
+        return population;
+    }
+
+    @Override
+    public void setPopulation(@Nullable Population population) {
+        this.population = population;
+    }
+
+    @Override
+    public SearchableList<AgentTrait<A, ?>> getTraits() {
+        return traits;
+    }
+
+    @Override
+    public boolean isFrozen() {
+        return false;
+    }
+
+    @Override
+    public Motion2D getMotion() {
+        return motion;
+    }
+
+    @Override
+    public SearchableList<AgentProperty<A, ?>> getProperties() {
+        return properties;
+    }
+
+    @Override
+    public SearchableList<AgentAction<A>> getActions() {
+        return actions;
+    }
+
+    @Nullable
+    @Override
+    public P getProjection() {
+        return projection;
+    }
+
+    @Override
+    public void setProjection(@Nullable P projection) {
+        this.projection = projection;
+    }
+
+    @Override
+    public Set<Integer> getParents() {
+        return parents;
+    }
+
+    @Override
+    public void setMotion(Motion2D motion) {
+        this.motion = checkNotNull(motion);
+    }
+
+    @Override
+    public String toString() {
+        return "Agent[" + getPopulation() + ']' + "#" + getSimulationContext().getAgentId() + "@" + getSimulationContext().getSimulationStep();
+    }
+
+    @Override
+    protected SimulationContext<S, A> getSimulationContext() {
+        return simulationContext;
+    }
+
+    @Override
+    protected AgentMessageBox<A> getInBox() {
+        return inBox;
+    }
+
+    @Override
+    protected void setSimulationContext(SimulationContext<S, A> simulationContext) {
+        this.simulationContext = simulationContext;
+    }
+
+    @Override
+    protected ActionExecutionStrategy getActionExecutionStrategy() {
+        return actionExecutionStrategy;
+    }
+
+    @Override
+    protected void setParents(Set<Integer> parents) {
+        this.parents = parents;
+    }
+
+    @Override
+    public MutableAgent<S, A, P, Z> deepClone(DeepCloner cloner) {
+        return new MutableAgent<S, A, P, Z>(this, cloner);
     }
 
     @Override
@@ -40,45 +177,4 @@ public class MutableAgent<S extends SpatialSimulation<A, ?>, A extends Agent<A, 
         int index2 = getActions().indexOf(object2);
         getActions().add(index2, getActions().remove(index1));
     }
-
-    @Override
-    public MutableAgent<S,A,P> deepClone(DeepCloner cloner) {
-        return new MutableAgent<S,A,P>(this, cloner);
-    }
-
-    public static Builder builder(Population population) {
-        return new Builder(population);
-    }
-
-    public static class Builder<A extends Agent<A, S, P>, S extends SpatialSimulation<A,?>, P extends Object2D> extends AbstractBuilder<A,S,P,MutableAgent<S,A,P>,Builder<A,S,P>> {
-        private Builder(Population population) {
-            super(population);
-        }
-
-        @Override
-        protected MutableAgent<S,A,P> checkedBuild() {
-            return new MutableAgent<S,A,P>(this);
-        }
-        @Override
-        protected Builder<A,S,P> self() {
-            return this;
-        }
-    }
-
-    private static final AgentInitializationFactory INITIALIZATION_FACTORY = new AgentInitializationFactory() {
-        @Override
-        public ActionExecutionStrategy createStrategy(List<? extends AgentAction<?>> actions) {
-            return new DefaultActionExecutionStrategy(actions);
-        }
-
-        @Override
-        public <T extends AgentComponent> SearchableList<T> newSearchableList(Iterable<T> elements) {
-            return AugmentedLists.newAugmentedArrayList(elements);
-        }
-
-        @Override
-        public <A extends Agent> AgentMessageBox<A> createMessageBox() {
-            return new FixedSizeMessageBox<A>();
-        }
-    };
 }

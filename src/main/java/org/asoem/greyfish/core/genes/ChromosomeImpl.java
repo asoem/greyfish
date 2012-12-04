@@ -46,12 +46,12 @@ public class ChromosomeImpl implements Chromosome {
                 Genes.recombine(this.genes, other.getGenes()), Sets.union(parents, other.getParents()));
     }
 
-    public static ChromosomeImpl forAgent(Agent agent) {
+    public static ChromosomeImpl forAgent(Agent<?, ?> agent) {
         checkNotNull(agent, "Agent is null");
         return new ChromosomeImpl(
-                Lists.transform(agent.getTraits(), new Function<AgentTrait<A, ?>, Gene<?>>() {
+                Lists.transform(agent.getTraits(), new Function<AgentTrait<?, ?>, Gene<?>>() {
                     @Override
-                    public Gene<?> apply(AgentTrait<A, ?> input) {
+                    public Gene<?> apply(AgentTrait<?, ?> input) {
                         return new Gene<Object>(input.getAllele(), 0);
                     }
                 }), Sets.newHashSet(agent.getId()));

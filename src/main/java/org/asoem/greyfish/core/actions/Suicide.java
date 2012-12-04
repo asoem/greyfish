@@ -13,13 +13,13 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 @Tagged("actions")
-public class Suicide<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
+public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private Suicide() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
     private Suicide(Suicide<A> cloneable, DeepCloner map) {
@@ -44,7 +44,7 @@ public class Suicide<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
     }
 
     private Object writeReplace() {
-        return new Builder(this);
+        return new Builder<A>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -52,11 +52,11 @@ public class Suicide<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
         private Builder(Suicide<A> suicide) {
@@ -64,7 +64,7 @@ public class Suicide<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
         }
 
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 

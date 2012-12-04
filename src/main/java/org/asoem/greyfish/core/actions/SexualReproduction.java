@@ -33,7 +33,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractAgentAction<A> {
+public class SexualReproduction<A extends Agent<A, ?>, P extends Object2D> extends AbstractAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -105,7 +105,7 @@ public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
         return COMPLETED;
     }
 
-    private static <A extends Agent<A, ?, ?>> Chromosome blend(SearchableList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static <A extends Agent<A, ?>> Chromosome blend(SearchableList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
         final Tuple2.Zipped<AgentTrait<A, ?>, Gene<?>> zip
@@ -161,8 +161,8 @@ public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
     }
 
     @Override
-    public SexualReproduction deepClone(DeepCloner cloner) {
-        return new SexualReproduction(this, cloner);
+    public SexualReproduction<A, P> deepClone(DeepCloner cloner) {
+        return new SexualReproduction<A, P>(this, cloner);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
         offspringCount = 0;
     }
 
-    public static <A extends Agent<A, ?, P>, P extends Object2D> Builder<A,P> builder() {
+    public static <A extends Agent<A, ?>, P extends Object2D> Builder<A,P> builder() {
         return new Builder<A,P>();
     }
 
@@ -184,7 +184,7 @@ public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
     }
 
     private Object writeReplace() {
-        return new Builder()
+        return new Builder<A, P>()
                 .clutchSize(clutchSize)
                 .spermSupplier(spermSupplier)
                 .spermSelectionStrategy(spermSelectionStrategy)
@@ -198,11 +198,11 @@ public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends Agent<A, ?, P>, P extends Object2D> extends AbstractBuilder<A, P, SexualReproduction<A,P>, Builder<A,P>> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?>, P extends Object2D> extends AbstractBuilder<A, P, SexualReproduction<A,P>, Builder<A,P>> implements Serializable {
         private Builder() {}
 
         @Override
-        protected Builder self() {
+        protected Builder<A, P> self() {
             return this;
         }
 
@@ -223,7 +223,7 @@ public class SexualReproduction<A extends Agent<A, ?, P>, P extends Object2D> ex
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, P>, P extends Object2D, C extends SexualReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, P extends Object2D, C extends SexualReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super SexualReproduction<A,P>, ? extends List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction<A,P>, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();

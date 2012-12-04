@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 09:37
  */
 @Tagged("traits")
-public class QuantitativeTrait<A extends Agent<A, ?, ?>> extends AbstractTrait<A, Double> {
+public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> {
 
     @Element
     private Callback<? super QuantitativeTrait<A>, Double> initializationKernel;
@@ -116,7 +116,7 @@ public class QuantitativeTrait<A extends Agent<A, ?, ?>> extends AbstractTrait<A
         return segregationKernel;
     }
 
-    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
@@ -129,7 +129,7 @@ public class QuantitativeTrait<A extends Agent<A, ?, ?>> extends AbstractTrait<A
         throw new InvalidObjectException("Builder required");
     }
 
-    public static class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, QuantitativeTrait<A>, Builder<A>> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, QuantitativeTrait<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
         private Builder(QuantitativeTrait<A> quantitativeTrait) {
@@ -157,7 +157,7 @@ public class QuantitativeTrait<A extends Agent<A, ?, ?>> extends AbstractTrait<A
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends QuantitativeTrait<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends QuantitativeTrait<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
 
         private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
         private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());

@@ -29,7 +29,7 @@ public class SexualReproductionTest {
                 .spermSelectionStrategy(ElementSelectionStrategies.<Chromosome>randomSelection())
                 .spermFitnessCallback(Callbacks.constant(0.42))
                 .onSuccess(Callbacks.emptyCallback())
-                .executedIf(new AlwaysTrueCondition())
+                .executedIf(new AlwaysTrueCondition<A>())
                 .build();
 
         // when

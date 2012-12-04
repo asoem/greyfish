@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Collections;
 
 @Root
-public abstract class AbstractAgentProperty<T, A extends Agent<A, ?, ?>> extends AbstractAgentComponent<A> implements AgentProperty<A, T> {
+public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends AbstractAgentComponent<A> implements AgentProperty<A, T> {
 
     @Override
     public void configure(ConfigurationHandler e) {
@@ -35,7 +35,7 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?, ?>> extends
         return getAgent();
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty<?,A>, A extends Agent<A, ?, ?>, B extends AbstractBuilder<C,A,B>> extends AbstractAgentComponent.AbstractBuilder<A,C,B>  implements Serializable {
+    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty<?,A>, A extends Agent<A, ?>, B extends AbstractBuilder<C,A,B>> extends AbstractAgentComponent.AbstractBuilder<A,C,B>  implements Serializable {
         protected AbstractBuilder(AbstractAgentProperty<?,A> abstractAgentProperty) {
             super(abstractAgentProperty);
         }

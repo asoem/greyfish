@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.agent.Agent;
  * Date: 23.11.12
  * Time: 11:36
  */
-public interface AgentActivator<A extends Agent<A,?,?>> {
+public interface AgentActivator<A extends Agent<A,?>> {
     void activate(A agent);
     void deactivate(A agent);
 }

@@ -11,6 +11,7 @@ import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -18,7 +19,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Can be used to make a <code>AgentAction</code> conditional.
  * @author christoph
  */
-public abstract class AbstractCondition<A extends Agent<A, ?, ?>> implements ActionCondition<A> {
+public abstract class AbstractCondition<A extends Agent<A, ?>> implements ActionCondition<A> {
 
     @Nullable
     private ActionCondition<A> parentCondition;
@@ -57,6 +58,13 @@ public abstract class AbstractCondition<A extends Agent<A, ?, ?>> implements Act
     @Nullable
     public AgentAction<A> getAction() {
         return action;
+    }
+
+    @Override
+    public AgentAction<A> action() {
+        final AgentAction<A> agentAction = getAction();
+        checkState(agentAction != null);
+        return agentAction;
     }
 
     @Override
@@ -136,7 +144,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?, ?>> implements Act
         return parentCondition != null ? parentCondition : action;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
         public AbstractBuilder(AbstractCondition leafCondition) {
         }
 

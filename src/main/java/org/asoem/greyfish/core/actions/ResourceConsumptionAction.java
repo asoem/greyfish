@@ -7,9 +7,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
@@ -23,7 +21,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
+public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ResourceConsumptionAction.class);
 
@@ -45,11 +43,11 @@ public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends Contrac
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ResourceConsumptionAction() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> createCFP(Simulation<?,A,?,?> simulation) {
+    protected ImmutableACLMessage.Builder<A> createCFP() {
         final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
         return ImmutableACLMessage.<A>with()
@@ -62,7 +60,7 @@ public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends Contrac
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, Simulation<?,A,?,?> simulation) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException {
 
         final double offer = message.getContent(Double.class);
 
@@ -74,7 +72,7 @@ public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends Contrac
     }
 
     @Override
-    protected void handleInform(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {
+    protected void handleInform(ACLMessage<A> message) {
         final double offer = message.getContent(Double.class);
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
         uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
@@ -86,8 +84,8 @@ public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends Contrac
     }
 
     @Override
-    protected boolean canInitiate(SpatialSimulation<A,?> simulation) {
-        sensedMates = simulation.findNeighbours(agent(), call(interactionRadius, this));
+    protected boolean canInitiate() {
+        sensedMates = agent().findNeighbours(call(interactionRadius, this));
         return !isEmpty(sensedMates);
     }
 
@@ -115,10 +113,10 @@ public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends Contrac
 
     @Override
     public ResourceConsumptionAction deepClone(DeepCloner cloner) {
-        return new ResourceConsumptionAction(this, cloner);
+        return new ResourceConsumptionAction<A>(this, cloner);
     }
 
-    protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, DeepCloner cloner) {
+    protected ResourceConsumptionAction(ResourceConsumptionAction<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
@@ -152,20 +150,20 @@ public class ResourceConsumptionAction<A extends Agent<A, ?, ?>> extends Contrac
         return uptakeUtilization;
     }
 
-    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
+    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
         @Override
-        protected ResourceConsumptionAction checkedBuild() {
-            return new ResourceConsumptionAction(this);
+        protected ResourceConsumptionAction<A> checkedBuild() {
+            return new ResourceConsumptionAction<A>(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends ResourceConsumptionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends ResourceConsumptionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);

@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.space.Space2D;
  * Date: 08.10.11
  * Time: 10:50
  */
-public interface SpatialSimulation<A extends Agent<A, ?, ?>, Z extends Space2D<A, ?>> extends Simulation<A> {
+public interface SpatialSimulation<A extends Agent<A, ?>, Z extends Space2D<A, ?>> extends Simulation<A> {
 
     /**
      * Find all neighbours of {@code agent} within the given {@code distance}

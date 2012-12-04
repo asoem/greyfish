@@ -10,9 +10,10 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Root
-public interface ActionCondition<A extends Agent<A, ?, ?>> extends AgentComponent<A> {
+public interface ActionCondition<A extends Agent<A, ?>> extends AgentComponent<A> {
 
     AgentAction<A> getAction();
+    AgentAction<A> action();
     void setAction(AgentAction<A> action);
 
 	List<ActionCondition<A>> getChildConditions();

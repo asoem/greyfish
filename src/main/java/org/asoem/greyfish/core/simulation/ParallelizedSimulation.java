@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentMessage;
 import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
@@ -35,7 +36,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public class ParallelizedSimulation<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
+public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
 
@@ -284,7 +285,7 @@ public class ParallelizedSimulation<A extends Agent<A, S, P>, S extends SpatialS
 
     }
 
-    private static class AgentSpace<Z extends Space2D<T, P>, T extends Agent<?, ?, P>, P extends Object2D> extends ForwardingSpace2D<T, P> {
+    private static class AgentSpace<Z extends Space2D<T, P>, T extends SpatialAgent<?, ?, P>, P extends Object2D> extends ForwardingSpace2D<T, P> {
 
         private final Z delegate;
         private final Multimap<Population, T> agentsByPopulation;
@@ -351,11 +352,11 @@ public class ParallelizedSimulation<A extends Agent<A, S, P>, S extends SpatialS
         }
     }
 
-    public static <A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<A,S,Z,P> builder(Z space, Set<A> prototypes) {
+    public static <A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<A,S,Z,P> builder(Z space, Set<A> prototypes) {
         return new ParallelizedSimulationBuilder<A, S, Z, P>(space, prototypes);
     }
 
-    public static class ParallelizedSimulationBuilder<A extends Agent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<A, S, Z,P>> {
+    public static class ParallelizedSimulationBuilder<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<A, S, Z,P>> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;

@@ -6,7 +6,7 @@ import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class IntCompareCondition extends CompareCondition<Integer> {
+public abstract class IntCompareCondition extends CompareCondition<Integer, A> {
 
     protected IntCompareCondition() {
     }
@@ -36,6 +36,6 @@ public abstract class IntCompareCondition extends CompareCondition<Integer> {
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<E extends IntCompareCondition, T extends AbstractBuilder<E, T>> extends CompareCondition.AbstractBuilder<E, T, Integer> {
+    protected static abstract class AbstractBuilder<E extends IntCompareCondition, T extends AbstractBuilder<E, T>> extends CompareCondition.AbstractBuilder<A, E, T, Integer> {
     }
 }

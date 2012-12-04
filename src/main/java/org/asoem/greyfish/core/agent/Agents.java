@@ -17,43 +17,43 @@ public final class Agents {
 
     private Agents() {}
 
-    public static ComponentAccessor<AgentProperty<?>> propertyAccessor(final String propertyName) {
-        return new ComponentAccessor<AgentProperty<?>>() {
-            private final Predicate<? super AgentProperty<?>> random_sperm = new Predicate<AgentProperty<?>>() {
+    public static ComponentAccessor<AgentProperty<?, ?>> propertyAccessor(final String propertyName) {
+        return new ComponentAccessor<AgentProperty<?, ?>>() {
+            private final Predicate<? super AgentProperty<?, ?>> random_sperm = new Predicate<AgentProperty<?, ?>>() {
                 @Override
-                public boolean apply(AgentProperty<?> input) {
+                public boolean apply(AgentProperty<?, ?> input) {
                     return propertyName.equals(input.getName());
                 }
             };
 
             @Override
-            public AgentProperty<?> apply(Agent input) {
+            public AgentProperty<?, ?> apply(Agent input) {
                 return checkNotNull(input).findProperty(random_sperm);
             }
         };
     }
 
-    public static <T> ComponentAccessor<AgentProperty<T>> propertyAccessor(final String propertyName, final Class<AgentProperty<T>> clazz) {
+    public static <T> ComponentAccessor<AgentProperty<?, T>> propertyAccessor(final String propertyName, final Class<AgentProperty<?, T>> clazz) {
         return cast(propertyAccessor(propertyName), clazz);
     }
 
-    public static ComponentAccessor<AgentTrait<A, ?>> traitAccessor(final String traitName) {
-        return new ComponentAccessor<AgentTrait<A, ?>>() {
-            private final Predicate<? super AgentTrait<A, ?>> traitPredicate = new Predicate<AgentTrait<A, ?>>() {
+    public static ComponentAccessor<AgentTrait<?, ?>> traitAccessor(final String traitName) {
+        return new ComponentAccessor<AgentTrait<?, ?>>() {
+            private final Predicate<? super AgentTrait<?, ?>> traitPredicate = new Predicate<AgentTrait<?, ?>>() {
                 @Override
-                public boolean apply(AgentTrait<A, ?> input) {
+                public boolean apply(AgentTrait<?, ?> input) {
                     return traitName.equals(input.getName());
                 }
             };
 
             @Override
-            public AgentTrait<A, ?> apply(Agent input) {
+            public AgentTrait<?, ?> apply(Agent input) {
                 return checkNotNull(input).findTrait(traitPredicate);
             }
         };
     }
 
-    public static <T extends AgentTrait<A, ?>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
+    public static <T extends AgentTrait<?, ?>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
         return cast(traitAccessor(traitName), geneComponentClass);
     }
 

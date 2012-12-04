@@ -39,7 +39,7 @@ public class LoadLogger implements SimulationLogger {
     }
 
     @Override
-    public void logAgentCreation(Agent agent) {
+    public void logAgentCreation(Agent<?, ?> agent) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

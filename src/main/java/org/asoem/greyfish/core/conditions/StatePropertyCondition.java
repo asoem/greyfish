@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -17,7 +18,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("conditions")
-public class StatePropertyCondition extends LeafCondition {
+public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
     @Element(name="property",required=false)
     private FiniteStateProperty<?, A> stateProperty;
@@ -28,18 +29,19 @@ public class StatePropertyCondition extends LeafCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public StatePropertyCondition() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    private StatePropertyCondition(AbstractBuilder<?, ?> builder) {
+    private StatePropertyCondition(AbstractBuilder<A, ?, ?> builder) {
         super(builder);
         this.state = builder.state;
         this.stateProperty = builder.property;
     }
 
-    private StatePropertyCondition(StatePropertyCondition condition, DeepCloner map) {
-        super(condition, map);
-        this.stateProperty = map.getClone(condition.stateProperty, FiniteStateProperty.class);
+    @SuppressWarnings("unchecked") // casting a clone is safe
+    private StatePropertyCondition(StatePropertyCondition<A> condition, DeepCloner cloner) {
+        super(condition, cloner);
+        this.stateProperty = (FiniteStateProperty<?, A>) cloner.getClone(condition.stateProperty);
         this.state = condition.state;
     }
 
@@ -50,8 +52,8 @@ public class StatePropertyCondition extends LeafCondition {
     }
 
     @Override
-    public StatePropertyCondition deepClone(DeepCloner cloner) {
-        return new StatePropertyCondition(this, cloner);
+    public StatePropertyCondition<A> deepClone(DeepCloner cloner) {
+        return new StatePropertyCondition<A>(this, cloner);
     }
 
     @Override
@@ -85,15 +87,15 @@ public class StatePropertyCondition extends LeafCondition {
         e.add("has state", stateAdaptor);
     }
 
-    public static Builder builder() { return new Builder(); }
+    public static <A extends Agent<A, ?>> Builder<A> builder() { return new Builder<A>(); }
 
-    public static final class Builder extends AbstractBuilder<StatePropertyCondition,Builder> {
-        @Override protected Builder self() { return this; }
-        @Override protected StatePropertyCondition checkedBuild() { return new StatePropertyCondition(this); }
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, StatePropertyCondition<A>, Builder<A>> {
+        @Override protected Builder<A> self() { return this; }
+        @Override protected StatePropertyCondition<A> checkedBuild() { return new StatePropertyCondition<A>(this); }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends StatePropertyCondition,T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends StatePropertyCondition<A>,T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {
         private FiniteStateProperty<?, A> property;
         private Object state;
 

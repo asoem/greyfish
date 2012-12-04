@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 09.05.12
  * Time: 11:29
  */
-public class SimulationStepProperty<T, A extends Agent<A, ?, ?>> extends AbstractAgentProperty<T,A> {
+public class SimulationStepProperty<T, A extends Agent<A, ?>> extends AbstractAgentProperty<T,A> {
 
     private Callback<? super SimulationStepProperty<T, A>, T> callback;
 
@@ -88,11 +88,11 @@ public class SimulationStepProperty<T, A extends Agent<A, ?, ?>> extends Abstrac
         return callback;
     }
 
-    public static <T, A extends Agent<A, ?, ?>> Builder<T, A> builder() {
+    public static <T, A extends Agent<A, ?>> Builder<T, A> builder() {
         return new Builder<T, A>();
     }
 
-    public static class Builder<T, A extends Agent<A, ?, ?>> extends AbstractBuilder<T, A, SimulationStepProperty<T, A>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ?>> extends AbstractBuilder<T, A, SimulationStepProperty<T, A>, Builder<T, A>> implements Serializable {
 
         private Builder() {}
 
@@ -121,7 +121,7 @@ public class SimulationStepProperty<T, A extends Agent<A, ?, ?>> extends Abstrac
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ?, ?>, P extends SimulationStepProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends SimulationStepProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
         private Callback<? super SimulationStepProperty<T, A>, T> callback;
 
         protected AbstractBuilder() {}

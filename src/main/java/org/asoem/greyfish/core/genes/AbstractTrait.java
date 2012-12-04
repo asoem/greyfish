@@ -13,7 +13,7 @@ import java.util.Collections;
  * Date: 07.02.12
  * Time: 12:15
  */
-public abstract class AbstractTrait<A extends Agent<A, ?, ?>, T> extends AbstractAgentComponent<A> implements AgentTrait<A, T> {
+public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAgentComponent<A> implements AgentTrait<A, T> {
 
     protected AbstractTrait() {}
 

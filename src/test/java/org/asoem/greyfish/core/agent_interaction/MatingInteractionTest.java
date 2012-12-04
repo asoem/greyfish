@@ -56,10 +56,10 @@ public class MatingInteractionTest {
                 .build();
 
         final Agent female = FrozenAgent.builder(receiverPopulation)
-                .addActions(receiverAction)
+                .addAction(receiverAction)
                 .build();
         final Agent male = FrozenAgent.builder(donorPopulation)
-                .addActions(transmitterAction)
+                .addAction(transmitterAction)
                 .build();
 
         final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);

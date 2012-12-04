@@ -13,7 +13,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
  * Time: 18:24
  */
 @Tagged("actions")
-public class GenericAction<A extends Agent<A, ?, ?>> extends AbstractAgentAction<A> {
+public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     private Callback<? super GenericAction, Void> callback;
 
@@ -51,7 +51,7 @@ public class GenericAction<A extends Agent<A, ?, ?>> extends AbstractAgentAction
         return callback;
     }
 
-    public static class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, GenericAction, Builder<A>> {
+    public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, GenericAction, Builder<A>> {
 
         @Override
         protected Builder self() {
@@ -65,7 +65,7 @@ public class GenericAction<A extends Agent<A, ?, ?>> extends AbstractAgentAction
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends GenericAction, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends GenericAction, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
 
         public Callback<? super GenericAction, Void> callback = Callbacks.emptyCallback();
 

@@ -26,22 +26,22 @@ public class AnyConditionTest {
     public void testSerialization() throws Exception {
         // given
         final ActionCondition condition = mock(ActionCondition.class, withSettings().serializable());
-        AnyCondition anyCondition = AnyCondition.evaluates(condition);
+        AnyCondition<A> anyCondition = AnyCondition.evaluates(condition);
 
         // when
-        final AnyCondition copy = Persisters.createCopy(anyCondition, JavaPersister.INSTANCE);
+        final AnyCondition<A> copy = Persisters.createCopy(anyCondition, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, isCopyOf(anyCondition));
     }
 
-    private static Matcher<? super AnyCondition> isCopyOf(final AnyCondition allCondition) {
-        return Matchers.<AnyCondition>allOf(
+    private static Matcher<? super AnyCondition<A>> isCopyOf(final AnyCondition<A> allCondition) {
+        return Matchers.<AnyCondition<A>>allOf(
                 is(not(sameInstance(allCondition))),
                 has("equal child conditions",
-                        new Function<AnyCondition, List<ActionCondition>>() {
+                        new Function<AnyCondition<A>, List<ActionCondition>>() {
                             @Override
-                            public List<ActionCondition> apply(AnyCondition input) {
+                            public List<ActionCondition> apply(AnyCondition<A> input) {
                                 return input.getChildConditions();
                             }
                         },

@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.agent.Agent;
 public class ConsoleLogger implements SimulationLogger {
 
     @Override
-    public void logAgentCreation(Agent agent) {
+    public void logAgentCreation(Agent<?, ?> agent) {
     }
 
     @Override

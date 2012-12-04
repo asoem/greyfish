@@ -1,13 +1,13 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 
 /**
  * User: christoph
  * Date: 08.03.12
  * Time: 13:07
  */
-public interface SimulationContext<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> {
+public interface SimulationContext<S extends Simulation<A>, A extends Agent<A, S>> {
     int getActivationStep();
 
     int getAgentId();

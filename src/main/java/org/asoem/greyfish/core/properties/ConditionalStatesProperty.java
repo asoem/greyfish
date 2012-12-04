@@ -29,7 +29,7 @@ import java.util.Set;
  * Time: 10:28
  */
 @Tagged("properties")
-public class ConditionalStatesProperty<A extends Agent<A, ?, ?>> extends AbstractAgentProperty<String, A> implements FiniteStateProperty<String, A> {
+public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAgentProperty<String, A> implements FiniteStateProperty<String, A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ConditionalStatesProperty.class);
 
@@ -38,10 +38,10 @@ public class ConditionalStatesProperty<A extends Agent<A, ?, ?>> extends Abstrac
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ConditionalStatesProperty() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    protected ConditionalStatesProperty(AbstractBuilder<?, ?> builder) {
+    protected ConditionalStatesProperty(AbstractBuilder<A, ?, ?> builder) {
         super(builder);
 
         conditionMap = builder.phenotypeConditionMap;
@@ -120,15 +120,15 @@ public class ConditionalStatesProperty<A extends Agent<A, ?, ?>> extends Abstrac
         conditionMap = ImmutableMap.copyOf(conditionMap);
     }
 
-    public static <A extends Agent<A, ?, ?>> Builder<A> with() { return new Builder<A>(); }
+    public static <A extends Agent<A, ?>> Builder<A> with() { return new Builder<A>(); }
 
-    public static final class Builder<A extends Agent<A, ?, ?>> extends AbstractBuilder<A, ConditionalStatesProperty<A>, Builder<A>> {
-        @Override protected Builder self() { return this; }
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, ConditionalStatesProperty<A>, Builder<A>> {
+        @Override protected Builder<A> self() { return this; }
         @Override public ConditionalStatesProperty<A> checkedBuild() { return new ConditionalStatesProperty<A>(this); }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, E extends ConditionalStatesProperty<A>,T extends AbstractBuilder<A,E,T>> extends AbstractAgentProperty.AbstractBuilder<E,A,T> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends ConditionalStatesProperty<A>,T extends AbstractBuilder<A,E,T>> extends AbstractAgentProperty.AbstractBuilder<E,A,T> {
         private final Map<String, GreyfishExpression> phenotypeConditionMap = Maps.newHashMap();
 
         public T addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactoryHolder.compile(when)); return self();}

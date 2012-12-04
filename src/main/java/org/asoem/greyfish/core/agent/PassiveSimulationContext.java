@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.simpleframework.xml.Root;
 
 /**
@@ -25,7 +24,7 @@ public enum PassiveSimulationContext implements SimulationContext {
     }
 
     @Override
-    public Simulation<?,?,?,?> getSimulation() {
+    public Simulation<?> getSimulation() {
         return null;
     }
 
@@ -50,7 +49,7 @@ public enum PassiveSimulationContext implements SimulationContext {
     }
 
     @SuppressWarnings("unchecked")
-    public static <S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> SimulationContext<S,A> instance() {
-        return (SimulationContext<S,A>) INSTANCE;
+    public static <S extends Simulation<A>, A extends Agent<A, S>> SimulationContext<S,A> instance() {
+        return (SimulationContext<S, A>) INSTANCE;
     }
 }

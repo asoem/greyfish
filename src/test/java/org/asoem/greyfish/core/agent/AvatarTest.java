@@ -37,13 +37,13 @@ public class AvatarTest {
         final DeepCloner clonerMock = mock(DeepCloner.class);
         final Agent cloneMock = mock(Agent.class);
         given(clonerMock.getClone(any(Agent.class), any(Class.class))).willReturn(cloneMock);
-        final Avatar avatar = new Avatar(cloneMock, mock(MotionObject2D.class));
+        final Avatar<A, S, P> avatar = new Avatar<A, S, P>(cloneMock, mock(MotionObject2D.class));
 
         // when
-        final Avatar clone = avatar.deepClone(clonerMock);
+        final Avatar<A, S, P> clone = avatar.deepClone(clonerMock);
 
         // then
-        verify(clonerMock).addClone(eq(avatar), any(Avatar.class));
+        verify(clonerMock).addClone(eq(avatar), any(Avatar<A, S, P>.class));
         verify(clonerMock).getClone(cloneMock, Agent.class);
         assertThat(clone, is(equalTo(avatar)));
     }

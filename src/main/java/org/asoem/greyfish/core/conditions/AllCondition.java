@@ -18,7 +18,7 @@ import java.io.Serializable;
  *
  */
 @Tagged("conditions")
-public class AllCondition<A extends Agent<A, ?, ?>> extends BranchCondition<A> {
+public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
     private AllCondition(AllCondition<A> cloneable, DeepCloner map) {
         super(cloneable, map);
@@ -50,15 +50,23 @@ public class AllCondition<A extends Agent<A, ?, ?>> extends BranchCondition<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?, ?>> AllCondition<A> evaluates(ActionCondition<A>... conditions) {
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A> condition1, ActionCondition<A> condition2) {
+        return new Builder<A>().add(condition1).add(condition2).build();
+    }
+
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A> condition1, ActionCondition<A> condition2, ActionCondition<A> condition3) {
+        return new Builder<A>().add(condition1).add(condition2).add(condition3).build();
+    }
+
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A>... conditions) {
         return new Builder<A>().add(conditions).build();
     }
 
-    public static <A extends Agent<A, ?, ?>> Builder<A> builder() {
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    private static final class Builder<A extends Agent<A, ?, ?>> extends BranchCondition.AbstractBuilder<A, AllCondition<A>, Builder<A>> implements Serializable {
+    private static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, AllCondition<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 

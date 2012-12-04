@@ -17,7 +17,7 @@ import java.util.Set;
  * Date: 21.11.12
  * Time: 15:32
  */
-public interface Simulation<A extends Agent<A, ?, ?>> extends HasName {
+public interface Simulation<A extends Agent<A, ?>> extends HasName {
     /**
      * Get all active {@code Agent}s which are part of the given {@code population}
      * @param population The common population

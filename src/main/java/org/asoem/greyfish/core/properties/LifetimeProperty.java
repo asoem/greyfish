@@ -22,20 +22,20 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * A {@code AgentProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
  */
-public class LifetimeProperty<T, A extends Agent<A, ?, ?>> extends AbstractAgentProperty<T,A> {
+public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentProperty<T,A> {
 
-    private Callback<? super LifetimeProperty<T, A>, T> callback;
+    private Callback<? super LifetimeProperty<T, A>, T> initializer;
 
     private Supplier<T> memoizer;
 
     public LifetimeProperty(LifetimeProperty<T, A> lifetimeProperty, DeepCloner cloner) {
         super(lifetimeProperty, cloner);
-        this.callback = lifetimeProperty.callback;
+        this.initializer = lifetimeProperty.initializer;
     }
 
     public LifetimeProperty(AbstractBuilder<T, A, ? extends LifetimeProperty<T, A>, ? extends Builder<T,A>> builder) {
         super(builder);
-        this.callback = builder.callback;
+        this.initializer = builder.callback;
     }
 
     @Override
@@ -58,24 +58,24 @@ public class LifetimeProperty<T, A extends Agent<A, ?, ?>> extends AbstractAgent
     @Override
     public void initialize() {
         super.initialize();
-        checkState(callback != null, "No Callback was set");
+        checkState(initializer != null, "No Callback was set");
         this.memoizer = Suppliers.memoize(new Supplier<T>() {
             @Override
             public T get() {
-                return callback.apply(LifetimeProperty.this, ArgumentMap.of());
+                return initializer.apply(LifetimeProperty.this, ArgumentMap.of());
             }
         });
     }
 
-    public static <T, A extends Agent<A, ?, ?>> Builder<T,A> builder() {
+    public static <T, A extends Agent<A, ?>> Builder<T,A> builder() {
         return new Builder<T,A>();
     }
 
-    public Callback<? super LifetimeProperty<T, A>, T> getCallback() {
-        return callback;
+    public Callback<? super LifetimeProperty<T, A>, T> getInitializer() {
+        return initializer;
     }
 
-    public static class Builder<T, A extends Agent<A, ?, ?>> extends AbstractBuilder<T, A, LifetimeProperty<T, A>, Builder<T,A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ?>> extends AbstractBuilder<T, A, LifetimeProperty<T, A>, Builder<T,A>> implements Serializable {
 
         public Builder(LifetimeProperty<T, A> lifetimeProperty) {
             super(lifetimeProperty);
@@ -104,17 +104,17 @@ public class LifetimeProperty<T, A extends Agent<A, ?, ?>> extends AbstractAgent
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ?, ?>, P extends LifetimeProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends LifetimeProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
         private Callback<? super LifetimeProperty<T, A>, T> callback;
 
         protected AbstractBuilder(LifetimeProperty<T, A> lifetimeProperty) {
             super(lifetimeProperty);
-            this.callback = lifetimeProperty.callback;
+            this.callback = lifetimeProperty.initializer;
         }
 
         protected AbstractBuilder() {}
 
-        public B callback(Callback<? super LifetimeProperty<T, A>, T> callback) {
+        public B initialization(Callback<? super LifetimeProperty<T, A>, T> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }

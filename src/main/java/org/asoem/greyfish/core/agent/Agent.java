@@ -1,27 +1,24 @@
 package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Predicate;
+import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulatable;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
-import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.Moving;
-import org.asoem.greyfish.utils.space.Object2D;
-import org.asoem.greyfish.utils.space.Projectable;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public interface Agent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, ?>, P extends Object2D> extends DeepCloneable, Freezable, Simulatable<S, A>, Moving<Motion2D>, Projectable<P>, AgentNode {
+public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends DeepCloneable, Freezable, Simulatable<S, A>, AgentNode {
 
     void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2);
 
@@ -48,7 +45,7 @@ public interface Agent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, 
 
     SearchableList<AgentProperty<A, ?>> getProperties();
 
-    <T extends AgentProperty<A, ?>> T getProperty(String name, Class<T> clazz);
+    AgentProperty<A, ?> getProperty(String name);
 
     AgentProperty<A, ?> findProperty(Predicate<? super AgentProperty<A, ?>> predicate);
 
@@ -105,4 +102,6 @@ public interface Agent<A extends Agent<A, S, P>, S extends SpatialSimulation<A, 
     Iterable<A> filterAgents(Predicate<? super A> predicate);
 
     void die();
+
+    void sendMessage(ACLMessage<A> message);
 }

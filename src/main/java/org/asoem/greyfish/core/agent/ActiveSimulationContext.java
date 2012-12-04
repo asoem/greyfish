@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ActiveSimulationContext<S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> implements SimulationContext<S,A>, Serializable {
+public class ActiveSimulationContext<S extends SpatialSimulation<A, ?>, A extends Agent<A, S>> implements SimulationContext<S,A>, Serializable {
 
     //@Element(name = "simulation")
     private final S simulation;
@@ -25,7 +25,7 @@ public class ActiveSimulationContext<S extends SpatialSimulation<A, ?>, A extend
         this.activationStep = simulationStep;
     }
 
-    public static <S extends SpatialSimulation<A, ?>, A extends Agent<A, S, ?>> ActiveSimulationContext<S, A> create(S simulation, int agentId, int simulationStep) {
+    public static <S extends SpatialSimulation<A, ?>, A extends Agent<A, S>> ActiveSimulationContext<S, A> create(S simulation, int agentId, int simulationStep) {
         return new ActiveSimulationContext<S, A>(simulation, agentId, simulationStep);
     }
 

@@ -2,26 +2,24 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
+import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
-import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
-import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, S, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingObject implements Agent<A, S, P> {
+public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulation<A>, P extends Object2D> extends ForwardingObject implements Agent<A, S> {
 
     @Override
-    protected abstract Agent<A, S, P> delegate();
+    protected abstract Agent<A, S> delegate();
 
     @Override
     public Population getPopulation() {
@@ -42,12 +40,12 @@ public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A exten
      * If you wish overwrite {@link Agent#addAction}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
-    public boolean addAction(AgentAction action) {
+    public boolean addAction(AgentAction<A> action) {
         return delegate().addAction(action);
     }
 
     @Override
-    public boolean removeAction(AgentAction action) {
+    public boolean removeAction(AgentAction<A> action) {
         return delegate().removeAction(action);
     }
 
@@ -85,9 +83,8 @@ public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A exten
     }
 
     @Override
-    @Nullable
-    public <T extends AgentProperty<A, ?>> T getProperty(String name, Class<T> propertyClass) {
-        return delegate().getProperty(name, propertyClass);
+    public AgentProperty<A, ?> getProperty(String name) {
+        return delegate().getProperty(name);
     }
 
     @Override
@@ -216,26 +213,6 @@ public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A exten
     }
 
     @Override
-    public Motion2D getMotion() {
-        return delegate().getMotion();
-    }
-
-    @Override
-    public void setMotion(Motion2D motion) {
-        delegate().setMotion(motion);
-    }
-
-    @Override
-    public P getProjection() {
-        return delegate().getProjection();
-    }
-
-    @Override
-    public void setProjection(P projection) {
-        delegate().setProjection(projection);
-    }
-
-    @Override
     public void initialize() {
         delegate().initialize();
     }
@@ -288,5 +265,10 @@ public abstract class ForwardingAgent<S extends SpatialSimulation<A, Z>, A exten
     @Override
     public int getSimulationStep() {
         return delegate().getSimulationStep();
+    }
+
+    @Override
+    public void sendMessage(ACLMessage<A> message) {
+        delegate().sendMessage(message);
     }
 }

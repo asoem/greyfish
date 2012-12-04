@@ -5,8 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -16,7 +14,7 @@ import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> extends FiniteStateAction<A> {
+public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends FiniteStateAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
@@ -30,7 +28,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
         super(builder);
     }
 
-    protected ContractNetInitiatorAction(ContractNetInitiatorAction cloneable, DeepCloner cloner) {
+    protected ContractNetInitiatorAction(ContractNetInitiatorAction<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
     }
 
@@ -47,17 +45,17 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
     }
 
     @Override
-    protected void executeState(Object state, SpatialSimulation<A,?> simulation) {
+    protected void executeState(Object state) {
         if (State.SEND_CFP.equals(state)) {
-            if (!canInitiate(simulation)) {
+            if (!canInitiate()) {
                 endTransition(State.NO_RECEIVERS);
             }
             else {
-                ImmutableACLMessage<A> cfpMessage = createCFP(simulation)
+                ImmutableACLMessage<A> cfpMessage = createCFP()
                         .sender(agent())
                         .performative(ACLPerformative.CFP).build();
                 LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
-                simulation.deliverMessage(cfpMessage);
+                agent().sendMessage(cfpMessage);
 
                 nProposalsMax = cfpMessage.getRecipients().size();
                 timeoutCounter = 0;
@@ -77,7 +75,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
 
                     case PROPOSE:
                         try {
-                            proposeReply = checkNotNull(handlePropose(receivedMessage, simulation)).build();
+                            proposeReply = checkNotNull(handlePropose(receivedMessage)).build();
                             proposeReplies.add(proposeReply);
                             ++nProposalsReceived;
                             LOGGER.debug("{}: Received proposal", this, receivedMessage);
@@ -89,12 +87,12 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
                         }
                         checkProposeReply(proposeReply);
                         LOGGER.debug("{}: Replying to proposal", this, proposeReply);
-                        simulation.deliverMessage(proposeReply);
+                        agent().sendMessage(proposeReply);
                         break;
 
                     case REFUSE:
                         LOGGER.debug("{}: CFP was refused: ", this, receivedMessage);
-                        handleRefuse(receivedMessage, simulation);
+                        handleRefuse(receivedMessage);
                         --nProposalsMax;
                         break;
 
@@ -142,12 +140,12 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
                 switch (receivedMessage.getPerformative()) {
 
                     case INFORM:
-                        handleInform(receivedMessage, simulation);
+                        handleInform(receivedMessage);
                         break;
 
                     case FAILURE:
                         LOGGER.debug("{}: Received FAILURE: {}", this, receivedMessage);
-                        handleFailure(receivedMessage, simulation);
+                        handleFailure(receivedMessage);
                         break;
 
                     case NOT_UNDERSTOOD:
@@ -173,7 +171,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
             throw unknownState();
     }
 
-    protected abstract boolean canInitiate(SpatialSimulation<A,?> simulation);
+    protected abstract boolean canInitiate();
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))
@@ -190,7 +188,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
                             MessageTemplate.class));
     }
 
-    private static <A extends Agent<A, ?, ?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
+    private static <A extends Agent<A, ?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
         return MessageTemplates.isReplyTo(cfp);
     }
 
@@ -202,21 +200,21 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?, ?>> exten
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ImmutableACLMessage.Builder<A> createCFP(Simulation<?,A,?,?> simulation);
+    protected abstract ImmutableACLMessage.Builder<A> createCFP();
 
-    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, Simulation<?,A,?,?> simulation) throws NotUnderstoodException;
-
-    @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleRefuse(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {}
+    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException;
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleFailure(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {}
+    protected void handleRefuse(ACLMessage<A> message) {}
 
-    protected void handleInform(ACLMessage<A> message, Simulation<?,A,?,?> simulation) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleFailure(ACLMessage<A> message) {}
+
+    protected void handleInform(ACLMessage<A> message) {}
 
     protected abstract String getOntology();
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?, ?>, C extends ContractNetInitiatorAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetInitiatorAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
 
     }
 

@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.space.Space2D;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class ForwardingSpatialSimulation<A extends Agent<A, ?, ?>, Z extends Space2D<A, ?>> extends ForwardingSimulation<A> implements SpatialSimulation<A, Z> {
+public abstract class ForwardingSpatialSimulation<A extends Agent<A, ?>, Z extends Space2D<A, ?>> extends ForwardingSimulation<A> implements SpatialSimulation<A, Z> {
 
     @Override
     protected abstract SpatialSimulation<A, Z> delegate();

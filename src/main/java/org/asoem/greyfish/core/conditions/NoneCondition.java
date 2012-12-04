@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
@@ -9,13 +10,13 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 @Tagged("conditions")
-public class NoneCondition extends BranchCondition<A> {
+public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    private NoneCondition(NoneCondition condition, DeepCloner map) {
+    private NoneCondition(NoneCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
-    private NoneCondition(Builder builder) {
+    private NoneCondition(Builder<A> builder) {
         super(builder);
     }
 
@@ -28,12 +29,12 @@ public class NoneCondition extends BranchCondition<A> {
     }
 
     @Override
-    public NoneCondition deepClone(DeepCloner cloner) {
-        return new NoneCondition(this, cloner);
+    public NoneCondition<A> deepClone(DeepCloner cloner) {
+        return new NoneCondition<A>(this, cloner);
     }
 
     private Object writeReplace() {
-        return new Builder(this);
+        return new Builder<A>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -41,24 +42,24 @@ public class NoneCondition extends BranchCondition<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static NoneCondition evaluates(ActionCondition... conditions) {
-        return new Builder().add(conditions).build();
+    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(ActionCondition<A>... conditions) {
+        return new Builder<A>().add(conditions).build();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
+        return new Builder<A>();
     }
 
-    public static final class Builder extends BranchCondition.AbstractBuilder<A, NoneCondition, Builder> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, NoneCondition<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 
-        private Builder(NoneCondition noneCondition) {
+        private Builder(NoneCondition<A> noneCondition) {
             super(noneCondition);
         }
 
-        @Override protected Builder self() { return this; }
-        @Override public NoneCondition checkedBuild() { return new NoneCondition(this); }
+        @Override protected Builder<A> self() { return this; }
+        @Override public NoneCondition<A> checkedBuild() { return new NoneCondition<A>(this); }
 
         private Object readResolve() throws ObjectStreamException {
             try {

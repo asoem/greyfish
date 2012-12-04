@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
@@ -9,12 +10,12 @@ import org.simpleframework.xml.Element;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Tagged("conditions")
-public class RandomCondition extends LeafCondition {
+public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
     @Element(name="probability")
     private double probability;
 
-    private RandomCondition(RandomCondition condition, DeepCloner map) {
+    private RandomCondition(RandomCondition<A> condition, DeepCloner map) {
         super(condition, map);
         this.probability = condition.probability;
     }
@@ -25,8 +26,8 @@ public class RandomCondition extends LeafCondition {
     }
 
     @Override
-    public RandomCondition deepClone(DeepCloner cloner) {
-        return new RandomCondition(this, cloner);
+    public RandomCondition<A> deepClone(DeepCloner cloner) {
+        return new RandomCondition<A>(this, cloner);
     }
 
     @Override
@@ -46,20 +47,20 @@ public class RandomCondition extends LeafCondition {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public RandomCondition() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    private RandomCondition(AbstractBuilder<?, ?> builder) {
+    private RandomCondition(AbstractBuilder<A, ?, ?> builder) {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<RandomCondition, Builder> {
-        @Override protected Builder self() { return this; }
-        public RandomCondition checkedBuild() { return new RandomCondition(this); }
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, RandomCondition<A>, Builder<A>> {
+        @Override protected Builder<A> self() { return this; }
+        public RandomCondition<A> checkedBuild() { return new RandomCondition<A>(this); }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends RandomCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends RandomCondition<A>, T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {
         private double probability;
 
         public T probability(double probability) {

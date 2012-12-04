@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.agent.AgentComponent;
 import javax.annotation.Nullable;
 
 
-public interface AgentTrait<A extends Agent<A, ?, ?>, T> extends AgentComponent<A>, GeneLike<T> {
+public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>, GeneLike<T> {
 
     /**
      * @return the class of the value this gene is supplying
