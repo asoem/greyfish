@@ -17,14 +17,11 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
-import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.simulation.Model;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulationFactory;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.space.SpatialObject;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -55,16 +52,16 @@ public final class GreyfishCLIApplication {
     private State state = State.STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(Model<?,?> model,
+    private GreyfishCLIApplication(Model<?> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
                                    @Named("parallelizationThreshold") int parallelizationThreshold,
                                    @Named("databasePath") String dbPath) {
-        final List<Predicate<Simulation<SpatialObject>>> predicateList = Lists.newArrayList();
+        final List<Predicate<Simulation<?>>> predicateList = Lists.newArrayList();
 
-        predicateList.add(new Predicate<Simulation<SpatialObject>>() {
+        predicateList.add(new Predicate<Simulation<?>>() {
             @Override
-            public boolean apply(Simulation<SpatialObject> parallelizedSimulation) {
+            public boolean apply(Simulation<?> parallelizedSimulation) {
                 return parallelizedSimulation.getStep() < steps;
             }
         });
@@ -72,11 +69,16 @@ public final class GreyfishCLIApplication {
         LOGGER.info("Creating simulation for model {}", model.getClass());
         LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.asMap(model)));
 
+        final H2Logger logger = new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()));
+
+        /*
         final ParallelizedSimulationFactory simulationFactory =
                 new ParallelizedSimulationFactory(
                         parallelizationThreshold,
-                        SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
-        final Simulation<SpatialObject> simulation = model.createSimulation();
+                        SimulationLoggers.synchronizedLogger(logger));
+        */
+
+        final Simulation<?> simulation = model.createSimulation(logger);
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
@@ -105,7 +107,7 @@ public final class GreyfishCLIApplication {
         }
     }
 
-    private void startSimulationMonitor(final Simulation<SpatialObject> simulation, final String verbose) {
+    private void startSimulationMonitor(final Simulation<?> simulation, final String verbose) {
         OutputStream outputStream = null;
         try {
             if (verbose.equals("-")) {
@@ -207,7 +209,7 @@ public final class GreyfishCLIApplication {
                     final Class<?> modelClass = Class.forName(modelClassName);
                     if (!Model.class.isAssignableFrom(modelClass))
                         optionExceptionHandler.exitWithError("Specified Class does not implement " + Model.class);
-                    bind(new TypeLiteral<Model<?,?>>(){}).to((Class<Model<?, ?>>) modelClass);
+                    bind(new TypeLiteral<Model<?>>(){}).to((Class<Model<?>>) modelClass);
                 } catch (ClassNotFoundException e) {
                     optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
                 }
