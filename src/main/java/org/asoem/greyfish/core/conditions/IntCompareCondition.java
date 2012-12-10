@@ -1,17 +1,19 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class IntCompareCondition extends CompareCondition<Integer, A> {
+public abstract class IntCompareCondition<A extends Agent<A, ?>> extends CompareCondition<Integer, A> {
 
     protected IntCompareCondition() {
     }
 
-    protected IntCompareCondition(IntCompareCondition condition, DeepCloner map) {
+    protected IntCompareCondition(IntCompareCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
@@ -32,10 +34,10 @@ public abstract class IntCompareCondition extends CompareCondition<Integer, A> {
         });
     }
 
-    protected IntCompareCondition(AbstractBuilder<?, ?> builder) {
+    protected IntCompareCondition(AbstractBuilder<?, ?, A> builder) {
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<E extends IntCompareCondition, T extends AbstractBuilder<E, T>> extends CompareCondition.AbstractBuilder<A, E, T, Integer> {
+    protected static abstract class AbstractBuilder<E extends IntCompareCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<A, ?>> extends CompareCondition.AbstractBuilder<A, E, T, Integer> {
     }
 }

@@ -21,7 +21,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, S>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A,S,P> {
+public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends SpatialAgent<A, S, P>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A,S,P> implements SpatialAgent<A, S, P> {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;
@@ -176,5 +176,15 @@ public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends Agent<A, 
         int index1 = getActions().indexOf(object);
         int index2 = getActions().indexOf(object2);
         getActions().add(index2, getActions().remove(index1));
+    }
+
+    @Override
+    public double distance(A agent, double degrees) {
+        return simulation().distance(agent, degrees);
+    }
+
+    @Override
+    public Iterable<A> findNeighbours(double radius) {
+        return simulation().findNeighbours(self, radius);
     }
 }

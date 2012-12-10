@@ -27,7 +27,7 @@ public final class Agents {
             };
 
             @Override
-            public AgentProperty<?, ?> apply(Agent input) {
+            public AgentProperty<?, ?> apply(Agent<?, ?> input) {
                 return checkNotNull(input).findProperty(random_sperm);
             }
         };
@@ -47,7 +47,7 @@ public final class Agents {
             };
 
             @Override
-            public AgentTrait<?, ?> apply(Agent input) {
+            public AgentTrait<?, ?> apply(Agent<?, ?> input) {
                 return checkNotNull(input).findTrait(traitPredicate);
             }
         };
@@ -57,10 +57,10 @@ public final class Agents {
         return cast(traitAccessor(traitName), geneComponentClass);
     }
 
-    private static <T extends AgentComponent> ComponentAccessor<T> cast(final ComponentAccessor<?> accessorFunction, final Class<T> clazz) {
+    private static <T extends AgentComponent<?>> ComponentAccessor<T> cast(final ComponentAccessor<?> accessorFunction, final Class<T> clazz) {
         return new ComponentAccessor<T>() {
             @Override
-            public T apply(@Nullable Agent input) {
+            public T apply(@Nullable Agent<?, ?> input) {
                 return clazz.cast(accessorFunction.apply(input));
             }
         };

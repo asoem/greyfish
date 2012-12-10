@@ -8,5 +8,5 @@ import org.asoem.greyfish.utils.collect.RangeElement;
  * Date: 01.03.11
  * Time: 16:08
  */
-public interface RangeElementProperty<T extends Number & Comparable<T>, A extends Agent<A, ?>> extends AgentProperty<A, T>, RangeElement<T> {
+public interface RangeElementProperty<A extends Agent<A, ?>, T extends Number & Comparable<T>> extends AgentProperty<A, T>, RangeElement<T> {
 }

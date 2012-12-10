@@ -174,7 +174,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
         );
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetParticipantAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetParticipantAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
         private int timeoutCounter;
         private int nExpectedProposeAnswers;
         private MessageTemplate template = MessageTemplates.alwaysFalse();

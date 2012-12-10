@@ -33,7 +33,7 @@ public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentPro
         this.initializer = lifetimeProperty.initializer;
     }
 
-    public LifetimeProperty(AbstractBuilder<T, A, ? extends LifetimeProperty<T, A>, ? extends Builder<T,A>> builder) {
+    public LifetimeProperty(AbstractBuilder<T, A, ?, ?> builder) {
         super(builder);
         this.initializer = builder.callback;
     }
@@ -75,7 +75,7 @@ public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentPro
         return initializer;
     }
 
-    public static class Builder<T, A extends Agent<A, ?>> extends AbstractBuilder<T, A, LifetimeProperty<T, A>, Builder<T,A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ?>> extends LifetimeProperty.AbstractBuilder<T, A, LifetimeProperty<T, A>, Builder<T, A>> implements Serializable {
 
         public Builder(LifetimeProperty<T, A> lifetimeProperty) {
             super(lifetimeProperty);

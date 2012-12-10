@@ -32,7 +32,7 @@ public class SimulationStepProperty<T, A extends Agent<A, ?>> extends AbstractAg
         this.callback = simulationStepProperty.callback;
     }
 
-    private SimulationStepProperty(AbstractBuilder<T, A, ? extends SimulationStepProperty<T, A>, ? extends Builder> builder) {
+    private SimulationStepProperty(AbstractBuilder<T, A, ? extends SimulationStepProperty<T, A>, ? extends Builder<T, A>> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -92,7 +92,7 @@ public class SimulationStepProperty<T, A extends Agent<A, ?>> extends AbstractAg
         return new Builder<T, A>();
     }
 
-    public static class Builder<T, A extends Agent<A, ?>> extends AbstractBuilder<T, A, SimulationStepProperty<T, A>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ?>> extends SimulationStepProperty.AbstractBuilder<T, A, SimulationStepProperty<T, A>, Builder<T, A>> implements Serializable {
 
         private Builder() {}
 

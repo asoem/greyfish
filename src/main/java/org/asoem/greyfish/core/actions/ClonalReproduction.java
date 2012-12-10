@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.AgentTraits;
@@ -21,10 +21,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ClonalReproduction<A extends Agent<A, ?>, P extends Object2D> extends AbstractAgentAction<A> {
+public class ClonalReproduction<A extends SpatialAgent<A, ?, P>, P extends Object2D> extends AbstractAgentAction<A> {
 
-    private Callback<? super ClonalReproduction, Integer> clutchSize;
-    private Callback<? super ClonalReproduction, P> projectionFactory;
+    private Callback<? super ClonalReproduction<A, P>, Integer> clutchSize;
+    private Callback<? super ClonalReproduction<A, P>, P> projectionFactory;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ClonalReproduction() {
@@ -59,7 +59,7 @@ public class ClonalReproduction<A extends Agent<A, ?>, P extends Object2D> exten
     }
 
     @Override
-    public ClonalReproduction deepClone(DeepCloner cloner) {
+    public ClonalReproduction<A, P> deepClone(DeepCloner cloner) {
         return new ClonalReproduction<A, P>(this, cloner);
     }
 
@@ -81,19 +81,19 @@ public class ClonalReproduction<A extends Agent<A, ?>, P extends Object2D> exten
         e.add("clutchSize", TypedValueModels.forField("clutchSize", this, GreyfishExpression.class));
     }
 
-    public Callback<? super ClonalReproduction, Integer> getClutchSize() {
+    public Callback<? super ClonalReproduction<A, P>, Integer> getClutchSize() {
         return clutchSize;
     }
 
-    public void setClutchSize(Callback<? super ClonalReproduction, Integer> clutchSize) {
+    public void setClutchSize(Callback<? super ClonalReproduction<A, P>, Integer> clutchSize) {
         this.clutchSize = clutchSize;
     }
 
-    public static <A extends Agent<A, ?>, P extends Object2D> Builder<A, P> with() {
+    public static <A extends SpatialAgent<A, ?, P>, P extends Object2D> Builder<A, P> with() {
         return new Builder<A, P>();
     }
 
-    public static final class Builder<A extends Agent<A, ?>, P extends Object2D> extends AbstractBuilder<A, P, ClonalReproduction<A,P>, Builder<A,P>> {
+    public static final class Builder<A extends SpatialAgent<A, ?, P>, P extends Object2D> extends AbstractBuilder<A, P, ClonalReproduction<A,P>, Builder<A,P>> {
         @Override
         protected Builder<A, P> self() {
             return this;
@@ -106,16 +106,16 @@ public class ClonalReproduction<A extends Agent<A, ?>, P extends Object2D> exten
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, P extends Object2D, C extends ClonalReproduction, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
-        private Callback<? super ClonalReproduction, Integer> nClones;
-        private Callback<? super ClonalReproduction, P> projectionFactory;
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, P>, P extends Object2D, C extends ClonalReproduction<A, P>, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+        private Callback<? super ClonalReproduction<A, P>, Integer> nClones;
+        private Callback<? super ClonalReproduction<A, P>, P> projectionFactory;
 
-        public B nClones(Callback<? super ClonalReproduction, Integer> nClones) {
+        public B nClones(Callback<? super ClonalReproduction<A, P>, Integer> nClones) {
             this.nClones = checkNotNull(nClones);
             return self();
         }
 
-        public B projectionFactory(Callback<? super ClonalReproduction, P> projectionFactory) {
+        public B projectionFactory(Callback<? super ClonalReproduction<A, P>, P> projectionFactory) {
             this.projectionFactory = checkNotNull(projectionFactory);
             return self();
         }

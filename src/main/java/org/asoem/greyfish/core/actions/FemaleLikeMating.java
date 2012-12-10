@@ -40,10 +40,10 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
     private String ontology;
 
     @Element(name = "interactionRadius", required = false)
-    private Callback<? super FemaleLikeMating, Double> interactionRadius;
+    private Callback<? super FemaleLikeMating<A>, Double> interactionRadius;
 
     @Element(name = "matingProbability", required = false)
-    private Callback<? super FemaleLikeMating, Double> matingProbability;
+    private Callback<? super FemaleLikeMating<A>, Double> matingProbability;
 
     private List<A> sensedMates = ImmutableList.of();
 
@@ -157,11 +157,11 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         return new Builder<A>();
     }
 
-    public Callback<? super FemaleLikeMating, Double> getMatingProbability() {
+    public Callback<? super FemaleLikeMating<A>, Double> getMatingProbability() {
         return matingProbability;
     }
 
-    public Callback<? super FemaleLikeMating, Double> getInteractionRadius() {
+    public Callback<? super FemaleLikeMating<A>, Double> getInteractionRadius() {
         return interactionRadius;
     }
 
@@ -180,15 +180,15 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
         protected String ontology = "mate";
-        protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
-        protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);
+        protected Callback<? super FemaleLikeMating<A>, Double> sensorRange = Callbacks.constant(1.0);
+        protected Callback<? super FemaleLikeMating<A>, Double> matingProbability = Callbacks.constant(1.0);
 
         /**
          * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed as an argument ({@link org.asoem.greyfish.utils.base.Arguments}) to the callback with key "mate"
          * @param callback the callback function to calculate the mating probability
          * @return this builder
          */
-        public B matingProbability(Callback<? super FemaleLikeMating, Double> callback) {
+        public B matingProbability(Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.matingProbability = checkNotNull(callback);
             return self();
         }
@@ -198,7 +198,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
             return self();
         }
 
-        public B interactionRadius(Callback<? super FemaleLikeMating, Double> callback) {
+        public B interactionRadius(Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.sensorRange = callback;
             return self();
         }

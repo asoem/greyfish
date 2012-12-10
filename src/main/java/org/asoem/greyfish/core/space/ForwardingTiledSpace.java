@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.space;
 
+import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Tile;
 import org.asoem.greyfish.utils.space.TileDirection;
 
@@ -8,7 +9,7 @@ import org.asoem.greyfish.utils.space.TileDirection;
  * Date: 30.08.12
  * Time: 09:39
  */
-public abstract class ForwardingTiledSpace<O, P, T extends Tile> extends ForwardingSpace2D<O, P> implements TiledSpace<O, P, T> {
+public abstract class ForwardingTiledSpace<O, P extends Object2D, T extends Tile> extends ForwardingSpace2D<O, P> implements TiledSpace<O, P, T> {
 
     @Override
     protected abstract TiledSpace<O, P, T> delegate();

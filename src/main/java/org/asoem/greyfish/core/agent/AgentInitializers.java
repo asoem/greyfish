@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.utils.base.Initializer;
-import org.asoem.greyfish.utils.space.MotionObject2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 /**
  * User: christoph
@@ -9,11 +9,11 @@ import org.asoem.greyfish.utils.space.MotionObject2D;
  * Time: 18:58
  */
 public final class AgentInitializers {
-    public static Initializer<? super Agent> projection(final MotionObject2D motionObject2D) {
-        return new Initializer<Agent>() {
+    public static <P extends Object2D> Initializer<? super SpatialAgent<?, ?, P>> projection(final P projection) {
+        return new Initializer<SpatialAgent<?, ?, P>>() {
             @Override
-            public void initialize(Agent agent) {
-                agent.setProjection(motionObject2D);
+            public void initialize(SpatialAgent<?, ?, P> agent) {
+                agent.setProjection(projection);
             }
         };
     }

@@ -29,7 +29,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(MaleLikeMating.class);
 
     private String ontology;
-    private Callback<? super MaleLikeMating, Double> matingProbability;
+    private Callback<? super MaleLikeMating<A>, Double> matingProbability;
     private int matingCount;
     private boolean proposalSent;
 
@@ -74,7 +74,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
-        e.add("Mating Probability", TypedValueModels.forField("matingProbability", this, new TypeToken<Callback<? super MaleLikeMating, Double>>() {
+        e.add("Mating Probability", TypedValueModels.forField("matingProbability", this, new TypeToken<Callback<? super MaleLikeMating<A>, Double>>() {
         }));
     }
 
@@ -115,7 +115,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
     }
 
     @Override
-    public MaleLikeMating deepClone(DeepCloner cloner) {
+    public MaleLikeMating<A> deepClone(DeepCloner cloner) {
         return new MaleLikeMating<A>(this, cloner);
     }
 
@@ -123,7 +123,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         return new Builder<A>();
     }
 
-    public Callback<? super MaleLikeMating, Double> getMatingProbability() {
+    public Callback<? super MaleLikeMating<A>, Double> getMatingProbability() {
         return matingProbability;
     }
 
@@ -141,7 +141,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
     }
 
     public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
-        private Builder(MaleLikeMating maleLikeMating) {
+        private Builder(MaleLikeMating<A> maleLikeMating) {
             super(maleLikeMating);
         }
 
@@ -170,7 +170,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
         private String ontology = "mate";
-        private Callback<? super MaleLikeMating, Double> matingProbabilityExpression = Callbacks.constant(1.0);
+        private Callback<? super MaleLikeMating<A>, Double> matingProbabilityExpression = Callbacks.constant(1.0);
         private int matingCount;
         private boolean proposalSent;
 
@@ -184,7 +184,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
 
         protected AbstractBuilder() {}
 
-        public B matingProbability(Callback<? super MaleLikeMating, Double> matingProbability) {
+        public B matingProbability(Callback<? super MaleLikeMating<A>, Double> matingProbability) {
             this.matingProbabilityExpression = checkNotNull(matingProbability);
             return self();
         }

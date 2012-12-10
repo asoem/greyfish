@@ -104,7 +104,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
         return statefulExecutionCount;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends FiniteStateAction, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends FiniteStateAction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private int statefulExecutionCount;
         private Object nextStateKey;
         private boolean endStateReached;

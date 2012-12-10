@@ -103,16 +103,16 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
-        e.add("Sensor Range", TypedValueModels.forField("interactionRadius", this, new TypeToken<Callback<? super ResourceConsumptionAction, Double>>() {
+        e.add("Sensor Range", TypedValueModels.forField("interactionRadius", this, new TypeToken<Callback<? super ResourceConsumptionAction<A>, Double>>() {
         }));
-        e.add("Requested Amount", TypedValueModels.forField("requestAmount", this, new TypeToken<Callback<? super ResourceConsumptionAction, Double>>() {
+        e.add("Requested Amount", TypedValueModels.forField("requestAmount", this, new TypeToken<Callback<? super ResourceConsumptionAction<A>, Double>>() {
         }));
-        e.add("Uptake Utilization", TypedValueModels.forField("uptakeUtilization", this, new TypeToken<Callback<? super ResourceConsumptionAction, Void>>() {
+        e.add("Uptake Utilization", TypedValueModels.forField("uptakeUtilization", this, new TypeToken<Callback<? super ResourceConsumptionAction<A>, Void>>() {
         }));
     }
 
     @Override
-    public ResourceConsumptionAction deepClone(DeepCloner cloner) {
+    public ResourceConsumptionAction<A> deepClone(DeepCloner cloner) {
         return new ResourceConsumptionAction<A>(this, cloner);
     }
 
@@ -134,19 +134,19 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
         this.classification = builder.classification;
     }
 
-    public static Builder with() {
+    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
         return new Builder();
     }
 
-    public Callback<? super ResourceConsumptionAction, Double> getInteractionRadius() {
+    public Callback<? super ResourceConsumptionAction<A>, Double> getInteractionRadius() {
         return interactionRadius;
     }
 
-    public Callback<? super ResourceConsumptionAction, Double> getRequestAmount() {
+    public Callback<? super ResourceConsumptionAction<A>, Double> getRequestAmount() {
         return requestAmount;
     }
 
-    public Callback<? super ResourceConsumptionAction, Void> getUptakeUtilization() {
+    public Callback<? super ResourceConsumptionAction<A>, Void> getUptakeUtilization() {
         return uptakeUtilization;
     }
 
@@ -163,13 +163,13 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends ResourceConsumptionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
 
         private String ontology = "food";
-        private Callback<? super ResourceConsumptionAction, Double> requestAmount = Callbacks.constant(1.0);
-        private Callback<? super ResourceConsumptionAction, Double> interactionRadius = Callbacks.constant(1.0);
-        private Callback<? super ResourceConsumptionAction, Void> uptakeUtilization = Callbacks.emptyCallback();
-        private Callback<? super ResourceConsumptionAction, ?> classification = Callbacks.constant(0.42);
+        private Callback<? super ResourceConsumptionAction<A>, Double> requestAmount = Callbacks.constant(1.0);
+        private Callback<? super ResourceConsumptionAction<A>, Double> interactionRadius = Callbacks.constant(1.0);
+        private Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization = Callbacks.emptyCallback();
+        private Callback<? super ResourceConsumptionAction<A>, ?> classification = Callbacks.constant(0.42);
 
         public B ontology(String parameterMessageType) {
             this.ontology = checkNotNull(parameterMessageType);

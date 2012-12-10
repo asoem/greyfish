@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -8,7 +9,7 @@ import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ActionExecutionCountCondition extends IntCompareCondition {
+public class ActionExecutionCountCondition extends IntCompareCondition<DefaultGreyfishAgent> {
 
     @Element(name = "action")
     private AgentAction action;
@@ -80,7 +81,7 @@ public class ActionExecutionCountCondition extends IntCompareCondition {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<E extends ActionExecutionCountCondition, T extends AbstractBuilder<E, T>> extends IntCompareCondition.AbstractBuilder<E, T> {
+    protected static abstract class AbstractBuilder<E extends ActionExecutionCountCondition, T extends AbstractBuilder<E, T>> extends IntCompareCondition.AbstractBuilder<E, T, DefaultGreyfishAgent> {
         private AgentAction action;
 
         public T executionCountOf(AgentAction action) {
