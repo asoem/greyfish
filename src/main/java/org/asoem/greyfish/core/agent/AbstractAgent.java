@@ -250,7 +250,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends SpatialSimu
 
     @Override
     public void initialize() {
-        for (AgentNode node : children()) {
+        for (AgentNode node : childConditions()) {
             node.initialize();
         }
     }
@@ -305,7 +305,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends SpatialSimu
     }
 
     @Override
-    public Iterable<AgentNode> children() {
+    public Iterable<AgentNode> childConditions() {
         return Iterables.<AgentNode>concat(
                 getProperties(),
                 getActions(),

@@ -30,7 +30,7 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
 	}
 
     @Override
-    public final Iterable<AgentNode> children() {
+    public final Iterable<AgentNode> childConditions() {
         return Collections.emptyList();
     }
 

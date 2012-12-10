@@ -75,7 +75,7 @@ public class FrozenAgentTest {
         // given
         AgentTrait<A, ?> gene = mock(AgentTrait.class);
         given(gene.getName()).willReturn("foo");
-        given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
+        given(gene.childConditions()).willReturn(Collections.<AgentNode>emptyList());
         FrozenAgent agent = FrozenAgent.builder(mock(Population.class)).addTraits(gene).build();
 
         // when

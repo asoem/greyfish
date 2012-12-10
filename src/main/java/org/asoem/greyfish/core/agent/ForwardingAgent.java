@@ -16,7 +16,7 @@ import org.asoem.greyfish.utils.space.Object2D;
 import java.awt.*;
 import java.util.Set;
 
-public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulation<A>, P extends Object2D> extends ForwardingObject implements Agent<A, S> {
+public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulation<A>> extends ForwardingObject implements Agent<A, S> {
 
     @Override
     protected abstract Agent<A, S> delegate();
@@ -228,8 +228,8 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public Iterable<AgentNode> children() {
-        return delegate().children();
+    public Iterable<AgentNode> childConditions() {
+        return delegate().childConditions();
     }
 
     @Override

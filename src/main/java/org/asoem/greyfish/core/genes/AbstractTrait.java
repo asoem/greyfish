@@ -36,7 +36,7 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public Iterable<AgentNode> children() {
+    public Iterable<AgentNode> childConditions() {
         return Collections.emptyList();
     }
 
