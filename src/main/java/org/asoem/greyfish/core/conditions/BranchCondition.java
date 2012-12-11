@@ -28,10 +28,11 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
 
     private final List<ActionCondition<A>> conditions = Lists.newArrayList();
 
+    @SuppressWarnings("unchecked") // casting a clone should be safe
     protected BranchCondition(BranchCondition<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         for (ActionCondition<A> condition : cloneable.getChildConditions())
-            add(cloner.getClone(condition, ActionCondition.class));
+            add((ActionCondition<A>) cloner.getClone(condition));
     }
 
     protected BranchCondition(AbstractBuilder<A, ?, ?> builder) {
@@ -80,7 +81,7 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
         condition.setParent(this);
     }
 
-    public ActionCondition remove(int index) {
+    public ActionCondition<A> remove(int index) {
         checkState(!isFrozen());
         checkPositionIndex(index, getChildConditions().size());
         ActionCondition<A> ret = getChildConditions().remove(index);
@@ -124,7 +125,7 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends BranchCondition<A>, T extends AbstractBuilder<A, E, T>> extends AbstractCondition.AbstractBuilder<A,E,T> implements Serializable {
-        private final List<ActionCondition> conditions = Lists.newArrayList();
+        private final List<ActionCondition<A>> conditions = Lists.newArrayList();
 
         protected AbstractBuilder() {
         }

@@ -51,7 +51,7 @@ public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimul
     @Nullable
     private P projection;
     private Motion2D motion = ImmutableMotion2D.noMotion();
-    private SimulationContext<S,A> simulationContext = PassiveSimulationContext.instance();
+    private SimulationContext<S,A> simulationContext = PassiveSimulationContext.<S, A>instance();
     private Set<Integer> parents = Collections.emptySet();
     private final A self;
 
