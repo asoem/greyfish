@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.MatcherAssert;
@@ -18,10 +19,10 @@ public class ConditionalStatesPropertyTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        ConditionalStatesProperty<A> statesProperty = ConditionalStatesProperty.with().addState("A", "true").build();
+        ConditionalStatesProperty<DefaultGreyfishAgent> statesProperty = ConditionalStatesProperty.<DefaultGreyfishAgent>with().addState("A", "true").build();
         
         // when
-        ConditionalStatesProperty<A> persistent = Persisters.createCopy(statesProperty, JavaPersister.INSTANCE);
+        ConditionalStatesProperty<DefaultGreyfishAgent> persistent = Persisters.createCopy(statesProperty, JavaPersister.INSTANCE);
 
         // then
         MatcherAssert.assertThat(persistent, is(equalTo(statesProperty)));

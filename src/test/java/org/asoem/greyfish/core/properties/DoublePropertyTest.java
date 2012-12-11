@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.MatcherAssert;
@@ -18,7 +19,7 @@ public class DoublePropertyTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final DoubleProperty<A> doubleProperty = DoubleProperty.with()
+        final DoubleProperty<DefaultGreyfishAgent> doubleProperty = DoubleProperty.<DefaultGreyfishAgent>with()
                 .name("test")
                 .lowerBound(3.0)
                 .upperBound(7.0)
@@ -26,7 +27,7 @@ public class DoublePropertyTest {
                 .build();
         
         // when
-        final DoubleProperty<A> persistent = Persisters.createCopy(doubleProperty, JavaPersister.INSTANCE);
+        final DoubleProperty<DefaultGreyfishAgent> persistent = Persisters.createCopy(doubleProperty, JavaPersister.INSTANCE);
         
         // then
         MatcherAssert.assertThat(persistent, is(equalTo(doubleProperty)));

@@ -6,13 +6,17 @@ import com.google.inject.Inject;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
-import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.agent.ActiveSimulationContext;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgentImpl;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.space.WalledPointSpace;
+import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
+import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.persistence.Persister;
-import org.asoem.greyfish.utils.space.MotionObject2DImpl;
-import org.asoem.greyfish.utils.space.Object2D;
+import org.asoem.greyfish.utils.space.ImmutablePoint2D;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -40,15 +44,14 @@ public class ParallelizedSimulationTest {
     public void newSimulationTest() {
         // given
         final Population population = new Population("testPopulation");
-        final FrozenAgent<A, ParallelizedSimulation<FrozenAgent, >, Object2D, Z> prototype = FrozenAgent.builder(population).build();
-        DefaultGreyfishAgent agent = new DefaultGreyfishAgent(FrozenAgent.<DefaultGreyfishSimulation, >builder(population).build());
-        final WalledPointSpace<Agent> space = WalledPointSpace.builder(1, 1).build();
+        final DefaultGreyfishAgent prototype = DefaultGreyfishAgentImpl.builder(population).build();
+        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
 
         // when
-        ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, ImmutableSet.of(prototype))
-                .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
+        ParallelizedSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> simulation = ParallelizedSimulation.<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D>builder(space, ImmutableSet.of(prototype))
+                .agentPool(new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
-                    public Agent makeObject(Population o) throws Exception {
+                    public DefaultGreyfishAgent makeObject(Population o) throws Exception {
                         return prototype;
                     }
                 })).build();
@@ -81,24 +84,25 @@ public class ParallelizedSimulationTest {
     @Test
     public void testCreateAgent() throws Exception {
         // given
-        final Agent agent = mock(Agent.class);
+        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
         final Population testPopulation = Population.named("TestPopulation");
         given(agent.getPopulation()).willReturn(testPopulation);
         given(agent.hasPopulation(testPopulation)).willReturn(true);
-        given(agent.getProjection()).willReturn(MotionObject2DImpl.of(0, 0));
+        given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
         @SuppressWarnings("unchecked")
-        final Initializer<Agent> initializer = mock(Initializer.class);
+        final Initializer<DefaultGreyfishAgent> initializer = mock(Initializer.class);
 
-        final KeyedObjectPool<Population, Agent> pool =
-                new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
+        final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
+                new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
-                    public Agent makeObject(Population population) throws Exception {
+                    public DefaultGreyfishAgent makeObject(Population population) throws Exception {
                         return agent;
                     }
                 });
-        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
-        final ImmutableSet<Agent> prototypes = ImmutableSet.of(agent);
-        final ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, prototypes)
+        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
+        final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(agent);
+        final ParallelizedSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> simulation =
+                ParallelizedSimulation.builder(space, prototypes)
                 .agentPool(pool)
                 .build();
 
@@ -119,23 +123,23 @@ public class ParallelizedSimulationTest {
     @Test
     public void testRemoveAgent() throws Exception {
         // given
-        final Agent agent = mock(Agent.class);
+        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
         final Population testPopulation = Population.named("TestPopulation");
         given(agent.getPopulation()).willReturn(testPopulation);
-        given(agent.getProjection()).willReturn(MotionObject2DImpl.of(0, 0));
-        final KeyedObjectPool<Population, Agent> pool =
-                new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
+        given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
+        final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
+                new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
-                    public Agent makeObject(Population population) throws Exception {
+                    public DefaultGreyfishAgent makeObject(Population population) throws Exception {
                         return agent;
                     }
                 });
-        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
-        final ImmutableSet<Agent> prototypes = ImmutableSet.of(agent);
-        final ParallelizedSimulation simulation = ParallelizedSimulation.builder(space, prototypes)
+        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
+        final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(agent);
+        final ParallelizedSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> simulation = ParallelizedSimulation.builder(space, prototypes)
                 .agentPool(pool)
                 .build();
-        given(agent.simulation()).willReturn(simulation);
+        //given(agent.simulation()).willReturn(simulation);
 
         // when
         simulation.createAgent(testPopulation);

@@ -1,12 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.Lists;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,18 +24,18 @@ public class SexualReproductionTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final SexualReproduction action = SexualReproduction.builder()
+        final SexualReproduction<DefaultGreyfishAgent, Point2D> action = SexualReproduction.<DefaultGreyfishAgent, Point2D>builder()
                 .name("test")
                 .clutchSize(Callbacks.constant(1))
                 .spermSupplier(Callbacks.constant(Lists.<Chromosome>newArrayList()))
                 .spermSelectionStrategy(ElementSelectionStrategies.<Chromosome>randomSelection())
                 .spermFitnessCallback(Callbacks.constant(0.42))
                 .onSuccess(Callbacks.emptyCallback())
-                .executedIf(new AlwaysTrueCondition<A>())
+                .executedIf(new AlwaysTrueCondition<DefaultGreyfishAgent>())
                 .build();
 
         // when
-        SexualReproduction copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
+        SexualReproduction<DefaultGreyfishAgent, Point2D> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, is(equalTo(action)));

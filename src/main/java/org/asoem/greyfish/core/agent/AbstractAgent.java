@@ -19,7 +19,6 @@ import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -34,7 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 20.11.12
  * Time: 17:18
  */
-public abstract class AbstractAgent<A extends Agent<A, S>, S extends SpatialSimulation<A, ?>, P extends Object2D> implements Agent<A, S> {
+public abstract class AbstractAgent<A extends Agent<A, S>, S extends SpatialSimulation<A, ?>> implements Agent<A, S> {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends HasName> E findByName(SearchableList<E> searchableList, final String name) {

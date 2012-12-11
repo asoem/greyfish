@@ -1,25 +1,20 @@
 package org.asoem.greyfish.core.agent_interaction;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.FrozenAgent;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgentImpl;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
+import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulationImpl;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.core.space.WalledPointSpace;
+import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
+import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.space.SpatialObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -39,65 +34,50 @@ public class ResourceInteractionTest {
 
         String messageClassifier = "mate";
 
-        DoubleProperty<A> energyStorage = DoubleProperty.with()
+        DoubleProperty<DefaultGreyfishAgent> energyStorage = DoubleProperty.<DefaultGreyfishAgent>with()
                 .name("resourceStorage")
                 .lowerBound(0.0)
                 .upperBound(2.0)
                 .initialValue(0.0)
                 .build();
-        ResourceConsumptionAction consumptionAction = ResourceConsumptionAction.with()
+        ResourceConsumptionAction<DefaultGreyfishAgent> consumptionAction = ResourceConsumptionAction.<DefaultGreyfishAgent>with()
                 .name("eat")
                 .ontology(messageClassifier)
                 .requestAmount(Callbacks.constant(1.0))
-                .uptakeUtilization(new Callback<ResourceConsumptionAction, Void>() {
+                .uptakeUtilization(new Callback<ResourceConsumptionAction<DefaultGreyfishAgent>, Void>() {
                     @Override
-                    public Void apply(ResourceConsumptionAction caller, Arguments arguments) {
-                        caller.agent().getProperty("resourceStorage".class).add((Double) arguments.get("offer") * 2);
+                    public Void apply(ResourceConsumptionAction<DefaultGreyfishAgent> caller, Arguments arguments) {
+                        ((DoubleProperty<DefaultGreyfishAgent>) caller.agent().getProperty("resourceStorage")).add((Double) arguments.get("offer") * 2);
                         return null;
                     }
                 })
                 .build();
 
 
-        DoubleProperty<A> resourceProperty = new DoubleProperty.Builder()
+        DoubleProperty<DefaultGreyfishAgent> resourceProperty = new DoubleProperty.Builder<DefaultGreyfishAgent>()
                 .lowerBound(0.0)
                 .upperBound(1.0)
                 .initialValue(1.0)
                 .build();
-        ResourceProvisionAction provisionAction = ResourceProvisionAction.with()
+        ResourceProvisionAction<DefaultGreyfishAgent> provisionAction = ResourceProvisionAction.<DefaultGreyfishAgent>with()
                 .name("feed")
                 .ontology(messageClassifier)
                 .provides(Callbacks.constant(1.0))
                 .build();
 
-        Agent consumer = FrozenAgent.builder(consumerPopulation)
+        DefaultGreyfishAgent consumer = DefaultGreyfishAgentImpl.builder(consumerPopulation)
                 .addProperties(energyStorage)
                 .addAction(consumptionAction)
                 .build();
-        Agent provisioner = FrozenAgent.builder(providerPopulation)
+        DefaultGreyfishAgent provisioner = DefaultGreyfishAgentImpl.builder(providerPopulation)
                 .addProperties(resourceProperty)
                 .addAction(provisionAction)
                 .build();
 
 
-        final WalledPointSpace<Agent> space = WalledPointSpace.builder(1, 1).build();
-        final ImmutableSet<Agent> prototypes = ImmutableSet.of(consumer, provisioner);
-        final Simulation<SpatialObject> simulation = ParallelizedSimulation.builder(space, prototypes)
-                .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
-                    final ImmutableMap<Population, Agent> populationPrototypeMap =
-                            Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {
-                                @Override
-                                public Population apply(Agent input) {
-                                    return input.getPopulation();
-                                }
-                            });
-
-                    @Override
-                    public Agent makeObject(Population population) throws Exception {
-                        return populationPrototypeMap.get(population);
-                    }
-                }))
-                .build();
+        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1,1);
+        final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(consumer, provisioner);
+        final DefaultGreyfishSimulation simulation = new DefaultGreyfishSimulationImpl(space, prototypes);
 
         simulation.createAgent(consumerPopulation);
         simulation.createAgent(providerPopulation);

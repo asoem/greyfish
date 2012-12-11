@@ -22,13 +22,13 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * A {@code AgentProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
  */
-public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentProperty<T,A> {
+public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T,A> {
 
-    private Callback<? super LifetimeProperty<T, A>, T> initializer;
+    private Callback<? super LifetimeProperty<A, T>, T> initializer;
 
     private Supplier<T> memoizer;
 
-    public LifetimeProperty(LifetimeProperty<T, A> lifetimeProperty, DeepCloner cloner) {
+    public LifetimeProperty(LifetimeProperty<A, T> lifetimeProperty, DeepCloner cloner) {
         super(lifetimeProperty, cloner);
         this.initializer = lifetimeProperty.initializer;
     }
@@ -47,12 +47,12 @@ public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentPro
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<T, A>, T>>() {}));
+        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<A, T>, T>>() {}));
     }
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new LifetimeProperty<T, A>(this, cloner);
+        return new LifetimeProperty<A, T>(this, cloner);
     }
 
     @Override
@@ -71,13 +71,13 @@ public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentPro
         return new Builder<T,A>();
     }
 
-    public Callback<? super LifetimeProperty<T, A>, T> getInitializer() {
+    public Callback<? super LifetimeProperty<A, T>, T> getInitializer() {
         return initializer;
     }
 
-    public static class Builder<T, A extends Agent<A, ?>> extends LifetimeProperty.AbstractBuilder<T, A, LifetimeProperty<T, A>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ?>> extends LifetimeProperty.AbstractBuilder<T, A, LifetimeProperty<A, T>, Builder<T, A>> implements Serializable {
 
-        public Builder(LifetimeProperty<T, A> lifetimeProperty) {
+        public Builder(LifetimeProperty<A, T> lifetimeProperty) {
             super(lifetimeProperty);
         }
 
@@ -89,8 +89,8 @@ public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentPro
         }
 
         @Override
-        protected LifetimeProperty<T, A> checkedBuild() {
-            return new LifetimeProperty<T, A>(this);
+        protected LifetimeProperty<A, T> checkedBuild() {
+            return new LifetimeProperty<A, T>(this);
         }
         
         private Object readResolve() throws ObjectStreamException {
@@ -104,17 +104,17 @@ public class LifetimeProperty<T, A extends Agent<A, ?>> extends AbstractAgentPro
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends LifetimeProperty<T, A>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
-        private Callback<? super LifetimeProperty<T, A>, T> callback;
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends LifetimeProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+        private Callback<? super LifetimeProperty<A, T>, T> callback;
 
-        protected AbstractBuilder(LifetimeProperty<T, A> lifetimeProperty) {
+        protected AbstractBuilder(LifetimeProperty<A, T> lifetimeProperty) {
             super(lifetimeProperty);
             this.callback = lifetimeProperty.initializer;
         }
 
         protected AbstractBuilder() {}
 
-        public B initialization(Callback<? super LifetimeProperty<T, A>, T> callback) {
+        public B initialization(Callback<? super LifetimeProperty<A, T>, T> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }

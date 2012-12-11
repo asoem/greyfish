@@ -57,7 +57,7 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
         checkNotNull(title);
         checkNotNull(message);
 
-        final Object2D projection = agent.getProjection();
+        final Object2D projection = null;
         assert projection != null;
 
         simulation.logAgentEvent(agentId, agent.getPopulation().getName(), projection.getCentroid().getCoordinate(), eventOrigin, title, message);

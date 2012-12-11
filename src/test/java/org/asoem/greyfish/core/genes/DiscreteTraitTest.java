@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -19,7 +20,7 @@ public class DiscreteTraitTest {
     @Test
     public void testMutation() throws Exception {
         // given
-        DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -39,7 +40,7 @@ public class DiscreteTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMutateIllegalArgument() throws Exception {
         // given
-        DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -55,7 +56,7 @@ public class DiscreteTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetAlleleIllegalArgument() throws Exception {
         // given
-        DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -71,7 +72,7 @@ public class DiscreteTraitTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final DiscreteTrait<A> discreteTrait = DiscreteTrait.builder()
+        final DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("foo"))
                 .segregation(Callbacks.constant("bar"))
@@ -82,7 +83,7 @@ public class DiscreteTraitTest {
         //discreteTrait.setAgent(agent);
 
         // when
-        final DiscreteTrait<A> copy = Persisters.createCopy(discreteTrait, JavaPersister.INSTANCE);
+        final DiscreteTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(discreteTrait, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, is(equalTo(discreteTrait)));

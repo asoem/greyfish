@@ -39,7 +39,7 @@ import static java.util.Arrays.asList;
  * However, no guarantees can be made about the {@code AgentComponent}s themselves,
  * but should generally act according to the frozen state of their parent component.
  */
-public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A, S, P> implements SpatialAgent<A, S, P>, Serializable {
+public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractSpatialAgent<A, S, P> implements Serializable {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;
@@ -215,16 +215,6 @@ public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimul
 
     public static <A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> Builder<A, S, P, Z> builder(Population population) {
         return new Builder<A, S, P, Z>(population);
-    }
-
-    @Override
-    public double distance(A agent, double degrees) {
-        return simulation().distance(agent, degrees);
-    }
-
-    @Override
-    public Iterable<A> findNeighbours(double radius) {
-        return simulation().findNeighbours(self, radius);
     }
 
     public static class Builder<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, P extends Object2D, Z extends Space2D<A, P>> implements org.asoem.greyfish.utils.base.Builder<FrozenAgent<A, S, P, Z>>, Serializable {

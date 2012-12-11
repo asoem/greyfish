@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -19,14 +20,14 @@ public class SuicideTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        Suicide<A> suicide = Suicide.builder()
+        Suicide<DefaultGreyfishAgent> suicide = Suicide.<DefaultGreyfishAgent>builder()
                 .name("foo")
-                .executedIf(AlwaysTrueCondition.builder().build())
+                .executedIf(AlwaysTrueCondition.<DefaultGreyfishAgent>builder().build())
                 .onSuccess(Callbacks.emptyCallback())
                 .build();
 
         // when
-        final Suicide<A> copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
+        final Suicide<DefaultGreyfishAgent> copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, is(equalTo(suicide)));

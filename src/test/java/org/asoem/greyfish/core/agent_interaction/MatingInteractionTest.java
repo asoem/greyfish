@@ -1,25 +1,21 @@
 package org.asoem.greyfish.core.agent_interaction;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.inject.Guice;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
-import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentInitializers;
-import org.asoem.greyfish.core.agent.FrozenAgent;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgentImpl;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.simulation.ParallelizedSimulation;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
+import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulationImpl;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.core.space.WalledPointSpace;
-import org.asoem.greyfish.utils.space.MotionObject2DImpl;
-import org.asoem.greyfish.utils.space.SpatialObject;
+import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
+import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
+import org.asoem.greyfish.utils.space.ImmutablePoint2D;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -42,46 +38,32 @@ public class MatingInteractionTest {
         final Population donorPopulation = Population.named("donorPopulation");
 
         String messageClassifier = "mate";
-        FemaleLikeMating receiverAction = FemaleLikeMating.with()
+        FemaleLikeMating<DefaultGreyfishAgent> receiverAction = FemaleLikeMating.<DefaultGreyfishAgent>with()
                 .name("receiveSperm")
                 .ontology(messageClassifier)
                 .interactionRadius(constant(1.0))
                 .matingProbability(constant(1.0))
                 .build();
 
-        MaleLikeMating transmitterAction = MaleLikeMating.with()
+        MaleLikeMating<DefaultGreyfishAgent> transmitterAction = MaleLikeMating.<DefaultGreyfishAgent>with()
                 .name("sendSperm")
                 .ontology(messageClassifier)
                 .matingProbability(constant(1.0))
                 .build();
 
-        final Agent female = FrozenAgent.builder(receiverPopulation)
+        final DefaultGreyfishAgent female = DefaultGreyfishAgentImpl.builder(receiverPopulation)
                 .addAction(receiverAction)
                 .build();
-        final Agent male = FrozenAgent.builder(donorPopulation)
+        final DefaultGreyfishAgent male = DefaultGreyfishAgentImpl.builder(donorPopulation)
                 .addAction(transmitterAction)
                 .build();
 
-        final WalledPointSpace<Agent> space = WalledPointSpace.ofSize(1, 1);
-        final ImmutableSet<Agent> prototypes = ImmutableSet.of(male, female);
-        final Simulation<SpatialObject> simulation = ParallelizedSimulation.builder(space, prototypes)
-                .agentPool(new StackKeyedObjectPool<Population, Agent>(new BaseKeyedPoolableObjectFactory<Population, Agent>() {
-                    final ImmutableMap<Population, Agent> populationPrototypeMap =
-                            Maps.uniqueIndex(prototypes, new Function<Agent, Population>() {
-                                @Override
-                                public Population apply(Agent input) {
-                                    return input.getPopulation();
-                                }
-                            });
+        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
+        final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(male, female);
+        final DefaultGreyfishSimulation simulation = new DefaultGreyfishSimulationImpl(space, prototypes);
 
-                    @Override
-                    public Agent makeObject(Population population) throws Exception {
-                        return populationPrototypeMap.get(population);
-                    }
-                }))
-                .build();
-        simulation.createAgent(receiverPopulation, AgentInitializers.projection(MotionObject2DImpl.of(0, 0)));
-        simulation.createAgent(donorPopulation, AgentInitializers.projection(MotionObject2DImpl.of(0, 0)));
+        simulation.createAgent(receiverPopulation, AgentInitializers.<Point2D>projection(ImmutablePoint2D.at(0, 0)));
+        simulation.createAgent(donorPopulation, AgentInitializers.<Point2D>projection(ImmutablePoint2D.at(0, 0)));
         Simulations.runFor(simulation, 4);
 
         // then

@@ -32,7 +32,4 @@ public class TransformingTypeSafeMatcher<I, O> extends CustomTypeSafeMatcher<I> 
         transformMatcher.describeMismatch(transformation.apply(item), mismatchDescription);
     }
 
-    public static <I,O> TransformingTypeSafeMatcher<I, O> has(String description, Function<I, O> transformation, Matcher<? super O> transformMatcher) {
-        return new TransformingTypeSafeMatcher<I, O>(description, transformation, transformMatcher);
-    }
 }

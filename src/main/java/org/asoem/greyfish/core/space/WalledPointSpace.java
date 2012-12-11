@@ -363,8 +363,8 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     @Override
     public boolean insertObject(O object, Point2D projection) {
-        checkNotNull(object);
-        checkNotNull(projection);
+        checkNotNull(object, "projectable is null");
+        checkNotNull(projection, "projection is null");
 
         synchronized (this) {
             if (projectables.add(object)) {

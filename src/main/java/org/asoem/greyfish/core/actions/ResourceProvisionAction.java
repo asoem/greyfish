@@ -88,7 +88,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
     public void configure(ConfigurationHandler e) {
         super.configure(e);
         e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
-        e.add("Provides", TypedValueModels.forField("provides", this, new TypeToken<Callback<? super ResourceProvisionAction, Double>>() {
+        e.add("Provides", TypedValueModels.forField("provides", this, new TypeToken<Callback<? super ResourceProvisionAction<A>, Double>>() {
         }));
     }
 
@@ -109,7 +109,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         this.provides = builder.provides;
     }
 
-    public static Builder with() {
+    public static <A extends Agent<A, ?>> Builder<A> with() {
         return new Builder();
     }
 
@@ -135,7 +135,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ResourceProvisionAction, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ResourceProvisionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction<A>, Double> provides;
 

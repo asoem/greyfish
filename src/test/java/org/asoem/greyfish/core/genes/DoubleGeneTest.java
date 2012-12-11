@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -22,7 +23,7 @@ public class DoubleGeneTest {
     public void testPersistence() throws Exception {
         // given
         final Callback<Object, Double> callback = Callbacks.constant(1.0);
-        final QuantitativeTrait<A> doubleGene = QuantitativeTrait.builder()
+        final QuantitativeTrait<DefaultGreyfishAgent> doubleGene = QuantitativeTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(constant(1.0))
                 .mutation(constant(1.0))
@@ -30,7 +31,7 @@ public class DoubleGeneTest {
                 .build();
 
         // when
-        final QuantitativeTrait<A> copy = Persisters.createCopy(doubleGene, JavaPersister.INSTANCE);
+        final QuantitativeTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(doubleGene, JavaPersister.INSTANCE);
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(doubleGene)));

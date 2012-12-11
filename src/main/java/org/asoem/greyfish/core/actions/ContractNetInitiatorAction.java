@@ -66,7 +66,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
             }
         }
         else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
-            Collection<ACLMessage> proposeReplies = Lists.newArrayList();
+            Collection<ACLMessage<A>> proposeReplies = Lists.newArrayList();
             for (ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
                 assert (receivedMessage != null);
 
@@ -173,7 +173,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
 
     protected abstract boolean canInitiate();
 
-    private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage> acceptMessages) {
+    private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage<?>> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))
             return MessageTemplates.alwaysFalse();
         else
@@ -214,7 +214,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
 
     protected abstract String getOntology();
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetInitiatorAction, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetInitiatorAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
 
     }
 

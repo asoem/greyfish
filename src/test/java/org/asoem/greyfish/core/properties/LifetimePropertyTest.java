@@ -1,10 +1,12 @@
 package org.asoem.greyfish.core.properties;
 
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,9 +27,9 @@ public class LifetimePropertyTest {
     @Test
     public void testLazyness() throws Exception {
         // given
-        final Callback<LifetimeProperty<Object, A>, Object> function = mock(Callback.class);
+        final Callback<LifetimeProperty<DefaultGreyfishAgent, Object>, Object> function = mock(Callback.class);
         given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class), mock(Object.class));
-        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().initialization(function).build();
+        final LifetimeProperty<DefaultGreyfishAgent, Object> lifetimeProperty = LifetimeProperty.<Object, DefaultGreyfishAgent>builder().initialization(function).build();
 
         // when
         lifetimeProperty.initialize();
@@ -43,9 +45,9 @@ public class LifetimePropertyTest {
     @Test
     public void testInitialization() throws Exception {
         // given
-        final Callback<LifetimeProperty<Object, A>, Object> function = mock(Callback.class);
+        final Callback<LifetimeProperty<DefaultGreyfishAgent, Object>, Object> function = mock(Callback.class);
         given(function.apply(any(LifetimeProperty.class), any(Arguments.class))).willReturn(mock(Object.class));
-        final LifetimeProperty<Object, A> lifetimeProperty = LifetimeProperty.builder().initialization(function).build();
+        final LifetimeProperty<DefaultGreyfishAgent, Object> lifetimeProperty = LifetimeProperty.<Object, DefaultGreyfishAgent>builder().initialization(function).build();
 
         // when
         lifetimeProperty.initialize();
@@ -61,16 +63,16 @@ public class LifetimePropertyTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        LifetimeProperty<Integer, A> property = LifetimeProperty.<Integer>builder()
+        final LifetimeProperty<DefaultGreyfishAgent, Integer> property = LifetimeProperty.<Integer, DefaultGreyfishAgent>builder()
                 .name("foo")
                 .initialization(Callbacks.constant(42))
                 .build();
 
         // when
-        final LifetimeProperty copy = Persisters.createCopy(property, JavaPersister.INSTANCE);
+        final LifetimeProperty<DefaultGreyfishAgent, Integer> copy = Persisters.createCopy(property, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy.getName(), is(equalTo(property.getName())));
-        assertThat(copy.getInitializer(), is(equalTo(copy.getInitializer())));
+        assertThat(copy.getInitializer(), is(Matchers.<Callback<? super LifetimeProperty<DefaultGreyfishAgent, Integer>, Integer>>equalTo(property.getInitializer())));
     }
 }

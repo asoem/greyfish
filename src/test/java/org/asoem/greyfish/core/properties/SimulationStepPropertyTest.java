@@ -1,13 +1,13 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.SpatialObject;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,11 +28,11 @@ public class SimulationStepPropertyTest {
     public void testLazyValueComputation() throws Exception {
         // given
         final Callback<Object, Integer> callback = mock(Callback.class);
-        final SimulationStepProperty<Integer, A> property = SimulationStepProperty.<Integer>builder().callback(callback).build();
-        final Agent agent = mock(Agent.class);
+        final SimulationStepProperty<DefaultGreyfishAgent, Integer> property = SimulationStepProperty.<Integer, DefaultGreyfishAgent>builder().callback(callback).build();
+        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
         property.setAgent(agent);
         property.initialize();
-        final Simulation<SpatialObject> simulation = mock(Simulation<SpatialObject>.class);
+        final DefaultGreyfishSimulation simulation = mock(DefaultGreyfishSimulation.class);
         given(simulation.getStep()).willReturn(0,0,0,1);
         given(agent.simulation()).willReturn(simulation);
 
@@ -48,19 +48,19 @@ public class SimulationStepPropertyTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        SimulationStepProperty<Integer, A> property = SimulationStepProperty.<Integer>builder()
+        SimulationStepProperty<DefaultGreyfishAgent, Integer> property = SimulationStepProperty.<Integer, DefaultGreyfishAgent>builder()
                 .name("foo")
                 .callback(Callbacks.constant(42))
                 .build();
-        final Agent agent = mock(Agent.class, withSettings().serializable());
+        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class, withSettings().serializable());
         property.setAgent(agent);
 
         // when
-        final SimulationStepProperty copy = Persisters.createCopy(property, JavaPersister.INSTANCE);
+        final SimulationStepProperty<DefaultGreyfishAgent, Integer> copy = Persisters.createCopy(property, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy.getName(), is(equalTo(property.getName())));
-        assertThat(copy.getCallback(), is(equalTo(property.getCallback())));
+        assertThat(copy.getCallback(), is(Matchers.<Callback<? super SimulationStepProperty<DefaultGreyfishAgent, Integer>, Integer>>equalTo(property.getCallback())));
         assertThat(copy.getAgent(), is(instanceOf(agent.getClass())));
     }
 }

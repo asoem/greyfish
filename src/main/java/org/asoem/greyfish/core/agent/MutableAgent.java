@@ -21,7 +21,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends SpatialAgent<A, S, P>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractAgent<A,S,P> implements SpatialAgent<A, S, P> {
+public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialAgent<A, S, P> {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;
@@ -33,12 +33,12 @@ public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends SpatialAg
     @Nullable
     private P projection;
     private Motion2D motion = ImmutableMotion2D.noMotion();
-    private SimulationContext<S,A> simulationContext = PassiveSimulationContext.instance();
+    private SimulationContext<S,A> simulationContext = PassiveSimulationContext.<S, A>instance();
     private Set<Integer> parents = Collections.emptySet();
     private final A self;
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private MutableAgent(MutableAgent<S, A, P, Z> frozenAgent, final DeepCloner cloner) {
+    public MutableAgent(MutableAgent<A, S, Z, P> frozenAgent, final DeepCloner cloner) {
         cloner.addClone(frozenAgent, this);
         // share
         this.population = frozenAgent.population;
@@ -68,6 +68,16 @@ public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends SpatialAg
         this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
         this.inBox = new FixedSizeMessageBox<A>();
         this.self = (A) cloner.getClone(frozenAgent.self);
+    }
+
+    public MutableAgent(Population population) {
+        this.properties = AugmentedLists.newAugmentedArrayList();
+        this.actions = AugmentedLists.newAugmentedArrayList();
+        this.traits = AugmentedLists.newAugmentedArrayList();
+        this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
+        this.inBox = new FixedSizeMessageBox<A>();
+        this.self = null; // TODO: where to get self from?
+        setPopulation(population);
     }
 
     @Override
@@ -163,8 +173,8 @@ public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends SpatialAg
     }
 
     @Override
-    public MutableAgent<S, A, P, Z> deepClone(DeepCloner cloner) {
-        return new MutableAgent<S, A, P, Z>(this, cloner);
+    public MutableAgent<A, S, Z, P> deepClone(DeepCloner cloner) {
+        return new MutableAgent<A, S, Z, P>(this, cloner);
     }
 
     @Override
@@ -176,15 +186,5 @@ public class MutableAgent<S extends SpatialSimulation<A, Z>, A extends SpatialAg
         int index1 = getActions().indexOf(object);
         int index2 = getActions().indexOf(object2);
         getActions().add(index2, getActions().remove(index1));
-    }
-
-    @Override
-    public double distance(A agent, double degrees) {
-        return simulation().distance(agent, degrees);
-    }
-
-    @Override
-    public Iterable<A> findNeighbours(double radius) {
-        return simulation().findNeighbours(self, radius);
     }
 }
