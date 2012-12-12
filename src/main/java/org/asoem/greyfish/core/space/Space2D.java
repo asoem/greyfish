@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -90,6 +91,7 @@ public interface Space2D<T, P extends Object2D> {
 
     double height();
 
+    @Nullable
     P getProjection(T object);
 
     Map<T, P> asMap();

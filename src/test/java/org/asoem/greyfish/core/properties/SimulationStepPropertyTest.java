@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
-import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -32,9 +31,7 @@ public class SimulationStepPropertyTest {
         final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
         property.setAgent(agent);
         property.initialize();
-        final DefaultGreyfishSimulation simulation = mock(DefaultGreyfishSimulation.class);
-        given(simulation.getStep()).willReturn(0,0,0,1);
-        given(agent.simulation()).willReturn(simulation);
+        given(agent.getSimulationStep()).willReturn(0,0,0,1);
 
         // when
         for (int i = 0; i < 4; i++) {

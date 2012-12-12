@@ -2,20 +2,19 @@ package org.asoem.greyfish.core.space;
 
 import com.google.common.base.*;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
-import javolution.util.FastList;
 import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.base.MoreSuppliers;
 import org.asoem.greyfish.utils.base.OutdateableUpdateRequest;
 import org.asoem.greyfish.utils.base.UpdateRequests;
-import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
-import org.asoem.greyfish.utils.collect.Product2;
+import org.asoem.greyfish.utils.collect.Trees;
 import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
-import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -38,35 +37,23 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     @Attribute(name = "width")
     private final int width;
 
-    @ElementList(name = "projectables")
-    private final List<O> projectables = FastList.newInstance();
-
     private final WalledTile[][] tileMatrix;
 
     private final OutdateableUpdateRequest<Object> updateRequest = UpdateRequests.atomicRequest(true);
 
-    private final Supplier<TwoDimTree<O>> lazyTree = MoreSuppliers.memoize(
-            new Supplier<TwoDimTree<O>>() {
-
-                private final Function<O,Product2<Double,Double>> function = new Function<O, Product2<Double, Double>>() {
-                    @Override
-                    public Point2D apply(O t) {
-                        assert t != null;
-                        final Object2D projection = null;
-                        // TODO: The mapping isn't stored yet
-                        assert projection != null;
-                        return projection.getCentroid();
-                    }
-                };
+    private final Supplier<TwoDimTree<Point2D, O>> lazyTree = MoreSuppliers.memoize(
+            new Supplier<TwoDimTree<Point2D, O>>() {
 
                 @Override
-                public TwoDimTree<O> get() {
-                    return treeFactory.create(projectables, function);
+                public TwoDimTree<Point2D, O> get() {
+                    return treeFactory.create(point2DMap.keySet(), Functions.forMap(point2DMap));
                 }
             },
             updateRequest);
 
     private final TwoDimTreeFactory<O> treeFactory;
+
+    private final Map<O, Point2D> point2DMap = Maps.newHashMap();
 
     public WalledPointSpace(WalledPointSpace<O> space) {
         this(checkNotNull(space).colCount(), space.rowCount());
@@ -74,20 +61,22 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     }
 
     public WalledPointSpace(int width, int height) {
-        this(width, height, new WalledTile[0], WalledPointSpace.<O>defaultTreeFactory());
+        this(width, height, new WalledTile[0], WalledPointSpace.<O>createDefaultTreeFactory());
     }
 
-    public WalledPointSpace(int width, int height, WalledTile[] walledTiles) {
-        this(width, height, walledTiles, WalledPointSpace.<O>defaultTreeFactory());
+    private static <O> TwoDimTreeFactory<O> createDefaultTreeFactory() {
+        return new TwoDimTreeFactory<O>() {
+            @Override
+            public TwoDimTree<Point2D, O> create(Iterable<? extends O> elements, Function<? super O, Point2D> function) {
+                return AsoemScalaTwoDimTree.of(elements, function);
+            }
+        };
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private WalledPointSpace(@Attribute(name = "width") int width,
-                             @Attribute(name = "height") int height,
-                             @ElementList(name = "projectables") List<O> projectables,
-                             @ElementArray(name = "walledTiles", entry = "tile", required = false) WalledTile[] walledTiles) {
-        this(width, height, walledTiles);
-        this.projectables.addAll(projectables);
+    private WalledPointSpace(int width, int height, Map<O, Point2D> projectables, WalledTile[] walledTiles, TwoDimTreeFactory<O> treeFactory) {
+        this(width, height, walledTiles, treeFactory);
+        this.point2DMap.putAll(projectables);
     }
 
     private WalledPointSpace(TiledSpaceBuilder<O> builder) {
@@ -100,9 +89,11 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     public WalledPointSpace(int width, int height, WalledTile[] walledTiles, TwoDimTreeFactory<O> treeFactory) {
         Preconditions.checkArgument(width >= 0);
         Preconditions.checkArgument(height >= 0);
+        checkNotNull(treeFactory);
 
         this.width = width;
         this.height = height;
+        this.treeFactory = treeFactory;
 
         this.tileMatrix = new WalledTile[width][height];
         for (int i = 0; i < width; i++) {
@@ -112,8 +103,6 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         }
 
         setWalledTiles(walledTiles);
-
-        this.treeFactory = checkNotNull(treeFactory);
     }
 
     @ElementArray(name = "walledTiles", entry = "tile", required = false)
@@ -367,17 +356,15 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         checkNotNull(projection, "projection is null");
 
         synchronized (this) {
-            if (projectables.add(object)) {
-                updateRequest.outdate();
-                return true;
-            }
-            return false;
+            point2DMap.put(object, projection);
+            updateRequest.outdate();
+            return true;
         }
     }
 
     @Override
     public boolean isEmpty() {
-        return projectables.isEmpty();
+        return point2DMap.isEmpty();
     }
 
     @Override
@@ -391,18 +378,20 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     }
 
     @Override
-    public Point2D getProjection(O object) {
-        throw new UnsupportedOperationException();
+    @Nullable
+    public Point2D getProjection(final O object) {
+        final KDNode<Point2D, O> node = Iterators.find(Trees.postOrderView(lazyTree.get().root()), new Predicate<KDNode<Point2D, O>>() {
+            @Override
+            public boolean apply(KDNode<Point2D, O> input) {
+                return object.equals(input.value());
+            }
+        }, null);
+        return node == null ? null : node.point();
     }
 
     @Override
     public Map<O, Point2D> asMap() {
-        return ImmutableMapBuilder.<O, Point2D>newInstance().putAll(projectables, Functions.<O>identity(), new Function<O, Point2D>() {
-            @Override
-            public Point2D apply(@Nullable O input) {
-                return null;
-            }
-        }).build();
+        return point2DMap;
     }
 
     @Override
@@ -413,11 +402,14 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         Point2D borderIntersection;
 
         final Point2D origin = getProjection(agent);
+        if (origin == null)
+            throw new IllegalArgumentException("Has no projection: " + agent);
+
         final ImmutablePoint2D destination = ImmutablePoint2D.sum(origin, Geometry2D.polarToCartesian(degrees, Double.MAX_VALUE));
 
         if (degrees < 90) {
             borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
-            0, 0, width(), 0);
+                    0, 0, width(), 0);
             if (borderIntersection == null)
                 borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         width(), 0, width(), height());
@@ -451,7 +443,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     @Override
     public Collection<O> getObjects() {
-        return Collections.unmodifiableList(projectables);
+        return Collections.unmodifiableSet(point2DMap.keySet());
     }
 
     @Override
@@ -479,7 +471,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         checkNotNull(agent);
 
         synchronized (this) {
-            if (projectables.remove(agent)) {
+            if (point2DMap.remove(agent) != null) {
                 updateRequest.outdate();
                 return true;
             } else
@@ -490,7 +482,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     @Override
     public boolean removeIf(Predicate<O> predicate) {
         synchronized (this) {
-            if (Iterables.removeIf(projectables, predicate)) {
+            if (Iterables.removeIf(point2DMap.keySet(), predicate)) {
                 updateRequest.outdate();
                 return true;
             }
@@ -500,7 +492,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     @Override
     public int countObjects() {
-        return projectables.size();
+        return point2DMap.size();
     }
 
     @Override
@@ -598,7 +590,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         @Override
         public WalledPointSpace<O> build() throws IllegalStateException {
             if (treeFactory == null)
-                treeFactory = defaultTreeFactory();
+                treeFactory = createDefaultTreeFactory();
             return new WalledPointSpace<O>(this);
         }
 
@@ -625,12 +617,4 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         }
     }
 
-    private static <T> TwoDimTreeFactory<T> defaultTreeFactory() {
-        return new TwoDimTreeFactory<T>() {
-            @Override
-            public TwoDimTree<T> create(Iterable<? extends T> elements, Function<? super T, ? extends Product2<Double, Double>> function) {
-                return AsoemScalaTwoDimTree.of(elements, function);
-            }
-        };
-    }
 }

@@ -318,8 +318,8 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
 
         @Override
         public boolean insertObject(T object, P projection) {
-            checkNotNull(object);
-            checkNotNull(projection);
+            checkNotNull(object, "projectable is null");
+            checkNotNull(projection, "projection is null");
             if (super.insertObject(object, projection)) {
                 final boolean add = agentsByPopulation.get(object.getPopulation()).add(object);
                 assert add : "Could not add " + object;

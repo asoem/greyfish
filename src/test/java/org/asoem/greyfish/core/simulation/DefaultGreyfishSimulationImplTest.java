@@ -6,16 +6,14 @@ import com.google.inject.Inject;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
-import org.asoem.greyfish.core.agent.ActiveSimulationContext;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgentImpl;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -54,8 +52,8 @@ public class DefaultGreyfishSimulationImplTest {
                         return prototype;
                     }
                 })).build();
-        simulation.createAgent(population);
-        simulation.createAgent(population);
+        simulation.createAgent(population, AgentInitializers.<Point2D>projection(ImmutablePoint2D.at(0, 0)));
+        simulation.createAgent(population, AgentInitializers.<Point2D>projection(ImmutablePoint2D.at(0, 0)));
         simulation.nextStep();
 
         // then
