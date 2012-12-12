@@ -60,7 +60,7 @@ public class MatingInteractionTest {
 
         final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
         final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(male, female);
-        final DefaultGreyfishSimulation simulation = new DefaultGreyfishSimulationImpl(space, prototypes);
+        final DefaultGreyfishSimulation simulation = DefaultGreyfishSimulationImpl.builder(space, prototypes).build();
 
         simulation.createAgent(receiverPopulation, AgentInitializers.<Point2D>projection(ImmutablePoint2D.at(0, 0)));
         simulation.createAgent(donorPopulation, AgentInitializers.<Point2D>projection(ImmutablePoint2D.at(0, 0)));

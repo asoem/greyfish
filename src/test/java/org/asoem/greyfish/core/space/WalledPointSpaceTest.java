@@ -198,7 +198,7 @@ public class WalledPointSpaceTest {
     @Test
     public void testFindVisibleNeighbours() throws Exception {
         // given
-        final WalledPointSpace<MovingProjectable2D> space = WalledPointSpace.builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
+        final WalledPointSpace<MovingProjectable2D> space = WalledPointSpace.<MovingProjectable2D>builder(3, 1).addWall(0, 0, TileDirection.EAST).build();
         final MovingProjectable2D focal = new MovingProjectable2DImpl();
         final MovingProjectable2D neighbour1 = new MovingProjectable2DImpl();
         final MovingProjectable2D neighbour2 = new MovingProjectable2DImpl();

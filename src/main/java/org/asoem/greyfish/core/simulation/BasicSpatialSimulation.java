@@ -6,17 +6,17 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.*;
 import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
+import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
+import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.AgentMessage;
-import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.agent.SpatialAgent;
+import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.utils.base.Builder;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.base.VoidFunction;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
@@ -24,8 +24,10 @@ import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,9 +38,9 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
+public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ParallelizedSimulation.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BasicSpatialSimulation.class);
 
     private final AgentSpace<Z, A, P> space;
     private final AtomicInteger currentStep = new AtomicInteger(-1);
@@ -52,13 +54,12 @@ public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends S
     private final Set<A> prototypes;
     private final SimulationLogger simulationLogger;
     private String title = "untitled";
-    private final AgentActivator<A> activator;
+    private final AtomicInteger agentIdSequence = new AtomicInteger();
 
-    private ParallelizedSimulation(ParallelizedSimulationBuilder<A, S, Z, P> builder) {
+    protected BasicSpatialSimulation(ParallelizedSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.prototypes = checkNotNull(builder.prototypes);
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
-        this.activator = checkNotNull(builder.activator);
         this.space = new AgentSpace<Z, A, P>(checkNotNull(builder.space));
         this.simulationLogger = checkNotNull(builder.simulationLogger);
 
@@ -75,16 +76,18 @@ public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends S
 
         initializer.initialize(agent);
         space.insertObject(agent, agent.getProjection());
-        activator.activate(agent);
+        agent.activate(ActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getStep() + 1));
 
         LOGGER.debug("Agent activated: {}", agent);
 
         simulationLogger.logAgentCreation(agent);
     }
 
+    protected abstract S self();
+
     private void passivateAgentsInternal(List<? extends A> agents) {
         for (A agent : agents) {
-            activator.deactivate(agent);
+            agent.deactivate(PassiveSimulationContext.<S, A>instance());
             releaseAgent(agent);
         }
         space.removeInactiveAgents();
@@ -309,13 +312,14 @@ public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends S
         }
 
         public int count(Population population) {
-            assert population != null;
+            checkNotNull(population);
             return agentsByPopulation.get(population).size();
         }
 
         @Override
         public boolean insertObject(T object, P projection) {
-            assert object != null;
+            checkNotNull(object);
+            checkNotNull(projection);
             if (super.insertObject(object, projection)) {
                 final boolean add = agentsByPopulation.get(object.getPopulation()).add(object);
                 assert add : "Could not add " + object;
@@ -326,7 +330,7 @@ public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends S
 
         @Override
         public boolean removeObject(T agent) {
-            assert agent != null;
+            checkNotNull(agent);
             if (super.removeObject(agent)) {
                 final boolean remove = agentsByPopulation.get(agent.getPopulation()).remove(agent);
                 assert remove : "Could not remove " + agent;
@@ -337,7 +341,7 @@ public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends S
 
         @Override
         public P getProjection(T object) {
-            return object.getProjection();
+            return checkNotNull(object).getProjection();
         }
 
         public void removeInactiveAgents() {
@@ -347,58 +351,65 @@ public class ParallelizedSimulation<A extends SpatialAgent<A, S, P>, S extends S
         }
 
         public Iterable<T> getAgents(Population population) {
-            assert population != null;
+            checkNotNull(population);
             return agentsByPopulation.get(population);
         }
     }
 
-    public static <A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> ParallelizedSimulationBuilder<A,S,Z,P> builder(Z space, Set<A> prototypes) {
-        return new ParallelizedSimulationBuilder<A, S, Z, P>(space, prototypes);
-    }
-
-    public static class ParallelizedSimulationBuilder<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> implements Builder<ParallelizedSimulation<A, S, Z,P>> {
+    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends BasicSpatialSimulation<A, X, Z, P>, X extends SpatialSimulation<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;
         private final Z space;
         private final Set<A> prototypes;
         private SimulationLogger simulationLogger = new ConsoleLogger();
-        private AgentActivator<A> activator;
 
-        public ParallelizedSimulationBuilder(Z space, Set<A> prototypes) {
+        public ParallelizedSimulationBuilder(Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
+            agentPool(new GenericKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
+
+                Map<Population, A> map = Maps .uniqueIndex(prototypes, new Function<A, Population>() {
+                    @Nullable
+                    @Override
+                    public Population apply(A input) {
+                        return input.getPopulation();
+                    }
+                });
+
+                @SuppressWarnings("unchecked") // casting a clone should be safe
+                @Override
+                public A makeObject(Population population) throws Exception {
+                    return (A) DeepCloner.clone(map.get(population));
+                }
+            }));
         }
 
         @Override
-        public ParallelizedSimulation<A, S, Z, P> build() throws IllegalStateException {
+        protected void checkBuilder() throws IllegalStateException {
             checkState(agentPool != null, "No AgentPool has been defined");
             checkState(!prototypes.contains(null), "Prototypes contains null");
             checkState(space.isEmpty(), "Space is not empty");
-            checkState(activator != null, "Missing activator");
-
-            return new ParallelizedSimulation<A, S, Z, P>(this);
         }
 
-        public ParallelizedSimulationBuilder<A, S, Z, P> agentPool(KeyedObjectPool<Population, A> pool) {
+        public B agentPool(KeyedObjectPool<Population, A> pool) {
             this.agentPool = checkNotNull(pool);
-            return this;
+            return self();
         }
 
-        public ParallelizedSimulationBuilder<A, S, Z, P> parallelizationThreshold(int parallelizationThreshold) {
+        public B parallelizationThreshold(int parallelizationThreshold) {
             checkArgument(parallelizationThreshold > 0, "parallelizationThreshold must be positive");
             this.parallelizationThreshold = parallelizationThreshold;
-            return this;
+            return self();
         }
 
-        public ParallelizedSimulationBuilder<A, S, Z, P> simulationLogger(SimulationLogger simulationLogger) {
+        public B simulationLogger(SimulationLogger simulationLogger) {
             this.simulationLogger = simulationLogger;
-            return this;
+            return self();
         }
 
-        public ParallelizedSimulationBuilder<A, S, Z, P> agentActivator(AgentActivator<A> agentActivator) {
-            this.activator = agentActivator;
-            return this;
+        public B agentActivator(AgentActivator<A> agentActivator) {
+            return self();
         }
     }
 }

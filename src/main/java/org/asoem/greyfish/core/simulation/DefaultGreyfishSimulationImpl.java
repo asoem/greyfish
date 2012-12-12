@@ -1,65 +1,45 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool;
-import org.asoem.greyfish.core.agent.ActiveSimulationContext;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.agent.PassiveSimulationContext;
-import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.space.Point2D;
 
-import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * User: christoph
  * Date: 14.11.12
  * Time: 14:46
  */
-public class DefaultGreyfishSimulationImpl extends ForwardingSpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSpace> implements DefaultGreyfishSimulation {
+public class DefaultGreyfishSimulationImpl extends BasicSpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> implements DefaultGreyfishSimulation {
 
-    private final SpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSpace> delegate;
-
-    public DefaultGreyfishSimulationImpl(DefaultGreyfishSpace space, final Set<DefaultGreyfishAgent> prototypes) {
-        this.delegate = ParallelizedSimulation.builder(space, prototypes)
-                .agentActivator(new AgentActivator<DefaultGreyfishAgent>() {
-                    private final AtomicInteger agentIdSequence = new AtomicInteger();
-
-                    @Override
-                    public void activate(DefaultGreyfishAgent agent) {
-                        agent.activate(ActiveSimulationContext.<DefaultGreyfishSimulation, DefaultGreyfishAgent>create(DefaultGreyfishSimulationImpl.this, agentIdSequence.incrementAndGet(), getStep() + 1));
-                    }
-
-                    @Override
-                    public void deactivate(DefaultGreyfishAgent agent) {
-                        agent.deactivate(PassiveSimulationContext.<DefaultGreyfishSimulation, DefaultGreyfishAgent>instance());
-                    }
-                })
-                .agentPool(new GenericKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
-
-                    Map<Population, DefaultGreyfishAgent> map = Maps .uniqueIndex(prototypes, new Function<DefaultGreyfishAgent, Population>() {
-                        @Nullable
-                        @Override
-                        public Population apply(DefaultGreyfishAgent input) {
-                            return input.getPopulation();
-                        }
-                    });
-
-                    @Override
-                    public DefaultGreyfishAgent makeObject(Population population) throws Exception {
-                        return DeepCloner.clone(map.get(population), DefaultGreyfishAgent.class);
-                    }
-                }))
-                .build();
+    private DefaultGreyfishSimulationImpl(Builder builder) {
+        super(builder);
     }
 
     @Override
-    protected SpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSpace> delegate() {
-        return delegate;
+    protected DefaultGreyfishSimulation self() {
+        return this;
+    }
+
+    public static Builder builder(DefaultGreyfishSpace space, Set<DefaultGreyfishAgent> prototypes) {
+        return new Builder(space, prototypes);
+    }
+
+    public static class Builder extends ParallelizedSimulationBuilder<Builder, DefaultGreyfishSimulationImpl, DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> {
+
+        public Builder(DefaultGreyfishSpace space, final Set<DefaultGreyfishAgent> prototypes) {
+            super(space, prototypes);
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        protected DefaultGreyfishSimulationImpl checkedBuild() {
+            return new DefaultGreyfishSimulationImpl(this);
+        }
     }
 }

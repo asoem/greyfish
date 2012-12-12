@@ -16,7 +16,6 @@ import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
-import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -30,12 +29,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ParallelizedSimulationTest {
+public class DefaultGreyfishSimulationImplTest {
 
     @Inject
     private Persister persister;
 
-    public ParallelizedSimulationTest() {
+    public DefaultGreyfishSimulationImplTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
@@ -48,7 +47,7 @@ public class ParallelizedSimulationTest {
         final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
 
         // when
-        ParallelizedSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> simulation = ParallelizedSimulation.<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D>builder(space, ImmutableSet.of(prototype))
+        DefaultGreyfishSimulationImpl simulation = DefaultGreyfishSimulationImpl.builder(space, ImmutableSet.of(prototype))
                 .agentPool(new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
                     public DefaultGreyfishAgent makeObject(Population o) throws Exception {
@@ -71,10 +70,10 @@ public class ParallelizedSimulationTest {
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicSimulationTemplate scenario = BasicSimulationTemplate.builder("TestScenario", space).build();
-        final ParallelizedSimulation simulation = scenario.createSimulation(new ParallelizedSimulationFactory(1000));
+        final BasicSpatialSimulation simulation = scenario.createSimulation(new ParallelizedSimulationFactory(1000));
 
         // when
-        final ParallelizedSimulation copy = Persisters.createCopy(simulation, ParallelizedSimulation.class, persister);
+        final BasicSpatialSimulation copy = Persisters.createCopy(simulation, BasicSpatialSimulation.class, persister);
 
         // then
         assertThat(copy).isEqualTo(simulation); // TODO: Overwritten equals was removed. Fix this test
@@ -101,8 +100,8 @@ public class ParallelizedSimulationTest {
                 });
         final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
         final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(agent);
-        final ParallelizedSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> simulation =
-                ParallelizedSimulation.builder(space, prototypes)
+        final DefaultGreyfishSimulationImpl simulation =
+                DefaultGreyfishSimulationImpl.builder(space, prototypes)
                 .agentPool(pool)
                 .build();
 
@@ -136,7 +135,7 @@ public class ParallelizedSimulationTest {
                 });
         final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
         final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(agent);
-        final ParallelizedSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> simulation = ParallelizedSimulation.builder(space, prototypes)
+        final DefaultGreyfishSimulationImpl simulation = DefaultGreyfishSimulationImpl.builder(space, prototypes)
                 .agentPool(pool)
                 .build();
         //given(agent.simulation()).willReturn(simulation);

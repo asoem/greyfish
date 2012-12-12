@@ -9,10 +9,12 @@ import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.asoem.utils.test.MockUtils;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.util.MockUtil;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -89,13 +91,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner clonerMock = mock(DeepCloner.class);
-        given(clonerMock.getClone(any(DeepCloneable.class), any(Class.class))).willAnswer(new Answer<DeepCloneable>() {
-            @Override
-            public DeepCloneable answer(InvocationOnMock invocation) throws Throwable {
-                return (DeepCloneable) invocation.getArguments()[0];
-            }
-        });
+        final DeepCloner clonerMock = MockUtils.mockAwareCloner();
         final DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class))
                 .addAction(mock(AgentAction.class))
                 .addProperties(mock(AgentProperty.class))
@@ -107,7 +103,7 @@ public class DefaultGreyfishAgentImplTest {
 
         // then
         assertThat(clone, isSameAs(agent));
-        verify(clonerMock, times(3)).getClone(any(DeepCloneable.class), any(Class.class));
+        verify(clonerMock, times(5)).getClone(any(DeepCloneable.class));
     }
 
     @Test

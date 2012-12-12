@@ -77,7 +77,7 @@ public class ResourceInteractionTest {
 
         final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1,1);
         final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(consumer, provisioner);
-        final DefaultGreyfishSimulation simulation = new DefaultGreyfishSimulationImpl(space, prototypes);
+        final DefaultGreyfishSimulation simulation = DefaultGreyfishSimulationImpl.builder(space, prototypes).build();
 
         simulation.createAgent(consumerPopulation);
         simulation.createAgent(providerPopulation);

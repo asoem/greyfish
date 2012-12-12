@@ -526,8 +526,8 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         return new WalledPointSpace<O>(width, height);
     }
 
-    public static <O> TiledSpaceBuilder builder(int width, int height) {
-        return new TiledSpaceBuilder(width, height);
+    public static <O> TiledSpaceBuilder<O> builder(int width, int height) {
+        return new TiledSpaceBuilder<O>(width, height);
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -544,7 +544,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             this.height = height;
         }
 
-        public TiledSpaceBuilder addWall(final int x, final int y, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWall(final int x, final int y, final TileDirection direction) {
             checkArgument(x >= 0 && x < width && y >= 0 && y < height);
             checkNotNull(direction);
             wallDefinitions.add(new WallDefinition() {
@@ -556,7 +556,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             return this;
         }
 
-        public TiledSpaceBuilder addWallsVertical(final int x, final int y1, final int y2, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWallsVertical(final int x, final int y1, final int y2, final TileDirection direction) {
             checkArgument(x >= 0 && x < width);
             checkArgument(y1 >= 0 && y1 < height);
             checkArgument(y2 >= 0 && y2 < height);
@@ -573,7 +573,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             return this;
         }
 
-        public TiledSpaceBuilder addWallsHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWallsHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
             checkArgument(x1 >= 0 && x1 < width);
             checkArgument(x2 >= 0 && x2 < width);
             checkArgument(y >= 0 && y < height);
@@ -590,7 +590,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             return this;
         }
 
-        public TiledSpaceBuilder treeFactory(TwoDimTreeFactory<O> treeFactory) {
+        public TiledSpaceBuilder<O> treeFactory(TwoDimTreeFactory<O> treeFactory) {
             this.treeFactory = checkNotNull(treeFactory);
             return this;
         }

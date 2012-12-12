@@ -11,7 +11,6 @@ import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -28,13 +27,14 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
 
     protected AbstractCondition() {}
 
+    @SuppressWarnings("unchecked") // casting a clone should be safe
     protected AbstractCondition(AbstractCondition<A> cloneable, DeepCloner cloner) {
         cloner.addClone(cloneable, this);
-        this.action = cloner.getClone(cloneable.action, AgentAction.class);
-        this.parentCondition = cloner.getClone(cloneable.parentCondition, ActionCondition.class);
+        this.action = (AgentAction<A>) cloner.getClone(cloneable.action);
+        this.parentCondition = (ActionCondition<A>) cloner.getClone(cloneable.parentCondition);
     }
 
-    protected AbstractCondition(AbstractBuilder<A, ? extends AbstractCondition, ? extends AbstractBuilder> builder) {
+    protected AbstractCondition(AbstractBuilder<A, ? extends AbstractCondition<A>, ?> builder) {
     }
 
     @Override
@@ -87,7 +87,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     @Commit
     private void commit() {
         if (!isLeafCondition()) {
-            for (ActionCondition condition : getChildConditions()) {
+            for (ActionCondition<A> condition : getChildConditions()) {
                 condition.setParent(this);
             }
         }

@@ -15,7 +15,7 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
         super(cloneable, cloner);
     }
 
-    protected LeafCondition(AbstractBuilder<A, ? extends LeafCondition, ? extends AbstractBuilder> builder) {
+    protected LeafCondition(AbstractBuilder<A, ?, ?> builder) {
         super(builder);
     }
 
@@ -55,7 +55,7 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends AbstractCondition.AbstractBuilder<A, C, B> {
-        protected AbstractBuilder(LeafCondition leafCondition) {
+        protected AbstractBuilder(LeafCondition<A> leafCondition) {
             super(leafCondition);
         }
 
