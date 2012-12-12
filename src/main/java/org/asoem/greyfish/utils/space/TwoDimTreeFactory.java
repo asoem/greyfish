@@ -1,7 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
 import com.google.common.base.Function;
-import org.asoem.greyfish.utils.collect.Product2;
 
 /**
  * User: christoph
@@ -9,5 +8,5 @@ import org.asoem.greyfish.utils.collect.Product2;
  * Time: 18:00
  */
 public interface TwoDimTreeFactory<T> {
-    TwoDimTree<T> create(Iterable<? extends T> elements, Function<? super T, ? extends Product2<Double,Double>> coordinates2DFunction);
+    TwoDimTree<Point2D, T> create(Iterable<? extends T> elements, Function<? super T, Point2D> function);
 }
