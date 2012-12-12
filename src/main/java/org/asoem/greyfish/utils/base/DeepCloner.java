@@ -99,4 +99,8 @@ public class DeepCloner {
     public static DeepCloneable clone(@Nullable DeepCloneable cloneable) {
         return new DeepCloner().getClone(cloneable);
     }
+
+    public static DeepCloner newInstance() {
+        return new DeepCloner();
+    }
 }
