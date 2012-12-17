@@ -9,5 +9,5 @@ import org.asoem.greyfish.utils.space.Point2D;
  * Date: 11.12.12
  * Time: 10:21
  */
-public interface DefaultGreyfishSimulation extends SpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> {
+public interface DefaultGreyfishSimulation extends SpatialSimulation2D<DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> {
 }

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Moving;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -11,7 +11,7 @@ import org.asoem.greyfish.utils.space.Projectable;
  * Date: 04.12.12
  * Time: 10:32
  */
-public interface SpatialAgent<A extends Agent<A, S>, S extends SpatialSimulation<A, ?, P>, P extends Object2D> extends Agent<A, S>, Moving<Motion2D>, Projectable<P> {
+public interface SpatialAgent<A extends Agent<A, S>, S extends SpatialSimulation2D<A, ?, P>, P extends Object2D> extends Agent<A, S>, Moving<Motion2D>, Projectable<P> {
 
     /**
      * Measure the distance from given agent to the first obstacle in the given direction (in degrees [0, 360))

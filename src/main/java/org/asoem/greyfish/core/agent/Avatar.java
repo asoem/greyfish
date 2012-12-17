@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 24.02.12
  * Time: 16:18
  */
-public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, ?, P>, P extends Object2D> extends ForwardingSpatialAgent<A, S, P> implements Serializable {
+public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?, P>, P extends Object2D> extends ForwardingSpatialAgent<A, S, P> implements Serializable {
 
     private final SpatialAgent<A, S, P> delegate;
     private P projection;
@@ -66,7 +66,7 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
         throw new InvalidObjectException("Proxy required");
     }
 
-    private static class SerializedForm<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, ?, P>, P extends Object2D> implements Serializable {
+    private static class SerializedForm<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?, P>, P extends Object2D> implements Serializable {
         private final SpatialAgent<A, S, P> delegate;
         private final P projection;
 

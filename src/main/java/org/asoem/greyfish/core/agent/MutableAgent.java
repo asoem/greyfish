@@ -6,7 +6,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
@@ -21,7 +21,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialAgent<A, S, P> {
+public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialAgent<A, S, P> {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;

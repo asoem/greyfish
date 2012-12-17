@@ -11,7 +11,7 @@ import java.util.Set;
  * Date: 14.11.12
  * Time: 14:46
  */
-public class DefaultGreyfishSimulationImpl extends BasicSpatialSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> implements DefaultGreyfishSimulation {
+public class DefaultGreyfishSimulationImpl extends Basic2DSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> implements DefaultGreyfishSimulation {
 
     private DefaultGreyfishSimulationImpl(Builder builder) {
         super(builder);

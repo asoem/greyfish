@@ -14,7 +14,7 @@ public final class Simulations {
     private Simulations() {}
 
     /**
-     * Calls {@link SpatialSimulation#nextStep()} until the given {@code predicate} returns {@code false}
+     * Calls {@link SpatialSimulation2D#nextStep()} until the given {@code predicate} returns {@code false}
      *
      * @param predicate the {@code Predicate} which will be checked after each step
      */

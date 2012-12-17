@@ -38,9 +38,9 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z, P> {
+public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z, P> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BasicSpatialSimulation.class);
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Basic2DSimulation.class);
 
     private final AgentSpace<Z, A, P> space;
     private final AtomicInteger currentStep = new AtomicInteger(-1);
@@ -52,11 +52,11 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
     private final Set<A> prototypes;
-    private final SimulationLogger simulationLogger;
+    private final SimulationLogger<A> simulationLogger;
     private String title = "untitled";
     private final AtomicInteger agentIdSequence = new AtomicInteger();
 
-    protected BasicSpatialSimulation(ParallelizedSimulationBuilder<?, ?, S, A, Z, P> builder) {
+    protected Basic2DSimulation(ParallelizedSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.prototypes = checkNotNull(builder.prototypes);
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
@@ -239,7 +239,7 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
     }
 
     @Override
-    public SimulationLogger getSimulationLogger() {
+    public SimulationLogger<A> getSimulationLogger() {
         return simulationLogger;
     }
 
@@ -360,13 +360,13 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
         }
     }
 
-    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends BasicSpatialSimulation<A, X, Z, P>, X extends SpatialSimulation<A, Z, P>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends Basic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z, P>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;
         private final Z space;
         private final Set<A> prototypes;
-        private SimulationLogger simulationLogger = new ConsoleLogger();
+        private SimulationLogger<A> simulationLogger = new ConsoleLogger<A>();
 
         public ParallelizedSimulationBuilder(Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
@@ -407,7 +407,7 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
             return self();
         }
 
-        public B simulationLogger(SimulationLogger simulationLogger) {
+        public B simulationLogger(SimulationLogger<A> simulationLogger) {
             this.simulationLogger = simulationLogger;
             return self();
         }

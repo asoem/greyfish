@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 21.11.12
  * Time: 15:44
  */
-public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simulation<A> {
+public abstract class AbstractSimulation<A extends Agent<A, ? extends Simulation<A>>> implements Simulation<A> {
     @Override
     public int numberOfPopulations() {
         return getPrototypes().size();
@@ -42,10 +42,7 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simul
 
     @Override
     public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
-        getSimulationLogger().logAgentEvent(
-                getStep(),
-                agentId, populationName, coordinates,
-                eventOrigin.getClass().getSimpleName(), title, message);
+        getSimulationLogger().logAgentEvent(null, getStep(), eventOrigin.getClass().getSimpleName(), title, message);
     }
 
     @Override

@@ -1,25 +1,14 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.Predicate;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
-
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * User: christoph
  * Date: 29.02.12
  * Time: 18:56
  */
-public interface Space2D<T, P extends Object2D> {
-
-    /**
-     * The number of objects in this space
-     * @return the number of objects in this space
-     */
-    int countObjects();
+public interface Space2D<T, P extends Object2D> extends Space<T, P> {
 
     /**
      * Tests if the point given by the coordinates {@code x} and {@code y} lies inside this space
@@ -28,34 +17,6 @@ public interface Space2D<T, P extends Object2D> {
      * @return {@code true}, if th point is within the boundaries of this space, {@code false} otherwise
      */
     boolean contains(double x, double y);
-
-    /**
-     * Get the list of objects which have been added to this space
-     * @return all objects for this space
-     */
-    Collection<T> getObjects();
-
-    /**
-     * Add the given {@code object} to this space
-     * @param object the object to project
-     * @param projection the projection
-     * @return {@code true} if the object and it's projection could be added, {@code false} otherwise
-     */
-    boolean insertObject(T object, P projection);
-
-    /**
-     * Remove the given {@code object} from this space
-     * @param object the object to remove
-     * @return {@code true} if the object could be removed, {@code false} otherwise
-     */
-    boolean removeObject(T object);
-
-    /**
-     * Remove all projections from this space if the satisfy the given predicate
-     * @param predicate the predicate to check against
-     * @return {@code true} if at least one object was removed, {@code false} otherwise
-     */
-    boolean removeIf(Predicate<T> predicate);
 
     /**
      * Move given object using it's motion
@@ -85,16 +46,9 @@ public interface Space2D<T, P extends Object2D> {
      */
     Iterable<T> getVisibleNeighbours(T object, double radius);
 
-    boolean isEmpty();
-
     double width();
 
     double height();
-
-    @Nullable
-    P getProjection(T object);
-
-    Map<T, P> asMap();
 
     double distance(T agent, double degrees);
 }

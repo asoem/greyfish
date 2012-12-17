@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -10,10 +10,10 @@ import org.asoem.greyfish.utils.space.Object2D;
  * Date: 08.10.11
  * Time: 10:51
  */
-public abstract class ForwardingSpatialSimulation<A extends Agent<A, ?>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingSimulation<A> implements SpatialSimulation<A, Z, P> {
+public abstract class Forwarding2DSimulation<A extends SpatialAgent<A, ? extends SpatialSimulation2D<A, Z, P>, P>, Z extends Space2D<A, P>, P extends Object2D> extends ForwardingSimulation<A> implements SpatialSimulation2D<A, Z, P> {
 
     @Override
-    protected abstract SpatialSimulation<A, Z, P> delegate();
+    protected abstract SpatialSimulation2D<A, Z, P> delegate();
 
     @Override
     public Iterable<A> findNeighbours(A agent, double distance) {

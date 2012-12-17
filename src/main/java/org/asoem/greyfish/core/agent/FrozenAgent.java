@@ -8,7 +8,7 @@ import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
@@ -39,7 +39,7 @@ import static java.util.Arrays.asList;
  * However, no guarantees can be made about the {@code AgentComponent}s themselves,
  * but should generally act according to the frozen state of their parent component.
  */
-public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z, P>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractSpatialAgent<A, S, P> implements Serializable {
+public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z, P>, P extends Object2D, Z extends Space2D<A, P>> extends AbstractSpatialAgent<A, S, P> implements Serializable {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;
@@ -213,11 +213,11 @@ public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimul
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z, P>, P extends Object2D, Z extends Space2D<A, P>> Builder<A, S, P, Z> builder(Population population) {
+    public static <A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z, P>, P extends Object2D, Z extends Space2D<A, P>> Builder<A, S, P, Z> builder(Population population) {
         return new Builder<A, S, P, Z>(population);
     }
 
-    public static class Builder<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z, P>, P extends Object2D, Z extends Space2D<A, P>> implements org.asoem.greyfish.utils.base.Builder<FrozenAgent<A, S, P, Z>>, Serializable {
+    public static class Builder<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z, P>, P extends Object2D, Z extends Space2D<A, P>> implements org.asoem.greyfish.utils.base.Builder<FrozenAgent<A, S, P, Z>>, Serializable {
         private final Population population;
         private final List<AgentAction<A>> actions = Lists.newArrayList();
         private final List<AgentProperty<A, ?>> properties = Lists.newArrayList();

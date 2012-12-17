@@ -13,7 +13,7 @@ import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.SpatialSimulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 20.11.12
  * Time: 17:18
  */
-public abstract class AbstractAgent<A extends Agent<A, S>, S extends SpatialSimulation<A, ?, ?>> implements Agent<A, S> {
+public abstract class AbstractAgent<A extends Agent<A, S>, S extends SpatialSimulation2D<A, ?, ?>> implements Agent<A, S> {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends HasName> E findByName(SearchableList<E> searchableList, final String name) {

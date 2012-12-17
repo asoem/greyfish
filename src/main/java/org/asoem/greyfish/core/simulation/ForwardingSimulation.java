@@ -17,7 +17,7 @@ import java.util.Set;
  * Date: 21.11.12
  * Time: 15:39
  */
-public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends ForwardingObject implements Simulation<A> {
+public abstract class ForwardingSimulation<A extends Agent<A, ? extends Simulation<A>>> extends ForwardingObject implements Simulation<A> {
     @Override
     protected abstract Simulation<A> delegate();
 
@@ -102,7 +102,7 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public SimulationLogger getSimulationLogger() {
+    public SimulationLogger<A> getSimulationLogger() {
         return delegate().getSimulationLogger();
     }
 
