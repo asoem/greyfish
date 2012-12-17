@@ -15,6 +15,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.simulation.Model;
@@ -52,7 +53,7 @@ public final class GreyfishCLIApplication {
     private State state = State.STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(Model<?> model,
+    private GreyfishCLIApplication(Model<?, DefaultGreyfishAgent> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
                                    @Named("parallelizationThreshold") int parallelizationThreshold,
@@ -67,9 +68,10 @@ public final class GreyfishCLIApplication {
         });
 
         LOGGER.info("Creating simulation for model {}", model.getClass());
-        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.asMap(model)));
+        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.extract(model)));
 
-        final H2Logger logger = new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()));
+        final String databasePath = dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString());
+        final H2Logger<?, ?> logger = new H2Logger<?, ?>(databasePath);
 
         /*
         final ParallelizedSimulationFactory simulationFactory =
@@ -209,7 +211,7 @@ public final class GreyfishCLIApplication {
                     final Class<?> modelClass = Class.forName(modelClassName);
                     if (!Model.class.isAssignableFrom(modelClass))
                         optionExceptionHandler.exitWithError("Specified Class does not implement " + Model.class);
-                    bind(new TypeLiteral<Model<?>>(){}).to((Class<Model<?>>) modelClass);
+                    bind(new TypeLiteral<Model<?, DefaultGreyfishAgent>>(){}).to((Class<Model<?, DefaultGreyfishAgent>>) modelClass);
                 } catch (ClassNotFoundException e) {
                     optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
                 }

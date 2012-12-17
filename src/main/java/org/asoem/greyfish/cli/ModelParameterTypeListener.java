@@ -31,14 +31,14 @@ public class ModelParameterTypeListener implements TypeListener {
                 final String annotationValue = field.getAnnotation(ModelParameter.class).value();
                 final String key = (annotationValue.isEmpty()) ? field.getName() : annotationValue;
                 if (properties.containsKey(key)) {
-                    final Object value = convert(field.getType(), properties.get(key));
+                    final Object value = convert(properties.get(key), field.getType());
                     typeEncounter.register(new ModelParameterInjector<T>(field, value));
                 }
             }
         }
     }
 
-    private static Object convert(Class<?> type, String s) {
+    private static Object convert(String s, Class<?> type) {
         if (type == String.class)
             return s;
 
