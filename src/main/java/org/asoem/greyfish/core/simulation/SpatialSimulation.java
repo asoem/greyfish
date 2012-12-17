@@ -1,14 +1,18 @@
 package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 /**
  * User: christoph
  * Date: 08.10.11
  * Time: 10:50
  */
-public interface SpatialSimulation<A extends Agent<A, ?>, Z extends Space2D<A, ?>> extends Simulation<A> {
+public interface SpatialSimulation<A extends Agent<A, ?>, Z extends Space2D<A, P>, P extends Object2D> extends Simulation<A> {
+
+    void createAgent(Population population, P projection);
 
     /**
      * Find all neighbours of {@code agent} within the given {@code distance}

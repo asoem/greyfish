@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z> {
+public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialSimulation<A, Z, P> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(BasicSpatialSimulation.class);
 
@@ -96,7 +96,6 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
     @Override
     public void removeAgent(final A agent) {
         checkNotNull(agent);
-        checkArgument(agent.simulation().equals(this));
         removeAgentMessages.add(new RemoveAgentMessage<A>(agent));
     }
 
@@ -235,6 +234,11 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
     }
 
     @Override
+    public void createAgent(Population population, P projection) {
+        addAgentMessages.add(new AddAgentMessage<A>(population, AgentInitializers.projection(projection)));
+    }
+
+    @Override
     public SimulationLogger getSimulationLogger() {
         return simulationLogger;
     }
@@ -356,7 +360,7 @@ public abstract class BasicSpatialSimulation<A extends SpatialAgent<A, S, P>, S 
         }
     }
 
-    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends BasicSpatialSimulation<A, X, Z, P>, X extends SpatialSimulation<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends BasicSpatialSimulation<A, X, Z, P>, X extends SpatialSimulation<A, Z, P>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;

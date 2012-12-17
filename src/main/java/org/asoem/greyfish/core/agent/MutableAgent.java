@@ -21,7 +21,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialAgent<A, S, P> {
+public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation<A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSpatialAgent<A, S, P> {
 
     private final SearchableList<AgentProperty<A, ?>> properties;
     private final SearchableList<AgentAction<A>> actions;

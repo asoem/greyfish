@@ -15,6 +15,7 @@ import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -79,8 +80,8 @@ public class ResourceInteractionTest {
         final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(consumer, provisioner);
         final DefaultGreyfishSimulation simulation = DefaultGreyfishSimulationImpl.builder(space, prototypes).build();
 
-        simulation.createAgent(consumerPopulation);
-        simulation.createAgent(providerPopulation);
+        simulation.createAgent(consumerPopulation, ImmutablePoint2D.at(0,0));
+        simulation.createAgent(providerPopulation, ImmutablePoint2D.at(0,0));
         Simulations.runFor(simulation, 6);
 
         // then
