@@ -15,9 +15,12 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
+import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.io.SimulationLoggerFactory;
 import org.asoem.greyfish.core.simulation.Model;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
@@ -71,7 +74,7 @@ public final class GreyfishCLIApplication {
         LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.extract(model)));
 
         final String databasePath = dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString());
-        final H2Logger<?, ?> logger = new H2Logger<?, ?>(databasePath);
+        final H2Logger<?> logger = new H2Logger<?>(databasePath);
 
         /*
         final ParallelizedSimulationFactory simulationFactory =
@@ -241,6 +244,12 @@ public final class GreyfishCLIApplication {
                         .toInstance((Integer) optionSet.valueOf("pt"));
                 bind(String.class).annotatedWith(Names.named("databasePath"))
                         .toInstance((String) optionSet.valueOf("db"));
+                bind(SimulationLoggerFactory.class).toInstance(new SimulationLoggerFactory() {
+                    @Override
+                    public <A extends Agent<A, ?>> SimulationLogger<A> createLogger() {
+                        return new H2Logger<A>("");
+                    }
+                });
             }
         };
     }
