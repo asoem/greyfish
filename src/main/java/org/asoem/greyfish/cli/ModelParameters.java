@@ -15,7 +15,7 @@ public final class ModelParameters {
 
     private ModelParameters() {}
 
-    public static Map<String, Object> extract(Model<?, ?> model) {
+    public static Map<String, Object> extract(Model<?> model) {
         final Map<String, Object> map = Maps.newHashMap();
         for (Field field : model.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(ModelParameter.class)) {

@@ -15,12 +15,10 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggerFactory;
 import org.asoem.greyfish.core.simulation.Model;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
@@ -56,7 +54,7 @@ public final class GreyfishCLIApplication {
     private State state = State.STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(Model<?, DefaultGreyfishAgent> model,
+    private GreyfishCLIApplication(Model<?> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
                                    @Named("parallelizationThreshold") int parallelizationThreshold,
@@ -73,17 +71,7 @@ public final class GreyfishCLIApplication {
         LOGGER.info("Creating simulation for model {}", model.getClass());
         LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.extract(model)));
 
-        final String databasePath = dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString());
-        final H2Logger<?> logger = new H2Logger<?>(databasePath);
-
-        /*
-        final ParallelizedSimulationFactory simulationFactory =
-                new ParallelizedSimulationFactory(
-                        parallelizationThreshold,
-                        SimulationLoggers.synchronizedLogger(logger));
-        */
-
-        final Simulation<?> simulation = model.createSimulation(logger);
+        final Simulation<?> simulation = model.createSimulation();
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
@@ -214,7 +202,7 @@ public final class GreyfishCLIApplication {
                     final Class<?> modelClass = Class.forName(modelClassName);
                     if (!Model.class.isAssignableFrom(modelClass))
                         optionExceptionHandler.exitWithError("Specified Class does not implement " + Model.class);
-                    bind(new TypeLiteral<Model<?, DefaultGreyfishAgent>>(){}).to((Class<Model<?, DefaultGreyfishAgent>>) modelClass);
+                    bind(new TypeLiteral<Model<?>>(){}).to((Class<Model<?>>) modelClass);
                 } catch (ClassNotFoundException e) {
                     optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
                 }
@@ -242,14 +230,9 @@ public final class GreyfishCLIApplication {
                         .toProvider(Providers.of(optionSet.has("v") ? (String) optionSet.valueOf("v") : null));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance((Integer) optionSet.valueOf("pt"));
-                bind(String.class).annotatedWith(Names.named("databasePath"))
-                        .toInstance((String) optionSet.valueOf("db"));
-                bind(SimulationLoggerFactory.class).toInstance(new SimulationLoggerFactory() {
-                    @Override
-                    public <A extends Agent<A, ?>> SimulationLogger<A> createLogger() {
-                        return new H2Logger<A>("");
-                    }
-                });
+                bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){}).toInstance(new H2Logger<DefaultGreyfishAgent>(
+                        ((String) optionSet.valueOf("db")).replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString())
+                ));
             }
         };
     }
