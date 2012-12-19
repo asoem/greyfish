@@ -5,7 +5,6 @@ import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Initializer;
 
@@ -17,7 +16,7 @@ import java.util.Set;
  * Date: 21.11.12
  * Time: 15:32
  */
-public interface Simulation<A extends Agent<A, ? extends Simulation<A>>> extends HasName {
+public interface Simulation<A extends Agent<A, ?>> extends HasName {
     /**
      * Get all active {@code Agent}s which are part of the given {@code population}
      * @param population The common population
@@ -100,13 +99,7 @@ public interface Simulation<A extends Agent<A, ? extends Simulation<A>>> extends
      */
     void shutdown();
 
-    /**
-     * Get the {@code SimulationLogger} used in this simulation
-     * @return the {@code SimulationLogger} used in this simulation
-     */
-    SimulationLogger<A> getSimulationLogger();
-
-    void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message);
+    void logAgentEvent(A agent, Object eventOrigin, String title, String message);
 
     /**
      * With this method you can store values which hold for all agents during a single simulation step.

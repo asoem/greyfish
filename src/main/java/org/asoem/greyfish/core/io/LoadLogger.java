@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.agent.Agent;
  * Date: 23.03.12
  * Time: 12:34
  */
-public class LoadLogger implements SimulationLogger<Agent> {
+public class LoadLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
 
     private final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
@@ -39,12 +39,12 @@ public class LoadLogger implements SimulationLogger<Agent> {
     }
 
     @Override
-    public void logAgentCreation(Agent agent) {
+    public void logAgentCreation(A agent) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void logAgentEvent(Agent agent, int currentStep, String source, String title, String message) {
+    public void logAgentEvent(A agent, int currentStep, String source, String title, String message) {
         ++logCount;
     }
 }

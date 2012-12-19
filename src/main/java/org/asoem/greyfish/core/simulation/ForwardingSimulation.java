@@ -6,7 +6,6 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.utils.base.Initializer;
 
 import java.util.Collection;
@@ -17,7 +16,7 @@ import java.util.Set;
  * Date: 21.11.12
  * Time: 15:39
  */
-public abstract class ForwardingSimulation<A extends Agent<A, ? extends Simulation<A>>> extends ForwardingObject implements Simulation<A> {
+public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends ForwardingObject implements Simulation<A> {
     @Override
     protected abstract Simulation<A> delegate();
 
@@ -102,13 +101,8 @@ public abstract class ForwardingSimulation<A extends Agent<A, ? extends Simulati
     }
 
     @Override
-    public SimulationLogger<A> getSimulationLogger() {
-        return delegate().getSimulationLogger();
-    }
-
-    @Override
-    public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
-        delegate().logAgentEvent(agentId, populationName, coordinates, eventOrigin, title, message);
+    public void logAgentEvent(A agent, Object eventOrigin, String title, String message) {
+        delegate().logAgentEvent(agent, eventOrigin, title, message);
     }
 
     @Override

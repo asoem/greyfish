@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -10,7 +10,7 @@ import org.asoem.greyfish.utils.space.Object2D;
  * Date: 08.10.11
  * Time: 10:50
  */
-public interface SpatialSimulation2D<A extends Agent<A, ? extends SpatialSimulation2D<A, Z, P>>, Z extends Space2D<A, P>, P extends Object2D> extends Simulation<A> {
+public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends Space2D<A, P>, P extends Object2D> extends Simulation<A> {
 
     void createAgent(Population population, P projection);
 

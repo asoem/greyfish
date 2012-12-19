@@ -52,7 +52,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
     private final Set<A> prototypes;
-    private final SimulationLogger<A> simulationLogger;
+    private final SimulationLogger<? super A> simulationLogger;
     private String title = "untitled";
     private final AtomicInteger agentIdSequence = new AtomicInteger();
 
@@ -239,11 +239,6 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public SimulationLogger<A> getSimulationLogger() {
-        return simulationLogger;
-    }
-
-    @Override
     public String getName() {
         return title;
     }
@@ -256,6 +251,11 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     @Override
     public Iterable<A> getAgents(Population population) {
         return space.getAgents(population);
+    }
+
+    @Override
+    protected SimulationLogger<? super A> getSimulationLogger() {
+        return simulationLogger;
     }
 
     private static class AddAgentMessage<T> {
@@ -366,7 +366,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         private int parallelizationThreshold = 1000;
         private final Z space;
         private final Set<A> prototypes;
-        private SimulationLogger<A> simulationLogger = new ConsoleLogger<A>();
+        private SimulationLogger<? super A> simulationLogger = new ConsoleLogger<A>();
 
         public ParallelizedSimulationBuilder(Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
@@ -407,7 +407,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             return self();
         }
 
-        public B simulationLogger(SimulationLogger<A> simulationLogger) {
+        public B simulationLogger(SimulationLogger<? super A> simulationLogger) {
             this.simulationLogger = simulationLogger;
             return self();
         }

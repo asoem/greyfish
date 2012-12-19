@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.utils.base.Initializers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -13,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 21.11.12
  * Time: 15:44
  */
-public abstract class AbstractSimulation<A extends Agent<A, ? extends Simulation<A>>> implements Simulation<A> {
+public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simulation<A> {
     @Override
     public int numberOfPopulations() {
         return getPrototypes().size();
@@ -23,9 +24,9 @@ public abstract class AbstractSimulation<A extends Agent<A, ? extends Simulation
     public Iterable<A> getAgents(final Population population) {
         checkNotNull(population);
 
-        return Iterables.filter(getAgents(), new Predicate<Agent>() {
+        return Iterables.filter(getAgents(), new Predicate<A>() {
             @Override
-            public boolean apply(Agent agent) {
+            public boolean apply(A agent) {
                 return agent.hasPopulation(population);
             }
         });
@@ -41,9 +42,11 @@ public abstract class AbstractSimulation<A extends Agent<A, ? extends Simulation
     }
 
     @Override
-    public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
-        getSimulationLogger().logAgentEvent(null, getStep(), eventOrigin.getClass().getSimpleName(), title, message);
+    public void logAgentEvent(A agent, Object eventOrigin, String title, String message) {
+        getSimulationLogger().logAgentEvent(agent, getStep(), eventOrigin.getClass().getSimpleName(), title, message);
     }
+
+    protected abstract SimulationLogger<? super A> getSimulationLogger();
 
     @Override
     public Iterable<A> filterAgents(Predicate<? super A> predicate) {

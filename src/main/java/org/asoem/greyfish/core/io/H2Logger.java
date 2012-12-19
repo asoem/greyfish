@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
 
 import javax.annotation.Nullable;
@@ -22,7 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 23.04.12
  * Time: 14:49
  */
-public class H2Logger<A extends SpatialAgent<A, ?, P>, P extends Point2D> implements SimulationLogger<A> {
+public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogger<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(H2Logger.class);
     private static final int COMMIT_THRESHOLD = 1000;
@@ -240,7 +241,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, P>, P extends Point2D> implem
 
     @Override
     public void logAgentEvent(A agent, int currentStep, String source, String title, String message) {
-        addUpdateOperation(new InsertEventOperation(currentStep, agent.getId(), idForName(agent.getPopulation().getName()), agent.getProjection(), idForName(source), idForName(title), message));
+        addUpdateOperation(new InsertEventOperation(currentStep, agent.getId(), agent.getProjection(), idForName(source), idForName(title), message));
         tryCommit();
     }
 
@@ -257,10 +258,10 @@ public class H2Logger<A extends SpatialAgent<A, ?, P>, P extends Point2D> implem
         private final short titleNameId;
         private final String message;
 
-        public InsertEventOperation(int currentStep, int agentId, short populationNameId, Point2D coordinate, short sourceNameId, short titleNameId, String message) {
+        public InsertEventOperation(int currentStep, int agentId, Object2D coordinate, short sourceNameId, short titleNameId, String message) {
             this.currentStep = currentStep;
             this.agentId = agentId;
-            this.coordinates = coordinate;
+            this.coordinates = coordinate.getCentroid();
             this.sourceNameId = sourceNameId;
             this.titleNameId = titleNameId;
             this.message = message;

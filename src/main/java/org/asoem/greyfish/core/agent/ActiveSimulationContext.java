@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.simpleframework.xml.Attribute;
 
 import java.io.Serializable;
@@ -25,7 +24,7 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
         this.activationStep = simulationStep;
     }
 
-    public static <S extends SpatialSimulation2D<A, ?, ?>, A extends Agent<A, S>> ActiveSimulationContext<S, A> create(S simulation, int agentId, int simulationStep) {
+    public static <S extends Simulation<A>, A extends Agent<A, S>> ActiveSimulationContext<S, A> create(S simulation, int agentId, int simulationStep) {
         return new ActiveSimulationContext<S, A>(simulation, agentId, simulationStep);
     }
 
@@ -56,7 +55,7 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
         checkNotNull(title);
         checkNotNull(message);
 
-        simulation.logAgentEvent(agentId, agent.getPopulation().getName(), /*projection.getCentroid().getCoordinate()*/null, eventOrigin, title, message);
+        simulation.logAgentEvent(agent, eventOrigin, title, message);
     }
 
     @Override

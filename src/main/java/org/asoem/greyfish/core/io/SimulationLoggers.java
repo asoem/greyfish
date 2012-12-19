@@ -11,29 +11,29 @@ public final class SimulationLoggers {
 
     private SimulationLoggers() {}
 
-    public static SimulationLogger<Agent> synchronizedLogger(SimulationLogger<Agent> logger) {
-        return new SynchronizedLogger(logger);
+    public static <A extends Agent<A, ?>> SimulationLogger<A> synchronizedLogger(SimulationLogger<A> logger) {
+        return new SynchronizedLogger<A>(logger);
     }
 
-    private static class SynchronizedLogger implements SimulationLogger<Agent> {
-        private final SimulationLogger<Agent> logger;
+    private static class SynchronizedLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+        private final SimulationLogger<A> logger;
 
-        public SynchronizedLogger(SimulationLogger<Agent> logger) {
+        public SynchronizedLogger(SimulationLogger<A> logger) {
 
             this.logger = logger;
         }
 
         @Override
-        public void logAgentCreation(Agent agent) {
+        public void logAgentCreation(A agent) {
             synchronized (this) {
                 logger.logAgentCreation(agent);
             }
         }
 
         @Override
-        public void logAgentEvent(Agent agent, int currentStep, String source, String title, String message) {
+        public void logAgentEvent(A agent, int currentStep, String source, String title, String message) {
             synchronized (this) {
-                logger.logAgentEvent(, currentStep, source, title, message);
+                logger.logAgentEvent(agent, currentStep, source, title, message);
             }
         }
     }
