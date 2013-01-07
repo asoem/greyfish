@@ -12,12 +12,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A {@code DeepCloner} is used to make deep copies of {@link DeepCloneable} objects.
  *
  * The intended way is to call the static {@link #clone(DeepCloneable)} method to clone a certain object.
- * This method calls the {@link DeepCloneable#deepClone(DeepCloner)} method of the passed object.
+ * This method calls the {@link DeepCloneable#deepClone(CloneMap)} method of the passed object.
  * This method should then call a special "Cloner"-Constructor where you must first add the cloneable x clone pair
  * to this cloner using the {@link #addClone(DeepCloneable, DeepCloneable)} method and then
  * clone all {@code DeepCloneable} fields using the {@link #getClone(DeepCloneable)} method.
  */
-public class DeepCloner {
+public class DeepCloner implements CloneMap {
 
     private final Map<DeepCloneable, DeepCloneable> map = Maps.newIdentityHashMap();
 
@@ -30,6 +30,7 @@ public class DeepCloner {
      * @param original a cloneable
      * @param clone the clone of original
      */
+    @Override
     public <T extends DeepCloneable> void addClone(T original, T clone) {
         checkNotNull(original);
         checkNotNull(clone);
@@ -45,9 +46,10 @@ public class DeepCloner {
      * @param clazz the class of {@code cloneable}
      * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
      */
+    @Override
     @Nullable
     public <T extends DeepCloneable> T getClone(@Nullable T cloneable, Class<T> clazz) {
-        checkNotNull(clazz);
+        checkNotNull(clazz, "argument 'clazz' must not be null");
         return clazz.cast(getClone(cloneable));
     }
 
@@ -57,8 +59,21 @@ public class DeepCloner {
      * @param cloneable the object to clone
      * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
      */
+    @Override
     @Nullable
     public DeepCloneable getClone(@Nullable DeepCloneable cloneable) {
+        return getClone(cloneable, this);
+    }
+
+    /**
+     * Get the deep clone of {@code cloneable} using the given {@code CloneMap} for traversal.
+     * This method Enables decoration of this class.
+     *
+     * @param cloneable the object to clone
+     * @param cloneMap the {@code CloneMap} to pass to {@link DeepCloneable#deepClone(CloneMap)}
+     * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
+     */
+    public DeepCloneable getClone(DeepCloneable cloneable, CloneMap cloneMap) {
         if (cloneable == null) {
             return null;
         }
@@ -66,7 +81,7 @@ public class DeepCloner {
             return map.get(cloneable);
         }
         else {
-            final DeepCloneable clone = cloneable.deepClone(this);
+            final DeepCloneable clone = cloneable.deepClone(cloneMap);
 
             if (!map.containsKey(cloneable))
                 throw new IllegalStateException("Missing map entry: Did you forget to call DeepCloner.addClone() in constructor of " + cloneable.getClass());
@@ -76,6 +91,7 @@ public class DeepCloner {
             return clone;
         }
     }
+
 
     /**
      * Create a deep clone of {@code cloneable} casted to {@code clazz}
