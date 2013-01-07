@@ -8,14 +8,12 @@ import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.genes.*;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.collect.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.Object2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,38 +32,38 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Object2D> extends AbstractAgentAction<A> {
+public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
-    private Callback<? super SexualReproduction<A, P>, ? extends List<? extends Chromosome>> spermSupplier;
-    private Callback<? super SexualReproduction<A, P>, Integer> clutchSize;
+    private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermSupplier;
+    private Callback<? super SexualReproduction<A>, Integer> clutchSize;
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
-    private Callback<? super SexualReproduction<A, P>, Double> spermFitnessEvaluator;
-    private Callback<? super SexualReproduction<A, P>, P> projectionFactory;
+    private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator;
+    private Callback<? super SexualReproduction<A>, Void> offspringInitializer;
     private int offspringCount;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public SexualReproduction() {
-        this(new Builder<A, P>());
+        this(new Builder<A>());
     }
 
-    private SexualReproduction(SexualReproduction<A, P> cloneable, DeepCloner map) {
+    private SexualReproduction(SexualReproduction<A> cloneable, CloneMap map) {
         super(cloneable, map);
         this.spermSupplier = cloneable.spermSupplier;
         this.clutchSize = cloneable.clutchSize;
         this.spermSelectionStrategy = cloneable.spermSelectionStrategy;
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
-        this.projectionFactory = cloneable.projectionFactory;
+        this.offspringInitializer = cloneable.offspringInitializer;
     }
 
-    protected SexualReproduction(AbstractBuilder<A, P, ? extends SexualReproduction<A, P>, ? extends AbstractBuilder<A ,P, ?, ?>> builder) {
+    protected SexualReproduction(AbstractBuilder<A, ? extends SexualReproduction<A>, ? extends AbstractBuilder<A , ?, ?>> builder) {
         super(builder);
         this.spermSupplier = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
         this.spermSelectionStrategy = builder.spermSelectionStrategy;
         this.spermFitnessEvaluator = builder.spermFitnessEvaluator;
-        this.projectionFactory = builder.projectionFactory;
+        this.offspringInitializer = builder.offspringInitializer;
     }
 
     @Override
@@ -89,11 +87,12 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
 
             final Chromosome blend = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(parents));
 
-            agent().reproduce(new Initializer<SpatialAgent<A, ?, P>>() {
+            agent().reproduce(new Initializer<Agent<A, ?>>() {
                 @Override
-                public void initialize(SpatialAgent<A, ?, P> agent) {
-                    agent.setProjection(projectionFactory.apply(SexualReproduction.this, ArgumentMap.of()));
+                public void initialize(Agent<A, ?> agent) {
+                    //agent.setProjection(offspringInitializer.apply(SexualReproduction.this, ArgumentMap.of()));
                     /*MotionObject2DImpl.reorientated(agent().getProjection())*/
+                    offspringInitializer.apply(SexualReproduction.this, ArgumentMap.of("offspring", agent));
                     agent.updateGeneComponents(blend);
                 }
             });
@@ -127,9 +126,9 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermSupplier", this, new TypeToken<Callback<? super SexualReproduction<A, P>, List<? extends Chromosome>>>() {
+        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermSupplier", this, new TypeToken<Callback<? super SexualReproduction<A>, List<? extends Chromosome>>>() {
         }));
-        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, new TypeToken<Callback<? super SexualReproduction<A, P>, Integer>>() {
+        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, new TypeToken<Callback<? super SexualReproduction<A>, Integer>>() {
         }));
         e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
 
@@ -162,8 +161,8 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
     }
 
     @Override
-    public SexualReproduction<A, P> deepClone(DeepCloner cloner) {
-        return new SexualReproduction<A, P>(this, cloner);
+    public SexualReproduction<A> deepClone(CloneMap cloneMap) {
+        return new SexualReproduction<A>(this, cloneMap);
     }
 
     @Override
@@ -172,20 +171,20 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
         offspringCount = 0;
     }
 
-    public static <A extends SpatialAgent<A, ?, P>, P extends Object2D> Builder<A, P> builder() {
-        return new Builder<A, P>();
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
+        return new Builder<A>();
     }
 
     public int getOffspringCount() {
         return offspringCount;
     }
 
-    public Callback<? super SexualReproduction<A, P>, Integer> getClutchSize() {
+    public Callback<? super SexualReproduction<A>, Integer> getClutchSize() {
         return clutchSize;
     }
 
     private Object writeReplace() {
-        return new Builder<A, P>()
+        return new Builder<A>()
                 .clutchSize(clutchSize)
                 .spermSupplier(spermSupplier)
                 .spermSelectionStrategy(spermSelectionStrategy)
@@ -199,17 +198,17 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends SpatialAgent<A, ?, P>, P extends Object2D> extends AbstractBuilder<A, P, SexualReproduction<A,P>, Builder<A,P>> implements Serializable {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, SexualReproduction<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
         @Override
-        protected Builder<A, P> self() {
+        protected Builder<A> self() {
             return this;
         }
 
         @Override
-        protected SexualReproduction<A,P> checkedBuild() {
-            return new SexualReproduction<A,P>(this);
+        protected SexualReproduction<A> checkedBuild() {
+            return new SexualReproduction<A>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -224,19 +223,19 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, P>, P extends Object2D, C extends SexualReproduction<A, P>, B extends AbstractBuilder<A, P, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
-        private Callback<? super SexualReproduction<A, P>, ? extends List<? extends Chromosome>> spermStorage;
-        private Callback<? super SexualReproduction<A, P>, Integer> clutchSize = Callbacks.constant(1);
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+        private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage;
+        private Callback<? super SexualReproduction<A>, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
-        private Callback<? super SexualReproduction<A, P>, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
-        private Callback<? super SexualReproduction<A, P>, P> projectionFactory;
+        private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
+        private Callback<? super SexualReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
 
-        public B spermSupplier(Callback<? super SexualReproduction<A, P>, ? extends List<? extends Chromosome>> spermStorage) {
+        public B spermSupplier(Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage) {
             this.spermStorage = checkNotNull(spermStorage);
             return self();
         }
 
-        public B clutchSize(Callback<? super SexualReproduction<A, P>, Integer> nOffspring) {
+        public B clutchSize(Callback<? super SexualReproduction<A>, Integer> nOffspring) {
             this.clutchSize = nOffspring;
             return self();
         }
@@ -246,7 +245,7 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
             return self();
         }
 
-        public B spermFitnessCallback(Callback<? super SexualReproduction<A,P>, Double> callback) {
+        public B spermFitnessCallback(Callback<? super SexualReproduction<A>, Double> callback) {
             this.spermFitnessEvaluator = checkNotNull(callback);
             return self();
         }
@@ -258,7 +257,6 @@ public class SexualReproduction<A extends SpatialAgent<A, ?, P>, P extends Objec
             checkState(clutchSize != null);
             checkState(spermSelectionStrategy != null);
             checkState(spermFitnessEvaluator != null);
-            checkState(projectionFactory != null);
         }
     }
 }

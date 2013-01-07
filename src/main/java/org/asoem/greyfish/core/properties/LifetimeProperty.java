@@ -4,10 +4,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.ArgumentMap;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 
@@ -28,7 +25,7 @@ public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentPro
 
     private Supplier<T> memoizer;
 
-    public LifetimeProperty(LifetimeProperty<A, T> lifetimeProperty, DeepCloner cloner) {
+    public LifetimeProperty(LifetimeProperty<A, T> lifetimeProperty, CloneMap cloner) {
         super(lifetimeProperty, cloner);
         this.initializer = lifetimeProperty.initializer;
     }
@@ -51,8 +48,8 @@ public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentPro
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
-        return new LifetimeProperty<A, T>(this, cloner);
+    public DeepCloneable deepClone(CloneMap cloneMap) {
+        return new LifetimeProperty<A, T>(this, cloneMap);
     }
 
     @Override

@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -22,7 +22,7 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
 
     private final Callback<? super GenericCondition<A>, Boolean> callback;
 
-    private GenericCondition(GenericCondition<A> genericCondition, DeepCloner cloner) {
+    private GenericCondition(GenericCondition<A> genericCondition, CloneMap cloner) {
         super(genericCondition, cloner);
         this.callback = genericCondition.callback;
     }
@@ -38,8 +38,8 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
     }
 
     @Override
-    public GenericCondition<A> deepClone(DeepCloner cloner) {
-        return new GenericCondition<A>(this, cloner);
+    public GenericCondition<A> deepClone(CloneMap cloneMap) {
+        return new GenericCondition<A>(this, cloneMap);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         this(new Builder<A>());
     }
 
-    private GenericMovement(GenericMovement<A> cloneable, DeepCloner map) {
+    private GenericMovement(GenericMovement<A> cloneable, CloneMap map) {
         super(cloneable, map);
         this.stepSize = cloneable.stepSize;
         this.turningAngle = cloneable.turningAngle;
@@ -67,8 +67,8 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
     }
 
     @Override
-    public GenericMovement<A> deepClone(DeepCloner cloner) {
-        return new GenericMovement<A>(this, cloner);
+    public GenericMovement<A> deepClone(CloneMap cloneMap) {
+        return new GenericMovement<A>(this, cloneMap);
     }
 
 

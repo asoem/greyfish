@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,7 +23,7 @@ public class SexualReproductionTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final SexualReproduction<DefaultGreyfishAgent, Point2D> action = SexualReproduction.<DefaultGreyfishAgent, Point2D>builder()
+        final SexualReproduction<DefaultGreyfishAgent> action = SexualReproduction.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .clutchSize(Callbacks.constant(1))
                 .spermSupplier(Callbacks.constant(Lists.<Chromosome>newArrayList()))
@@ -35,7 +34,7 @@ public class SexualReproductionTest {
                 .build();
 
         // when
-        SexualReproduction<DefaultGreyfishAgent, Point2D> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
+        SexualReproduction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, is(equalTo(action)));

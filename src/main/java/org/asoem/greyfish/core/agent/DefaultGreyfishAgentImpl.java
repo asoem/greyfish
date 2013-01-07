@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.space.Point2D;
 
 import java.io.Serializable;
@@ -20,7 +20,7 @@ public class DefaultGreyfishAgentImpl extends ForwardingSpatialAgent<DefaultGrey
     private final SpatialAgent<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> delegate;
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private DefaultGreyfishAgentImpl(DefaultGreyfishAgentImpl defaultGreyfishAgent, DeepCloner cloner) {
+    private DefaultGreyfishAgentImpl(DefaultGreyfishAgentImpl defaultGreyfishAgent, CloneMap cloner) {
         cloner.addClone(defaultGreyfishAgent, this);
         delegate = (SpatialAgent<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D>) cloner.getClone(defaultGreyfishAgent.delegate);
     }
@@ -37,8 +37,8 @@ public class DefaultGreyfishAgentImpl extends ForwardingSpatialAgent<DefaultGrey
     }
 
     @Override
-    public DefaultGreyfishAgentImpl deepClone(DeepCloner cloner) {
-        return new DefaultGreyfishAgentImpl(this, cloner);
+    public DefaultGreyfishAgentImpl deepClone(CloneMap cloneMap) {
+        return new DefaultGreyfishAgentImpl(this, cloneMap);
     }
 
     public static Builder builder(Population population) {

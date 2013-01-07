@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
@@ -17,7 +18,7 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
 
     protected AbstractTrait() {}
 
-    protected AbstractTrait(AbstractAgentComponent<A> cloneable, DeepCloner map) {
+    protected AbstractTrait(AbstractAgentComponent<A> cloneable, CloneMap map) {
         super(cloneable, map);
     }
 

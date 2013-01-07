@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentMessage;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -23,7 +23,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
     private int nExpectedProposeAnswers;
     private MessageTemplate template = MessageTemplates.alwaysFalse();
 
-    protected ContractNetParticipantAction(ContractNetParticipantAction<A> cloneable, DeepCloner cloner) {
+    protected ContractNetParticipantAction(ContractNetParticipantAction<A> cloneable, CloneMap cloner) {
         super(cloneable, cloner);
         this.timeoutCounter = cloneable.timeoutCounter;
         this.nExpectedProposeAnswers = cloneable.nExpectedProposeAnswers;

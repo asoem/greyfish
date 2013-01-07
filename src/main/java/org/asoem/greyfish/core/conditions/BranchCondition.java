@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -29,7 +29,7 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     private final List<ActionCondition<A>> conditions = Lists.newArrayList();
 
     @SuppressWarnings("unchecked") // casting a clone should be safe
-    protected BranchCondition(BranchCondition<A> cloneable, DeepCloner cloner) {
+    protected BranchCondition(BranchCondition<A> cloneable, CloneMap cloner) {
         super(cloneable, cloner);
         for (ActionCondition<A> condition : cloneable.getChildConditions())
             add((ActionCondition<A>) cloner.getClone(condition));

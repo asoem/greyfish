@@ -54,7 +54,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         this(new Builder<A>());
     }
 
-    private FemaleLikeMating(FemaleLikeMating<A> cloneable, DeepCloner cloner) {
+    private FemaleLikeMating(FemaleLikeMating<A> cloneable, CloneMap cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
@@ -149,8 +149,8 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
     }
 
     @Override
-    public FemaleLikeMating<A> deepClone(DeepCloner cloner) {
-        return new FemaleLikeMating<A>(this, cloner);
+    public FemaleLikeMating<A> deepClone(CloneMap cloneMap) {
+        return new FemaleLikeMating<A>(this, cloneMap);
     }
 
     public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {

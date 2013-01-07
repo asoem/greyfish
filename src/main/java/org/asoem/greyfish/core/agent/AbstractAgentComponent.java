@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
@@ -25,7 +25,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     }
 
     @SuppressWarnings("unchecked") // cloning is save
-    protected AbstractAgentComponent(AbstractAgentComponent<A> cloneable, DeepCloner map) {
+    protected AbstractAgentComponent(AbstractAgentComponent<A> cloneable, CloneMap map) {
         map.addClone(cloneable, this);
         initializeObject(cloneable.name, (A) map.getClone(cloneable.agent));
     }

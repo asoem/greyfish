@@ -22,7 +22,7 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
         super(new Builder());
     }
 
-    protected GenericAction(GenericAction<A> genericAction, DeepCloner cloner) {
+    protected GenericAction(GenericAction<A> genericAction, CloneMap cloner) {
         super(genericAction, cloner);
         this.callback = genericAction.callback;
     }
@@ -39,8 +39,8 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
-        return new GenericAction(this, cloner);
+    public DeepCloneable deepClone(CloneMap cloneMap) {
+        return new GenericAction(this, cloneMap);
     }
 
     public static <A extends Agent<A, ?>> Builder<A> builder() {

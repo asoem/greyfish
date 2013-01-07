@@ -5,8 +5,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.asoem.utils.test.MockUtils;
@@ -14,10 +13,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.MockUtil;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
 
@@ -25,7 +21,6 @@ import static org.asoem.utils.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -91,7 +86,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner clonerMock = MockUtils.mockAwareCloner();
+        final CloneMap clonerMock = MockUtils.mockAwareCloner();
         final DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class))
                 .addAction(mock(AgentAction.class))
                 .addProperties(mock(AgentProperty.class))
@@ -103,7 +98,6 @@ public class DefaultGreyfishAgentImplTest {
 
         // then
         assertThat(clone, isSameAs(agent));
-        verify(clonerMock, times(5)).getClone(any(DeepCloneable.class));
     }
 
     @Test

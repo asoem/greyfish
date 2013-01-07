@@ -4,7 +4,6 @@ import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,11 +20,11 @@ public class ClonalReproductionTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final ClonalReproduction<DefaultGreyfishAgent, Point2D> action = ClonalReproduction.<DefaultGreyfishAgent, Point2D>with()
+        final ClonalReproduction<DefaultGreyfishAgent> action = ClonalReproduction.<DefaultGreyfishAgent>with()
                 .nClones(Callbacks.constant(5))
                 .build();
         // when
-        final ClonalReproduction<DefaultGreyfishAgent, Point2D> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
+        final ClonalReproduction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
 
         // then
         assertThat(copy, is(equalTo(action)));

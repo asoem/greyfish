@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.Tagged;
 
 @Tagged("conditions")
@@ -10,7 +10,7 @@ public class AgeCondition extends IntCompareCondition<DefaultGreyfishAgent> {
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AgeCondition() {}
 
-    private AgeCondition(AgeCondition condition, DeepCloner map) {
+    private AgeCondition(AgeCondition condition, CloneMap map) {
         super(condition, map);
     }
 
@@ -19,8 +19,8 @@ public class AgeCondition extends IntCompareCondition<DefaultGreyfishAgent> {
     }
 
     @Override
-    public AgeCondition deepClone(DeepCloner cloner) {
-        return new AgeCondition(this, cloner);
+    public AgeCondition deepClone(CloneMap cloneMap) {
+        return new AgeCondition(this, cloneMap);
     }
 
     @Override

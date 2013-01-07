@@ -10,6 +10,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
 import org.asoem.greyfish.utils.collect.SearchableList;
@@ -56,7 +57,7 @@ public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimul
     private final A self;
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private FrozenAgent(FrozenAgent<A, S, P, Z> frozenAgent, final DeepCloner cloner) {
+    private FrozenAgent(FrozenAgent<A, S, P, Z> frozenAgent, final CloneMap cloner) {
         cloner.addClone(frozenAgent, this);
         // share
         this.population = frozenAgent.population;
@@ -200,8 +201,8 @@ public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimul
     }
 
     @Override
-    public FrozenAgent<A, S, P, Z> deepClone(DeepCloner cloner) {
-        return new FrozenAgent<A, S, P, Z>(this, cloner);
+    public FrozenAgent<A, S, P, Z> deepClone(CloneMap cloneMap) {
+        return new FrozenAgent<A, S, P, Z>(this, cloneMap);
     }
 
     private Object writeReplace() {

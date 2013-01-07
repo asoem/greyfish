@@ -1,14 +1,11 @@
 package org.asoem.utils.test;
 
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.mockito.internal.util.MockUtil;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.spy;
+import javax.annotation.Nullable;
 
 /**
  * User: christoph
@@ -18,30 +15,34 @@ import static org.mockito.Mockito.spy;
 public class MockUtils {
     private MockUtils() {}
 
-    public static DeepCloner mockAwareCloner() {
-        final DeepCloner clonerMock = spy(DeepCloner.newInstance());
-        given(clonerMock.getClone(any(DeepCloneable.class))).willAnswer(new Answer<DeepCloneable>() {
+    public static CloneMap mockAwareCloner() {
+        return new CloneMap() {
+
+            private final DeepCloner delegate = DeepCloner.newInstance();
+            private final MockUtil mockUtil = new MockUtil();
+
             @Override
-            public DeepCloneable answer(InvocationOnMock invocation) throws Throwable {
-                final Object o = invocation.getArguments()[0];
-                if (new MockUtil().isMock(o)) {
-                    return (DeepCloneable) o;
-                }
-                else
-                    return (DeepCloneable) invocation.callRealMethod();
+            public <T extends DeepCloneable> void addClone(T original, T clone) {
+                delegate.addClone(original, clone);
             }
-        });
-        given(clonerMock.getClone(any(DeepCloneable.class), any(Class.class))).willAnswer(new Answer<DeepCloneable>() {
+
+            @Nullable
             @Override
-            public DeepCloneable answer(InvocationOnMock invocation) throws Throwable {
-                final Object o = invocation.getArguments()[0];
-                if (new MockUtil().isMock(o)) {
-                    return (DeepCloneable) o;
+            public <T extends DeepCloneable> T getClone(@Nullable T cloneable, Class<T> clazz) {
+                if (mockUtil.isMock(cloneable)) {
+                    return cloneable; // TODO: Should return a clone of this mock
                 }
-                else
-                    return (DeepCloneable) invocation.callRealMethod();
+                else return delegate.getClone(cloneable, clazz);
             }
-        });
-        return clonerMock;
+
+            @Nullable
+            @Override
+            public DeepCloneable getClone(@Nullable DeepCloneable cloneable) {
+                if (mockUtil.isMock(cloneable)) {
+                    return cloneable; // TODO: Should return a clone of this mock
+                }
+                else return delegate.getClone(cloneable, this);
+            }
+        };
     }
 }

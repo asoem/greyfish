@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -25,13 +26,13 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
         super(builder);
     }
 
-    protected DoubleProperty(DoubleProperty<A> property, DeepCloner cloner) {
+    protected DoubleProperty(DoubleProperty<A> property, CloneMap cloner) {
         super(property, cloner);
     }
 
     @Override
-    public DoubleProperty<A> deepClone(DeepCloner cloner) {
-        return new DoubleProperty<A>(this, cloner);
+    public DoubleProperty<A> deepClone(CloneMap cloneMap) {
+        return new DoubleProperty<A>(this, cloneMap);
     }
 
     @Override

@@ -4,7 +4,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
@@ -20,7 +20,7 @@ import java.io.Serializable;
 @Tagged("conditions")
 public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    private AllCondition(AllCondition<A> cloneable, DeepCloner map) {
+    private AllCondition(AllCondition<A> cloneable, CloneMap map) {
         super(cloneable, map);
     }
 
@@ -37,8 +37,8 @@ public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
     }
 
     @Override
-    public AllCondition<A> deepClone(DeepCloner cloner) {
-        return new AllCondition<A>(this, cloner);
+    public AllCondition<A> deepClone(CloneMap cloneMap) {
+        return new AllCondition<A>(this, cloneMap);
     }
 
     private Object writeReplace() {

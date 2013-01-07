@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
@@ -38,7 +38,7 @@ public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
     private final A self;
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    public MutableAgent(MutableAgent<A, S, Z, P> frozenAgent, final DeepCloner cloner) {
+    public MutableAgent(MutableAgent<A, S, Z, P> frozenAgent, final CloneMap cloner) {
         cloner.addClone(frozenAgent, this);
         // share
         this.population = frozenAgent.population;
@@ -173,8 +173,8 @@ public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
     }
 
     @Override
-    public MutableAgent<A, S, Z, P> deepClone(DeepCloner cloner) {
-        return new MutableAgent<A, S, Z, P>(this, cloner);
+    public MutableAgent<A, S, Z, P> deepClone(CloneMap cloneMap) {
+        return new MutableAgent<A, S, Z, P>(this, cloneMap);
     }
 
     @Override

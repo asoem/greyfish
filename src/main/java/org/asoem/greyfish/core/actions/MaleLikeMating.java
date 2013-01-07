@@ -38,7 +38,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         this(new Builder<A>());
     }
 
-    private MaleLikeMating(MaleLikeMating<A> cloneable, DeepCloner cloner) {
+    private MaleLikeMating(MaleLikeMating<A> cloneable, CloneMap cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.matingProbability = cloneable.matingProbability;
@@ -115,8 +115,8 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
     }
 
     @Override
-    public MaleLikeMating<A> deepClone(DeepCloner cloner) {
-        return new MaleLikeMating<A>(this, cloner);
+    public MaleLikeMating<A> deepClone(CloneMap cloneMap) {
+        return new MaleLikeMating<A>(this, cloneMap);
     }
 
     public static <A extends Agent<A, ?>> Builder<A> with() {

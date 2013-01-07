@@ -6,6 +6,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -32,7 +33,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
     protected E value;
 
-    protected AbstractRangeElementProperty(AbstractRangeElementProperty<E, A> property, DeepCloner cloner) {
+    protected AbstractRangeElementProperty(AbstractRangeElementProperty<E, A> property, CloneMap cloner) {
         super(property, cloner);
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;

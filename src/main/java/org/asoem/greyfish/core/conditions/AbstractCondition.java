@@ -4,7 +4,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.core.Commit;
@@ -28,7 +28,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     protected AbstractCondition() {}
 
     @SuppressWarnings("unchecked") // casting a clone should be safe
-    protected AbstractCondition(AbstractCondition<A> cloneable, DeepCloner cloner) {
+    protected AbstractCondition(AbstractCondition<A> cloneable, CloneMap cloner) {
         cloner.addClone(cloneable, this);
         this.action = (AgentAction<A>) cloner.getClone(cloneable.action);
         this.parentCondition = (ActionCondition<A>) cloner.getClone(cloneable.parentCondition);

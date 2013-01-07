@@ -47,7 +47,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
         this.state = builder.state;
     }
 
-    private DiscreteTrait(DiscreteTrait<A> discreteTrait, DeepCloner cloner) {
+    private DiscreteTrait(DiscreteTrait<A> discreteTrait, CloneMap cloner) {
         super(discreteTrait, cloner);
         this.mutationTable = discreteTrait.mutationTable;
         this.initializationKernel = discreteTrait.initializationKernel;
@@ -105,8 +105,8 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     }
 
     @Override
-    public DiscreteTrait<A> deepClone(DeepCloner cloner) {
-        return new DiscreteTrait<A>(this, cloner);
+    public DiscreteTrait<A> deepClone(CloneMap cloneMap) {
+        return new DiscreteTrait<A>(this, cloneMap);
     }
 
     @Override

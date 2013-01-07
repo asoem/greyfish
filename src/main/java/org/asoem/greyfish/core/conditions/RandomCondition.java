@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -15,7 +15,7 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
     @Element(name="probability")
     private double probability;
 
-    private RandomCondition(RandomCondition<A> condition, DeepCloner map) {
+    private RandomCondition(RandomCondition<A> condition, CloneMap map) {
         super(condition, map);
         this.probability = condition.probability;
     }
@@ -26,8 +26,8 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
     }
 
     @Override
-    public RandomCondition<A> deepClone(DeepCloner cloner) {
-        return new RandomCondition<A>(this, cloner);
+    public RandomCondition<A> deepClone(CloneMap cloneMap) {
+        return new RandomCondition<A>(this, cloneMap);
     }
 
     @Override

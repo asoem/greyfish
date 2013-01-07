@@ -19,8 +19,7 @@ import org.simpleframework.xml.ElementArray;
 import javax.annotation.Nullable;
 import java.util.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 import static javolution.lang.MathLib.TWO_PI;
 import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
 import static org.asoem.greyfish.utils.space.Geometry2D.polarToCartesian;
@@ -356,7 +355,8 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         checkNotNull(projection, "projection is null");
 
         synchronized (this) {
-            point2DMap.put(object, projection);
+            final Point2D previous = point2DMap.put(object, projection);
+            checkState(previous == null, "no duplicate objects allowed: " + object);
             updateRequest.outdate();
             return true;
         }

@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -39,7 +39,7 @@ public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition
     }
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private StatePropertyCondition(StatePropertyCondition<A> condition, DeepCloner cloner) {
+    private StatePropertyCondition(StatePropertyCondition<A> condition, CloneMap cloner) {
         super(condition, cloner);
         this.stateProperty = (FiniteStateProperty<?, A>) cloner.getClone(condition.stateProperty);
         this.state = condition.state;
@@ -52,8 +52,8 @@ public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition
     }
 
     @Override
-    public StatePropertyCondition<A> deepClone(DeepCloner cloner) {
-        return new StatePropertyCondition<A>(this, cloner);
+    public StatePropertyCondition<A> deepClone(CloneMap cloneMap) {
+        return new StatePropertyCondition<A>(this, cloneMap);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.InvalidObjectException;
@@ -26,7 +26,7 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     }
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private Avatar(Avatar<A, S, P> avatar, DeepCloner cloner) {
+    private Avatar(Avatar<A, S, P> avatar, CloneMap cloner) {
         cloner.addClone(avatar, this);
         this.delegate = (SpatialAgent<A, S, P>) cloner.getClone(avatar.delegate);
         this.projection = avatar.projection;
@@ -43,8 +43,8 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     }
 
     @Override
-    public Avatar<A, S, P> deepClone(DeepCloner cloner) {
-        return new Avatar<A, S, P>(this, cloner);
+    public Avatar<A, S, P> deepClone(CloneMap cloneMap) {
+        return new Avatar<A, S, P>(this, cloneMap);
     }
 
     @Override

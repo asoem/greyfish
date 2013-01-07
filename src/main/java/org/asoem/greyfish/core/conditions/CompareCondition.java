@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.CompareOperator;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Attribute;
@@ -22,7 +22,7 @@ public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<
 
     protected CompareCondition() {}
 
-    protected CompareCondition(CompareCondition<T, A> condition, DeepCloner map) {
+    protected CompareCondition(CompareCondition<T, A> condition, CloneMap map) {
         super(condition, map);
         this.compareOperator = condition.compareOperator;
         this.value = condition.value;
