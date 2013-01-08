@@ -66,7 +66,7 @@ public class DeepCloner implements CloneMap {
     }
 
     /**
-     * Get the deep clone of {@code cloneable} using the given {@code CloneMap} for traversal.
+     * Get the deep clone of {@code cloneable} using the given {@code CloneMap} for caching.
      * This method Enables decoration of this class.
      *
      * @param cloneable the object to clone
@@ -81,14 +81,14 @@ public class DeepCloner implements CloneMap {
             return map.get(cloneable);
         }
         else {
-            final DeepCloneable clone = cloneable.deepClone(cloneMap);
+            return cloneable.deepClone(cloneMap);
 
+            /*
             if (!map.containsKey(cloneable))
                 throw new IllegalStateException("Missing map entry: Did you forget to call DeepCloner.addClone() in constructor of " + cloneable.getClass());
             if (clone != map.get(cloneable))
                 throw new IllegalStateException("Clone in map for cloneable is not the same as clone returned by cloneable.deepClone()");
-
-            return clone;
+            */
         }
     }
 

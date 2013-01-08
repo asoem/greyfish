@@ -2,9 +2,11 @@ package org.asoem.greyfish.utils.base;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -47,6 +49,17 @@ public final class Callbacks {
 
     public static <R> Callback<Object, R> willThrow(RuntimeException exception) {
         return new ThrowingCallable(exception);
+    }
+
+    /**
+     * The created Callback iterates over the given values and returns them.
+     * If the last element is reached, its value returned for all consecutive calls.
+     * @param values the values to iterate over
+     * @param <T> the type of the values
+     * @return the given values in order.
+     */
+    public static <T> Callback<Object, T> iterate(T ... values) {
+        return new IteratingCallback(Iterators.forArray(values));
     }
 
     private static enum EmptyCallback implements Callback<Object, Void> {
@@ -129,5 +142,21 @@ public final class Callbacks {
         }
 
         private static final long serialVersionUID = 0;
+    }
+
+    private static class IteratingCallback<T>  implements Callback<Object, T> {
+        private final Iterator<T> values;
+        private T current = null;
+
+        public IteratingCallback(Iterator<T> values) {
+            this.values = values;
+        }
+
+        @Override
+        public T apply(Object caller, Arguments arguments) {
+            if (values.hasNext())
+                current = values.next();
+            return current;
+        }
     }
 }
