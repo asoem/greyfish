@@ -13,10 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * User: christoph
@@ -35,18 +32,17 @@ public class AvatarTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner clonerMock = mock(DeepCloner.class);
-        final SpatialAgent<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> cloneMock = mock(SpatialAgent.class);
-        given(clonerMock.getClone(any(Agent.class), any(Class.class))).willReturn(cloneMock);
+        final DeepCloner cloner = DeepCloner.newInstance();
+        final SpatialAgent<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> agentDelegate = mock(SpatialAgent.class);
+        given(agentDelegate.deepClone(cloner)).willReturn(agentDelegate);
+
         final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> avatar =
-                new Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D>(cloneMock, mock(Point2D.class));
+                new Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D>(agentDelegate, mock(Point2D.class));
 
         // when
-        final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> clone = avatar.deepClone(clonerMock);
+        final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> clone = avatar.deepClone(cloner);
 
         // then
-        verify(clonerMock).addClone(eq(avatar), any(Avatar.class));
-        verify(clonerMock).getClone(cloneMock, Agent.class);
         assertThat(clone, is(equalTo(avatar)));
     }
 

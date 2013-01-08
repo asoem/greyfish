@@ -26,7 +26,7 @@ public final class Simulations {
         }
     }
 
-    public static void runFor(Simulation<?> simulation, int steps) {
+    public static void proceed(Simulation<?> simulation, int steps) {
         for (int i = 0; i < steps; i++) {
             simulation.nextStep();
         }

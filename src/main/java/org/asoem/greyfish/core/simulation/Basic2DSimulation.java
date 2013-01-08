@@ -55,6 +55,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private final SimulationLogger<? super A> simulationLogger;
     private String title = "untitled";
     private final AtomicInteger agentIdSequence = new AtomicInteger();
+    private SimulationState state;
 
     protected Basic2DSimulation(ParallelizedSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.prototypes = checkNotNull(builder.prototypes);
@@ -70,11 +71,12 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         this.snapshotValues = Maps.newConcurrentMap();
     }
 
-    private void activateAgentInternal(A agent, Initializer<? super A> initializer) {
-        assert agent != null : "population is null";
-        assert initializer != null : "initializer is null";
+    @Override
+    public void addAgent(A agent) {
+        checkState(state != SimulationState.PLANING_PHASE);
+        checkNotNull(agent, "agent is null");
+        // TODO: check state of agent (should be initialized)
 
-        initializer.initialize(agent);
         space.insertObject(agent, agent.getProjection());
         agent.activate(ActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getStep() + 1));
 
@@ -112,7 +114,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         return space.count(population);
     }
 
-    private A createAgentInternal(final Population population) {
+    private A createClone(final Population population) {
         checkNotNull(population);
         try {
             final A agent = agentPool.borrowObject(population);
@@ -147,12 +149,14 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
     @Override
     public synchronized void nextStep() {
+        setState(SimulationState.PLANING_PHASE);
 
         final int step = currentStep.incrementAndGet();
-
         LOGGER.info("{}: Entering step {}; {}", this, step, countAgents());
 
         executeAllAgents();
+
+        setState(SimulationState.MODIFICATION_PHASE);
 
         processAgentMessageDelivery();
         processRequestedAgentRemovals();
@@ -160,6 +164,8 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         processRequestedAgentActivations();
 
         afterStepCleanUp();
+
+        setState(SimulationState.IDLE);
     }
 
     private void afterStepCleanUp() {
@@ -187,7 +193,9 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
     private void processRequestedAgentActivations() {
         for (AddAgentMessage<A> addAgentMessage : addAgentMessages) {
-            activateAgentInternal(createAgentInternal(addAgentMessage.population), addAgentMessage.initializer);
+            final A clone = createClone(addAgentMessage.population);
+            addAgentMessage.initializer.initialize(clone);
+            addAgent(clone);
         }
         addAgentMessages.clear();
     }
@@ -256,6 +264,14 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     @Override
     protected SimulationLogger<? super A> getSimulationLogger() {
         return simulationLogger;
+    }
+
+    private void setState(SimulationState state) {
+        this.state = state;
+    }
+
+    public SimulationState getState() {
+        return state;
     }
 
     private static class AddAgentMessage<T> {
@@ -415,5 +431,9 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         public B agentActivator(AgentActivator<A> agentActivator) {
             return self();
         }
+    }
+
+    private enum SimulationState {
+        MODIFICATION_PHASE, IDLE, PLANING_PHASE
     }
 }

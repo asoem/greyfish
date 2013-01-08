@@ -4,10 +4,14 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.ActionCondition;
+import org.asoem.greyfish.utils.base.CloneMap;
 
 import javax.annotation.Nullable;
 
 public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
+
+    @Override
+    AgentAction<A> deepClone(CloneMap cloneMap);
 
     /**
      * Check if all precondition are met for this action.

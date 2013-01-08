@@ -57,6 +57,26 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
         return projection;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Avatar)) return false;
+
+        Avatar avatar = (Avatar) o;
+
+        if (delegate != null ? !delegate.equals(avatar.delegate) : avatar.delegate != null) return false;
+        if (projection != null ? !projection.equals(avatar.projection) : avatar.projection != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = delegate != null ? delegate.hashCode() : 0;
+        result = 31 * result + (projection != null ? projection.hashCode() : 0);
+        return result;
+    }
+
     private Object writeReplace() {
         return new SerializedForm<A, S, P>(this);
     }

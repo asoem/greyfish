@@ -82,7 +82,7 @@ public class ResourceInteractionTest {
 
         simulation.createAgent(consumerPopulation, ImmutablePoint2D.at(0,0));
         simulation.createAgent(providerPopulation, ImmutablePoint2D.at(0,0));
-        Simulations.runFor(simulation, 6);
+        Simulations.proceed(simulation, 6);
 
         // then
         assertThat(energyStorage.getValue(), is(equalTo(2.0)));

@@ -40,6 +40,8 @@ public interface Simulation<A extends Agent<A, ?>> extends HasName {
 
     void createAgent(Population population);
 
+    void addAgent(A agent);
+
     /**
      * Remove agent from this {@code Simulation}
      * @param agent the {@code Agent} to be removed from this {@code Simulation}

@@ -39,7 +39,7 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
     }
 
     @Override
-    public DeepCloneable deepClone(CloneMap cloneMap) {
+    public GenericAction<A> deepClone(CloneMap cloneMap) {
         return new GenericAction(this, cloneMap);
     }
 

@@ -96,6 +96,11 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
+    public void addAgent(A agent) {
+        delegate().addAgent(agent);
+    }
+
+    @Override
     public String getName() {
         return delegate().getName();
     }

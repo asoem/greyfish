@@ -9,6 +9,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.actions.utils.ActionState.INITIAL;
 import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_MET;
 
 /**
@@ -43,11 +44,13 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
             nextAction = executionLog.getAction();
         } else {
             for (AgentAction action : actions) {
+                if (action.getState() != INITIAL)
+                    action.reset();
+
                 if (action.checkPreconditions() == PRECONDITIONS_MET) {
                     nextAction = action;
                     break;
-                } else
-                    action.reset();
+                }
             }
         }
 
@@ -55,9 +58,6 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         if (nextAction != null) {
             final ActionState state = nextAction.apply();
             executionLog = new BasicExecutionLog(nextAction, state);
-
-            if (state != ActionState.INTERMEDIATE)
-                nextAction.reset();
         }
         else
             executionLog = EMPTY_LOG;
