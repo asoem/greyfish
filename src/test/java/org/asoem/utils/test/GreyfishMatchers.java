@@ -24,7 +24,7 @@ public class GreyfishMatchers {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("is ");
+                description.appendText("an instance of ").appendValue(typeToken.getType());
             }
         };
     }
