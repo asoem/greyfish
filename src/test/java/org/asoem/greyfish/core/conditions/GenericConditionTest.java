@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * User: christoph
@@ -28,15 +29,16 @@ public class GenericConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner deepCloner = mock(DeepCloner.class);
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
-        given(deepCloner.getClone(action, AgentAction.class)).willReturn(action);
-        final ActionCondition<DefaultGreyfishAgent> condition = mock(ActionCondition.class);
-        given(deepCloner.getClone(condition, ActionCondition.class)).willReturn(condition);
+        final DeepCloner deepCloner = DeepCloner.newInstance();
+
+        final AgentAction<DefaultGreyfishAgent> action = when(mock(AgentAction.class).deepClone(deepCloner)).thenReturn(mock(AgentAction.class)).getMock();
+
+        final ActionCondition<DefaultGreyfishAgent> condition = when(mock(ActionCondition.class).deepClone(deepCloner)).thenReturn(mock(ActionCondition.class)).getMock();
         given(condition.getAction()).willReturn(action);
+
         final Callback<Object, Boolean> callback = Callbacks.constant(true);
 
-        GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(callback);
+        final GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(callback);
         genericCondition.setParent(condition);
 
         // when
@@ -66,18 +68,18 @@ public class GenericConditionTest {
                         return input.getCallback();
                     }
                 }, is(Matchers.<Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean>>equalTo(genericCondition.getCallback()))),
-                has("action == " + genericCondition.getAction(), new Function<GenericCondition<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
+                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
                     @Override
                     public AgentAction<DefaultGreyfishAgent> apply(GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getAction();
                     }
-                }, is(equalTo(genericCondition.getAction()))),
-                has("parent == " + genericCondition.getParent(), new Function<GenericCondition<DefaultGreyfishAgent>, ActionCondition<DefaultGreyfishAgent>>() {
+                }, is(genericCondition.getAction() == null ? nullValue() : instanceOf(AgentAction.class))),
+                has("parent ~= " + genericCondition.getParent(), new Function<GenericCondition<DefaultGreyfishAgent>, ActionCondition<DefaultGreyfishAgent>>() {
                     @Override
                     public ActionCondition<DefaultGreyfishAgent> apply(GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getParent();
                     }
-                }, is(equalTo(genericCondition.getParent())))
+                }, is(genericCondition.getParent() == null ? nullValue() : instanceOf(ActionCondition.class)))
         );
     }
 }

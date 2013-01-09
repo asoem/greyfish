@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.base.CloneMap;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.AugmentedLists;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
@@ -113,15 +112,14 @@ public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimul
         return self;
     }
 
-    @Nullable
     @Override
     public Population getPopulation() {
         return population;
     }
 
     @Override
-    public void setPopulation(@Nullable Population population) {
-        this.population = population;
+    public void setPopulation(Population population) {
+        this.population = checkNotNull(population);
     }
 
     @Override
@@ -279,9 +277,9 @@ public class FrozenAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimul
 
         @Override
         public FrozenAgent<A, S, P, Z> build() throws IllegalStateException {
-            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent, String>() {
+            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent<A>, String>() {
                 @Override
-                public String apply(AgentComponent input) {
+                public String apply(AgentComponent<A> input) {
                     return input.getName();
                 }
             });

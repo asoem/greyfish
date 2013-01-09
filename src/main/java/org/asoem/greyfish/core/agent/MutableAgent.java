@@ -28,7 +28,6 @@ public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
     private final SearchableList<AgentTrait<A, ?>> traits;
     private final ActionExecutionStrategy actionExecutionStrategy;
     private final AgentMessageBox<A> inBox;
-    @Nullable
     private Population population;
     @Nullable
     private P projection;
@@ -38,7 +37,7 @@ public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
     private final A self;
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    public MutableAgent(MutableAgent<A, S, Z, P> frozenAgent, final CloneMap cloner) {
+    private MutableAgent(MutableAgent<A, S, Z, P> frozenAgent, final CloneMap cloner) {
         cloner.addClone(frozenAgent, this);
         // share
         this.population = frozenAgent.population;
@@ -71,6 +70,7 @@ public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
     }
 
     public MutableAgent(Population population) {
+        checkNotNull(population);
         this.properties = AugmentedLists.newAugmentedArrayList();
         this.actions = AugmentedLists.newAugmentedArrayList();
         this.traits = AugmentedLists.newAugmentedArrayList();
@@ -85,15 +85,14 @@ public class MutableAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
         return self;
     }
 
-    @Nullable
     @Override
     public Population getPopulation() {
         return population;
     }
 
     @Override
-    public void setPopulation(@Nullable Population population) {
-        this.population = population;
+    public void setPopulation(Population population) {
+        this.population = checkNotNull(population);
     }
 
     @Override

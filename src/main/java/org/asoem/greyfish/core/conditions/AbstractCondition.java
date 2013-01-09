@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -73,7 +72,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     @Override
-    public void setAgent(@Nullable Agent agent) {
+    public void setAgent(@Nullable A agent) {
         throw new UnsupportedOperationException();
     }
 
@@ -122,7 +121,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
 
     @Override
     public boolean isFrozen() {
-        final AgentAction action = getAction();
+        final AgentAction<A> action = getAction();
         return action != null && action.isFrozen();
     }
 
@@ -135,17 +134,13 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     public void initialize() {
     }
 
-    public Simulation simulation() {
-        return agent().simulation();
-    }
-
     @Override
     public AgentNode parent() {
         return parentCondition != null ? parentCondition : action;
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
-        public AbstractBuilder(AbstractCondition leafCondition) {
+        public AbstractBuilder(AbstractCondition<A> leafCondition) {
         }
 
         protected AbstractBuilder() {

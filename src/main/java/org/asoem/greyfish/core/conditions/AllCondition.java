@@ -30,7 +30,7 @@ public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
     @Override
     public boolean evaluate() {
-        for (ActionCondition condition : getChildConditions())
+        for (ActionCondition<A> condition : getChildConditions())
             if (!condition.evaluate())
                 return false;
         return true;

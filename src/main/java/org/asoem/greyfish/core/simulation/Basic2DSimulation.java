@@ -182,9 +182,9 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void executeAllAgents() {
-        final RecursiveAction executeAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Simulatable>() {
+        final RecursiveAction executeAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Simulatable<S, A>>() {
             @Override
-            public void process(Simulatable agent) {
+            public void process(Simulatable<S, A> agent) {
                 agent.execute();
             }
         }, parallelizationThreshold);

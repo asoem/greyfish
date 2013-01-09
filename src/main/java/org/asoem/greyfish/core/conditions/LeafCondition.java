@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.base.Objects;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.CloneMap;
@@ -52,6 +53,11 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
     @Override
     public void insert(ActionCondition<A> condition, int index) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String toString() {
+        return (isRootCondition() ? "*" : "") + Objects.toStringHelper(this).toString();
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends AbstractCondition.AbstractBuilder<A, C, B> {

@@ -168,7 +168,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T> {
      * @return the ACLMessage to send as a reply
      */
     @SuppressWarnings("UnusedDeclaration")
-    public Builder replyTo(T sender) {
+    public Builder<T> replyTo(T sender) {
         return createReply(this, sender);
     }
 

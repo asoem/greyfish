@@ -3,6 +3,7 @@
  */
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.AgentAction;
@@ -122,6 +123,11 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     @Override
     public final Iterable<AgentNode> childConditions() {
         return Collections.<AgentNode>unmodifiableList(getChildConditions());
+    }
+
+    @Override
+    public String toString() {
+        return (isRootCondition() ? "*" : "") + Objects.toStringHelper(this).addValue(getChildConditions()).toString();
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends BranchCondition<A>, T extends AbstractBuilder<A, E, T>> extends AbstractCondition.AbstractBuilder<A,E,T> implements Serializable {

@@ -19,7 +19,7 @@ public interface ActionCondition<A extends Agent<A, ?>> extends AgentComponent<A
 	List<ActionCondition<A>> getChildConditions();
     ActionCondition<A> getRoot();
     void setParent(@Nullable ActionCondition<A> parent);
-    ActionCondition getParent();
+    ActionCondition<A> getParent();
 
     void insert(ActionCondition<A> condition, int index);
     void add(ActionCondition<A> condition);

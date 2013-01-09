@@ -18,7 +18,7 @@ import java.util.ListIterator;
  * Date: 17.10.11
  * Time: 18:44
  */
-public class FixedSizeMessageBox<A extends Agent> implements AgentMessageBox<A>, Serializable {
+public class FixedSizeMessageBox<A extends Agent<A, ?>> implements AgentMessageBox<A>, Serializable {
 
     private final CircularFifoBuffer<AgentMessage<A>> box;
 
@@ -91,7 +91,7 @@ public class FixedSizeMessageBox<A extends Agent> implements AgentMessageBox<A>,
         throw new InvalidObjectException("Proxy required");
     }
 
-    private static class SerializedForm<A extends Agent> implements Serializable {
+    private static class SerializedForm<A extends Agent<A, ?>> implements Serializable {
         private List<AgentMessage<A>> messages;
 
         SerializedForm(FixedSizeMessageBox<A> box) {

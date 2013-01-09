@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.CloneMap;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -64,12 +63,12 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
 
     public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, DoubleProperty<A>, Builder<A>> {
         public Builder() {lowerBound(0.0).upperBound(0.0).initialValue(0.0);}
-        @Override protected Builder self() { return this; }
+        @Override protected Builder<A> self() { return this; }
         @Override public DoubleProperty<A> checkedBuild() {
             checkState(lowerBound != null);
             checkState(upperBound != null);
             checkState(initialValue != null);
-            checkState(Ordering.<Comparable>natural().isOrdered(asList(lowerBound, initialValue, upperBound)));
+            checkState(Ordering.<Comparable<Double>>natural().isOrdered(asList(lowerBound, initialValue, upperBound)));
             return new DoubleProperty<A>(this); }
     }
 

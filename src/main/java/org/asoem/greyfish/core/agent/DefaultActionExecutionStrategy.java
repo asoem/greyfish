@@ -19,16 +19,16 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_ME
  */
 public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, Serializable {
 
-    private final List<? extends AgentAction> actions;
+    private final List<? extends AgentAction<?>> actions;
 
     private ExecutionLog executionLog;
 
-    public DefaultActionExecutionStrategy(List<? extends AgentAction> actions) {
+    public DefaultActionExecutionStrategy(List<? extends AgentAction<?>> actions) {
         this.actions = checkNotNull(actions);
         this.executionLog = EMPTY_LOG;
     }
 
-    private DefaultActionExecutionStrategy(List<? extends AgentAction> agentActions, ExecutionLog executionLog) {
+    private DefaultActionExecutionStrategy(List<? extends AgentAction<?>> agentActions, ExecutionLog executionLog) {
         this.actions = agentActions;
         this.executionLog = executionLog;
     }
@@ -37,13 +37,13 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
     public void execute() {
 
         @Nullable
-        AgentAction nextAction = null;
+        AgentAction<?> nextAction = null;
 
         // identify action to execute
         if (executionLog.hasUncompletedAction()) {
             nextAction = executionLog.getAction();
         } else {
-            for (AgentAction action : actions) {
+            for (AgentAction<?> action : actions) {
                 if (action.getState() != INITIAL)
                     action.reset();
 
@@ -65,7 +65,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
 
     @Override
     @Nullable
-    public AgentAction lastExecutedAction() {
+    public AgentAction<?> lastExecutedAction() {
         return executionLog.getAction();
     }
 
@@ -85,7 +85,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
     }
 
     private static class SerializedForm implements Serializable {
-        private final List<? extends AgentAction> actions;
+        private final List<? extends AgentAction<?>> actions;
         private final ExecutionLog executionLog;
 
         SerializedForm(DefaultActionExecutionStrategy strategy) {
@@ -107,10 +107,10 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
     }
 
     private static class BasicExecutionLog implements ExecutionLog {
-        private final AgentAction action;
+        private final AgentAction<?> action;
         private final ActionState state;
 
-        private BasicExecutionLog(AgentAction action, ActionState state) {
+        private BasicExecutionLog(AgentAction<?> action, ActionState state) {
             this.action = action;
             this.state = state;
         }
@@ -121,7 +121,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         }
 
         @Override
-        public AgentAction getAction() {
+        public AgentAction<?> getAction() {
             return action;
         }
 
@@ -138,7 +138,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         }
 
         @Override
-        public AgentAction getAction() {
+        public AgentAction<?> getAction() {
             return null;
         }
 
@@ -156,7 +156,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
     private static interface ExecutionLog {
         boolean hasUncompletedAction();
         @Nullable
-        AgentAction getAction();
+        AgentAction<?> getAction();
 
         ActionState getState();
     }

@@ -9,7 +9,7 @@ import java.util.List;
  * Date: 09.10.12
  * Time: 14:37
  */
-public interface AgentMessageBox<A extends Agent> extends Iterable<AgentMessage<A>> {
+public interface AgentMessageBox<A extends Agent<A, ?>> extends Iterable<AgentMessage<A>> {
     void push(AgentMessage<A> message);
 
     Iterable<AgentMessage<A>> filter(MessageTemplate template);

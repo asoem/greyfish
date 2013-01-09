@@ -49,7 +49,7 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     }
 
     @Override
-    public ActionCondition getParent() {
+    public ActionCondition<A> getParent() {
         return delegate().getParent();
     }
 

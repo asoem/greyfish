@@ -51,6 +51,7 @@ public class ConvertingEvaluationResult implements EvaluationResult {
             return resultType.cast(asObject());
     }
 
+    @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
     public double asDouble() throws EvaluationException {
         switch (resultType) {
@@ -62,6 +63,7 @@ public class ConvertingEvaluationResult implements EvaluationResult {
         }
     }
 
+    @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
     public boolean asBoolean() throws EvaluationException {
         switch (resultType) {
@@ -81,6 +83,7 @@ public class ConvertingEvaluationResult implements EvaluationResult {
         return result;
     }
 
+    @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
     public int asInt() throws EvaluationException {
         switch (resultType) {

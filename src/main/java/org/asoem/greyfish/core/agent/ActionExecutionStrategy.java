@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public interface ActionExecutionStrategy {
     void execute();
     @Nullable
-    AgentAction lastExecutedAction();
+    AgentAction<?> lastExecutedAction();
     @Nullable
     ActionState lastExecutedActionState();
 

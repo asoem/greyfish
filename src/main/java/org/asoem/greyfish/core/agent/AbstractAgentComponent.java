@@ -87,7 +87,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
 
     @Override
     public boolean isFrozen() {
-        final Agent agent = getAgent();
+        final A agent = getAgent();
         return agent != null && agent.isFrozen();
     }
 
@@ -111,7 +111,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AbstractAgentComponent that = (AbstractAgentComponent) o;
+        AbstractAgentComponent<A> that = (AbstractAgentComponent<A>) o;
 
         return name.equals(that.name);
 

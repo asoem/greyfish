@@ -47,10 +47,6 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     protected abstract A self();
 
-    @Nullable
-    @Override
-    public abstract Population getPopulation();
-
     @Override
     public boolean hasPopulation(@Nullable Population population) {
         return Objects.equal(getPopulation(), population);

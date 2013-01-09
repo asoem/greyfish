@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.CloneMap;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
@@ -23,7 +22,7 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
     @Override
     public boolean evaluate() {
-        for (ActionCondition condition : getChildConditions())
+        for (ActionCondition<A> condition : getChildConditions())
             if (condition.evaluate())
                 return false;
         return true;

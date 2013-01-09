@@ -1,13 +1,11 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Function;
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.asoem.utils.test.GreyfishMatchers;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -68,8 +66,7 @@ public class AllConditionTest {
                         },
                         Matchers.<List<ActionCondition<A>>>allOf(
                                 hasSize(allCondition.getChildConditions().size()),
-                                everyItem(GreyfishMatchers.isA(new TypeToken<ActionCondition<A>>() {
-                                })),
+                                everyItem(is(Matchers.<ActionCondition<A>>instanceOf(ActionCondition.class))),
                                 everyItem(not(isIn(allCondition.getChildConditions()))))));
     }
 }

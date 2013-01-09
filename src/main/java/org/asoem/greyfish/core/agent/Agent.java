@@ -22,10 +22,11 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
 
     void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2);
 
-    @Nullable
     Population getPopulation();
-    void setPopulation(@Nullable Population population);
-    boolean hasPopulation(@Nullable Population population);
+
+    void setPopulation(Population population);
+
+    boolean hasPopulation(Population population);
 
     boolean addAction(AgentAction<A> action);
 
