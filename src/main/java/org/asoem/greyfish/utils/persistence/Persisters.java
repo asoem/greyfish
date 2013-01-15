@@ -35,6 +35,7 @@ public final class Persisters {
         final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
 
         final Future<T> future = Executors.newSingleThreadExecutor().submit(new Callable<T>() {
+            @SuppressWarnings("unchecked") // safe if persister is implemented correctly
             @Override
             public T call() throws Exception {
                 return (T) persister.deserialize(pipedInputStream, o.getClass());

@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.collect;
 import com.google.common.collect.ForwardingList;
 import com.google.common.collect.ForwardingListIterator;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
@@ -28,7 +29,7 @@ public abstract class HookedForwardingList<T> extends ForwardingList<T> {
     }
 
     @Override
-    public final boolean addAll(Collection<? extends T> ts) {
+    public final boolean addAll(@Nonnull Collection<? extends T> ts) {
         return standardAddAll(ts);
     }
 
@@ -53,7 +54,7 @@ public abstract class HookedForwardingList<T> extends ForwardingList<T> {
     }
 
     @Override
-    public final boolean removeAll(Collection<?> collection) {
+    public final boolean removeAll(@Nonnull Collection<?> collection) {
         return standardRemoveAll(collection);
     }
 
@@ -70,11 +71,13 @@ public abstract class HookedForwardingList<T> extends ForwardingList<T> {
         return ret;
     }
 
+    @Nonnull
     @Override
     public final ListIterator<T> listIterator() {
         return standardListIterator();
     }
 
+    @Nonnull
     @Override
     public final ListIterator<T> listIterator(final int index) {
         return new ForwardingListIterator<T>() {
@@ -101,6 +104,7 @@ public abstract class HookedForwardingList<T> extends ForwardingList<T> {
         };
     }
 
+    @Nonnull
     @Override
     public final Iterator<T> iterator() {
         return standardIterator();

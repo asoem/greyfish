@@ -44,11 +44,11 @@ public final class Callbacks {
     }
 
     public static <R> Callback<Object, R> returnArgument(String x, Class<R> clazz) {
-        return new ArgumentCallback(x, clazz);
+        return new ArgumentCallback<R>(x, clazz);
     }
 
     public static <R> Callback<Object, R> willThrow(RuntimeException exception) {
-        return new ThrowingCallable(exception);
+        return new ThrowingCallable<R>(exception);
     }
 
     /**
@@ -59,7 +59,7 @@ public final class Callbacks {
      * @return the given values in order.
      */
     public static <T> Callback<Object, T> iterate(T ... values) {
-        return new IteratingCallback(Iterators.forArray(values));
+        return new IteratingCallback<T>(Iterators.forArray(values));
     }
 
     private static enum EmptyCallback implements Callback<Object, Void> {
@@ -76,7 +76,7 @@ public final class Callbacks {
         @Nullable
         private final T value;
 
-        public ConstantCallback(T returnValue) {
+        public ConstantCallback(@Nullable T returnValue) {
             this.value = returnValue;
         }
 

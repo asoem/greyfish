@@ -48,7 +48,7 @@ public final class ApproximationMath {
     }
 
     /**
-     * A helper function to precompute the last factor for {@link #gaussianHelper(double, double, double)}
+     * A helper function to compute the last factor for {@link #gaussianHelper(double, double, double)}
      * @param sigma the standard deviation for the gaussian function
      * @return 1 / (2sigma^2)
      */
