@@ -57,8 +57,7 @@ public final class GreyfishCLIApplication {
     private GreyfishCLIApplication(Model<?> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
-                                   @Named("parallelizationThreshold") int parallelizationThreshold,
-                                   @Named("databasePath") String dbPath) {
+                                   @Named("parallelizationThreshold") int parallelizationThreshold) {
         final List<Predicate<Simulation<?>>> predicateList = Lists.newArrayList();
 
         predicateList.add(new Predicate<Simulation<?>>() {
