@@ -9,6 +9,9 @@ import org.asoem.greyfish.utils.space.Object2D;
  * Time: 18:58
  */
 public final class AgentInitializers {
+
+    private AgentInitializers() {}
+
     public static <P extends Object2D> Initializer<? super SpatialAgent<?, ?, P>> projection(final P projection) {
         return new Initializer<SpatialAgent<?, ?, P>>() {
             @Override

@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -18,20 +18,20 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public DoubleProperty() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
     protected DoubleProperty(AbstractBuilder<A, ? extends DoubleProperty<A>, ? extends AbstractBuilder<A,? extends DoubleProperty<A>,?>> builder) {
         super(builder);
     }
 
-    protected DoubleProperty(DoubleProperty<A> property, CloneMap cloner) {
+    protected DoubleProperty(DoubleProperty<A> property, DeepCloner cloner) {
         super(property, cloner);
     }
 
     @Override
-    public DoubleProperty<A> deepClone(CloneMap cloneMap) {
-        return new DoubleProperty<A>(this, cloneMap);
+    public DoubleProperty<A> deepClone(DeepCloner cloner) {
+        return new DoubleProperty<A>(this, cloner);
     }
 
     @Override

@@ -1,15 +1,20 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Function;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import javax.annotation.Nullable;
+
+import static org.asoem.utils.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 /**
  * User: christoph
@@ -20,7 +25,7 @@ public class SuicideTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        Suicide<DefaultGreyfishAgent> suicide = Suicide.<DefaultGreyfishAgent>builder()
+        final Suicide<DefaultGreyfishAgent> suicide = Suicide.<DefaultGreyfishAgent>builder()
                 .name("foo")
                 .executedIf(AlwaysTrueCondition.<DefaultGreyfishAgent>builder().build())
                 .onSuccess(Callbacks.emptyCallback())
@@ -30,6 +35,33 @@ public class SuicideTest {
         final Suicide<DefaultGreyfishAgent> copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
 
         // then
-        assertThat(copy, is(equalTo(suicide)));
+        assertThat(copy, is(sameAs(suicide)));
+    }
+
+    private Matcher<Suicide<?>> sameAs(Suicide<?> suicide) {
+        return allOf(
+                is(notNullValue()),
+                has("name", new Function<Suicide<?>, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(Suicide<?> input) {
+                        return input.getName();
+                    }
+                }, equalTo(suicide.getName())),
+                has("condition", new Function<Suicide<?>, Object>() {
+                    @Nullable
+                    @Override
+                    public Object apply(Suicide<?> input) {
+                        return input.getCondition();
+                    }
+                }, is(instanceOf(suicide.getCondition().getClass()))),
+                has("onSuccessCallback", new Function<Suicide<?>, Object>() {
+                    @Nullable
+                    @Override
+                    public Object apply(Suicide<?> input) {
+                        return input.getSuccessCallback();
+                    }
+                }, is(Matchers.<Object>equalTo(suicide.getSuccessCallback())))
+        );
     }
 }

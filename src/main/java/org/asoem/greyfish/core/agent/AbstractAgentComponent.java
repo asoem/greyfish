@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Attribute;
@@ -25,9 +25,9 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     }
 
     @SuppressWarnings("unchecked") // cloning is save
-    protected AbstractAgentComponent(AbstractAgentComponent<A> cloneable, CloneMap map) {
+    protected AbstractAgentComponent(AbstractAgentComponent<A> cloneable, DeepCloner map) {
         map.addClone(cloneable, this);
-        initializeObject(cloneable.name, (A) map.getClone(cloneable.agent));
+        initializeObject(cloneable.name, map.getClone(cloneable.agent));
     }
 
     protected AbstractAgentComponent(AbstractBuilder<A, ? extends AbstractAgentComponent<A>, ? extends AbstractBuilder<A,?,?>> builder) {
@@ -111,15 +111,16 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AbstractAgentComponent<A> that = (AbstractAgentComponent<A>) o;
+        AbstractAgentComponent that = (AbstractAgentComponent) o;
 
-        return name.equals(that.name);
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return name != null ? name.hashCode() : 0;
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> implements Serializable {

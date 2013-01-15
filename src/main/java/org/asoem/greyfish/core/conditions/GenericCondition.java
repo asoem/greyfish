@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -22,7 +22,7 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
 
     private final Callback<? super GenericCondition<A>, Boolean> callback;
 
-    private GenericCondition(GenericCondition<A> genericCondition, CloneMap cloner) {
+    private GenericCondition(GenericCondition<A> genericCondition, DeepCloner cloner) {
         super(genericCondition, cloner);
         this.callback = genericCondition.callback;
     }
@@ -38,8 +38,8 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
     }
 
     @Override
-    public GenericCondition<A> deepClone(CloneMap cloneMap) {
-        return new GenericCondition<A>(this, cloneMap);
+    public GenericCondition<A> deepClone(DeepCloner cloner) {
+        return new GenericCondition<A>(this, cloner);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
     }
 
     public static <A extends Agent<A, ?>> Builder<A> builder() {
-        return new Builder();
+        return new Builder<A>();
     }
 
     private static final class Builder<A extends Agent<A, ?>> extends LeafCondition.AbstractBuilder<A, GenericCondition<A>, Builder<A>> implements Serializable {

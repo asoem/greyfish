@@ -5,6 +5,9 @@ import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.EvaluationResult;
 
 import javax.annotation.Nullable;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 /**
  * User: christoph
@@ -35,32 +38,26 @@ public class ConvertingEvaluationResult implements EvaluationResult {
             resultType = RESULT_TYPE.OBJECT;
     }
 
+    @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
-    public <T> T as(Class<T> resultType) {
-        if (resultType.equals(Double.class))
-            return resultType.cast(asDouble());
-        else if (resultType.equals(Boolean.class))
-            return resultType.cast(asBoolean());
-        else if (resultType.equals(Integer.class))
-            return resultType.cast(asInt());
-        else if (resultType.equals(String.class))
-            return resultType.cast(asString());
-        else if (resultType.equals(Boolean.class))
-            return resultType.cast(asBoolean());
-        else
-            return resultType.cast(asObject());
+    public Number asNumber() throws EvaluationException, ParseException {
+        switch (resultType) {
+            case STRING:
+                return NumberFormat.getInstance(Locale.US).parse((String) result); // TODO: cache
+            case DOUBLE:
+            case INTEGER:
+            case FLOAT:
+                return (Number) result;
+            case BOOLEAN:
+                return ((Boolean) result) ? 1 : 0;
+            default: throw new EvaluationException(result + " cannot be converted to a Number");
+        }
     }
 
     @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
-    public double asDouble() throws EvaluationException {
-        switch (resultType) {
-            case DOUBLE: return (Double)result;
-            case INTEGER: return ((Integer)result).doubleValue();
-            case FLOAT: return ((Float)result).doubleValue();
-            case STRING: return Double.parseDouble((String)result);
-            default: throw new EvaluationException(result + " cannot be converted to Double");
-        }
+    public double asDouble() throws EvaluationException, ParseException {
+        return asNumber().doubleValue();
     }
 
     @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
@@ -68,7 +65,7 @@ public class ConvertingEvaluationResult implements EvaluationResult {
     public boolean asBoolean() throws EvaluationException {
         switch (resultType) {
             case BOOLEAN: return (Boolean)result;
-            case STRING: return Boolean.parseBoolean((String)result);
+            case STRING: return Boolean.parseBoolean((String)result); // TODO: include 1 as true
             default: throw new EvaluationException(result + " cannot be converted to Boolean");
         }
     }
@@ -79,20 +76,14 @@ public class ConvertingEvaluationResult implements EvaluationResult {
     }
 
     @Override
-    public Object asObject() {
+    public Object get() {
         return result;
     }
 
     @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
-    public int asInt() throws EvaluationException {
-        switch (resultType) {
-            case INTEGER: return (Integer) result;
-            case DOUBLE: return ((Double) result).intValue();
-            case FLOAT: return ((Float)result).intValue();
-            case STRING: return Integer.parseInt((String)result);
-            default: throw new EvaluationException(result + " cannot be converted to Integer");
-        }
+    public int asInt() throws EvaluationException, ParseException {
+        return asNumber().intValue();
     }
 
     private enum RESULT_TYPE {

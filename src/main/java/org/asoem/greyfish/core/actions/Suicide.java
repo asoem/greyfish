@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -22,7 +22,7 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
         this(new Builder<A>());
     }
 
-    private Suicide(Suicide<A> cloneable, CloneMap map) {
+    private Suicide(Suicide<A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
@@ -39,8 +39,8 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
     }
 
     @Override
-    public Suicide<A> deepClone(CloneMap cloneMap) {
-        return new Suicide<A>(this, cloneMap);
+    public Suicide<A> deepClone(DeepCloner cloner) {
+        return new Suicide<A>(this, cloner);
     }
 
     private Object writeReplace() {

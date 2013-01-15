@@ -9,7 +9,10 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.*;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.collect.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.SetAdaptor;
@@ -40,7 +43,6 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     private Callback<? super SexualReproduction<A>, Integer> clutchSize;
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
     private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator;
-    private Callback<? super SexualReproduction<A>, Void> offspringInitializer;
     private int offspringCount;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -48,13 +50,12 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         this(new Builder<A>());
     }
 
-    private SexualReproduction(SexualReproduction<A> cloneable, CloneMap map) {
+    private SexualReproduction(SexualReproduction<A> cloneable, DeepCloner map) {
         super(cloneable, map);
         this.spermSupplier = cloneable.spermSupplier;
         this.clutchSize = cloneable.clutchSize;
         this.spermSelectionStrategy = cloneable.spermSelectionStrategy;
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
-        this.offspringInitializer = cloneable.offspringInitializer;
     }
 
     protected SexualReproduction(AbstractBuilder<A, ? extends SexualReproduction<A>, ? extends AbstractBuilder<A , ?, ?>> builder) {
@@ -63,7 +64,6 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         this.clutchSize = builder.clutchSize;
         this.spermSelectionStrategy = builder.spermSelectionStrategy;
         this.spermFitnessEvaluator = builder.spermFitnessEvaluator;
-        this.offspringInitializer = builder.offspringInitializer;
     }
 
     @Override
@@ -85,17 +85,9 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             if ( parents.size() != 1 )
                 throw new AssertionError("Sperm must have an uniparental history");
 
-            final Chromosome blend = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(parents));
+            final Chromosome chromosome = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(parents));
 
-            agent().reproduce(new Initializer<Agent<A, ?>>() {
-                @Override
-                public void initialize(Agent<A, ?> agent) {
-                    //agent.setProjection(offspringInitializer.apply(SexualReproduction.this, ArgumentMap.of()));
-                    /*MotionObject2DImpl.reorientated(agent().getProjection())*/
-                    offspringInitializer.apply(SexualReproduction.this, ArgumentMap.of("offspring", agent));
-                    agent.updateGeneComponents(blend);
-                }
-            });
+            agent().reproduce(chromosome);
 
             agent().logEvent(this, "offspringProduced", "");
         }
@@ -108,11 +100,11 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     private static <A extends Agent<A, ?>> Chromosome blend(SearchableList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
-        final Tuple2.Zipped<AgentTrait<A, ?>, Gene<?>> zip
-                = Tuple2.Zipped.of(egg, sperm.getGenes());
+        final Tuple2.Zipped<AgentTrait<A, ?>, SearchableList<AgentTrait<A, ?>>, Gene<?>, List<Gene<?>>> zipped =
+                Tuple2.zipped(egg, sperm.getGenes());
 
         // segregate and mutate
-        final Iterable<Gene<Object>> genes = Iterables.transform(zip, new Function<Product2<AgentTrait<A, ?>, Gene<?>>, Gene<Object>>() {
+        final Iterable<Gene<Object>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, Gene<?>>, Gene<Object>>() {
             @Override
             public Gene<Object> apply(Product2<AgentTrait<A, ?>, Gene<?>> tuple) {
                 final Object segregationProduct = AgentTraits.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
@@ -161,8 +153,8 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     }
 
     @Override
-    public SexualReproduction<A> deepClone(CloneMap cloneMap) {
-        return new SexualReproduction<A>(this, cloneMap);
+    public SexualReproduction<A> deepClone(DeepCloner cloner) {
+        return new SexualReproduction<A>(this, cloner);
     }
 
     @Override
@@ -228,7 +220,6 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         private Callback<? super SexualReproduction<A>, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
         private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
-        private Callback<? super SexualReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
 
         public B spermSupplier(Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage) {
             this.spermStorage = checkNotNull(spermStorage);

@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -29,7 +28,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
         super(builder);
     }
 
-    protected ContractNetInitiatorAction(ContractNetInitiatorAction<A> cloneable, CloneMap cloner) {
+    protected ContractNetInitiatorAction(ContractNetInitiatorAction<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
     }
 

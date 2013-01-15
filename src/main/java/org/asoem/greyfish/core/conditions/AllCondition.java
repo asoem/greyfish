@@ -4,7 +4,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
@@ -20,7 +20,7 @@ import java.io.Serializable;
 @Tagged("conditions")
 public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    private AllCondition(AllCondition<A> cloneable, CloneMap map) {
+    private AllCondition(AllCondition<A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
@@ -37,8 +37,8 @@ public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
     }
 
     @Override
-    public AllCondition<A> deepClone(CloneMap cloneMap) {
-        return new AllCondition<A>(this, cloneMap);
+    public AllCondition<A> deepClone(DeepCloner cloner) {
+        return new AllCondition<A>(this, cloner);
     }
 
     private Object writeReplace() {
@@ -48,6 +48,10 @@ public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
     private void readObject(ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
+    }
+
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A> condition) {
+        return new Builder<A>().add(condition).build();
     }
 
     public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A> condition1, ActionCondition<A> condition2) {

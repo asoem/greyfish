@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -13,6 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -32,15 +34,14 @@ public class AvatarTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner cloner = DeepCloner.newInstance();
         final SpatialAgent<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> agentDelegate = mock(SpatialAgent.class);
-        given(agentDelegate.deepClone(cloner)).willReturn(agentDelegate);
+        given(agentDelegate.deepClone(any(DeepCloner.class))).willReturn(agentDelegate);
 
         final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> avatar =
                 new Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D>(agentDelegate, mock(Point2D.class));
 
         // when
-        final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> clone = avatar.deepClone(cloner);
+        final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> clone = CycleCloner.clone(avatar);
 
         // then
         assertThat(clone, is(equalTo(avatar)));

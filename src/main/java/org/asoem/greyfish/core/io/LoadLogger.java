@@ -40,7 +40,6 @@ public class LoadLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
 
     @Override
     public void logAgentCreation(A agent) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

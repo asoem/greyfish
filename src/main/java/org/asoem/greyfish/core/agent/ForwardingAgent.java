@@ -9,9 +9,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
-import org.asoem.greyfish.utils.space.Object2D;
 
 import java.awt.*;
 import java.util.Set;
@@ -255,11 +253,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     @Override
     public Iterable<A> getAllAgents() {
         return delegate().getAllAgents();
-    }
-
-    @Override
-    public void reproduce(Initializer<? super A> initializer) {
-        delegate().reproduce(initializer);
     }
 
     @Override

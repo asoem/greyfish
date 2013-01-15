@@ -112,11 +112,11 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     }
 
     @Override
-    public ResourceConsumptionAction<A> deepClone(CloneMap cloneMap) {
-        return new ResourceConsumptionAction<A>(this, cloneMap);
+    public ResourceConsumptionAction<A> deepClone(DeepCloner cloner) {
+        return new ResourceConsumptionAction<A>(this, cloner);
     }
 
-    protected ResourceConsumptionAction(ResourceConsumptionAction<A> cloneable, CloneMap cloner) {
+    protected ResourceConsumptionAction(ResourceConsumptionAction<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;

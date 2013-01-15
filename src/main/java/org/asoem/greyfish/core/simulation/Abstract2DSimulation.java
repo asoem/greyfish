@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Collection;
 
@@ -11,7 +10,7 @@ import java.util.Collection;
  * Date: 03.10.12
  * Time: 22:08
  */
-public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, P>, Z extends Space2D<A, P>, P extends Object2D> extends AbstractSimulation<A> implements SpatialSimulation2D<A, Z, P> {
+public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, ?>, Z extends Space2D<A, ?>> extends AbstractSimulation<A> implements SpatialSimulation2D<A, Z> {
 
     @Override
     public Iterable<A> findNeighbours(A agent, double distance) {

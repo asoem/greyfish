@@ -8,14 +8,15 @@ import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool;
+import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.base.VoidFunction;
@@ -38,7 +39,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z, P>, Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z, P> {
+public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Basic2DSimulation.class);
 
@@ -241,8 +242,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         addAgentMessages.add(new AddAgentMessage<A>(population, initializer));
     }
 
-    @Override
-    public void createAgent(Population population, P projection) {
+    protected void enqueueAgentCreation(Population population, @Nullable Chromosome chromosome, P projection) {
         addAgentMessages.add(new AddAgentMessage<A>(population, AgentInitializers.projection(projection)));
     }
 
@@ -376,7 +376,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         }
     }
 
-    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends Basic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z, P>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends Basic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;
@@ -387,7 +387,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         public ParallelizedSimulationBuilder(Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
-            agentPool(new GenericKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
+            agentPool(new StackKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
 
                 Map<Population, A> map = Maps .uniqueIndex(prototypes, new Function<A, Population>() {
                     @Nullable
@@ -400,9 +400,9 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
                 @SuppressWarnings("unchecked") // casting a clone should be safe
                 @Override
                 public A makeObject(Population population) throws Exception {
-                    return (A) DeepCloner.clone(map.get(population));
+                    return CycleCloner.clone(map.get(population));
                 }
-            }));
+            }, 1000));
         }
 
         @Override

@@ -6,6 +6,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.asoem.greyfish.utils.space.TwoDimTree;
@@ -14,7 +15,6 @@ import scala.Product2;
 import scala.Tuple2;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 import static scala.collection.JavaConversions.asJavaIterable;
 import static scala.collection.JavaConversions.iterableAsScalaIterable;
@@ -80,14 +80,14 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
         assert node != null;
         return new org.asoem.greyfish.utils.space.KDNode<Point2D, T>() {
             final Iterable<org.asoem.greyfish.utils.space.KDNode<Point2D, T>> children =
-                    Iterables.transform(Iterables.filter(Arrays.asList(node.left(), node.right()), Predicates.notNull()),
+                    ImmutableList.copyOf(Iterators.transform(Iterators.filter(Iterators.forArray(node.left(), node.right()), Predicates.notNull()),
                             new Function<KDNode<T>, org.asoem.greyfish.utils.space.KDNode<Point2D, T>>() {
                                 @Nullable
                                 @Override
                                 public org.asoem.greyfish.utils.space.KDNode<Point2D, T> apply(@Nullable KDNode<T> input) {
                                     return asTreeNode(input);
                                 }
-                            });
+                            }));
             private final T value = node.value();
             private final Point2D point = ImmutablePoint2D.at(node.point().apply(0), node.point().apply(1));
 

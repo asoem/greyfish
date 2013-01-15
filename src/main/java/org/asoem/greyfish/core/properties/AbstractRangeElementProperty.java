@@ -6,7 +6,6 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -33,7 +32,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
     protected E value;
 
-    protected AbstractRangeElementProperty(AbstractRangeElementProperty<E, A> property, CloneMap cloner) {
+    protected AbstractRangeElementProperty(AbstractRangeElementProperty<E, A> property, DeepCloner cloner) {
         super(property, cloner);
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;
@@ -52,7 +51,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         if (Objects.equal(value, amount))
             return;
 
-        if (Ordering.natural().isOrdered(ImmutableList.of(lowerBound, amount, upperBound))) {
+        if (Ordering.<E>natural().isOrdered(ImmutableList.of(lowerBound, amount, upperBound))) {
             this.value = amount;
         }
         else {
@@ -132,7 +131,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
             checkState(lowerBound != null);
             checkState(upperBound != null);
             checkState(initialValue != null);
-            checkState(Ordering.natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)));
+            checkState(Ordering.<E>natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)));
         }
     }
 

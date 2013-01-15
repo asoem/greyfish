@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -30,10 +30,10 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     private final List<ActionCondition<A>> conditions = Lists.newArrayList();
 
     @SuppressWarnings("unchecked") // casting a clone should be safe
-    protected BranchCondition(BranchCondition<A> cloneable, CloneMap cloner) {
+    protected BranchCondition(BranchCondition<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         for (ActionCondition<A> condition : cloneable.getChildConditions())
-            add((ActionCondition<A>) cloner.getClone(condition));
+            add(cloner.getClone(condition));
     }
 
     protected BranchCondition(AbstractBuilder<A, ?, ?> builder) {
@@ -140,7 +140,7 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
             addAll(branchCondition.conditions);
         }
 
-        protected T add(ActionCondition<A> condition) { condition.add(checkNotNull(condition)); return self(); }
+        protected T add(ActionCondition<A> condition) { this.conditions.add(checkNotNull(condition)); return self(); }
         protected T add(ActionCondition<A>... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
         protected T addAll(Iterable<? extends ActionCondition<A>> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
     }

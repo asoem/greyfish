@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
@@ -16,6 +17,7 @@ import static org.asoem.utils.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,11 +31,9 @@ public class GenericConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner deepCloner = DeepCloner.newInstance();
+        final AgentAction<DefaultGreyfishAgent> action = when(mock(AgentAction.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentAction.class)).getMock();
 
-        final AgentAction<DefaultGreyfishAgent> action = when(mock(AgentAction.class).deepClone(deepCloner)).thenReturn(mock(AgentAction.class)).getMock();
-
-        final ActionCondition<DefaultGreyfishAgent> condition = when(mock(ActionCondition.class).deepClone(deepCloner)).thenReturn(mock(ActionCondition.class)).getMock();
+        final ActionCondition<DefaultGreyfishAgent> condition = when(mock(ActionCondition.class).deepClone(any(DeepCloner.class))).thenReturn(mock(ActionCondition.class)).getMock();
         given(condition.getAction()).willReturn(action);
 
         final Callback<Object, Boolean> callback = Callbacks.constant(true);
@@ -42,7 +42,7 @@ public class GenericConditionTest {
         genericCondition.setParent(condition);
 
         // when
-        final GenericCondition<DefaultGreyfishAgent> clone = genericCondition.deepClone(deepCloner);
+        final GenericCondition<DefaultGreyfishAgent> clone = CycleCloner.clone(genericCondition);
 
         // then
         assertThat(clone, isSameAs(genericCondition));

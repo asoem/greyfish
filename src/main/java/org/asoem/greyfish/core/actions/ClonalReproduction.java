@@ -10,7 +10,10 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
 
@@ -23,7 +26,6 @@ import static com.google.common.base.Preconditions.checkState;
 public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     private Callback<? super ClonalReproduction<A>, Integer> clutchSize;
-    private Callback<? super ClonalReproduction<A>, Void> offspringInitializer;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ClonalReproduction() {
@@ -35,22 +37,16 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 
-            agent().reproduce(new Initializer<A>() {
-                @Override
-                public void initialize(A initializable) {
-                    offspringInitializer.apply(ClonalReproduction.this, ArgumentMap.of("agent", initializable));
+            final ChromosomeImpl chromosome = new ChromosomeImpl(
+                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, Gene<?>>() {
+                        @Override
+                        public Gene<?> apply(@Nullable AgentTrait<A, ?> gene) {
+                            assert gene != null;
+                            return new Gene<Object>(AgentTraits.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
+                        }
+                    }), Sets.newHashSet(agent().getId()));
 
-                    initializable.updateGeneComponents(
-                            new ChromosomeImpl(
-                                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, Gene<?>>() {
-                                        @Override
-                                        public Gene<?> apply(@Nullable AgentTrait<A, ?> gene) {
-                                            assert gene != null;
-                                            return new Gene<Object>(AgentTraits.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
-                                        }
-                                    }), Sets.newHashSet(agent().getId())));
-                }
-            });
+            agent().reproduce(chromosome);
 
             agent().logEvent(this, "offspringProduced", "");
         }
@@ -58,20 +54,18 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     }
 
     @Override
-    public ClonalReproduction<A> deepClone(CloneMap cloneMap) {
-        return new ClonalReproduction<A>(this, cloneMap);
+    public ClonalReproduction<A> deepClone(DeepCloner cloner) {
+        return new ClonalReproduction<A>(this, cloner);
     }
 
-    public ClonalReproduction(ClonalReproduction<A> cloneable, CloneMap map) {
+    public ClonalReproduction(ClonalReproduction<A> cloneable, DeepCloner map) {
         super(cloneable, map);
         this.clutchSize = cloneable.clutchSize;
-        this.offspringInitializer = cloneable.offspringInitializer;
     }
 
     protected ClonalReproduction(AbstractBuilder<A, ? extends ClonalReproduction<A>, ? extends AbstractBuilder<A, ClonalReproduction<A>, ?>> builder) {
         super(builder);
         this.clutchSize = builder.nClones;
-        this.offspringInitializer = builder.offspringInitializer;
     }
 
     @Override

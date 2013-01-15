@@ -1,26 +1,26 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 @Tagged("conditions")
-public class AgeCondition extends IntCompareCondition<DefaultGreyfishAgent> {
+public class AgeCondition<A extends Agent<A, ?>> extends IntCompareCondition<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AgeCondition() {}
 
-    private AgeCondition(AgeCondition condition, CloneMap map) {
+    private AgeCondition(AgeCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
-    private AgeCondition(AbstractBuilder<?, ?> builder) {
+    private AgeCondition(AbstractBuilder<?, ?, A> builder) {
         super(builder);
     }
 
     @Override
-    public AgeCondition deepClone(CloneMap cloneMap) {
-        return new AgeCondition(this, cloneMap);
+    public AgeCondition<A> deepClone(DeepCloner cloner) {
+        return new AgeCondition<A>(this, cloner);
     }
 
     @Override
@@ -28,10 +28,10 @@ public class AgeCondition extends IntCompareCondition<DefaultGreyfishAgent> {
         return agent().getAge();
     }
 
-    public static final class Builder extends AbstractBuilder<AgeCondition, Builder> {
-        @Override protected Builder self() { return this; }
-        @Override protected AgeCondition checkedBuild() { return new AgeCondition(this); }
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<AgeCondition<A>, Builder<A>, A> {
+        @Override protected Builder<A> self() { return this; }
+        @Override protected AgeCondition<A> checkedBuild() { return new AgeCondition<A>(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends AgeCondition, T extends AbstractBuilder<E,T>> extends IntCompareCondition.AbstractBuilder<E,T, DefaultGreyfishAgent> {}
+    protected static abstract class AbstractBuilder<E extends AgeCondition<A>, T extends AbstractBuilder<E,T, A>, A extends Agent<A, ?>> extends IntCompareCondition.AbstractBuilder<E, T, A> {}
 }

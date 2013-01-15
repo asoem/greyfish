@@ -15,7 +15,6 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -256,10 +255,12 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     @Override
     public abstract SearchableList<AgentAction<A>> getActions();
 
+    /*
     @Override
     public void reproduce(Initializer<? super A> initializer) {
         simulation().createAgent(getPopulation(), initializer);
     }
+    */
 
     @Override
     public Iterable<A> getAllAgents() {

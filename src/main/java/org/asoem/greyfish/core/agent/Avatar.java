@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.InvalidObjectException;
@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 24.02.12
  * Time: 16:18
  */
-public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?, P>, P extends Object2D> extends ForwardingSpatialAgent<A, S, P> implements Serializable {
+public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D> extends ForwardingSpatialAgent<A, S, P> implements Serializable {
 
     private final SpatialAgent<A, S, P> delegate;
     private P projection;
@@ -26,9 +26,9 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     }
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private Avatar(Avatar<A, S, P> avatar, CloneMap cloner) {
+    private Avatar(Avatar<A, S, P> avatar, DeepCloner cloner) {
         cloner.addClone(avatar, this);
-        this.delegate = (SpatialAgent<A, S, P>) cloner.getClone(avatar.delegate);
+        this.delegate = cloner.getClone(avatar.delegate);
         this.projection = avatar.projection;
     }
 
@@ -43,8 +43,8 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     }
 
     @Override
-    public Avatar<A, S, P> deepClone(CloneMap cloneMap) {
-        return new Avatar<A, S, P>(this, cloneMap);
+    public Avatar<A, S, P> deepClone(DeepCloner cloner) {
+        return new Avatar<A, S, P>(this, cloner);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
         throw new InvalidObjectException("Proxy required");
     }
 
-    private static class SerializedForm<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?, P>, P extends Object2D> implements Serializable {
+    private static class SerializedForm<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D> implements Serializable {
         private final SpatialAgent<A, S, P> delegate;
         private final P projection;
 

@@ -30,8 +30,8 @@ public class GreyfishExpressionCallbackTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        GreyfishExpressionCallback<Object, Double> callback
-                = new GreyfishExpressionCallback<Object, Double>(expressionFactory.compile("1.0"), Double.class);
+        GreyfishExpressionCallback<Object, Double> callback =
+                GreyfishExpressionCallback.doubleExpression(expressionFactory.compile("1.0"));
 
         // when
         final GreyfishExpressionCallback<Object, Double> copy = Persisters.createCopy(callback, JavaPersister.INSTANCE);

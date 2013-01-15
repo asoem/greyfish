@@ -38,7 +38,7 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private QuantitativeTrait() {}
 
-    private QuantitativeTrait(QuantitativeTrait<A> doubleMutableGene, CloneMap cloner) {
+    private QuantitativeTrait(QuantitativeTrait<A> doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
         this.initializationKernel = doubleMutableGene.initializationKernel;
         this.mutationKernel = doubleMutableGene.mutationKernel;
@@ -55,8 +55,8 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
     }
 
     @Override
-    public DeepCloneable deepClone(CloneMap cloneMap) {
-        return new QuantitativeTrait<A>(this, cloneMap);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new QuantitativeTrait<A>(this, cloner);
     }
 
     @Override

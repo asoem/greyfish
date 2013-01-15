@@ -27,7 +27,7 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
 
     private Supplier<T> value;
 
-    private SimulationStepProperty(SimulationStepProperty<A, T> simulationStepProperty, CloneMap cloner) {
+    private SimulationStepProperty(SimulationStepProperty<A, T> simulationStepProperty, DeepCloner cloner) {
         super(simulationStepProperty, cloner);
         this.callback = simulationStepProperty.callback;
     }
@@ -44,8 +44,8 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public DeepCloneable deepClone(CloneMap cloneMap) {
-        return new SimulationStepProperty<A, T>(this, cloneMap);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return new SimulationStepProperty<A, T>(this, cloner);
     }
 
     @Override

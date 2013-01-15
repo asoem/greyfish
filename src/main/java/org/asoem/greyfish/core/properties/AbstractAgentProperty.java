@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Root;
@@ -22,7 +21,7 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
         super(builder);
     }
 
-    protected AbstractAgentProperty(AbstractAgentProperty<T,A> cloneable, CloneMap map) {
+    protected AbstractAgentProperty(AbstractAgentProperty<T,A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 

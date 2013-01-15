@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
@@ -10,7 +10,7 @@ public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A>
         this(new Builder<A>());
     }
 
-    private AlwaysTrueCondition(AlwaysTrueCondition<A> condition, CloneMap map) {
+    private AlwaysTrueCondition(AlwaysTrueCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
@@ -24,8 +24,8 @@ public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A>
     }
 
     @Override
-    public AlwaysTrueCondition<A> deepClone(CloneMap cloneMap) {
-        return new AlwaysTrueCondition<A>(this, cloneMap);
+    public AlwaysTrueCondition<A> deepClone(DeepCloner cloner) {
+        return new AlwaysTrueCondition<A>(this, cloner);
     }
 
     public static <A extends Agent<A, ?>> Builder<A> builder() { return new Builder<A>(); }

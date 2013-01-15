@@ -2,7 +2,10 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
@@ -19,10 +22,10 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public GenericAction() {
-        super(new Builder());
+        super(new Builder<A>());
     }
 
-    protected GenericAction(GenericAction<A> genericAction, CloneMap cloner) {
+    protected GenericAction(GenericAction<A> genericAction, DeepCloner cloner) {
         super(genericAction, cloner);
         this.callback = genericAction.callback;
     }
@@ -39,8 +42,8 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
     }
 
     @Override
-    public GenericAction<A> deepClone(CloneMap cloneMap) {
-        return new GenericAction(this, cloneMap);
+    public GenericAction<A> deepClone(DeepCloner cloner) {
+        return new GenericAction<A>(this, cloner);
     }
 
     public static <A extends Agent<A, ?>> Builder<A> builder() {
@@ -60,7 +63,7 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
 
         @Override
         protected GenericAction<A> checkedBuild() {
-            return new GenericAction(this);
+            return new GenericAction<A>(this);
         }
     }
 

@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.utils.base.Initializers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -51,11 +50,5 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simul
     @Override
     public Iterable<A> filterAgents(Predicate<? super A> predicate) {
         return Iterables.filter(getAgents(), predicate);
-    }
-
-    @Override
-    public void createAgent(Population population) {
-        //final MotionObject2DImpl randomProjection = MotionObject2DImpl.of(RandomUtils.nextDouble(0, getSpace().width()), RandomUtils.nextDouble(0, getSpace().height()));
-        createAgent(population, Initializers.emptyInitializer());
     }
 }

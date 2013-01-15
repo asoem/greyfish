@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Tagged("conditions")
 public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    private NoneCondition(NoneCondition<A> condition, CloneMap map) {
+    private NoneCondition(NoneCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
@@ -29,8 +29,8 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
     }
 
     @Override
-    public NoneCondition<A> deepClone(CloneMap cloneMap) {
-        return new NoneCondition<A>(this, cloneMap);
+    public NoneCondition<A> deepClone(DeepCloner cloner) {
+        return new NoneCondition<A>(this, cloner);
     }
 
     private Object writeReplace() {
@@ -40,6 +40,10 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
     private void readObject(ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
+    }
+
+    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(ActionCondition<A> condition) {
+        return new Builder<A>().add(condition).build();
     }
 
     public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(ActionCondition<A>... conditions) {

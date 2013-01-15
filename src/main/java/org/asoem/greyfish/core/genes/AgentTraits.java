@@ -17,11 +17,11 @@ public final class AgentTraits {
 
     private AgentTraits() {}
 
-    public static void updateValues(List<? extends AgentTrait> traits, List<?> values) {
+    public static void updateValues(List<? extends AgentTrait<?,?>> traits, List<?> values) {
         checkNotNull(values);
         checkArgument(values.size() == traits.size(), "");
 
-        for (Product2<? extends AgentTrait, ?> tuple2 : Tuple2.Zipped.of(traits, values)) {
+        for (Product2<? extends AgentTrait<?,?>, ?> tuple2 : Tuple2.zipped(traits, values)) {
             tuple2._1().setAllele(tuple2._2());
         }
     }

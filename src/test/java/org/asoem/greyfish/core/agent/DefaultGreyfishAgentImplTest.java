@@ -5,7 +5,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.SearchableList;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -21,6 +21,7 @@ import static org.asoem.utils.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -86,15 +87,14 @@ public class DefaultGreyfishAgentImplTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final CloneMap cloner = DeepCloner.newInstance();
         final DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class))
-                .addAction(when(mock(AgentAction.class).deepClone(cloner)).thenReturn(mock(AgentAction.class)).<AgentAction<DefaultGreyfishAgent>>getMock())
-                .addProperties(when(mock(AgentProperty.class).deepClone(cloner)).thenReturn(mock(AgentProperty.class)).<AgentProperty<DefaultGreyfishAgent, Object>>getMock())
-                .addTraits(when(mock(AgentTrait.class).deepClone(cloner)).thenReturn(mock(AgentTrait.class)).<AgentTrait<DefaultGreyfishAgent, Object>>getMock())
+                .addAction(when(mock(AgentAction.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentAction.class)).<AgentAction<DefaultGreyfishAgent>>getMock())
+                .addProperties(when(mock(AgentProperty.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentProperty.class)).<AgentProperty<DefaultGreyfishAgent, Object>>getMock())
+                .addTraits(when(mock(AgentTrait.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentTrait.class)).<AgentTrait<DefaultGreyfishAgent, Object>>getMock())
                 .build();
 
         // when
-        final DefaultGreyfishAgentImpl clone = agent.deepClone(cloner);
+        final DefaultGreyfishAgentImpl clone = CycleCloner.clone(agent);
 
         // then
         assertThat(clone, isSameAs(agent));

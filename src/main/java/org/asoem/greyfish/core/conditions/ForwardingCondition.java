@@ -4,8 +4,8 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.utils.base.CloneMap;
 import org.asoem.greyfish.utils.base.DeepCloneable;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
 import javax.annotation.Nullable;
@@ -142,7 +142,7 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     }
 
     @Override
-    public DeepCloneable deepClone(CloneMap cloneMap) {
-        return delegate().deepClone(cloneMap);
+    public DeepCloneable deepClone(DeepCloner cloner) {
+        return delegate().deepClone(cloner);
     }
 }

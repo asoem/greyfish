@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
-import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
@@ -50,7 +50,7 @@ public class DefaultGreyfishSimulationImplTest {
                 .agentPool(new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
                     public DefaultGreyfishAgent makeObject(Population o) throws Exception {
-                        return (DefaultGreyfishAgent) DeepCloner.clone(prototype);
+                        return CycleCloner.clone(prototype);
                     }
                 })).build();
         simulation.createAgent(population, AgentInitializers.<Point2D>projection(ImmutablePoint2D.at(0, 0)));

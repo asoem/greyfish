@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.CloneMap;
+import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -31,9 +31,9 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
     private ActionState actionState;
 
     @SuppressWarnings("unchecked")
-    protected AbstractAgentAction(AbstractAgentAction<A> cloneable, CloneMap map) {
+    protected AbstractAgentAction(AbstractAgentAction<A> cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = (ActionCondition<A>) map.getClone(cloneable.rootCondition);
+        this.rootCondition = map.getClone(cloneable.rootCondition);
         this.onSuccess = cloneable.onSuccess;
     }
 

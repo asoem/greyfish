@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.simulation.Simulatable;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
-import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.SearchableList;
 
 import javax.annotation.Nullable;
@@ -96,7 +95,7 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
 
     int getSimulationStep();
 
-    void reproduce(Initializer<? super A> initializer);
+    void reproduce(Chromosome chromosome);
 
     Iterable<A> getAllAgents();
 
