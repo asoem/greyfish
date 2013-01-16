@@ -12,4 +12,5 @@ import java.util.NoSuchElementException;
 public interface Searchable<E> {
     E find(Predicate<? super E> predicate) throws NoSuchElementException;
     E find(Predicate<? super E> predicate, E defaultValue);
+    Iterable<E> filter(Predicate<? super E> predicate);
 }

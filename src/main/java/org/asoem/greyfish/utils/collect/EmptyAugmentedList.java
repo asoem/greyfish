@@ -38,6 +38,11 @@ class EmptyAugmentedList extends AbstractList<Object> implements AugmentedList<O
         return defaultValue;
     }
 
+    @Override
+    public Iterable<Object> filter(Predicate<? super Object> predicate) {
+        return this;
+    }
+
     private Object readResolve() throws InvalidObjectException {
         return INSTANCE;
     }

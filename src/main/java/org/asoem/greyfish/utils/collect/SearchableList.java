@@ -7,5 +7,5 @@ import java.util.List;
  * Date: 06.11.12
  * Time: 14:09
  */
-public interface SearchableList<E> extends List<E>, Searchable<E> {
+public interface SearchableList<E> extends List<E>, SearchableCollection<E> {
 }

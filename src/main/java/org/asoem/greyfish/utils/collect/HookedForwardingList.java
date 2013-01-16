@@ -29,12 +29,12 @@ public abstract class HookedForwardingList<T> extends ForwardingList<T> {
     }
 
     @Override
-    public final boolean addAll(@Nonnull Collection<? extends T> ts) {
+    public boolean addAll(@Nonnull Collection<? extends T> ts) {
         return standardAddAll(ts);
     }
 
     @Override
-    public final void add(int index, T element) {
+    public void add(int index, T element) {
         beforeAddition(element);
         super.add(index, element);
         afterAddition(element, index);

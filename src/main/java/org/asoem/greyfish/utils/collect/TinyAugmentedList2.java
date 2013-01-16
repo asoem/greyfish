@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.AbstractList;
 import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -17,7 +16,7 @@ import static com.google.common.base.Preconditions.checkPositionIndex;
  * Date: 21.09.12
  * Time: 15:37
  */
-class TinyAugmentedList2<E> extends AbstractList<E> implements AugmentedList<E>, Serializable {
+class TinyAugmentedList2<E> extends AbstractSearchableList<E> implements AugmentedList<E>, Serializable {
 
     final private E e0;
     final private E e1;
