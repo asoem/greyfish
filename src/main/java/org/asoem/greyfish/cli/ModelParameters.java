@@ -1,7 +1,7 @@
 package org.asoem.greyfish.cli;
 
 import com.google.common.collect.Maps;
-import org.asoem.greyfish.core.simulation.Model;
+import org.asoem.greyfish.core.simulation.SimulationModel;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -15,7 +15,7 @@ public final class ModelParameters {
 
     private ModelParameters() {}
 
-    public static Map<String, Object> extract(Model<?> model) {
+    public static Map<String, Object> extract(SimulationModel<?> model) {
         final Map<String, Object> map = Maps.newHashMap();
         for (Field field : model.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(ModelParameter.class)) {

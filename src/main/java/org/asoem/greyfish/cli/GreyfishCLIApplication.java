@@ -19,8 +19,8 @@ import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.simulation.Model;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SimulationModel;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -54,7 +54,7 @@ public final class GreyfishCLIApplication {
     private State state = State.STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(Model<?> model,
+    private GreyfishCLIApplication(SimulationModel<?> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
                                    @Named("parallelizationThreshold") int parallelizationThreshold) {
@@ -199,9 +199,9 @@ public final class GreyfishCLIApplication {
 
                 try {
                     final Class<?> modelClass = Class.forName(modelClassName);
-                    if (!Model.class.isAssignableFrom(modelClass))
-                        optionExceptionHandler.exitWithError("Specified Class does not implement " + Model.class);
-                    bind(new TypeLiteral<Model<?>>(){}).to((Class<Model<?>>) modelClass);
+                    if (!SimulationModel.class.isAssignableFrom(modelClass))
+                        optionExceptionHandler.exitWithError("Specified Class does not implement " + SimulationModel.class);
+                    bind(new TypeLiteral<SimulationModel<?>>(){}).to((Class<SimulationModel<?>>) modelClass);
                 } catch (ClassNotFoundException e) {
                     optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
                 }
