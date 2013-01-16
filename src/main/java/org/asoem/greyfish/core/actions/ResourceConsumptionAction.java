@@ -50,19 +50,23 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     protected ImmutableACLMessage.Builder<A> createCFP() {
         final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
-        return ImmutableACLMessage.<A>with()
+        return ImmutableACLMessage.<A>builder()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
-                .setReceivers(receiver)
+                .addReceiver(receiver)
                 .content(new ResourceRequestMessage(call(requestAmount, this), call(classification, this)), ResourceRequestMessage.class);
     }
 
     @Override
     protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException {
 
-        final double offer = message.getContent(Double.class);
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof Double))
+            throw new NotUnderstoodException("Expected payload of type Double");
+
+        final Double offer = (Double) messageContent;
 
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
@@ -73,7 +77,11 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
 
     @Override
     protected void handleInform(ACLMessage<A> message) {
-        final double offer = message.getContent(Double.class);
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof Double))
+            throw new NotUnderstoodException("Expected a payload of type Double");
+
+        final Double offer = (Double) messageContent;
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
         uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
     }

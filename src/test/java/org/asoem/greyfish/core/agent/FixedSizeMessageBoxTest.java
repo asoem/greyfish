@@ -1,12 +1,15 @@
 package org.asoem.greyfish.core.agent;
 
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.FixedSizeMessageBox;
+import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.withSettings;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * User: christoph
@@ -17,14 +20,17 @@ public class FixedSizeMessageBoxTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final FixedSizeMessageBox<DefaultGreyfishAgent> messageBox = new FixedSizeMessageBox<DefaultGreyfishAgent>();
-        messageBox.add(mock(AgentMessage.class, withSettings().serializable()));
-        messageBox.add(mock(AgentMessage.class, withSettings().serializable()));
+        final FixedSizeMessageBox<ACLMessage<Integer>> messageBox = FixedSizeMessageBox.withCapacity(1);
+        final ImmutableACLMessage<Integer> message = ImmutableACLMessage.<Integer>builder()
+                .addReceiver(0)
+                .performative(ACLPerformative.ACCEPT_PROPOSAL)
+                .build();
+        messageBox.add(message);
 
         // when
-        final FixedSizeMessageBox<DefaultGreyfishAgent> copy = Persisters.createCopy(messageBox, Persisters.javaSerialization());
+        final FixedSizeMessageBox<ACLMessage<Integer>> copy = Persisters.createCopy(messageBox, Persisters.javaSerialization());
 
         // then
-        assertThat(copy, Matchers.hasSize(messageBox.size()));
+        assertThat(copy, is(equalTo(messageBox)));
     }
 }

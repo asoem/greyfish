@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.simulation.Simulatable;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.Freezable;
-import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.FunctionalList;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -33,7 +33,7 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
 
     void removeAllActions();
 
-    SearchableList<AgentAction<A>> getActions();
+    FunctionalList<AgentAction<A>> getActions();
 
     AgentAction<A> getAction(String name);
 
@@ -43,7 +43,7 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
 
     void removeAllProperties();
 
-    SearchableList<AgentProperty<A, ?>> getProperties();
+    FunctionalList<AgentProperty<A, ?>> getProperties();
 
     AgentProperty<A, ?> getProperty(String name);
 
@@ -55,7 +55,7 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
 
     void removeAllGenes();
 
-    SearchableList<AgentTrait<A, ?>> getTraits();
+    FunctionalList<AgentTrait<A, ?>> getTraits();
 
     AgentTrait<A, ?> getTrait(String name);
 

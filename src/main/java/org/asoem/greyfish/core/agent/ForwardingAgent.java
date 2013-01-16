@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.FunctionalList;
 
 import java.awt.*;
 import java.util.Set;
@@ -53,7 +53,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public SearchableList<AgentAction<A>> getActions() {
+    public FunctionalList<AgentAction<A>> getActions() {
         return delegate().getActions();
     }
 
@@ -76,7 +76,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public SearchableList<AgentProperty<A, ?>> getProperties() {
+    public FunctionalList<AgentProperty<A, ?>> getProperties() {
         return delegate().getProperties();
     }
 
@@ -206,7 +206,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public SearchableList<AgentTrait<A, ?>> getTraits() {
+    public FunctionalList<AgentTrait<A, ?>> getTraits() {
         return delegate().getTraits();
     }
 

@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -90,30 +89,30 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
         sensedMates = ImmutableList.of();
 
-        return ImmutableACLMessage.<A>with()
+        return ImmutableACLMessage.<A>builder()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose randomly one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
-                .setReceivers(receiver);
+                .addReceiver(receiver);
     }
 
     @Override
     protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException {
         final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, agent());
-        try {
-            Chromosome chromosome = message.getContent(ChromosomeImpl.class);
-            final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
-            if (RandomUtils.nextBoolean(probability)) {
-                receiveSperm(chromosome, message.getSender());
-                builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
-                LOGGER.info("Accepted mating with p={}", probability);
-            } else {
-                builder.performative(ACLPerformative.REJECT_PROPOSAL);
-                LOGGER.info("Refused mating with p={}", probability);
-            }
-        } catch (ClassCastException e) {
-            throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + message.getContentClass(), e);
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof Chromosome))
+            throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + messageContent);
+
+        Chromosome chromosome = (Chromosome) messageContent;
+        final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
+        if (RandomUtils.nextBoolean(probability)) {
+            receiveSperm(chromosome, message.getSender());
+            builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
+            LOGGER.info("Accepted mating with p={}", probability);
+        } else {
+            builder.performative(ACLPerformative.REJECT_PROPOSAL);
+            LOGGER.info("Refused mating with p={}", probability);
         }
 
         return builder;

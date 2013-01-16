@@ -25,7 +25,7 @@ public class NotUnderstoodException extends RuntimeException {
 
     public static NotUnderstoodException unexpectedPayloadType(ACLMessage<?> message, Class<?> clazz) {
         checkNotNull(message);
-        Class<?> clazzReceived = message.getContentClass();
+        Class<?> clazzReceived = message.getContent().getClass();
         return new NotUnderstoodException("Unexpected Payload Type: Received %s while expect was %s", (clazzReceived==null) ? null : clazzReceived, clazz);
     }
 }

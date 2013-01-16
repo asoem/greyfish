@@ -5,14 +5,16 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.asoem.greyfish.core.acl.FixedSizeMessageBox;
+import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.AugmentedLists;
-import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.FunctionalList;
+import org.asoem.greyfish.utils.collect.FunctionalLists;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -36,11 +38,11 @@ import static java.util.Arrays.asList;
  */
 public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> implements DefaultGreyfishAgent, Serializable {
 
-    private final SearchableList<AgentProperty<DefaultGreyfishAgent, ?>> properties;
-    private final SearchableList<AgentAction<DefaultGreyfishAgent>> actions;
-    private final SearchableList<AgentTrait<DefaultGreyfishAgent, ?>> traits;
+    private final FunctionalList<AgentProperty<DefaultGreyfishAgent, ?>> properties;
+    private final FunctionalList<AgentAction<DefaultGreyfishAgent>> actions;
+    private final FunctionalList<AgentTrait<DefaultGreyfishAgent, ?>> traits;
     private final ActionExecutionStrategy actionExecutionStrategy;
-    private final AgentMessageBox<DefaultGreyfishAgent> inBox;
+    private final MessageBox<AgentMessage<DefaultGreyfishAgent>> inBox;
     private Population population;
     @Nullable
     private Point2D projection;
@@ -55,21 +57,21 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
         // share
         this.population = frozenAgent.population;
         // clone
-        this.actions = AugmentedLists.copyOf(Iterables.transform(frozenAgent.actions, new Function<AgentAction<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
+        this.actions = FunctionalLists.copyOf(Iterables.transform(frozenAgent.actions, new Function<AgentAction<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
             @SuppressWarnings("unchecked")
             @Override
             public AgentAction<DefaultGreyfishAgent> apply(@Nullable AgentAction<DefaultGreyfishAgent> agentAction) {
                 return cloner.getClone(agentAction);
             }
         }));
-        this.properties = AugmentedLists.copyOf(Iterables.transform(frozenAgent.properties, new Function<AgentProperty<DefaultGreyfishAgent, ?>, AgentProperty<DefaultGreyfishAgent, ?>>() {
+        this.properties = FunctionalLists.copyOf(Iterables.transform(frozenAgent.properties, new Function<AgentProperty<DefaultGreyfishAgent, ?>, AgentProperty<DefaultGreyfishAgent, ?>>() {
             @SuppressWarnings("unchecked")
             @Override
             public AgentProperty<DefaultGreyfishAgent, ?> apply(@Nullable AgentProperty<DefaultGreyfishAgent, ?> agentProperty) {
                 return cloner.getClone(agentProperty);
             }
         }));
-        this.traits = AugmentedLists.copyOf(Iterables.transform(frozenAgent.traits, new Function<AgentTrait<DefaultGreyfishAgent, ?>, AgentTrait<DefaultGreyfishAgent, ?>>() {
+        this.traits = FunctionalLists.copyOf(Iterables.transform(frozenAgent.traits, new Function<AgentTrait<DefaultGreyfishAgent, ?>, AgentTrait<DefaultGreyfishAgent, ?>>() {
             @SuppressWarnings("unchecked")
             @Override
             public AgentTrait<DefaultGreyfishAgent, ?> apply(@Nullable AgentTrait<DefaultGreyfishAgent, ?> agentTrait) {
@@ -78,25 +80,25 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
         }));
         // reconstruct
         this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
-        this.inBox = new FixedSizeMessageBox<DefaultGreyfishAgent>();
+        this.inBox = new FixedSizeMessageBox<AgentMessage<DefaultGreyfishAgent>>();
     }
 
     private DefaultGreyfishAgentImpl(Builder builder) {
-        this.properties = AugmentedLists.copyOf(builder.properties);
+        this.properties = FunctionalLists.copyOf(builder.properties);
         for (AgentProperty<DefaultGreyfishAgent, ?> property : builder.properties) {
             property.setAgent(this);
         }
-        this.actions = AugmentedLists.copyOf(builder.actions);
+        this.actions = FunctionalLists.copyOf(builder.actions);
         for (AgentAction<DefaultGreyfishAgent> action : builder.actions) {
             action.setAgent(this);
         }
-        this.traits = AugmentedLists.copyOf(builder.traits);
+        this.traits = FunctionalLists.copyOf(builder.traits);
         for (AgentTrait<DefaultGreyfishAgent, ?> trait : builder.traits) {
             trait.setAgent(this);
         }
         this.population = builder.population;
         this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
-        this.inBox = new FixedSizeMessageBox<DefaultGreyfishAgent>();
+        this.inBox = new FixedSizeMessageBox<AgentMessage<DefaultGreyfishAgent>>();
     }
 
     @Override
@@ -115,7 +117,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    public SearchableList<AgentTrait<DefaultGreyfishAgent, ?>> getTraits() {
+    public FunctionalList<AgentTrait<DefaultGreyfishAgent, ?>> getTraits() {
         return traits;
     }
 
@@ -130,12 +132,12 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    public SearchableList<AgentProperty<DefaultGreyfishAgent, ?>> getProperties() {
+    public FunctionalList<AgentProperty<DefaultGreyfishAgent, ?>> getProperties() {
         return properties;
     }
 
     @Override
-    public SearchableList<AgentAction<DefaultGreyfishAgent>> getActions() {
+    public FunctionalList<AgentAction<DefaultGreyfishAgent>> getActions() {
         return actions;
     }
 
@@ -176,7 +178,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    protected AgentMessageBox<DefaultGreyfishAgent> getInBox() {
+    protected MessageBox<AgentMessage<DefaultGreyfishAgent>> getInBox() {
         return inBox;
     }
 

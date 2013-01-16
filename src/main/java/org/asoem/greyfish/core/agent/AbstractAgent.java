@@ -6,6 +6,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
@@ -15,7 +16,7 @@ import org.asoem.greyfish.core.genes.Gene;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -35,8 +36,8 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<A>> implements Agent<A, S> {
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
 
-    private static <E extends HasName> E findByName(SearchableList<E> searchableList, final String name) {
-        return searchableList.find(new Predicate<HasName>() {
+    private static <E extends HasName> E findByName(FunctionalList<E> functionalList, final String name) {
+        return functionalList.find(new Predicate<HasName>() {
             @Override
             public boolean apply(HasName agentAction) {
                 return agentAction.getName().equals(name);
@@ -51,7 +52,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
         return Objects.equal(getPopulation(), population);
     }
 
-    private <E extends AgentComponent<A>> boolean addComponent(SearchableList<E> list, E element) {
+    private <E extends AgentComponent<A>> boolean addComponent(FunctionalList<E> list, E element) {
         if (list.add(element)) {
             element.setAgent(self());
             return true;
@@ -59,7 +60,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
         return false;
     }
 
-    private <E extends AgentComponent<A>> boolean removeComponent(SearchableList<? extends E> list, E element) {
+    private <E extends AgentComponent<A>> boolean removeComponent(FunctionalList<? extends E> list, E element) {
         if (list.remove(element)) {
             element.setAgent(self());
             return true;
@@ -67,7 +68,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
         return false;
     }
 
-    private void clearComponentList(SearchableList<? extends AgentComponent<A>> list) {
+    private void clearComponentList(FunctionalList<? extends AgentComponent<A>> list) {
         List<AgentComponent<A>> temp = ImmutableList.copyOf(list);
         list.clear();
         for (AgentComponent<A> component : temp)
@@ -135,7 +136,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public abstract SearchableList<AgentTrait<A, ?>> getTraits();
+    public abstract FunctionalList<AgentTrait<A, ?>> getTraits();
 
     @Override
     @Nullable
@@ -157,7 +158,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     @Override
     public void receiveAll(Iterable<? extends AgentMessage<A>> messages) {
         LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
-        getInBox().addAll(messages);
+        Iterables.addAll(getInBox(), messages);
     }
 
     @Override
@@ -250,10 +251,10 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public abstract SearchableList<AgentProperty<A, ?>> getProperties();
+    public abstract FunctionalList<AgentProperty<A, ?>> getProperties();
 
     @Override
-    public abstract SearchableList<AgentAction<A>> getActions();
+    public abstract FunctionalList<AgentAction<A>> getActions();
 
     /*
     @Override
@@ -316,7 +317,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     protected abstract SimulationContext<S, A> getSimulationContext();
 
-    protected abstract AgentMessageBox<A> getInBox();
+    protected abstract MessageBox<AgentMessage<A>> getInBox();
 
     protected abstract void setSimulationContext(SimulationContext<S, A> simulationContext);
 

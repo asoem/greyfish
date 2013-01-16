@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
+import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
@@ -54,7 +55,11 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         if (proposalSent)
             return reply.performative(ACLPerformative.REFUSE);
 
-        final ResourceRequestMessage requestMessage = message.getContent(ResourceRequestMessage.class);
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof ResourceRequestMessage))
+            throw new NotUnderstoodException("Expected payload of type ResourceRequestMessage");
+
+        final ResourceRequestMessage requestMessage = (ResourceRequestMessage) messageContent;
         final double requestAmount = requestMessage.getRequestAmount();
         final double providedAmount = provides.apply(this, ArgumentMap.of("classifier", requestMessage.getRequestClassifier()));
         final double offeredAmount = Math.min(requestAmount, providedAmount);
@@ -73,7 +78,11 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
 
     @Override
     protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message) {
-        double offer = message.getContent(Double.class);
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof Double))
+            throw new NotUnderstoodException("Expected payload of type Double");
+
+        final Double offer = (Double) messageContent;
 
         LOGGER.info("{}: Provided {}", agent(), offer);
 

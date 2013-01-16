@@ -5,6 +5,6 @@ package org.asoem.greyfish.core.simulation;
  * Date: 08.10.12
  * Time: 14:56
  */
-public interface Model<S extends Simulation<?>> {
+public interface SimulationModel<S extends Simulation<?>> {
     S createSimulation();
 }

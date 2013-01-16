@@ -6,7 +6,7 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.collect.SearchableList;
+import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -125,21 +125,21 @@ public class DefaultGreyfishAgentImplTest {
                             }
                         },
                         is(equalTo(agent.getPopulation()))),
-                has(agent.getActions().size() + " actions", new Function<DefaultGreyfishAgentImpl, SearchableList<AgentAction<DefaultGreyfishAgent>>>() {
+                has(agent.getActions().size() + " actions", new Function<DefaultGreyfishAgentImpl, FunctionalList<AgentAction<DefaultGreyfishAgent>>>() {
                     @Override
-                    public SearchableList<AgentAction<DefaultGreyfishAgent>> apply(DefaultGreyfishAgentImpl frozenAgent) {
+                    public FunctionalList<AgentAction<DefaultGreyfishAgent>> apply(DefaultGreyfishAgentImpl frozenAgent) {
                         return frozenAgent.getActions();
                     }
                 }, hasSize(agent.getActions().size())),
-                has(agent.getProperties().size() + " properties", new Function<DefaultGreyfishAgentImpl, SearchableList<AgentProperty<DefaultGreyfishAgent, ?>>>() {
+                has(agent.getProperties().size() + " properties", new Function<DefaultGreyfishAgentImpl, FunctionalList<AgentProperty<DefaultGreyfishAgent, ?>>>() {
                     @Override
-                    public SearchableList<AgentProperty<DefaultGreyfishAgent, ?>> apply(DefaultGreyfishAgentImpl frozenAgent) {
+                    public FunctionalList<AgentProperty<DefaultGreyfishAgent, ?>> apply(DefaultGreyfishAgentImpl frozenAgent) {
                         return frozenAgent.getProperties();
                     }
                 }, hasSize(agent.getProperties().size())),
-                has(agent.getTraits().size() + " traits", new Function<DefaultGreyfishAgentImpl, SearchableList<AgentTrait<DefaultGreyfishAgent, ?>>>() {
+                has(agent.getTraits().size() + " traits", new Function<DefaultGreyfishAgentImpl, FunctionalList<AgentTrait<DefaultGreyfishAgent, ?>>>() {
                     @Override
-                    public SearchableList<AgentTrait<DefaultGreyfishAgent, ?>> apply(DefaultGreyfishAgentImpl frozenAgent) {
+                    public FunctionalList<AgentTrait<DefaultGreyfishAgent, ?>> apply(DefaultGreyfishAgentImpl frozenAgent) {
                         return frozenAgent.getTraits();
                     }
                 }, hasSize(agent.getTraits().size()))

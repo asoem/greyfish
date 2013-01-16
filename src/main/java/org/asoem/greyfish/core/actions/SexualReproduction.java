@@ -97,10 +97,10 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         return COMPLETED;
     }
 
-    private static <A extends Agent<A, ?>> Chromosome blend(SearchableList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static <A extends Agent<A, ?>> Chromosome blend(FunctionalList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
-        final Tuple2.Zipped<AgentTrait<A, ?>, SearchableList<AgentTrait<A, ?>>, Gene<?>, List<Gene<?>>> zipped =
+        final Tuple2.Zipped<AgentTrait<A, ?>, FunctionalList<AgentTrait<A, ?>>, Gene<?>, List<Gene<?>>> zipped =
                 Tuple2.zipped(egg, sperm.getGenes());
 
         // segregate and mutate
