@@ -14,8 +14,10 @@ import static com.google.common.base.Preconditions.checkElementIndex;
 * Date: 10.10.12
 * Time: 22:15
 */
-class EmptyAugmentedList extends AbstractList<Object> implements AugmentedList<Object>, Serializable {
-    static final EmptyAugmentedList INSTANCE = new EmptyAugmentedList();
+class EmptyFunctionalList extends AbstractList<Object> implements Serializable, FunctionalList<Object> {
+    private static transient final EmptyFunctionalList INSTANCE = new EmptyFunctionalList();
+
+    private EmptyFunctionalList() {}
 
     @Override
     public Object get(int index) {
@@ -48,4 +50,8 @@ class EmptyAugmentedList extends AbstractList<Object> implements AugmentedList<O
     }
 
     private static final long serialVersionUID = 0;
+
+    public static <E> FunctionalList<E> instance() {
+        return (FunctionalList<E>) INSTANCE;
+    }
 }

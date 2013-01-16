@@ -16,12 +16,12 @@ import static com.google.common.base.Preconditions.checkPositionIndex;
  * Date: 21.09.12
  * Time: 15:37
  */
-class TinyAugmentedList2<E> extends AbstractSearchableList<E> implements AugmentedList<E>, Serializable {
+class ImmutableFunctionalList2<E> extends AbstractFunctionalList<E> implements Serializable, FunctionalList<E> {
 
     final private E e0;
     final private E e1;
 
-    TinyAugmentedList2(E e0, E e1) {
+    ImmutableFunctionalList2(E e0, E e1) {
         this.e0 = checkNotNull(e0);
         this.e1 = checkNotNull(e1);
     }
@@ -67,7 +67,7 @@ class TinyAugmentedList2<E> extends AbstractSearchableList<E> implements Augment
             throw new InvalidObjectException("Class does not accept null values");
     }
 
-    public static <E> AugmentedList<E> of(E e, E e1) {
-        return new TinyAugmentedList2<E>(e, e1);
+    public static <E> FunctionalList<E> of(E e, E e1) {
+        return new ImmutableFunctionalList2<E>(e, e1);
     }
 }

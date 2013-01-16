@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
  * Date: 15.01.13
  * Time: 18:00
  */
-public abstract class AbstractSearchableList<E> extends AbstractList<E> implements SearchableList<E> {
+public abstract class AbstractFunctionalList<E> extends AbstractList<E> implements FunctionalList<E> {
     @Override
     public E find(Predicate<? super E> predicate) throws NoSuchElementException {
         return Iterables.find(this, predicate);

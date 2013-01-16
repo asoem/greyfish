@@ -7,5 +7,5 @@ import java.util.Collection;
  * Date: 15.01.13
  * Time: 18:14
  */
-public interface SearchableCollection<E> extends Collection<E>, Searchable<E> {
+public interface FunctionalCollection<E> extends Collection<E>, Searchable<E> {
 }

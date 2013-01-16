@@ -13,11 +13,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 * Date: 10.10.12
 * Time: 22:14
 */
-class ForwardingAugmentedList<E> extends AbstractSearchableList<E> implements AugmentedList<E>, Serializable {
+class ForwardingFunctionalList<E> extends AbstractFunctionalList<E> implements Serializable, FunctionalList<E> {
 
     private final List<E> delegate;
 
-    public ForwardingAugmentedList(List<E> elements) {
+    public ForwardingFunctionalList(List<E> elements) {
         this.delegate = checkNotNull(elements);
     }
 

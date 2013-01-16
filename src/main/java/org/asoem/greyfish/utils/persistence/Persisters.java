@@ -51,21 +51,21 @@ public final class Persisters {
         });
 
         try {
-            persister.serialize(o, pipedOutputStream);
-        } catch (Exception e) {
-            if (!deserializeFuture.isDone()) {
-                deserializeFuture.cancel(true);
-                throw e;
+            try {
+                persister.serialize(o, pipedOutputStream);
+            } catch (Exception e) {
+                if (!deserializeFuture.isDone()) {
+                    deserializeFuture.cancel(true);
+                    throw e;
+                }
+                else { // the future task had an exception and closed the stream, which caused this exception
+                    deserializeFuture.get(); // throws the exception
+                    throw new AssertionError("unreachable");
+                }
             }
-            else { // the future task had an exception and closed the stream, which caused this exception
-                deserializeFuture.get(); // throws the exception
+            finally {
+                pipedOutputStream.close();
             }
-        }
-        finally {
-            pipedOutputStream.close();
-        }
-
-        try {
             return deserializeFuture.get(3, TimeUnit.SECONDS);
         } finally {
             pipedInputStream.close();
