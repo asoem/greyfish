@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -69,7 +68,7 @@ public class LifetimePropertyTest {
                 .build();
 
         // when
-        final LifetimeProperty<DefaultGreyfishAgent, Integer> copy = Persisters.createCopy(property, JavaPersister.INSTANCE);
+        final LifetimeProperty<DefaultGreyfishAgent, Integer> copy = Persisters.createCopy(property, Persisters.javaSerialization());
 
         // then
         assertThat(copy.getName(), is(equalTo(property.getName())));

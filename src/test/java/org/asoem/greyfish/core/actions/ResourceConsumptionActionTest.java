@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class ResourceConsumptionActionTest {
                 .build();
 
         // when
-        final ResourceConsumptionAction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
+        final ResourceConsumptionAction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

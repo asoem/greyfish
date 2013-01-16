@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.acl.ForwardingACLMessage;
  * Date: 15.10.11
  * Time: 15:42
  */
-public class AgentMessage<A extends Agent> extends ForwardingACLMessage<A> {
+public class AgentMessage<A extends Agent<A, ?>> extends ForwardingACLMessage<A> {
     private final ACLMessage<A> delegate;
 
     private final int receivedTimestamp;

@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -110,7 +109,7 @@ public class DefaultGreyfishAgentImplTest {
                 .build();
 
         // when
-        final DefaultGreyfishAgentImpl copy = Persisters.createCopy(frozenAgent, JavaPersister.INSTANCE);
+        final DefaultGreyfishAgentImpl copy = Persisters.createCopy(frozenAgent, Persisters.javaSerialization());
 
         // then
         assertThat(copy, isSameAs(frozenAgent));

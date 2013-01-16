@@ -1,7 +1,10 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.acl.MessageTemplate;
+import com.google.common.base.Predicate;
+import org.asoem.greyfish.utils.collect.Searchable;
+import org.asoem.greyfish.utils.collect.SearchableCollection;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -9,16 +12,6 @@ import java.util.List;
  * Date: 09.10.12
  * Time: 14:37
  */
-public interface AgentMessageBox<A extends Agent<A, ?>> extends Iterable<AgentMessage<A>> {
-    void push(AgentMessage<A> message);
-
-    Iterable<AgentMessage<A>> filter(MessageTemplate template);
-
-    void clear();
-
-    void pushAll(Iterable<? extends AgentMessage<A>> message);
-
-    List<AgentMessage<A>> consume(MessageTemplate template);
-
-    List<AgentMessage<A>> messages();
+public interface AgentMessageBox<A extends Agent<A, ?>> extends SearchableCollection<AgentMessage<A>> {
+    List<AgentMessage<A>> extract(Predicate<? super AgentMessage<A>> predicate);
 }

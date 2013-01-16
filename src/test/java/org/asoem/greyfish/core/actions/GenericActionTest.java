@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -23,7 +22,7 @@ public class GenericActionTest {
                 .executes(Callbacks.emptyCallback()).build();
 
         // when
-        final GenericAction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
+        final GenericAction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

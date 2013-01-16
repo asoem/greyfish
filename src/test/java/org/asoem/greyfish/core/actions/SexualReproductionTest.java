@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -34,7 +33,7 @@ public class SexualReproductionTest {
                 .build();
 
         // when
-        SexualReproduction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
+        SexualReproduction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

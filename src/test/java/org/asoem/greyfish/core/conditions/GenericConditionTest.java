@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.CycleCloner;
@@ -53,7 +52,7 @@ public class GenericConditionTest {
         // given
         final GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(Callbacks.constant(true));
         // when
-        final GenericCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(genericCondition, JavaPersister.INSTANCE);
+        final GenericCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(genericCondition, Persisters.javaSerialization());
         // then
         assertThat(copy, isSameAs(genericCondition));
     }

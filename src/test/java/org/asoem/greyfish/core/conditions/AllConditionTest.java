@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -39,7 +38,7 @@ public class AllConditionTest {
         AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(condition, condition);
 
         // when
-        final AllCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(allCondition, JavaPersister.INSTANCE);
+        final AllCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(allCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy.getChildConditions(), hasSize(allCondition.getChildConditions().size()));

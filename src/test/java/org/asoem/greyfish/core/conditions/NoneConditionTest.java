@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -31,7 +30,7 @@ public class NoneConditionTest {
         NoneCondition<DefaultGreyfishAgent> noneCondition = NoneCondition.evaluates(condition);
 
         // when
-        final NoneCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(noneCondition, JavaPersister.INSTANCE);
+        final NoneCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(noneCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy, isCopyOf(noneCondition));

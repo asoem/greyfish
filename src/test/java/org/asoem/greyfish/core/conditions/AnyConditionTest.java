@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -31,7 +30,7 @@ public class AnyConditionTest {
         AnyCondition<DefaultGreyfishAgent> anyCondition = AnyCondition.evaluates(condition);
 
         // when
-        final AnyCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(anyCondition, JavaPersister.INSTANCE);
+        final AnyCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(anyCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy, isCopyOf(anyCondition));

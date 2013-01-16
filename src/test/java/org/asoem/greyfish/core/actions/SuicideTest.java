@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
@@ -32,7 +31,7 @@ public class SuicideTest {
                 .build();
 
         // when
-        final Suicide<DefaultGreyfishAgent> copy = Persisters.createCopy(suicide, JavaPersister.INSTANCE);
+        final Suicide<DefaultGreyfishAgent> copy = Persisters.createCopy(suicide, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(sameAs(suicide)));

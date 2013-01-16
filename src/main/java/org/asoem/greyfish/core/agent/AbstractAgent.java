@@ -151,13 +151,13 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     @Override
     public void receive(AgentMessage<A> message) {
         LOGGER.debug("{} received a message: {}", this, message);
-        getInBox().push(message);
+        getInBox().add(message);
     }
 
     @Override
     public void receiveAll(Iterable<? extends AgentMessage<A>> messages) {
         LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
-        getInBox().pushAll(messages);
+        getInBox().addAll(messages);
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     public Iterable<AgentMessage<A>> getMessages(MessageTemplate template) {
-        return getInBox().consume(template);
+        return getInBox().extract(template);
     }
 
     @Override

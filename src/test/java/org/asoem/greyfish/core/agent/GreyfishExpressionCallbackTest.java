@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.core.utils.GreyfishExpressionCallback;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class GreyfishExpressionCallbackTest {
                 GreyfishExpressionCallback.doubleExpression(expressionFactory.compile("1.0"));
 
         // when
-        final GreyfishExpressionCallback<Object, Double> copy = Persisters.createCopy(callback, JavaPersister.INSTANCE);
+        final GreyfishExpressionCallback<Object, Double> copy = Persisters.createCopy(callback, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(callback)));

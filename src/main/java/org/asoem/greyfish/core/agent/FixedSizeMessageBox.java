@@ -1,85 +1,44 @@
 package org.asoem.greyfish.core.agent;
 
-import com.google.common.collect.AbstractIterator;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.acl.MessageTemplate;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.collect.CircularFifoBuffer;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 /**
  * User: christoph
  * Date: 17.10.11
  * Time: 18:44
  */
-public class FixedSizeMessageBox<A extends Agent<A, ?>> implements AgentMessageBox<A>, Serializable {
+public class FixedSizeMessageBox<A extends Agent<A, ?>> extends ForwardingCollection<AgentMessage<A>> implements AgentMessageBox<A>, Serializable {
 
-    private final CircularFifoBuffer<AgentMessage<A>> box;
+    private final CircularFifoBuffer<AgentMessage<A>> buffer;
 
     public FixedSizeMessageBox() {
-        this.box = CircularFifoBuffer.newInstance(8);
+        this.buffer = CircularFifoBuffer.newInstance(8);
     }
 
     public FixedSizeMessageBox(int size) {
-        this.box = CircularFifoBuffer.newInstance(size);
+        this.buffer = CircularFifoBuffer.newInstance(size);
     }
 
     @Override
-    public void push(AgentMessage<A> message) {
-        box.add(message);
+    protected Collection<AgentMessage<A>> delegate() {
+        return buffer;
     }
 
     @Override
-    public Iterable<AgentMessage<A>> filter(MessageTemplate template) {
-        return Iterables.filter(box, template);
-    }
-
-    @Override
-    public void clear() {
-        box.clear();
-    }
-
-    @Override
-    public void pushAll(Iterable<? extends AgentMessage<A>> message) {
-        Iterables.addAll(box, message);
-    }
-
-    @Override
-    public Iterator<AgentMessage<A>> iterator() {
-        return box.iterator();
-    }
-
-    @Override
-    public List<AgentMessage<A>> consume(final MessageTemplate template) {
-        return ImmutableList.copyOf(
-                new AbstractIterator<AgentMessage<A>>() {
-
-                    final ListIterator<AgentMessage<A>> listIterator = box.listIterator();
-
-                    @Override
-                    protected AgentMessage<A> computeNext() {
-                        while (listIterator.hasNext()) {
-                            final AgentMessage<A> message = listIterator.next();
-                            if (template.apply(message)) {
-                                listIterator.remove();
-                                return message;
-                            }
-                        }
-
-                        return endOfData();
-                    }
-                });
-    }
-
-    @Override
-    public List<AgentMessage<A>> messages() {
-        return box;
+    public List<AgentMessage<A>> extract(final Predicate<? super AgentMessage<A>> predicate) {
+        return ImmutableList.copyOf(Iterables.consumingIterable(Iterables.filter(buffer, predicate)));
     }
 
     private Object writeReplace() {
@@ -91,17 +50,34 @@ public class FixedSizeMessageBox<A extends Agent<A, ?>> implements AgentMessageB
         throw new InvalidObjectException("Proxy required");
     }
 
+    @Override
+    public AgentMessage<A> find(Predicate<? super AgentMessage<A>> predicate) throws NoSuchElementException {
+        return Iterables.find(buffer, predicate);
+    }
+
+    @Override
+    public AgentMessage<A> find(Predicate<? super AgentMessage<A>> predicate, AgentMessage<A> defaultValue) {
+        return Iterables.find(buffer, predicate, defaultValue);
+    }
+
+    @Override
+    public Iterable<AgentMessage<A>> filter(Predicate<? super AgentMessage<A>> predicate) {
+        return Iterables.filter(buffer, predicate);
+    }
+
     private static class SerializedForm<A extends Agent<A, ?>> implements Serializable {
-        private List<AgentMessage<A>> messages;
+        private final List<AgentMessage<A>> messages;
+        private final int maxSize;
 
         SerializedForm(FixedSizeMessageBox<A> box) {
-            this.messages = box.messages();
+            this.messages = Lists.newArrayList(box.buffer);
+            this.maxSize = box.buffer.maxSize();
         }
 
         private Object readResolve() {
-            final FixedSizeMessageBox<A> messageBox = new FixedSizeMessageBox<A>(messages.size());
+            final FixedSizeMessageBox<A> messageBox = new FixedSizeMessageBox<A>(maxSize);
             for (AgentMessage<A> message : messages) {
-                messageBox.push(message);
+                messageBox.add(message);
             }
             return messageBox;
         }

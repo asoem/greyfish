@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -29,7 +28,7 @@ public class GenericMovementTest {
                 .build();
 
         // when
-        final GenericMovement<DefaultGreyfishAgent> copy = Persisters.createCopy(genericMovement, JavaPersister.INSTANCE);
+        final GenericMovement<DefaultGreyfishAgent> copy = Persisters.createCopy(genericMovement, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(genericMovement)));
