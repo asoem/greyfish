@@ -5,12 +5,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import scala.actors.threadpool.Arrays;
 
 import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -187,6 +187,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         return str.toString();
     }
 
+    @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -311,10 +312,10 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         public Builder<T> conversationId(int conversationId) { this.conversationId = conversationId; return this; }
 
         public Builder<T> addReceiver(T receiver) { this.receivers.add(receiver); return this; }
-        public Builder<T> setReceivers(T ... receivers) { this.receivers.addAll(Arrays.asList(receivers)); return this; }
+        public Builder<T> setReceivers(T ... receivers) { Collections.addAll(this.receivers, receivers); return this; }
 
         public Builder<T> addReplyTo(T replyTo) { this.reply_to.add(replyTo); return this; }
-        public Builder<T> addReplyTo(T... replyToReceivers) { this.reply_to.addAll(Arrays.asList(replyToReceivers)); return this; }
+        public Builder<T> addReplyTo(T... replyToReceivers) { Collections.addAll(this.reply_to, replyToReceivers); return this; }
         public Builder<T> addReplyTo(Set<T> replyToReceivers) { this.reply_to.addAll(replyToReceivers); return this; }
 
         public <C> Builder<T> content(C content, Class<C> contentType) {

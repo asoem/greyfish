@@ -4,8 +4,6 @@ import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -17,51 +15,34 @@ public final class Agents {
 
     private Agents() {}
 
-    public static ComponentAccessor<AgentProperty<?, ?>> propertyAccessor(final String propertyName) {
-        return new ComponentAccessor<AgentProperty<?, ?>>() {
-            private final Predicate<? super AgentProperty<?, ?>> random_sperm = new Predicate<AgentProperty<?, ?>>() {
+    public static <A extends Agent<A, ?>, T extends AgentProperty<A, ?>> ComponentAccessor<A, T> propertyAccessor(final String propertyName) {
+        return new ComponentAccessor<A, T>() {
+            private final Predicate<? super AgentProperty<A, ?>> random_sperm = new Predicate<AgentProperty<A, ?>>() {
                 @Override
-                public boolean apply(AgentProperty<?, ?> input) {
+                public boolean apply(AgentProperty<A, ?> input) {
                     return propertyName.equals(input.getName());
                 }
             };
 
             @Override
-            public AgentProperty<?, ?> apply(Agent<?, ?> input) {
-                return checkNotNull(input).findProperty(random_sperm);
+            public T apply(A input) {
+                return (T) checkNotNull(input).findProperty(random_sperm);
             }
         };
     }
 
-    public static <T> ComponentAccessor<AgentProperty<?, T>> propertyAccessor(final String propertyName, final Class<AgentProperty<?, T>> clazz) {
-        return cast(propertyAccessor(propertyName), clazz);
-    }
-
-    public static ComponentAccessor<AgentTrait<?, ?>> traitAccessor(final String traitName) {
-        return new ComponentAccessor<AgentTrait<?, ?>>() {
-            private final Predicate<? super AgentTrait<?, ?>> traitPredicate = new Predicate<AgentTrait<?, ?>>() {
+    public static <A extends Agent<A, ?>, T extends AgentTrait<A, ?>> ComponentAccessor<A, T> traitAccessor(final String traitName) {
+        return new ComponentAccessor<A, T>() {
+            private final Predicate<AgentTrait<A, ?>> traitPredicate = new Predicate<AgentTrait<A, ?>>() {
                 @Override
-                public boolean apply(AgentTrait<?, ?> input) {
+                public boolean apply(AgentTrait<A, ?> input) {
                     return traitName.equals(input.getName());
                 }
             };
 
             @Override
-            public AgentTrait<?, ?> apply(Agent<?, ?> input) {
-                return checkNotNull(input).findTrait(traitPredicate);
-            }
-        };
-    }
-
-    public static <T extends AgentTrait<?, ?>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
-        return cast(traitAccessor(traitName), geneComponentClass);
-    }
-
-    private static <T extends AgentComponent<?>> ComponentAccessor<T> cast(final ComponentAccessor<?> accessorFunction, final Class<T> clazz) {
-        return new ComponentAccessor<T>() {
-            @Override
-            public T apply(@Nullable Agent<?, ?> input) {
-                return clazz.cast(accessorFunction.apply(input));
+            public T apply(A input) {
+                return (T) checkNotNull(input).findTrait(traitPredicate);
             }
         };
     }
