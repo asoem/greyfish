@@ -67,15 +67,15 @@ public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentPro
         });
     }
 
-    public static <T, A extends Agent<A, ?>> Builder<T,A> builder() {
-        return new Builder<T,A>();
+    public static <T, A extends Agent<A, ?>> Builder<A, T> builder() {
+        return new Builder<A, T>();
     }
 
     public Callback<? super LifetimeProperty<A, T>, T> getInitializer() {
         return initializer;
     }
 
-    public static class Builder<T, A extends Agent<A, ?>> extends LifetimeProperty.AbstractBuilder<T, A, LifetimeProperty<A, T>, Builder<T, A>> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>, T> extends LifetimeProperty.AbstractBuilder<T, A, LifetimeProperty<A, T>, Builder<A, T>> implements Serializable {
 
         public Builder(LifetimeProperty<A, T> lifetimeProperty) {
             super(lifetimeProperty);
@@ -84,7 +84,7 @@ public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentPro
         public Builder() {}
 
         @Override
-        protected Builder<T,A> self() {
+        protected Builder<A, T> self() {
             return this;
         }
 
@@ -121,7 +121,7 @@ public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentPro
     }
 
     private Object writeReplace() {
-        return new Builder<T,A>(this);
+        return new Builder<A, T>(this);
     }
 
     private void readObject(ObjectInputStream stream)
