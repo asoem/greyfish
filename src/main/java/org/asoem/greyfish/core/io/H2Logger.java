@@ -91,18 +91,18 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                             "name VARCHAR(255) UNIQUE NOT NULL" +
                             ")");
             statement.execute(
-                    "CREATE TABLE genes_double (" +
+                    "CREATE TABLE quantitative_traits (" +
                             "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                             "agent_id INT NOT NULL," +
-                            "gene_name_id TINYINT NOT NULL," +
+                            "trait_name_id TINYINT NOT NULL," +
                             "value REAL NOT NULL" +
                             ")");
             statement.execute(
-                    "CREATE TABLE genes_string (" +
+                    "CREATE TABLE discrete_traits (" +
                             "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                             "agent_id INT NOT NULL, " +
-                            "gene_name_id TINYINT NOT NULL, " +
-                            "value VARCHAR(255) NOT NULL" +
+                            "trait_name_id TINYINT NOT NULL, " +
+                            "trait_value_id TINYINT NOT NULL" +
                             ")");
             statement.execute(
                     "CREATE TABLE agent_events (" +
@@ -128,13 +128,15 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
 
         Statement statement = connection.createStatement();
         statement.execute(
-                "CREATE INDEX ON genes_double(agent_id)");
+                "CREATE INDEX ON quantitative_traits(agent_id)");
         statement.execute(
-                "CREATE INDEX ON genes_double(gene_name_id)");
+                "CREATE INDEX ON quantitative_traits(trait_name_id)");
         statement.execute(
-                "CREATE INDEX ON genes_string(agent_id)");
+                "CREATE INDEX ON discrete_traits(agent_id)");
         statement.execute(
-                "CREATE INDEX ON genes_string(gene_name_id)");
+                "CREATE INDEX ON discrete_traits(trait_name_id)");
+        statement.execute(
+                "CREATE INDEX ON discrete_traits(trait_value_id)");
         statement.execute(
                 "CREATE INDEX ON agent_events(agent_id)");
         statement.execute(
@@ -233,7 +235,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
             if (Double.class.equals(gene.getAlleleClass())) {
                 addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));
             } else {
-                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), String.valueOf(gene.getAllele())));
+                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), idForName(String.valueOf(gene.getAllele()))));
             }
         }
         tryCommit();
@@ -342,7 +344,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
 
         @Override
         public String sqlString() {
-            return "INSERT INTO genes_double (agent_id, gene_name_id, value) VALUES (?, ?, ?)";
+            return "INSERT INTO quantitative_traits (agent_id, trait_name_id, value) VALUES (?, ?, ?)";
         }
 
         @Override
@@ -356,24 +358,24 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     private static class InsertGeneAsStringOperation implements UpdateOperation {
         private final int agentId;
         private final short geneNameId;
-        private final String allele;
+        private final short traitValueId;
 
-        public InsertGeneAsStringOperation(int agentId, short geneNameId, String allele) {
+        public InsertGeneAsStringOperation(int agentId, short geneNameId, short traitValueId) {
             this.agentId = agentId;
             this.geneNameId = geneNameId;
-            this.allele = allele;
+            this.traitValueId = traitValueId;
         }
 
         @Override
         public String sqlString() {
-            return "INSERT INTO genes_string (agent_id, gene_name_id, value) VALUES (?, ?, ?)";
+            return "INSERT INTO discrete_traits (agent_id, trait_name_id, trait_value_id) VALUES (?, ?, ?)";
         }
 
         @Override
         public void update(PreparedStatement statement) throws SQLException {
             statement.setInt(1, agentId);
             statement.setShort(2, geneNameId);
-            statement.setString(3, allele);
+            statement.setShort(3, traitValueId);
         }
     }
 

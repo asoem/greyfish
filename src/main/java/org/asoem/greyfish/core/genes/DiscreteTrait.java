@@ -19,6 +19,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -158,6 +159,10 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
         return new Builder<A>(this);
     }
 
+    public Set<String> getStates() {
+        return Sets.union(mutationTable.columnKeySet(), mutationTable.rowKeySet());
+    }
+
     private void readObject(ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
@@ -214,6 +219,11 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
 
         public B addMutation(String state1, String state2, Callback<? super DiscreteTrait<A>, Double> transitionCallback) {
             mutationTable.put(state1, state2, transitionCallback);
+            return self();
+        }
+
+        public B addMutation(String state1, String state2, double p) {
+            addMutation(state1, state2, Callbacks.constant(p));
             return self();
         }
 

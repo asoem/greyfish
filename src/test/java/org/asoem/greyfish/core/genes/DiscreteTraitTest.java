@@ -5,9 +5,10 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
+import java.util.Set;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 /**
  * User: christoph
@@ -66,6 +67,22 @@ public class DiscreteTraitTest {
 
         // then
         // IllegalArgumentException
+    }
+
+    @Test
+    public void testGetStates() throws Exception {
+        // given
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
+                .addMutation("a", "b", 1)
+                .addMutation("b", "c", 1)
+                .addMutation("c", "a", 1)
+                .build();
+
+        // when
+        final Set<String> states = discreteTrait.getStates();
+
+        // then
+        assertThat(states, containsInAnyOrder("a", "b", "c"));
     }
 
     @Test

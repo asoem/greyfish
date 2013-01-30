@@ -17,33 +17,59 @@ public final class Agents {
 
     public static <A extends Agent<A, ?>, T extends AgentProperty<A, ?>> ComponentAccessor<A, T> propertyAccessor(final String propertyName) {
         return new ComponentAccessor<A, T>() {
-            private final Predicate<? super AgentProperty<A, ?>> random_sperm = new Predicate<AgentProperty<A, ?>>() {
-                @Override
-                public boolean apply(AgentProperty<A, ?> input) {
-                    return propertyName.equals(input.getName());
-                }
-            };
+            private final Predicate<? super AgentProperty<A, ?>> componentNamePredicate = new ComponentNamePredicate<A>(propertyName);
 
             @Override
             public T apply(A input) {
-                return (T) checkNotNull(input).findProperty(random_sperm);
+                return (T) checkNotNull(input).findProperty(componentNamePredicate);
             }
         };
     }
 
     public static <A extends Agent<A, ?>, T extends AgentTrait<A, ?>> ComponentAccessor<A, T> traitAccessor(final String traitName) {
         return new ComponentAccessor<A, T>() {
-            private final Predicate<AgentTrait<A, ?>> traitPredicate = new Predicate<AgentTrait<A, ?>>() {
-                @Override
-                public boolean apply(AgentTrait<A, ?> input) {
-                    return traitName.equals(input.getName());
-                }
-            };
+            private final Predicate<AgentComponent<A>> componentNamePredicate = new ComponentNamePredicate<A>(traitName);
 
             @Override
             public T apply(A input) {
-                return (T) checkNotNull(input).findTrait(traitPredicate);
+                return (T) checkNotNull(input).findTrait(componentNamePredicate);
             }
         };
+    }
+
+    private static class ComponentNamePredicate<A extends Agent<A, ?>> implements Predicate<AgentComponent<A>> {
+        private final String name;
+
+        public ComponentNamePredicate(String name) {
+            this.name = checkNotNull(name);
+        }
+
+        @Override
+        public boolean apply(AgentComponent<A> input) {
+            return name.equals(input.getName());
+        }
+
+        @Override
+        public String toString() {
+            return "Name of component == " + name;
+        }
+
+        @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ComponentNamePredicate)) return false;
+
+            ComponentNamePredicate that = (ComponentNamePredicate) o;
+
+            if (!name.equals(that.name)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
+        }
     }
 }
