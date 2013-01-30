@@ -52,7 +52,7 @@ class ImmutableFunctionalList3<E> extends AbstractFunctionalList<E> implements S
             return e1;
         if (predicate.apply(e2))
             return e2;
-        throw new NoSuchElementException();
+        throw new NoSuchElementException("No element was found matching the given predicate: " + predicate);
     }
 
     @Override
