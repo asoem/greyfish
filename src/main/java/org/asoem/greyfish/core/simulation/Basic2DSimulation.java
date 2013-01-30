@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -195,6 +196,8 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private void processRequestedAgentActivations() {
         for (AddAgentMessage<A> addAgentMessage : addAgentMessages) {
             final A clone = createClone(addAgentMessage.population);
+            if (addAgentMessage.chromosome != null)
+                clone.updateGeneComponents(addAgentMessage.chromosome);
             addAgentMessage.initializer.initialize(clone);
             addAgent(clone);
         }
@@ -239,11 +242,20 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
     @Override
     public void createAgent(Population population, Initializer<? super A> initializer) {
-        addAgentMessages.add(new AddAgentMessage<A>(population, initializer));
+        addAgentMessages.add(new AddAgentMessage<A>(population, null, initializer));
     }
 
-    protected void enqueueAgentCreation(Population population, @Nullable Chromosome chromosome, P projection) {
-        addAgentMessages.add(new AddAgentMessage<A>(population, AgentInitializers.projection(projection)));
+    protected void enqueueAgentCreation(Population population, P projection) {
+        checkNotNull(population);
+        checkNotNull(projection);
+        addAgentMessages.add(new AddAgentMessage<A>(population, null, AgentInitializers.projection(projection)));
+    }
+
+    protected void enqueueAgentCreation(Population population, Chromosome chromosome, P projection) {
+        checkNotNull(population);
+        checkNotNull(chromosome);
+        checkNotNull(projection);
+        addAgentMessages.add(new AddAgentMessage<A>(population, chromosome, AgentInitializers.projection(projection)));
     }
 
     @Override
@@ -278,10 +290,13 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
         private final Population population;
         private final Initializer<? super T> initializer;
+        @Nullable
+        private final Chromosome chromosome;
 
-        private AddAgentMessage(Population population, Initializer<? super T> initializer) {
+        private AddAgentMessage(Population population, @Nullable Chromosome chromosome, Initializer<? super T> initializer) {
             assert population != null;
             assert initializer != null;
+            this.chromosome = chromosome;
             this.population = population;
             this.initializer = initializer;
         }
@@ -389,7 +404,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             this.prototypes = checkNotNull(prototypes);
             agentPool(new StackKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
 
-                Map<Population, A> map = Maps .uniqueIndex(prototypes, new Function<A, Population>() {
+                Map<Population, A> map = Maps.uniqueIndex(prototypes, new Function<A, Population>() {
                     @Nullable
                     @Override
                     public Population apply(A input) {

@@ -5,6 +5,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.acl.MessageTemplate;
@@ -291,13 +292,13 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     @Override
     public void updateGeneComponents(Chromosome chromosome) {
         checkNotNull(chromosome);
-        AgentTraits.updateValues(getTraits(), ImmutableList.copyOf(Iterables.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
+        AgentTraits.updateValues(getTraits(), Lists.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
             @Override
             public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
                 return o.getAllele();
             }
-        })));
+        }));
         setParents(checkNotNull(chromosome.getParents()));
     }
 

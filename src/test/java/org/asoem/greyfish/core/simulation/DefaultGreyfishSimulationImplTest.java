@@ -7,6 +7,7 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
@@ -101,8 +102,8 @@ public class DefaultGreyfishSimulationImplTest {
         final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(agent);
         final DefaultGreyfishSimulationImpl simulation =
                 DefaultGreyfishSimulationImpl.builder(space, prototypes)
-                .agentPool(pool)
-                .build();
+                        .agentPool(pool)
+                        .build();
 
         // when
         simulation.createAgent(testPopulation, initializer);
@@ -116,6 +117,42 @@ public class DefaultGreyfishSimulationImplTest {
         assertThat(simulation.getAgents(), contains(agent));
         assertThat(simulation.getAgents(testPopulation), contains(agent));
         verify(agent).activate(any(ActiveSimulationContext.class));
+    }
+
+    @Test
+    public void testCreateAgentWithNewChromosome() {
+        // given
+        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
+        final Population testPopulation = Population.named("TestPopulation");
+        final Chromosome chromosome = mock(Chromosome.class);
+        final Point2D point2D = mock(Point2D.class);
+        given(agent.getProjection()).willReturn(point2D);
+        given(agent.getPopulation()).willReturn(testPopulation);
+        given(agent.hasPopulation(testPopulation)).willReturn(true);
+
+        final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
+                new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
+                    @Override
+                    public DefaultGreyfishAgent makeObject(Population population) throws Exception {
+                        return agent;
+                    }
+                });
+        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
+        final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(agent);
+        final DefaultGreyfishSimulationImpl simulation =
+                DefaultGreyfishSimulationImpl.builder(space, prototypes)
+                        .agentPool(pool)
+                        .build();
+
+        // when
+        simulation.createAgent(testPopulation, point2D, chromosome);
+        simulation.nextStep();
+
+        // then
+        assertThat(simulation.getAgents(), contains(agent));
+        verify(agent).activate(any(ActiveSimulationContext.class));
+        verify(agent).updateGeneComponents(chromosome);
+        verify(agent).setProjection(point2D);
     }
 
     @Test

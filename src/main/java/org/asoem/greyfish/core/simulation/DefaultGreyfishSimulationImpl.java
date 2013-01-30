@@ -38,11 +38,11 @@ public class DefaultGreyfishSimulationImpl extends Basic2DSimulation<DefaultGrey
 
     @Override
     public void createAgent(Population population, Point2D location) {
-        createAgent(population, location, null);
+        enqueueAgentCreation(population, location);
     }
 
     @Override
-    public void createAgent(Population population, Point2D location, @Nullable Chromosome chromosome) {
+    public void createAgent(Population population, Point2D location, Chromosome chromosome) {
         enqueueAgentCreation(population, chromosome, location);
     }
 
