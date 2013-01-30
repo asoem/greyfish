@@ -21,6 +21,7 @@ public final class FunctionalLists {
         switch (size) {
             case 0: return of();
             case 2: return of(list.get(0), list.get(1));
+            case 3: return of(list.get(0), list.get(1), list.get(2));
             default: return decorate(ImmutableList.copyOf(list));
         }
     }
@@ -34,8 +35,12 @@ public final class FunctionalLists {
         return EmptyFunctionalList.instance();
     }
 
-    private static <E> FunctionalList<E> of(E e, E e1) {
-        return new ImmutableFunctionalList2<E>(e, e1);
+    private static <E> FunctionalList<E> of(E e0, E e1) {
+        return new ImmutableFunctionalList2<E>(e0, e1);
+    }
+
+    private static <E> FunctionalList<E> of(E e0, E e1, E e2) {
+        return new ImmutableFunctionalList3<E>(e0, e1, e2);
     }
 
     public static <E> FunctionalList<E> decorate(List<E> list) {

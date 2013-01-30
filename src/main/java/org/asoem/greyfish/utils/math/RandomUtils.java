@@ -93,16 +93,16 @@ public final class RandomUtils {
     }
 
     /**
-     * Generates a random value for the normal distribution with mean equal to {@code mean} and standard deviation equal to {@code sd}.
+     * Generates a random value for the normal distribution with the mean equal to {@code mu} and standard deviation equal to {@code sigma}.
      *
-     * @param mean the mean of the distribution
-     * @param sd   the standard deviation of the distribution
+     * @param mu the mean of the distribution
+     * @param sigma the standard deviation of the distribution
      * @return a random value for the given normal distribution
      */
-    public static double rnorm(double mean, double sd) {
+    public static double rnorm(double mu, double sigma) {
         double v;
         do {
-            v = RANDOM_DATA.nextGaussian(mean, sd);
+            v = RANDOM_DATA.nextGaussian(mu, sigma);
         }
         while (Double.isNaN(v)); // bug?
         return v;

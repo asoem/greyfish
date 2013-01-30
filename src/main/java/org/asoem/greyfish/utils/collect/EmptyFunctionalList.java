@@ -51,6 +51,7 @@ class EmptyFunctionalList extends AbstractList<Object> implements Serializable, 
 
     private static final long serialVersionUID = 0;
 
+    @SuppressWarnings("unchecked")
     public static <E> FunctionalList<E> instance() {
         return (FunctionalList<E>) INSTANCE;
     }
