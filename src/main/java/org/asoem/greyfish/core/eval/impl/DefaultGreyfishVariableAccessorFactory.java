@@ -287,7 +287,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return Functions.compose(new Function<AgentTrait, Object>() {
                     @Override
                     public Object apply(AgentTrait gene) {
-                        return checkNotNull(gene).getAllele();
+                        return checkNotNull(gene).getValue();
                     }
                 }, ret);
             } else

@@ -76,7 +76,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
             statement.execute(
                     "CREATE TABLE agents (" +
                             "id INT NOT NULL PRIMARY KEY," +
-                            "population_name_id TINYINT NOT NULL," +
+                            "population_name_id SMALLINT NOT NULL," +
                             "activated_at INT NOT NULL" +
                             ")");
             statement.execute(
@@ -87,30 +87,30 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                             ")");
             statement.execute(
                     "CREATE TABLE names (" +
-                            "id TINYINT NOT NULL PRIMARY KEY," +
+                            "id SMALLINT NOT NULL PRIMARY KEY," +
                             "name VARCHAR(255) UNIQUE NOT NULL" +
                             ")");
             statement.execute(
                     "CREATE TABLE quantitative_traits (" +
                             "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                             "agent_id INT NOT NULL," +
-                            "trait_name_id TINYINT NOT NULL," +
+                            "trait_name_id SMALLINT NOT NULL," +
                             "value REAL NOT NULL" +
                             ")");
             statement.execute(
                     "CREATE TABLE discrete_traits (" +
                             "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                             "agent_id INT NOT NULL, " +
-                            "trait_name_id TINYINT NOT NULL, " +
-                            "trait_value_id TINYINT NOT NULL" +
+                            "trait_name_id SMALLINT NOT NULL, " +
+                            "trait_value_id SMALLINT NOT NULL" +
                             ")");
             statement.execute(
                     "CREATE TABLE agent_events (" +
                             "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
                             "simulation_step INT NOT NULL, " +
                             "agent_id INT NOT NULL, " +
-                            "source_name_id TINYINT NOT NULL, " +
-                            "title_name_id TINYINT NOT NULL, " +
+                            "source_name_id SMALLINT NOT NULL, " +
+                            "title_name_id SMALLINT NOT NULL, " +
                             "message VARCHAR(255) NOT NULL, " +
                             "x REAL NOT NULL, " +
                             "y REAL NOT NULL " +
@@ -230,12 +230,12 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         for (Integer parentId : parents) {
             addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
         }
-        for (AgentTrait<?, ?> gene : agent.getTraits()) {
-            assert gene != null;
-            if (Double.class.equals(gene.getAlleleClass())) {
-                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(gene.getName()), (Double) gene.getAllele()));
+        for (AgentTrait<?, ?> trait : agent.getTraits()) {
+            assert trait != null;
+            if (Double.class.equals(trait.getValueClass())) {
+                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(trait.getName()), (Double) trait.getValue()));
             } else {
-                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(gene.getName()), idForName(String.valueOf(gene.getAllele()))));
+                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(trait.getName()), idForName(String.valueOf(trait.getValue()))));
             }
         }
         tryCommit();

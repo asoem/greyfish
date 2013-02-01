@@ -11,5 +11,5 @@ public interface GeneLike<T> {
      *
      * @return the current value of this gene
      */
-    T getAllele();
+    T getValue();
 }

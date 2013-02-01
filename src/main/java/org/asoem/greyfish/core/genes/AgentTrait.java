@@ -11,7 +11,7 @@ public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>,
     /**
      * @return the class of the value this gene is supplying
      */
-    Class<T> getAlleleClass();
+    Class<? super T> getValueClass();
 
     /**
      * @param gene the gene to builderTest for

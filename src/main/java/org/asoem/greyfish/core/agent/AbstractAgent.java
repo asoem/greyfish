@@ -296,7 +296,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
             @Override
             public Object apply(@Nullable Gene<?> o) {
                 assert o != null;
-                return o.getAllele();
+                return o.getValue();
             }
         }));
         setParents(checkNotNull(chromosome.getParents()));

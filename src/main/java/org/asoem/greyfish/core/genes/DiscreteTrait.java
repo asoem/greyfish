@@ -103,7 +103,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     }
 
     @Override
-    public Class<String> getAlleleClass() {
+    public Class<? super String> getValueClass() {
         return String.class;
     }
 
@@ -113,7 +113,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     }
 
     @Override
-    public String getAllele() {
+    public String getValue() {
         checkState(state != null, "Allele has null state, trait was not initialized");
         return state;
     }

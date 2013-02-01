@@ -27,7 +27,7 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(getAllele()) + "]";
+        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(getValue()) + "]";
     }
 
     @Override
@@ -47,7 +47,7 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
 
     @Override
     public boolean isMutatedCopy(@Nullable AgentTrait<A, ?> gene) {
-        return gene != null && gene.getAlleleClass().equals(this.getAlleleClass());
+        return gene != null && gene.getValueClass().equals(this.getValueClass());
     }
 
     @Override

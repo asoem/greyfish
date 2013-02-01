@@ -15,7 +15,7 @@ public class Gene<T> implements GeneLike<T> {
     }
 
     @Override
-    public T getAllele() {
+    public T getValue() {
         return value;
     }
 

@@ -40,9 +40,9 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             final ChromosomeImpl chromosome = new ChromosomeImpl(
                     Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, Gene<?>>() {
                         @Override
-                        public Gene<?> apply(@Nullable AgentTrait<A, ?> gene) {
-                            assert gene != null;
-                            return new Gene<Object>(AgentTraits.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
+                        public Gene<?> apply(@Nullable AgentTrait<A, ?> trait) {
+                            assert trait != null;
+                            return new Gene<Object>(AgentTraits.mutate(trait, trait.getValue()), trait.getRecombinationProbability());
                         }
                     }), Sets.newHashSet(agent().getId()));
 

@@ -27,17 +27,18 @@ public final class AgentTraits {
     }
 
     public static <T> T mutate(AgentTrait<?, T> component) {
-        return component.mutate(component.getAllele());
+        return component.mutate(component.getValue());
     }
 
     public static <T> T mutate(AgentTrait<?, T> component, Object t) {
-        return component.mutate(component.getAlleleClass().cast(t));
+        checkArgument(component.getValueClass().isInstance(t));
+
+        return component.mutate((T) t);
     }
 
-    @SuppressWarnings("unchecked") // is checked
     public static <T> T segregate(AgentTrait<?, T> agentTrait, Object allele1, Object allele2) {
         checkNotNull(agentTrait);
-        final Class<T> alleleClass = agentTrait.getAlleleClass();
+        final Class<? super T> alleleClass = agentTrait.getValueClass();
 
         checkArgument(alleleClass.isInstance(allele1), "allele1 is not an instance of %s: %s", alleleClass, allele1);
         checkArgument(alleleClass.isInstance(allele2), "allele2 is not an instance of %s: %s", alleleClass, allele2);

@@ -103,12 +103,14 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         final Tuple2.Zipped<AgentTrait<A, ?>, FunctionalList<AgentTrait<A, ?>>, Gene<?>, List<Gene<?>>> zipped =
                 Tuple2.zipped(egg, sperm.getGenes());
 
-        // segregate and mutate
+        // segregate
         final Iterable<Gene<Object>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, Gene<?>>, Gene<Object>>() {
             @Override
             public Gene<Object> apply(Product2<AgentTrait<A, ?>, Gene<?>> tuple) {
-                final Object segregationProduct = AgentTraits.segregate(tuple._1(), tuple._1().getAllele(), tuple._2().getAllele());
-                return new Gene<Object>(segregationProduct, tuple._1().getRecombinationProbability());
+                final AgentTrait<A, ?> trait = tuple._1();
+                final Gene<?> gene = tuple._2();
+                final Object segregationProduct = AgentTraits.mutate(trait, AgentTraits.segregate(trait, trait.getValue(), gene.getValue()));
+                return new Gene<Object>(segregationProduct, trait.getRecombinationProbability());
             }
         });
 

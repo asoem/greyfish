@@ -18,27 +18,27 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
- * Date: 22.09.11
- * Time: 09:37
+ * Date: 07.02.12
+ * Time: 11:28
  */
 @Tagged("traits")
-public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> {
+public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements Serializable {
 
     @Element
-    private Callback<? super QuantitativeTrait<A>, Double> initializationKernel;
+    private Callback<? super RawTrait<A, T>, T> initializationKernel;
 
     @Element
-    private Callback<? super QuantitativeTrait<A>, Double> mutationKernel;
+    private Callback<? super RawTrait<A, T>, T> mutationKernel;
 
     @Element
-    private Callback<? super QuantitativeTrait<A>, Double> segregationKernel;
+    private Callback<? super RawTrait<A, T>, T> segregationKernel;
 
-    private Double value = 0.0;
+    private T value;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    private QuantitativeTrait() {}
+    private RawTrait() {}
 
-    private QuantitativeTrait(QuantitativeTrait<A> doubleMutableGene, DeepCloner cloner) {
+    private RawTrait(RawTrait<A, T> doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
         this.initializationKernel = doubleMutableGene.initializationKernel;
         this.mutationKernel = doubleMutableGene.mutationKernel;
@@ -46,7 +46,7 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
         this.value = doubleMutableGene.value;
     }
 
-    private QuantitativeTrait(AbstractBuilder<A, ? extends QuantitativeTrait<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    private RawTrait(AbstractBuilder<A, T, ? extends RawTrait<A, T>, ? extends AbstractBuilder<A, T, ?, ?>> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
@@ -56,51 +56,49 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new QuantitativeTrait<A>(this, cloner);
+        return new RawTrait<A, T>(this, cloner);
     }
 
     @Override
-    public Class<? super Double> getValueClass() {
-        return Double.class;
+    public Class<? super T> getValueClass() {
+        return (Class<? super T>) value.getClass();
     }
 
-    public Callback<? super QuantitativeTrait<A>, Double> getInitializationKernel() {
+    public Callback<? super RawTrait<A, T>, T> getInitializationKernel() {
         return initializationKernel;
     }
 
-    public Callback<? super QuantitativeTrait<A>, Double> getMutationKernel() {
+    public Callback<? super RawTrait<A, T>, T> getMutationKernel() {
         return mutationKernel;
     }
 
     @Override
     public void setAllele(Object allele) {
-        checkArgument(allele instanceof Double);
-        final Double newAllele = (Double) allele;
-        checkArgument(!Double.isNaN(newAllele), "allele is NaN: " + allele);
+        final T newAllele = (T) allele;
         this.value = newAllele;
     }
 
     @Override
-    public Double mutate(Double allele) {
+    public T mutate(T allele) {
         checkNotNull(allele);
-        final Double x = mutationKernel.apply(this, ArgumentMap.of("x", allele));
-        if (x == null || Double.isNaN(x))
+        final T x = mutationKernel.apply(this, ArgumentMap.of("x", allele));
+        if (x == null)
             throw new AssertionError("Mutation callback returned an invalid value: " + x);
         return x;
     }
 
     @Override
-    public Double segregate(Double allele1, Double allele2) {
+    public T segregate(T allele1, T allele2) {
         return segregationKernel.apply(this, ArgumentMap.of("x", allele1, "y", allele2));
     }
 
     @Override
-    public Double createInitialValue() {
+    public T createInitialValue() {
         return initializationKernel.apply(this, ArgumentMap.of());
     }
 
     @Override
-    public Double getValue() {
+    public T getValue() {
         return value;
     }
 
@@ -112,16 +110,16 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
         e.add("Recombination(x,y)", TypedValueModels.forField("segregationKernel", this, new TypeToken<Callback<? super QuantitativeTrait<A>, Double>>() {}));
     }
 
-    public Callback<? super QuantitativeTrait<A>, Double> getSegregationKernel() {
+    public Callback<? super RawTrait<A, T>, T> getSegregationKernel() {
         return segregationKernel;
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
-        return new Builder<A>();
+    public static <A extends Agent<A, ?>, T> Builder<A, T> builder() {
+        return new Builder<A, T>();
     }
 
     private Object writeReplace() {
-        return new Builder<A>(this);
+        return new Builder<A, T>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -129,21 +127,21 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
         throw new InvalidObjectException("Builder required");
     }
 
-    public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, QuantitativeTrait<A>, Builder<A>> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>, T> extends AbstractBuilder<A, T, RawTrait<A, T>, Builder<A, T>> implements Serializable {
         private Builder() {}
 
-        private Builder(QuantitativeTrait<A> quantitativeTrait) {
+        private Builder(RawTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
         }
 
         @Override
-        protected Builder<A> self() {
+        protected Builder<A, T> self() {
             return this;
         }
 
         @Override
-        protected QuantitativeTrait<A> checkedBuild() {
-            return new QuantitativeTrait<A>(this);
+        protected RawTrait<A, T> checkedBuild() {
+            return new RawTrait<A, T>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -157,18 +155,18 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends QuantitativeTrait<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, T, C extends RawTrait<A, T>, B extends AbstractBuilder<A, T, C, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
 
-        private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
-        private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
-        private static final Callback<Object,Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object,Object> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object,Object> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object,Object> DEFAULT_SEGREGATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
 
-        private Callback<? super QuantitativeTrait<A>, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
-        private Callback<? super QuantitativeTrait<A>, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
-        private Callback<? super QuantitativeTrait<A>, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
-        private double value;
+        private Callback<? super RawTrait<A, T>, T> initializationKernel = (Callback<? super RawTrait<A, T>, T>) DEFAULT_INITIALIZATION_KERNEL;
+        private Callback<? super RawTrait<A, T>, T> mutationKernel = (Callback<? super RawTrait<A, T>, T>) DEFAULT_MUTATION_KERNEL;
+        private Callback<? super RawTrait<A, T>, T> segregationKernel = (Callback<? super RawTrait<A, T>, T>) DEFAULT_SEGREGATION_KERNEL;
+        private T value;
 
-        protected AbstractBuilder(QuantitativeTrait<A> quantitativeTrait) {
+        protected AbstractBuilder(RawTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
             this.initializationKernel = quantitativeTrait.initializationKernel;
             this.mutationKernel = quantitativeTrait.mutationKernel;
@@ -178,23 +176,23 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
 
         protected AbstractBuilder() {}
 
-        public B initialization(Callback<? super QuantitativeTrait<A>, Double> callback) {
+        public B initialization(Callback<? super RawTrait<A, T>, T> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B mutation(Callback<? super QuantitativeTrait<A>, Double> callback) {
+        public B mutation(Callback<? super RawTrait<A, T>, T> callback) {
             this.mutationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super QuantitativeTrait<A>, Double> callback) {
+        public B segregation(Callback<? super RawTrait<A, T>, T> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }
 
         // only used internally for serialization
-        protected B value(double value) {
+        protected B value(T value) {
             this.value = value;
             return self();
         }
