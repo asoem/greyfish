@@ -28,8 +28,8 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Seriali
     }
 
     @Override
-    public T apply(C caller, Arguments arguments) {
-        return conversionFunction.apply(expression.evaluateForContext(caller, arguments));
+    public T apply(C caller, Arguments args) {
+        return conversionFunction.apply(expression.evaluateForContext(caller, args));
     }
 
     public GreyfishExpression getExpression() {

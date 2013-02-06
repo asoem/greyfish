@@ -127,7 +127,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         private Callback<? super GenericMovement<A>, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement<A>, Double> turningAngle = new Callback<GenericMovement<A>, Double>() {
             @Override
-            public Double apply(GenericMovement<A> caller, Arguments arguments) {
+            public Double apply(GenericMovement<A> caller, Arguments args) {
                 return RandomUtils.rnorm(0.0, MathLib.HALF_PI);
             }
         };
