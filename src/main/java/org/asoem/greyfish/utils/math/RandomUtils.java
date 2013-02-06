@@ -164,13 +164,7 @@ public final class RandomUtils {
     }
 
     public static <S> S sample(S e1, S e2) {
-        switch (nextInt(2)) {
-            case 0:
-                return e1;
-            default:
-            case 1:
-                return e2;
-        }
+        return nextBoolean() ? e1 : e2;
     }
 
     public static <S> S sample(S e1, S e2, S e3) {

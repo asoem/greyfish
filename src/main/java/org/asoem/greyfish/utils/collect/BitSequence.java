@@ -108,15 +108,13 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
      * @param p the probability with which each bit will be mutated
      * @return a new BitSequence with each bit mutated with probability {@code p}
      */
-    public static BitSequence newMutatedCopy(BitSequence bitSequence, final double p) {
+    public static BitSequence mutate(BitSequence bitSequence, final double p) {
         final List<Boolean> booleans = Lists.transform(bitSequence, new Function<Boolean, Boolean>() {
             @Override
             public Boolean apply(Boolean b) {
                 return nextBoolean(p) ? !b : b;
             }
         });
-
-
         return forIterable(booleans);
     }
 

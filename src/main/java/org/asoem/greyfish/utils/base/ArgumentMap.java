@@ -17,7 +17,7 @@ public class ArgumentMap extends ForwardingMap<String, Object> implements Argume
 
     private final Map<String, Object> map;
 
-    public ArgumentMap(Map<String, Object> map) {
+    private ArgumentMap(Map<String, Object> map) {
         this.map = map;
     }
 

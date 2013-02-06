@@ -8,8 +8,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 /**
  * User: christoph
@@ -17,8 +16,9 @@ import static org.hamcrest.Matchers.is;
  * Time: 11:52
  */
 public class LinearSequencesTest {
+
     @Test
-    public void testCrossover() throws Exception {
+    public void testCrossoverWithFunction() throws Exception {
         // given
         List<String> l1 = ImmutableList.of("x", "x", "y", "y");
         List<String> l2 = ImmutableList.of("y", "y", "x", "x");
@@ -35,6 +35,34 @@ public class LinearSequencesTest {
         // then
         assertThat(crossover._1(), contains("x", "x", "x", "x"));
         assertThat(crossover._2(), contains("y", "y", "y", "y"));
+    }
+
+    @Test
+    public void testCrossoverWithProbabilityZero() throws Exception {
+        // given
+        List<String> l1 = ImmutableList.of("x", "x", "y", "y");
+        List<String> l2 = ImmutableList.of("y", "y", "x", "x");
+
+        // when
+        final Product2<List<String>, List<String>> crossover = LinearSequences.crossover(l1, l2, 0.0);
+
+        // then
+        assertThat(crossover._1(), is(equalTo(l1)));
+        assertThat(crossover._2(), is(equalTo(l2)));
+    }
+
+    @Test
+    public void testCrossoverWithProbabilityOne() throws Exception {
+        // given
+        List<String> l1 = ImmutableList.of("x", "x", "y", "y");
+        List<String> l2 = ImmutableList.of("y", "y", "x", "x");
+
+        // when
+        final Product2<List<String>, List<String>> crossover = LinearSequences.crossover(l1, l2, 1.0);
+
+        // then
+        assertThat(crossover._1(), contains("y", "x", "x", "y"));
+        assertThat(crossover._2(), contains("x", "y", "y", "x"));
     }
 
     @Test

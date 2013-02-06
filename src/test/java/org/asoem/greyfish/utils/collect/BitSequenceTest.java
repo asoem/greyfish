@@ -30,7 +30,7 @@ public class BitSequenceTest {
         final BitSequence bitSequence = BitSequence.parse("00000001");
 
         // when
-        final BitSequence mutated = BitSequence.newMutatedCopy(bitSequence, 1);
+        final BitSequence mutated = BitSequence.mutate(bitSequence, 1);
 
         // then
         assertThat(mutated.toString(), is(equalTo("11111110")));
@@ -47,5 +47,29 @@ public class BitSequenceTest {
 
         // then
         assertThat(result, is(equalTo(BitSequence.parse("000000101"))));
+    }
+
+    @Test
+    public void testZeros() throws Exception {
+        // given
+        final BitSequence bitSequence = BitSequence.zeros(8);
+
+        // when
+        final String asString = bitSequence.toString();
+
+        // then
+        assertThat(asString, is(equalTo("00000000")));
+    }
+
+    @Test
+    public void testOnes() throws Exception {
+        // given
+        final BitSequence bitSequence = BitSequence.ones(8);
+
+        // when
+        final String asString = bitSequence.toString();
+
+        // then
+        assertThat(asString, is(equalTo("11111111")));
     }
 }
