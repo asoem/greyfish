@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.utils.collect.Product2;
-import org.asoem.greyfish.utils.collect.Tuple2;
+import org.asoem.greyfish.utils.collect.Products;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public final class AgentTraits {
         checkNotNull(values);
         checkArgument(values.size() == traits.size(), "");
 
-        for (Product2<? extends AgentTrait<?,?>, ?> tuple2 : Tuple2.zipped(traits, values)) {
+        for (Product2<? extends AgentTrait<?,?>, ?> tuple2 : Products.zip(traits, values)) {
             tuple2._1().setAllele(tuple2._2());
         }
     }

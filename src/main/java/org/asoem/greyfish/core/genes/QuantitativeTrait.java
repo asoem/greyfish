@@ -33,7 +33,7 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
     @Element
     private Callback<? super QuantitativeTrait<A>, Double> segregationKernel;
 
-    private Double value = 0.0;
+    private double value = 0.0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private QuantitativeTrait() {}

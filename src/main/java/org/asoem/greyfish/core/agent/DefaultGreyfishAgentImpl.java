@@ -14,7 +14,7 @@ import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.FunctionalList;
-import org.asoem.greyfish.utils.collect.FunctionalLists;
+import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -57,21 +57,21 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
         // share
         this.population = frozenAgent.population;
         // clone
-        this.actions = FunctionalLists.copyOf(Iterables.transform(frozenAgent.actions, new Function<AgentAction<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
+        this.actions = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.actions, new Function<AgentAction<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
             @SuppressWarnings("unchecked")
             @Override
             public AgentAction<DefaultGreyfishAgent> apply(@Nullable AgentAction<DefaultGreyfishAgent> agentAction) {
                 return cloner.getClone(agentAction);
             }
         }));
-        this.properties = FunctionalLists.copyOf(Iterables.transform(frozenAgent.properties, new Function<AgentProperty<DefaultGreyfishAgent, ?>, AgentProperty<DefaultGreyfishAgent, ?>>() {
+        this.properties = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.properties, new Function<AgentProperty<DefaultGreyfishAgent, ?>, AgentProperty<DefaultGreyfishAgent, ?>>() {
             @SuppressWarnings("unchecked")
             @Override
             public AgentProperty<DefaultGreyfishAgent, ?> apply(@Nullable AgentProperty<DefaultGreyfishAgent, ?> agentProperty) {
                 return cloner.getClone(agentProperty);
             }
         }));
-        this.traits = FunctionalLists.copyOf(Iterables.transform(frozenAgent.traits, new Function<AgentTrait<DefaultGreyfishAgent, ?>, AgentTrait<DefaultGreyfishAgent, ?>>() {
+        this.traits = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.traits, new Function<AgentTrait<DefaultGreyfishAgent, ?>, AgentTrait<DefaultGreyfishAgent, ?>>() {
             @SuppressWarnings("unchecked")
             @Override
             public AgentTrait<DefaultGreyfishAgent, ?> apply(@Nullable AgentTrait<DefaultGreyfishAgent, ?> agentTrait) {
@@ -84,15 +84,15 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     private DefaultGreyfishAgentImpl(Builder builder) {
-        this.properties = FunctionalLists.copyOf(builder.properties);
+        this.properties = ImmutableFunctionalList.copyOf(builder.properties);
         for (AgentProperty<DefaultGreyfishAgent, ?> property : builder.properties) {
             property.setAgent(this);
         }
-        this.actions = FunctionalLists.copyOf(builder.actions);
+        this.actions = ImmutableFunctionalList.copyOf(builder.actions);
         for (AgentAction<DefaultGreyfishAgent> action : builder.actions) {
             action.setAgent(this);
         }
-        this.traits = FunctionalLists.copyOf(builder.traits);
+        this.traits = ImmutableFunctionalList.copyOf(builder.traits);
         for (AgentTrait<DefaultGreyfishAgent, ?> trait : builder.traits) {
             trait.setAgent(this);
         }

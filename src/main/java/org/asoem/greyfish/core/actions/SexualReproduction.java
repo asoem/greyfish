@@ -100,8 +100,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     private static <A extends Agent<A, ?>> Chromosome blend(FunctionalList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
-        final Tuple2.Zipped<AgentTrait<A, ?>, FunctionalList<AgentTrait<A, ?>>, Gene<?>, List<Gene<?>>> zipped =
-                Tuple2.zipped(egg, sperm.getGenes());
+        final Iterable<Product2<AgentTrait<A, ?>, Gene<?>>> zipped = Products.zip(egg, sperm.getGenes());
 
         // segregate
         final Iterable<Gene<Object>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, Gene<?>>, Gene<Object>>() {
@@ -109,7 +108,8 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             public Gene<Object> apply(Product2<AgentTrait<A, ?>, Gene<?>> tuple) {
                 final AgentTrait<A, ?> trait = tuple._1();
                 final Gene<?> gene = tuple._2();
-                final Object segregationProduct = AgentTraits.mutate(trait, AgentTraits.segregate(trait, trait.getValue(), gene.getValue()));
+                final Object segregate = AgentTraits.segregate(trait, trait.getValue(), gene.getValue());
+                final Object segregationProduct = AgentTraits.mutate(trait, segregate);
                 return new Gene<Object>(segregationProduct, trait.getRecombinationProbability());
             }
         });

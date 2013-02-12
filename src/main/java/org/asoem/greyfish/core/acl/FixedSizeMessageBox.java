@@ -95,6 +95,11 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
         return new FixedSizeMessageBox<M>(size);
     }
 
+    @Override
+    public boolean any(Predicate<M> predicate) {
+        return Iterables.any(buffer, predicate);
+    }
+
     private static class SerializedForm<M extends ACLMessage<?>> implements Serializable {
         private final List<M> messages;
         private final int maxSize;
