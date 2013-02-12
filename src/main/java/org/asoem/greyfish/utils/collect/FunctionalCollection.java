@@ -1,5 +1,7 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Predicate;
+
 import java.util.Collection;
 
 /**
@@ -8,4 +10,5 @@ import java.util.Collection;
  * Time: 18:14
  */
 public interface FunctionalCollection<E> extends Collection<E>, Searchable<E> {
+    public boolean any(Predicate<E> predicate);
 }

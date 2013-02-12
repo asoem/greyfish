@@ -8,13 +8,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
- * Date: 21.09.12
- * Time: 15:46
+ * Date: 10.02.13
+ * Time: 12:50
  */
-public final class FunctionalLists {
-
-    private FunctionalLists() {}
-
+public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<E> {
     public static <E> FunctionalList<E> copyOf(List<? extends E> list) {
         checkNotNull(list);
         final int size = list.size();
@@ -22,7 +19,7 @@ public final class FunctionalLists {
             case 0: return of();
             case 2: return of(list.get(0), list.get(1));
             case 3: return of(list.get(0), list.get(1), list.get(2));
-            default: return decorate(ImmutableList.copyOf(list));
+            default: return DecoratingFunctionalList.decorate(ImmutableList.copyOf(list));
         }
     }
 
@@ -41,9 +38,5 @@ public final class FunctionalLists {
 
     private static <E> FunctionalList<E> of(E e0, E e1, E e2) {
         return new ImmutableFunctionalList3<E>(e0, e1, e2);
-    }
-
-    public static <E> FunctionalList<E> decorate(List<E> list) {
-        return new ForwardingFunctionalList<E>(list);
     }
 }

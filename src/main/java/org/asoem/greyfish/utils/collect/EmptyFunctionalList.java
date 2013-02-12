@@ -4,7 +4,6 @@ import com.google.common.base.Predicate;
 
 import java.io.InvalidObjectException;
 import java.io.Serializable;
-import java.util.AbstractList;
 import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
@@ -14,7 +13,7 @@ import static com.google.common.base.Preconditions.checkElementIndex;
 * Date: 10.10.12
 * Time: 22:15
 */
-class EmptyFunctionalList extends AbstractList<Object> implements Serializable, FunctionalList<Object> {
+class EmptyFunctionalList extends AbstractFunctionalList<Object> implements Serializable {
     private static transient final EmptyFunctionalList INSTANCE = new EmptyFunctionalList();
 
     private EmptyFunctionalList() {}

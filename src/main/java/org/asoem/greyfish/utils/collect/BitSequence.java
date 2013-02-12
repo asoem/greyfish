@@ -20,12 +20,12 @@ import static org.asoem.greyfish.utils.math.RandomUtils.nextBoolean;
  */
 public class BitSequence extends AbstractLinearSequence<Boolean> implements Comparable<BitSequence> {
 
-    private final BitSet val;
+    private final BitSet bitSet;
     private final int length;
 
-    private BitSequence(BitSet val, int length) {
+    private BitSequence(BitSet bitSet, int length) {
         this.length = length;
-        this.val = val;
+        this.bitSet = bitSet;
     }
 
     @Override
@@ -35,13 +35,13 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
 
     @Override
     public String toString() {
-        return Strings.padStart(BitSets.toString(val), length, '0');
+        return Strings.padStart(BitSets.toString(bitSet), length, '0');
     }
 
     @Override
     public Boolean get(int index) {
         checkElementIndex(index, length());
-        return val.get(index);
+        return bitSet.get(index);
     }
 
     @SuppressWarnings("RedundantIfStatement")
@@ -53,14 +53,14 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         BitSequence that = (BitSequence) o;
 
         if (length != that.length) return false;
-        if (!val.equals(that.val)) return false;
+        if (!bitSet.equals(that.bitSet)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = val.hashCode();
+        int result = bitSet.hashCode();
         result = 31 * result + length;
         return result;
     }
@@ -71,34 +71,34 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
     }
 
     public BigInteger asBigInteger() {
-        return new BigInteger(BitSets.toByteArray(val));
+        return new BigInteger(BitSets.toByteArray(bitSet));
     }
 
     public BitSet asBitSet() {
-        return (BitSet) val.clone();
+        return (BitSet) bitSet.clone();
     }
 
     public BitSequence and(BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.and(val);
+        bitSet.and(this.bitSet);
         return new BitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
     public BitSequence or(BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.or(val);
+        bitSet.or(this.bitSet);
         return new BitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
     public BitSequence xor(BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.xor(val);
+        bitSet.xor(this.bitSet);
         return new BitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
     public BitSequence andNot(BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.andNot(val);
+        bitSet.andNot(this.bitSet);
         return new BitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
@@ -146,5 +146,9 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
      */
     public static BitSequence parse(String s) {
         return new BitSequence(BitSets.parse(s), s.length());
+    }
+
+    public int cardinality() {
+        return bitSet.cardinality();
     }
 }

@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkPositionIndex;
  * Date: 21.09.12
  * Time: 15:37
  */
-class ImmutableFunctionalList2<E> extends AbstractFunctionalList<E> implements Serializable, FunctionalList<E> {
+class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements Serializable, FunctionalList<E> {
 
     final private E e0;
     final private E e1;
@@ -58,6 +58,12 @@ class ImmutableFunctionalList2<E> extends AbstractFunctionalList<E> implements S
         if (predicate.apply(e1))
             return e1;
         return defaultValue;
+    }
+
+    @Override
+    public boolean any(Predicate<E> predicate) {
+        checkNotNull(predicate);
+        return predicate.apply(e0) || predicate.apply(e1);
     }
 
     private void readObject(ObjectInputStream s)

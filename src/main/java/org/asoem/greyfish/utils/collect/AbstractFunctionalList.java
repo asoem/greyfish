@@ -26,4 +26,9 @@ public abstract class AbstractFunctionalList<E> extends AbstractList<E> implemen
     public Iterable<E> filter(Predicate<? super E> predicate) {
         return Iterables.filter(this, predicate);
     }
+
+    @Override
+    public boolean any(Predicate<E> predicate) {
+        return Iterables.any(this, predicate);
+    }
 }

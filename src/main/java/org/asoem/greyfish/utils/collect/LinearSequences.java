@@ -1,12 +1,15 @@
 package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
+import com.google.common.collect.Ranges;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -19,43 +22,58 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class LinearSequences {
     private LinearSequences() {}
 
-    public static <E> Product2<List<E>, List<E>> crossover(List<E> x, List<E> y, final double crossoverProbability) {
-        return crossover(x, y, new Function<Integer, Boolean>() {
-            @Nullable
-            @Override
-            public Boolean apply(@Nullable Integer input) {
-                return RandomUtils.nextBoolean(crossoverProbability);
-            }
-        });
-    }
-
-    public static <E> Product2<List<E>, List<E>> crossover(List<E> x, List<E> y, final Function<? super Integer, Boolean> crossoverFunction) {
+    /**
+     * Create a crossover product between two {@code Iterables} with crossovers at given {@code indices}.
+     * This means that both {@code Iterable}s in the returned product are a combination of the input iterables in such a way,
+     * that the constructed iterable switches the input iterable at each given position.
+     * Both input {@code Iterable}s will be zipped with {@link Products#zip(Iterable, Iterable)}.
+     * Therefore the returned {@code Iterable}s will have the same size equal to the size of the input iterable with the fewest elements.
+     * @param x The first Iterable
+     * @param y The second Iterable
+     * @param indices the indices at which to do the crossovers
+     * @param <E> the type of the elements in {@code Iterable}s
+     * @return a product of Iterables with crossovers at the given indices
+     */
+    public static <E> Product2<Iterable<E>, Iterable<E>> crossover(Iterable<E> x, Iterable<E> y, final Set<Integer> indices) {
         checkNotNull(x);
         checkNotNull(y);
-        checkArgument(x.size() == y.size());
-        checkNotNull(crossoverFunction);
-        final Tuple2.Zipped<E, List<E>, E, List<E>> zipped = Tuple2.zipped(x, y);
-        final Iterable<Product2<E, E>> transform = ImmutableList.copyOf(Iterables.transform(
-                zipped,
-                new Function<Product2<E, E>, Product2<E, E>>() {
-                    int index = 0;
-                    boolean b = true;
+        checkNotNull(indices);
 
-                    @Override
-                    public Product2<E, E> apply(Product2<E, E> input) {
-                        if (checkNotNull(crossoverFunction.apply(index++)))
-                            b = !b;
-                        return b ? input : Tuple2.swap(input);
-                    }
-                }));
-        final Tuple2<Iterable<E>, Iterable<E>> afterCrossover = Tuple2.unzipped(transform);
-        return Tuple2.<List<E>, List<E>>of(
-                ImmutableList.copyOf(afterCrossover._1()),
-                ImmutableList.copyOf(afterCrossover._2()));
+        final Iterable<Product2<E, E>> zipped = Products.zip(x, y);
+
+        if (indices.isEmpty())
+            return Products.unzip(zipped);
+        else {
+            final FunctionalList<Range<Integer>> ranges = ImmutableFunctionalList.copyOf(Iterables.transform(Iterables.partition(
+                    Ordering.natural().immutableSortedCopy(indices), 2), new Function<List<Integer>, Range<Integer>>() {
+                @Nullable
+                @Override
+                public Range<Integer> apply(@Nullable List<Integer> input) {
+                    assert input != null;
+                    return input.size() == 2 ? Ranges.closed(input.get(0), input.get(1)) : Ranges.atLeast(input.get(0));
+                }
+            }));
+
+            return Products.unzip(Iterables.transform(Products.zipWithIndex(zipped), new Function<Product2<Product2<E, E>, Integer>, Product2<E, E>>() {
+                @Nullable
+                @Override
+                public Product2<E, E> apply(@Nullable final Product2<Product2<E, E>, Integer> input) {
+                    assert input != null;
+                    return ranges.any(new Predicate<Range<Integer>>() {
+                        @Override
+                        public boolean apply(@Nullable Range<Integer> range) {
+                            assert range != null;
+                            return range.contains(input._2());
+                        }
+                    }) ? Products.swap(input._1()) : input._1();
+                }
+            }));
+        }
     }
 
     public static <E> int hammingDistance(List<E> a, List<E> b) {
-        final Tuple2.Zipped<E, List<E>, E, List<E>> zipped = Tuple2.zipped(a, b);
+        checkArgument(checkNotNull(a).size() == checkNotNull(b.size()));
+        final Iterable<Product2<E, E>> zipped = Products.zip(a, b);
         int sum = 0;
         for (Product2<E, E> el : zipped) {
             if (!el._1().equals(el._2()))
@@ -63,4 +81,5 @@ public class LinearSequences {
         }
         return sum;
     }
+
 }
