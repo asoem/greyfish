@@ -22,16 +22,16 @@ public class LinearSequencesTest {
     @Test
     public void testCrossoverWithIndexSet() throws Exception {
         // given
-        final List<String> l1 = ImmutableList.of("x", "x", "y", "y");
-        final List<String> l2 = ImmutableList.of("y", "y", "x", "x");
+        final List<String> l1 = ImmutableList.of("x", "x", "x", "x");
+        final List<String> l2 = ImmutableList.of("y", "y", "y", "y");
 
         // when
         final Product2<Iterable<String>, Iterable<String>> crossover =
-                LinearSequences.crossover(l1, l2, Sets.newHashSet(2));
+                LinearSequences.crossover(l1, l2, Sets.newHashSet(1, 3));
 
         // then
-        assertThat(crossover._1(), contains("x", "x", "x", "x"));
-        assertThat(crossover._2(), contains("y", "y", "y", "y"));
+        assertThat(crossover._1(), contains("x", "y", "y", "y"));
+        assertThat(crossover._2(), contains("y", "x", "x", "x"));
     }
 
     @Test
