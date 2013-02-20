@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
+import static org.asoem.greyfish.utils.math.RandomUtils.sample;
 
 /**
  * User: christoph
@@ -42,7 +43,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
 
     private DiscreteTrait(AbstractBuilder<A, ? extends DiscreteTrait<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
-        this.mutationTable = builder.mutationTable;
+        this.mutationTable = ImmutableTable.copyOf(builder.mutationTable);
         this.initializationKernel = builder.initializationKernel;
         this.segregationKernel = builder.segregationKernel;
         this.state = builder.state;
@@ -202,12 +203,14 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
 
     protected abstract static class AbstractBuilder<A extends Agent<A, ?>, T extends DiscreteTrait<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
 
-        private Table<String, String, Callback<? super DiscreteTrait<A>, Double>> mutationTable = HashBasedTable.create();
-        private Callback<? super DiscreteTrait<A>, String> initializationKernel = Callbacks.willThrow(new UnsupportedOperationException());
-        private Callback<? super DiscreteTrait<A>, String> segregationKernel = Callbacks.willThrow(new UnsupportedOperationException());
+        private final Table<String, String, Callback<? super DiscreteTrait<A>, Double>> mutationTable;
+        private Callback<? super DiscreteTrait<A>, String> initializationKernel;
+        private Callback<? super DiscreteTrait<A>, String> segregationKernel;
         private String state;
 
-        protected AbstractBuilder() {}
+        protected AbstractBuilder() {
+            this.mutationTable = HashBasedTable.create();
+        }
 
         protected AbstractBuilder(DiscreteTrait<A> discreteTrait) {
             super(discreteTrait);
@@ -240,7 +243,15 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
         @Override
         protected void checkBuilder() throws IllegalStateException {
             super.checkBuilder();
-            this.mutationTable = ImmutableTable.copyOf(mutationTable);
+            if (initializationKernel == null)
+                throw new IllegalStateException();
+            if (segregationKernel == null)
+                segregationKernel = new Callback<DiscreteTrait<A>, String>() {
+                    @Override
+                    public String apply(DiscreteTrait<A> caller, Arguments args) {
+                        return (String) sample(args.get("x"), args.get("y"));
+                    }
+                };
         }
     }
 }
