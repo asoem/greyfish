@@ -48,11 +48,12 @@ class ImmutableFunctionalList3<E> extends ImmutableFunctionalList<E> implements 
         checkNotNull(predicate, "Predicate is null");
         if (predicate.apply(e0))
             return e0;
-        if (predicate.apply(e1))
+        else if (predicate.apply(e1))
             return e1;
-        if (predicate.apply(e2))
+        else if (predicate.apply(e2))
             return e2;
-        throw new NoSuchElementException("No element was found matching the given predicate: " + predicate);
+        else
+            throw new NoSuchElementException("No element was found matching the given predicate: " + predicate);
     }
 
     @Override
@@ -60,11 +61,12 @@ class ImmutableFunctionalList3<E> extends ImmutableFunctionalList<E> implements 
         checkNotNull(predicate, "Predicate is null");
         if (predicate.apply(e0))
             return e0;
-        if (predicate.apply(e1))
+        else if (predicate.apply(e1))
             return e1;
-        if (predicate.apply(e2))
+        else if (predicate.apply(e2))
             return e2;
-        return defaultValue;
+        else
+            return defaultValue;
     }
 
     private void readObject(ObjectInputStream s)
