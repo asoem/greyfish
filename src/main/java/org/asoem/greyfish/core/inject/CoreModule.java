@@ -42,7 +42,7 @@ public class CoreModule extends AbstractModule {
         // GreyfishExpression
         bind(EvaluatorFactory.class).toInstance(new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) throws SyntaxException {
+            public Evaluator createEvaluator(String expression) {
                 return new CommonsJEXLEvaluator(expression);
             }
         });

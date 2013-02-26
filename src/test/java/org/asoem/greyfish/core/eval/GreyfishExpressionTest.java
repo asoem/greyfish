@@ -43,7 +43,7 @@ public class GreyfishExpressionTest {
         // when
         GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) throws SyntaxException {
+            public Evaluator createEvaluator(String expression) {
                 return evaluator;
             }
         });
@@ -64,7 +64,7 @@ public class GreyfishExpressionTest {
         // when
         GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) throws SyntaxException {
+            public Evaluator createEvaluator(String expression) {
                 return evaluator;
             }
         });
@@ -79,7 +79,7 @@ public class GreyfishExpressionTest {
         // given
         final GreyfishExpression expression = new GreyfishExpression("42.0", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) throws SyntaxException {
+            public Evaluator createEvaluator(String expression) {
                 return EvaluatorFake.INSTANCE;
             }
         });

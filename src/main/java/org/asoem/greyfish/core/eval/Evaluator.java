@@ -7,8 +7,6 @@ package org.asoem.greyfish.core.eval;
  * Time: 16:56
  */
 public interface Evaluator {
-
     EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException;
-
     String getExpression();
 }
