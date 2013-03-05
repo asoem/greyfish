@@ -68,7 +68,7 @@ public final class GreyfishCLIApplication {
         });
 
         LOGGER.info("Creating simulation for model {}", model.getClass());
-        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.extract(model)));
+        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").useForNull("null").join(ModelParameters.extract(model)));
 
         final Simulation<?> simulation = model.createSimulation();
 
