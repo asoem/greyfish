@@ -8,7 +8,6 @@ import org.asoem.greyfish.utils.math.RandomUtils;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.Point2D;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
@@ -46,7 +45,7 @@ public class DefaultGreyfishSimulationImpl extends Basic2DSimulation<DefaultGrey
         enqueueAgentCreation(population, chromosome, location);
     }
 
-    public static class Builder extends ParallelizedSimulationBuilder<Builder, DefaultGreyfishSimulationImpl, DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> {
+    public static class Builder extends Basic2DSimulationBuilder<Builder, DefaultGreyfishSimulationImpl, DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> {
 
         public Builder(DefaultGreyfishSpace space, final Set<DefaultGreyfishAgent> prototypes) {
             super(space, prototypes);

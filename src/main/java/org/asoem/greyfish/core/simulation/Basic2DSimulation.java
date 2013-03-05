@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
@@ -59,7 +58,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private final AtomicInteger agentIdSequence = new AtomicInteger();
     private SimulationState state;
 
-    protected Basic2DSimulation(ParallelizedSimulationBuilder<?, ?, S, A, Z, P> builder) {
+    protected Basic2DSimulation(Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.prototypes = checkNotNull(builder.prototypes);
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
@@ -391,7 +390,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         }
     }
 
-    protected abstract static class ParallelizedSimulationBuilder<B extends ParallelizedSimulationBuilder<B, S, X, A, Z, P>, S extends Basic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Basic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;
@@ -399,7 +398,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         private final Set<A> prototypes;
         private SimulationLogger<? super A> simulationLogger = new ConsoleLogger<A>();
 
-        public ParallelizedSimulationBuilder(Z space, final Set<A> prototypes) {
+        public Basic2DSimulationBuilder(Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
             agentPool(new StackKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
