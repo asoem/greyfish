@@ -183,7 +183,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void executeAllAgents() {
-        final RecursiveAction executeAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<Simulatable<S, A>>() {
+        final RecursiveAction executeAllAgents = RecursiveActions.foreach(ImmutableList.copyOf(getAgents()), new VoidFunction<Simulatable<S, A>>() {
             @Override
             public void process(Simulatable<S, A> agent) {
                 agent.execute();
@@ -204,7 +204,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void processAgentsMovement() {
-        final RecursiveAction moveAllAgents = RecursiveActions.foreach(getAgents(), new VoidFunction<A>() {
+        final RecursiveAction moveAllAgents = RecursiveActions.foreach(ImmutableList.copyOf(getAgents()), new VoidFunction<A>() {
             @Override
             public void process(A agent) {
                 space.moveObject(agent, agent.getMotion());

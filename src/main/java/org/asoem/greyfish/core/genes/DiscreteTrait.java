@@ -77,7 +77,12 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
         double sum = 0;
         double rand = RandomUtils.nextDouble();
         for (Map.Entry<String, Callback<? super DiscreteTrait<A>, Double>> cell : row.entrySet()) {
-            sum += Callbacks.call(cell.getValue(), DiscreteTrait.this);
+            final double transitionProbability = Callbacks.call(cell.getValue(), DiscreteTrait.this);
+            if (transitionProbability < 0)
+                throw new AssertionError("Every transition probability should be >= 0, was " + transitionProbability);
+
+            sum += transitionProbability;
+
             if (sum > 1)
                 throw new AssertionError("Sum of probabilities is expected to not exceed 1, was " + sum);
             if (sum > rand) {
