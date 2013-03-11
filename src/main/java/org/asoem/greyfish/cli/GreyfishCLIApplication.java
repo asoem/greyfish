@@ -19,6 +19,7 @@ import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.SimulationModel;
 import org.asoem.greyfish.core.simulation.Simulations;
@@ -229,8 +230,8 @@ public final class GreyfishCLIApplication {
                         .toProvider(Providers.of(optionSet.has("v") ? (String) optionSet.valueOf("v") : null));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance((Integer) optionSet.valueOf("pt"));
-                bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){}).toInstance(new H2Logger<DefaultGreyfishAgent>(
-                        ((String) optionSet.valueOf("db")).replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString())
+                bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){}).toInstance(SimulationLoggers.synchronizedLogger(new H2Logger<DefaultGreyfishAgent>(
+                        ((String) optionSet.valueOf("db")).replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))
                 ));
             }
         };
