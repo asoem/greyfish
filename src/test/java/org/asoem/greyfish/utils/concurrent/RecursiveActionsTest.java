@@ -23,7 +23,7 @@ public class RecursiveActionsTest {
         final Runnable mock = mock(Runnable.class);
         final int listSize = 1000;
         final int threshold = 100;
-        List<Runnable> iterable = ImmutableList.copyOf(Iterables.limit(Iterables.cycle(mock), listSize));
+        List<Runnable> list = ImmutableList.copyOf(Iterables.limit(Iterables.cycle(mock), listSize));
         VoidFunction<Runnable> fun = new VoidFunction<Runnable>() {
             @Override
             public void process(Runnable o) {
@@ -33,7 +33,7 @@ public class RecursiveActionsTest {
         ForkJoinPool forkJoinPool = new ForkJoinPool();
 
         // when
-        final RecursiveAction recursiveAction = RecursiveActions.foreach(iterable, fun, threshold);
+        final RecursiveAction recursiveAction = RecursiveActions.foreach(list, fun, threshold);
         forkJoinPool.invoke(recursiveAction);
 
         // then
