@@ -19,6 +19,7 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
             case 0: return of();
             case 2: return of(list.get(0), list.get(1));
             case 3: return of(list.get(0), list.get(1), list.get(2));
+            case 4: return of(list.get(0), list.get(1), list.get(2), list.get(3));
             default: return DecoratingFunctionalList.decorate(ImmutableList.copyOf(list));
         }
     }
@@ -38,5 +39,9 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
 
     private static <E> FunctionalList<E> of(E e0, E e1, E e2) {
         return new ImmutableFunctionalList3<E>(e0, e1, e2);
+    }
+
+    private static <E> FunctionalList<E> of(E e0, E e1, E e2, E e3) {
+        return new ImmutableFunctionalList4<E>(e0, e1, e2, e3);
     }
 }
