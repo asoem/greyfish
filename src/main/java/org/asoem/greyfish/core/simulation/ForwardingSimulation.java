@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
@@ -81,11 +80,6 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
-        return delegate().snapshotValue(key, valueCalculator);
-    }
-
-    @Override
     public void createAgent(Population population, Initializer<? super A> initializer) {
         delegate().createAgent(population, initializer);
     }
@@ -113,5 +107,20 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     @Override
     public Iterable<A> filterAgents(Predicate<? super A> predicate) {
         return delegate().filterAgents(predicate);
+    }
+
+    @Override
+    public boolean hasStepValue(String key) {
+        return delegate().hasStepValue(key);
+    }
+
+    @Override
+    public void setStepValue(String key, Object value) {
+        delegate().setStepValue(key, value);
+    }
+
+    @Override
+    public Object getStepValue(String key) {
+        return delegate().getStepValue(key);
     }
 }

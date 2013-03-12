@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
@@ -103,14 +102,11 @@ public interface Simulation<A extends Agent<A, ?>> extends HasName {
 
     void logAgentEvent(A agent, Object eventOrigin, String title, String message);
 
-    /**
-     * With this method you can store values which hold for all agents during a single simulation step.
-     * Using these snapshot values, you can prevent duplicate computations.
-     * @param key The name of the value
-     * @param valueCalculator The algorithm to compute the value
-     * @return The stored value for {@code key}
-     */
-    Object snapshotValue(String key, Supplier<Object> valueCalculator);
-
     Iterable<A> filterAgents(Predicate<? super A> predicate);
+
+    boolean hasStepValue(String key);
+
+    void setStepValue(String key, Object value);
+
+    Object getStepValue(String key);
 }

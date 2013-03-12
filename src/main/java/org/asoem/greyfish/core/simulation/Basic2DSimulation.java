@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
 import com.google.common.collect.*;
 import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
@@ -233,9 +232,17 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
-        if (!snapshotValues.containsKey(key))
-            snapshotValues.putIfAbsent(key, valueCalculator.get());
+    public boolean hasStepValue(String key) {
+        return snapshotValues.containsKey(key);
+    }
+
+    @Override
+    public void setStepValue(String key, Object value) {
+        snapshotValues.put(key, value);
+    }
+
+    @Override
+    public Object getStepValue(String key) {
         return snapshotValues.get(key);
     }
 
