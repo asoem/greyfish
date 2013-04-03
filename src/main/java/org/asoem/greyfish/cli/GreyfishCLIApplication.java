@@ -6,10 +6,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Module;
+import com.google.inject.*;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -18,10 +15,14 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
+import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
-import org.asoem.greyfish.core.simulation.*;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SimulationModel;
+import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -54,27 +55,23 @@ public final class GreyfishCLIApplication {
     private State state = State.STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(Model model,
+    private GreyfishCLIApplication(SimulationModel<?> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
-                                   @Named("parallelizationThreshold") int parallelizationThreshold,
-                                   @Named("databasePath") String dbPath) {
-        final List<Predicate<ParallelizedSimulation>> predicateList = Lists.newArrayList();
+                                   @Named("parallelizationThreshold") int parallelizationThreshold) {
+        final List<Predicate<Simulation<?>>> predicateList = Lists.newArrayList();
 
-        predicateList.add(new Predicate<ParallelizedSimulation>() {
+        predicateList.add(new Predicate<Simulation<?>>() {
             @Override
-            public boolean apply(ParallelizedSimulation parallelizedSimulation) {
+            public boolean apply(Simulation<?> parallelizedSimulation) {
                 return parallelizedSimulation.getStep() < steps;
             }
         });
 
         LOGGER.info("Creating simulation for model {}", model.getClass());
-        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").join(ModelParameters.asMap(model)));
-        final ParallelizedSimulationFactory simulationFactory = new ParallelizedSimulationFactory(parallelizationThreshold,
-                SimulationLoggers.synchronizedLogger(new H2Logger(dbPath.replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))));
-        final SimulationTemplate simulationTemplate = model.createTemplate();
-        assert simulationTemplate != null;
-        final ParallelizedSimulation simulation = simulationTemplate.createSimulation(simulationFactory);
+        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").useForNull("null").join(ModelParameters.extract(model)));
+
+        final Simulation<?> simulation = model.createSimulation();
 
         if (verbose != null) {
             startSimulationMonitor(simulation, verbose);
@@ -103,7 +100,7 @@ public final class GreyfishCLIApplication {
         }
     }
 
-    private void startSimulationMonitor(final ParallelizedSimulation simulation, final String verbose) {
+    private void startSimulationMonitor(final Simulation<?> simulation, final String verbose) {
         OutputStream outputStream = null;
         try {
             if (verbose.equals("-")) {
@@ -203,9 +200,9 @@ public final class GreyfishCLIApplication {
 
                 try {
                     final Class<?> modelClass = Class.forName(modelClassName);
-                    if (!Model.class.isAssignableFrom(modelClass))
-                        optionExceptionHandler.exitWithError("Specified Class does not implement " + Model.class);
-                    bind(Model.class).to((Class<Model>) modelClass);
+                    if (!SimulationModel.class.isAssignableFrom(modelClass))
+                        optionExceptionHandler.exitWithError("Specified Class does not implement " + SimulationModel.class);
+                    bind(new TypeLiteral<SimulationModel<?>>(){}).to((Class<SimulationModel<?>>) modelClass);
                 } catch (ClassNotFoundException e) {
                     optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
                 }
@@ -233,8 +230,9 @@ public final class GreyfishCLIApplication {
                         .toProvider(Providers.of(optionSet.has("v") ? (String) optionSet.valueOf("v") : null));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance((Integer) optionSet.valueOf("pt"));
-                bind(String.class).annotatedWith(Names.named("databasePath"))
-                        .toInstance((String) optionSet.valueOf("db"));
+                bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){}).toInstance(SimulationLoggers.synchronizedLogger(new H2Logger<DefaultGreyfishAgent>(
+                        ((String) optionSet.valueOf("db")).replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))
+                ));
             }
         };
     }
