@@ -1,7 +1,10 @@
 package org.asoem.greyfish.utils.persistence;
 
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import com.google.common.io.Closeables;
+import com.google.common.io.InputSupplier;
+import com.google.common.io.OutputSupplier;
+
+import java.io.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,23 +37,65 @@ public final class Persisters {
         final PipedOutputStream pipedOutputStream = new PipedOutputStream();
         final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
 
-        final Future<T> future = Executors.newSingleThreadExecutor().submit(new Callable<T>() {
+        final Future<T> deserializeFuture = Executors.newSingleThreadExecutor().submit(new Callable<T>() {
+            @SuppressWarnings("unchecked") // safe if persister is implemented correctly
             @Override
             public T call() throws Exception {
-                return (T) persister.deserialize(pipedInputStream, o.getClass());
+                try {
+                    return (T) persister.deserialize(pipedInputStream, o.getClass());
+                } catch (Exception e) {
+                    pipedInputStream.close();
+                    throw e;
+                }
             }
         });
 
         try {
-            persister.serialize(o, pipedOutputStream);
-            return future.get(3, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            future.cancel(true);
-            throw (e);
-        }
-        finally {
+            try {
+                persister.serialize(o, pipedOutputStream);
+            } catch (Exception e) {
+                if (!deserializeFuture.isDone()) {
+                    deserializeFuture.cancel(true);
+                    throw e;
+                }
+                else { // the future task had an exception and closed the stream, which caused this exception
+                    deserializeFuture.get(); // throws the exception
+                    throw new AssertionError("unreachable");
+                }
+            }
+            finally {
+                pipedOutputStream.close();
+            }
+            return deserializeFuture.get(3, TimeUnit.SECONDS);
+        } finally {
             pipedInputStream.close();
-            pipedOutputStream.close();
         }
+    }
+
+    public static <T> T deserialize(Persister persister, InputSupplier<? extends InputStream> inputSupplier, Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
+        final InputStream input = inputSupplier.getInput();
+        boolean threw = true;
+        try {
+            final T object = persister.deserialize(input, clazz);
+            threw = false;
+            return object;
+        } finally {
+            Closeables.close(input, threw);
+        }
+    }
+
+    public static void serialize(Persister persister, Object object, OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
+        final OutputStream output = outputSupplier.getOutput();
+        boolean threw = true;
+        try {
+            persister.serialize(object, output);
+            threw = false;
+        } finally {
+            Closeables.close(output, threw);
+        }
+    }
+
+    public static Persister javaSerialization() {
+        return JavaPersister.INSTANCE;
     }
 }

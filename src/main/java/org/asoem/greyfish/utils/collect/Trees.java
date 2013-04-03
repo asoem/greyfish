@@ -101,6 +101,16 @@ public final class Trees {
         };
     }
 
+    public static <T extends TreeNode<T>> TreeIterator<T> postOrderView(T root) {
+        return postOrderView(checkNotNull(root), new Function<T, Iterator<? extends T>>() {
+            @Nullable
+            @Override
+            public Iterator<? extends T> apply(@Nullable T input) {
+                return checkNotNull(input).childConditions().iterator();
+            }
+        });
+    }
+
     private static class NodeIteratorPair<T> {
         private final T node;
         private final Iterator<? extends T> iterator;

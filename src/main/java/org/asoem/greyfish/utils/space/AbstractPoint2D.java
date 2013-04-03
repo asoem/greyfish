@@ -7,7 +7,7 @@ package org.asoem.greyfish.utils.space;
  */
 public abstract class AbstractPoint2D implements Point2D {
     @Override
-    public double[] getCoordinates() {
+    public double[] getCoordinate() {
         return new double[] {getX(), getY()};
     }
 
@@ -22,7 +22,12 @@ public abstract class AbstractPoint2D implements Point2D {
     }
 
     @Override
-    public int getDimensions() {
+    public int getDimension() {
         return 2;
+    }
+
+    @Override
+    public Point2D getCentroid() {
+        return this;
     }
 }

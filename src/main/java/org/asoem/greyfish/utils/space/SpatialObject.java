@@ -8,26 +8,14 @@ package org.asoem.greyfish.utils.space;
 public interface SpatialObject {
 
     /**
-     * Get the number of dimensions for this object
-     * @return the number of dimensions for this object
+     * Get the dimension of the object coordinates
+     * @return the dimension of the coordinates defining this object
      */
-    int getDimensions();
-
-    /**
-     * Get the orientation of this object
-     * @return the orientation of this object
-     */
-    double[] getOrientation();
-
-    /**
-     * Get the minimal volume completely enclosing this object
-     * @return the minimal volume completely enclosing this object
-     */
-    double[] getBoundingVolume();
+    int getDimension();
 
     /**
      * Get the anchor point for the bounding volume of this object
      * @return the anchor point for the bounding volume
      */
-    Point getAnchorPoint();
+    Point getCentroid();
 }

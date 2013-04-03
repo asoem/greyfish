@@ -8,9 +8,10 @@ package org.asoem.greyfish.utils.base;
 public interface Callback<C, R> {
     /**
      *
+     *
      * @param caller    the object calling the callback
-     * @param arguments a {@code Map} of names to values which serve as arguments to the callback
+     * @param args      a map of named arguments
      * @return the value computed by this callback
      */
-    R apply(C caller, Arguments arguments);
+    R apply(C caller, Arguments args);
 }

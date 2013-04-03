@@ -1,11 +1,6 @@
 package org.asoem.greyfish.utils.collect;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.Iterables;
-
-import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -19,9 +14,11 @@ public class Tuple2<E1, E2> implements Product2<E1, E2> {
     private final E1 e1;
     private final E2 e2;
 
-    public Tuple2(E1 e1, E2 e2) {
-        this.e1 = checkNotNull(e1);
-        this.e2 = checkNotNull(e2);
+    private Tuple2(E1 e1, E2 e2) {
+        assert e1 != null;
+        assert e2 != null;
+        this.e1 = e1;
+        this.e2 = e2;
     }
 
     @Override
@@ -38,57 +35,42 @@ public class Tuple2<E1, E2> implements Product2<E1, E2> {
     public String toString() {
         return Objects.toStringHelper(Tuple2.class)
                 .addValue(e1)
-                .addValue(e2).toString();
+                .addValue(e2)
+                .toString();
+    }
+
+    @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Tuple2 tuple2 = (Tuple2) o;
+
+        if (!e1.equals(tuple2.e1)) return false;
+        if (!e2.equals(tuple2.e2)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = e1.hashCode();
+        result = 31 * result + e2.hashCode();
+        return result;
     }
 
     public static <E1, E2> Tuple2<E1, E2> of(E1 e1, E2 e2) {
+        checkNotNull(e1);
+        checkNotNull(e2);
         return new Tuple2<E1, E2>(e1, e2);
     }
 
-    public static <E1, E2> Tuple2<Iterable<E1>, Iterable<E2>> unzipped(final Iterable<? extends Product2<E1, E2>> zipped) {
-        final Iterable<E1> transform = Iterables.transform(zipped, new Function<Product2<E1, E2>, E1>() {
-
-            @Override
-            public E1 apply(Product2<E1, E2> e1E2Product2) {
-                return checkNotNull(e1E2Product2)._1();
-            }
-        });
-        final Iterable<E2> transform1 = Iterables.transform(zipped, new Function<Product2<E1, E2>, E2>() {
-
-            @Override
-            public E2 apply(Product2<E1, E2> e1E2Product2) {
-                return checkNotNull(e1E2Product2)._2();
-            }
-        });
-        return Tuple2.of(transform, transform1);
+    public static <E1, E2> Tuple2<E1, E2> copyOf(Product2<E1, E2> product2) {
+        if (product2 instanceof Tuple2)
+            return (Tuple2<E1, E2>) product2;
+        else
+            return of(product2._1(), product2._2());
     }
 
-    public static class Zipped<I1, I2> extends Tuple2<Iterable<I1>, Iterable<I2>> implements Iterable<Product2<I1, I2>> {
-
-        public Zipped(Iterable<I1> i1, Iterable<I2> i2) {
-            super(i1, i2);
-        }
-
-        @Override
-        public Iterator<Product2<I1, I2>> iterator() {
-
-            return new AbstractIterator<Product2<I1, I2>>() {
-                private final Iterator<? extends I1> iterator1 = _1().iterator();
-                private final Iterator<? extends I2> iterator2 = _2().iterator();
-
-                @Override
-                protected Product2<I1, I2> computeNext() {
-                    if (iterator1.hasNext() && iterator2.hasNext() )
-                        return new Tuple2<I1, I2>(iterator1.next(), iterator2.next());
-                    else
-                        return endOfData();
-
-                }
-            };
-        }
-
-        public static <I1, I2> Zipped<I1, I2> of(Iterable<I1> i1, Iterable<I2> i2) {
-            return new Zipped<I1, I2>(i1, i2);
-        }
-    }
 }

@@ -9,6 +9,16 @@ public final class Initializers {
 
     private Initializers() {}
 
+    public static <T> Initializer<T> combine(final Initializer<? super T> i1, final Initializer<? super T> i2) {
+        return new Initializer<T>() {
+            @Override
+            public void initialize(T initializable) {
+                i1.initialize(initializable);
+                i2.initialize(initializable);
+            }
+        };
+    }
+
     private enum EmptyInitializer implements Initializer<Object> {
         INSTANCE;
 
@@ -17,6 +27,7 @@ public final class Initializers {
         }
     }
 
+    @SuppressWarnings("unchecked") // safe
     public static <T> Initializer<T> emptyInitializer() {
         return (Initializer<T>) EmptyInitializer.INSTANCE;
     }

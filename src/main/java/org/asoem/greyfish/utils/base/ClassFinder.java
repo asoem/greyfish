@@ -124,13 +124,15 @@ public enum ClassFinder {
             classes.addAll(extractClasses(packageName, dir));
             if (dir.isDirectory()) {
                 final File[] sub = dir.listFiles();
-                for (File aSub : sub) {
-                    if (aSub.isDirectory()) {
-                        Class<?>[] rec = getAllRecursive(packageName + "."
-                                + aSub.getName());
-                        ArrayList<Class<?>> temp = new ArrayList<Class<?>>(rec.length);
-                        temp.addAll(Arrays.asList(rec));
-                        classes.addAll(temp);
+                if (sub != null) {
+                    for (File aSub : sub) {
+                        if (aSub.isDirectory()) {
+                            Class<?>[] rec = getAllRecursive(packageName + "."
+                                    + aSub.getName());
+                            ArrayList<Class<?>> temp = new ArrayList<Class<?>>(rec.length);
+                            temp.addAll(Arrays.asList(rec));
+                            classes.addAll(temp);
+                        }
                     }
                 }
             }

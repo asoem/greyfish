@@ -1,5 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
+import org.apache.commons.math3.util.FastMath;
+
 import javax.annotation.Nullable;
 
 /**
@@ -52,5 +54,16 @@ public class Geometry2D {
                 y1 >= y &&
                 x1 < x + w &&
                 y1 < y + h);
+    }
+
+    public static double distance(Point2D point1, Point2D point2) {
+        return 0; // TODO: implement
+    }
+
+    public static Point2D polarToCartesian(double angle, double radius) {
+        return ImmutablePoint2D.at(
+                radius * FastMath.cos(angle),
+                radius * FastMath.sin(angle)
+        );
     }
 }

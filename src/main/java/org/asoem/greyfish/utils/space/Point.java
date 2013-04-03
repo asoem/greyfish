@@ -5,7 +5,6 @@ package org.asoem.greyfish.utils.space;
  * Date: 24.02.12
  * Time: 09:36
  */
-public interface Point {
-    int getDimensions();
-    double[] getCoordinates();
+public interface Point extends SpatialObject {
+    double[] getCoordinate();
 }

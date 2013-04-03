@@ -6,9 +6,9 @@ package org.asoem.greyfish.utils.space;
  * Time: 10:08
  */
 public interface Tiled<T extends Tile> {
-    int getHeight();
+    int rowCount();
 
-    int getWidth();
+    int colCount();
 
     boolean hasTileAt(int x, int y);
 
@@ -16,5 +16,5 @@ public interface Tiled<T extends Tile> {
 
     Iterable<T> getTiles();
 
-    T getAdjacentTile(T borderedTile, TileDirection direction);
+    T getAdjacentTile(T tile, TileDirection direction);
 }
