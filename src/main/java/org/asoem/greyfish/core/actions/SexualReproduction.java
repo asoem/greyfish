@@ -108,9 +108,9 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             public Gene<Object> apply(Product2<AgentTrait<A, ?>, Gene<?>> tuple) {
                 final AgentTrait<A, ?> trait = tuple._1();
                 final Gene<?> gene = tuple._2();
-                final Object segregate = AgentTraits.segregate(trait, trait.getValue(), gene.getValue());
-                final Object segregationProduct = AgentTraits.mutate(trait, segregate);
-                return new Gene<Object>(segregationProduct, trait.getRecombinationProbability());
+                final Object segregated = AgentTraits.segregate(trait, trait.getValue(), gene.getValue());
+                final Object mutated = AgentTraits.mutate(trait, segregated);
+                return new Gene<Object>(mutated, trait.getRecombinationProbability());
             }
         });
 
