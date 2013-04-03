@@ -1,25 +1,17 @@
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.base.Function;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.List;
-
-import static org.asoem.utils.test.TransformingTypeSafeMatcher.has;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.given;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AllConditionTest {
@@ -27,44 +19,28 @@ public class AllConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner clonerMock = mock(DeepCloner.class);
-        final ActionCondition mock = mock(ActionCondition.class);
-        given(clonerMock.getClone(any(ActionCondition.class), eq(ActionCondition.class))).willReturn(mock);
-        final AllCondition allCondition = AllCondition.evaluates(mock, mock);
+        final ActionCondition<DefaultGreyfishAgent> childMock = mock(ActionCondition.class);
+        when(childMock.deepClone(any(DeepCloner.class))).thenReturn(mock(ActionCondition.class));
+        final AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(childMock, childMock);
 
         // when
-        AllCondition clone = allCondition.deepClone(clonerMock);
+        AllCondition<DefaultGreyfishAgent> clone = CycleCloner.clone(allCondition);
 
         // then
-        assertThat(clone, isCopyOf(allCondition));
+        assertThat(clone.getChildConditions(), hasSize(allCondition.getChildConditions().size()));
+        verify(childMock, times(2)).deepClone(any(DeepCloner.class));
     }
 
     @Test
     public void testSerialization() throws Exception {
         // given
-        final ActionCondition condition = mock(ActionCondition.class, withSettings().serializable());
-        AllCondition allCondition = AllCondition.evaluates(condition);
+        final ActionCondition<DefaultGreyfishAgent> condition = mock(ActionCondition.class, withSettings().serializable());
+        AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(condition, condition);
 
         // when
-        final AllCondition copy = Persisters.createCopy(allCondition, JavaPersister.INSTANCE);
+        final AllCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(allCondition, Persisters.javaSerialization());
 
         // then
-        assertThat(copy, isCopyOf(allCondition));
-    }
-
-    private static Matcher<? super AllCondition> isCopyOf(final AllCondition allCondition) {
-        return Matchers.<AllCondition>allOf(
-                is(not(sameInstance(allCondition))),
-                has("equal child conditions",
-                        new Function<AllCondition, List<ActionCondition>>() {
-                            @Override
-                            public List<ActionCondition> apply(AllCondition input) {
-                                return input.getChildConditions();
-                            }
-                        },
-                        Matchers.<List<ActionCondition>>allOf(
-                                hasSize(allCondition.getChildConditions().size()),
-                                everyItem(isA(ActionCondition.class)),
-                                everyItem(not(isIn(allCondition.getChildConditions()))))));
+        assertThat(copy.getChildConditions(), hasSize(allCondition.getChildConditions().size()));
     }
 }

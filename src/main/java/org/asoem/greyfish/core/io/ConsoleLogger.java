@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.primitives.Doubles;
 import org.asoem.greyfish.core.agent.Agent;
 
 /**
@@ -8,20 +7,20 @@ import org.asoem.greyfish.core.agent.Agent;
  * Date: 20.02.12
  * Time: 13:47
  */
-public class ConsoleLogger implements SimulationLogger {
+public class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
 
     @Override
-    public void logAgentCreation(Agent agent) {
+    public void logAgentCreation(A agent) {
     }
 
     @Override
-    public void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message) {
+    public void logAgentEvent(A agent, int currentStep, String source, String title, String message) {
         System.out.println(
                 currentStep + "\t" +
-                        populationName + "\t" +
-                        agentId + "\t" +
+                        agent.getPopulation() + "\t" +
+                        agent.getId() + "\t" +
                         source + "\t" +
-                        Doubles.join(",", coordinates) + "\t" +
+                        //Doubles.join(",", agent.getProjection()) + "\t" +
                         title + "\t" +
                         message + "\n");
     }

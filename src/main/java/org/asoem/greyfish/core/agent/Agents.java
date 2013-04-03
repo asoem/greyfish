@@ -4,8 +4,6 @@ import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -17,52 +15,61 @@ public final class Agents {
 
     private Agents() {}
 
-    public static ComponentAccessor<AgentProperty<?>> propertyAccessor(final String propertyName) {
-        return new ComponentAccessor<AgentProperty<?>>() {
-            private final Predicate<? super AgentProperty<?>> random_sperm = new Predicate<AgentProperty<?>>() {
-                @Override
-                public boolean apply(AgentProperty<?> input) {
-                    return propertyName.equals(input.getName());
-                }
-            };
+    public static <A extends Agent<A, ?>, T extends AgentProperty<A, ?>> ComponentAccessor<A, T> propertyAccessor(final String propertyName) {
+        return new ComponentAccessor<A, T>() {
+            private final Predicate<? super AgentProperty<A, ?>> componentNamePredicate = new ComponentNamePredicate<A>(propertyName);
 
             @Override
-            public AgentProperty<?> apply(Agent input) {
-                return checkNotNull(input).findProperty(random_sperm);
+            public T apply(A input) {
+                return (T) checkNotNull(input).findProperty(componentNamePredicate);
             }
         };
     }
 
-    public static <T> ComponentAccessor<AgentProperty<T>> propertyAccessor(final String propertyName, final Class<AgentProperty<T>> clazz) {
-        return cast(propertyAccessor(propertyName), clazz);
-    }
-
-    public static ComponentAccessor<AgentTrait<?>> traitAccessor(final String traitName) {
-        return new ComponentAccessor<AgentTrait<?>>() {
-            private final Predicate<? super AgentTrait<?>> traitPredicate = new Predicate<AgentTrait<?>>() {
-                @Override
-                public boolean apply(AgentTrait<?> input) {
-                    return traitName.equals(input.getName());
-                }
-            };
+    public static <A extends Agent<A, ?>, T extends AgentTrait<A, ?>> ComponentAccessor<A, T> traitAccessor(final String traitName) {
+        return new ComponentAccessor<A, T>() {
+            private final Predicate<AgentComponent<A>> componentNamePredicate = new ComponentNamePredicate<A>(traitName);
 
             @Override
-            public AgentTrait<?> apply(Agent input) {
-                return checkNotNull(input).findTrait(traitPredicate);
+            public T apply(A input) {
+                return (T) checkNotNull(input).findTrait(componentNamePredicate);
             }
         };
     }
 
-    public static <T extends AgentTrait<?>> ComponentAccessor<T> traitAccessor(final String traitName, final Class<T> geneComponentClass) {
-        return cast(traitAccessor(traitName), geneComponentClass);
-    }
+    private static class ComponentNamePredicate<A extends Agent<A, ?>> implements Predicate<AgentComponent<A>> {
+        private final String name;
 
-    private static <T extends AgentComponent> ComponentAccessor<T> cast(final ComponentAccessor<?> accessorFunction, final Class<T> clazz) {
-        return new ComponentAccessor<T>() {
-            @Override
-            public T apply(@Nullable Agent input) {
-                return clazz.cast(accessorFunction.apply(input));
-            }
-        };
+        public ComponentNamePredicate(String name) {
+            this.name = checkNotNull(name);
+        }
+
+        @Override
+        public boolean apply(AgentComponent<A> input) {
+            return name.equals(input.getName());
+        }
+
+        @Override
+        public String toString() {
+            return "Name of component == " + name;
+        }
+
+        @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ComponentNamePredicate)) return false;
+
+            ComponentNamePredicate that = (ComponentNamePredicate) o;
+
+            if (!name.equals(that.name)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
+        }
     }
 }

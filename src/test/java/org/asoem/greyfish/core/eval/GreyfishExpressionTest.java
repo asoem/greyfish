@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.eval;
 import com.google.inject.Guice;
 import org.asoem.greyfish.core.eval.impl.EvaluatorFake;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -43,7 +43,7 @@ public class GreyfishExpressionTest {
         // when
         GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) throws SyntaxException {
+            public Evaluator createEvaluator(String expression) {
                 return evaluator;
             }
         });
@@ -64,7 +64,7 @@ public class GreyfishExpressionTest {
         // when
         GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) throws SyntaxException {
+            public Evaluator createEvaluator(String expression) {
                 return evaluator;
             }
         });
@@ -79,13 +79,13 @@ public class GreyfishExpressionTest {
         // given
         final GreyfishExpression expression = new GreyfishExpression("42.0", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) throws SyntaxException {
+            public Evaluator createEvaluator(String expression) {
                 return EvaluatorFake.INSTANCE;
             }
         });
 
         // when
-        final GreyfishExpression copy = createCopy(expression, JavaPersister.INSTANCE);
+        final GreyfishExpression copy = createCopy(expression, Persisters.javaSerialization());
 
         // then
         assertThat(copy, both(is(equalTo(expression))).and(is(not(sameInstance((Object) expression)))));

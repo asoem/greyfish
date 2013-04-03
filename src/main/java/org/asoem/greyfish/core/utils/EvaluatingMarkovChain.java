@@ -17,6 +17,7 @@ import org.asoem.greyfish.utils.math.ImmutableMarkovChain;
 import org.asoem.greyfish.utils.math.MarkovChain;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
+import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -70,7 +71,11 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         double sum = 0;
         double rand = RandomUtils.nextDouble();
         for (Map.Entry<S, Expression> cell : row.entrySet()) {
-            sum += cell.getValue().evaluate(resolver).asDouble();
+            try {
+                sum += cell.getValue().evaluate(resolver).asDouble();
+            } catch (ParseException e) {
+                throw new AssertionError("expression '" + cell.getValue() + "' could not get evaluated as a double value");
+            }
             if (sum > rand) {
                 return cell.getKey();
             }

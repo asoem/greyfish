@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class ResourceConsumptionActionTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final ResourceConsumptionAction action = ResourceConsumptionAction.with()
+        final ResourceConsumptionAction<DefaultGreyfishAgent> action = ResourceConsumptionAction.<DefaultGreyfishAgent>with()
                 .interactionRadius(constant(0.42))
                 .ontology("foo")
                 .requestAmount(constant(0.42))
@@ -28,7 +28,7 @@ public class ResourceConsumptionActionTest {
                 .build();
 
         // when
-        final ResourceConsumptionAction copy = Persisters.createCopy(action, JavaPersister.INSTANCE);
+        final ResourceConsumptionAction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

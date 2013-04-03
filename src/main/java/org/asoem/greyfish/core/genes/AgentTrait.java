@@ -1,27 +1,28 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
 
 import javax.annotation.Nullable;
 
 
-public interface AgentTrait<T> extends AgentComponent, GeneLike<T> {
+public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>, GeneLike<T> {
 
     /**
      * @return the class of the value this gene is supplying
      */
-    Class<T> getAlleleClass();
+    Class<? super T> getValueClass();
 
     /**
      * @param gene the gene to builderTest for
      * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
      */
-    boolean isMutatedCopy(@Nullable AgentTrait<?> gene);
+    boolean isMutatedCopy(@Nullable AgentTrait<A, ?> gene);
 
     /**
      * Set the new value for this {@code AgentTrait}
      *
-     * @param allele
+     * @param allele the allele
      */
     void setAllele(Object allele);
 

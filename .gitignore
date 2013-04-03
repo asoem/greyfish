@@ -1,10 +1,9 @@
-target/
-logs/
-.idea/
-greyfish.iml
-.DS_Store
-.gradle/
+.gradle
 build/
-lib/
+*.iml
+*.ipr
+*.iws
+.idea/
 out/
-reports/
+data/
+logs/

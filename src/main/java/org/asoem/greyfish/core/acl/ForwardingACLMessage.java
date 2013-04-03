@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.acl;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
@@ -10,16 +11,6 @@ import java.util.Set;
 public abstract class ForwardingACLMessage<T> implements ACLMessage<T> {
 
     protected abstract ACLMessage<T> delegate();
-    
-    @Override
-    public Class<?> getContentClass() {
-        return delegate().getContentClass();
-    }
-
-    @Override
-    public <C> C getContent(Class<C> clazz) {
-        return delegate().getContent(clazz);
-    }
 
     @Override
     public Set<T> getRecipients() {
@@ -89,5 +80,11 @@ public abstract class ForwardingACLMessage<T> implements ACLMessage<T> {
     @Override
     public <C> C userDefinedParameter(String key, Class<C> clazz) {
         return delegate().userDefinedParameter(key, clazz);
+    }
+
+    @Nullable
+    @Override
+    public Object getContent() {
+        return delegate().getContent();
     }
 }

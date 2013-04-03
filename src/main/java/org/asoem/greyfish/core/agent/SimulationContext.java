@@ -7,16 +7,16 @@ import org.asoem.greyfish.core.simulation.Simulation;
  * Date: 08.03.12
  * Time: 13:07
  */
-public interface SimulationContext {
+public interface SimulationContext<S extends Simulation<A>, A extends Agent<A, S>> {
     int getActivationStep();
 
     int getAgentId();
 
-    Simulation getSimulation();
+    S getSimulation();
 
     int getAge();
 
-    void logEvent(Agent agent, Object eventOrigin, String title, String message);
+    void logEvent(A agent, Object eventOrigin, String title, String message);
 
     int getSimulationStep();
 

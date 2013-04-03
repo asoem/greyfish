@@ -6,5 +6,5 @@ package org.asoem.greyfish.core.eval;
  * Time: 11:00
  */
 public interface EvaluatorFactory {
-    Evaluator createEvaluator(String expression) throws SyntaxException;
+    Evaluator createEvaluator(String expression);
 }

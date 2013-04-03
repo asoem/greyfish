@@ -11,10 +11,8 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.ChromosomeImpl;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -33,7 +31,7 @@ import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
  * @author christoph
  */
 @Tagged("actions")
-public class FemaleLikeMating extends ContractNetInitiatorAction {
+public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FemaleLikeMating.class);
 
@@ -41,28 +39,28 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     private String ontology;
 
     @Element(name = "interactionRadius", required = false)
-    private Callback<? super FemaleLikeMating, Double> interactionRadius;
+    private Callback<? super FemaleLikeMating<A>, Double> interactionRadius;
 
     @Element(name = "matingProbability", required = false)
-    private Callback<? super FemaleLikeMating, Double> matingProbability;
+    private Callback<? super FemaleLikeMating<A>, Double> matingProbability;
 
-    private List<Agent> sensedMates = ImmutableList.of();
+    private List<A> sensedMates = ImmutableList.of();
 
     private List<Chromosome> receivedSperm = Lists.newArrayList();
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public FemaleLikeMating() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    private FemaleLikeMating(FemaleLikeMating cloneable, DeepCloner cloner) {
+    private FemaleLikeMating(FemaleLikeMating<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
         this.matingProbability = cloneable.matingProbability;
     }
 
-    protected FemaleLikeMating(AbstractBuilder<? extends FemaleLikeMating, ? extends AbstractBuilder> builder) {
+    protected FemaleLikeMating(AbstractBuilder<A, ? extends FemaleLikeMating<A>, ? extends AbstractBuilder<A, ?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
@@ -77,44 +75,44 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
         e.add("Mating Probability", forField("matingProbability", this, Callback.class));
     }
 
-    private void receiveSperm(Chromosome chromosome, Agent sender, Simulation simulation) {
+    private void receiveSperm(Chromosome chromosome, A sender) {
         receivedSperm.add(chromosome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
         LOGGER.info(getAgent() + " received sperm: " + chromosome);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> createCFP(Simulation simulation) {
+    protected ImmutableACLMessage.Builder<A> createCFP() {
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert (sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
-        final Agent receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
+        final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
         sensedMates = ImmutableList.of();
 
-        return ImmutableACLMessage.<Agent>with()
+        return ImmutableACLMessage.<A>builder()
                 .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose randomly one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
-                .setReceivers(receiver);
+                .addReceiver(receiver);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<Agent> handlePropose(ACLMessage<Agent> message, Simulation simulation) throws NotUnderstoodException {
-        final ImmutableACLMessage.Builder<Agent> builder = ImmutableACLMessage.createReply(message, agent());
-        try {
-            Chromosome chromosome = message.getContent(ChromosomeImpl.class);
-            final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
-            if (RandomUtils.nextBoolean(probability)) {
-                receiveSperm(chromosome, message.getSender(), simulation);
-                builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
-                LOGGER.info("Accepted mating with p={}", probability);
-            } else {
-                builder.performative(ACLPerformative.REJECT_PROPOSAL);
-                LOGGER.info("Refused mating with p={}", probability);
-            }
-        } catch (ClassCastException e) {
-            throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + message.getContentClass(), e);
+    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException {
+        final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, agent());
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof Chromosome))
+            throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + messageContent);
+
+        Chromosome chromosome = (Chromosome) messageContent;
+        final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
+        if (RandomUtils.nextBoolean(probability)) {
+            receiveSperm(chromosome, message.getSender());
+            builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
+            LOGGER.info("Accepted mating with p={}", probability);
+        } else {
+            builder.performative(ACLPerformative.REJECT_PROPOSAL);
+            LOGGER.info("Refused mating with p={}", probability);
         }
 
         return builder;
@@ -144,52 +142,52 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
     }
 
     @Override
-    protected boolean canInitiate(Simulation simulation) {
-        sensedMates = ImmutableList.copyOf(simulation.findNeighbours(agent(), call(interactionRadius, this)));
+    protected boolean canInitiate() {
+        sensedMates = ImmutableList.copyOf(agent().findNeighbours(call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
 
     @Override
-    public FemaleLikeMating deepClone(DeepCloner cloner) {
-        return new FemaleLikeMating(this, cloner);
+    public FemaleLikeMating<A> deepClone(DeepCloner cloner) {
+        return new FemaleLikeMating<A>(this, cloner);
     }
 
-    public static Builder with() {
-        return new Builder();
+    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
+        return new Builder<A>();
     }
 
-    public Callback<? super FemaleLikeMating, Double> getMatingProbability() {
+    public Callback<? super FemaleLikeMating<A>, Double> getMatingProbability() {
         return matingProbability;
     }
 
-    public Callback<? super FemaleLikeMating, Double> getInteractionRadius() {
+    public Callback<? super FemaleLikeMating<A>, Double> getInteractionRadius() {
         return interactionRadius;
     }
 
-    public static final class Builder extends AbstractBuilder<FemaleLikeMating, Builder> {
+    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, FemaleLikeMating<A>, Builder<A>> {
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
         @Override
-        protected FemaleLikeMating checkedBuild() {
-            return new FemaleLikeMating(this);
+        protected FemaleLikeMating<A> checkedBuild() {
+            return new FemaleLikeMating<A>(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends FemaleLikeMating, B extends AbstractBuilder<C, B>> extends ContractNetInitiatorAction.AbstractBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
         protected String ontology = "mate";
-        protected Callback<? super FemaleLikeMating, Double> sensorRange = Callbacks.constant(1.0);
-        protected Callback<? super FemaleLikeMating, Double> matingProbability = Callbacks.constant(1.0);
+        protected Callback<? super FemaleLikeMating<A>, Double> sensorRange = Callbacks.constant(1.0);
+        protected Callback<? super FemaleLikeMating<A>, Double> matingProbability = Callbacks.constant(1.0);
 
         /**
          * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed as an argument ({@link org.asoem.greyfish.utils.base.Arguments}) to the callback with key "mate"
          * @param callback the callback function to calculate the mating probability
          * @return this builder
          */
-        public B matingProbability(Callback<? super FemaleLikeMating, Double> callback) {
+        public B matingProbability(Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.matingProbability = checkNotNull(callback);
             return self();
         }
@@ -199,7 +197,7 @@ public class FemaleLikeMating extends ContractNetInitiatorAction {
             return self();
         }
 
-        public B interactionRadius(Callback<? super FemaleLikeMating, Double> callback) {
+        public B interactionRadius(Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.sensorRange = callback;
             return self();
         }

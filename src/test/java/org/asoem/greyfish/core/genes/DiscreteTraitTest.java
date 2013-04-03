@@ -1,13 +1,14 @@
 package org.asoem.greyfish.core.genes;
 
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
+import java.util.Set;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 /**
  * User: christoph
@@ -19,7 +20,7 @@ public class DiscreteTraitTest {
     @Test
     public void testMutation() throws Exception {
         // given
-        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -39,7 +40,7 @@ public class DiscreteTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMutateIllegalArgument() throws Exception {
         // given
-        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -55,7 +56,7 @@ public class DiscreteTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetAlleleIllegalArgument() throws Exception {
         // given
-        DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -69,9 +70,25 @@ public class DiscreteTraitTest {
     }
 
     @Test
+    public void testGetStates() throws Exception {
+        // given
+        DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
+                .addMutation("a", "b", 1)
+                .addMutation("b", "c", 1)
+                .addMutation("c", "a", 1)
+                .build();
+
+        // when
+        final Set<String> states = discreteTrait.getStates();
+
+        // then
+        assertThat(states, containsInAnyOrder("a", "b", "c"));
+    }
+
+    @Test
     public void testSerialization() throws Exception {
         // given
-        final DiscreteTrait discreteTrait = DiscreteTrait.builder()
+        final DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("foo"))
                 .segregation(Callbacks.constant("bar"))
@@ -82,7 +99,7 @@ public class DiscreteTraitTest {
         //discreteTrait.setAgent(agent);
 
         // when
-        final DiscreteTrait copy = Persisters.createCopy(discreteTrait, JavaPersister.INSTANCE);
+        final DiscreteTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(discreteTrait, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(discreteTrait)));

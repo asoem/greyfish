@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.io.persistence;
 
 import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
+import com.google.common.io.OutputSupplier;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.utils.EvaluatingMarkovChain;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -45,59 +47,48 @@ public class SimpleXMLPersister implements Persister {
     }
 
     @Override
-    public <T> T deserialize(File file, Class<T> clazz) throws PersistenceException, FileNotFoundException {
+    public <T> T deserialize(File file, Class<T> clazz) throws IOException, ClassNotFoundException {
         LOGGER.debug("Reading from: {}", file.getAbsolutePath());
         return deserialize(new FileInputStream(file), clazz);
     }
 
     @Override
-    public <T> T deserialize(InputStream inputStream, Class<T> clazz) throws PersistenceException {
+    public <T> T deserialize(InputStream inputStream, Class<T> clazz) throws IOException {
         try {
             return serializer.read(clazz, new BufferedReader(new InputStreamReader(inputStream, "UTF-8")));
-        } catch (Exception e1) {
-            LOGGER.error("Deserialization failed", e1);
-            throw new PersistenceException(e1);
-        }
-        finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                // ignore
-            }
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 
+    private void serialize(Object object, OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     @Override
-    public void serialize(Object object, File file) throws PersistenceException, FileNotFoundException {
+    public void serialize(Object object, File file) throws IOException {
         if (checkNotNull(file).exists())
             checkArgument(file.canWrite(), "Cannot overwrite file: " + file.getAbsolutePath());
 
-        serialize(object, new FileOutputStream(file));
+        serialize(object, Files.newOutputStreamSupplier(file));
         LOGGER.debug("Object written to: {}", file.getAbsolutePath());
     }
 
     @Override
-    public void serialize(Object object, OutputStream outputStream) throws PersistenceException {
+    public void serialize(Object object, OutputStream outputStream) throws IOException {
         checkNotNull(outputStream);
         checkNotNull(object);
 
         LOGGER.debug("Serializing object of type {}", object.getClass().getName());
 
+        final StringWriter stringWriter = new StringWriter();
         try {
-            final StringWriter stringWriter = new StringWriter();
             serializer.write(object, stringWriter);
-            LOGGER.debug("Serialization result:\n{}", stringWriter.toString());
-
-            CharStreams.copy(new StringReader(stringWriter.toString()), new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8")));
         } catch (Exception e) {
-            LOGGER.error("Serialization failed", e);
-            throw new RuntimeException("Object not serializable " + object, e);
-        } finally {
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                // ignore
-            }
+            throw new IOException(e);
         }
+        LOGGER.debug("Serialization result:\n{}", stringWriter.toString());
+
+        CharStreams.copy(new StringReader(stringWriter.toString()), new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8")));
     }
 }

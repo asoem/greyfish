@@ -1,19 +1,20 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-public class AlwaysTrueCondition extends LeafCondition {
+public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AlwaysTrueCondition() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
-    private AlwaysTrueCondition(AlwaysTrueCondition condition, DeepCloner map) {
+    private AlwaysTrueCondition(AlwaysTrueCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
-    private AlwaysTrueCondition(AbstractBuilder<?,?> builder) {
+    private AlwaysTrueCondition(AbstractBuilder<A, ?,?> builder) {
         super(builder);
     }
 
@@ -23,18 +24,18 @@ public class AlwaysTrueCondition extends LeafCondition {
     }
 
     @Override
-    public AlwaysTrueCondition deepClone(DeepCloner cloner) {
-        return new AlwaysTrueCondition(this, cloner);
+    public AlwaysTrueCondition<A> deepClone(DeepCloner cloner) {
+        return new AlwaysTrueCondition<A>(this, cloner);
     }
 
-    public static Builder builder() { return new Builder(); }
+    public static <A extends Agent<A, ?>> Builder<A> builder() { return new Builder<A>(); }
 
-    public static final class Builder extends AbstractBuilder<AlwaysTrueCondition, Builder> {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, AlwaysTrueCondition<A>, Builder<A>> {
         private Builder() {}
 
-        @Override protected Builder self() { return this; }
-        @Override public AlwaysTrueCondition checkedBuild() { return new AlwaysTrueCondition(this); }
+        @Override protected Builder<A> self() { return this; }
+        @Override public AlwaysTrueCondition<A> checkedBuild() { return new AlwaysTrueCondition<A>(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends AlwaysTrueCondition, T extends AbstractBuilder<E,T>> extends LeafCondition.AbstractBuilder<E,T> {}
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends AlwaysTrueCondition<A>, T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {}
 }

@@ -1,17 +1,16 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.space.Object2D;
 import org.simpleframework.xml.Attribute;
 
 import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ActiveSimulationContext implements SimulationContext, Serializable {
+public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A, S>> implements SimulationContext<S,A>, Serializable {
 
     //@Element(name = "simulation")
-    private final Simulation simulation;
+    private final S simulation;
 
     @Attribute(name = "activationStep")
     private final int activationStep;
@@ -19,14 +18,14 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     @Attribute(name = "agentId")
     private final int agentId;
 
-    private ActiveSimulationContext(Simulation simulation, int agentId, int simulationStep) {
+    private ActiveSimulationContext(S simulation, int agentId, int simulationStep) {
         this.simulation = checkNotNull(simulation);
         this.agentId = agentId;
         this.activationStep = simulationStep;
     }
 
-    public static ActiveSimulationContext create(Simulation simulation, int agentId, int simulationStep) {
-        return new ActiveSimulationContext(simulation, agentId, simulationStep);
+    public static <S extends Simulation<A>, A extends Agent<A, S>> ActiveSimulationContext<S, A> create(S simulation, int agentId, int simulationStep) {
+        return new ActiveSimulationContext<S, A>(simulation, agentId, simulationStep);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     }
 
     @Override
-    public Simulation getSimulation() {
+    public S getSimulation() {
         return simulation;
     }
 
@@ -51,15 +50,12 @@ public class ActiveSimulationContext implements SimulationContext, Serializable 
     }
 
     @Override
-    public void logEvent(Agent agent, Object eventOrigin, String title, String message) {
+    public void logEvent(A agent, Object eventOrigin, String title, String message) {
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);
 
-        final Object2D projection = agent.getProjection();
-        assert projection != null;
-
-        simulation.logAgentEvent(agentId, agent.getPopulation().getName(), projection.getAnchorPoint().getCoordinates(), eventOrigin, title, message);
+        simulation.logAgentEvent(agent, eventOrigin, title, message);
     }
 
     @Override

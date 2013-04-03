@@ -3,52 +3,32 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.AgentInitializers;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.utils.math.RandomUtils;
-import org.asoem.greyfish.utils.space.MotionObject2DImpl;
-
-import java.util.List;
+import org.asoem.greyfish.core.io.SimulationLogger;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
- * Date: 03.10.12
- * Time: 22:08
+ * Date: 21.11.12
+ * Time: 15:44
  */
-public abstract class AbstractSimulation implements Simulation {
-
+public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simulation<A> {
     @Override
     public int numberOfPopulations() {
         return getPrototypes().size();
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
-        return getSpace().getVisibleNeighbours(agent, distance);
-    }
-
-    @Override
-    public Iterable<Agent> getAgents(final Population population) {
+    public Iterable<A> getAgents(final Population population) {
         checkNotNull(population);
 
-        return Iterables.filter(getAgents(), new Predicate<Agent>() {
+        return Iterables.filter(getAgents(), new Predicate<A>() {
             @Override
-            public boolean apply(Agent agent) {
+            public boolean apply(A agent) {
                 return agent.hasPopulation(population);
             }
         });
-    }
-
-    @Override
-    public List<Agent> getAgents() {
-        return getSpace().getObjects();
-    }
-
-    @Override
-    public int countAgents() {
-        return getSpace().countObjects();
     }
 
     @Override
@@ -61,16 +41,14 @@ public abstract class AbstractSimulation implements Simulation {
     }
 
     @Override
-    public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
-        getSimulationLogger().logAgentEvent(
-                getStep(),
-                agentId, populationName, coordinates,
-                eventOrigin.getClass().getSimpleName(), title, message);
+    public void logAgentEvent(A agent, Object eventOrigin, String title, String message) {
+        getSimulationLogger().logAgentEvent(agent, getStep(), eventOrigin.getClass().getSimpleName(), title, message);
     }
 
+    protected abstract SimulationLogger<? super A> getSimulationLogger();
+
     @Override
-    public void createAgent(Population population) {
-        final MotionObject2DImpl randomProjection = MotionObject2DImpl.of(RandomUtils.nextDouble(0, getSpace().getWidth()), RandomUtils.nextDouble(0, getSpace().getHeight()));
-        createAgent(population, AgentInitializers.projection(randomProjection));
+    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+        return Iterables.filter(getAgents(), predicate);
     }
 }

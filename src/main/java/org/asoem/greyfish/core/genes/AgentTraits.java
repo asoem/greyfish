@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import org.asoem.greyfish.utils.collect.Product2;
-import org.asoem.greyfish.utils.collect.Tuple2;
+import org.asoem.greyfish.utils.collect.Products;
 
 import java.util.List;
 
@@ -17,27 +17,28 @@ public final class AgentTraits {
 
     private AgentTraits() {}
 
-    public static void updateValues(List<? extends AgentTrait> traits, List<?> values) {
+    public static void updateValues(List<? extends AgentTrait<?,?>> traits, List<?> values) {
         checkNotNull(values);
         checkArgument(values.size() == traits.size(), "");
 
-        for (Product2<? extends AgentTrait, ?> tuple2 : Tuple2.Zipped.of(traits, values)) {
+        for (Product2<? extends AgentTrait<?,?>, ?> tuple2 : Products.zip(traits, values)) {
             tuple2._1().setAllele(tuple2._2());
         }
     }
 
-    public static <T> T mutate(AgentTrait<T> component) {
-        return component.mutate(component.getAllele());
+    public static <T> T mutate(AgentTrait<?, T> component) {
+        return component.mutate(component.getValue());
     }
 
-    public static <T> T mutate(AgentTrait<T> component, Object t) {
-        return component.mutate(component.getAlleleClass().cast(t));
+    public static <T> T mutate(AgentTrait<?, T> component, Object t) {
+        checkArgument(component.getValueClass().isInstance(t));
+
+        return component.mutate((T) t);
     }
 
-    @SuppressWarnings("unchecked") // is checked
-    public static <T> T segregate(AgentTrait<T> agentTrait, Object allele1, Object allele2) {
+    public static <T> T segregate(AgentTrait<?, T> agentTrait, Object allele1, Object allele2) {
         checkNotNull(agentTrait);
-        final Class<T> alleleClass = agentTrait.getAlleleClass();
+        final Class<? super T> alleleClass = agentTrait.getValueClass();
 
         checkArgument(alleleClass.isInstance(allele1), "allele1 is not an instance of %s: %s", alleleClass, allele1);
         checkArgument(alleleClass.isInstance(allele2), "allele2 is not an instance of %s: %s", alleleClass, allele2);

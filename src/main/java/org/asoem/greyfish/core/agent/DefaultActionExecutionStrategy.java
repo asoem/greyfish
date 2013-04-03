@@ -4,11 +4,13 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 
 import javax.annotation.Nullable;
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.core.actions.utils.ActionState.INITIAL;
 import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_MET;
 
 /**
@@ -18,16 +20,16 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_ME
  */
 public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, Serializable {
 
-    private final List<? extends AgentAction> actions;
+    private final List<? extends AgentAction<?>> actions;
 
     private ExecutionLog executionLog;
 
-    public DefaultActionExecutionStrategy(List<? extends AgentAction> actions) {
+    public DefaultActionExecutionStrategy(List<? extends AgentAction<?>> actions) {
         this.actions = checkNotNull(actions);
-        this.executionLog = EMPTY_LOG;
+        this.executionLog = EmptyExecutionLog.INSTANCE;
     }
 
-    private DefaultActionExecutionStrategy(List<? extends AgentAction> agentActions, ExecutionLog executionLog) {
+    private DefaultActionExecutionStrategy(List<? extends AgentAction<?>> agentActions, ExecutionLog executionLog) {
         this.actions = agentActions;
         this.executionLog = executionLog;
     }
@@ -36,18 +38,20 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
     public void execute() {
 
         @Nullable
-        AgentAction nextAction = null;
+        AgentAction<?> nextAction = null;
 
         // identify action to execute
         if (executionLog.hasUncompletedAction()) {
             nextAction = executionLog.getAction();
         } else {
-            for (AgentAction action : actions) {
+            for (AgentAction<?> action : actions) {
+                if (action.getState() != INITIAL)
+                    action.reset();
+
                 if (action.checkPreconditions() == PRECONDITIONS_MET) {
                     nextAction = action;
                     break;
-                } else
-                    action.reset();
+                }
             }
         }
 
@@ -55,17 +59,14 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         if (nextAction != null) {
             final ActionState state = nextAction.apply();
             executionLog = new BasicExecutionLog(nextAction, state);
-
-            if (state != ActionState.INTERMEDIATE)
-                nextAction.reset();
         }
         else
-            executionLog = EMPTY_LOG;
+            executionLog = EmptyExecutionLog.INSTANCE;
     }
 
     @Override
     @Nullable
-    public AgentAction lastExecutedAction() {
+    public AgentAction<?> lastExecutedAction() {
         return executionLog.getAction();
     }
 
@@ -77,7 +78,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
 
     @Override
     public void reset() {
-        executionLog = EMPTY_LOG;
+        executionLog = EmptyExecutionLog.INSTANCE;
     }
 
     private Object writeReplace() {
@@ -85,7 +86,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
     }
 
     private static class SerializedForm implements Serializable {
-        private final List<? extends AgentAction> actions;
+        private final List<? extends AgentAction<?>> actions;
         private final ExecutionLog executionLog;
 
         SerializedForm(DefaultActionExecutionStrategy strategy) {
@@ -93,24 +94,22 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
             this.executionLog = strategy.executionLog;
         }
 
-        private Object writeReplace() {
-            checkNotNull(actions);
-            checkState(actions.contains(executionLog.getAction()));
-
-            return new DefaultActionExecutionStrategy(actions,
-                    executionLog.getAction() == null
-                            ? EMPTY_LOG
-                            : new BasicExecutionLog(executionLog.getAction(), executionLog.getState()));
+        private Object readResolve() throws ObjectStreamException {
+            if (executionLog instanceof BasicExecutionLog) {
+                checkNotNull(executionLog.getState());
+                checkState(actions.contains(executionLog.getAction()));
+            }
+            return new DefaultActionExecutionStrategy(actions, executionLog);
         }
 
         private static final long serialVersionUID = 0;
     }
 
-    private static class BasicExecutionLog implements ExecutionLog {
-        private final AgentAction action;
+    private static class BasicExecutionLog implements ExecutionLog, Serializable {
+        private final AgentAction<?> action;
         private final ActionState state;
 
-        private BasicExecutionLog(AgentAction action, ActionState state) {
+        private BasicExecutionLog(AgentAction<?> action, ActionState state) {
             this.action = action;
             this.state = state;
         }
@@ -121,7 +120,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         }
 
         @Override
-        public AgentAction getAction() {
+        public AgentAction<?> getAction() {
             return action;
         }
 
@@ -129,16 +128,20 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         public ActionState getState() {
             return state;
         }
+
+        private static final long serialVersionUID = 0;
     }
 
-    private static final ExecutionLog EMPTY_LOG = new ExecutionLog() {
+    private enum EmptyExecutionLog implements ExecutionLog {
+        INSTANCE;
+
         @Override
         public boolean hasUncompletedAction() {
             return false;
         }
 
         @Override
-        public AgentAction getAction() {
+        public AgentAction<?> getAction() {
             return null;
         }
 
@@ -146,7 +149,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         public ActionState getState() {
             return null;
         }
-    };
+    }
 
     /**
      * User: christoph
@@ -156,7 +159,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
     private static interface ExecutionLog {
         boolean hasUncompletedAction();
         @Nullable
-        AgentAction getAction();
+        AgentAction<?> getAction();
 
         ActionState getState();
     }

@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.conditions.ActionCondition;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -21,22 +21,23 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
 @Root
-public abstract class AbstractAgentAction extends AbstractAgentComponent implements AgentAction {
+public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends AbstractAgentComponent<A> implements AgentAction<A> {
 
     @Nullable
-    private ActionCondition rootCondition;
-    private Callback<? super AbstractAgentAction, Void> onSuccess;
+    private ActionCondition<A> rootCondition;
+    private Callback<? super AbstractAgentAction<A>, Void> onSuccess;
     private int successCount;
     private int stepAtLastSuccess;
     private ActionState actionState;
 
-    protected AbstractAgentAction(AbstractAgentAction cloneable, DeepCloner map) {
+    @SuppressWarnings("unchecked")
+    protected AbstractAgentAction(AbstractAgentAction<A> cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = map.getClone(cloneable.getCondition(), ActionCondition.class);
+        this.rootCondition = map.getClone(cloneable.rootCondition);
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractAgentAction(AbstractBuilder<? extends AbstractAgentAction, ? extends AbstractBuilder> builder) {
+    protected AbstractAgentAction(AbstractBuilder<A, ? extends AbstractAgentAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.onSuccess = builder.onSuccess;
         this.successCount = builder.successCount;
@@ -58,10 +59,8 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     @Override
     public ActionState apply() {
 
-        final Simulation simulation = simulation();
-
-        assert stepAtLastSuccess < simulation.getStep() :
-                "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + simulation.getStep();
+        assert stepAtLastSuccess < agent().getSimulationStep() :
+                "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + agent().getSimulationStep();
 
         if (INITIAL == actionState)
             checkPreconditions();
@@ -69,13 +68,13 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
         if (PRECONDITIONS_MET == actionState
                 || INTERMEDIATE == actionState) {
 
-            final ActionState state = proceed(simulation);
+            final ActionState state = proceed();
 
             switch (state) {
 
                 case COMPLETED:
                     ++successCount;
-                    stepAtLastSuccess = simulation.getStep();
+                    stepAtLastSuccess = agent().getSimulationStep();
                     Callbacks.call(onSuccess, this);
                     break;
 
@@ -89,7 +88,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
         return actionState;
     }
 
-    protected abstract ActionState proceed(Simulation simulation);
+    protected abstract ActionState proceed();
 
     protected void setState(ActionState state) {
         assert state != null;
@@ -129,13 +128,13 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
 
     @Nullable
     @Element(name = "condition", required = false)
-    public ActionCondition getCondition() {
+    public ActionCondition<A> getCondition() {
         return rootCondition;
     }
 
     @Element(name = "condition", required = false)
     @Override
-    public void setCondition(@Nullable ActionCondition rootCondition) {
+    public void setCondition(@Nullable ActionCondition<A> rootCondition) {
         this.rootCondition = rootCondition;
         if (rootCondition != null) {
             rootCondition.setAction(this);
@@ -154,7 +153,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
 
     public boolean wasNotExecutedForAtLeast(int steps) {
         // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
-        return simulation().getStep() - stepAtLastSuccess >= steps;
+        return agent().getSimulationStep() - stepAtLastSuccess >= steps;
     }
 
     @Override
@@ -163,7 +162,7 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
     }
 
     @Override
-    public Iterable<AgentNode> children() {
+    public Iterable<AgentNode> childConditions() {
         return rootCondition != null ? Collections.<AgentNode>singletonList(getCondition()) : Collections.<AgentNode>emptyList();
     }
 
@@ -172,21 +171,21 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
         return getAgent();
     }
 
-    public Callback<? super AbstractAgentAction, Void> getSuccessCallback() {
+    public Callback<? super AbstractAgentAction<A>, Void> getSuccessCallback() {
         return onSuccess;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends AbstractAgentAction, B extends AbstractBuilder<A, B>> extends AbstractAgentComponent.AbstractBuilder<A, B> implements Serializable {
-        private ActionCondition condition;
-        private Callback<? super AbstractAgentAction, Void> onSuccess = Callbacks.emptyCallback();
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, T extends AbstractAgentAction<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
+        private ActionCondition<A> condition;
+        private Callback<? super AbstractAgentAction<A>, Void> onSuccess = Callbacks.emptyCallback();
         private int successCount;
         private int stepAtLastSuccess = -1;
         private ActionState actionState = ActionState.INITIAL;
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(AbstractAgentAction action) {
+        protected AbstractBuilder(AbstractAgentAction<A> action) {
             super(action);
             this.condition = action.rootCondition;
             this.onSuccess = action.onSuccess;
@@ -195,12 +194,12 @@ public abstract class AbstractAgentAction extends AbstractAgentComponent impleme
             this.actionState = action.actionState;
         }
 
-        public B executedIf(ActionCondition condition) {
+        public B executedIf(ActionCondition<A> condition) {
             this.condition = condition;
             return self();
         }
 
-        public B onSuccess(Callback<? super AbstractAgentAction, Void> expression) {
+        public B onSuccess(Callback<? super AbstractAgentAction<A>, Void> expression) {
             this.onSuccess = checkNotNull(expression);
             return self();
         }

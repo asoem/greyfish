@@ -3,9 +3,11 @@ package org.asoem.greyfish.core.agent;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.inject.CoreModule;
+import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persister;
-import org.asoem.greyfish.utils.space.MotionObject2D;
+import org.asoem.greyfish.utils.space.Point2D;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,9 +15,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * User: christoph
@@ -34,17 +34,16 @@ public class AvatarTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner clonerMock = mock(DeepCloner.class);
-        final Agent cloneMock = mock(Agent.class);
-        given(clonerMock.getClone(any(Agent.class), any(Class.class))).willReturn(cloneMock);
-        final Avatar avatar = new Avatar(cloneMock, mock(MotionObject2D.class));
+        final SpatialAgent<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> agentDelegate = mock(SpatialAgent.class);
+        given(agentDelegate.deepClone(any(DeepCloner.class))).willReturn(agentDelegate);
+
+        final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> avatar =
+                new Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D>(agentDelegate, mock(Point2D.class));
 
         // when
-        final Avatar clone = avatar.deepClone(clonerMock);
+        final Avatar<DefaultGreyfishAgent, DefaultGreyfishSimulation, Point2D> clone = CycleCloner.clone(avatar);
 
         // then
-        verify(clonerMock).addClone(eq(avatar), any(Avatar.class));
-        verify(clonerMock).getClone(cloneMock, Agent.class);
         assertThat(clone, is(equalTo(avatar)));
     }
 

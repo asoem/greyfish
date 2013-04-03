@@ -23,12 +23,22 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
     private final Evaluator evaluator;
     private final String expression;
 
+    /**
+     *
+     * @param expression the expression to evaluate
+     * @param evaluatorFactory the evaluator for this expression
+     * @throws IllegalArgumentException if expression is null or not valid
+     */
     @Inject
     public GreyfishExpression(@Assisted String expression, EvaluatorFactory evaluatorFactory) {
         checkNotNull(expression);
         checkNotNull(evaluatorFactory);
-
-        this.evaluator = evaluatorFactory.createEvaluator(parameterizeDollarFunction(expression));
+        try {
+            final String editedExpression = parameterizeDollarFunction(expression);
+            this.evaluator = evaluatorFactory.createEvaluator(editedExpression);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error creating an evaluator for `" + expression + "'", e);
+        }
         checkNotNull(evaluator);
         this.expression = expression;
     }

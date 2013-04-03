@@ -1,27 +1,23 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.Supplier;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.space.TiledSpace;
-import org.asoem.greyfish.core.space.WalledTile;
 import org.asoem.greyfish.utils.base.Initializer;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 /**
  * User: christoph
- * Date: 08.10.11
- * Time: 10:51
+ * Date: 21.11.12
+ * Time: 15:39
  */
-public abstract class ForwardingSimulation extends ForwardingObject implements Simulation {
-
+public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends ForwardingObject implements Simulation<A> {
     @Override
-    protected abstract Simulation delegate();
+    protected abstract Simulation<A> delegate();
 
     @Override
     public int numberOfPopulations() {
@@ -29,22 +25,17 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Iterable<Agent> findNeighbours(Agent agent, double distance) {
-        return delegate().findNeighbours(agent, distance);
-    }
-
-    @Override
-    public Iterable<Agent> getAgents(Population population) {
+    public Iterable<A> getAgents(Population population) {
         return delegate().getAgents(population);
     }
 
     @Override
-    public List<Agent> getAgents() {
+    public Collection<A> getAgents() {
         return delegate().getAgents();
     }
 
     @Override
-    public void removeAgent(Agent agent) {
+    public void removeAgent(A agent) {
         delegate().removeAgent(agent);
     }
 
@@ -59,13 +50,8 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Set<Agent> getPrototypes() {
+    public Set<A> getPrototypes() {
         return delegate().getPrototypes();
-    }
-
-    @Override
-    public TiledSpace<Agent,WalledTile> getSpace() {
-        return delegate().getSpace();
     }
 
     @Override
@@ -84,7 +70,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public void deliverMessage(ACLMessage<Agent> message) {
+    public void deliverMessage(ACLMessage<A> message) {
         delegate().deliverMessage(message);
     }
 
@@ -94,12 +80,7 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
-    public Object snapshotValue(String key, Supplier<Object> valueCalculator) {
-        return delegate().snapshotValue(key, valueCalculator);
-    }
-
-    @Override
-    public void createAgent(Population population, Initializer<? super Agent> initializer) {
+    public void createAgent(Population population, Initializer<? super A> initializer) {
         delegate().createAgent(population, initializer);
     }
 
@@ -109,17 +90,37 @@ public abstract class ForwardingSimulation extends ForwardingObject implements S
     }
 
     @Override
+    public void addAgent(A agent) {
+        delegate().addAgent(agent);
+    }
+
+    @Override
     public String getName() {
         return delegate().getName();
     }
 
     @Override
-    public SimulationLogger getSimulationLogger() {
-        return delegate().getSimulationLogger();
+    public void logAgentEvent(A agent, Object eventOrigin, String title, String message) {
+        delegate().logAgentEvent(agent, eventOrigin, title, message);
     }
 
     @Override
-    public void logAgentEvent(int agentId, String populationName, double[] coordinates, Object eventOrigin, String title, String message) {
-        delegate().logAgentEvent(agentId, populationName, coordinates, eventOrigin, title, message);
+    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+        return delegate().filterAgents(predicate);
+    }
+
+    @Override
+    public boolean hasStepValue(String key) {
+        return delegate().hasStepValue(key);
+    }
+
+    @Override
+    public void setStepValue(String key, Object value) {
+        delegate().setStepValue(key, value);
+    }
+
+    @Override
+    public Object getStepValue(String key) {
+        return delegate().getStepValue(key);
     }
 }

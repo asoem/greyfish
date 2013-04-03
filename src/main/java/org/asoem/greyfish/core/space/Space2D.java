@@ -1,22 +1,14 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.Predicate;
-import org.asoem.greyfish.utils.space.MovingProjectable2D;
-
-import java.util.List;
+import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.Object2D;
 
 /**
  * User: christoph
  * Date: 29.02.12
  * Time: 18:56
  */
-public interface Space2D<T extends MovingProjectable2D> {
-
-    /**
-     * The number of objects in this space
-     * @return the number of objects in this space
-     */
-    int countObjects();
+public interface Space2D<T, P extends Object2D> extends Space<T, P> {
 
     /**
      * Tests if the point given by the coordinates {@code x} and {@code y} lies inside this space
@@ -27,42 +19,13 @@ public interface Space2D<T extends MovingProjectable2D> {
     boolean contains(double x, double y);
 
     /**
-     * Get the list of objects which have been added to this space
-     * @return all objects for this space
-     */
-    List<T> getObjects();
-
-    /**
-     * Add the given {@code projectable} to this space initially located at the point
-     * defined by {@code x} and {@code y} and the given {@code orientation}
-     * @param projectable the object to add
-     * @param x the x coordinate of the insertion point
-     * @param y the y coordinate of the insertion point
-     * @param orientation the initial orientation of this object
-     * @return {@code true} if the object could be added, {@code false} otherwise
-     */
-    boolean insertObject(T projectable, double x, double y, double orientation);
-
-    /**
-     * Remove the given {@code object} from this space
-     * @param object the object to remove
-     * @return {@code true} if the object could be removed, {@code false} otherwise
-     */
-    boolean removeObject(T object);
-
-    /**
-     * Remove all projections from this space if the satisfy the given predicate
-     * @param predicate the predicate to check against
-     * @return {@code true} if at least one object was removed, {@code false} otherwise
-     */
-    boolean removeIf(Predicate<T> predicate);
-
-    /**
      * Move given object using it's motion
+     *
      * @param object2d the object to move
+     * @param motion2D the motion defining the move
      * @see org.asoem.greyfish.utils.space.MovingProjectable2D#getMotion()
      */
-    void moveObject(T object2d);
+    void moveObject(T object2d, Motion2D motion2D);
 
     /**
      * Find all objects in this space with are contained in the circle
@@ -83,7 +46,9 @@ public interface Space2D<T extends MovingProjectable2D> {
      */
     Iterable<T> getVisibleNeighbours(T object, double radius);
 
-    boolean insertObject(T agent);
+    double width();
 
-    boolean isEmpty();
+    double height();
+
+    double distance(T agent, double degrees);
 }

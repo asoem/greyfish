@@ -16,14 +16,8 @@ import static org.asoem.greyfish.utils.space.TileDirection.*;
 public class WalledTile implements Tile {
 
     private final int wallFlagsMask;
-
-    @Attribute(name = "x")
     private final int x;
-
-    @Attribute(name = "y")
     private final int y;
-
-    @Attribute(name = "wallFlags", required = false)
     private int wallFlags = 0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
@@ -33,15 +27,15 @@ public class WalledTile implements Tile {
         this.wallFlagsMask = 0;
     }
 
-    WalledTile(TiledSpace<?, WalledTile> space, int x, int y) {
+    WalledTile(TiledSpace<?, ?, WalledTile> space, int x, int y) {
         this.x = x;
         this.y = y;
 
         int mask = 0;
         if (x == 0) mask |= (1 << WEST.ordinal());
-        if (x == space.getWidth() - 1) mask |= (1 << EAST.ordinal());
+        if (x == space.colCount() - 1) mask |= (1 << EAST.ordinal());
         if (y == 0) mask |= (1 << NORTH.ordinal());
-        if (y == space.getHeight() - 1) mask |= (1 << SOUTH.ordinal());
+        if (y == space.rowCount() - 1) mask |= (1 << SOUTH.ordinal());
         wallFlagsMask = mask;
     }
 

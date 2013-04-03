@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.CompareOperator;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -11,7 +12,7 @@ import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class CompareCondition<T extends Comparable<T>> extends LeafCondition {
+public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<A, ?>> extends LeafCondition<A> {
 
     @Attribute(name="comparator")
     protected CompareOperator compareOperator = CompareOperator.EQUAL;
@@ -21,13 +22,13 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
 
     protected CompareCondition() {}
 
-    protected CompareCondition(CompareCondition<T> condition, DeepCloner map) {
+    protected CompareCondition(CompareCondition<T, A> condition, DeepCloner map) {
         super(condition, map);
         this.compareOperator = condition.compareOperator;
         this.value = condition.value;
     }
 
-    protected CompareCondition(AbstractBuilder<?,?,T> builder) {
+    protected CompareCondition(AbstractBuilder<A, ?, ?, T> builder) {
         super(builder);
         this.compareOperator = builder.compareOperator;
         this.value = builder.value;
@@ -60,7 +61,7 @@ public abstract class CompareCondition<T extends Comparable<T>> extends LeafCond
         });
     }
 
-    protected static abstract class AbstractBuilder<C extends CompareCondition<?>, T extends AbstractBuilder<C, T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<C,T> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends CompareCondition<?, A>, T extends AbstractBuilder<A, C, T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<A, C, T> {
         private CompareOperator compareOperator;
         private E value;
 

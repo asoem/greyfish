@@ -1,14 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import java.io.Serializable;
 
-public abstract class FiniteStateAction extends AbstractAgentAction {
+public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FiniteStateAction.class);
 
@@ -16,14 +16,14 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
     private Object nextStateKey = initialState();
     private boolean endStateReached = false;
 
-    protected FiniteStateAction(AbstractBuilder<? extends FiniteStateAction, ? extends AbstractBuilder> builder) {
+    protected FiniteStateAction(AbstractBuilder<A, ? extends FiniteStateAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.statefulExecutionCount = builder.statefulExecutionCount;
         this.nextStateKey = builder.nextStateKey;
         this.endStateReached = builder.endStateReached;
     }
 
-    protected FiniteStateAction(FiniteStateAction cloneable, DeepCloner cloner) {
+    protected FiniteStateAction(FiniteStateAction<A> cloneable, DeepCloner cloner) {
         super(cloneable, cloner);
         this.statefulExecutionCount = cloneable.statefulExecutionCount;
         this.nextStateKey = cloneable.nextStateKey;
@@ -31,12 +31,12 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
     }
 
     @Override
-    protected final ActionState proceed(Simulation simulation) {
+    protected final ActionState proceed() {
 
         if (endStateReached)
             resetTransition();
 
-        executeState(nextStateKey, simulation);
+        executeState(nextStateKey);
 
         ++statefulExecutionCount;
 
@@ -48,7 +48,7 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
 
     protected abstract Object initialState();
 
-    protected abstract void executeState(Object state, Simulation simulation);
+    protected abstract void executeState(Object state);
 
     protected final void resetTransition() {
         LOGGER.debug("{}: Reset state to {}", this, initialState());
@@ -104,14 +104,14 @@ public abstract class FiniteStateAction extends AbstractAgentAction {
         return statefulExecutionCount;
     }
 
-    protected static abstract class AbstractBuilder<C extends FiniteStateAction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends FiniteStateAction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private int statefulExecutionCount;
         private Object nextStateKey;
         private boolean endStateReached;
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(FiniteStateAction action) {
+        protected AbstractBuilder(FiniteStateAction<A> action) {
             super(action);
             this.statefulExecutionCount = action.statefulExecutionCount;
             this.nextStateKey = action.nextStateKey;

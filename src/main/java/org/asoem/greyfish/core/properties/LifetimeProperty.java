@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -21,20 +22,20 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * A {@code AgentProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
  */
-public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
+public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T,A> {
 
-    private Callback<? super LifetimeProperty<T>, T> callback;
+    private Callback<? super LifetimeProperty<A, T>, T> initializer;
 
     private Supplier<T> memoizer;
 
-    public LifetimeProperty(LifetimeProperty<T> lifetimeProperty, DeepCloner cloner) {
+    public LifetimeProperty(LifetimeProperty<A, T> lifetimeProperty, DeepCloner cloner) {
         super(lifetimeProperty, cloner);
-        this.callback = lifetimeProperty.callback;
+        this.initializer = lifetimeProperty.initializer;
     }
 
-    public LifetimeProperty(AbstractBuilder<T, ? extends LifetimeProperty<T>, ? extends Builder> builder) {
+    public LifetimeProperty(AbstractBuilder<T, A, ?, ?> builder) {
         super(builder);
-        this.callback = builder.callback;
+        this.initializer = builder.callback;
     }
 
     @Override
@@ -46,50 +47,50 @@ public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<T>, T>>() {}));
+        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<A, T>, T>>() {}));
     }
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new LifetimeProperty<T>(this, cloner);
+        return new LifetimeProperty<A, T>(this, cloner);
     }
 
     @Override
     public void initialize() {
         super.initialize();
-        checkState(callback != null, "No Callback was set");
+        checkState(initializer != null, "No Callback was set");
         this.memoizer = Suppliers.memoize(new Supplier<T>() {
             @Override
             public T get() {
-                return callback.apply(LifetimeProperty.this, ArgumentMap.of());
+                return initializer.apply(LifetimeProperty.this, ArgumentMap.of());
             }
         });
     }
 
-    public static <T> Builder<T> builder() {
-        return new Builder<T>();
+    public static <T, A extends Agent<A, ?>> Builder<A, T> builder() {
+        return new Builder<A, T>();
     }
 
-    public Callback<? super LifetimeProperty<T>, T> getCallback() {
-        return callback;
+    public Callback<? super LifetimeProperty<A, T>, T> getInitializer() {
+        return initializer;
     }
 
-    public static class Builder<T> extends AbstractBuilder<T, LifetimeProperty<T>, Builder<T>> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>, T> extends LifetimeProperty.AbstractBuilder<T, A, LifetimeProperty<A, T>, Builder<A, T>> implements Serializable {
 
-        public Builder(LifetimeProperty<T> lifetimeProperty) {
+        public Builder(LifetimeProperty<A, T> lifetimeProperty) {
             super(lifetimeProperty);
         }
 
         public Builder() {}
 
         @Override
-        protected Builder<T> self() {
+        protected Builder<A, T> self() {
             return this;
         }
 
         @Override
-        protected LifetimeProperty<T> checkedBuild() {
-            return new LifetimeProperty<T>(this);
+        protected LifetimeProperty<A, T> checkedBuild() {
+            return new LifetimeProperty<A, T>(this);
         }
         
         private Object readResolve() throws ObjectStreamException {
@@ -103,24 +104,24 @@ public class LifetimeProperty<T> extends AbstractAgentProperty<T> {
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, P extends LifetimeProperty<T>, B extends AbstractBuilder<T, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
-        private Callback<? super LifetimeProperty<T>, T> callback;
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends LifetimeProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+        private Callback<? super LifetimeProperty<A, T>, T> callback;
 
-        protected AbstractBuilder(LifetimeProperty<T> lifetimeProperty) {
+        protected AbstractBuilder(LifetimeProperty<A, T> lifetimeProperty) {
             super(lifetimeProperty);
-            this.callback = lifetimeProperty.callback;
+            this.callback = lifetimeProperty.initializer;
         }
 
         protected AbstractBuilder() {}
 
-        public B callback(Callback<? super LifetimeProperty<T>, T> callback) {
+        public B initialization(Callback<? super LifetimeProperty<A, T>, T> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }
     }
 
     private Object writeReplace() {
-        return new Builder<T>(this);
+        return new Builder<A, T>(this);
     }
 
     private void readObject(ObjectInputStream stream)

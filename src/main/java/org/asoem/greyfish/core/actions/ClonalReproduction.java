@@ -10,46 +10,43 @@ import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.genes.Gene;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.asoem.greyfish.utils.space.MotionObject2DImpl;
-import org.simpleframework.xml.Element;
 
 import javax.annotation.Nullable;
 
-@Tagged("actions")
-public class ClonalReproduction extends AbstractAgentAction {
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
-    @Element(name = "nClones")
-    private Callback<? super ClonalReproduction, Integer> nClones;
+@Tagged("actions")
+public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
+
+    private Callback<? super ClonalReproduction<A>, Integer> clutchSize;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public ClonalReproduction() {
-        this(new Builder());
+        this(new Builder<A>());
     }
 
     @Override
-    protected ActionState proceed(Simulation simulation) {
-        final int nClones = Callbacks.call(this.nClones, this);
+    protected ActionState proceed() {
+        final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 
-            simulation.createAgent(agent().getPopulation(), new Initializer<Agent>() {
-                @Override
-                public void initialize(Agent initializable) {
-                    initializable.setProjection(MotionObject2DImpl.copyOf(initializable.getProjection()));
-                    initializable.updateGeneComponents(
-                            new ChromosomeImpl(
-                                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<?>, Gene<?>>() {
-                                        @Override
-                                        public Gene<?> apply(@Nullable AgentTrait<?> gene) {
-                                            assert gene != null;
-                                            return new Gene<Object>(AgentTraits.mutate(gene, gene.getAllele()), gene.getRecombinationProbability());
-                                        }
-                                    }), Sets.newHashSet(agent().getId())));
-                }
-            });
+            final ChromosomeImpl chromosome = new ChromosomeImpl(
+                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, Gene<?>>() {
+                        @Override
+                        public Gene<?> apply(@Nullable AgentTrait<A, ?> trait) {
+                            assert trait != null;
+                            return new Gene<Object>(AgentTraits.mutate(trait, trait.getValue()), trait.getRecombinationProbability());
+                        }
+                    }), Sets.newHashSet(agent().getId()));
+
+            agent().reproduce(chromosome);
 
             agent().logEvent(this, "offspringProduced", "");
         }
@@ -57,57 +54,69 @@ public class ClonalReproduction extends AbstractAgentAction {
     }
 
     @Override
-    public ClonalReproduction deepClone(DeepCloner cloner) {
-        return new ClonalReproduction(this, cloner);
+    public ClonalReproduction<A> deepClone(DeepCloner cloner) {
+        return new ClonalReproduction<A>(this, cloner);
     }
 
-    public ClonalReproduction(ClonalReproduction cloneable, DeepCloner map) {
+    public ClonalReproduction(ClonalReproduction<A> cloneable, DeepCloner map) {
         super(cloneable, map);
-        this.nClones = cloneable.nClones;
+        this.clutchSize = cloneable.clutchSize;
     }
 
-    protected ClonalReproduction(AbstractBuilder<? extends ClonalReproduction, ? extends AbstractBuilder> builder) {
+    protected ClonalReproduction(AbstractBuilder<A, ? extends ClonalReproduction<A>, ? extends AbstractBuilder<A, ClonalReproduction<A>, ?>> builder) {
         super(builder);
-        this.nClones = builder.nClones;
+        this.clutchSize = builder.nClones;
     }
 
     @Override
     public void configure(ConfigurationHandler e) {
         super.configure(e);
-        e.add("nClones", TypedValueModels.forField("nClones", this, GreyfishExpression.class));
+        e.add("clutchSize", TypedValueModels.forField("clutchSize", this, GreyfishExpression.class));
     }
 
-    public Callback<? super ClonalReproduction, Integer> getnClones() {
-        return nClones;
+    public Callback<? super ClonalReproduction<A>, Integer> getClutchSize() {
+        return clutchSize;
     }
 
-    public void setnClones(Callback<? super ClonalReproduction, Integer> nClones) {
-        this.nClones = nClones;
+    public void setClutchSize(Callback<? super ClonalReproduction<A>, Integer> clutchSize) {
+        this.clutchSize = clutchSize;
     }
 
-    public static Builder with() {
-        return new Builder();
+    public static <A extends Agent<A, ?>> Builder<A> with() {
+        return new Builder<A>();
     }
 
-    public static final class Builder extends AbstractBuilder<ClonalReproduction, Builder> {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, ClonalReproduction<A>, Builder<A>> {
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
         @Override
-        protected ClonalReproduction checkedBuild() {
-            return new ClonalReproduction(this);
+        protected ClonalReproduction<A> checkedBuild() {
+            return new ClonalReproduction<A>(this);
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<C extends ClonalReproduction, B extends AbstractBuilder<C, B>> extends AbstractAgentAction.AbstractBuilder<C, B> {
-        private Callback<? super ClonalReproduction, Integer> nClones = Callbacks.constant(1);
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ClonalReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+        private Callback<? super ClonalReproduction<A>, Integer> nClones;
+        private Callback<? super ClonalReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
 
-        public B nClones(Callback<? super ClonalReproduction, Integer> nClones) {
-            this.nClones = nClones;
+        public B nClones(Callback<? super ClonalReproduction<A>, Integer> nClones) {
+            this.nClones = checkNotNull(nClones);
             return self();
+        }
+
+        public B offspringInitializer(Callback<? super ClonalReproduction<A>, Void> projectionFactory) {
+            this.offspringInitializer = checkNotNull(projectionFactory);
+            return self();
+        }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            checkState(nClones != null);
+            checkState(offspringInitializer != null);
         }
     }
 }

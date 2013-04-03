@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -17,16 +18,16 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 04.05.12
  * Time: 11:47
  */
-public class GenericCondition extends LeafCondition implements Serializable {
+public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> implements Serializable {
 
-    private final Callback<? super GenericCondition, Boolean> callback;
+    private final Callback<? super GenericCondition<A>, Boolean> callback;
 
-    private GenericCondition(GenericCondition genericCondition, DeepCloner cloner) {
+    private GenericCondition(GenericCondition<A> genericCondition, DeepCloner cloner) {
         super(genericCondition, cloner);
         this.callback = genericCondition.callback;
     }
 
-    private GenericCondition(Builder builder) {
+    private GenericCondition(Builder<A> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -37,8 +38,8 @@ public class GenericCondition extends LeafCondition implements Serializable {
     }
 
     @Override
-    public GenericCondition deepClone(DeepCloner cloner) {
-        return new GenericCondition(this, cloner);
+    public GenericCondition<A> deepClone(DeepCloner cloner) {
+        return new GenericCondition<A>(this, cloner);
     }
 
     @Override
@@ -46,12 +47,12 @@ public class GenericCondition extends LeafCondition implements Serializable {
         super.initialize();
     }
 
-    public Callback<? super GenericCondition, Boolean> getCallback() {
+    public Callback<? super GenericCondition<A>, Boolean> getCallback() {
         return callback;
     }
 
     private Object writeReplace() {
-        return new Builder(this);
+        return new Builder<A>(this);
     }
 
     private void readObject(ObjectInputStream stream)
@@ -59,37 +60,37 @@ public class GenericCondition extends LeafCondition implements Serializable {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static GenericCondition evaluate(Callback<? super GenericCondition, Boolean> callback) {
-        return builder().callback(callback).build();
+    public static <A extends Agent<A, ?>> GenericCondition<A> evaluate(Callback<? super GenericCondition<A>, Boolean> callback) {
+        return new Builder<A>().callback(callback).build();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
+        return new Builder<A>();
     }
 
-    private static final class Builder extends LeafCondition.AbstractBuilder<GenericCondition, Builder> implements Serializable {
-        public Callback<? super GenericCondition, Boolean> callback;
+    private static final class Builder<A extends Agent<A, ?>> extends LeafCondition.AbstractBuilder<A, GenericCondition<A>, Builder<A>> implements Serializable {
+        public Callback<? super GenericCondition<A>, Boolean> callback;
 
         private Builder() {
         }
 
-        private Builder(GenericCondition genericCondition) {
+        private Builder(GenericCondition<A> genericCondition) {
             super(genericCondition);
             this.callback = genericCondition.callback;
         }
 
         @Override
-        protected Builder self() {
+        protected Builder<A> self() {
             return this;
         }
 
         @Override
-        protected GenericCondition checkedBuild() {
+        protected GenericCondition<A> checkedBuild() {
             checkState(callback != null, "Cannot build without a callback");
-            return new GenericCondition(this);
+            return new GenericCondition<A>(this);
         }
 
-        public Builder callback(Callback<? super GenericCondition, Boolean> callback) {
+        public Builder<A> callback(Callback<? super GenericCondition<A>, Boolean> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }

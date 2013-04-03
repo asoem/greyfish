@@ -17,7 +17,17 @@ public class VanillaExpressionFactory implements ExpressionFactory {
     }
 
     @Override
-    public Expression compile(String expression) {
-        return new VanillaExpression(expression, evaluatorProvider);
+    public boolean isValidExpression(String s) {
+        try {
+            new VanillaExpression(s, evaluatorProvider);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Expression compile(String s) {
+        return new VanillaExpression(s, evaluatorProvider);
     }
 }

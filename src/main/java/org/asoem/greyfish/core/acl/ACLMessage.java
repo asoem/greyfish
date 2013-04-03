@@ -9,15 +9,6 @@ import java.util.Set;
  * Time: 13:56
  */
 public interface ACLMessage<T> {
-    Class<?> getContentClass();
-    /**
-     *
-     * @param clazz The expected type of the content object
-     * @param <C> The class type
-     * @return The content object casted to type {@code C}
-     * @throws ClassCastException if content can not be cast to type {@code C}
-     */
-    <C> C getContent(Class<C> clazz) throws ClassCastException;
 
     Set<T> getRecipients();
 
@@ -56,4 +47,7 @@ public interface ACLMessage<T> {
     boolean matches(MessageTemplate performative);
 
     <C> C userDefinedParameter(String key, Class<C> clazz);
+
+    @Nullable
+    Object getContent();
 }

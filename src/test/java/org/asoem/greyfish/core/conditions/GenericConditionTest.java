@@ -2,20 +2,23 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.io.persistence.JavaPersister;
+import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static org.asoem.utils.test.TransformingTypeSafeMatcher.has;
+import static org.asoem.utils.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * User: christoph
@@ -27,19 +30,18 @@ public class GenericConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DeepCloner deepCloner = mock(DeepCloner.class);
-        final AgentAction action = mock(AgentAction.class);
-        given(deepCloner.getClone(action, AgentAction.class)).willReturn(action);
-        final ActionCondition condition = mock(ActionCondition.class);
-        given(deepCloner.getClone(condition, ActionCondition.class)).willReturn(condition);
+        final AgentAction<DefaultGreyfishAgent> action = when(mock(AgentAction.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentAction.class)).getMock();
+
+        final ActionCondition<DefaultGreyfishAgent> condition = when(mock(ActionCondition.class).deepClone(any(DeepCloner.class))).thenReturn(mock(ActionCondition.class)).getMock();
         given(condition.getAction()).willReturn(action);
+
         final Callback<Object, Boolean> callback = Callbacks.constant(true);
 
-        GenericCondition genericCondition = GenericCondition.evaluate(callback);
+        final GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(callback);
         genericCondition.setParent(condition);
 
         // when
-        final GenericCondition clone = genericCondition.deepClone(deepCloner);
+        final GenericCondition<DefaultGreyfishAgent> clone = CycleCloner.clone(genericCondition);
 
         // then
         assertThat(clone, isSameAs(genericCondition));
@@ -48,35 +50,35 @@ public class GenericConditionTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final GenericCondition genericCondition = GenericCondition.evaluate(Callbacks.constant(true));
+        final GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(Callbacks.constant(true));
         // when
-        final GenericCondition copy = Persisters.createCopy(genericCondition, JavaPersister.INSTANCE);
+        final GenericCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(genericCondition, Persisters.javaSerialization());
         // then
         assertThat(copy, isSameAs(genericCondition));
     }
 
-    private static Matcher<? super GenericCondition> isSameAs(GenericCondition genericCondition) {
-        return Matchers.<GenericCondition>allOf(
+    private static Matcher<? super GenericCondition<DefaultGreyfishAgent>> isSameAs(GenericCondition<DefaultGreyfishAgent> genericCondition) {
+        return Matchers.<GenericCondition<DefaultGreyfishAgent>>allOf(
                 is(not(nullValue())),
                 is(not(sameInstance(genericCondition))),
-                has("callback == " + genericCondition.getCallback(), new Function<GenericCondition, Callback<? super GenericCondition, Boolean>>() {
+                has("callback == " + genericCondition.getCallback(), new Function<GenericCondition<DefaultGreyfishAgent>, Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean>>() {
                     @Override
-                    public Callback<? super GenericCondition, Boolean> apply(GenericCondition input) {
+                    public Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean> apply(GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getCallback();
                     }
-                }, is(Matchers.<Callback<? super GenericCondition, Boolean>>equalTo(genericCondition.getCallback()))),
-                has("action == " + genericCondition.getAction(), new Function<GenericCondition, AgentAction>() {
+                }, is(Matchers.<Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean>>equalTo(genericCondition.getCallback()))),
+                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
                     @Override
-                    public AgentAction apply(GenericCondition input) {
+                    public AgentAction<DefaultGreyfishAgent> apply(GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getAction();
                     }
-                }, is(equalTo(genericCondition.getAction()))),
-                has("parent == " + genericCondition.getParent(), new Function<GenericCondition, ActionCondition>() {
+                }, is(genericCondition.getAction() == null ? nullValue() : instanceOf(AgentAction.class))),
+                has("parent ~= " + genericCondition.getParent(), new Function<GenericCondition<DefaultGreyfishAgent>, ActionCondition<DefaultGreyfishAgent>>() {
                     @Override
-                    public ActionCondition apply(GenericCondition input) {
+                    public ActionCondition<DefaultGreyfishAgent> apply(GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getParent();
                     }
-                }, is(equalTo(genericCondition.getParent())))
+                }, is(genericCondition.getParent() == null ? nullValue() : instanceOf(ActionCondition.class)))
         );
     }
 }

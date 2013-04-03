@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.gui.ConfigurationHandler;
@@ -18,45 +17,53 @@ import static com.google.common.base.Preconditions.checkState;
  * Can be used to make a <code>AgentAction</code> conditional.
  * @author christoph
  */
-public abstract class AbstractCondition implements ActionCondition {
+public abstract class AbstractCondition<A extends Agent<A, ?>> implements ActionCondition<A> {
 
     @Nullable
-    private ActionCondition parentCondition;
+    private ActionCondition<A> parentCondition;
     @Nullable
-    private AgentAction action;
+    private transient AgentAction<A> action;
 
     protected AbstractCondition() {}
 
-    protected AbstractCondition(AbstractCondition cloneable, DeepCloner cloner) {
+    @SuppressWarnings("unchecked") // casting a clone should be safe
+    protected AbstractCondition(AbstractCondition<A> cloneable, DeepCloner cloner) {
         cloner.addClone(cloneable, this);
-        this.action = cloner.getClone(cloneable.action, AgentAction.class);
-        this.parentCondition = cloner.getClone(cloneable.parentCondition, ActionCondition.class);
+        this.action = cloner.getClone(cloneable.action);
+        this.parentCondition = cloner.getClone(cloneable.parentCondition);
     }
 
-    protected AbstractCondition(AbstractBuilder<? extends AbstractCondition, ? extends AbstractBuilder> builder) {
+    protected AbstractCondition(AbstractBuilder<A, ? extends AbstractCondition<A>, ?> builder) {
     }
 
     @Override
-    public void setParent(@Nullable ActionCondition parent) {
+    public void setParent(@Nullable ActionCondition<A> parent) {
         this.parentCondition = parent;
         setAction(parent != null ? parent.getAction() : null);
     }
 
     @Override
-    public ActionCondition getParent() {
+    public ActionCondition<A> getParent() {
         return parentCondition;
     }
 
     @Override
-    public void setAction(@Nullable AgentAction action) {
+    public void setAction(@Nullable AgentAction<A> action) {
         this.action = action;
         assert parentCondition == null || parentCondition.getAction() == action;
     }
 
     @Override
     @Nullable
-    public AgentAction getAction() {
+    public AgentAction<A> getAction() {
         return action;
+    }
+
+    @Override
+    public AgentAction<A> action() {
+        final AgentAction<A> agentAction = getAction();
+        checkState(agentAction != null);
+        return agentAction;
     }
 
     @Override
@@ -65,12 +72,12 @@ public abstract class AbstractCondition implements ActionCondition {
     }
 
     @Override
-    public void setAgent(@Nullable Agent agent) {
+    public void setAgent(@Nullable A agent) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public final ActionCondition getRoot() {
+    public final ActionCondition<A> getRoot() {
         return (getParent() != null)
                 ? getParent().getRoot()
                 : this;
@@ -79,7 +86,7 @@ public abstract class AbstractCondition implements ActionCondition {
     @Commit
     private void commit() {
         if (!isLeafCondition()) {
-            for (ActionCondition condition : getChildConditions()) {
+            for (ActionCondition<A> condition : getChildConditions()) {
                 condition.setParent(this);
             }
         }
@@ -91,13 +98,13 @@ public abstract class AbstractCondition implements ActionCondition {
 
     @Override
     @Nullable
-    public Agent getAgent() {
-        final AgentAction action = getAction();
+    public A getAgent() {
+        final AgentAction<A> action = getAction();
         return action != null ? action.getAgent() : null;
     }
 
-    public Agent agent() {
-        Agent agent = getAgent();
+    public A agent() {
+        A agent = getAgent();
         checkState(agent != null);
         return agent;
     }
@@ -114,7 +121,7 @@ public abstract class AbstractCondition implements ActionCondition {
 
     @Override
     public boolean isFrozen() {
-        final AgentAction action = getAction();
+        final AgentAction<A> action = getAction();
         return action != null && action.isFrozen();
     }
 
@@ -127,17 +134,13 @@ public abstract class AbstractCondition implements ActionCondition {
     public void initialize() {
     }
 
-    public Simulation simulation() {
-        return agent().simulation();
-    }
-
     @Override
     public AgentNode parent() {
         return parentCondition != null ? parentCondition : action;
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractCondition, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> {
-        public AbstractBuilder(AbstractCondition leafCondition) {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
+        public AbstractBuilder(AbstractCondition<A> leafCondition) {
         }
 
         protected AbstractBuilder() {

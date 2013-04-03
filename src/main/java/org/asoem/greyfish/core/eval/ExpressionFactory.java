@@ -6,6 +6,6 @@ package org.asoem.greyfish.core.eval;
  * Time: 12:04
  */
 public interface ExpressionFactory {
-    
-    Expression compile(String expression);
+    boolean isValidExpression(String s);
+    Expression compile(String s);
 }

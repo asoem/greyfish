@@ -1,39 +1,34 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import javolution.lang.MathLib;
-import javolution.util.FastList;
+import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.base.MoreSuppliers;
 import org.asoem.greyfish.utils.base.OutdateableUpdateRequest;
 import org.asoem.greyfish.utils.base.UpdateRequests;
-import org.asoem.greyfish.utils.collect.Product2;
+import org.asoem.greyfish.utils.collect.Trees;
 import org.asoem.greyfish.utils.space.*;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementArray;
-import org.simpleframework.xml.ElementList;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 import static javolution.lang.MathLib.TWO_PI;
-import static org.asoem.greyfish.utils.space.GeometricConversions.polarToCartesian;
 import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
+import static org.asoem.greyfish.utils.space.Geometry2D.polarToCartesian;
 
 /**
  * @author christoph
  *         This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
-public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpace<T, WalledTile> {
+public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     @Attribute(name = "height")
     private final int height;
@@ -41,70 +36,63 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     @Attribute(name = "width")
     private final int width;
 
-    @ElementList(name = "projectables")
-    private final List<T> projectables = FastList.newInstance();
-
     private final WalledTile[][] tileMatrix;
 
     private final OutdateableUpdateRequest<Object> updateRequest = UpdateRequests.atomicRequest(true);
 
-    private final Supplier<TwoDimTree<T>> lazyTree = MoreSuppliers.memoize(
-            new Supplier<TwoDimTree<T>>() {
-
-                private final Function<T,Product2<Double,Double>> function = new Function<T, Product2<Double, Double>>() {
-                    @Override
-                    public Point2D apply(T t) {
-                        assert t != null;
-                        final MotionObject2D projection = t.getProjection();
-                        assert projection != null;
-                        return projection.getAnchorPoint();
-                    }
-                };
+    private final Supplier<TwoDimTree<Point2D, O>> lazyTree = MoreSuppliers.memoize(
+            new Supplier<TwoDimTree<Point2D, O>>() {
 
                 @Override
-                public TwoDimTree<T> get() {
-                    return treeFactory.create(projectables, function);
+                public TwoDimTree<Point2D, O> get() {
+                    return treeFactory.create(point2DMap.keySet(), Functions.forMap(point2DMap));
                 }
             },
             updateRequest);
 
-    private final TwoDimTreeFactory<T> treeFactory;
+    private final TwoDimTreeFactory<O> treeFactory;
 
-    public WalledTileSpace(WalledTileSpace<T> space) {
-        this(checkNotNull(space).getWidth(), space.getHeight());
+    private final Map<O, Point2D> point2DMap = Maps.newHashMap();
+
+    public WalledPointSpace(WalledPointSpace<O> space) {
+        this(checkNotNull(space).colCount(), space.rowCount());
         setWalledTiles(space.getWalledTiles());
     }
 
-    public WalledTileSpace(int width, int height) {
-        this(width, height, new WalledTile[0], WalledTileSpace.<T>defaultTreeFactory());
+    public WalledPointSpace(int width, int height) {
+        this(width, height, new WalledTile[0], WalledPointSpace.<O>createDefaultTreeFactory());
     }
 
-    public WalledTileSpace(int width, int height, WalledTile[] walledTiles) {
-        this(width, height, walledTiles, WalledTileSpace.<T>defaultTreeFactory());
+    private static <O> TwoDimTreeFactory<O> createDefaultTreeFactory() {
+        return new TwoDimTreeFactory<O>() {
+            @Override
+            public TwoDimTree<Point2D, O> create(Iterable<? extends O> elements, Function<? super O, Point2D> function) {
+                return AsoemScalaTwoDimTree.of(elements, function);
+            }
+        };
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private WalledTileSpace(@Attribute(name = "width") int width,
-                            @Attribute(name = "height") int height,
-                            @ElementList(name = "projectables") List<T> projectables,
-                            @ElementArray(name = "walledTiles", entry = "tile", required = false) WalledTile[] walledTiles) {
-        this(width, height, walledTiles);
-        this.projectables.addAll(projectables);
+    private WalledPointSpace(int width, int height, Map<O, Point2D> projectables, WalledTile[] walledTiles, TwoDimTreeFactory<O> treeFactory) {
+        this(width, height, walledTiles, treeFactory);
+        this.point2DMap.putAll(projectables);
     }
 
-    private WalledTileSpace(TiledSpaceBuilder<T> builder) {
+    private WalledPointSpace(TiledSpaceBuilder<O> builder) {
         this(builder.width, builder.height);
         for (TiledSpaceBuilder.WallDefinition wallDefinition : builder.wallDefinitions) {
             wallDefinition.apply(this);
         }
     }
 
-    public WalledTileSpace(int width, int height, WalledTile[] walledTiles, TwoDimTreeFactory<T> treeFactory) {
+    public WalledPointSpace(int width, int height, WalledTile[] walledTiles, TwoDimTreeFactory<O> treeFactory) {
         Preconditions.checkArgument(width >= 0);
         Preconditions.checkArgument(height >= 0);
+        checkNotNull(treeFactory);
 
         this.width = width;
         this.height = height;
+        this.treeFactory = treeFactory;
 
         this.tileMatrix = new WalledTile[width][height];
         for (int i = 0; i < width; i++) {
@@ -114,8 +102,6 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
         }
 
         setWalledTiles(walledTiles);
-
-        this.treeFactory = checkNotNull(treeFactory);
     }
 
     @ElementArray(name = "walledTiles", entry = "tile", required = false)
@@ -136,12 +122,12 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public int getHeight() {
+    public int rowCount() {
         return height;
     }
 
     @Override
-    public int getWidth() {
+    public int colCount() {
         return width;
     }
 
@@ -180,11 +166,11 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
 
 
     @Override
-    public void moveObject(T object) {
+    public void moveObject(O object, Motion2D motion) {
         checkNotNull(object);
 
-        final Motion2D motion = checkNotNull(object.getMotion(), "Required motion of {} is null", object);
-        final Object2D currentProjection = checkNotNull(object.getProjection(), "Required projection of {} is null", object);
+        //final Motion2D motion = checkNotNull(object.getMotion(), "Required motion of {} is null", object);
+        final Point2D currentProjection = checkNotNull(getProjection(object), "Required projection of {} is null", object);
 
         final double translation = motion.getTranslation();
         final double rotation = motion.getRotation();
@@ -195,18 +181,18 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
             throw new IllegalStateException("Translations < 0 are not supported: " + translation);
 
         final double newOrientation = (rotation == 0)
-                ? currentProjection.getOrientationAngle()
-                : ((currentProjection.getOrientationAngle() + rotation) % TWO_PI + TWO_PI) % TWO_PI;
+                ? 0
+                : ((rotation) % TWO_PI + TWO_PI) % TWO_PI;
 
-        final Point2D anchorPoint = currentProjection.getAnchorPoint();
+        final Point2D anchorPoint = currentProjection.getCentroid();
         if (translation != 0) {
             final Point2D preferredPoint = ImmutablePoint2D.sum(anchorPoint, polarToCartesian(newOrientation, translation));
             final Point2D maxPoint = maxTransition(anchorPoint, preferredPoint);
-            final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), newOrientation, !preferredPoint.equals(maxPoint));
-            object.setProjection(projection);
+            //final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), !preferredPoint.equals(maxPoint));
+            //object.setProjection(projection);
         }
         else {
-            object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(), anchorPoint.getY(), newOrientation, false));
+            //object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(), anchorPoint.getY(), newOrientation, false));
         }
 
         updateRequest.outdate();
@@ -336,24 +322,24 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public Iterable<T> findObjects(double x, double y, double radius) {
+    public Iterable<O> findObjects(double x, double y, double radius) {
         return lazyTree.get().findObjects(x, y, radius);
     }
 
     @Override
-    public Iterable<T> getVisibleNeighbours(final T object, double range) {
-        final MotionObject2D projection = object.getProjection();
+    public Iterable<O> getVisibleNeighbours(final O object, double range) {
+        final Point2D projection = getProjection(object);
         if (projection != null) {
-            final Point2D anchorPoint = projection.getAnchorPoint();
-            return Iterables.filter(findObjects(anchorPoint.getX(), anchorPoint.getY(), range), new Predicate<T>() {
+            final Point2D anchorPoint = projection.getCentroid();
+            return Iterables.filter(findObjects(anchorPoint.getX(), anchorPoint.getY(), range), new Predicate<O>() {
                 @Override
-                public boolean apply(T t) {
+                public boolean apply(O t) {
                     if (t.equals(object))
                         return false;
 
-                    final Object2D neighborProjection = t.getProjection();
+                    final Point2D neighborProjection = getProjection(t);
                     assert neighborProjection != null;
-                    final Point2D neighborProjectionAnchorPoint = neighborProjection.getAnchorPoint();
+                    final Point2D neighborProjectionAnchorPoint = neighborProjection.getCentroid();
                     return collision(anchorPoint.getX(), anchorPoint.getY(),
                             neighborProjectionAnchorPoint.getX(), neighborProjectionAnchorPoint.getY()) == null;
                 }
@@ -364,35 +350,115 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public boolean insertObject(T agent) {
-        final MotionObject2D projection = checkNotNull(agent.getProjection(), "Projectable has no projection");
-        final Point2D point = projection.getAnchorPoint();
-        return insertObject(agent, point.getX(), point.getY(), projection.getOrientationAngle());
+    public boolean insertObject(O object, Point2D projection) {
+        checkNotNull(object, "projectable is null");
+        checkNotNull(projection, "projection is null");
+
+        synchronized (this) {
+            final Point2D previous = point2DMap.put(object, projection);
+            checkState(previous == null, "no duplicate objects allowed: " + object);
+            updateRequest.outdate();
+            return true;
+        }
     }
 
     @Override
     public boolean isEmpty() {
-        return projectables.isEmpty();
+        return point2DMap.isEmpty();
     }
 
     @Override
-    public List<T> getObjects() {
-        return Collections.unmodifiableList(projectables);
+    public double width() {
+        return width;
     }
 
     @Override
-    public Iterable<T> getObjects(Iterable<? extends Tile> tiles) {
-        return Iterables.concat(Iterables.transform(tiles, new Function<Tile, Iterable<T>>() {
+    public double height() {
+        return height;
+    }
+
+    @Override
+    @Nullable
+    public Point2D getProjection(final O object) {
+        final KDNode<Point2D, O> node = Iterators.find(Trees.postOrderView(lazyTree.get().root()), new Predicate<KDNode<Point2D, O>>() {
             @Override
-            public Iterable<T> apply(Tile tile) {
+            public boolean apply(KDNode<Point2D, O> input) {
+                return object.equals(input.value());
+            }
+        }, null);
+        return node == null ? null : node.point();
+    }
+
+    @Override
+    public Map<O, Point2D> asMap() {
+        return point2DMap;
+    }
+
+    @Override
+    public double distance(O agent, double degrees) {
+        checkNotNull(agent);
+        checkArgument(degrees >= 0 && degrees < MathUtils.TWO_PI, "Degrees must be in [0, TWO_PI), was %s", degrees);
+
+        Point2D borderIntersection;
+
+        final Point2D origin = getProjection(agent);
+        if (origin == null)
+            throw new IllegalArgumentException("Has no projection: " + agent);
+
+        final ImmutablePoint2D destination = ImmutablePoint2D.sum(origin, Geometry2D.polarToCartesian(degrees, Double.MAX_VALUE));
+
+        if (degrees < 90) {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                    0, 0, width(), 0);
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        width(), 0, width(), height());
+        }
+        else if (degrees < 180) {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                    width(), 0, width(), height());
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        0, height(), width(), height());
+        }
+        else if (degrees < 270) {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                    0, height(), width(), height());
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        0, 0, 0, height());
+        }
+        else {
+            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                    0, 0, 0, height());
+            if (borderIntersection == null)
+                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                        0, 0, width(), 0);
+        }
+
+        assert borderIntersection != null; // There must always be an intersection with one border
+
+        return Geometry2D.distance(origin, maxTransition(origin, borderIntersection));
+    }
+
+    @Override
+    public Collection<O> getObjects() {
+        return Collections.unmodifiableSet(point2DMap.keySet());
+    }
+
+    @Override
+    public Iterable<O> getObjects(Iterable<? extends Tile> tiles) {
+        return Iterables.concat(Iterables.transform(tiles, new Function<Tile, Iterable<O>>() {
+            @Override
+            public Iterable<O> apply(Tile tile) {
                 final Tile checkedTile = checkNotNull(tile);
-                return Iterables.filter(findObjects(checkedTile.getX(), checkedTile.getY(), MathLib.SQRT2 / 2), new Predicate<T>() {
+                return Iterables.filter(findObjects(checkedTile.getX(), checkedTile.getY(), MathLib.SQRT2 / 2), new Predicate<O>() {
                     @Override
-                    public boolean apply(T t) {
+                    public boolean apply(O t) {
                         assert t != null;
-                        final Object2D projection = t.getProjection();
+                        final Point2D projection = getProjection(t);
                         assert projection != null;
-                        final Point2D anchorPoint = projection.getAnchorPoint();
+                        final Point2D anchorPoint = projection.getCentroid();
                         return Geometry2D.rectangleContains(checkedTile.getX(), checkedTile.getY(), 1, 1, anchorPoint.getX(), anchorPoint.getY());
                     }
                 });
@@ -401,28 +467,11 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public boolean insertObject(T projectable, double x, double y, double orientation) {
-        checkNotNull(projectable);
-        checkArgument(contains(x, y));
-
-        final MotionObject2D projection = MotionObject2DImpl.of(x, y, orientation, false);
-        projectable.setProjection(projection);
+    public boolean removeObject(O agent) {
+        checkNotNull(agent);
 
         synchronized (this) {
-            if (projectables.add(projectable)) {
-                updateRequest.outdate();
-                return true;
-            }
-            return false;
-        }
-    }
-
-    @Override
-    public boolean removeObject(T object) {
-        checkNotNull(object);
-
-        synchronized (this) {
-            if (projectables.remove(object)) {
+            if (point2DMap.remove(agent) != null) {
                 updateRequest.outdate();
                 return true;
             } else
@@ -431,9 +480,9 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public boolean removeIf(Predicate<T> predicate) {
+    public boolean removeIf(Predicate<O> predicate) {
         synchronized (this) {
-            if (Iterables.removeIf(projectables, predicate)) {
+            if (Iterables.removeIf(point2DMap.keySet(), predicate)) {
                 updateRequest.outdate();
                 return true;
             }
@@ -443,7 +492,7 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
 
     @Override
     public int countObjects() {
-        return projectables.size();
+        return point2DMap.size();
     }
 
     @Override
@@ -457,29 +506,29 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
     }
 
     @Override
-    public WalledTile getAdjacentTile(WalledTile walledTile, TileDirection direction) {
-        return getTileAt(walledTile.getX() + direction.getXTranslation(), walledTile.getY() + direction.getYTranslation());
+    public WalledTile getAdjacentTile(WalledTile tile, TileDirection direction) {
+        return getTileAt(tile.getX() + direction.getXTranslation(), tile.getY() + direction.getYTranslation());
     }
 
-    public static <T extends MovingProjectable2D> WalledTileSpace<T> copyOf(WalledTileSpace<T> space) {
-        return new WalledTileSpace<T>(space);
+    public static <O> WalledPointSpace<O> copyOf(WalledPointSpace<O> space) {
+        return new WalledPointSpace<O>(space);
     }
 
-    public static <T extends MovingProjectable2D> WalledTileSpace<T> ofSize(int width, int height) {
-        return new WalledTileSpace<T>(width, height);
+    public static <O> WalledPointSpace<O> ofSize(int width, int height) {
+        return new WalledPointSpace<O>(width, height);
     }
 
-    public static <T extends MovingProjectable2D> TiledSpaceBuilder<T> builder(int width, int height) {
-        return new TiledSpaceBuilder<T>(width, height);
+    public static <O> TiledSpaceBuilder<O> builder(int width, int height) {
+        return new TiledSpaceBuilder<O>(width, height);
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public static class TiledSpaceBuilder<T extends MovingProjectable2D> implements Builder<WalledTileSpace<T>> {
+    public static class TiledSpaceBuilder<O> implements Builder<WalledPointSpace<O>> {
 
         private final int width;
         private final int height;
         private final List<WallDefinition> wallDefinitions = Lists.newArrayList();
-        private TwoDimTreeFactory<T> treeFactory;
+        private TwoDimTreeFactory<O> treeFactory;
 
         public TiledSpaceBuilder(int width, int height) {
 
@@ -487,19 +536,19 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
             this.height = height;
         }
 
-        public TiledSpaceBuilder<T> addWall(final int x, final int y, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWall(final int x, final int y, final TileDirection direction) {
             checkArgument(x >= 0 && x < width && y >= 0 && y < height);
             checkNotNull(direction);
             wallDefinitions.add(new WallDefinition() {
                 @Override
-                public void apply(WalledTileSpace<?> space) {
+                public void apply(WalledPointSpace<?> space) {
                     space.setTileWall(x, y, direction, true);
                 }
             });
             return this;
         }
 
-        public TiledSpaceBuilder<T> addWallsVertical(final int x, final int y1, final int y2, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWallsVertical(final int x, final int y1, final int y2, final TileDirection direction) {
             checkArgument(x >= 0 && x < width);
             checkArgument(y1 >= 0 && y1 < height);
             checkArgument(y2 >= 0 && y2 < height);
@@ -507,7 +556,7 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
 
             wallDefinitions.add(new WallDefinition() {
                 @Override
-                public void apply(WalledTileSpace<?> space) {
+                public void apply(WalledPointSpace<?> space) {
                     for (int i = y1; i <= y2; i++) {
                         space.setTileWall(x, i, direction, true);
                     }
@@ -516,7 +565,7 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
             return this;
         }
 
-        public TiledSpaceBuilder<T> addWallsHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWallsHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
             checkArgument(x1 >= 0 && x1 < width);
             checkArgument(x2 >= 0 && x2 < width);
             checkArgument(y >= 0 && y < height);
@@ -524,7 +573,7 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
 
             wallDefinitions.add(new WallDefinition() {
                 @Override
-                public void apply(WalledTileSpace<?> space) {
+                public void apply(WalledPointSpace<?> space) {
                     for (int i = x1; i <= x2; i++) {
                         space.setTileWall(i, y, direction, true);
                     }
@@ -533,20 +582,20 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
             return this;
         }
 
-        public TiledSpaceBuilder<T> treeFactory(TwoDimTreeFactory<T> treeFactory) {
+        public TiledSpaceBuilder<O> treeFactory(TwoDimTreeFactory<O> treeFactory) {
             this.treeFactory = checkNotNull(treeFactory);
             return this;
         }
 
         @Override
-        public WalledTileSpace<T> build() throws IllegalStateException {
+        public WalledPointSpace<O> build() throws IllegalStateException {
             if (treeFactory == null)
-                treeFactory = defaultTreeFactory();
-            return new WalledTileSpace<T>(this);
+                treeFactory = createDefaultTreeFactory();
+            return new WalledPointSpace<O>(this);
         }
 
         private static interface WallDefinition {
-            void apply(WalledTileSpace<?> space);
+            void apply(WalledPointSpace<?> space);
         }
     }
 
@@ -568,12 +617,4 @@ public class WalledTileSpace<T extends MovingProjectable2D> implements TiledSpac
         }
     }
 
-    private static <T extends MovingProjectable2D> TwoDimTreeFactory<T> defaultTreeFactory() {
-        return new TwoDimTreeFactory<T>() {
-            @Override
-            public TwoDimTree<T> create(Iterable<? extends T> elements, Function<? super T, ? extends Product2<Double, Double>> function) {
-                return AsoemScalaTwoDimTree.of(elements, function);
-            }
-        };
-    }
 }

@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.agent.Agent;
  * Date: 20.02.12
  * Time: 12:53
  */
-public interface SimulationLogger {
-    void logAgentCreation(Agent agent);
-    void logAgentEvent(int currentStep, int agentId, String populationName, double[] coordinates, String source, String title, String message);
+public interface SimulationLogger<A extends Agent<A, ?>> {
+    void logAgentCreation(A agent);
+    void logAgentEvent(A agent, int currentStep, String source, String title, String message);
 }

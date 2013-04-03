@@ -2,24 +2,22 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
+import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.collect.SearchableList;
-import org.asoem.greyfish.utils.space.Motion2D;
-import org.asoem.greyfish.utils.space.MotionObject2D;
+import org.asoem.greyfish.utils.collect.FunctionalList;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public abstract class ForwardingAgent extends ForwardingObject implements Agent {
+public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulation<A>> extends ForwardingObject implements Agent<A, S> {
 
     @Override
-    protected abstract Agent delegate();
+    protected abstract Agent<A, S> delegate();
 
     @Override
     public Population getPopulation() {
@@ -40,12 +38,12 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
      * If you wish overwrite {@link Agent#addAction}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
-    public boolean addAction(AgentAction action) {
+    public boolean addAction(AgentAction<A> action) {
         return delegate().addAction(action);
     }
 
     @Override
-    public boolean removeAction(AgentAction action) {
+    public boolean removeAction(AgentAction<A> action) {
         return delegate().removeAction(action);
     }
 
@@ -55,7 +53,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public SearchableList<AgentAction> getActions() {
+    public FunctionalList<AgentAction<A>> getActions() {
         return delegate().getActions();
     }
 
@@ -63,12 +61,12 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
      * If you wish overwrite {@link Agent#addProperty}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
-    public boolean addProperty(AgentProperty property) {
+    public boolean addProperty(AgentProperty<A, ?> property) {
         return delegate().addProperty(property);
     }
 
     @Override
-    public boolean removeProperty(AgentProperty property) {
+    public boolean removeProperty(AgentProperty<A, ?> property) {
         return delegate().removeProperty(property);
     }
 
@@ -78,23 +76,22 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public SearchableList<AgentProperty<?>> getProperties() {
+    public FunctionalList<AgentProperty<A, ?>> getProperties() {
         return delegate().getProperties();
     }
 
     @Override
-    @Nullable
-    public <T extends AgentProperty> T getProperty(String name, Class<T> propertyClass) {
-        return delegate().getProperty(name, propertyClass);
+    public AgentProperty<A, ?> getProperty(String name) {
+        return delegate().getProperty(name);
     }
 
     @Override
-    public AgentProperty<?> findProperty(Predicate<? super AgentProperty<?>> predicate) {
+    public AgentProperty<A, ?> findProperty(Predicate<? super AgentProperty<A, ?>> predicate) {
         return delegate().findProperty(predicate);
     }
 
     @Override
-    public void changeActionExecutionOrder(AgentAction object, AgentAction object2) {
+    public void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2) {
         delegate().changeActionExecutionOrder(object, object2);
     }
 
@@ -129,7 +126,7 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Iterable<AgentMessage> getMessages(MessageTemplate template) {
+    public Iterable<AgentMessage<A>> getMessages(MessageTemplate template) {
         return delegate().getMessages(template);
     }
 
@@ -144,12 +141,12 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void receiveAll(Iterable<? extends AgentMessage> messages) {
+    public void receiveAll(Iterable<? extends AgentMessage<A>> messages) {
         delegate().receiveAll(messages);
     }
 
     @Override
-    public void receive(AgentMessage messages) {
+    public void receive(AgentMessage<A> messages) {
         delegate().receive(messages);
     }
 
@@ -164,8 +161,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public void shutDown(PassiveSimulationContext context) {
-        delegate().shutDown(PassiveSimulationContext.instance());
+    public void deactivate(SimulationContext<S, A> context) {
+        delegate().deactivate(PassiveSimulationContext.<S, A>instance());
     }
 
     @Override
@@ -174,32 +171,32 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public Simulation simulation() {
+    public S simulation() {
         return delegate().simulation();
     }
 
     @Override
-    public void activate(ActiveSimulationContext context) {
+    public void activate(SimulationContext<S, A> context) {
         delegate().activate(context);
     }
 
     @Override
-    public <T extends AgentAction> T getAction(String actionName, Class<T> gfActionClass) {
-        return delegate().getAction(actionName, gfActionClass);
+    public AgentAction<A> getAction(String actionName) {
+        return delegate().getAction(actionName);
     }
 
     @Override
-    public <T extends AgentTrait> T getTrait(String geneName, Class<T> geneClass) {
-        return delegate().getTrait(geneName, geneClass);
+    public AgentTrait<A, ?> getTrait(String geneName) {
+        return delegate().getTrait(geneName);
     }
 
     @Override
-    public boolean addTrait(AgentTrait<?> gene) {
+    public boolean addTrait(AgentTrait<A, ?> gene) {
         return delegate().addTrait(gene);
     }
 
     @Override
-    public boolean removeGene(AgentTrait<?> gene) {
+    public boolean removeGene(AgentTrait<A, ?> gene) {
         return delegate().removeGene(gene);
     }
 
@@ -209,28 +206,8 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public SearchableList<AgentTrait<?>> getTraits() {
+    public FunctionalList<AgentTrait<A, ?>> getTraits() {
         return delegate().getTraits();
-    }
-
-    @Override
-    public Motion2D getMotion() {
-        return delegate().getMotion();
-    }
-
-    @Override
-    public void setMotion(Motion2D motion) {
-        delegate().setMotion(motion);
-    }
-
-    @Override
-    public MotionObject2D getProjection() {
-        return delegate().getProjection();
-    }
-
-    @Override
-    public void setProjection(MotionObject2D projection) {
-        delegate().setProjection(projection);
     }
 
     @Override
@@ -244,18 +221,13 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     }
 
     @Override
-    public boolean didCollide() {
-        return delegate().didCollide();
-    }
-
-    @Override
-    public AgentTrait<?> findTrait(Predicate<? super AgentTrait<?>> traitPredicate) {
+    public AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate) {
         return delegate().findTrait(traitPredicate);
     }
 
     @Override
-    public Iterable<AgentNode> children() {
-        return delegate().children();
+    public Iterable<AgentNode> childConditions() {
+        return delegate().childConditions();
     }
 
     @Override
@@ -266,5 +238,30 @@ public abstract class ForwardingAgent extends ForwardingObject implements Agent 
     @Override
     public Set<Integer> getParents() {
         return delegate().getParents();
+    }
+
+    @Override
+    public void die() {
+        delegate().die();
+    }
+
+    @Override
+    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+        return delegate().filterAgents(predicate);
+    }
+
+    @Override
+    public Iterable<A> getAllAgents() {
+        return delegate().getAllAgents();
+    }
+
+    @Override
+    public int getSimulationStep() {
+        return delegate().getSimulationStep();
+    }
+
+    @Override
+    public void sendMessage(ACLMessage<A> message) {
+        delegate().sendMessage(message);
     }
 }

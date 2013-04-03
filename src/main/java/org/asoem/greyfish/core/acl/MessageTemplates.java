@@ -190,8 +190,8 @@ public final class MessageTemplates {
         @Override
         public boolean apply(ACLMessage<?> aclMessage) {
             ACLMessage<?> message = checkNotNull(aclMessage);
-            return message.getContentClass().isAssignableFrom(clazz)
-                    && predicate.apply(message.getContent(clazz));
+            return clazz.isInstance(message.getContent())
+                    && predicate.apply(clazz.cast(message.getContent()));
         }
     }
 

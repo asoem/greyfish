@@ -3,23 +3,25 @@ package org.asoem.greyfish.core.agent;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ForwardingACLMessage;
 
+import java.io.Serializable;
+
 /**
  * User: christoph
  * Date: 15.10.11
  * Time: 15:42
  */
-public class AgentMessage extends ForwardingACLMessage<Agent> {
-    private final ACLMessage<Agent> delegate;
+public class AgentMessage<A extends Agent<A, ?>> extends ForwardingACLMessage<A> implements Serializable {
 
+    private final ACLMessage<A> delegate;
     private final int receivedTimestamp;
 
-    public AgentMessage(ACLMessage<Agent> delegate, int receivedTimestamp) {
+    public AgentMessage(ACLMessage<A> delegate, int receivedTimestamp) {
         this.delegate = delegate;
         this.receivedTimestamp = receivedTimestamp;
     }
 
     @Override
-    protected ACLMessage<Agent> delegate() {
+    protected ACLMessage<A> delegate() {
        return delegate;
     }
 
