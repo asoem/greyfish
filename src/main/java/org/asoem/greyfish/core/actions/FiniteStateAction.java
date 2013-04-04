@@ -1,163 +1,121 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.io.Logger;
-import org.asoem.greyfish.core.io.LoggerFactory;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.actions.utils.ActionState;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
-import javax.annotation.Nonnull;
+import java.io.Serializable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
-public abstract class FiniteStateAction extends AbstractGFAction {
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FiniteStateAction.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
+    private int statefulExecutionCount;
+    private Object nextStateKey = initialState();
+    private boolean endStateReached = false;
 
-    protected FiniteStateAction(AbstractGFAction.AbstractBuilder<?> builder) {
+    protected FiniteStateAction(AbstractBuilder<A, ? extends FiniteStateAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
+        this.statefulExecutionCount = builder.statefulExecutionCount;
+        this.nextStateKey = builder.nextStateKey;
+        this.endStateReached = builder.endStateReached;
     }
 
-    protected FiniteStateAction(FiniteStateAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-    }
-
-    /* Immutable after freeze */
-    private ImmutableMap<Object, FSMState> states = ImmutableMap.of();
-
-    /* Always mutable */
-    private Object currentStateKey;
-
-    @Override
-    protected final State executeUnconditioned(@Nonnull Simulation simulation) {
-        Preconditions.checkState(currentStateKey != null);
-        Preconditions.checkState(states.containsKey(currentStateKey));
-
-        StateAction stateActionToExecute = states.get(currentStateKey).getStateAction();
-        Object nextStateKey = stateActionToExecute.run();
-
-        LOGGER.debug("{}: Transition to {}", this, nextStateKey);
-        currentStateKey = nextStateKey;
-
-        return states.get(currentStateKey).getStateType();
+    protected FiniteStateAction(FiniteStateAction<A> cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.statefulExecutionCount = cloneable.statefulExecutionCount;
+        this.nextStateKey = cloneable.nextStateKey;
+        this.endStateReached = cloneable.endStateReached;
     }
 
     @Override
-    protected void reset() {
-        super.reset();
-        LOGGER.debug("{}: EndTransition to {}", this, getInitialStateKey());
-        currentStateKey = getInitialStateKey();
-    }
+    protected final ActionState proceed() {
 
-    private Object getInitialStateKey() {
-        if (states.size() == 0)
-            return null;
+        if (endStateReached)
+            resetTransition();
 
-        Object firstKey = states.keySet().asList().get(0);
-        if (states.get(firstKey).getStateType() != State.DORMANT)
-            return null;
+        executeState(nextStateKey);
+
+        ++statefulExecutionCount;
+
+        if (endStateReached)
+            return ActionState.COMPLETED;
         else
-            return firstKey;
+            return ActionState.INTERMEDIATE;
+    }
+
+    protected abstract Object initialState();
+
+    protected abstract void executeState(Object state);
+
+    protected final void resetTransition() {
+        LOGGER.debug("{}: Reset state to {}", this, initialState());
+        nextStateKey = initialState();
+        endStateReached = false;
+    }
+
+    protected final <T> void transition(T state) {
+        LOGGER.debug("{}: Transition to {}", this, state);
+        nextStateKey = state;
+    }
+
+    protected final void failure(String message) {
+        endStateReached = true;
+        LOGGER.debug("{}: End Transition to ERROR state: {}", this, message);
+    }
+
+    protected final <T> void endTransition(T state) {
+        LOGGER.debug("{}: End transition to {}", this, state);
+        nextStateKey = state;
+        endStateReached = true;
+    }
+
+    protected final AssertionError unknownState() {
+        LOGGER.error("{}: Unknown State: {}", this, nextStateKey);
+        return new AssertionError("The implementation of executeState() of " + this + " does not handle state '" + nextStateKey + "'");
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        super.prepare(simulation);
-        currentStateKey = getInitialStateKey();
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        if (!states.isEmpty()) {
-            checkState(getInitialStateKey() != null, "No InitialState defined");
-            checkState(Iterables.any(states.values(), new Predicate<FSMState>() {
-                @Override
-                public boolean apply(FSMState state) {
-                    return state.getStateType() == State.END_SUCCESS;
-                }
-            }), "No EndState defined");
-        }
-        else
-            LOGGER.warn("FiniteStateAction has no states defined: " + this);
-    }
-
-    protected final void registerInitialState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.DORMANT);
-    }
-
-    protected final void registerIntermediateState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.ACTIVE);
-    }
-
-    protected final void registerEndState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.END_SUCCESS);
-    }
-
-    protected final void registerFailureState(final Object stateKey, final StateAction action) {
-        registerStateInternal(stateKey, action, State.END_FAILED);
-    }
-
-    private void registerStateInternal(final Object stateKey, final StateAction action, final State stateType) {
-        checkNotNull(stateKey);
-        checkNotNull(action);
-        checkNotNull(stateType);
-        switch (stateType) {
-            case DORMANT:
-                // put in front of the map
-                states = ImmutableMap.<Object, FSMState>builder().put(stateKey, new FSMState(stateType, action)).putAll(states).build();
-                break;
-            default:
-                // put at the end of the map
-                states = ImmutableMap.<Object, FSMState>builder().putAll(states).put(stateKey, new FSMState(stateType, action)).build();
-                break;
-        }
+    public void initialize() {
+        super.initialize();
+        nextStateKey = initialState();
+        statefulExecutionCount = 0;
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + name + "|" + currentStateKey + "]@" + getComponentOwner();
+        return this.getClass().getSimpleName() +
+                "[" + getName() + "@" + nextStateKey + "]" +
+                "°<" + ((getAgent() == null) ? "null" : String.valueOf(agent().getId()) + "><"
+        );
     }
 
-    protected interface StateAction {
-        public Object run();
+    /**
+     * Won't report the number af actual invocations of this {@code FiniteStateAction}. Use {@link #getStatefulExecutionCount}
+     */
+    @Override
+    public int getCompletionCount() {
+        return super.getCompletionCount();
     }
 
-    protected static class EndStateAction implements StateAction {
-        private final Object stateKey;
-
-        public EndStateAction(Object stateKey) {
-            this.stateKey = stateKey;
-        }
-
-        @Override
-        final public Object run() {
-            return stateKey;
-        }
+    public int getStatefulExecutionCount() {
+        return statefulExecutionCount;
     }
 
-    protected static class FSMState {
-        private final State stateType;
-        private final StateAction stateAction;
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends FiniteStateAction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+        private int statefulExecutionCount;
+        private Object nextStateKey;
+        private boolean endStateReached;
 
-        public FSMState(State stateType, StateAction stateAction) {
-            Preconditions.checkNotNull(stateType);
-            Preconditions.checkNotNull(stateAction);
-            this.stateType = stateType;
-            this.stateAction = stateAction;
-        }
+        protected AbstractBuilder() {}
 
-        public State getStateType() {
-            return stateType;
-        }
-
-        public StateAction getStateAction() {
-            return stateAction;
+        protected AbstractBuilder(FiniteStateAction<A> action) {
+            super(action);
+            this.statefulExecutionCount = action.statefulExecutionCount;
+            this.nextStateKey = action.nextStateKey;
+            this.endStateReached = action.endStateReached;
         }
     }
 }

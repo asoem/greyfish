@@ -3,59 +3,80 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
+
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical OR operator.
  * @author christoph
  *
  */
-public class AnyCondition extends LogicalOperatorCondition {
+@Tagged("conditions")
+public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    public AnyCondition(AnyCondition condition, CloneMap map) {
+    private AnyCondition(Builder<A> builder) {
+        super(builder);
+    }
+
+    private AnyCondition(AnyCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
     @Override
-    public boolean evaluate(final Simulation simulation) {
-        switch (conditions.size()) {
-            case 0 : return true;
-            case 1 : return conditions.get(0).evaluate(simulation);
-            case 2 : return conditions.get(0).evaluate(simulation) || conditions.get(1).evaluate(simulation);
-            default : return Iterables.any(conditions, new Predicate<GFCondition>() {
-                @Override
-                public boolean apply(GFCondition condition) {
-                    return condition.evaluate(simulation);
-                }
-            });
-        }
+    public boolean evaluate() {
+        for (ActionCondition condition : getChildConditions())
+            if (condition.evaluate())
+                return true;
+        return false;
     }
 
     @Override
-    public AnyCondition deepCloneHelper(CloneMap map) {
-        return new AnyCondition(this, map);
+    public AnyCondition<A> deepClone(DeepCloner cloner) {
+        return new AnyCondition<A>(this, cloner);
     }
 
-    @SimpleXMLConstructor
-    private AnyCondition() {
-        this(new Builder());
+    private Object writeReplace() {
+        return new Builder<A>(this);
     }
 
-    protected AnyCondition(AbstractBuilder<?> builder) {
-        super(builder);
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
     }
 
-    public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<AnyCondition> {
-        private Builder() {}
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
+        return new Builder<A>();
+    }
 
-        @Override protected Builder self() { return this; }
-        @Override public AnyCondition build() { return new AnyCondition(this); }
-        public Builder any(GFCondition ... conditions) { return super.addConditions(conditions); }
+    public static <A extends Agent<A, ?>> AnyCondition<A> evaluates(ActionCondition<A> ... conditions) {
+        return new Builder<A>().add(conditions).build();
+    }
+
+    private static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, AnyCondition<A>,Builder<A>> implements Serializable {
+        private Builder() {
+        }
+
+        private Builder(AnyCondition<A> anyCondition) {
+            super(anyCondition);
+        }
+
+        @Override protected Builder<A> self() { return this; }
+        @Override public AnyCondition<A> checkedBuild() { return new AnyCondition<A>(this); }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }

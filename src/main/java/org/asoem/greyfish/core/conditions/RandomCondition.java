@@ -1,37 +1,38 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.ValueAdaptor;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
+import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class RandomCondition extends LeafCondition {
+@Tagged("conditions")
+public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
     @Element(name="probability")
     private double probability;
 
-    public RandomCondition(RandomCondition condition, CloneMap map) {
+    private RandomCondition(RandomCondition<A> condition, DeepCloner map) {
         super(condition, map);
         this.probability = condition.probability;
     }
 
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate() {
         return Math.random() < probability;
     }
 
     @Override
-    public RandomCondition deepCloneHelper(CloneMap map) {
-        return new RandomCondition(this, map);
+    public RandomCondition<A> deepClone(DeepCloner cloner) {
+        return new RandomCondition<A>(this, cloner);
     }
 
     @Override
-    public void export(Exporter e) {
-        e.add(new ValueAdaptor<Double>("", Double.class) {
+    public void configure(ConfigurationHandler e) {
+        e.add("", new AbstractTypedValueModel<Double>() {
             @Override
             protected void set(Double arg0) {
                 probability = arg0;
@@ -44,22 +45,28 @@ public class RandomCondition extends LeafCondition {
         });
     }
 
-    private RandomCondition() {
-        this(new Builder());
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
+    public RandomCondition() {
+        this(new Builder<A>());
     }
 
-    protected RandomCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    private RandomCondition(AbstractBuilder<A, ?, ?> builder) {
         super(builder);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<RandomCondition> {
-        @Override protected Builder self() { return this; }
-        public RandomCondition build() { return new RandomCondition(this); }
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, RandomCondition<A>, Builder<A>> {
+        @Override protected Builder<A> self() { return this; }
+        public RandomCondition<A> checkedBuild() { return new RandomCondition<A>(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
+    @SuppressWarnings("UnusedDeclaration")
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends RandomCondition<A>, T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {
         private double probability;
 
-        public T probability(double probability) { checkArgument(probability >= 0 && probability <= 1); this.probability = probability; return self(); }
+        public T probability(double probability) {
+            checkArgument(probability >= 0 && probability <= 1, "Value is not in open interval [0,1]: " + probability);
+            this.probability = probability;
+            return self();
+        }
     }
 }

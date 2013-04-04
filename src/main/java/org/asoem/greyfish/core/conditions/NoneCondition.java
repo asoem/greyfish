@@ -1,53 +1,78 @@
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 
-public class NoneCondition extends LogicalOperatorCondition {
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
-    public NoneCondition(NoneCondition condition, CloneMap map) {
+@Tagged("conditions")
+public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
+
+    private NoneCondition(NoneCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
-    @Override
-    public boolean evaluate(final Simulation simulation) {
-        switch (conditions.size()) {
-            case 0 : return true;
-            case 1 : return ! conditions.get(0).evaluate(simulation);
-            case 2 : return ! conditions.get(0).evaluate(simulation) && ! conditions.get(1).evaluate(simulation);
-            default : return ! Iterables.any(conditions, new Predicate<GFCondition>() {
-                @Override
-                public boolean apply(GFCondition condition) {
-                    return condition.evaluate(simulation);
-                }
-            });
-        }
-    }
-
-    protected NoneCondition(AbstractBuilder<?> builder) {
+    private NoneCondition(Builder<A> builder) {
         super(builder);
     }
 
-    public static Builder trueIf() { return new Builder(); }
+    @Override
+    public boolean evaluate() {
+        for (ActionCondition<A> condition : getChildConditions())
+            if (condition.evaluate())
+                return false;
+        return true;
+    }
 
     @Override
-    public NoneCondition deepCloneHelper(CloneMap map) {
-        return new NoneCondition(this, map);
+    public NoneCondition<A> deepClone(DeepCloner cloner) {
+        return new NoneCondition<A>(this, cloner);
     }
 
-    @SimpleXMLConstructor
-    private NoneCondition() {
-        this(new Builder());
+    private Object writeReplace() {
+        return new Builder<A>(this);
     }
 
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<NoneCondition> {
-        private Builder() {}
-        @Override protected Builder self() { return this; }
-        @Override public NoneCondition build() { return new NoneCondition(this); }
-        public Builder none(GFCondition ... conditions) { return super.addConditions(conditions); }
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
+    }
+
+    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(ActionCondition<A> condition) {
+        return new Builder<A>().add(condition).build();
+    }
+
+    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(ActionCondition<A>... conditions) {
+        return new Builder<A>().add(conditions).build();
+    }
+
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
+        return new Builder<A>();
+    }
+
+    public static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, NoneCondition<A>, Builder<A>> implements Serializable {
+        private Builder() {
+        }
+
+        private Builder(NoneCondition<A> noneCondition) {
+            super(noneCondition);
+        }
+
+        @Override protected Builder<A> self() { return this; }
+        @Override public NoneCondition<A> checkedBuild() { return new NoneCondition<A>(this); }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }

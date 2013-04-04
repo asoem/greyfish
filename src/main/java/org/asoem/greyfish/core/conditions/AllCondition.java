@@ -3,63 +3,92 @@
  */
 package org.asoem.greyfish.core.conditions;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
+
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND operator.
  * @author christoph
  *
  */
-public class AllCondition extends LogicalOperatorCondition {
+@Tagged("conditions")
+public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new AllCondition(this, map);
-    }
-
-    @SimpleXMLConstructor
-    private AllCondition() {
-        this(new Builder());
-    }
-
-    protected AllCondition(AllCondition cloneable, CloneMap map) {
+    private AllCondition(AllCondition<A> cloneable, DeepCloner map) {
         super(cloneable, map);
     }
 
-    protected AllCondition(AbstractBuilder<?> builder) {
+    private AllCondition(Builder<A> builder) {
         super(builder);
     }
 
     @Override
-    public boolean evaluate(final Simulation simulation) {
-        switch (conditions.size()) {
-            case 0 : return true;
-            case 1 : return conditions.get(0).evaluate(simulation);
-            case 2 : return conditions.get(0).evaluate(simulation) && conditions.get(1).evaluate(simulation);
-            default : return Iterables.all(conditions, new Predicate<GFCondition>() {
-                @Override
-                public boolean apply(GFCondition condition) {
-                    return condition.evaluate(simulation);
-                }
-            });
+    public boolean evaluate() {
+        for (ActionCondition<A> condition : getChildConditions())
+            if (!condition.evaluate())
+                return false;
+        return true;
+    }
+
+    @Override
+    public AllCondition<A> deepClone(DeepCloner cloner) {
+        return new AllCondition<A>(this, cloner);
+    }
+
+    private Object writeReplace() {
+        return new Builder<A>(this);
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws InvalidObjectException {
+        throw new InvalidObjectException("Builder required");
+    }
+
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A> condition) {
+        return new Builder<A>().add(condition).build();
+    }
+
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A> condition1, ActionCondition<A> condition2) {
+        return new Builder<A>().add(condition1).add(condition2).build();
+    }
+
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A> condition1, ActionCondition<A> condition2, ActionCondition<A> condition3) {
+        return new Builder<A>().add(condition1).add(condition2).add(condition3).build();
+    }
+
+    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(ActionCondition<A>... conditions) {
+        return new Builder<A>().add(conditions).build();
+    }
+
+    public static <A extends Agent<A, ?>> Builder<A> builder() {
+        return new Builder<A>();
+    }
+
+    private static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, AllCondition<A>, Builder<A>> implements Serializable {
+        private Builder() {
         }
-    }
 
-    public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<AllCondition> {
-        private Builder() {}
-        @Override protected Builder self() { return this; }
-        @Override public AllCondition build() { return new AllCondition(this); }
-    }
+        private Builder(AllCondition<A> allCondition) {
+            super(allCondition);
+        }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LogicalOperatorCondition.AbstractBuilder<T> {
-        public T and(GFCondition ... conditions) { return addConditions(conditions); }
-        public T all(Iterable<GFCondition> conditions) { return addConditions(conditions); }
+        @Override protected Builder<A> self() { return this; }
+        @Override protected AllCondition<A> checkedBuild() { return new AllCondition<A>(this); }
+
+        private Object readResolve() throws ObjectStreamException {
+            try {
+                return build();
+            } catch (IllegalStateException e) {
+                throw new InvalidObjectException("Build failed with: " + e.getMessage());
+            }
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }

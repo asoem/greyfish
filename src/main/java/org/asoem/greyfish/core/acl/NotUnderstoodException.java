@@ -7,7 +7,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 14.01.11
  * Time: 14:19
  */
-public class NotUnderstoodException extends Exception {
+public class NotUnderstoodException extends RuntimeException {
     public NotUnderstoodException() {
     }
 
@@ -23,9 +23,9 @@ public class NotUnderstoodException extends Exception {
         super(cause);
     }
 
-    public static NotUnderstoodException unexpectedPayloadType(ACLMessage message, Class<?> clazz) {
+    public static NotUnderstoodException unexpectedPayloadType(ACLMessage<?> message, Class<?> clazz) {
         checkNotNull(message);
-        Class<?> clazzReceived = message.getContentClass();
+        Class<?> clazzReceived = message.getContent().getClass();
         return new NotUnderstoodException("Unexpected Payload Type: Received %s while expect was %s", (clazzReceived==null) ? null : clazzReceived, clazz);
     }
 }

@@ -1,32 +1,25 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.base.Supplier;
+/**
+ * User: christoph
+ * Date: 25.04.12
+ * Time: 15:30
+ */
+public class Gene<T> implements GeneLike<T> {
+    private final T value;
+    private final double recombinationProbability;
 
+    public Gene(T value, double recombinationProbability) {
+        this.value = value;
+        this.recombinationProbability = recombinationProbability;
+    }
 
-public interface Gene<T> extends Supplier<T> {
+    @Override
+    public T getValue() {
+        return value;
+    }
 
-    /**
-     * @return the class of the value this gene is supplying
-     */
-    public Class<T> getSupplierClass();
-
-    /**
-     *
-     * @return the controller for this gene
-     */
-    public GeneController<T> getGeneController();
-
-    /**
-     *
-     * @param gene the gene to test for
-     * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
-     */
-    boolean isMutatedCopyOf(Gene<?> gene);
-
-    /**
-     * Computes the normalizedDistance between {@code this} and {@code that} using an arbitrary metric.
-     * @param thatGene the gene to compute the distance to
-     * @return the distance
-     */
-    double distance(Gene<?> thatGene);
+    public double getRecombinationProbability() {
+        return recombinationProbability;
+    }
 }

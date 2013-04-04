@@ -1,31 +1,22 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.ACLPerformative;
-import org.asoem.greyfish.core.acl.MessageTemplate;
-import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.acl.*;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.asoem.greyfish.core.io.GreyfishLogger.GFACTIONS_LOGGER;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetInitiatorAction extends FiniteStateAction {
+public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends FiniteStateAction<A> {
 
-    private static enum State {
-        SEND_CFP,
-        WAIT_FOR_PROPOSALS,
-        WAIT_FOR_INFORM,
-        END,
-        NO_RECEIVERS, TIMEOUT
-    }
-
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
     private static final int INFORM_TIMEOUT_STEPS = 1;
 
@@ -33,218 +24,205 @@ public abstract class ContractNetInitiatorAction extends FiniteStateAction {
     private int nProposalsReceived;
     private int nInformReceived;
 
-    public ContractNetInitiatorAction(AbstractGFAction.AbstractBuilder<?> builder) {
+    protected ContractNetInitiatorAction(AbstractBuilder<A, ? extends ContractNetInitiatorAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
-        initFSM();
     }
 
-    protected ContractNetInitiatorAction(ContractNetInitiatorAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        initFSM();
+    protected ContractNetInitiatorAction(ContractNetInitiatorAction<A> cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
     }
 
     private MessageTemplate getTemplate() {
         return template;
     }
 
-    public void setTemplate(MessageTemplate template) {
-        this.template = template;
-    }
-
-    private MessageTemplate template = MessageTemplate.alwaysFalse();
+    private MessageTemplate template = MessageTemplates.alwaysFalse();
     private int nProposalsMax;
 
-    private void initFSM() {
-        registerInitialState(State.SEND_CFP, new StateAction() {
+    @Override
+    protected Object initialState() {
+        return State.SEND_CFP;
+    }
 
-            @Override
-            public Object run() {
-                if (!canInitiate())
-                   return State.NO_RECEIVERS;
+    @Override
+    protected void executeState(Object state) {
+        if (State.SEND_CFP.equals(state)) {
+            if (!canInitiate()) {
+                endTransition(State.NO_RECEIVERS);
+            }
+            else {
+                ImmutableACLMessage<A> cfpMessage = createCFP()
+                        .sender(agent())
+                        .performative(ACLPerformative.CFP).build();
+                LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
+                agent().sendMessage(cfpMessage);
 
-                ACLMessage cfpMessage = createCFP().source(getComponentOwner().getId()).performative(ACLPerformative.CFP).build();
-                sendMessage(cfpMessage);
-                nProposalsMax = cfpMessage.getAllReceiver().size();
+                nProposalsMax = cfpMessage.getRecipients().size();
                 timeoutCounter = 0;
                 nProposalsReceived = 0;
                 template = createCFPReplyTemplate(cfpMessage);
 
-                return State.WAIT_FOR_PROPOSALS;
+                transition(State.WAIT_FOR_PROPOSALS);
             }
-        });
+        }
+        else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
+            Collection<ACLMessage<A>> proposeReplies = Lists.newArrayList();
+            for (ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
+                assert (receivedMessage != null);
 
-        registerIntermediateState(State.WAIT_FOR_PROPOSALS, new StateAction() {
+                ACLMessage<A> proposeReply;
+                switch (receivedMessage.getPerformative()) {
 
-            @Override
-            public Object run() {
+                    case PROPOSE:
+                        try {
+                            proposeReply = checkNotNull(handlePropose(receivedMessage)).build();
+                            proposeReplies.add(proposeReply);
+                            ++nProposalsReceived;
+                            LOGGER.debug("{}: Received proposal", this, receivedMessage);
+                        } catch (NotUnderstoodException e) {
+                            proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent())
+                                    .performative(ACLPerformative.NOT_UNDERSTOOD)
+                                    .content(e.getMessage(), String.class).build();
+                            LOGGER.warn("Message not understood {}", receivedMessage, e);
+                        }
+                        checkProposeReply(proposeReply);
+                        LOGGER.debug("{}: Replying to proposal", this, proposeReply);
+                        agent().sendMessage(proposeReply);
+                        break;
 
-                Collection<ACLMessage> proposeReplies = Lists.newArrayList();
-                for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
-                    assert (receivedMessage != null);
+                    case REFUSE:
+                        LOGGER.debug("{}: CFP was refused: ", this, receivedMessage);
+                        handleRefuse(receivedMessage);
+                        --nProposalsMax;
+                        break;
 
-                    ACLMessage proposeReply = null;
-                    switch (receivedMessage.getPerformative()) {
+                    case NOT_UNDERSTOOD:
+                        LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", this);
+                        --nProposalsMax;
+                        break;
 
-                        case PROPOSE:
-                            try {
-                                proposeReply = handlePropose(receivedMessage).build();
-                                assert (proposeReply != null);
-                                proposeReplies.add(proposeReply);
-                                ++nProposalsReceived;
-                                GFACTIONS_LOGGER.trace("{}: Received proposal", ContractNetInitiatorAction.this);
-                            } catch (NotUnderstoodException e) {
-                                proposeReply = receivedMessage.createReplyFrom(getComponentOwner().getId())
-                                        .performative(ACLPerformative.NOT_UNDERSTOOD)
-                                        .stringContent(e.getMessage()).build();
-                                GFACTIONS_LOGGER.debug("{}: Message not understood", ContractNetInitiatorAction.this, e);
-                            } finally {
-                                assert proposeReply != null;
-                            }
-                            checkProposeReply(proposeReply);
-                            sendMessage(proposeReply);
-                            break;
-
-                        case REFUSE:
-                            GFACTIONS_LOGGER.debug("{}: CFP was refused: ", ContractNetInitiatorAction.this, receivedMessage);
-                            handleRefuse(receivedMessage);
-                            --nProposalsMax;
-                            break;
-
-                        case NOT_UNDERSTOOD:
-                            GFACTIONS_LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", ContractNetInitiatorAction.this);
-                            --nProposalsMax;
-                            break;
-
-                        default:
-                            GFACTIONS_LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", ContractNetInitiatorAction.this, receivedMessage.getPerformative());
-                            --nProposalsMax;
-                            break;
-
-                    }
-                }
-                ++timeoutCounter;
-
-
-                assert nProposalsMax >= 0;
-
-                if (nProposalsMax == 0) {
-                    GFACTIONS_LOGGER.debug("{}: received 0 proposals for {} CFP messages", ContractNetInitiatorAction.this, nProposalsMax);
-                    return State.END;
-                } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS || nProposalsReceived == nProposalsMax) {
-                    if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS)
-                        GFACTIONS_LOGGER.trace("{}: entered TIMEOUT for accepting proposals. Received {} proposals", ContractNetInitiatorAction.this, nProposalsReceived);
-
-                    timeoutCounter = 0;
-
-                    if (nProposalsReceived > 0) {
-                        template = createAcceptReplyTemplate(proposeReplies);
-                        nInformReceived = 0;
-                        return State.WAIT_FOR_INFORM;
-                    } else
-                        return State.TIMEOUT;
-                } else {
-                    return State.WAIT_FOR_PROPOSALS;
+                    default:
+                        LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", this, receivedMessage.getPerformative());
+                        --nProposalsMax;
+                        break;
                 }
             }
-        });
 
-        registerIntermediateState(State.WAIT_FOR_INFORM, new StateAction() {
+            ++timeoutCounter;
 
-            @Override
-            public Object run() {
-                assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
+            assert nProposalsMax >= 0;
 
-                for (ACLMessage receivedMessage : receiveMessages(getTemplate())) {
-                    assert receivedMessage != null;
+            if (nProposalsMax == 0) {
+                LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsMax);
+                endTransition(State.END);
+            }
+            else if (nProposalsReceived == nProposalsMax) {
+                template = createAcceptReplyTemplate(proposeReplies);
+                nInformReceived = 0;
+                timeoutCounter = 0;
+                transition(State.WAIT_FOR_INFORM);
+            }
+            else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS) {
+                LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals", this, nProposalsReceived);
 
-                    switch (receivedMessage.getPerformative()) {
+                timeoutCounter = 0;
+                failure("Timeout for INFORM Messages");
+            }
 
-                        case INFORM:
-                            try {
-                                handleInform(receivedMessage);
-                            } catch (NotUnderstoodException e) {
-                                GFACTIONS_LOGGER.error("{}: HandleInform failed: ", ContractNetInitiatorAction.this, e);
-                            }
-                            break;
+            // else: No transition
+        }
+        else if (State.WAIT_FOR_INFORM.equals(state)) {
+            assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-                        case FAILURE:
-                            GFACTIONS_LOGGER.debug("{}: Received FAILURE: {}", ContractNetInitiatorAction.this, receivedMessage);
-                            handleFailure(receivedMessage);
-                            break;
+            for (ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
+                assert receivedMessage != null;
 
-                        case NOT_UNDERSTOOD:
-                            GFACTIONS_LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
-                            break;
+                switch (receivedMessage.getPerformative()) {
 
-                        default:
-                            GFACTIONS_LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
-                            break;
-                    }
+                    case INFORM:
+                        handleInform(receivedMessage);
+                        break;
 
-                    ++nInformReceived;
+                    case FAILURE:
+                        LOGGER.debug("{}: Received FAILURE: {}", this, receivedMessage);
+                        handleFailure(receivedMessage);
+                        break;
+
+                    case NOT_UNDERSTOOD:
+                        LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", this, receivedMessage);
+                        break;
+
+                    default:
+                        LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
+                        break;
                 }
 
-                ++timeoutCounter;
-
-                if (nInformReceived == nProposalsReceived)
-                    return State.END;
-                else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
-                    return State.TIMEOUT;
-                else
-                    return State.WAIT_FOR_INFORM;
+                ++nInformReceived;
             }
-        });
 
-        registerFailureState(State.TIMEOUT, new EndStateAction(State.TIMEOUT));
-        registerFailureState(State.NO_RECEIVERS, new EndStateAction(State.NO_RECEIVERS));
-        registerFailureState(State.END, new EndStateAction(State.END));
+            ++timeoutCounter;
+
+            if (nInformReceived == nProposalsReceived)
+                endTransition(State.END);
+            else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
+                failure("Timeout for INFORM Messages");
+        }
+        else
+            throw unknownState();
     }
 
     protected abstract boolean canInitiate();
 
-    private static MessageTemplate createAcceptReplyTemplate(final Iterable<ACLMessage> acceptMessages) {
+    private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage<?>> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages))
-            return MessageTemplate.alwaysFalse();
+            return MessageTemplates.alwaysFalse();
         else
-            return MessageTemplate.any( // is a reply
+            return MessageTemplates.or( // is a reply
                     Iterables.toArray(
                             Iterables.transform(acceptMessages, new Function<ACLMessage, MessageTemplate>() {
                                 @Override
                                 public MessageTemplate apply(ACLMessage aclMessage) {
-                                    return MessageTemplate.isReplyTo(aclMessage);
+                                    return MessageTemplates.isReplyTo(aclMessage);
                                 }
                             }),
                             MessageTemplate.class));
     }
 
-    private static MessageTemplate createCFPReplyTemplate(final ACLMessage cfp) {
-        return MessageTemplate.isReplyTo(cfp);
+    private static <A extends Agent<A, ?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
+        return MessageTemplates.isReplyTo(cfp);
     }
 
     private static void checkProposeReply(ACLMessage response) {
         assert(response != null);
-        assert(response.matches(MessageTemplate.any(
-                MessageTemplate.performative(ACLPerformative.ACCEPT_PROPOSAL),
-                MessageTemplate.performative(ACLPerformative.REJECT_PROPOSAL),
-                MessageTemplate.performative(ACLPerformative.NOT_UNDERSTOOD))));
+        assert(response.matches(MessageTemplates.or(
+                MessageTemplates.performative(ACLPerformative.ACCEPT_PROPOSAL),
+                MessageTemplates.performative(ACLPerformative.REJECT_PROPOSAL),
+                MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected abstract ACLMessage.Builder createCFP();
+    protected abstract ImmutableACLMessage.Builder<A> createCFP();
 
-    protected abstract ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException;
 
-    protected void handleRefuse(ACLMessage message) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleRefuse(ACLMessage<A> message) {}
 
-    protected void handleFailure(ACLMessage message) {}
+    @SuppressWarnings("UnusedParameters") // hook method
+    protected void handleFailure(ACLMessage<A> message) {}
 
-    protected void handleInform(ACLMessage message) throws NotUnderstoodException {
-    }
+    protected void handleInform(ACLMessage<A> message) {}
 
     protected abstract String getOntology();
 
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        checkState(!Strings.isNullOrEmpty(getOntology()));
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetInitiatorAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+
+    }
+
+    private static enum State {
+        SEND_CFP,
+        WAIT_FOR_PROPOSALS,
+        WAIT_FOR_INFORM,
+        END,
+        NO_RECEIVERS, TIMEOUT
     }
 }

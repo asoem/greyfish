@@ -1,30 +1,56 @@
 package org.asoem.greyfish.core.space;
 
-import org.simpleframework.xml.Root;
+import com.google.common.base.Predicate;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
-@Root
-public interface Space {
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Map;
 
-	public void removeAllOccupants();
+/**
+ * User: christoph
+ * Date: 17.12.12
+ * Time: 15:44
+ */
+public interface Space<T, P extends SpatialObject> {
+    /**
+     * The number of objects in this space
+     * @return the number of objects in this space
+     */
+    int countObjects();
 
-	public Iterable<MovingObject2D> getOccupants();
+    /**
+     * Get the list of objects which have been added to this space
+     * @return all objects for this space
+     */
+    Collection<T> getObjects();
 
-	public void addOccupant(MovingObject2D object2d);
+    /**
+     * Add the given {@code object} to this space
+     * @param object the object to project
+     * @param projection the projection
+     * @return {@code true} if the object and it's projection could be added, {@code false} otherwise
+     */
+    boolean insertObject(T object, P projection);
 
-	public boolean removeOccupant(MovingObject2D object2d);
+    /**
+     * Remove the given {@code object} from this space
+     * @param object the object to remove
+     * @return {@code true} if the object could be removed, {@code false} otherwise
+     */
+    boolean removeObject(T object);
 
-	public boolean canMove(MovingObject2D object2d, Location2D newLocation);
+    /**
+     * Remove all projections from this space if the satisfy the given predicate
+     * @param predicate the predicate to check against
+     * @return {@code true} if at least one object was removed, {@code false} otherwise
+     */
+    boolean removeIf(Predicate<T> predicate);
 
-	public TileLocation getTileAt(Location2D componentOwner);
-	
-	/**
-	 * @param <T>
-	 * @param point 
-	 * @param range
-	 * @return all found objects in the given range around {@code point} in this space
-	 */
-	Iterable<MovingObject2D> findNeighbours(Location2D p,
-			double range);
+    boolean isEmpty();
 
-    public boolean covers(Location2D value);
+    @Nullable
+    P getProjection(T object);
+
+    Map<T, P> asMap();
 }

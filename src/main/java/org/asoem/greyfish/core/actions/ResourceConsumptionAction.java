@@ -1,209 +1,208 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
+import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.eval.GreyfishMathExpression;
-import org.asoem.greyfish.core.individual.Agent;
-import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.utils.SimpleXMLConstructor;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.lang.ClassGroup;
-import org.asoem.greyfish.utils.*;
+import org.asoem.greyfish.core.agent.SpatialAgent;
+import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.TypedValueModels;
+import org.asoem.greyfish.utils.logging.SLF4JLogger;
+import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.asoem.greyfish.utils.math.RandomUtils;
 import org.simpleframework.xml.Element;
-import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.isEmpty;
+import static org.asoem.greyfish.utils.base.Callbacks.call;
 
-@ClassGroup(tags="actions")
-public class ResourceConsumptionAction extends ContractNetInitiatorAction {
+@Tagged("actions")
+public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
 
-    @Element(name="property")
-    private DoubleProperty consumerProperty = null;
+    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ResourceConsumptionAction.class);
 
-    @Element(name="resourceTransformationFunction", required = false)
-    private String transformationFunction = "#{x0}";
+    @Element(name = "ontology", required = false)
+    private String ontology;
 
-    @Element(name="messageType", required=false)
-    private String parameterMessageType = "";
+    @Element(name = "interactionRadius")
+    private Callback<? super ResourceConsumptionAction<A>, Double> interactionRadius;
 
-    @Element(name="amountPerRequest", required=false)
-    protected double amountPerRequest = 0;
+    @Element(name = "requestAmount", required = false)
+    protected Callback<? super ResourceConsumptionAction<A>, Double> requestAmount;
 
-    @Element(name="sensorRange")
-    private double sensorRange = 0;
+    @Element(name = "uptakeUtilization", required = false)
+    protected Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization;
 
-    private Iterable<Agent> sensedMates;
+    private Iterable<A> sensedMates = ImmutableList.of();
 
-    @SimpleXMLConstructor
-    private ResourceConsumptionAction() {
-        this(new Builder());
+    private Callback<? super ResourceConsumptionAction<A>, ?> classification;
+
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
+    public ResourceConsumptionAction() {
+        this(new Builder<A>());
     }
 
     @Override
-    protected ACLMessage.Builder createCFP() {
-        return ACLMessage.with()
-                .source(getComponentOwner().getId())
+    protected ImmutableACLMessage.Builder<A> createCFP() {
+        final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
+        sensedMates = ImmutableList.of();
+        return ImmutableACLMessage.<A>builder()
+                .sender(agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
-                        // Choose only one receiver. Adding all possible candidates as receivers will decrease the performance in high density populations!
-                .addDestinations(Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates))).getId())
-                .objectContent(amountPerRequest);
+                        // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
+                .addReceiver(receiver)
+                .content(new ResourceRequestMessage(call(requestAmount, this), call(classification, this)), ResourceRequestMessage.class);
     }
 
     @Override
-    protected ACLMessage.Builder handlePropose(ACLMessage message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException {
 
-        final double offer = message.getReferenceContent(Double.class);
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof Double))
+            throw new NotUnderstoodException("Expected payload of type Double");
+
+        final Double offer = (Double) messageContent;
 
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
-        return message
-                .createReplyFrom(getComponentOwner().getId())
+        return ImmutableACLMessage.createReply(message, agent())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
-                .objectContent(offer);
+                .content(offer, Double.class);
     }
 
     @Override
-    protected void handleInform(ACLMessage message) throws NotUnderstoodException {
-        try {
-            final double offer = message.getReferenceContent(Double.class);
-            consumerProperty.add(GreyfishMathExpression.evaluate(transformationFunction, Agent.class.cast(getComponentOwner()), offer));
+    protected void handleInform(ACLMessage<A> message) {
+        final Object messageContent = message.getContent();
+        if (! (messageContent instanceof Double))
+            throw new NotUnderstoodException("Expected a payload of type Double");
 
-            LoggerFactory.getLogger(ResourceConsumptionAction.class).debug("Added {} to {}", offer, consumerProperty);
-        }
-        catch (Exception e) {
-            throw new NotUnderstoodException(e);
-        }
+        final Double offer = (Double) messageContent;
+        LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
+        uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
     }
 
     @Override
     protected String getOntology() {
-        return parameterMessageType;
+        return ontology;
     }
 
     @Override
     protected boolean canInitiate() {
-        sensedMates = filter(getSimulation().findObjects(getComponentOwner(), sensorRange), Agent.class);
-        sensedMates = filter(sensedMates, not(equalTo(getComponentOwner())));
-        return ! isEmpty(sensedMates);
+        sensedMates = agent().findNeighbours(call(interactionRadius, this));
+        return !isEmpty(sensedMates);
     }
 
     @Override
-    public void prepare(Simulation simulation) {
-        super.prepare(simulation);
+    public void initialize() {
+        super.initialize();
         checkValidity();
     }
 
     private void checkValidity() {
-        checkNotNull(consumerProperty);
-        checkNotNull(parameterMessageType);
+        checkNotNull(ontology);
     }
 
     @Override
-    public void export(Exporter e) {
-        super.export(e);
-        e.add(new ValueAdaptor<String>("Ontology", String.class) {
-            @Override
-            protected void set(String arg0) {
-                parameterMessageType = checkFrozen(checkNotNull(arg0));
-            }
-
-            @Override
-            public String get() {
-                return parameterMessageType;
-            }
-        });
-        e.add(new ValueAdaptor<Double>("Requested Amount", Double.class) {
-            @Override
-            protected void set(Double arg0) {
-                amountPerRequest = checkFrozen(checkNotNull(arg0));
-            }
-
-            @Override
-            public Double get() {
-                return amountPerRequest;
-            }
-        });
-        e.add(new FiniteSetValueAdaptor<DoubleProperty>("Resource Storage", DoubleProperty.class) {
-            @Override
-            protected void set(DoubleProperty arg0) {
-                consumerProperty = checkFrozen(checkNotNull(arg0));
-            }
-
-            @Override
-            public DoubleProperty get() {
-                return consumerProperty;
-            }
-
-            @Override
-            public Iterable<DoubleProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), DoubleProperty.class);
-            }
-        });
-        e.add(ValueAdaptor.forField("Resource Transformation Function: f(#{1})", String.class, this, "transformationFunction"));
-        e.add(new ValueAdaptor<Double>("Sensor Range", Double.class) {
-            @Override
-            protected void set(Double arg0) {
-                sensorRange = checkFrozen(checkNotNull(arg0));
-            }
-
-            @Override
-            public Double get() {
-                return sensorRange;
-            }
-        });
+    public void configure(ConfigurationHandler e) {
+        super.configure(e);
+        e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
+        e.add("Sensor Range", TypedValueModels.forField("interactionRadius", this, new TypeToken<Callback<? super ResourceConsumptionAction<A>, Double>>() {
+        }));
+        e.add("Requested Amount", TypedValueModels.forField("requestAmount", this, new TypeToken<Callback<? super ResourceConsumptionAction<A>, Double>>() {
+        }));
+        e.add("Uptake Utilization", TypedValueModels.forField("uptakeUtilization", this, new TypeToken<Callback<? super ResourceConsumptionAction<A>, Void>>() {
+        }));
     }
 
     @Override
-    public ResourceConsumptionAction deepCloneHelper(CloneMap cloneMap) {
-        return new ResourceConsumptionAction(this, cloneMap);
+    public ResourceConsumptionAction<A> deepClone(DeepCloner cloner) {
+        return new ResourceConsumptionAction<A>(this, cloner);
     }
 
-    protected ResourceConsumptionAction(ResourceConsumptionAction cloneable, CloneMap cloneMap) {
-        super(cloneable, cloneMap);
-        this.consumerProperty = cloneMap.clone(cloneable.consumerProperty, DoubleProperty.class);
-        this.parameterMessageType = cloneable.parameterMessageType;
-        this.sensorRange = cloneable.sensorRange;
-        this.amountPerRequest = cloneable.amountPerRequest;
-        this.transformationFunction = cloneable.transformationFunction;
+    protected ResourceConsumptionAction(ResourceConsumptionAction<A> cloneable, DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.ontology = cloneable.ontology;
+        this.interactionRadius = cloneable.interactionRadius;
+        this.requestAmount = cloneable.requestAmount;
+        this.uptakeUtilization = cloneable.uptakeUtilization;
+        this.classification = cloneable.classification;
     }
 
-    protected ResourceConsumptionAction(AbstractBuilder<?> builder) {
+    protected ResourceConsumptionAction(AbstractBuilder<A, ? extends ResourceConsumptionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
-        this.consumerProperty = builder.consumerProperty;
-        this.parameterMessageType = builder.parameterMessageType;
-        this.amountPerRequest = builder.amountPerRequest;
-        this.sensorRange = builder.sensorRange;
-        this.transformationFunction = builder.transformationFunction;
+        this.ontology = builder.ontology;
+        this.requestAmount = builder.requestAmount;
+        this.interactionRadius = builder.interactionRadius;
+        this.uptakeUtilization = builder.uptakeUtilization;
+        this.classification = builder.classification;
     }
 
-    public static Builder with() { return new Builder(); }
-
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<ResourceConsumptionAction> {
-        private Builder() {}
-        @Override protected Builder self() { return this; }
-        @Override public ResourceConsumptionAction build() { return new ResourceConsumptionAction(checkedSelf()); }
+    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
+        return new Builder();
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends ContractNetParticipantAction.AbstractBuilder<T> {
-        private DoubleProperty consumerProperty = null;
-        private String parameterMessageType = "";
-        private double amountPerRequest = 0;
-        private double sensorRange = 0;
-        public String transformationFunction = "#{x0}";
+    public Callback<? super ResourceConsumptionAction<A>, Double> getInteractionRadius() {
+        return interactionRadius;
+    }
 
-        public T storesEnergyIn(DoubleProperty consumerProperty) { this.consumerProperty = checkNotNull(consumerProperty); return self(); }
-        public T viaMessagesOfType(String parameterMessageType) { this.parameterMessageType = checkNotNull(parameterMessageType); return self(); }
-        public T requesting(double amountPerRequest) { this.amountPerRequest = amountPerRequest; return self(); }
-        public T inRange(double sensorRange) { this.sensorRange = sensorRange; return self(); }
-        public T transformationFunction(String transformationFunction) { this.transformationFunction = checkNotNull(transformationFunction); return self(); }
+    public Callback<? super ResourceConsumptionAction<A>, Double> getRequestAmount() {
+        return requestAmount;
+    }
+
+    public Callback<? super ResourceConsumptionAction<A>, Void> getUptakeUtilization() {
+        return uptakeUtilization;
+    }
+
+    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
+        @Override
+        protected Builder<A> self() {
+            return this;
+        }
+
+        @Override
+        protected ResourceConsumptionAction<A> checkedBuild() {
+            return new ResourceConsumptionAction<A>(this);
+        }
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+
+        private String ontology = "food";
+        private Callback<? super ResourceConsumptionAction<A>, Double> requestAmount = Callbacks.constant(1.0);
+        private Callback<? super ResourceConsumptionAction<A>, Double> interactionRadius = Callbacks.constant(1.0);
+        private Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization = Callbacks.emptyCallback();
+        private Callback<? super ResourceConsumptionAction<A>, ?> classification = Callbacks.constant(0.42);
+
+        public B ontology(String parameterMessageType) {
+            this.ontology = checkNotNull(parameterMessageType);
+            return self();
+        }
+
+        public B requestAmount(Callback<? super ResourceConsumptionAction<A>, Double> amountPerRequest) {
+            this.requestAmount = amountPerRequest;
+            return self();
+        }
+
+        public B interactionRadius(Callback<? super ResourceConsumptionAction<A>, Double> sensorRange) {
+            this.interactionRadius = sensorRange;
+            return self();
+        }
+
+        public B uptakeUtilization(Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization) {
+            this.uptakeUtilization = checkNotNull(uptakeUtilization);
+            return self();
+        }
+
+        public B classification(Callback<? super ResourceConsumptionAction<A>, Object> classification) {
+            this.classification = checkNotNull(classification);
+            return self();
+        }
 
         @Override
         protected void checkBuilder() throws IllegalStateException {

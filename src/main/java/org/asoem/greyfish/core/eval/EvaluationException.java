@@ -1,16 +1,22 @@
 package org.asoem.greyfish.core.eval;
 
 /**
- * User: christoph
- * Date: 19.05.11
- * Time: 10:47
+ * Unchecked exception thrown to indicate a evaluation error in the {@link Evaluator}
+ * used to parallelApply a {@link GreyfishExpression} pattern.
  */
-public class EvaluationException extends Exception {
+public class EvaluationException extends RuntimeException {
     public EvaluationException(String s, Throwable e) {
         super(s, e);
     }
 
     public EvaluationException(Throwable throwable) {
         super(throwable);
+    }
+
+    public EvaluationException(String s) {
+        super(s);
+    }
+
+    public EvaluationException() {
     }
 }

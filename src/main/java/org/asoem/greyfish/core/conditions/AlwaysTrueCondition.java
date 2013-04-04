@@ -1,41 +1,41 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.individual.AbstractGFComponent;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
-public final class AlwaysTrueCondition extends LeafCondition {
+public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
-    protected AlwaysTrueCondition(AlwaysTrueCondition condition, CloneMap map) {
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
+    public AlwaysTrueCondition() {
+        this(new Builder<A>());
+    }
+
+    private AlwaysTrueCondition(AlwaysTrueCondition<A> condition, DeepCloner map) {
         super(condition, map);
     }
 
+    private AlwaysTrueCondition(AbstractBuilder<A, ?,?> builder) {
+        super(builder);
+    }
+
     @Override
-    public boolean evaluate(Simulation simulation) {
+    public boolean evaluate() {
         return true;
     }
 
     @Override
-    public AbstractGFComponent deepCloneHelper(CloneMap map) {
-        return new AlwaysTrueCondition(this, map);
+    public AlwaysTrueCondition<A> deepClone(DeepCloner cloner) {
+        return new AlwaysTrueCondition<A>(this, cloner);
     }
 
-    private AlwaysTrueCondition() {
-        this(new Builder());
-    }
+    public static <A extends Agent<A, ?>> Builder<A> builder() { return new Builder<A>(); }
 
-    private AlwaysTrueCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
-        super(builder);
-    }
-
-    public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<AlwaysTrueCondition> {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, AlwaysTrueCondition<A>, Builder<A>> {
         private Builder() {}
 
-        @Override protected Builder self() { return this; }
-        @Override public AlwaysTrueCondition build() { return new AlwaysTrueCondition(this); }
+        @Override protected Builder<A> self() { return this; }
+        @Override public AlwaysTrueCondition<A> checkedBuild() { return new AlwaysTrueCondition<A>(this); }
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {}
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends AlwaysTrueCondition<A>, T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {}
 }

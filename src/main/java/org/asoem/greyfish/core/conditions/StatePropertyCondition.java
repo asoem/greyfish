@@ -1,98 +1,105 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.individual.GFComponent;
-import org.asoem.greyfish.core.properties.FiniteSetProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.lang.BuilderInterface;
-import org.asoem.greyfish.utils.CloneMap;
-import org.asoem.greyfish.utils.Exporter;
-import org.asoem.greyfish.utils.FiniteSetValueAdaptor;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.properties.FiniteStateProperty;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
+import org.asoem.greyfish.utils.gui.ConfigurationHandler;
+import org.asoem.greyfish.utils.gui.SetAdaptor;
 import org.simpleframework.xml.Element;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class StatePropertyCondition extends LeafCondition {
+@Tagged("conditions")
+public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
     @Element(name="property",required=false)
-    private FiniteSetProperty stateProperty;
+    private FiniteStateProperty<?, A> stateProperty;
+    // TODO: The stateProperty might get modified during construction phase. Observe this!
 
     @Element(name="state",required=false)
     private Object state;
 
-    public StatePropertyCondition(StatePropertyCondition condition, CloneMap map) {
-        super(condition, map);
-        this.stateProperty = map.clone(condition.stateProperty, FiniteSetProperty.class);
-        this.state = condition.state;
+    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
+    public StatePropertyCondition() {
+        this(new Builder<A>());
     }
 
-    @Override
-    public boolean evaluate(Simulation simulation) {
-        return stateProperty != null &&
-                Objects.equal(stateProperty.get(), state);
-    }
-
-    @Override
-    public StatePropertyCondition deepCloneHelper(CloneMap map) {
-        return new StatePropertyCondition(this, map);
-    }
-
-    @Override
-    public void export(Exporter e) {
-        final FiniteSetValueAdaptor<FiniteSetProperty> statesAdaptor = new FiniteSetValueAdaptor<FiniteSetProperty>(
-                "Property", FiniteSetProperty.class) {
-            @Override protected void set(FiniteSetProperty arg0) { stateProperty = checkFrozen(checkNotNull(arg0)); }
-            @Override public FiniteSetProperty get() { return stateProperty; }
-
-            @Override
-            public Iterable<FiniteSetProperty> values() {
-                return Iterables.filter(getComponentOwner().getProperties(), FiniteSetProperty.class);
-            }
-        };
-        e.add(statesAdaptor);
-
-        final FiniteSetValueAdaptor<Object> stateAdaptor = new FiniteSetValueAdaptor<Object>( "has state", Object.class) {
-            @Override protected void set(Object arg0) { state = checkFrozen(checkNotNull(arg0)); }
-            @Override public Object get() { return state; }
-            @Override public Iterable<Object> values() {
-                return (stateProperty == null) ? ImmutableList.of() : stateProperty.getSet();
-            }
-        };
-        statesAdaptor.addValueChangeListener(stateAdaptor);
-        e.add(stateAdaptor);
-    }
-
-    @Override
-    public void checkConsistency(Iterable<? extends GFComponent> components) {
-        super.checkConsistency(components);
-        Preconditions.checkState(Iterables.contains(components, stateProperty));
-    }
-
-    private StatePropertyCondition() {
-        this(new Builder());
-    }
-
-    protected StatePropertyCondition(AbstractBuilder<? extends AbstractBuilder> builder) {
+    private StatePropertyCondition(AbstractBuilder<A, ?, ?> builder) {
         super(builder);
         this.state = builder.state;
         this.stateProperty = builder.property;
     }
 
-    public static Builder trueIf() { return new Builder(); }
-    public static final class Builder extends AbstractBuilder<Builder> implements BuilderInterface<StatePropertyCondition> {
-        private Builder() {}
-        @Override protected Builder self() { return this; }
-        @Override public StatePropertyCondition build() { return new StatePropertyCondition(this); }
+    @SuppressWarnings("unchecked") // casting a clone is safe
+    private StatePropertyCondition(StatePropertyCondition<A> condition, DeepCloner cloner) {
+        super(condition, cloner);
+        this.stateProperty = cloner.getClone(condition.stateProperty);
+        this.state = condition.state;
     }
 
-    protected static abstract class AbstractBuilder<T extends AbstractBuilder<T>> extends LeafCondition.AbstractBuilder<T> {
-        private FiniteSetProperty<?> property;
+    @Override
+    public boolean evaluate() {
+        return stateProperty != null &&
+                Objects.equal(stateProperty.getValue(), state);
+    }
+
+    @Override
+    public StatePropertyCondition<A> deepClone(DeepCloner cloner) {
+        return new StatePropertyCondition<A>(this, cloner);
+    }
+
+    @Override
+    public void configure(ConfigurationHandler e) {
+        final SetAdaptor<FiniteStateProperty> statesAdaptor = new SetAdaptor<FiniteStateProperty>(
+                FiniteStateProperty.class) {
+            @Override protected void set(FiniteStateProperty arg0) { stateProperty = checkNotNull(arg0); }
+            @Override public FiniteStateProperty get() { return stateProperty; }
+
+            @Override
+            public Iterable<FiniteStateProperty> values() {
+                return Iterables.filter(agent().getProperties(), FiniteStateProperty.class);
+            }
+        };
+        e.add("Property", statesAdaptor);
+
+        final SetAdaptor<?> stateAdaptor = new SetAdaptor<Object>(Object.class) {
+            @Override protected void set(Object arg0) { state = checkNotNull(arg0); }
+            @Override public Object get() { return state; }
+            @SuppressWarnings({"unchecked"}) // cast from Set<?> to Set<Object> is safe
+            @Override public Iterable<Object> values() {
+                return (stateProperty == null) ? ImmutableList.of() : (Set<Object>) stateProperty.getStates();
+            }
+        };
+        statesAdaptor.addValueChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                stateAdaptor.update();
+            }
+        });
+        e.add("has state", stateAdaptor);
+    }
+
+    public static <A extends Agent<A, ?>> Builder<A> builder() { return new Builder<A>(); }
+
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, StatePropertyCondition<A>, Builder<A>> {
+        @Override protected Builder<A> self() { return this; }
+        @Override protected StatePropertyCondition<A> checkedBuild() { return new StatePropertyCondition<A>(this); }
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends StatePropertyCondition<A>,T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {
+        private FiniteStateProperty<?, A> property;
         private Object state;
 
-        public T property(FiniteSetProperty<?> property) { this.property = checkNotNull(property); return self(); }
+        public T property(FiniteStateProperty<?, A> property) { this.property = checkNotNull(property); return self(); }
         public T hasState(Object state) { this.state = checkNotNull(state); return self(); }
     }
 }
