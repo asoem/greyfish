@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.space;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import javolution.lang.MathLib;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
@@ -188,7 +187,7 @@ public class WalledPointSpaceTest {
         space.insertObject(agent, ImmutablePoint2D.at(0, 0));
 
         // when
-        space.moveObject(agent, ImmutableMotion2D.of(MathLib.HALF_PI / 2, 1));
+        space.moveObject(agent, ImmutableMotion2D.of(Math.PI / 4, 1));
 
         // then
         final Point2D projection = space.getProjection(agent);
