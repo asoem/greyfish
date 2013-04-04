@@ -28,9 +28,11 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -55,10 +57,10 @@ public final class GreyfishCLIApplication {
     private State state = State.STARTUP;
 
     @Inject
-    private GreyfishCLIApplication(SimulationModel<?> model,
+    private GreyfishCLIApplication(final SimulationModel<?> model,
                                    @Named("steps") final int steps,
                                    @Nullable @Named("verbose") final String verbose,
-                                   @Named("parallelizationThreshold") int parallelizationThreshold) {
+                                   @Named("parallelizationThreshold") final int parallelizationThreshold) {
         final List<Predicate<Simulation<?>>> predicateList = Lists.newArrayList();
 
         predicateList.add(new Predicate<Simulation<?>>() {
@@ -69,7 +71,8 @@ public final class GreyfishCLIApplication {
         });
 
         LOGGER.info("Creating simulation for model {}", model.getClass());
-        LOGGER.info("Model parameters after injection: {}", Joiner.on(", ").withKeyValueSeparator("=").useForNull("null").join(ModelParameters.extract(model)));
+        LOGGER.info("Model parameters after injection: {}",
+                Joiner.on(", ").withKeyValueSeparator("=").useForNull("null").join(ModelParameters.extract(model)));
 
         final Simulation<?> simulation = model.createSimulation();
 
@@ -187,6 +190,7 @@ public final class GreyfishCLIApplication {
     }
 
     private static Module createCommandLineModule(final OptionSet optionSet, final OptionExceptionHandler optionExceptionHandler) {
+
         return new AbstractModule() {
             @SuppressWarnings("unchecked")
             @Override
@@ -198,8 +202,25 @@ public final class GreyfishCLIApplication {
 
                 final String modelClassName = optionSet.nonOptionArguments().get(0);
 
+                ClassLoader classLoader = GreyfishCLIApplication.class.getClassLoader();
+                if (optionSet.has("classpath")) {
+                    try {
+                        final String pathname = (String) optionSet.valueOf("classpath");
+                        final File file = new File(pathname);
+                        if (!file.canRead())
+                            optionExceptionHandler.exitWithError("Specified classpath is not readable: " + pathname);
+
+                        classLoader = URLClassLoader.newInstance(
+                                new URL[]{file.toURI().toURL()},
+                                classLoader
+                        );
+                    } catch (MalformedURLException e) {
+                        throw new AssertionError(e);
+                    }
+                }
+
                 try {
-                    final Class<?> modelClass = Class.forName(modelClassName);
+                    final Class<?> modelClass = Class.forName(modelClassName, true, classLoader);
                     if (!SimulationModel.class.isAssignableFrom(modelClass))
                         optionExceptionHandler.exitWithError("Specified Class does not implement " + SimulationModel.class);
                     bind(new TypeLiteral<SimulationModel<?>>(){}).to((Class<SimulationModel<?>>) modelClass);
@@ -216,7 +237,8 @@ public final class GreyfishCLIApplication {
                                 properties.put(split[0], split[1]);
                             }
                             else {
-                                optionExceptionHandler.exitWithError("Invalid model property definition (-D): " + s + ". Expected 'key=value'.");
+                                optionExceptionHandler.exitWithError(
+                                        "Invalid model property definition (-D): " + s +". Expected 'key=value'.");
                             }
                         }
                     }
@@ -230,9 +252,9 @@ public final class GreyfishCLIApplication {
                         .toProvider(Providers.of(optionSet.has("v") ? (String) optionSet.valueOf("v") : null));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance((Integer) optionSet.valueOf("pt"));
-                bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){}).toInstance(SimulationLoggers.synchronizedLogger(new H2Logger<DefaultGreyfishAgent>(
-                        ((String) optionSet.valueOf("db")).replaceFirst("%\\{uuid\\}", UUID.randomUUID().toString()))
-                ));
+                bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
+                        .toInstance(SimulationLoggers.synchronizedLogger(
+                                new H2Logger<DefaultGreyfishAgent>(optionSet.valueOf("db").toString())));
             }
         };
     }
@@ -249,9 +271,11 @@ public final class GreyfishCLIApplication {
                 .withRequiredArg().describedAs("key=value");
         parser.accepts("pt", "Set parallelization threshold")
                 .withRequiredArg().ofType(Integer.class).defaultsTo(1000);
-        parser.accepts("db", "Set database path (%(uuid) will be replaced by simulation uuid)")
-                .withRequiredArg().defaultsTo("./%{uuid}").ofType(String.class);
+        parser.accepts("db", "Set database path")
+                .withRequiredArg().ofType(String.class);
         parser.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0");
+        parser.accepts("classpath", "add to classpath (where model classes can be found)")
+                .withRequiredArg().ofType(String.class);
         parser.acceptsAll(asList("h", "?"), "Print this help");
 
         return parser;
