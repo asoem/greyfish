@@ -2,10 +2,10 @@ package org.asoem.greyfish.core.eval.impl;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
-import javolution.lang.MathLib;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.math3.util.FastMath;
 import org.asoem.greyfish.core.eval.*;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
@@ -28,12 +28,12 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
                 "rand", RandomUtils.class));
     }
     private static final ImmutableMap<String, Object> GLOBAL_VARIABLES = ImmutableMap.<String, Object>builder()
-            .put("PI", MathLib.PI)
-            .put("HALF_PI", MathLib.HALF_PI)
-            .put("PI_SQUARE", MathLib.PI_SQUARE)
-            .put("TWO_PI", MathLib.TWO_PI)
-            .put("FOUR_PI", MathLib.FOUR_PI)
-            .put("E", MathLib.E)
+            .put("PI", FastMath.PI)
+            .put("HALF_PI", FastMath.PI / 2)
+            .put("PI_SQUARE", FastMath.pow(FastMath.PI, 2))
+            .put("TWO_PI", FastMath.PI * 2)
+            .put("FOUR_PI", FastMath.PI * 4)
+            .put("E", FastMath.exp(1))
             .build();
 
     private final Expression jexlCompiledExpression;

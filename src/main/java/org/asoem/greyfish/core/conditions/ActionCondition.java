@@ -4,12 +4,10 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-@Root
 public interface ActionCondition<A extends Agent<A, ?>> extends AgentComponent<A> {
 
     AgentAction<A> getAction();

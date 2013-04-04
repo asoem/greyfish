@@ -5,8 +5,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.simpleframework.xml.core.Commit;
 
 import javax.annotation.Nullable;
 
@@ -81,19 +79,6 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
         return (getParent() != null)
                 ? getParent().getRoot()
                 : this;
-    }
-
-    @Commit
-    private void commit() {
-        if (!isLeafCondition()) {
-            for (ActionCondition<A> condition : getChildConditions()) {
-                condition.setParent(this);
-            }
-        }
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
     }
 
     @Override

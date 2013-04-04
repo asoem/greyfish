@@ -14,18 +14,15 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
-import org.simpleframework.xml.Element;
 
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
-import static org.asoem.greyfish.utils.gui.TypedValueModels.forField;
 
 /**
  * @author christoph
@@ -35,13 +32,10 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FemaleLikeMating.class);
 
-    @Element(name = "ontology", required = false)
     private String ontology;
 
-    @Element(name = "interactionRadius", required = false)
     private Callback<? super FemaleLikeMating<A>, Double> interactionRadius;
 
-    @Element(name = "matingProbability", required = false)
     private Callback<? super FemaleLikeMating<A>, Double> matingProbability;
 
     private List<A> sensedMates = ImmutableList.of();
@@ -65,14 +59,6 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
         this.matingProbability = builder.matingProbability;
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Ontology", forField("ontology", this, String.class));
-        e.add("Interaction Radius", forField("interactionRadius", this, Callback.class));
-        e.add("Mating Probability", forField("matingProbability", this, Callback.class));
     }
 
     private void receiveSperm(Chromosome chromosome, A sender) {

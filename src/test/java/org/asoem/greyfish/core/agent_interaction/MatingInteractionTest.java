@@ -23,9 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatingInteractionTest {

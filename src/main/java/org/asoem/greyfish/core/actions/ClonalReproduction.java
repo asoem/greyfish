@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
@@ -14,8 +13,6 @@ import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
 
 import javax.annotation.Nullable;
 
@@ -66,12 +63,6 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     protected ClonalReproduction(AbstractBuilder<A, ? extends ClonalReproduction<A>, ? extends AbstractBuilder<A, ClonalReproduction<A>, ?>> builder) {
         super(builder);
         this.clutchSize = builder.nClones;
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("clutchSize", TypedValueModels.forField("clutchSize", this, GreyfishExpression.class));
     }
 
     public Callback<? super ClonalReproduction<A>, Integer> getClutchSize() {

@@ -1,11 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.*;
@@ -14,13 +11,9 @@ import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.collect.*;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.SetAdaptor;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
@@ -115,43 +108,6 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         });
 
         return new ChromosomeImpl(genes, Sets.newHashSet(femaleID, maleID));
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Source for sperm chromosomes", TypedValueModels.forField("spermSupplier", this, new TypeToken<Callback<? super SexualReproduction<A>, List<? extends Chromosome>>>() {
-        }));
-        e.add("Number of offspring", TypedValueModels.forField("clutchSize", this, new TypeToken<Callback<? super SexualReproduction<A>, Integer>>() {
-        }));
-        e.add("Sperm selection strategy", new SetAdaptor<String>(String.class) {
-
-            private final BiMap<String, ElementSelectionStrategy<Chromosome>> strategies =
-                    ImmutableBiMap.of(
-                            "Random", ElementSelectionStrategies.<Chromosome>randomSelection(),
-                            "Roulette Wheel", ElementSelectionStrategies.<Chromosome>rouletteWheelSelection(new Function<Chromosome, Double>() {
-                        @Override
-                        public Double apply(@Nullable Chromosome genes) {
-                            assert genes != null;
-                            return call(spermFitnessEvaluator, SexualReproduction.this);
-                        }
-                    }));
-
-            @Override
-            public Iterable<String> values() {
-                return strategies.keySet();
-            }
-
-            @Override
-            protected void set(String arg0) {
-                spermSelectionStrategy = strategies.get(arg0);
-            }
-
-            @Override
-            public String get() {
-                return strategies.inverse().get(spermSelectionStrategy);
-            }
-        });
     }
 
     @Override

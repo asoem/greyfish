@@ -7,10 +7,10 @@ import org.asoem.greyfish.core.eval.*;
 import org.asoem.greyfish.core.eval.impl.CachedGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.eval.impl.CommonsJEXLEvaluator;
 import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
-import org.asoem.greyfish.core.io.persistence.SimpleXMLPersister;
 import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
 import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
 import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.persistence.JavaPersister;
 import org.asoem.greyfish.utils.persistence.Persister;
 
 /**
@@ -37,7 +37,7 @@ public class CoreModule extends AbstractModule {
                 .to(AnnotatedAgentComponentClassFinder.class).asEagerSingleton();
 
         // Persister
-        bind(Persister.class).to(SimpleXMLPersister.class);
+        bind(Persister.class).to(JavaPersister.class);
 
         // GreyfishExpression
         bind(EvaluatorFactory.class).toInstance(new EvaluatorFactory() {

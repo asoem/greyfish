@@ -7,12 +7,8 @@ import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.ValidationResultFunctions;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -21,13 +17,11 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>, A extends Agent<A, ?>> extends AbstractAgentProperty<E,A> implements RangeElementProperty<A, E> {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractRangeElementProperty.class);
-    @Element(name="max")
+
     protected E upperBound;
 
-    @Element(name="min")
     protected E lowerBound;
 
-    @Element(name="init")
     protected E initialValue;
 
     protected E value;
@@ -68,44 +62,6 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     public void initialize() {
         super.initialize();
         setValue(initialValue);
-    }
-
-    public void configure(ConfigurationHandler e, Class<E> clazz) {
-        super.configure(e);
-
-        e.add("lowerBound", new AbstractTypedValueModel<E>() {
-            @Override protected void set(E arg0) { lowerBound = checkNotNull(arg0); }
-            @Override public E get() { return lowerBound; }
-        });
-        e.add("upperBound", new AbstractTypedValueModel<E>() {
-            @Override protected void set(E arg0) { upperBound = arg0; }
-            @Override public E get() { return upperBound; }
-        });
-        final AbstractTypedValueModel<E> model = new AbstractTypedValueModel<E>() {
-
-            @Override
-            protected void set(E arg0) {
-                initialValue = arg0;
-            }
-
-            @Override
-            public E get() {
-                return initialValue;
-            }
-            /*@Override public ValidationResult validateValue() {
-
-                ValidationResult validationResult = new ValidationResult();
-
-                if (get() == null)
-                    validationResult.addError("Initial must not be null");
-
-                if (!Ordering.natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)))
-                    validationResult.addError("Value of `Initial' must not be smaller than `Min' and greater than `Max'");
-
-                return validationResult;
-            }*/
-        };
-        e.add("Initial", model, ValidationResultFunctions.notNull("Initial must not be null")); // todo: chain with min/max validation commented out above
     }
 
     protected AbstractRangeElementProperty(AbstractBuilder<A, ? extends AbstractRangeElementProperty<E,A>, ? extends AbstractBuilder<A, ?, ?, E>, E> builder) {

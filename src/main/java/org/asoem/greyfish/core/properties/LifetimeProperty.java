@@ -2,14 +2,11 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -42,12 +39,6 @@ public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentPro
     public T getValue() {
         checkState(memoizer != null, "LifetimeProperty is not initialized");
         return memoizer.get();
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<A, T>, T>>() {}));
     }
 
     @Override

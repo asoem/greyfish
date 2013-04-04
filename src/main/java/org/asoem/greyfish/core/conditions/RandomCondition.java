@@ -3,16 +3,12 @@ package org.asoem.greyfish.core.conditions;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.simpleframework.xml.Element;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Tagged("conditions")
 public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
-    @Element(name="probability")
     private double probability;
 
     private RandomCondition(RandomCondition<A> condition, DeepCloner map) {
@@ -28,21 +24,6 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
     @Override
     public RandomCondition<A> deepClone(DeepCloner cloner) {
         return new RandomCondition<A>(this, cloner);
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        e.add("", new AbstractTypedValueModel<Double>() {
-            @Override
-            protected void set(Double arg0) {
-                probability = arg0;
-            }
-
-            @Override
-            public Double get() {
-                return probability;
-            }
-        });
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

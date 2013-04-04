@@ -7,7 +7,6 @@ import org.asoem.greyfish.utils.space.Geometry2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.asoem.greyfish.utils.space.Tile;
 import org.asoem.greyfish.utils.space.TileDirection;
-import org.simpleframework.xml.Attribute;
 
 import java.util.ArrayList;
 
@@ -21,7 +20,7 @@ public class WalledTile implements Tile {
     private int wallFlags = 0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private WalledTile(@Attribute(name = "x") int x, @Attribute(name = "y") int y) {
+    private WalledTile(int x, int y) {
         this.x = x;
         this.y = y;
         this.wallFlagsMask = 0;

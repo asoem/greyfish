@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.simpleframework.xml.Attribute;
 
 import java.io.Serializable;
 
@@ -12,10 +11,8 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
     //@Element(name = "simulation")
     private final S simulation;
 
-    @Attribute(name = "activationStep")
     private final int activationStep;
 
-    @Attribute(name = "agentId")
     private final int agentId;
 
     private ActiveSimulationContext(S simulation, int agentId, int simulationStep) {

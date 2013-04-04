@@ -4,7 +4,6 @@ import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -34,12 +33,7 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
         return new DoubleProperty<A>(this, cloner);
     }
 
-    @Override
-	public void configure(ConfigurationHandler e) {
-		super.configure(e, Double.class);
-	}
-
-	public void subtract(double val) {
+    public void subtract(double val) {
         // TODO: handle bounds violation
         setValue(value - val);
         LOGGER.debug("Subtracting: {}, Remaining: {}", val, value);

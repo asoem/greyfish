@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
@@ -10,9 +9,6 @@ import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.simpleframework.xml.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +20,8 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
-    @Element(name = "ontology", required = false)
     private String ontology;
 
-    @Element(name = "provides")
     private Callback<? super ResourceProvisionAction<A>, Double> provides;
 
     private double providedAmount;
@@ -91,14 +85,6 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         return ImmutableACLMessage.createReply(message, getAgent())
                 .performative(ACLPerformative.INFORM)
                 .content(offer, Double.class);
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Ontology", TypedValueModels.forField("ontology", this, String.class));
-        e.add("Provides", TypedValueModels.forField("provides", this, new TypeToken<Callback<? super ResourceProvisionAction<A>, Double>>() {
-        }));
     }
 
     @Override

@@ -1,12 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.reflect.TypeToken;
-import javolution.lang.MathLib;
+import org.apache.commons.math3.util.FastMath;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
@@ -55,15 +52,6 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
 
         LOGGER.info("{}: Changing movement to {}", agent(), motion);
         return ActionState.COMPLETED;
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Step Size", TypedValueModels.forField("stepSize", this, new TypeToken<Callback<? super GenericMovement<A>, Double>>() {
-        }));
-        e.add("Turning Angle", TypedValueModels.forField("turningAngle", this, new TypeToken<Callback<? super GenericMovement<A>, Double>>() {
-        }));
     }
 
     @Override
@@ -128,7 +116,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         private Callback<? super GenericMovement<A>, Double> turningAngle = new Callback<GenericMovement<A>, Double>() {
             @Override
             public Double apply(GenericMovement<A> caller, Arguments args) {
-                return RandomUtils.rnorm(0.0, MathLib.HALF_PI);
+                return RandomUtils.rnorm(0.0, FastMath.PI / 2);
             }
         };
 

@@ -5,12 +5,9 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
 import javax.annotation.Nullable;
@@ -128,25 +125,6 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     public void initialize() {
         super.initialize();
         setAllele(createInitialValue());
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Initial State", TypedValueModels.forField("initializationKernel", this, new TypeToken<Callback<? super DiscreteTrait<A>, String>>() {}));
-        /*
-        e.add("Transition Rules", new AbstractTypedValueModel<String>() {
-            @Override
-            protected void set(String arg0) {
-                markovChain = EvaluatingMarkovChain.parse(arg0, EXPRESSION_FACTORY);
-            }
-
-            @Override
-            public String get() {
-                return markovChain == null ? "" : markovChain.toRule();
-            }
-        });
-        */
     }
 
     public Table<String, String, Callback<? super DiscreteTrait<A>, Double>> getMarkovChain() {

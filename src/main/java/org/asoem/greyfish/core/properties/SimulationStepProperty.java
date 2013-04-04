@@ -1,11 +1,8 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
 
 import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
@@ -46,13 +43,6 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
         return new SimulationStepProperty<A, T>(this, cloner);
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Value", TypedValueModels.forField("callback", this, new TypeToken<Callback<? super LifetimeProperty<A, T>, T>>() {
-        }));
     }
 
     @Override

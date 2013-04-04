@@ -1,12 +1,8 @@
 package org.asoem.greyfish.core.genes;
 
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.asoem.greyfish.utils.gui.TypedValueModels;
-import org.simpleframework.xml.Element;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -23,13 +19,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Tagged("traits")
 public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements Serializable {
 
-    @Element
     private Callback<? super RawTrait<A, T>, T> initializationKernel;
 
-    @Element
     private Callback<? super RawTrait<A, T>, T> mutationKernel;
 
-    @Element
     private Callback<? super RawTrait<A, T>, T> segregationKernel;
 
     private T value;
@@ -99,14 +92,6 @@ public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> impl
     @Override
     public T getValue() {
         return value;
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-        e.add("Initial Value", TypedValueModels.forField("initializationKernel", this, new TypeToken<Callback<? super QuantitativeTrait<A>, Double>>() {}));
-        e.add("Mutation(x)", TypedValueModels.forField("mutationKernel", this, new TypeToken<Callback<? super QuantitativeTrait<A>, Double>>() {}));
-        e.add("Recombination(x,y)", TypedValueModels.forField("segregationKernel", this, new TypeToken<Callback<? super QuantitativeTrait<A>, Double>>() {}));
     }
 
     public Callback<? super RawTrait<A, T>, T> getSegregationKernel() {

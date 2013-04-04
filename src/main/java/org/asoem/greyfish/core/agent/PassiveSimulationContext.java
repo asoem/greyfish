@@ -1,14 +1,12 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.simpleframework.xml.Root;
 
 /**
  * User: christoph
  * Date: 08.03.12
  * Time: 13:08
  */
-@Root
 public enum PassiveSimulationContext implements SimulationContext {
 
     INSTANCE;

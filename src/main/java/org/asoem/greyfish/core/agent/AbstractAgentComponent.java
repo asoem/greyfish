@@ -1,11 +1,8 @@
 package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.simpleframework.xml.Attribute;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -14,7 +11,6 @@ import static com.google.common.base.Preconditions.checkState;
 
 public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements AgentComponent<A> {
 
-    @Attribute(name = "name", required = false)
     private String name;
 
     @Nullable
@@ -93,17 +89,6 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
 
     @Override
     public void initialize() {
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        checkState(getAgent() != null);
-        e.setWriteProtection(new Supplier<Boolean>() {
-            @Override
-            public Boolean get() {
-                return isFrozen();
-            }
-        });
     }
 
     @Override

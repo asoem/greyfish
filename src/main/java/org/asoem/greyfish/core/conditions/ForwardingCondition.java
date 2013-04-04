@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -108,11 +107,6 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     @Override
     public String getName() {
         return delegate().getName();
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        delegate().configure(e);
     }
 
     @Override

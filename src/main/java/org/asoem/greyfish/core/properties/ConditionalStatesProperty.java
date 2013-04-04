@@ -14,11 +14,8 @@ import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.gui.AbstractTypedValueModel;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.simpleframework.xml.ElementMap;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +30,6 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ConditionalStatesProperty.class);
 
-    @ElementMap(entry="state", key="condition", attribute=true, inline=true)
     private Map<String, GreyfishExpression> conditionMap = ImmutableMap.of();
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
@@ -66,24 +62,6 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
                     LOGGER.error("Failed to evaluate expression {}", phenotype);
                     return false;
                 }
-            }
-        });
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
-
-        e.add("", new AbstractTypedValueModel<String>() {
-            @Override
-            protected void set(String arg0) {
-                conditionMap.clear();
-                conditionMap.putAll(parse(arg0));
-            }
-
-            @Override
-            public String get() {
-                return toParsable(conditionMap);
             }
         });
     }

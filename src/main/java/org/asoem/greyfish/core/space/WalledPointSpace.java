@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import javolution.lang.MathLib;
 import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.base.MoreSuppliers;
@@ -13,14 +12,11 @@ import org.asoem.greyfish.utils.base.OutdateableUpdateRequest;
 import org.asoem.greyfish.utils.base.UpdateRequests;
 import org.asoem.greyfish.utils.collect.Trees;
 import org.asoem.greyfish.utils.space.*;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementArray;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.*;
-import static javolution.lang.MathLib.TWO_PI;
 import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
 import static org.asoem.greyfish.utils.space.Geometry2D.polarToCartesian;
 
@@ -30,10 +26,8 @@ import static org.asoem.greyfish.utils.space.Geometry2D.polarToCartesian;
  */
 public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
-    @Attribute(name = "height")
     private final int height;
 
-    @Attribute(name = "width")
     private final int width;
 
     private final WalledTile[][] tileMatrix;
@@ -104,7 +98,6 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         setWalledTiles(walledTiles);
     }
 
-    @ElementArray(name = "walledTiles", entry = "tile", required = false)
     private WalledTile[] getWalledTiles() {
         return Iterables.toArray(Iterables.filter(getTiles(), new Predicate<WalledTile>() {
             @Override
@@ -182,7 +175,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
         final double newOrientation = (rotation == 0)
                 ? 0
-                : ((rotation) % TWO_PI + TWO_PI) % TWO_PI;
+                : ((rotation) % MathUtils.TWO_PI + MathUtils.TWO_PI) % MathUtils.TWO_PI;
 
         final Point2D anchorPoint = currentProjection.getCentroid();
         if (translation != 0) {
@@ -452,7 +445,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             @Override
             public Iterable<O> apply(Tile tile) {
                 final Tile checkedTile = checkNotNull(tile);
-                return Iterables.filter(findObjects(checkedTile.getX(), checkedTile.getY(), MathLib.SQRT2 / 2), new Predicate<O>() {
+                return Iterables.filter(findObjects(checkedTile.getX() + 0.5, checkedTile.getY() + 0.5, 0.70710678118 /* sqrt(0.5^2) */), new Predicate<O>() {
                     @Override
                     public boolean apply(O t) {
                         assert t != null;

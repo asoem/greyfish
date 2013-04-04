@@ -2,12 +2,11 @@ package org.asoem.greyfish.core.agent;
 
 
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.gui.Configurable;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
-public interface AgentComponent<A extends Agent<A, ?>> extends HasName, Configurable, AgentNode, Serializable {
+public interface AgentComponent<A extends Agent<A, ?>> extends HasName, AgentNode, Serializable {
 
     /**
      * Get the agent this component was added to or {@code null} if it was not.

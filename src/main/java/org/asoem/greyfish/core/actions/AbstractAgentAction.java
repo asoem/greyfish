@@ -8,9 +8,6 @@ import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.gui.ConfigurationHandler;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -20,7 +17,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
-@Root
 public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends AbstractAgentComponent<A> implements AgentAction<A> {
 
     @Nullable
@@ -127,12 +123,10 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
     }
 
     @Nullable
-    @Element(name = "condition", required = false)
     public ActionCondition<A> getCondition() {
         return rootCondition;
     }
 
-    @Element(name = "condition", required = false)
     @Override
     public void setCondition(@Nullable ActionCondition<A> rootCondition) {
         this.rootCondition = rootCondition;
@@ -144,11 +138,6 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
     @Override
     public int getCompletionCount() {
         return this.successCount;
-    }
-
-    @Override
-    public void configure(ConfigurationHandler e) {
-        super.configure(e);
     }
 
     public boolean wasNotExecutedForAtLeast(int steps) {

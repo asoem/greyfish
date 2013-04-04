@@ -73,6 +73,7 @@ public class DiscreteTraitTest {
     public void testGetStates() throws Exception {
         // given
         DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
+                .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", 1)
                 .addMutation("b", "c", 1)
                 .addMutation("c", "a", 1)
