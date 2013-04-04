@@ -1,7 +1,5 @@
 package org.asoem.greyfish.utils.space;
 
-import org.simpleframework.xml.Attribute;
-
 /**
  * User: christoph
  * Date: 24.02.12
@@ -9,10 +7,8 @@ import org.simpleframework.xml.Attribute;
  */
 public class MutablePoint2D extends AbstractPoint2D {
 
-    @Attribute
     private double x;
 
-    @Attribute
     private double y;
 
     public MutablePoint2D() {

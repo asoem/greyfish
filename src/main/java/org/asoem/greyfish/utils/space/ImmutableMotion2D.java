@@ -1,7 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
 import com.google.common.base.Objects;
-import org.simpleframework.xml.Attribute;
 
 import java.io.Serializable;
 
@@ -12,14 +11,11 @@ import java.io.Serializable;
  */
 public class ImmutableMotion2D implements Motion2D, Serializable {
 
-    @Attribute(name = "translation")
     private final double translation;
 
-    @Attribute(name = "turningAngle")
     private final double rotation;
 
-    public ImmutableMotion2D(@Attribute(name = "turningAngle") double angle,
-                             @Attribute(name = "translation") double v) {
+    public ImmutableMotion2D(double angle, double v) {
         this.translation = v;
         this.rotation = angle;
     }

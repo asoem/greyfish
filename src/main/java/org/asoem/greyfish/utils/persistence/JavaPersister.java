@@ -4,7 +4,6 @@ import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.io.OutputSupplier;
-import org.asoem.greyfish.utils.persistence.Persister;
 
 import java.io.*;
 

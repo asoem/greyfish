@@ -1,7 +1,5 @@
 package org.asoem.greyfish.utils.space;
 
-import org.simpleframework.xml.Attribute;
-
 /**
  * User: christoph
  * Date: 03.03.11
@@ -9,10 +7,8 @@ import org.simpleframework.xml.Attribute;
  */
 public class ImmutablePoint2D extends AbstractPoint2D {
 
-    @Attribute(name = "x")
     private final double x;
 
-    @Attribute(name = "y")
     private final double y;
     
     public ImmutablePoint2D(Point2D newLocatable) {
@@ -29,8 +25,7 @@ public class ImmutablePoint2D extends AbstractPoint2D {
         return y;
     }
 
-    private ImmutablePoint2D(@Attribute(name = "x") double x,
-                             @Attribute(name = "y") double y) {
+    private ImmutablePoint2D(double x, double y) {
         this.x = x;
         this.y = y;
     }

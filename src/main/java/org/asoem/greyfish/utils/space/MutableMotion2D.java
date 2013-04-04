@@ -1,7 +1,5 @@
 package org.asoem.greyfish.utils.space;
 
-import javolution.lang.MathLib;
-
 public class MutableMotion2D implements Motion2D {
 
     private ImmutableMotion2D motion2D = new ImmutableMotion2D(0, 0);
@@ -9,7 +7,7 @@ public class MutableMotion2D implements Motion2D {
     public MutableMotion2D() {}
 
     public void setRotation(double alpha) {
-        setMotion(alpha % MathLib.PI, getTranslation());
+        setMotion(alpha % Math.PI, getTranslation());
     }
 
     public void setTranslation(double translation) {
