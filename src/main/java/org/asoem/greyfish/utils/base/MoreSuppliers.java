@@ -9,14 +9,17 @@ import java.io.Serializable;
  * Date: 26.07.12
  * Time: 10:56
  */
+@Deprecated
 public final class MoreSuppliers {
 
     private MoreSuppliers() {}
 
+    @Deprecated
     public static <T> Supplier<T> memoize(Supplier<T> delegate, UpdateRequest<? super T> updateRequest) {
         return new OutdateableMemoizingSupplier<T>(delegate, updateRequest);
     }
 
+    @Deprecated
     static class OutdateableMemoizingSupplier<T> implements Supplier<T>, Serializable {
         private static final long serialVersionUID = 0;
 
@@ -24,20 +27,20 @@ public final class MoreSuppliers {
         private final UpdateRequest<? super T> updateRequest;
         private transient T value;
 
-        OutdateableMemoizingSupplier(Supplier<T> delegate, UpdateRequest<? super T> updateRequest) {
+        private OutdateableMemoizingSupplier(Supplier<T> delegate, UpdateRequest<? super T> updateRequest) {
             this.delegate = delegate;
             this.updateRequest = updateRequest;
         }
 
         @Override
         public T get() {
-            synchronized (this) {
-                if (updateRequest.apply(value)) {
+            synchronized (updateRequest) {
+                if (updateRequest.isOutdated(value)) {
                     value = delegate.get();
-                    updateRequest.done();
+                    updateRequest.updated();
                 }
-                return value;
             }
+            return value;
         }
     }
 }
