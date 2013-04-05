@@ -18,20 +18,24 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 09.05.12
  * Time: 11:29
  */
-public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T, A> {
+public class GenericProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T, A> {
 
-    private Callback<? super SimulationStepProperty<A, T>, T> callback;
+    private Callback<? super GenericProperty<A, T>, T> callback;
+
+    private Callback<? super GenericProperty<A, T>, Boolean> updateRequest;
 
     private Supplier<T> value;
 
-    private SimulationStepProperty(SimulationStepProperty<A, T> simulationStepProperty, DeepCloner cloner) {
+    private GenericProperty(GenericProperty<A, T> simulationStepProperty, DeepCloner cloner) {
         super(simulationStepProperty, cloner);
         this.callback = simulationStepProperty.callback;
+        this.updateRequest = simulationStepProperty.updateRequest;
     }
 
-    private SimulationStepProperty(AbstractBuilder<T, A, ? extends SimulationStepProperty<A, T>, ? extends Builder<T, A>> builder) {
+    private GenericProperty(AbstractBuilder<T, A, ? extends GenericProperty<A, T>, ? extends Builder<T, A>> builder) {
         super(builder);
         this.callback = builder.callback;
+        this.updateRequest = builder.updateRequest;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new SimulationStepProperty<A, T>(this, cloner);
+        return new GenericProperty<A, T>(this, cloner);
     }
 
     @Override
@@ -54,27 +58,25 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
                     @Override
                     public T get() {
                         assert callback != null;
-                        return callback.apply(SimulationStepProperty.this, ArgumentMap.of());
+                        return callback.apply(GenericProperty.this, ArgumentMap.of());
                     }
                 },
                 new UpdateRequest<T>() {
-                    private int stepForValue = -1;
 
                     @Override
                     public void done() {
-                        stepForValue = agent().getSimulationStep();
                     }
 
                     @Override
                     public boolean apply(@Nullable T input) {
-                        return agent().getSimulationStep() > stepForValue;
+                        return updateRequest.apply(GenericProperty.this, ArgumentMap.of());
                     }
                 }
         );
     }
 
 
-    public Callback<? super SimulationStepProperty<A, T>, T> getCallback() {
+    public Callback<? super GenericProperty<A, T>, T> getCallback() {
         return callback;
     }
 
@@ -82,11 +84,11 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
         return new Builder<T, A>();
     }
 
-    public static class Builder<T, A extends Agent<A, ?>> extends SimulationStepProperty.AbstractBuilder<T, A, SimulationStepProperty<A, T>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ?>> extends GenericProperty.AbstractBuilder<T, A, GenericProperty<A, T>, Builder<T, A>> implements Serializable {
 
         private Builder() {}
 
-        private Builder(SimulationStepProperty<A, T> simulationStepProperty) {
+        private Builder(GenericProperty<A, T> simulationStepProperty) {
             super(simulationStepProperty);
         }
 
@@ -96,8 +98,8 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
         }
 
         @Override
-        protected SimulationStepProperty<A, T> checkedBuild() {
-            return new SimulationStepProperty<A, T>(this);
+        protected GenericProperty<A, T> checkedBuild() {
+            return new GenericProperty<A, T>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -111,18 +113,25 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends SimulationStepProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
-        private Callback<? super SimulationStepProperty<A, T>, T> callback;
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends GenericProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+        private Callback<? super GenericProperty<A, T>, T> callback;
+
+        private Callback<? super GenericProperty<A, T>, Boolean> updateRequest;
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(SimulationStepProperty<A, T> simulationStepProperty) {
+        protected AbstractBuilder(GenericProperty<A, T> simulationStepProperty) {
             super(simulationStepProperty);
             this.callback = simulationStepProperty.callback;
         }
 
-        public B callback(Callback<? super SimulationStepProperty<A, T>, T> function) {
+        public B callback(Callback<? super GenericProperty<A, T>, T> function) {
             this.callback = checkNotNull(function);
+            return self();
+        }
+
+        public B updateRequest(Callback<? super GenericProperty<A, T>, Boolean> updateRequest) {
+            this.updateRequest = checkNotNull(updateRequest);
             return self();
         }
     }
