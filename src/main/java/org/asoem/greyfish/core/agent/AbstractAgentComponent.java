@@ -53,7 +53,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     @Override
     public A agent() throws IllegalStateException {
         final A agent = getAgent();
-        checkState(agent != null, "This component is not attached to an agent");
+        checkState(agent != null, "Cannot access agent of %s because none is attached", this);
         return agent;
     }
 
@@ -74,7 +74,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + getName() + ']';
+        return this.getClass().getSimpleName() + "{" + getName() + '}';
     }
 
     @Override
@@ -109,7 +109,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> implements Serializable {
-        private String name = "";
+        private String name;
 
         // for serialization only
         private A agent;
@@ -125,6 +125,12 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         public B name(String name) {
             this.name = name;
             return self();
+        }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            super.checkBuilder();
+            checkState(name != null, "No name was defined");
         }
     }
 }

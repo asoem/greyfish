@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Date: 09.05.12
  * Time: 11:29
  */
+@Deprecated
 public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T, A> {
 
     private Callback<? super SimulationStepProperty<A, T>, T> callback;
@@ -61,12 +62,12 @@ public class SimulationStepProperty<A extends Agent<A, ?>, T> extends AbstractAg
                     private int stepForValue = -1;
 
                     @Override
-                    public void done() {
+                    public void updated() {
                         stepForValue = agent().getSimulationStep();
                     }
 
                     @Override
-                    public boolean apply(@Nullable T input) {
+                    public boolean isOutdated(@Nullable T input) {
                         return agent().getSimulationStep() > stepForValue;
                     }
                 }

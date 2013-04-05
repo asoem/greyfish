@@ -4,7 +4,6 @@ import com.google.common.base.Supplier;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
 
-import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
@@ -20,28 +19,46 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class GenericProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T, A> {
 
-    private Callback<? super GenericProperty<A, T>, T> callback;
+    private final Callback<? super GenericProperty<A, T>, T> valueCallback;
 
-    private Callback<? super GenericProperty<A, T>, Boolean> updateRequest;
+    private final Callback<? super GenericProperty<A, T>, Boolean> expirationCallback;
 
-    private Supplier<T> value;
+    private final SingleElementCache<T> valueSupplier;
+
+    private int lastModificationStep = -1;
 
     private GenericProperty(GenericProperty<A, T> simulationStepProperty, DeepCloner cloner) {
         super(simulationStepProperty, cloner);
-        this.callback = simulationStepProperty.callback;
-        this.updateRequest = simulationStepProperty.updateRequest;
+        this.valueCallback = simulationStepProperty.valueCallback;
+        this.expirationCallback = simulationStepProperty.expirationCallback;
+        this.valueSupplier = SingleElementCache.memoize(new Supplier<T>() {
+            @Override
+            public T get() {
+                return valueCallback.apply(GenericProperty.this, ArgumentMap.of());
+            }
+        });
     }
 
     private GenericProperty(AbstractBuilder<T, A, ? extends GenericProperty<A, T>, ? extends Builder<T, A>> builder) {
         super(builder);
-        this.callback = builder.callback;
-        this.updateRequest = builder.updateRequest;
+        this.valueCallback = builder.valueCallback;
+        this.expirationCallback = builder.expirationCallback;
+        this.valueSupplier = SingleElementCache.memoize(new Supplier<T>() {
+            @Override
+            public T get() {
+                return valueCallback.apply(GenericProperty.this, ArgumentMap.of());
+            }
+        });
     }
 
     @Override
     public T getValue() {
-        checkState(value != null, "Property was not initialized");
-        return value.get();
+        if (expirationCallback.apply(GenericProperty.this, ArgumentMap.of())) {
+            valueSupplier.invalidate();
+            valueSupplier.update();
+            lastModificationStep = agent().getSimulationStep();
+        }
+        return valueSupplier.get();
     }
 
     @Override
@@ -52,36 +69,19 @@ public class GenericProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
     @Override
     public void initialize() {
         super.initialize();
-        checkState(callback != null, "Callback is null");
-        value = MoreSuppliers.memoize(
-                new Supplier<T>() {
-                    @Override
-                    public T get() {
-                        assert callback != null;
-                        return callback.apply(GenericProperty.this, ArgumentMap.of());
-                    }
-                },
-                new UpdateRequest<T>() {
-
-                    @Override
-                    public void done() {
-                    }
-
-                    @Override
-                    public boolean apply(@Nullable T input) {
-                        return updateRequest.apply(GenericProperty.this, ArgumentMap.of());
-                    }
-                }
-        );
+        lastModificationStep = -1;
     }
 
-
-    public Callback<? super GenericProperty<A, T>, T> getCallback() {
-        return callback;
+    public Callback<? super GenericProperty<A, T>, T> getValueCallback() {
+        return valueCallback;
     }
 
     public static <T, A extends Agent<A, ?>> Builder<T, A> builder() {
         return new Builder<T, A>();
+    }
+
+    public int getLastModificationStep() {
+        return lastModificationStep;
     }
 
     public static class Builder<T, A extends Agent<A, ?>> extends GenericProperty.AbstractBuilder<T, A, GenericProperty<A, T>, Builder<T, A>> implements Serializable {
@@ -114,25 +114,30 @@ public class GenericProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
     }
 
     private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends GenericProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
-        private Callback<? super GenericProperty<A, T>, T> callback;
+        private Callback<? super GenericProperty<A, T>, T> valueCallback;
 
-        private Callback<? super GenericProperty<A, T>, Boolean> updateRequest;
+        private Callback<? super GenericProperty<A, T>, Boolean> expirationCallback = GenericProperty.<A, T>expiresAtBirth();
 
         protected AbstractBuilder() {}
 
         protected AbstractBuilder(GenericProperty<A, T> simulationStepProperty) {
             super(simulationStepProperty);
-            this.callback = simulationStepProperty.callback;
+            this.valueCallback = simulationStepProperty.valueCallback;
         }
 
-        public B callback(Callback<? super GenericProperty<A, T>, T> function) {
-            this.callback = checkNotNull(function);
+        public B valueCallback(Callback<? super GenericProperty<A, T>, T> valueCallback) {
+            this.valueCallback = checkNotNull(valueCallback);
             return self();
         }
 
-        public B updateRequest(Callback<? super GenericProperty<A, T>, Boolean> updateRequest) {
-            this.updateRequest = checkNotNull(updateRequest);
+        public B expirationCallback(Callback<? super GenericProperty<A, T>, Boolean> expirationCallback) {
+            this.expirationCallback = checkNotNull(expirationCallback);
             return self();
+        }
+
+        @Override
+        protected void checkBuilder() throws IllegalStateException {
+            checkState(this.valueCallback != null, "No valueCallback has been defined");
         }
     }
 
@@ -143,5 +148,25 @@ public class GenericProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
     private void readObject(ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
+    }
+
+    public static <A extends Agent<A, ?>, T> Callback<GenericProperty<A, T>, Boolean> expiresAtBirth() {
+        return new Callback<GenericProperty<A, T>, Boolean>() {
+            @Override
+            public Boolean apply(GenericProperty<A, T> genericProperty, Arguments arguments) {
+                final A agent = genericProperty.agent();
+                return genericProperty.getLastModificationStep() < agent.getTimeOfBirth();
+            }
+        };
+    }
+
+    public static <A extends Agent<A, ?>, T> Callback<GenericProperty<A, T>, Boolean> expiresEveryStep() {
+        return new Callback<GenericProperty<A, T>, Boolean>() {
+            @Override
+            public Boolean apply(GenericProperty<A, T> genericProperty, Arguments arguments) {
+                final A agent = genericProperty.agent();
+                return genericProperty.getLastModificationStep() != agent.getSimulationStep();
+            }
+        };
     }
 }

@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * A {@code AgentProperty} implementation that can be used to hold a constant value for the lifetime of an {@code Agent}
  */
+@Deprecated
 public class LifetimeProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T,A> {
 
     private Callback<? super LifetimeProperty<A, T>, T> initializer;

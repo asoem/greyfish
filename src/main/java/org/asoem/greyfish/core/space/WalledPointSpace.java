@@ -7,9 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.utils.base.Builder;
-import org.asoem.greyfish.utils.base.MoreSuppliers;
-import org.asoem.greyfish.utils.base.OutdateableUpdateRequest;
-import org.asoem.greyfish.utils.base.UpdateRequests;
+import org.asoem.greyfish.utils.base.SingleElementCache;
 import org.asoem.greyfish.utils.collect.Trees;
 import org.asoem.greyfish.utils.space.*;
 
@@ -32,17 +30,12 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     private final WalledTile[][] tileMatrix;
 
-    private final OutdateableUpdateRequest<Object> updateRequest = UpdateRequests.atomicRequest(true);
-
-    private final Supplier<TwoDimTree<Point2D, O>> lazyTree = MoreSuppliers.memoize(
-            new Supplier<TwoDimTree<Point2D, O>>() {
-
-                @Override
-                public TwoDimTree<Point2D, O> get() {
-                    return treeFactory.create(point2DMap.keySet(), Functions.forMap(point2DMap));
-                }
-            },
-            updateRequest);
+    private final SingleElementCache<TwoDimTree<Point2D, O>> tree = SingleElementCache.memoize(new Supplier<TwoDimTree<Point2D, O>>() {
+        @Override
+        public TwoDimTree<Point2D, O> get() {
+            return treeFactory.create(point2DMap.keySet(), Functions.forMap(point2DMap));
+        }
+    });
 
     private final TwoDimTreeFactory<O> treeFactory;
 
@@ -188,7 +181,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             //object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(), anchorPoint.getY(), newOrientation, false));
         }
 
-        updateRequest.outdate();
+        tree.invalidate();
     }
 
     /**
@@ -316,7 +309,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     @Override
     public Iterable<O> findObjects(double x, double y, double radius) {
-        return lazyTree.get().findObjects(x, y, radius);
+        return tree.get().findObjects(x, y, radius);
     }
 
     @Override
@@ -350,7 +343,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         synchronized (this) {
             final Point2D previous = point2DMap.put(object, projection);
             checkState(previous == null, "no duplicate objects allowed: " + object);
-            updateRequest.outdate();
+            tree.invalidate();
             return true;
         }
     }
@@ -373,7 +366,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     @Override
     @Nullable
     public Point2D getProjection(final O object) {
-        final KDNode<Point2D, O> node = Iterators.find(Trees.postOrderView(lazyTree.get().root()), new Predicate<KDNode<Point2D, O>>() {
+        final KDNode<Point2D, O> node = Iterators.find(Trees.postOrderView(tree.get().root()), new Predicate<KDNode<Point2D, O>>() {
             @Override
             public boolean apply(KDNode<Point2D, O> input) {
                 return object.equals(input.value());
@@ -465,7 +458,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
         synchronized (this) {
             if (point2DMap.remove(agent) != null) {
-                updateRequest.outdate();
+                tree.invalidate();
                 return true;
             } else
                 return false;
@@ -476,7 +469,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     public boolean removeIf(Predicate<O> predicate) {
         synchronized (this) {
             if (Iterables.removeIf(point2DMap.keySet(), predicate)) {
-                updateRequest.outdate();
+                tree.invalidate();
                 return true;
             }
             return false;
