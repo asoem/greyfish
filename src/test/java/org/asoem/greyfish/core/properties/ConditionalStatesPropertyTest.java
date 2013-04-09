@@ -18,7 +18,8 @@ public class ConditionalStatesPropertyTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        ConditionalStatesProperty<DefaultGreyfishAgent> statesProperty = ConditionalStatesProperty.<DefaultGreyfishAgent>with().addState("A", "true").build();
+        ConditionalStatesProperty<DefaultGreyfishAgent> statesProperty = ConditionalStatesProperty.<DefaultGreyfishAgent>with().name("test")
+                .addState("A", "true").build();
         
         // when
         ConditionalStatesProperty<DefaultGreyfishAgent> persistent = Persisters.createCopy(statesProperty, Persisters.javaSerialization());

@@ -21,6 +21,7 @@ public class DiscreteTraitTest {
     public void testMutation() throws Exception {
         // given
         DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
+                .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -41,6 +42,7 @@ public class DiscreteTraitTest {
     public void testMutateIllegalArgument() throws Exception {
         // given
         DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
+                .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -57,6 +59,7 @@ public class DiscreteTraitTest {
     public void testSetAlleleIllegalArgument() throws Exception {
         // given
         DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
+                .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
                 .addMutation("b", "c", Callbacks.constant(1.0))
@@ -73,6 +76,7 @@ public class DiscreteTraitTest {
     public void testGetStates() throws Exception {
         // given
         DiscreteTrait<DefaultGreyfishAgent> discreteTrait = DiscreteTrait.<DefaultGreyfishAgent>builder()
+                .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", 1)
                 .addMutation("b", "c", 1)

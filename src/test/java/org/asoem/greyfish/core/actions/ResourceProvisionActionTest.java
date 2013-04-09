@@ -19,6 +19,7 @@ public class ResourceProvisionActionTest {
     public void testPersistence() throws Exception {
         // given
         final ResourceProvisionAction<DefaultGreyfishAgent> action = ResourceProvisionAction.<DefaultGreyfishAgent>with()
+                .name("test")
                 .ontology("foo")
                 .provides(Callbacks.constant(42.0))
                 .build();

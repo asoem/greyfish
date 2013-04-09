@@ -20,6 +20,7 @@ public class FemaleLikeMatingTest {
     public void testPersistence() throws Exception {
         // given
         final FemaleLikeMating<DefaultGreyfishAgent> action = FemaleLikeMating.<DefaultGreyfishAgent>with()
+                .name("test")
                 .ontology("foo")
                 .matingProbability(constant(0.42))
                 .interactionRadius(constant(0.42))

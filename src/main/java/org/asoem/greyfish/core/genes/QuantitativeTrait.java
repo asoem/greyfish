@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
@@ -76,7 +77,7 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
     @Override
     public Double mutate(Double allele) {
         checkNotNull(allele);
-        final Double x = mutationKernel.apply(this, ArgumentMap.of("x", allele));
+        final Double x = mutationKernel.apply(this, ImmutableMap.of("x", allele));
         if (x == null || Double.isNaN(x))
             throw new AssertionError("Mutation callback returned an invalid value: " + x);
         return x;
@@ -84,12 +85,12 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
 
     @Override
     public Double segregate(Double allele1, Double allele2) {
-        return segregationKernel.apply(this, ArgumentMap.of("x", allele1, "y", allele2));
+        return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
     @Override
     public Double createInitialValue() {
-        return initializationKernel.apply(this, ArgumentMap.of());
+        return initializationKernel.apply(this, ImmutableMap.<String, Object>of());
     }
 
     @Override

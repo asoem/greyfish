@@ -1,13 +1,17 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.SpatialAgent;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
@@ -75,7 +79,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
 
         final Double offer = (Double) messageContent;
         LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
-        uptakeUtilization.apply(this, ArgumentMap.of("offer", offer));
+        uptakeUtilization.apply(this, ImmutableMap.of("offer", offer));
     }
 
     @Override

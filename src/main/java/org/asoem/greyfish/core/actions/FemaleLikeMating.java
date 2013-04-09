@@ -5,6 +5,7 @@ package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -13,7 +14,10 @@ import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
@@ -91,7 +95,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
             throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + messageContent);
 
         Chromosome chromosome = (Chromosome) messageContent;
-        final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
+        final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (RandomUtils.nextBoolean(probability)) {
             receiveSperm(chromosome, message.getSender());
             builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
@@ -169,7 +173,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         protected Callback<? super FemaleLikeMating<A>, Double> matingProbability = Callbacks.constant(1.0);
 
         /**
-         * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed as an argument ({@link org.asoem.greyfish.utils.base.Arguments}) to the callback with key "mate"
+         * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed as an argument to the callback with key "mate"
          * @param callback the callback function to calculate the mating probability
          * @return this builder
          */

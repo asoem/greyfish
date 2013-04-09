@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.ArgumentMap;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
@@ -34,7 +34,7 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
 
     @Override
     public boolean evaluate() {
-        return callback.apply(this, ArgumentMap.of());
+        return callback.apply(this, ImmutableMap.<String, Object>of());
     }
 
     @Override

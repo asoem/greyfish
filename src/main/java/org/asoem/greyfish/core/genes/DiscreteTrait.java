@@ -1,13 +1,13 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
 import javax.annotation.Nullable;
@@ -97,7 +97,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
 
     @Override
     public String segregate(String allele1, String allele2) {
-        return segregationKernel.apply(this, ArgumentMap.of("x", allele1, "y", allele2));
+        return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
     @Override
@@ -231,7 +231,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
             if (segregationKernel == null)
                 segregationKernel = new Callback<DiscreteTrait<A>, String>() {
                     @Override
-                    public String apply(DiscreteTrait<A> caller, Arguments args) {
+                    public String apply(DiscreteTrait<A> caller, Map<String, ?> args) {
                         return (String) sample(args.get("x"), args.get("y"));
                     }
                 };

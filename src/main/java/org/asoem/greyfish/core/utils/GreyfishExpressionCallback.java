@@ -3,12 +3,12 @@ package org.asoem.greyfish.core.utils;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.eval.EvaluationResult;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
-import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,7 +28,7 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Seriali
     }
 
     @Override
-    public T apply(C caller, Arguments args) {
+    public T apply(C caller, Map<String, ?> args) {
         return conversionFunction.apply(expression.evaluateForContext(caller, args));
     }
 

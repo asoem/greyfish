@@ -19,6 +19,7 @@ public class GenericActionTest {
     public void testPersistence() throws Exception {
         // given
         final GenericAction<DefaultGreyfishAgent> action = GenericAction.<DefaultGreyfishAgent>builder()
+                .name("test")
                 .executes(Callbacks.emptyCallback()).build();
 
         // when

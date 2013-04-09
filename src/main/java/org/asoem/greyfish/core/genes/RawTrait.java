@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
@@ -73,7 +74,7 @@ public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> impl
     @Override
     public T mutate(T allele) {
         checkNotNull(allele);
-        final T x = mutationKernel.apply(this, ArgumentMap.of("x", allele));
+        final T x = mutationKernel.apply(this, ImmutableMap.of("x", allele));
         if (x == null)
             throw new AssertionError("Mutation callback returned an invalid value: " + x);
         return x;
@@ -81,12 +82,12 @@ public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> impl
 
     @Override
     public T segregate(T allele1, T allele2) {
-        return segregationKernel.apply(this, ArgumentMap.of("x", allele1, "y", allele2));
+        return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
     @Override
     public T createInitialValue() {
-        return initializationKernel.apply(this, ArgumentMap.of());
+        return initializationKernel.apply(this, ImmutableMap.<String, Object>of());
     }
 
     @Override

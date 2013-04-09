@@ -21,6 +21,7 @@ public class ResourceConsumptionActionTest {
     public void testPersistence() throws Exception {
         // given
         final ResourceConsumptionAction<DefaultGreyfishAgent> action = ResourceConsumptionAction.<DefaultGreyfishAgent>with()
+                .name("test")
                 .interactionRadius(constant(0.42))
                 .ontology("foo")
                 .requestAmount(constant(0.42))

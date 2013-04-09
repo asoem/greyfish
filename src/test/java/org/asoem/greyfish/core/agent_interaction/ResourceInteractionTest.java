@@ -14,13 +14,14 @@ import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulationImpl;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
-import org.asoem.greyfish.utils.base.Arguments;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -49,7 +50,7 @@ public class ResourceInteractionTest {
                 .requestAmount(Callbacks.constant(1.0))
                 .uptakeUtilization(new Callback<ResourceConsumptionAction<DefaultGreyfishAgent>, Void>() {
                     @Override
-                    public Void apply(ResourceConsumptionAction<DefaultGreyfishAgent> caller, Arguments args) {
+                    public Void apply(ResourceConsumptionAction<DefaultGreyfishAgent> caller, Map<String, ?> args) {
                         ((DoubleProperty<DefaultGreyfishAgent>) caller.agent().getProperty("resourceStorage")).add((Double) args.get("offer") * 2);
                         return null;
                     }
@@ -59,6 +60,7 @@ public class ResourceInteractionTest {
 
 
         final DoubleProperty<DefaultGreyfishAgent> resourceProperty = new DoubleProperty.Builder<DefaultGreyfishAgent>()
+                .name("test")
                 .lowerBound(0.0)
                 .upperBound(1.0)
                 .initialValue(1.0)

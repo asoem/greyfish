@@ -1,9 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
 import com.google.common.collect.ForwardingMap;
-import com.google.common.collect.Maps;
 
-import javax.annotation.Nullable;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 import java.util.Map;
@@ -32,12 +30,7 @@ public final class VariableResolvers {
 
             @Override
             public Bindings bindings() {
-                return new BindingsAdaptor(Maps.transformEntries(map, new Maps.EntryTransformer<String, Object, Object>() {
-                    @Override
-                    public Object transformEntry(@Nullable String s, @Nullable Object o) {
-                        return o;
-                    }
-                }));
+                return new BindingsAdaptor((Map<String, Object>) map);
             }
         };
     }
@@ -67,7 +60,7 @@ public final class VariableResolvers {
     private static class BindingsAdaptor extends ForwardingMap<String, Object> implements Bindings {
         private final Map<String, Object> map;
 
-        public BindingsAdaptor(Map<String,Object> map) {
+        public BindingsAdaptor(Map<String, Object> map) {
             this.map = map;
         }
 

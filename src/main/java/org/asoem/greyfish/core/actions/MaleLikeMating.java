@@ -1,13 +1,17 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomUtils;
@@ -74,7 +78,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
             return reply.performative(ACLPerformative.REFUSE);
 
-        final double probability = matingProbability.apply(this, ArgumentMap.of("mate", message.getSender()));
+        final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (RandomUtils.nextBoolean(probability)) {
 
             final Chromosome chromosome = ChromosomeImpl.forAgent(agent());

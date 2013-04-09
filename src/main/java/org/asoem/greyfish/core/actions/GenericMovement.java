@@ -14,6 +14,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -115,7 +116,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         private Callback<? super GenericMovement<A>, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement<A>, Double> turningAngle = new Callback<GenericMovement<A>, Double>() {
             @Override
-            public Double apply(GenericMovement<A> caller, Arguments args) {
+            public Double apply(GenericMovement<A> caller, Map<String, ?> args) {
                 return RandomUtils.rnorm(0.0, FastMath.PI / 2);
             }
         };
