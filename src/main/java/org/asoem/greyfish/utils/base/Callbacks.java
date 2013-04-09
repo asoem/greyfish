@@ -1,12 +1,14 @@
 package org.asoem.greyfish.utils.base;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import org.asoem.greyfish.utils.math.RandomUtils;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -29,13 +31,13 @@ public final class Callbacks {
     }
 
     public static <C, T> T call(Callback<C, T> callback, C caller) {
-        return callback.apply(caller, ArgumentMap.of());
+        return callback.apply(caller, ImmutableMap.<String, Object>of());
     }
 
     public static <C, T> Callback<C, T> forSupplier(final Supplier<T> supplier) {
         return new Callback<C, T>() {
             @Override
-            public T apply(C caller, Arguments args) {
+            public T apply(C caller, Map<String, ?> args) {
                 return supplier.get();
             }
         };
@@ -68,7 +70,7 @@ public final class Callbacks {
         INSTANCE;
 
         @Override
-        public Void apply(Object caller, Arguments args) {
+        public Void apply(Object caller, Map<String, ?> args) {
             return null;
         }
 
@@ -88,7 +90,7 @@ public final class Callbacks {
         }
 
         @Override
-        public T apply(Object caller, Arguments args) {
+        public T apply(Object caller, Map<String, ?> args) {
             return value;
         }
 
@@ -130,7 +132,7 @@ public final class Callbacks {
         }
 
         @Override
-        public R apply(Object caller, Arguments args) {
+        public R apply(Object caller, Map<String, ?> args) {
             return clazz.cast(args.get(x));
         }
 
@@ -145,7 +147,7 @@ public final class Callbacks {
         }
 
         @Override
-        public R apply(Object caller, Arguments args) {
+        public R apply(Object caller, Map<String, ?> args) {
             throw exception;
         }
 
@@ -161,7 +163,7 @@ public final class Callbacks {
         }
 
         @Override
-        public T apply(Object caller, Arguments args) {
+        public T apply(Object caller, Map<String, ?> args) {
             if (values.hasNext())
                 current = values.next();
             return current;
@@ -178,7 +180,7 @@ public final class Callbacks {
         }
 
         @Override
-        public T apply(Object caller, Arguments args) {
+        public T apply(Object caller, Map<String, ?> args) {
             return RandomUtils.sample(e1, e2);
         }
     }
