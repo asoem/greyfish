@@ -16,8 +16,7 @@ import org.asoem.greyfish.utils.base.Tagged;
 
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 
 @Tagged("actions")
 public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
@@ -93,6 +92,11 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ClonalReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
         private Callback<? super ClonalReproduction<A>, Integer> nClones;
         private Callback<? super ClonalReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
+
+        public B nClones(int n) {
+            checkArgument(n >= 0);
+            return nClones(Callbacks.constant(n));
+        }
 
         public B nClones(Callback<? super ClonalReproduction<A>, Integer> nClones) {
             this.nClones = checkNotNull(nClones);

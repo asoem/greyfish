@@ -21,8 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
 import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
@@ -184,8 +183,13 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             return self();
         }
 
+        public B clutchSize(int nOffspring) {
+            checkArgument(nOffspring >= 0);
+            return clutchSize(Callbacks.constant(nOffspring));
+        }
+
         public B clutchSize(Callback<? super SexualReproduction<A>, Integer> nOffspring) {
-            this.clutchSize = nOffspring;
+            this.clutchSize = checkNotNull(nOffspring);
             return self();
         }
 
