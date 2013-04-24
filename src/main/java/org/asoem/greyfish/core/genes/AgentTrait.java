@@ -3,9 +3,6 @@ package org.asoem.greyfish.core.genes;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
 
-import javax.annotation.Nullable;
-
-
 public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>, Trait<T> {
 
     /**
@@ -27,4 +24,6 @@ public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>,
     T createInitialValue();
 
     void trySet(Object o) throws ClassCastException;
+
+    boolean isHeritable();
 }

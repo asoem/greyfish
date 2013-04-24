@@ -35,13 +35,23 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public Iterable<AgentNode> children() {
-        return Collections.emptyList();
+    public void set(T value) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void trySet(Object o) throws ClassCastException {
         set((T) o);
+    }
+
+    @Override
+    public boolean isHeritable() {
+        return false;
+    }
+
+    @Override
+    public Iterable<AgentNode> children() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -53,5 +63,15 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     public void initialize() {
         super.initialize();
         set(createInitialValue());
+    }
+
+    @Override
+    public T segregate(T allele1, T allele2) {
+        return createInitialValue();
+    }
+
+    @Override
+    public T mutate(T allele) {
+        return createInitialValue();
     }
 }
