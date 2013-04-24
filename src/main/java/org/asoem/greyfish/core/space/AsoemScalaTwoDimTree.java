@@ -92,7 +92,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
             private final Point2D point = ImmutablePoint2D.at(node.point().apply(0), node.point().apply(1));
 
             @Override
-            public Iterable<org.asoem.greyfish.utils.space.KDNode<Point2D, T>> childConditions() {
+            public Iterable<org.asoem.greyfish.utils.space.KDNode<Point2D, T>> children() {
                 return children;
             }
 

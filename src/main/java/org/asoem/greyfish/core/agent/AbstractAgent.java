@@ -246,7 +246,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     public void initialize() {
-        for (AgentNode node : childConditions()) {
+        for (AgentNode node : children()) {
             node.initialize();
         }
     }
@@ -303,7 +303,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public Iterable<AgentNode> childConditions() {
+    public Iterable<AgentNode> children() {
         return Iterables.<AgentNode>concat(
                 getProperties(),
                 getActions(),

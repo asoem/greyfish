@@ -72,7 +72,7 @@ public class DefaultGreyfishAgentImplTest {
         // given
         AgentTrait<DefaultGreyfishAgent, Object> gene = mock(AgentTrait.class);
         given(gene.getName()).willReturn("foo");
-        given(gene.childConditions()).willReturn(Collections.<AgentNode>emptyList());
+        given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
         DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).addTraits(gene).build();
 
         // when
