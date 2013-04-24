@@ -121,7 +121,7 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     }
 
     @Override
-    public final Iterable<AgentNode> childConditions() {
+    public final Iterable<AgentNode> children() {
         return Collections.<AgentNode>unmodifiableList(getChildConditions());
     }
 

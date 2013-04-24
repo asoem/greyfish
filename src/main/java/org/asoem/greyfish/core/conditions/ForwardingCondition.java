@@ -121,8 +121,8 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     }
 
     @Override
-    public Iterable<AgentNode> childConditions() {
-        return delegate().childConditions();
+    public Iterable<AgentNode> children() {
+        return delegate().children();
     }
 
     @Override

@@ -19,7 +19,7 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
     }
 
     @Override
-    public Iterable<AgentNode> childConditions() {
+    public Iterable<AgentNode> children() {
         return Collections.emptyList();
     }
 

@@ -154,9 +154,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     @Override
     public void moveObject(O object, Motion2D motion) {
         checkNotNull(object);
-
-        //final Motion2D motion = checkNotNull(object.getMotion(), "Required motion of {} is null", object);
-        final Point2D currentProjection = checkNotNull(getProjection(object), "Required projection of {} is null", object);
+        checkNotNull(motion);
 
         final double translation = motion.getTranslation();
         final double rotation = motion.getRotation();
@@ -170,6 +168,8 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                 ? 0
                 : ((rotation) % MathUtils.TWO_PI + MathUtils.TWO_PI) % MathUtils.TWO_PI;
 
+        final Point2D currentProjection = getProjection(object);
+        checkState(currentProjection != null, "Projection of {} is null", object);
         final Point2D anchorPoint = currentProjection.getCentroid();
         if (translation != 0) {
             final Point2D preferredPoint = ImmutablePoint2D.sum(anchorPoint, polarToCartesian(newOrientation, translation));

@@ -35,13 +35,13 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public void trySet(Object o) throws ClassCastException {
-        set((T) o);
+    public Iterable<AgentNode> children() {
+        return Collections.emptyList();
     }
 
     @Override
-    public Iterable<AgentNode> childConditions() {
-        return Collections.emptyList();
+    public void trySet(Object o) throws ClassCastException {
+        set((T) o);
     }
 
     @Override

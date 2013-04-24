@@ -151,7 +151,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
     }
 
     @Override
-    public Iterable<AgentNode> childConditions() {
+    public Iterable<AgentNode> children() {
         return rootCondition != null ? Collections.<AgentNode>singletonList(getCondition()) : Collections.<AgentNode>emptyList();
     }
 
