@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
-import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.TraitVector;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -34,11 +34,11 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         for (int i = 0; i < nClones; i++) {
 
             final ChromosomeImpl chromosome = new ChromosomeImpl(
-                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, Gene<?>>() {
+                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, TraitVector<?>>() {
                         @Override
-                        public Gene<?> apply(@Nullable AgentTrait<A, ?> trait) {
+                        public TraitVector<?> apply(@Nullable AgentTrait<A, ?> trait) {
                             assert trait != null;
-                            return new Gene<Object>(AgentTraits.mutate(trait, trait.getValue()), trait.getRecombinationProbability());
+                            return new TraitVector<Object>(AgentTraits.mutate(trait, trait.get()), trait.getRecombinationProbability());
                         }
                     }), Sets.newHashSet(agent().getId()));
 

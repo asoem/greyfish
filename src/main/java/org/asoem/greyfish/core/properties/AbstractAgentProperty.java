@@ -28,6 +28,12 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
         return getAgent();
     }
 
+    @Override
+    public void set(T value) {
+        throw new UnsupportedOperationException(
+                "This property does not support a value modification through the set method");
+    }
+
     protected static abstract class AbstractBuilder<C extends AbstractAgentProperty<?,A>, A extends Agent<A, ?>, B extends AbstractBuilder<C,A,B>> extends AbstractAgentComponent.AbstractBuilder<A,C,B>  implements Serializable {
         protected AbstractBuilder(AbstractAgentProperty<?,A> abstractAgentProperty) {
             super(abstractAgentProperty);

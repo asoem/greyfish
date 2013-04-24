@@ -15,10 +15,7 @@ import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.utils.base.CycleCloner;
-import org.asoem.greyfish.utils.base.InheritableBuilder;
-import org.asoem.greyfish.utils.base.Initializer;
-import org.asoem.greyfish.utils.base.VoidFunction;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
@@ -449,7 +446,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             return self();
         }
 
-        public B agentActivator(AgentActivator<A> agentActivator) {
+        public B simulationStepListener(Callback<? super DefaultGreyfishSimulation, ? extends Void> callback) {
             return self();
         }
     }

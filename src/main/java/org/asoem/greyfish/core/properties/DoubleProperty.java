@@ -4,16 +4,12 @@ import com.google.common.collect.Ordering;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @Tagged("properties")
-public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementProperty<Double, A> implements MutableProperty<Double, A> {
-
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(DoubleProperty.class);
+public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementProperty<Double, A> implements AgentProperty<A,Double> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public DoubleProperty() {
@@ -34,22 +30,20 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
     }
 
     public void subtract(double val) {
-        // TODO: handle bounds violation
-        setValue(value - val);
-        LOGGER.debug("Subtracting: {}, Remaining: {}", val, value);
+        checkAndSet(value - val);
 	}
 	
 	public void add(Double val) {
-		setValue(value + val);
+		checkAndSet(value + val);
 	}
 
     @Override
-    public void set(Double amount) {
-        value = amount;
+    public void set(Double value) {
+        this.value = value;
     }
 
     @Override
-    public Double getValue() {
+    public Double get() {
         return value;
     }
 

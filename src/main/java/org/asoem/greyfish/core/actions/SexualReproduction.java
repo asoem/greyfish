@@ -92,17 +92,17 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     private static <A extends Agent<A, ?>> Chromosome blend(FunctionalList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
 
         // zip chromosomes
-        final Iterable<Product2<AgentTrait<A, ?>, Gene<?>>> zipped = Products.zip(egg, sperm.getGenes());
+        final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zipped = Products.zip(egg, sperm.getTraitVectors());
 
         // segregate
-        final Iterable<Gene<Object>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, Gene<?>>, Gene<Object>>() {
+        final Iterable<TraitVector<Object>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, TraitVector<?>>, TraitVector<Object>>() {
             @Override
-            public Gene<Object> apply(Product2<AgentTrait<A, ?>, Gene<?>> tuple) {
+            public TraitVector<Object> apply(Product2<AgentTrait<A, ?>, TraitVector<?>> tuple) {
                 final AgentTrait<A, ?> trait = tuple._1();
-                final Gene<?> gene = tuple._2();
-                final Object segregated = AgentTraits.segregate(trait, trait.getValue(), gene.getValue());
+                final TraitVector<?> traitVector = tuple._2();
+                final Object segregated = AgentTraits.segregate(trait, trait.get(), traitVector.get());
                 final Object mutated = AgentTraits.mutate(trait, segregated);
-                return new Gene<Object>(mutated, trait.getRecombinationProbability());
+                return new TraitVector<Object>(mutated, trait.getRecombinationProbability());
             }
         });
 

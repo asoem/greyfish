@@ -18,19 +18,19 @@ public final class Genes {
 
     private Genes() {}
 
-    public static List<Gene<?>> recombine(final List<? extends Gene<?>> thisGenes, final List<? extends Gene<?>> thatGenes) {
+    public static List<TraitVector<?>> recombine(final List<? extends TraitVector<?>> thisGenes, final List<? extends TraitVector<?>> thatGenes) {
 
-        checkArgument(thisGenes.size() == thatGenes.size(), "Gene lists must have the same length");
+        checkArgument(thisGenes.size() == thatGenes.size(), "TraitVector lists must have the same length");
 
-        return ImmutableList.copyOf(new AbstractIterator<Gene<?>>() {
+        return ImmutableList.copyOf(new AbstractIterator<TraitVector<?>>() {
 
-            private final Iterator<? extends Gene<?>> thisIterator = thisGenes.iterator();
-            private final Iterator<? extends Gene<?>> thatIterator = thatGenes.iterator();
+            private final Iterator<? extends TraitVector<?>> thisIterator = thisGenes.iterator();
+            private final Iterator<? extends TraitVector<?>> thatIterator = thatGenes.iterator();
 
             private boolean thisOrThat = false;
 
             @Override
-            protected Gene<?> computeNext() {
+            protected TraitVector<?> computeNext() {
 
                 if (!thisIterator.hasNext()) {
                     return endOfData();
@@ -38,10 +38,10 @@ public final class Genes {
 
                 assert thatIterator.hasNext();
 
-                final Gene<?> thisGene = thisIterator.next();
-                final Gene<?> thatGene = thatIterator.next();
+                final TraitVector<?> thisTraitVector = thisIterator.next();
+                final TraitVector<?> thatTraitVector = thatIterator.next();
 
-                final double recombinationProbability = (thisOrThat ? thisGene : thatGene).getRecombinationProbability();
+                final double recombinationProbability = (thisOrThat ? thisTraitVector : thatTraitVector).getRecombinationProbability();
                 if (recombinationProbability < 0 || recombinationProbability > 1)
                     throw new AssertionError("Recombination probability has an invalid value: " + recombinationProbability);
 
@@ -49,7 +49,7 @@ public final class Genes {
                 if (recombine)
                     thisOrThat = !thisOrThat;
 
-                return (thisOrThat ? thisGene : thatGene);
+                return (thisOrThat ? thisTraitVector : thatTraitVector);
             }
         });
     }

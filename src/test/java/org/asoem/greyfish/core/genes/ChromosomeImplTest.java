@@ -17,16 +17,16 @@ public class ChromosomeImplTest {
     @Test
     public void testRecombined() throws Exception {
         // given
-        final Gene<String> foo = new Gene<String>("foo", 1.0);
+        final TraitVector<String> foo = new TraitVector<String>("foo", 1.0);
         ChromosomeImpl a = new ChromosomeImpl(ImmutableList.of(foo), Sets.newHashSet(11));
-        final Gene<String> bar = new Gene<String>("bar", 0.0);
+        final TraitVector<String> bar = new TraitVector<String>("bar", 0.0);
         ChromosomeImpl b = new ChromosomeImpl(ImmutableList.of(bar), Sets.newHashSet(12));
 
         // when
         final Chromosome recombined = a.recombined(b);
 
         // then
-        assertThat(recombined.getGenes(), Matchers.<Gene<?>>contains(bar));
+        assertThat(recombined.getTraitVectors(), Matchers.<TraitVector<?>>contains(bar));
         assertThat(recombined.getParents(), contains(11, 12));
     }
 }

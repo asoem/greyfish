@@ -233,9 +233,9 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         for (AgentTrait<?, ?> trait : agent.getTraits()) {
             assert trait != null;
             if (Double.class.equals(trait.getValueClass())) {
-                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(trait.getName()), (Double) trait.getValue()));
+                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(trait.getName()), (Double) trait.get()));
             } else {
-                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(trait.getName()), idForName(String.valueOf(trait.getValue()))));
+                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(trait.getName()), idForName(String.valueOf(trait.get()))));
             }
         }
         tryCommit();

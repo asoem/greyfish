@@ -24,9 +24,9 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T, A> {
 
-    private final Callback<? super CachingProperty<A, T>, T> valueCallback;
+    private final Callback<? super CachingProperty<A, T>, ? extends T> valueCallback;
 
-    private final Callback<? super CachingProperty<A, T>, Boolean> expirationCallback;
+    private final Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback;
 
     private final SingleElementCache<T> valueCache;
 
@@ -57,7 +57,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
     }
 
     @Override
-    public T getValue() {
+    public T get() {
         if (expirationCallback.apply(CachingProperty.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
             valueCache.update();
@@ -77,7 +77,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         lastModificationStep = -1;
     }
 
-    public Callback<? super CachingProperty<A, T>, T> getValueCallback() {
+    public Callback<? super CachingProperty<A, T>, ? extends T> getValueCallback() {
         return valueCallback;
     }
 
@@ -119,9 +119,9 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
     }
 
     private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends CachingProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
-        private Callback<? super CachingProperty<A, T>, T> valueCallback;
+        private Callback<? super CachingProperty<A, T>, ? extends T> valueCallback;
 
-        private Callback<? super CachingProperty<A, T>, Boolean> expirationCallback = CachingProperty.expiresAtBirth();
+        private Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback = CachingProperty.expiresAtBirth();
 
         protected AbstractBuilder() {}
 
@@ -130,12 +130,12 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
             this.valueCallback = simulationStepProperty.valueCallback;
         }
 
-        public B value(Callback<? super CachingProperty<A, T>, T> valueCallback) {
+        public B value(Callback<? super CachingProperty<A, T>, ? extends T> valueCallback) {
             this.valueCallback = checkNotNull(valueCallback);
             return self();
         }
 
-        public B expires(Callback<? super CachingProperty<A, T>, Boolean> expirationCallback) {
+        public B expires(Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback) {
             this.expirationCallback = checkNotNull(expirationCallback);
             return self();
         }

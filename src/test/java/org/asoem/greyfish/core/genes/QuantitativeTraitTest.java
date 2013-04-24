@@ -24,7 +24,7 @@ public class QuantitativeTraitTest {
                 .mutation(Callbacks.constant(2.0))
                 .segregation(Callbacks.constant(3.0))
                 .build();
-        quantitativeTrait.setAllele(4.0);
+        quantitativeTrait.set(4.0);
         //final Agent agent = mock(Agent.class, withSettings().serializable());
         //quantitativeTrait.setAgent(agent);
 

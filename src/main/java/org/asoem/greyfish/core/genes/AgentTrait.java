@@ -6,25 +6,12 @@ import org.asoem.greyfish.core.agent.AgentComponent;
 import javax.annotation.Nullable;
 
 
-public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>, GeneLike<T> {
+public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>, Trait<T> {
 
     /**
      * @return the class of the value this gene is supplying
      */
     Class<? super T> getValueClass();
-
-    /**
-     * @param gene the gene to builderTest for
-     * @return {@code true} if {@code gene} is a mutated copy of this gene, {@code false} otherwise
-     */
-    boolean isMutatedCopy(@Nullable AgentTrait<A, ?> gene);
-
-    /**
-     * Set the new value for this {@code AgentTrait}
-     *
-     * @param allele the allele
-     */
-    void setAllele(Object allele);
 
     /**
      * Get the recombination probability for this gene.
@@ -38,4 +25,6 @@ public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent<A>,
     T segregate(T allele1, T allele2);
 
     T createInitialValue();
+
+    void trySet(Object o) throws ClassCastException;
 }

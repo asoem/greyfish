@@ -66,8 +66,8 @@ public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> impl
     }
 
     @Override
-    public void setAllele(Object allele) {
-        final T newAllele = (T) allele;
+    public void set(T value) {
+        final T newAllele = (T) value;
         this.value = newAllele;
     }
 
@@ -91,7 +91,7 @@ public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> impl
     }
 
     @Override
-    public T getValue() {
+    public T get() {
         return value;
     }
 

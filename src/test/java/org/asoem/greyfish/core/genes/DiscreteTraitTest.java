@@ -66,7 +66,7 @@ public class DiscreteTraitTest {
                 .build();
 
         // when
-        discreteTrait.setAllele("d");
+        discreteTrait.set("d");
 
         // then
         // IllegalArgumentException
@@ -99,7 +99,7 @@ public class DiscreteTraitTest {
                 .segregation(Callbacks.constant("bar"))
                 .addMutation("a", "b", Callbacks.constant(3.0))
                 .build();
-        discreteTrait.setAllele("a");
+        discreteTrait.set("a");
         //final Agent agent = mock(Agent.class, withSettings().serializable());
         //discreteTrait.setAgent(agent);
 

@@ -18,17 +18,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ChromosomeImpl implements Chromosome {
 
-    private final List<Gene<?>> genes;
+    private final List<TraitVector<?>> traitVectors;
     private final Set<Integer> parents;
 
-    public ChromosomeImpl(Iterable<? extends Gene<?>> genes, Set<Integer> parents) {
-        this.genes = ImmutableList.copyOf(genes);
+    public ChromosomeImpl(Iterable<? extends TraitVector<?>> genes, Set<Integer> parents) {
+        this.traitVectors = ImmutableList.copyOf(genes);
         this.parents = checkNotNull(parents);
     }
 
     @Override
-    public List<Gene<?>> getGenes() {
-        return genes;
+    public List<TraitVector<?>> getTraitVectors() {
+        return traitVectors;
     }
 
     @Override
@@ -38,21 +38,21 @@ public class ChromosomeImpl implements Chromosome {
 
     @Override
     public int size() {
-        return genes.size();
+        return traitVectors.size();
     }
 
     public ChromosomeImpl recombined(Chromosome other) {
         return new ChromosomeImpl(
-                Genes.recombine(this.genes, other.getGenes()), Sets.union(parents, other.getParents()));
+                Genes.recombine(this.traitVectors, other.getTraitVectors()), Sets.union(parents, other.getParents()));
     }
 
     public static ChromosomeImpl forAgent(Agent<?, ?> agent) {
         checkNotNull(agent, "Agent is null");
         return new ChromosomeImpl(
-                Lists.transform(agent.getTraits(), new Function<AgentTrait<?, ?>, Gene<?>>() {
+                Lists.transform(agent.getTraits(), new Function<AgentTrait<?, ?>, TraitVector<?>>() {
                     @Override
-                    public Gene<?> apply(AgentTrait<?, ?> input) {
-                        return new Gene<Object>(input.getValue(), 0);
+                    public TraitVector<?> apply(AgentTrait<?, ?> input) {
+                        return new TraitVector<Object>(input.get(), 0);
                     }
                 }), Sets.newHashSet(agent.getId()));
     }

@@ -98,7 +98,7 @@ public class ResourceInteractionTest {
         final ActionState consumptionActionState = consumptionAction.getState();
 
         // then
-        assertThat(energyStorage.getValue(), is(equalTo(2.0)));
+        assertThat(energyStorage.get(), is(equalTo(2.0)));
         assertThat(consumptionActionState, is(equalTo(ActionState.COMPLETED)));
         assertThat(provisionActionState, is(equalTo(ActionState.COMPLETED)));
     }

@@ -1,21 +1,23 @@
 package org.asoem.greyfish.core.genes;
 
+import com.google.common.base.Supplier;
+
 /**
  * User: christoph
  * Date: 25.04.12
  * Time: 15:30
  */
-public class Gene<T> implements GeneLike<T> {
+public class TraitVector<T> implements Supplier<T> {
     private final T value;
     private final double recombinationProbability;
 
-    public Gene(T value, double recombinationProbability) {
+    public TraitVector(T value, double recombinationProbability) {
         this.value = value;
         this.recombinationProbability = recombinationProbability;
     }
 
     @Override
-    public T getValue() {
+    public T get() {
         return value;
     }
 

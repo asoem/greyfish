@@ -13,7 +13,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
 import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.Gene;
+import org.asoem.greyfish.core.genes.TraitVector;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.HasName;
@@ -292,11 +292,11 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     @Override
     public void updateGeneComponents(Chromosome chromosome) {
         checkNotNull(chromosome);
-        AgentTraits.updateValues(getTraits(), Lists.transform(chromosome.getGenes(), new Function<Gene<?>, Object>() {
+        AgentTraits.updateValues(getTraits(), Lists.transform(chromosome.getTraitVectors(), new Function<TraitVector<?>, Object>() {
             @Override
-            public Object apply(@Nullable Gene<?> o) {
+            public Object apply(@Nullable TraitVector<?> o) {
                 assert o != null;
-                return o.getValue();
+                return o.get();
             }
         }));
         setParents(checkNotNull(chromosome.getParents()));

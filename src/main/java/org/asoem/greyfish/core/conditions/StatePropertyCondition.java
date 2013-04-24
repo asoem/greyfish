@@ -37,7 +37,7 @@ public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition
     @Override
     public boolean evaluate() {
         return stateProperty != null &&
-                Objects.equal(stateProperty.getValue(), state);
+                Objects.equal(stateProperty.get(), state);
     }
 
     @Override

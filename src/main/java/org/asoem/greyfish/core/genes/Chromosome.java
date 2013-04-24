@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public interface Chromosome {
 
-    List<Gene<?>> getGenes();
+    List<TraitVector<?>> getTraitVectors();
 
     Set<Integer> getParents();
 

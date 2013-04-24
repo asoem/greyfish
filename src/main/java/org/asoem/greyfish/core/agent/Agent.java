@@ -62,7 +62,7 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
     AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate);
 
     /**
-     * Update the agent's agentTraitList with the values of the {@link org.asoem.greyfish.core.genes.Gene}s in the given {@code vector}
+     * Update the agent's agentTraitList with the values of the {@link org.asoem.greyfish.core.genes.TraitVector}s in the given {@code vector}
      *
      * @param vector the vector containing the information for the update
      */

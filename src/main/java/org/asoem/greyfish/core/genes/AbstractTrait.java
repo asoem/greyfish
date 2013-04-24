@@ -5,7 +5,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 
 /**
@@ -27,12 +26,17 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(getValue()) + "]";
+        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(get()) + "]";
     }
 
     @Override
     public double getRecombinationProbability() {
         return 0.5;
+    }
+
+    @Override
+    public void trySet(Object o) throws ClassCastException {
+        set((T) o);
     }
 
     @Override
@@ -46,13 +50,8 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public boolean isMutatedCopy(@Nullable AgentTrait<A, ?> gene) {
-        return gene != null && gene.getValueClass().equals(this.getValueClass());
-    }
-
-    @Override
     public void initialize() {
         super.initialize();
-        setAllele(createInitialValue());
+        set(createInitialValue());
     }
 }

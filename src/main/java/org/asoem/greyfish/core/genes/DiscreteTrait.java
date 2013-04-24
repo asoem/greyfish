@@ -55,9 +55,9 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     }
 
     @Override
-    public void setAllele(Object allele) {
-        checkValidState(allele);
-        state = (String) allele;
+    public void set(String value) {
+        checkValidState(value);
+        state = (String) value;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     }
 
     @Override
-    public String getValue() {
+    public String get() {
         checkState(state != null, "Allele has null state, trait was not initialized");
         return state;
     }
@@ -124,7 +124,7 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     @Override
     public void initialize() {
         super.initialize();
-        setAllele(createInitialValue());
+        set(createInitialValue());
     }
 
     public Table<String, String, Callback<? super DiscreteTrait<A>, Double>> getMarkovChain() {

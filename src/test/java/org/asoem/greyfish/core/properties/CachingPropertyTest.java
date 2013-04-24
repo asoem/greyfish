@@ -31,8 +31,8 @@ public class CachingPropertyTest {
         lifetimeProperty.setAgent(agent);
 
         // when
-        lifetimeProperty.getValue();
-        lifetimeProperty.getValue();
+        lifetimeProperty.get();
+        lifetimeProperty.get();
 
         // then
         verify(function, times(1)).apply(any(CachingProperty.class), any(Map.class));
@@ -53,8 +53,8 @@ public class CachingPropertyTest {
         lifetimeProperty.setAgent(agent);
 
         // when
-        lifetimeProperty.getValue();
-        lifetimeProperty.getValue();
+        lifetimeProperty.get();
+        lifetimeProperty.get();
 
         // then
         verify(function, times(2)).apply(any(CachingProperty.class), any(Map.class));

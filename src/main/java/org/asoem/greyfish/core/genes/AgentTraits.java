@@ -22,12 +22,12 @@ public final class AgentTraits {
         checkArgument(values.size() == traits.size(), "");
 
         for (Product2<? extends AgentTrait<?,?>, ?> tuple2 : Products.zip(traits, values)) {
-            tuple2._1().setAllele(tuple2._2());
+            tuple2._1().trySet(tuple2._2());
         }
     }
 
     public static <T> T mutate(AgentTrait<?, T> component) {
-        return component.mutate(component.getValue());
+        return component.mutate(component.get());
     }
 
     public static <T> T mutate(AgentTrait<?, T> component, Object t) {

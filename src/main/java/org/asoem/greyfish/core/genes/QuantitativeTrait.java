@@ -67,10 +67,10 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
     }
 
     @Override
-    public void setAllele(Object allele) {
-        checkArgument(allele instanceof Double);
-        final Double newAllele = (Double) allele;
-        checkArgument(!Double.isNaN(newAllele), "allele is NaN: " + allele);
+    public void set(Double value) {
+        checkArgument(value instanceof Double);
+        final Double newAllele = (Double) value;
+        checkArgument(!Double.isNaN(newAllele), "allele is NaN: " + value);
         this.value = newAllele;
     }
 
@@ -94,7 +94,7 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
     }
 
     @Override
-    public Double getValue() {
+    public Double get() {
         return value;
     }
 

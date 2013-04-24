@@ -35,11 +35,11 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     }
 
     @Override
-    public E getValue() {
+    public E get() {
         return value;
     }
 
-    public void setValue(E amount) {
+    protected void checkAndSet(E amount) {
         checkNotNull(amount);
 
         if (Objects.equal(value, amount))
@@ -50,7 +50,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         }
         else {
             this.value = lowerBound;
-            LOGGER.debug("{} #setValue({}): Out of range [{},{}]", this.getClass().getSimpleName(), amount, lowerBound, upperBound);
+            LOGGER.debug("{} #checkAndSet({}): Out of range [{},{}]", this.getClass().getSimpleName(), amount, lowerBound, upperBound);
         }
     }
 
@@ -61,7 +61,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     @Override
     public void initialize() {
         super.initialize();
-        setValue(initialValue);
+        checkAndSet(initialValue);
     }
 
     protected AbstractRangeElementProperty(AbstractBuilder<A, ? extends AbstractRangeElementProperty<E,A>, ? extends AbstractBuilder<A, ?, ?, E>, E> builder) {
