@@ -40,7 +40,7 @@ public class TreesTest {
             @Override
             public Iterator<? extends TreeNodeImpl> apply(@Nullable TreeNodeImpl stringTreeNode) {
                 assert stringTreeNode != null;
-                return stringTreeNode.childConditions().iterator();
+                return stringTreeNode.children().iterator();
             }
         });
 
@@ -55,7 +55,7 @@ public class TreesTest {
             @Override
             public Iterator<? extends TreeNodeImpl> apply(@Nullable TreeNodeImpl stringTreeNode) {
                 assert stringTreeNode != null;
-                return stringTreeNode.childConditions().iterator();
+                return stringTreeNode.children().iterator();
             }
         });
 
@@ -83,7 +83,7 @@ public class TreesTest {
         }
 
         @Override
-        public Iterable<TreeNodeImpl> childConditions() {
+        public Iterable<TreeNodeImpl> children() {
             return children;
         }
 

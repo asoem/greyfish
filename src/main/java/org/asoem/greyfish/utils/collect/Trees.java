@@ -106,7 +106,7 @@ public final class Trees {
             @Nullable
             @Override
             public Iterator<? extends T> apply(@Nullable T input) {
-                return checkNotNull(input).childConditions().iterator();
+                return checkNotNull(input).children().iterator();
             }
         });
     }

@@ -6,5 +6,5 @@ package org.asoem.greyfish.utils.collect;
  * Time: 09:04
  */
 public interface TreeNode<T extends TreeNode<T>> {
-    Iterable<T> childConditions();
+    Iterable<T> children();
 }
