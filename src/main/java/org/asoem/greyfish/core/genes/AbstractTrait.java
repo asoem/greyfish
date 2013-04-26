@@ -4,8 +4,12 @@ import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.TypedSupplier;
 
 import java.util.Collections;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * User: christoph
@@ -39,9 +43,12 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("unchecked") // should be safe if TypedSupplier is implemented correctly
     @Override
-    public void trySet(Object o) throws ClassCastException {
-        set((T) o);
+    public void setFromSupplier(TypedSupplier<?> supplier) {
+        checkNotNull(supplier);
+        checkArgument(supplier.getValueType().equals(this.getValueType()));
+        set((T) supplier.get());
     }
 
     @Override

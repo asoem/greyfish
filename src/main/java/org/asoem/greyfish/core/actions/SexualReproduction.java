@@ -5,11 +5,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.genes.*;
-import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Tagged;
+import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.genes.ChromosomeImpl;
+import org.asoem.greyfish.core.genes.TraitVector;
+import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,18 +95,25 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zipped = Products.zip(egg, sperm.getTraitVectors());
 
         // segregate
-        final Iterable<TraitVector<Object>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, TraitVector<?>>, TraitVector<Object>>() {
+        final Iterable<TraitVector<?>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, TraitVector<?>>, TraitVector<?>>() {
             @Override
-            public TraitVector<Object> apply(Product2<AgentTrait<A, ?>, TraitVector<?>> tuple) {
+            public TraitVector<?> apply(Product2<AgentTrait<A, ?>, TraitVector<?>> tuple) {
                 final AgentTrait<A, ?> trait = tuple._1();
                 final TraitVector<?> traitVector = tuple._2();
-                final Object segregated = AgentTraits.segregate(trait, trait.get(), traitVector.get());
-                final Object mutated = AgentTraits.mutate(trait, segregated);
-                return new TraitVector<Object>(mutated, trait.getRecombinationProbability());
+                return combine(trait, traitVector);
             }
         });
 
         return new ChromosomeImpl(genes, Sets.newHashSet(femaleID, maleID));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> TraitVector<?> combine(AgentTrait<?,T> trait, TypedSupplier<?> supplier) {
+        checkArgument(trait.getValueType().equals(supplier.getValueType()));
+        return TraitVector.create(
+                trait.mutate(trait.segregate(trait.get(), (T) supplier.get())),
+                trait.getRecombinationProbability(),
+                trait.getValueType());
     }
 
     @Override

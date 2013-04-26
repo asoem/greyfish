@@ -1,23 +1,22 @@
 package org.asoem.greyfish.core.agent;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.Chromosome;
-import org.asoem.greyfish.core.genes.TraitVector;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.HasName;
+import org.asoem.greyfish.utils.base.TypedSupplier;
 import org.asoem.greyfish.utils.collect.FunctionalList;
+import org.asoem.greyfish.utils.collect.Product2;
+import org.asoem.greyfish.utils.collect.Products;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
@@ -292,13 +291,9 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     @Override
     public void updateGeneComponents(Chromosome chromosome) {
         checkNotNull(chromosome);
-        AgentTraits.updateValues(getTraits(), Lists.transform(chromosome.getTraitVectors(), new Function<TraitVector<?>, Object>() {
-            @Override
-            public Object apply(@Nullable TraitVector<?> o) {
-                assert o != null;
-                return o.get();
-            }
-        }));
+        for (Product2<AgentTrait<A,?>, ? extends TypedSupplier<?>> tuple2 : Products.zip(getTraits(), chromosome.getTraitVectors())) {
+            tuple2._1().setFromSupplier(tuple2._2());
+        }
         setParents(checkNotNull(chromosome.getParents()));
     }
 

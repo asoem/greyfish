@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
@@ -53,7 +54,7 @@ public class RawTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> impl
     }
 
     @Override
-    public Class<? super T> getValueClass() {
+    public TypeToken<T> getValueType() {
         return (Class<? super T>) value.getClass();
     }
 

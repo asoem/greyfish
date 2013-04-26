@@ -52,7 +52,7 @@ public class ChromosomeImpl implements Chromosome {
                 Lists.transform(agent.getTraits(), new Function<AgentTrait<?, ?>, TraitVector<?>>() {
                     @Override
                     public TraitVector<?> apply(AgentTrait<?, ?> input) {
-                        return new TraitVector<Object>(input.get(), 0);
+                        return TraitVector.create(input.get(), 0, typeToken);
                     }
                 }), Sets.newHashSet(agent.getId()));
     }

@@ -17,9 +17,9 @@ public class ChromosomeImplTest {
     @Test
     public void testRecombined() throws Exception {
         // given
-        final TraitVector<String> foo = new TraitVector<String>("foo", 1.0);
+        final TraitVector<String> foo = TraitVector.create("foo", 1.0, typeToken);
         ChromosomeImpl a = new ChromosomeImpl(ImmutableList.of(foo), Sets.newHashSet(11));
-        final TraitVector<String> bar = new TraitVector<String>("bar", 0.0);
+        final TraitVector<String> bar = TraitVector.create("bar", 0.0, typeToken);
         ChromosomeImpl b = new ChromosomeImpl(ImmutableList.of(bar), Sets.newHashSet(12));
 
         // when

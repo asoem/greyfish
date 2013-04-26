@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.*;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.Callback;
@@ -29,6 +30,7 @@ import static org.asoem.greyfish.utils.math.RandomUtils.sample;
 @Tagged("traits")
 public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, String> implements Serializable {
 
+    private static final TypeToken<String> STRING_TYPE_TOKEN = TypeToken.of(String.class);
     private Table<String, String, Callback<? super DiscreteTrait<A>, Double>> mutationTable;
     private Callback<? super DiscreteTrait<A>, String> initializationKernel;
     private Callback<? super DiscreteTrait<A>, String> segregationKernel;
@@ -106,8 +108,8 @@ public class DiscreteTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Strin
     }
 
     @Override
-    public Class<? super String> getValueClass() {
-        return String.class;
+    public TypeToken<String> getValueType() {
+        return STRING_TYPE_TOKEN;
     }
 
     @Override

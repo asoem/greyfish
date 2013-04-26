@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.genes.AgentTraits;
 import org.asoem.greyfish.core.genes.ChromosomeImpl;
 import org.asoem.greyfish.core.genes.TraitVector;
 import org.asoem.greyfish.utils.base.Callback;
@@ -33,22 +32,25 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 
-            final ChromosomeImpl chromosome = new ChromosomeImpl(
-                    Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, TraitVector<Object>>() {
-                        @Override
-                        public TraitVector<Object> apply(@Nullable AgentTrait<A, ?> trait) {
-                            assert trait != null;
-                            return new TraitVector<Object>(
-                                    AgentTraits.mutate(trait, trait.get()),
-                                    trait.getRecombinationProbability());
-                        }
-                    }), Sets.newHashSet(agent().getId()));
+            final Iterable<TraitVector<?>> traitVectors = Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, TraitVector<?>>() {
+                @Override
+                public TraitVector<?> apply(@Nullable AgentTrait<A, ?> trait) {
+                    assert trait != null;
+                    return mutatedVector(trait);
+                }
+            });
+
+            final ChromosomeImpl chromosome = new ChromosomeImpl(traitVectors, Sets.newHashSet(agent().getId()));
 
             agent().reproduce(chromosome);
 
             agent().logEvent(this, "offspringProduced", "");
         }
         return ActionState.COMPLETED;
+    }
+
+    private static <T> TraitVector<T> mutatedVector(AgentTrait<?, T> trait) {
+        return TraitVector.create(trait.mutate(trait.get()), trait.getRecombinationProbability(), trait.getValueType());
     }
 
     @Override

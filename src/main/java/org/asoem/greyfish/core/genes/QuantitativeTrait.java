@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
@@ -21,6 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Tagged("traits")
 public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> {
 
+    private static final TypeToken<Double> DOUBLE_TYPE_TOKEN = TypeToken.of(Double.class);
     private Callback<? super QuantitativeTrait<A>, Double> initializationKernel;
 
     private Callback<? super QuantitativeTrait<A>, Double> mutationKernel;
@@ -54,8 +56,8 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
     }
 
     @Override
-    public Class<? super Double> getValueClass() {
-        return Double.class;
+    public TypeToken<Double> getValueType() {
+        return DOUBLE_TYPE_TOKEN;
     }
 
     public Callback<? super QuantitativeTrait<A>, Double> getInitializationKernel() {
