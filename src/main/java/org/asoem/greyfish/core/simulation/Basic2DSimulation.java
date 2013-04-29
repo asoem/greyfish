@@ -192,7 +192,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         for (AddAgentMessage<A> addAgentMessage : addAgentMessages) {
             final A clone = createClone(addAgentMessage.population);
             if (addAgentMessage.chromosome != null)
-                clone.updateGeneComponents(addAgentMessage.chromosome);
+                addAgentMessage.chromosome.updateAgent(clone);
             addAgentMessage.initializer.initialize(clone);
             addAgent(clone);
         }

@@ -23,16 +23,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> {
 
     private static final TypeToken<Double> DOUBLE_TYPE_TOKEN = TypeToken.of(Double.class);
-    private Callback<? super QuantitativeTrait<A>, Double> initializationKernel;
 
-    private Callback<? super QuantitativeTrait<A>, Double> mutationKernel;
+    private final Callback<? super QuantitativeTrait<A>, Double> initializationKernel;
 
-    private Callback<? super QuantitativeTrait<A>, Double> segregationKernel;
+    private final Callback<? super QuantitativeTrait<A>, Double> mutationKernel;
+
+    private final Callback<? super QuantitativeTrait<A>, Double> segregationKernel;
 
     private double value = 0.0;
-
-    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    private QuantitativeTrait() {}
 
     private QuantitativeTrait(QuantitativeTrait<A> doubleMutableGene, DeepCloner cloner) {
         super(doubleMutableGene, cloner);
@@ -70,10 +68,9 @@ public class QuantitativeTrait<A extends Agent<A, ?>> extends AbstractTrait<A, D
 
     @Override
     public void set(Double value) {
-        checkArgument(value instanceof Double);
-        final Double newAllele = (Double) value;
-        checkArgument(!Double.isNaN(newAllele), "allele is NaN: " + value);
-        this.value = newAllele;
+        checkArgument(value != null);
+        checkArgument(!Double.isNaN(value), "allele is NaN: " + value);
+        this.value = value;
     }
 
     @Override

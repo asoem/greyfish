@@ -9,21 +9,16 @@ import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.base.HasName;
-import org.asoem.greyfish.utils.base.TypedSupplier;
 import org.asoem.greyfish.utils.collect.FunctionalList;
-import org.asoem.greyfish.utils.collect.Product2;
-import org.asoem.greyfish.utils.collect.Products;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -289,15 +284,6 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public void updateGeneComponents(Chromosome chromosome) {
-        checkNotNull(chromosome);
-        for (Product2<AgentTrait<A,?>, ? extends TypedSupplier<?>> tuple2 : Products.zip(getTraits(), chromosome.getTraitVectors())) {
-            tuple2._1().setFromSupplier(tuple2._2());
-        }
-        setParents(checkNotNull(chromosome.getParents()));
-    }
-
-    @Override
     public Iterable<AgentNode> children() {
         return Iterables.<AgentNode>concat(
                 getProperties(),
@@ -318,8 +304,6 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     protected abstract void setSimulationContext(SimulationContext<S, A> simulationContext);
 
     protected abstract ActionExecutionStrategy getActionExecutionStrategy();
-
-    protected abstract void setParents(Set<Integer> parents);
 
     @Override
     public int getSimulationStep() {

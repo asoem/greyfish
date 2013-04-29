@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -54,6 +55,11 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
                 return valueCallback.apply(CachingProperty.this, ImmutableMap.<String, Object>of());
             }
         });
+    }
+
+    @Override
+    public TypeToken<T> getValueType() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

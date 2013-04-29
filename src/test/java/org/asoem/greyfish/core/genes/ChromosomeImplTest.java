@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.genes;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.google.common.reflect.TypeToken;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -17,9 +18,9 @@ public class ChromosomeImplTest {
     @Test
     public void testRecombined() throws Exception {
         // given
-        final TraitVector<String> foo = TraitVector.create("foo", 1.0, typeToken);
+        final TraitVector<String> foo = TraitVector.create("foo", 1.0, TypeToken.of(String.class), "");
         ChromosomeImpl a = new ChromosomeImpl(ImmutableList.of(foo), Sets.newHashSet(11));
-        final TraitVector<String> bar = TraitVector.create("bar", 0.0, typeToken);
+        final TraitVector<String> bar = TraitVector.create("bar", 0.0, TypeToken.of(String.class), "");
         ChromosomeImpl b = new ChromosomeImpl(ImmutableList.of(bar), Sets.newHashSet(12));
 
         // when

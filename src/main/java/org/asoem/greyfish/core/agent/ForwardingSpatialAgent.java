@@ -5,6 +5,8 @@ import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
+import java.util.Set;
+
 /**
  * User: christoph
  * Date: 04.12.12
@@ -48,5 +50,10 @@ public abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S 
     @Override
     public void reproduce(Chromosome chromosome) {
         delegate().reproduce(chromosome);
+    }
+
+    @Override
+    public void setParents(Set<Integer> parents) {
+        delegate().setParents(parents);
     }
 }

@@ -50,7 +50,7 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     }
 
     private static <T> TraitVector<T> mutatedVector(AgentTrait<?, T> trait) {
-        return TraitVector.create(trait.mutate(trait.get()), trait.getRecombinationProbability(), trait.getValueType());
+        return TraitVector.create(trait.mutate(trait.get()), trait.getRecombinationProbability(), trait.getValueType(), trait.getName());
     }
 
     @Override

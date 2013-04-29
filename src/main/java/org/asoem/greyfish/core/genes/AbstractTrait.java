@@ -45,7 +45,7 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
 
     @SuppressWarnings("unchecked") // should be safe if TypedSupplier is implemented correctly
     @Override
-    public void setFromSupplier(TypedSupplier<?> supplier) {
+    public void copyFrom(TypedSupplier<?> supplier) {
         checkNotNull(supplier);
         checkArgument(supplier.getValueType().equals(this.getValueType()));
         set((T) supplier.get());

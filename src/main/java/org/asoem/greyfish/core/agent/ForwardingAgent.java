@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.genes.Chromosome;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -213,11 +212,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     @Override
     public void initialize() {
         delegate().initialize();
-    }
-
-    @Override
-    public void updateGeneComponents(Chromosome vector) {
-        delegate().updateGeneComponents(vector);
     }
 
     @Override

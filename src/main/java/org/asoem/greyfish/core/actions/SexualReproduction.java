@@ -113,7 +113,8 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         return TraitVector.create(
                 trait.mutate(trait.segregate(trait.get(), (T) supplier.get())),
                 trait.getRecombinationProbability(),
-                trait.getValueType());
+                trait.getValueType(),
+                trait.getName());
     }
 
     @Override

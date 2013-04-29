@@ -151,7 +151,7 @@ public class DefaultGreyfishSimulationImplTest {
         // then
         assertThat(simulation.getAgents(), contains(agent));
         verify(agent).activate(any(ActiveSimulationContext.class));
-        verify(agent).updateGeneComponents(chromosome);
+        verify(chromosome).updateAgent(agent);
         verify(agent).setProjection(point2D);
     }
 

@@ -1,5 +1,7 @@
 package org.asoem.greyfish.core.genes;
 
+import org.asoem.greyfish.core.agent.Agent;
+
 import java.util.List;
 import java.util.Set;
 
@@ -15,4 +17,6 @@ public interface Chromosome {
     Set<Integer> getParents();
 
     int size();
+
+    public <A extends Agent<A, ?>> void updateAgent(Agent<A, ?> agent);
 }

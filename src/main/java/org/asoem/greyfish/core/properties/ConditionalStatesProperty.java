@@ -7,6 +7,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
@@ -47,6 +48,11 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
         super(cloneable, map);
 
         conditionMap = cloneable.conditionMap;
+    }
+
+    @Override
+    public TypeToken<String> getValueType() {
+        return TypeToken.of(String.class);
     }
 
     @Override

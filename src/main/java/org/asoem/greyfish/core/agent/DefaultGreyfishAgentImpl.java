@@ -193,7 +193,8 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    protected void setParents(Set<Integer> parents) {
+    public void setParents(Set<Integer> parents) {
+        checkNotNull(parents);
         this.parents = parents;
     }
 

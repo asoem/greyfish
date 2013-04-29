@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.collect.Ordering;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -40,6 +41,11 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
     @Override
     public void set(Double value) {
         this.value = value;
+    }
+
+    @Override
+    public TypeToken<Double> getValueType() {
+        return TypeToken.of(Double.class);
     }
 
     @Override
