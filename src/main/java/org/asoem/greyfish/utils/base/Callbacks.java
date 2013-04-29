@@ -43,8 +43,12 @@ public final class Callbacks {
         };
     }
 
+    public static Callback<Object, Object> returnArgument(String key) {
+        return new ArgumentCallback(key);
+    }
+
     public static <R> Callback<Object, R> returnArgument(String x, Class<R> clazz) {
-        return new ArgumentCallback<R>(x, clazz);
+        return new CastingCallback<Object, R>(clazz, returnArgument(x));
     }
 
     public static <R> Callback<Object, R> willThrow(RuntimeException exception) {
@@ -64,6 +68,14 @@ public final class Callbacks {
 
     public static <T> Callback<Object, T> sample(final T e1, final T e2) {
         return new Sample2Callback<T>(e1, e2);
+    }
+
+    public static Callback<Object, Boolean> alwaysTrue() {
+        return BooleanConstantCallback.TRUE;
+    }
+
+    public static Callback<Object, Boolean> alwaysFalse() {
+        return BooleanConstantCallback.FALSE;
     }
 
     private static enum EmptyCallback implements Callback<Object, Void> {
@@ -122,21 +134,35 @@ public final class Callbacks {
         private static final long serialVersionUID = 0;
     }
 
-    private static class ArgumentCallback<R> implements Callback<Object, R>, Serializable {
+    private static class ArgumentCallback implements Callback<Object, Object>, Serializable {
         private final String x;
-        private final Class<R> clazz;
 
-        public ArgumentCallback(String x, Class<R> clazz) {
+        public ArgumentCallback(String x) {
             this.x = checkNotNull(x);
-            this.clazz = checkNotNull(clazz);
         }
 
         @Override
-        public R apply(Object caller, Map<String, ?> args) {
-            return clazz.cast(args.get(x));
+        public Object apply(Object caller, Map<String, ?> args) {
+            return args.get(x);
         }
 
         private static final long serialVersionUID = 0;
+    }
+
+    private static class CastingCallback<C, R> implements Callback<C, R>, Serializable {
+
+        private final Class<R> clazz;
+        private final Callback<C, ?> delegate;
+
+        private CastingCallback(Class<R> clazz, Callback<C, ?> delegate) {
+            this.clazz = clazz;
+            this.delegate = delegate;
+        }
+
+        @Override
+        public R apply(C caller, Map<String, ?> args) {
+            return clazz.cast(delegate.apply(caller, args));
+        }
     }
 
     private static class ThrowingCallable<R> implements Callback<Object, R>, Serializable {
@@ -182,6 +208,22 @@ public final class Callbacks {
         @Override
         public T apply(Object caller, Map<String, ?> args) {
             return RandomUtils.sample(e1, e2);
+        }
+    }
+
+    private enum BooleanConstantCallback implements Callback<Object, Boolean> {
+        TRUE(true),
+        FALSE(false);
+
+        private final boolean bool;
+
+        BooleanConstantCallback(boolean bool) {
+            this.bool = bool;
+        }
+
+        @Override
+        public Boolean apply(Object caller, Map<String, ?> args) {
+           return bool;
         }
     }
 }

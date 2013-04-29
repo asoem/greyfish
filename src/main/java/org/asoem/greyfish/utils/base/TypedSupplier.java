@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public interface TypedSupplier<T> extends Supplier<T> {
 
     /**
-     * @return the type of the value this {@code Supplier} is supplying
+     * @return the {@code TypeToken} for the type of this {@code TypedSupplier}
      */
     TypeToken<T> getValueType();
 
