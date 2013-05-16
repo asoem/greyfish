@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.genes;
+package org.asoem.greyfish.core.traits;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -66,12 +66,6 @@ public class ChromosomeImpl implements Chromosome {
             trait.copyFrom(supplier);
         }
         agent.setParents(getParents());
-    }
-
-    public ChromosomeImpl recombined(Chromosome other) {
-        checkNotNull(other);
-        return new ChromosomeImpl(
-                Genes.recombine(this.traitVectors, other.getTraitVectors()), Sets.union(parents, other.getParents()));
     }
 
     public static ChromosomeImpl forAgent(Agent<?, ?> agent) {

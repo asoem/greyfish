@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.ActionCondition;
-import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.base.ClassFinder;
 import org.asoem.greyfish.utils.base.Tagged;

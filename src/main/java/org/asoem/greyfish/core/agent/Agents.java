@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Predicate;
-import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 
 import static com.google.common.base.Preconditions.checkNotNull;

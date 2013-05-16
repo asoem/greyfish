@@ -1,5 +1,6 @@
-package org.asoem.greyfish.core.genes;
+package org.asoem.greyfish.core.traits;
 
+import com.google.common.collect.Range;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.Callback;
@@ -14,16 +15,17 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Date: 24.04.13
  * Time: 14:32
  */
-public class NonHeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> {
-    private final TypeToken<T> typeToken;
-    private final Callback<? super NonHeritableTrait<A, T>, Boolean> valueConstraint;
-    private final Callback<? super NonHeritableTrait<A, T>, T> initializationKernel;
-    private T value;
+public class AcquiredContinuousTrait<A extends Agent<A, ?>, T extends Comparable<T>> extends AbstractTrait<A, T> implements ContinuousTrait<A, T> {
 
-    private NonHeritableTrait(NonHeritableTrait<A, T> trait, DeepCloner cloner) {
+    private final TypeToken<T> typeToken;
+    private final Callback<? super AcquiredContinuousTrait<A, T>, T> initializationKernel;
+    private T value;
+    private final Range<T> range;
+
+    private AcquiredContinuousTrait(AcquiredContinuousTrait<A, T> trait, DeepCloner cloner) {
         this.value = trait.value;
-        typeToken = trait.typeToken;
-        valueConstraint = trait.valueConstraint;
+        this.typeToken = trait.typeToken;
+        this.range = trait.range;
         initializationKernel = trait.initializationKernel;
     }
 
@@ -39,7 +41,7 @@ public class NonHeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new NonHeritableTrait<A, T>(this, cloner);
+        return new AcquiredContinuousTrait<A, T>(this, cloner);
     }
 
     @Override
@@ -49,7 +51,17 @@ public class NonHeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A
 
     @Override
     public void set(T value) {
-        checkArgument(Callbacks.call(valueConstraint, this));
+        checkArgument(range.contains(value));
         this.value = value;
+    }
+
+    @Override
+    public boolean isHeritable() {
+        return false;
+    }
+
+    @Override
+    public Range<T> getRange() {
+        return range;
     }
 }

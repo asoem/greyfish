@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.io;
 
 import com.google.common.collect.Maps;
 import org.asoem.greyfish.core.agent.SpatialAgent;
-import org.asoem.greyfish.core.genes.AgentTrait;
-import org.asoem.greyfish.core.genes.QuantitativeTrait;
+import org.asoem.greyfish.core.traits.AgentTrait;
+import org.asoem.greyfish.core.traits.DoublePrecisionRealNumberTrait;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -233,7 +233,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
         for (AgentTrait<?, ?> trait : agent.getTraits()) {
             assert trait != null;
-            if (trait instanceof QuantitativeTrait) {
+            if (trait instanceof DoublePrecisionRealNumberTrait) {
                 addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(trait.getName()), (Double) trait.get()));
             } else {
                 addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(trait.getName()), idForName(String.valueOf(trait.get()))));

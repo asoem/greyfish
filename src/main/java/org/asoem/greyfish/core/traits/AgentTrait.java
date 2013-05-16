@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.genes;
+package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;

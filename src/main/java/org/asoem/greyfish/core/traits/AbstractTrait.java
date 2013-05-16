@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.genes;
+package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
@@ -49,11 +49,6 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
         checkNotNull(supplier);
         checkArgument(supplier.getValueType().equals(this.getValueType()));
         set((T) supplier.get());
-    }
-
-    @Override
-    public boolean isHeritable() {
-        return false;
     }
 
     @Override

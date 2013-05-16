@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.genes;
+package org.asoem.greyfish.core.traits;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
@@ -125,6 +125,11 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
     @Override
     public T get() {
         return value;
+    }
+
+    @Override
+    public boolean isHeritable() {
+        return true;
     }
 
     public static <A extends Agent<A, ?>, T> Builder<A, T> builder(TypeToken<T> typeToken) {

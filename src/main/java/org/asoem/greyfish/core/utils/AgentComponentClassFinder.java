@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.utils;
 
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.conditions.ActionCondition;
-import org.asoem.greyfish.core.genes.AgentTrait;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 
 /**

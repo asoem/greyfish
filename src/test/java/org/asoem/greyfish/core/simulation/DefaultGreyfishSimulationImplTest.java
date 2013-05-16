@@ -7,7 +7,7 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.agent.*;
-import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;

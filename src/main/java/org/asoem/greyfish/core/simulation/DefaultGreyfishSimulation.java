@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.utils.space.Point2D;
 

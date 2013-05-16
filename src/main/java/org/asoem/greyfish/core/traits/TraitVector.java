@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.genes;
+package org.asoem.greyfish.core.traits;
 
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.utils.base.HasName;

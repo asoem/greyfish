@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.genes.Chromosome;
+import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;

@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.genes;
+package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -14,11 +14,11 @@ import static org.hamcrest.Matchers.is;
  * Date: 16.10.12
  * Time: 14:05
  */
-public class QuantitativeTraitTest {
+public class DoublePrecisionRealNumberTraitTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final QuantitativeTrait<DefaultGreyfishAgent> quantitativeTrait = QuantitativeTrait.<DefaultGreyfishAgent>builder()
+        final DoublePrecisionRealNumberTrait<DefaultGreyfishAgent> quantitativeTrait = DoublePrecisionRealNumberTrait.<DefaultGreyfishAgent>builder()
                 .name("Test")
                 .initialization(Callbacks.constant(1.0))
                 .mutation(Callbacks.constant(2.0))
@@ -29,7 +29,7 @@ public class QuantitativeTraitTest {
         //quantitativeTrait.setAgent(agent);
 
         // when
-        final QuantitativeTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(quantitativeTrait, Persisters.javaSerialization());
+        final DoublePrecisionRealNumberTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(quantitativeTrait, Persisters.javaSerialization());
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(quantitativeTrait)));
