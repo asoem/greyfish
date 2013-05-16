@@ -22,15 +22,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 09:37
  */
 @Tagged("traits")
-public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> implements ContinuousTrait<A, Double> {
+public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> implements QuantitativeTrait<A, Double> {
 
     private static final TypeToken<Double> DOUBLE_TYPE_TOKEN = TypeToken.of(Double.class);
 
-    private final Callback<? super ContinuousTrait<A, Double>, Double> initializationKernel;
+    private final Callback<? super QuantitativeTrait<A, Double>, Double> initializationKernel;
 
-    private final Callback<? super ContinuousTrait<A, Double>, Double> mutationKernel;
+    private final Callback<? super QuantitativeTrait<A, Double>, Double> mutationKernel;
 
-    private final Callback<? super ContinuousTrait<A, Double>, Double> segregationKernel;
+    private final Callback<? super QuantitativeTrait<A, Double>, Double> segregationKernel;
 
     private double value = 0.0;
 
@@ -42,7 +42,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         this.value = doubleMutableGene.value;
     }
 
-    private DoublePrecisionRealNumberTrait(AbstractBuilder<A, ? extends ContinuousTrait<A, Double>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    private DoublePrecisionRealNumberTrait(AbstractBuilder<A, ? extends QuantitativeTrait<A, Double>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
@@ -60,11 +60,11 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         return DOUBLE_TYPE_TOKEN;
     }
 
-    public Callback<? super ContinuousTrait<A, Double>, Double> getInitializationKernel() {
+    public Callback<? super QuantitativeTrait<A, Double>, Double> getInitializationKernel() {
         return initializationKernel;
     }
 
-    public Callback<? super ContinuousTrait<A, Double>, Double> getMutationKernel() {
+    public Callback<? super QuantitativeTrait<A, Double>, Double> getMutationKernel() {
         return mutationKernel;
     }
 
@@ -104,7 +104,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         return true;
     }
 
-    public Callback<? super ContinuousTrait<A, Double>, Double> getSegregationKernel() {
+    public Callback<? super QuantitativeTrait<A, Double>, Double> getSegregationKernel() {
         return segregationKernel;
     }
 
@@ -160,9 +160,9 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
         private static final Callback<Object,Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
 
-        private Callback<? super ContinuousTrait<A, Double>, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
-        private Callback<? super ContinuousTrait<A, Double>, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
-        private Callback<? super ContinuousTrait<A, Double>, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
+        private Callback<? super QuantitativeTrait<A, Double>, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
+        private Callback<? super QuantitativeTrait<A, Double>, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
+        private Callback<? super QuantitativeTrait<A, Double>, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
         private double value;
 
         protected AbstractBuilder(DoublePrecisionRealNumberTrait<A> quantitativeTrait) {
@@ -175,17 +175,17 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
 
         protected AbstractBuilder() {}
 
-        public B initialization(Callback<? super ContinuousTrait<A, Double>, Double> callback) {
+        public B initialization(Callback<? super QuantitativeTrait<A, Double>, Double> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B mutation(Callback<? super ContinuousTrait<A, Double>, Double> callback) {
+        public B mutation(Callback<? super QuantitativeTrait<A, Double>, Double> callback) {
             this.mutationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super ContinuousTrait<A, Double>, Double> callback) {
+        public B segregation(Callback<? super QuantitativeTrait<A, Double>, Double> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }

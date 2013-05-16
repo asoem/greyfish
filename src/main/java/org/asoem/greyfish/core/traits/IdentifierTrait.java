@@ -28,16 +28,16 @@ import static org.asoem.greyfish.utils.math.RandomUtils.sample;
  * Time: 11:28
  */
 @Tagged("traits")
-public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, String> implements Serializable, DiscreteTrait<A, String> {
+public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, String> implements Serializable, QualitativeTrait<A, String> {
 
     private static final TypeToken<String> STRING_TYPE_TOKEN = TypeToken.of(String.class);
-    private final Table<String, String, Callback<? super DiscreteTrait<A, String>, Double>> mutationTable;
-    private final Callback<? super DiscreteTrait<A, String>, String> initializationKernel;
-    private final Callback<? super DiscreteTrait<A, String>, String> segregationKernel;
+    private final Table<String, String, Callback<? super QualitativeTrait<A, String>, Double>> mutationTable;
+    private final Callback<? super QualitativeTrait<A, String>, String> initializationKernel;
+    private final Callback<? super QualitativeTrait<A, String>, String> segregationKernel;
     @Nullable
     private String state;
 
-    private IdentifierTrait(AbstractBuilder<A, ? extends DiscreteTrait<A, String>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    private IdentifierTrait(AbstractBuilder<A, ? extends QualitativeTrait<A, String>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.mutationTable = ImmutableTable.copyOf(builder.mutationTable);
         this.initializationKernel = builder.initializationKernel;
@@ -63,7 +63,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
     public String mutate(String allele) {
         checkValidState(allele);
 
-        final Map<String, Callback<? super DiscreteTrait<A, String>, Double>> row = mutationTable.row(allele);
+        final Map<String, Callback<? super QualitativeTrait<A, String>, Double>> row = mutationTable.row(allele);
 
         if (row.isEmpty()) {
             assert mutationTable.containsColumn(allele);
@@ -72,7 +72,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
 
         double sum = 0;
         double rand = RandomUtils.nextDouble();
-        for (Map.Entry<String, Callback<? super DiscreteTrait<A, String>, Double>> cell : row.entrySet()) {
+        for (Map.Entry<String, Callback<? super QualitativeTrait<A, String>, Double>> cell : row.entrySet()) {
             final double transitionProbability = Callbacks.call(cell.getValue(), IdentifierTrait.this);
             if (transitionProbability < 0)
                 throw new AssertionError("Every transition probability should be >= 0, was " + transitionProbability);
@@ -91,9 +91,9 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
 
     @SuppressWarnings("SuspiciousMethodCalls")
     private void checkValidState(Object state) {
-        checkArgument(getStates().contains(state),
+        checkArgument(getPossibleValues().contains(state),
                 "State '{}' does not match any of the valid states [{}]",
-                state, Joiner.on(", ").join(getStates()));
+                state, Joiner.on(", ").join(getPossibleValues()));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
     }
 
     @Override
-    public DiscreteTrait<A, String> deepClone(DeepCloner cloner) {
+    public QualitativeTrait<A, String> deepClone(DeepCloner cloner) {
         return new IdentifierTrait<A>(this, cloner);
     }
 
@@ -128,15 +128,15 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
         set(createInitialValue());
     }
 
-    public Table<String, String, Callback<? super DiscreteTrait<A, String>, Double>> getMarkovChain() {
+    public Table<String, String, Callback<? super QualitativeTrait<A, String>, Double>> getMarkovChain() {
         return mutationTable;
     }
 
-    public Callback<? super DiscreteTrait<A, String>, ? extends String> getInitializationKernel() {
+    public Callback<? super QualitativeTrait<A, String>, ? extends String> getInitializationKernel() {
         return initializationKernel;
     }
 
-    public Callback<? super DiscreteTrait<A, String>, String> getSegregationKernel() {
+    public Callback<? super QualitativeTrait<A, String>, String> getSegregationKernel() {
         return segregationKernel;
     }
 
@@ -144,14 +144,8 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
         return new Builder<A>(this);
     }
 
-    @Override
-    public Set<String> getStates() {
+    public Set<String> getPossibleValues() {
         return Sets.union(mutationTable.columnKeySet(), mutationTable.rowKeySet());
-    }
-
-    @Override
-    public int size() {
-        return getStates().size();
     }
 
     @Override
@@ -198,9 +192,9 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
 
     protected abstract static class AbstractBuilder<A extends Agent<A, ?>, T extends IdentifierTrait<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
 
-        private final Table<String, String, Callback<? super DiscreteTrait<A, String>, Double>> mutationTable;
-        private Callback<? super DiscreteTrait<A, String>, String> initializationKernel;
-        private Callback<? super DiscreteTrait<A, String>, String> segregationKernel;
+        private final Table<String, String, Callback<? super QualitativeTrait<A, String>, Double>> mutationTable;
+        private Callback<? super QualitativeTrait<A, String>, String> initializationKernel;
+        private Callback<? super QualitativeTrait<A, String>, String> segregationKernel;
         private String state;
 
         protected AbstractBuilder() {
@@ -215,7 +209,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
             this.state = discreteTrait.state;
         }
 
-        public B addMutation(String state1, String state2, Callback<? super DiscreteTrait<A, String>, Double> transitionCallback) {
+        public B addMutation(String state1, String state2, Callback<? super QualitativeTrait<A, String>, Double> transitionCallback) {
             mutationTable.put(state1, state2, transitionCallback);
             return self();
         }
@@ -225,12 +219,12 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
             return self();
         }
 
-        public B initialization(Callback<? super DiscreteTrait<A, String>, String> callback) {
+        public B initialization(Callback<? super QualitativeTrait<A, String>, String> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super DiscreteTrait<A, String>, String> callback) {
+        public B segregation(Callback<? super QualitativeTrait<A, String>, String> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }
@@ -241,9 +235,9 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
             if (initializationKernel == null)
                 throw new IllegalStateException();
             if (segregationKernel == null)
-                segregationKernel = new Callback<DiscreteTrait<A, String>, String>() {
+                segregationKernel = new Callback<QualitativeTrait<A, String>, String>() {
                     @Override
-                    public String apply(DiscreteTrait<A, String> caller, Map<String, ?> args) {
+                    public String apply(QualitativeTrait<A, String> caller, Map<String, ?> args) {
                         return (String) sample(args.get("x"), args.get("y"));
                     }
                 };

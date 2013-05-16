@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.*;
  * Date: 16.10.12
  * Time: 14:41
  */
-public class DiscreteTraitTest {
+public class QualitativeTraitTest {
 
     @Test
     public void testMutation() throws Exception {
@@ -75,7 +75,7 @@ public class DiscreteTraitTest {
     @Test
     public void testGetStates() throws Exception {
         // given
-        IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        IdentifierTrait<DefaultGreyfishAgent> identifierTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", 1)
@@ -84,7 +84,7 @@ public class DiscreteTraitTest {
                 .build();
 
         // when
-        final Set<String> states = discreteTrait.getStates();
+        final Set<String> states = identifierTrait.getPossibleValues();
 
         // then
         assertThat(states, containsInAnyOrder("a", "b", "c"));
@@ -104,7 +104,7 @@ public class DiscreteTraitTest {
         //discreteTrait.setAgent(agent);
 
         // when
-        final DiscreteTrait<DefaultGreyfishAgent, String> copy = Persisters.createCopy(discreteTrait, Persisters.javaSerialization());
+        final IdentifierTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(discreteTrait, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(discreteTrait)));

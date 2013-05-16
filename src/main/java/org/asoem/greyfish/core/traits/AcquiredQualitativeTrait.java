@@ -17,15 +17,15 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Date: 24.04.13
  * Time: 14:32
  */
-public class AcquiredDiscreteTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements DiscreteTrait<A, T> {
+public class AcquiredQualitativeTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements QualitativeTrait<A, T> {
 
     private final TypeToken<T> typeToken;
-    private final Callback<? super AcquiredDiscreteTrait<A, T>, T> initializationKernel;
+    private final Callback<? super AcquiredQualitativeTrait<A, T>, T> initializationKernel;
     private final Set<T> states;
     private T value;
     private final Ordering<T> ordering;
 
-    private AcquiredDiscreteTrait(AcquiredDiscreteTrait<A, T> trait, DeepCloner cloner) {
+    private AcquiredQualitativeTrait(AcquiredQualitativeTrait<A, T> trait, DeepCloner cloner) {
         this.value = trait.value;
         this.typeToken = trait.typeToken;
         this.initializationKernel = trait.initializationKernel;
@@ -45,7 +45,7 @@ public class AcquiredDiscreteTrait<A extends Agent<A, ?>, T> extends AbstractTra
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new AcquiredDiscreteTrait<A, T>(this, cloner);
+        return new AcquiredQualitativeTrait<A, T>(this, cloner);
     }
 
     @Override
@@ -64,18 +64,8 @@ public class AcquiredDiscreteTrait<A extends Agent<A, ?>, T> extends AbstractTra
         return false;
     }
 
-    @Override
-    public Set<T> getStates() {
+    public Set<T> getPossibleValues() {
         return states;
     }
 
-    @Override
-    public int size() {
-        return getStates().size();
-    }
-
-    @Override
-    public Ordering<T> getOrdering() {
-        return ordering;
-    }
 }
