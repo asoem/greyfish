@@ -23,7 +23,7 @@
     <logger name="org.asoem.greyfish.cli" additivity="true" level="INFO">
     </logger>
 
-    <logger name="org.asoem.greyfish.core.genes.DiscreteTrait" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.core.traits.IdentifierTrait" additivity="true" level="INFO">
     </logger>
 
     <root level="WARN">
