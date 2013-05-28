@@ -15,14 +15,14 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Date: 24.04.13
  * Time: 14:32
  */
-public class AcquiredQuantitativeTrait<A extends Agent<A, ?>, T extends Comparable<T>> extends AbstractTrait<A, T> implements QuantitativeTrait<A, T> {
+public class AcquiredTrait<A extends Agent<A, ?>, T extends Comparable<T>> extends AbstractTrait<A, T> implements AgentTrait<A,T> {
 
     private final TypeToken<T> typeToken;
-    private final Callback<? super AcquiredQuantitativeTrait<A, T>, T> initializationKernel;
+    private final Callback<? super AcquiredTrait<A, T>, T> initializationKernel;
     private T value;
     private final Range<T> range;
 
-    private AcquiredQuantitativeTrait(AcquiredQuantitativeTrait<A, T> trait, DeepCloner cloner) {
+    private AcquiredTrait(AcquiredTrait<A, T> trait, DeepCloner cloner) {
         this.value = trait.value;
         this.typeToken = trait.typeToken;
         this.range = trait.range;
@@ -41,7 +41,7 @@ public class AcquiredQuantitativeTrait<A extends Agent<A, ?>, T extends Comparab
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new AcquiredQuantitativeTrait<A, T>(this, cloner);
+        return new AcquiredTrait<A, T>(this, cloner);
     }
 
     @Override
@@ -60,8 +60,4 @@ public class AcquiredQuantitativeTrait<A extends Agent<A, ?>, T extends Comparab
         return false;
     }
 
-    @Override
-    public Range<T> getRange() {
-        return range;
-    }
 }

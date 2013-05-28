@@ -22,7 +22,7 @@ public class DoubleGeneTest {
     public void testPersistence() throws Exception {
         // given
         final Callback<Object, Double> callback = Callbacks.constant(1.0);
-        final QuantitativeTrait<DefaultGreyfishAgent, Double> doubleGene = DoublePrecisionRealNumberTrait.<DefaultGreyfishAgent>builder()
+        final AgentTrait<DefaultGreyfishAgent, Double> doubleGene = DoublePrecisionRealNumberTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(constant(1.0))
                 .mutation(constant(1.0))
@@ -30,7 +30,7 @@ public class DoubleGeneTest {
                 .build();
 
         // when
-        final QuantitativeTrait<DefaultGreyfishAgent, Double> copy = Persisters.createCopy(doubleGene, Persisters.javaSerialization());
+        final AgentTrait<DefaultGreyfishAgent, Double> copy = Persisters.createCopy(doubleGene, Persisters.javaSerialization());
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(doubleGene)));

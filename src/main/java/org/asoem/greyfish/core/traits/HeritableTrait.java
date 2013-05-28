@@ -19,19 +19,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 09:37
  */
 @Tagged("traits")
-public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements QualitativeTrait<A, T> {
-
-    private final Callback<? super QualitativeTrait<A, T>, T> initializationKernel;
-
-    private final Callback<? super QualitativeTrait<A, T>, T> mutationKernel;
-
-    private final Callback<? super QualitativeTrait<A, T>, T> segregationKernel;
+public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements AgentTrait<A,T> {
 
     private final TypeToken<T> typeToken;
 
+    private final Callback<? super AgentTrait<A, T>, T> initializationKernel;
+
+    private final Callback<? super AgentTrait<A, T>, T> mutationKernel;
+
+    private final Callback<? super AgentTrait<A, T>, T> segregationKernel;
+
     private T value;
 
-    private HeritableQualitativeTrait(HeritableQualitativeTrait<A, T> trait, DeepCloner cloner) {
+    private HeritableTrait(HeritableTrait<A, T> trait, DeepCloner cloner) {
         super(trait, cloner);
         this.initializationKernel = trait.initializationKernel;
         this.mutationKernel = trait.mutationKernel;
@@ -40,7 +40,7 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
         this.typeToken = trait.typeToken;
     }
 
-    private HeritableQualitativeTrait(AbstractBuilder<A, ? extends QualitativeTrait<A, T>, ? extends AbstractBuilder<A, ?, ?, T>, T> builder) {
+    private HeritableTrait(AbstractBuilder<A, ? extends AgentTrait<A, T>, ? extends AbstractBuilder<A, ?, ?, T>, T> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
@@ -51,7 +51,7 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
 
     @Override
     public DeepCloneable deepClone(DeepCloner cloner) {
-        return new HeritableQualitativeTrait<A, T>(this, cloner);
+        return new HeritableTrait<A, T>(this, cloner);
     }
 
     @Override
@@ -59,11 +59,11 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
         return typeToken;
     }
 
-    public Callback<? super QualitativeTrait<A, T>, T> getInitializationKernel() {
+    public Callback<? super AgentTrait<A, T>, T> getInitializationKernel() {
         return initializationKernel;
     }
 
-    public Callback<? super QualitativeTrait<A, T>, T> getMutationKernel() {
+    public Callback<? super AgentTrait<A, T>, T> getMutationKernel() {
         return mutationKernel;
     }
 
@@ -97,11 +97,11 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
         return true;
     }
 
-    public Callback<? super QualitativeTrait<A, T>, T> getSegregationKernel() {
+    public Callback<? super AgentTrait<A, T>, T> getSegregationKernel() {
         return segregationKernel;
     }
 
-    public static <A extends Agent<A, ?>, T extends Comparable<T>> Builder<A, T> builder() {
+    public static <A extends Agent<A, ?>, T> Builder<A, T> builder() {
         return new Builder<A, T>();
     }
 
@@ -114,10 +114,10 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
         throw new InvalidObjectException("Builder required");
     }
 
-    public static class Builder<A extends Agent<A, ?>, T> extends AbstractBuilder<A, HeritableQualitativeTrait<A, T>, Builder<A, T>, T> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>, T> extends AbstractBuilder<A, HeritableTrait<A, T>, Builder<A, T>, T> implements Serializable {
         private Builder() {}
 
-        private Builder(HeritableQualitativeTrait<A, T> quantitativeTrait) {
+        private Builder(HeritableTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
         }
 
@@ -127,8 +127,8 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
         }
 
         @Override
-        protected HeritableQualitativeTrait<A, T> checkedBuild() {
-            return new HeritableQualitativeTrait<A, T>(this);
+        protected HeritableTrait<A, T> checkedBuild() {
+            return new HeritableTrait<A, T>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -142,19 +142,19 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends HeritableQualitativeTrait<A, T>, B extends AbstractBuilder<A, C, B, T>, T> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends HeritableTrait<A, T>, B extends AbstractBuilder<A, C, B, T>, T> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
 
         private final Callback<Object, T> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
         private final Callback<Object, T> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
         private final Callback<Object, T> DEFAULT_SEGREGATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
 
-        private Callback<? super QualitativeTrait<A, T>, T> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
-        private Callback<? super QualitativeTrait<A, T>, T> mutationKernel = DEFAULT_MUTATION_KERNEL;
-        private Callback<? super QualitativeTrait<A, T>, T> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
+        private Callback<? super AgentTrait<A, T>, T> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
+        private Callback<? super AgentTrait<A, T>, T> mutationKernel = DEFAULT_MUTATION_KERNEL;
+        private Callback<? super AgentTrait<A, T>, T> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
         private T value;
         private TypeToken<T> typeToken;
 
-        protected AbstractBuilder(HeritableQualitativeTrait<A, T> quantitativeTrait) {
+        protected AbstractBuilder(HeritableTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
             this.initializationKernel = quantitativeTrait.initializationKernel;
             this.mutationKernel = quantitativeTrait.mutationKernel;
@@ -164,18 +164,23 @@ public class HeritableQualitativeTrait<A extends Agent<A, ?>, T> extends Abstrac
 
         protected AbstractBuilder() {}
 
-        public B initialization(Callback<? super QualitativeTrait<A, T>, T> callback) {
+        public B initialization(Callback<? super AgentTrait<A, T>, T> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B mutation(Callback<? super QualitativeTrait<A, T>, T> callback) {
+        public B mutation(Callback<? super AgentTrait<A, T>, T> callback) {
             this.mutationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super QualitativeTrait<A, T>, T> callback) {
+        public B segregation(Callback<? super AgentTrait<A, T>, T> callback) {
             this.segregationKernel = checkNotNull(callback);
+            return self();
+        }
+
+        public B ofType(TypeToken<T> typeToken) {
+            this.typeToken = typeToken;
             return self();
         }
 
