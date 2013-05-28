@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import java.math.BigInteger;
 import java.util.BitSet;
@@ -150,5 +151,14 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
 
     public int cardinality() {
         return bitSet.cardinality();
+    }
+
+    public static BitSequence random(int length, RandomGenerator generator) {
+        checkNotNull(generator);
+        BitSet bs = new BitSet();
+        int idx = 0;
+        for (int i=0; i<length; ++i)
+            bs.set(idx++, generator.nextBoolean());
+        return new BitSequence(bs, length);
     }
 }

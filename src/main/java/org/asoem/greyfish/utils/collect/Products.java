@@ -1,10 +1,7 @@
 package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Function;
-import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.DiscreteDomains;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Ranges;
+import com.google.common.collect.*;
 
 import java.util.Iterator;
 
@@ -47,9 +44,16 @@ public class Products {
         return new Zip2<E1, E2>(i1, i2);
     }
 
+    public static <E1, E2, E3> Iterable<Product3<E1, E2, E3>> zip(Iterable<E1> i1, Iterable<E2> i2, Iterable<E3> i3) {
+        checkNotNull(i1);
+        checkNotNull(i2);
+        checkNotNull(i3);
+        return new Zip3<E1, E2, E3>(i1, i2, i3);
+    }
+
     public static <E> Iterable<Product2<E, Integer>> zipWithIndex(Iterable<E> i1) {
         checkNotNull(i1);
-        return new Zip2<E, Integer>(i1, Ranges.atLeast(0).asSet(DiscreteDomains.integers()));
+        return new Zip2<E, Integer>(i1, ContiguousSet.create(Range.atLeast(0), DiscreteDomain.integers()));
     }
 
     public static <E1, E2> Iterable<Product2<E1, E2>> zipAll(Iterable<E1> i1, Iterable<E2> i2, E1 thisElement, E2 thatElement) {
@@ -142,6 +146,41 @@ public class Products {
                         return endOfData();
                 }
             };
+        }
+    }
+
+    /**
+    * User: christoph
+    * Date: 28.05.13
+    * Time: 15:16
+    */
+    private static class Zip3<E1, E2, E3> extends Tuple3<Iterable<E1>, Iterable<E2>, Iterable<E3>> implements Iterable<Product3<E1, E2, E3>> {
+
+        public Zip3(Iterable<E1> i1, Iterable<E2> i2, Iterable<E3> i3) {
+            super(i1, i2, i3);
+        }
+
+        @Override
+        public Iterator<Product3<E1, E2, E3>> iterator() {
+
+            return new AbstractIterator<Product3<E1, E2, E3>>() {
+                private final Iterator<? extends E1> iterator1 = _1().iterator();
+                private final Iterator<? extends E2> iterator2 = _2().iterator();
+                private final Iterator<? extends E3> iterator3 = _3().iterator();
+
+                @Override
+                protected Product3<E1, E2, E3> computeNext() {
+                    if (iterator1.hasNext() && iterator2.hasNext() && iterator3.hasNext())
+                        return new Tuple3<E1, E2, E3>(iterator1.next(), iterator2.next(), iterator3.next());
+                    else
+                        return endOfData();
+
+                }
+            };
+        }
+
+        public static <I1, I2, I3> Zip3<I1, I2, I3> of(Iterable<I1> i1, Iterable<I2> i2, Iterable<I3> i3) {
+            return new Zip3<I1, I2, I3>(i1, i2, i3);
         }
     }
 }
