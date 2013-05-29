@@ -1,18 +1,14 @@
 package org.asoem.greyfish.utils.collect;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import java.math.BigInteger;
 import java.util.BitSet;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.math.RandomUtils.nextBoolean;
 
 /**
  * User: christoph
@@ -43,6 +39,10 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
     public Boolean get(int index) {
         checkElementIndex(index, length());
         return bitSet.get(index);
+    }
+
+    public int cardinality() {
+        return bitSet.cardinality();
     }
 
     @SuppressWarnings("RedundantIfStatement")
@@ -103,41 +103,25 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         return new BitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
-    /**
-     *
-     * @param bitSequence the original BitSequence
-     * @param p the probability with which each bit will be mutated
-     * @return a new BitSequence with each bit mutated with probability {@code p}
-     */
-    public static BitSequence mutate(BitSequence bitSequence, final double p) {
-        final List<Boolean> booleans = Lists.transform(bitSequence, new Function<Boolean, Boolean>() {
-            @Override
-            public Boolean apply(Boolean b) {
-                return nextBoolean(p) ? !b : b;
-            }
-        });
-        return forIterable(booleans);
+    private static BitSequence create(int length, BitSet bitSet) {
+        return new BitSequence(bitSet, length);
     }
 
     public static BitSequence ones(int length) {
-        return fill(length, true);
+        return create(length, BitSets.newBitSet(length, true));
     }
 
     public static BitSequence zeros(int length) {
-        return fill(length, false);
+        return create(length, BitSets.newBitSet(length, false));
     }
 
-    private static BitSequence fill(int length, boolean b) {
-        return forIterable(Iterables.limit(Iterables.cycle(b), length));
-    }
-
-    public static BitSequence forIterable(Iterable<Boolean> val) {
+    public static BitSequence forIterable(Iterable<? extends Boolean> val) {
         checkNotNull(val);
-        BitSet bs = new BitSet();
+        final BitSet bs = new BitSet();
         int idx = 0;
         for(boolean b : val)
             bs.set(idx++, b);
-        return new BitSequence(bs, idx);
+        return create(idx, bs);
     }
 
     /**
@@ -149,16 +133,21 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         return new BitSequence(BitSets.parse(s), s.length());
     }
 
-    public int cardinality() {
-        return bitSet.cardinality();
-    }
-
-    public static BitSequence random(int length, RandomGenerator generator) {
-        checkNotNull(generator);
-        BitSet bs = new BitSet();
+    public static BitSequence random(int length, RandomGenerator rng) {
+        checkNotNull(rng);
+        final BitSet bs = new BitSet(length);
         int idx = 0;
         for (int i=0; i<length; ++i)
-            bs.set(idx++, generator.nextBoolean());
+            bs.set(idx++, rng.nextBoolean());
+        return new BitSequence(bs, length);
+    }
+
+    public static BitSequence random(int length, RandomGenerator rng, double p) {
+        checkNotNull(rng);
+        final BitSet bs = new BitSet(length);
+        int idx = 0;
+        for (int i=0; i<length; ++i)
+            bs.set(idx++, RandomGenerators.nextBoolean(rng, p));
         return new BitSequence(bs, length);
     }
 }

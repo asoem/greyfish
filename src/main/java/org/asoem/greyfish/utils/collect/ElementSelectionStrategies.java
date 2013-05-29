@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public final class ElementSelectionStrategies {
 
                             @Override
                             protected T computeNext() {
-                                final double rand = RandomUtils.nextDouble(0,f_sum);
+                                final double rand = RandomGenerators.nextDouble(RandomGenerators.rng(), 0, f_sum);
                                 Double step_sum = 0.0;
                                 for (T element : elements) {
                                     step_sum += function.apply(element);
@@ -99,7 +99,7 @@ public final class ElementSelectionStrategies {
 
                                 @Override
                                 protected T computeNext() {
-                                    return elements.get(RandomUtils.nextInt(elements.size()));
+                                    return elements.get(RandomGenerators.rng().nextInt(elements.size()));
                                 }
                             };
                         }

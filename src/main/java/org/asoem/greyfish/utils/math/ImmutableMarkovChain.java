@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
 /**
  * User: christoph
@@ -48,7 +49,7 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
         }
 
         double sum = 0;
-        double rand = RandomUtils.nextDouble();
+        double rand = rng().nextDouble();
         for (Map.Entry<S, Double> cell : row.entrySet()) {
             sum += cell.getValue();
             if (sum > rand) {

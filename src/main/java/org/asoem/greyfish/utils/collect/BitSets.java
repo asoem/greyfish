@@ -1,12 +1,10 @@
 package org.asoem.greyfish.utils.collect;
 
-import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.BitSet;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -14,6 +12,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class BitSets {
 
     private BitSets() {}
+
+    public static BitSet newBitSet(int length, boolean init) {
+        final BitSet bs = new BitSet(length);
+        if (init) {
+            for (int i = 0; i < length; i++) {
+                bs.set(i, true);
+            }
+        }
+        return bs;
+    }
 
     public static BitSet copyOf(BigInteger bigInteger) {
         checkArgument(bigInteger.signum() >= 0);
@@ -44,26 +52,21 @@ public final class BitSets {
         return builder.reverse().toString();
     }
 
+    /**
+     * Parses a string of '0' and '1' characters interpreted in big-endian format and transforms it into a BitString
+     * @param s the input string
+     * @return A {@code BitSet} whose bits at indices are set to {@code true}, when the reversed input string has a '1' character at the same index.
+     */
     public static BitSet parse(String s) {
-        final List<Boolean> booleans = Lists.transform(Lists.charactersOf(new StringBuffer(s).reverse()), new Function<Character, Boolean>() {
-            @Nullable
-            @Override
-            public Boolean apply(Character character) {
-                switch (character) {
-                    case '0':
-                        return false;
-                    case '1':
-                        return true;
-                    default:
-                        throw new IllegalArgumentException("Invalid character: " + character);
-                }
-            }
-        });
+        checkArgument(s.matches("[01]*"), "Invalid characters (other than '0' or '1') in string: %s", s);
 
-        BitSet bitSet = new BitSet(booleans.size());
-        for (int i = 0; i < booleans.size(); i++) {
-             bitSet.set(i, booleans.get(i));
+        final ImmutableList<Character> characters = Lists.charactersOf(s);
+        final BitSet bitSet = new BitSet(characters.size());
+        for (int i = 0, j = characters.size()-1; i < characters.size() && j >= 0; i++, j--) {
+            boolean b = characters.get(j) == '1';
+            bitSet.set(i, b);
         }
+
         return bitSet;
     }
 }

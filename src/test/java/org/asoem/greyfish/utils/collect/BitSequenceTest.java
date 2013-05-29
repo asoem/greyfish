@@ -25,12 +25,12 @@ public class BitSequenceTest {
     }
 
     @Test
-    public void testNewMutatedCopy() throws Exception {
+    public void testXor() throws Exception {
         // given
         final BitSequence bitSequence = BitSequence.parse("00000001");
 
         // when
-        final BitSequence mutated = BitSequence.mutate(bitSequence, 1);
+        final BitSequence mutated = bitSequence.xor(BitSequence.ones(bitSequence.length()));
 
         // then
         assertThat(mutated.toString(), is(equalTo("11111110")));
