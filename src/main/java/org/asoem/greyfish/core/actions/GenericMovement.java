@@ -3,10 +3,13 @@ package org.asoem.greyfish.core.actions;
 import org.apache.commons.math3.util.FastMath;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.SpatialAgent;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 
@@ -117,7 +120,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         private Callback<? super GenericMovement<A>, Double> turningAngle = new Callback<GenericMovement<A>, Double>() {
             @Override
             public Double apply(GenericMovement<A> caller, Map<String, ?> args) {
-                return RandomUtils.rnorm(0.0, FastMath.PI / 2);
+                return RandomGenerators.rnorm(RandomGenerators.rng(), 0.0, FastMath.PI / 2);
             }
         };
 

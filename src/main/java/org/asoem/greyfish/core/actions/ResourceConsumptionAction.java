@@ -14,7 +14,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.isEmpty;
@@ -44,7 +44,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
 
     @Override
     protected ImmutableACLMessage.Builder<A> createCFP() {
-        final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(Iterables.size(sensedMates)));
+        final A receiver = Iterables.get(sensedMates, RandomGenerators.rng().nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
         return ImmutableACLMessage.<A>builder()
                 .sender(agent())

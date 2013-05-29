@@ -14,7 +14,6 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.math.RandomUtils;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -23,6 +22,8 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.asoem.greyfish.utils.math.RandomGenerators.nextBoolean;
+import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
 @Tagged("actions")
 public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipantAction<A> {
@@ -79,7 +80,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
             return reply.performative(ACLPerformative.REFUSE);
 
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
-        if (RandomUtils.nextBoolean(probability)) {
+        if (nextBoolean(rng(), probability)) {
 
             final Chromosome chromosome = ChromosomeImpl.forAgent(agent());
             reply.content(chromosome, Chromosome.class)

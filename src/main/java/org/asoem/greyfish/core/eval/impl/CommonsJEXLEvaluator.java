@@ -7,7 +7,7 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.math3.util.FastMath;
 import org.asoem.greyfish.core.eval.*;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import java.io.Serializable;
 
@@ -25,7 +25,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
         JEXL_ENGINE.setFunctions(ImmutableMap.<String, Object>of(
                 "fish", GreyfishVariableFactory.class,
                 "math", Math.class,
-                "rand", RandomUtils.class));
+                "rand", RandomGenerators.class));
     }
     private static final ImmutableMap<String, Object> GLOBAL_VARIABLES = ImmutableMap.<String, Object>builder()
             .put("PI", FastMath.PI)

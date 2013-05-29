@@ -15,7 +15,6 @@ import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.ImmutableMarkovChain;
 import org.asoem.greyfish.utils.math.MarkovChain;
-import org.asoem.greyfish.utils.math.RandomUtils;
 
 import java.text.ParseException;
 import java.util.Map;
@@ -24,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
 /**
  * User: christoph
@@ -69,7 +69,7 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         }
 
         double sum = 0;
-        double rand = RandomUtils.nextDouble();
+        double rand = rng().nextDouble();
         for (Map.Entry<S, Expression> cell : row.entrySet()) {
             try {
                 sum += cell.getValue().evaluate(resolver).asDouble();

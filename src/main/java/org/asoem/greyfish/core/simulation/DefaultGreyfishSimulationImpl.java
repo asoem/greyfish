@@ -2,9 +2,9 @@ package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.core.traits.Chromosome;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.Point2D;
 
@@ -32,7 +32,7 @@ public class DefaultGreyfishSimulationImpl extends Basic2DSimulation<DefaultGrey
 
     @Override
     public void createAgent(Population population) {
-        createAgent(population, ImmutablePoint2D.at(RandomUtils.nextDouble(0.0, getSpace().width()), RandomUtils.nextDouble(0.0, getSpace().height())));
+        createAgent(population, ImmutablePoint2D.at(RandomGenerators.nextDouble(RandomGenerators.rng(), 0.0, getSpace().width()), RandomGenerators.nextDouble(RandomGenerators.rng(), 0.0, getSpace().height())));
     }
 
     @Override

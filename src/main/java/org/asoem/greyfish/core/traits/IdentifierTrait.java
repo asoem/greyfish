@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
-import static org.asoem.greyfish.utils.math.RandomUtils.sample;
 
 /**
  * User: christoph
@@ -71,7 +70,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
         }
 
         double sum = 0;
-        double rand = RandomUtils.nextDouble();
+        double rand = RandomGenerators.rng().nextDouble();
         for (Map.Entry<String, Callback<? super AgentTrait<A, String>, Double>> cell : row.entrySet()) {
             final double transitionProbability = Callbacks.call(cell.getValue(), IdentifierTrait.this);
             if (transitionProbability < 0)
@@ -238,7 +237,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
                 segregationKernel = new Callback<AgentTrait<A, String>, String>() {
                     @Override
                     public String apply(AgentTrait<A, String> caller, Map<String, ?> args) {
-                        return (String) sample(args.get("x"), args.get("y"));
+                        return (String) RandomGenerators.sample(RandomGenerators.rng(), args.get("x"), args.get("y"));
                     }
                 };
         }

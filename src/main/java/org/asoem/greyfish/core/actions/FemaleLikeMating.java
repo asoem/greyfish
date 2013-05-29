@@ -20,7 +20,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
-import org.asoem.greyfish.utils.math.RandomUtils;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import java.util.List;
 
@@ -76,7 +76,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert (sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
-        final A receiver = Iterables.get(sensedMates, RandomUtils.nextInt(sensedMatesCount));
+        final A receiver = Iterables.get(sensedMates, RandomGenerators.rng().nextInt(sensedMatesCount));
         sensedMates = ImmutableList.of();
 
         return ImmutableACLMessage.<A>builder()
@@ -96,7 +96,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
 
         Chromosome chromosome = (Chromosome) messageContent;
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
-        if (RandomUtils.nextBoolean(probability)) {
+        if (RandomGenerators.nextBoolean(RandomGenerators.rng(), probability)) {
             receiveSperm(chromosome, message.getSender());
             builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             LOGGER.info("Accepted mating with p={}", probability);
