@@ -11,6 +11,7 @@ import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOError;
 import java.sql.*;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -29,35 +31,32 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(H2Logger.class);
     private static final int COMMIT_THRESHOLD = 1000;
+
     private final Connection connection;
-    private final List<UpdateOperation> updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
-    private final NameIdMap nameIdMap = new NameIdMap();
+    private final List<UpdateOperation> updateOperationList;
+    private final NameIdMap nameIdMap;
 
-    public H2Logger(String path) {
+    private H2Logger(String path) {
+        this.connection = initDatabase(path);
+        nameIdMap = new NameIdMap();
+        updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
+    }
+
+    public static <A extends SpatialAgent<A, ?, ?>> H2Logger<A> create(String path) {
+        return new H2Logger<A>(path);
+    }
+
+    private Connection initDatabase(String path) {
+        loadDriver();
         checkNotNull(path, "path is null");
-        Connection connection = null;
 
+        final Connection connection;
         try {
-            Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection(
-                    String.format("jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
-                            path), "sa", "");
-            LOGGER.info("Connection opened to database {}", path);
-            this.connection = connection;
-            initDatabase();
+            connection = createConnection(path);
+            initDatabaseStructure(connection);
             connection.setAutoCommit(false);
-        }
-        catch (SQLException e) {
-            try {
-                if (connection != null)
-                    connection.close();
-            } catch (SQLException e1) {
-                LOGGER.warn("Exception during connection.close()", e1);
-            }
+        } catch (SQLException e) {
             throw new IOError(e);
-        }
-        catch (ClassNotFoundException e) {
-            throw new AssertionError("The H2 database driver could not be found");
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -70,10 +69,32 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                 }
             }
         });
+        return connection;
     }
 
-    private void initDatabase() throws SQLException {
-        Statement statement = connection.createStatement();
+    private Connection createConnection(String path) throws SQLException {
+        path = path.replace("~",System.getProperty("user.home"));
+        final File file = new File(path + ".h2.db");
+        LOGGER.info("Creating H2 database file at {}", file.getAbsolutePath());
+        checkArgument(!file.exists(), "Database file exists");
+        final String url = String.format("jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE", path);
+        final Connection connection = DriverManager.getConnection(url, "sa", "");
+        LOGGER.info("Connection opened to url {}", url);
+        assert connection != null;
+        return connection;
+    }
+
+    private void loadDriver() {
+        try {
+            Class.forName("org.h2.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("The H2 database driver could not be found", e);
+        }
+    }
+
+    private void initDatabaseStructure(Connection connection) throws SQLException {
+        assert connection != null;
+        final Statement statement = connection.createStatement();
         try {
             statement.execute(
                     "CREATE TABLE agents (" +
@@ -117,7 +138,16 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                             "x REAL NOT NULL, " +
                             "y REAL NOT NULL " +
                             ")");
-        } finally {
+        }
+        catch (SQLException e) {
+            try {
+                this.connection.close();
+            } catch (SQLException e1) {
+                LOGGER.warn("Exception during connection.close()", e1);
+            }
+            throw e;
+        }
+        finally {
             closeStatement(statement);
         }
     }
