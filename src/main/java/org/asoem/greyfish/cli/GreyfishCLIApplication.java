@@ -161,11 +161,21 @@ public final class GreyfishCLIApplication {
         final Module commandLineModule = createCommandLineModule(optionSet, new OptionExceptionHandler() {
 
             @Override
-            public void exitWithError(@Nullable String message) {
-                if (message != null)
-                    System.out.println(message);
+            public void exit() {
+                exitWithErrorMessage("");
+            }
+
+            @Override
+            public void exitWithErrorMessage(String message) {
+                System.out.println("ERROR: " + message);
                 printHelp(optionParser);
                 System.exit(1);
+            }
+
+            @Override
+            public void exitWithErrorMessage(String message, Throwable throwable) {
+                LOGGER.error(message, throwable);
+                exitWithErrorMessage(message + throwable.getMessage());
             }
         });
 
@@ -197,7 +207,7 @@ public final class GreyfishCLIApplication {
             protected void configure() {
 
                 if (optionSet.nonOptionArguments().size() != 1) {
-                    optionExceptionHandler.exitWithError("A single Model CLASS is required");
+                    optionExceptionHandler.exitWithErrorMessage("A single Model CLASS is required");
                 }
 
                 final String modelClassName = optionSet.nonOptionArguments().get(0);
@@ -208,7 +218,7 @@ public final class GreyfishCLIApplication {
                         final String pathname = (String) optionSet.valueOf("classpath");
                         final File file = new File(pathname);
                         if (!file.canRead())
-                            optionExceptionHandler.exitWithError("Specified classpath is not readable: " + pathname);
+                            optionExceptionHandler.exitWithErrorMessage("Specified classpath is not readable: " + pathname);
 
                         classLoader = URLClassLoader.newInstance(
                                 new URL[]{file.toURI().toURL()},
@@ -222,10 +232,10 @@ public final class GreyfishCLIApplication {
                 try {
                     final Class<?> modelClass = Class.forName(modelClassName, true, classLoader);
                     if (!SimulationModel.class.isAssignableFrom(modelClass))
-                        optionExceptionHandler.exitWithError("Specified Class does not implement " + SimulationModel.class);
+                        optionExceptionHandler.exitWithErrorMessage("Specified Class does not implement " + SimulationModel.class);
                     bind(new TypeLiteral<SimulationModel<?>>(){}).to((Class<SimulationModel<?>>) modelClass);
                 } catch (ClassNotFoundException e) {
-                    optionExceptionHandler.exitWithError("Could not find class " + modelClassName);
+                    optionExceptionHandler.exitWithErrorMessage("Could not find class " + modelClassName);
                 }
 
                 if (optionSet.has("D")) {
@@ -237,8 +247,8 @@ public final class GreyfishCLIApplication {
                                 properties.put(split[0], split[1]);
                             }
                             else {
-                                optionExceptionHandler.exitWithError(
-                                        "Invalid model property definition (-D): " + s +". Expected 'key=value'.");
+                                optionExceptionHandler.exitWithErrorMessage(
+                                        "Invalid model property definition (-D): " + s + ". Expected 'key=value'.");
                             }
                         }
                     }
@@ -252,9 +262,14 @@ public final class GreyfishCLIApplication {
                         .toProvider(Providers.of(optionSet.has("v") ? (String) optionSet.valueOf("v") : null));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance((Integer) optionSet.valueOf("pt"));
-                bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
-                        .toInstance(SimulationLoggers.synchronizedLogger(
-                                new H2Logger<DefaultGreyfishAgent>(optionSet.valueOf("db").toString())));
+                try {
+                    final H2Logger<DefaultGreyfishAgent> h2Logger = H2Logger.create(optionSet.valueOf("db").toString());
+                    bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
+                            .toInstance(SimulationLoggers.synchronizedLogger(
+                                    h2Logger));
+                } catch (Exception e) {
+                    optionExceptionHandler.exitWithErrorMessage("Unable to create new database: ", e);
+                }
             }
         };
     }
@@ -282,6 +297,8 @@ public final class GreyfishCLIApplication {
     }
 
     private static interface OptionExceptionHandler {
-        void exitWithError(String message);
+        void exit();
+        void exitWithErrorMessage(String message);
+        void exitWithErrorMessage(String message, Throwable throwable);
     }
 }
