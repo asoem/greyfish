@@ -1,9 +1,10 @@
 package org.asoem.greyfish.core.io;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
+import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.core.traits.DoublePrecisionRealNumberTrait;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -226,17 +227,35 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
 
     @Override
     public void logAgentCreation(A agent) {
-        addUpdateOperation(new InsertAgentOperation(agent.getId(), idForName(agent.getPopulation().getName()), agent.getTimeOfBirth()));
+        addUpdateOperation(new InsertAgentOperation(
+                agent.getId(),
+                idForName(agent.getPopulation().getName()),
+                agent.getTimeOfBirth()));
+
         final Set<Integer> parents = agent.getParents();
         for (Integer parentId : parents) {
             addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
         }
         for (AgentTrait<?, ?> trait : agent.getTraits()) {
             assert trait != null;
-            if (trait instanceof DoublePrecisionRealNumberTrait) {
-                addUpdateOperation(new InsertGeneAsDoubleOperation(agent.getId(), idForName(trait.getName()), (Double) trait.get()));
-            } else {
-                addUpdateOperation(new InsertGeneAsStringOperation(agent.getId(), idForName(trait.getName()), idForName(String.valueOf(trait.get()))));
+
+            final TypeToken<?> valueType = trait.getValueType();
+            final Object rawValue = trait.get();
+            final Object value = rawValue != null && TypeToken.of(Storeable.class).isAssignableFrom(valueType)
+                    ? ((Storeable) rawValue).convert()
+                    : rawValue;
+
+            if (value instanceof Number) {
+                addUpdateOperation(new InsertTraitAsDoubleOperation(
+                        agent.getId(),
+                        idForName(trait.getName()),
+                        Optional.fromNullable((Number) value).or(Double.NaN).doubleValue()));
+            }
+            else {
+                addUpdateOperation(new InsertTraitAsStringOperation(
+                        agent.getId(),
+                        idForName(trait.getName()),
+                        idForName(String.valueOf(value))));
             }
         }
         tryCommit();
@@ -332,12 +351,12 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
     }
 
-    private static class InsertGeneAsDoubleOperation implements UpdateOperation {
+    private static class InsertTraitAsDoubleOperation implements UpdateOperation {
         private final int agentId;
         private final short geneNameId;
         private final Double allele;
 
-        public InsertGeneAsDoubleOperation(int agentId, short geneNameId, Double allele) {
+        public InsertTraitAsDoubleOperation(int agentId, short geneNameId, Double allele) {
             this.agentId = agentId;
             this.geneNameId = geneNameId;
             this.allele = allele;
@@ -356,12 +375,12 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
     }
 
-    private static class InsertGeneAsStringOperation implements UpdateOperation {
+    private static class InsertTraitAsStringOperation implements UpdateOperation {
         private final int agentId;
         private final short geneNameId;
         private final short traitValueId;
 
-        public InsertGeneAsStringOperation(int agentId, short geneNameId, short traitValueId) {
+        public InsertTraitAsStringOperation(int agentId, short geneNameId, short traitValueId) {
             this.agentId = agentId;
             this.geneNameId = geneNameId;
             this.traitValueId = traitValueId;
