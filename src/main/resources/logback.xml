@@ -14,16 +14,13 @@
         </encoder>
     </appender>
 
-    <logger name="org.asoem.greyfish.core.actions" additivity="true" level="WARN">
+    <logger name="org.asoem.greyfish.core.io" additivity="true" level="INFO">
     </logger>
 
     <logger name="org.asoem.greyfish.models" additivity="true" level="INFO">
     </logger>
 
     <logger name="org.asoem.greyfish.cli" additivity="true" level="INFO">
-    </logger>
-
-    <logger name="org.asoem.greyfish.core.traits.IdentifierTrait" additivity="true" level="INFO">
     </logger>
 
     <root level="WARN">
