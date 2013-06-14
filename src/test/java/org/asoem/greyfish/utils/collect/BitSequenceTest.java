@@ -1,10 +1,13 @@
 package org.asoem.greyfish.utils.collect;
 
+import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * User: christoph
@@ -71,5 +74,19 @@ public class BitSequenceTest {
 
         // then
         assertThat(asString, is(equalTo("11111111")));
+    }
+
+    @Test
+    public void testRandom() throws Exception {
+        // given
+        final RandomGenerator generator = mock(RandomGenerator.class);
+        given(generator.nextBoolean()).willReturn(true, false, false, true, false, true, true, false);
+        final BitSequence bitSequence = BitSequence.random(8, generator);
+
+        // when
+        final String asString = bitSequence.toString();
+
+        // then
+        assertThat(asString, is(equalTo("01101001")));
     }
 }
