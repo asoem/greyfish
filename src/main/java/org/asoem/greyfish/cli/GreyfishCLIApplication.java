@@ -3,9 +3,10 @@ package org.asoem.greyfish.cli;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.google.inject.*;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Named;
@@ -77,7 +78,7 @@ public final class GreyfishCLIApplication {
         final Simulation<?> simulation = model.createSimulation();
 
         if (verbose != null) {
-            startSimulationMonitor(simulation, verbose);
+            startSimulationMonitor(simulation, verbose, steps);
         }
 
         LOGGER.info("Starting {}", simulation);
@@ -103,7 +104,7 @@ public final class GreyfishCLIApplication {
         }
     }
 
-    private void startSimulationMonitor(final Simulation<?> simulation, final String verbose) {
+    private void startSimulationMonitor(final Simulation<?> simulation, final String verbose, final int steps) {
         OutputStream outputStream = null;
         try {
             if (verbose.equals("-")) {
@@ -125,23 +126,34 @@ public final class GreyfishCLIApplication {
             throw new AssertionError(e);
         }
 
-        final PrintWriter writer = new PrintWriter(new BufferedWriter(outputStreamWriter), true);
+        final Closer closer = Closer.create();
+        final PrintWriter writer = closer.register(new PrintWriter(new BufferedWriter(outputStreamWriter), true));
 
         final Runnable simulationMonitorTask = new Runnable() {
             @Override
             public void run() {
+
                 try {
                     while (state == State.STARTUP)
                         Thread.sleep(10);
 
                     while (state == State.RUNNING) {
-                        writer.println(simulation.getStep() + " - " + simulation.countAgents());
+                        //writer.println(simulation.getStep() + " - " + simulation.countAgents());
+
+                        final double progress = simulation.getStep() / steps;
+                        final int progressDiscrete = (int)(progress * 100);
+                        writer.println(String.format("\r[%s%s] %d%%", Strings.repeat("#", progressDiscrete), Strings.repeat(" ", 100 - progressDiscrete), (int)(progress * 100)));
+
                         Thread.sleep(1000);
                     }
                 } catch (InterruptedException e) {
                     LOGGER.error("Simulation polling thread got interrupted");
                 } finally {
-                    Closeables.closeQuietly(writer);
+                    try {
+                        closer.close();
+                    } catch (IOException e) {
+                        LOGGER.warn("Closer.close() had errors", e);
+                    }
                 }
             }
         };
