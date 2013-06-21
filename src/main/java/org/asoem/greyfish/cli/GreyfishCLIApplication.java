@@ -127,7 +127,7 @@ public final class GreyfishCLIApplication {
         }
 
         final Closer closer = Closer.create();
-        final PrintWriter writer = closer.register(new PrintWriter(new BufferedWriter(outputStreamWriter), true));
+        final PrintWriter writer = closer.register(new PrintWriter(outputStreamWriter, true));
 
         final Runnable simulationMonitorTask = new Runnable() {
             @Override
@@ -139,17 +139,23 @@ public final class GreyfishCLIApplication {
 
                     while (state == State.RUNNING) {
                         //writer.println(simulation.getStep() + " - " + simulation.countAgents());
-
-                        final double progress = simulation.getStep() / steps;
-                        final int progressDiscrete = (int)(progress * 100);
-                        writer.println(String.format("\r[%s%s] %d%%", Strings.repeat("#", progressDiscrete), Strings.repeat(" ", 100 - progressDiscrete), (int)(progress * 100)));
-
+                        final double progress = (double) simulation.getStep() / steps;
+                        final String progressBar = String.format("\r[%s%s] %d%% (%d/%d) (%d active agents)",
+                                Strings.repeat("#", (int)(progress * 10)),
+                                Strings.repeat(" ", 10 - (int)(progress * 10)),
+                                (int)(progress * 100),
+                                simulation.getStep(),
+                                steps,
+                                simulation.countAgents());
+                        writer.print(progressBar);
+                        writer.flush();
                         Thread.sleep(1000);
                     }
                 } catch (InterruptedException e) {
                     LOGGER.error("Simulation polling thread got interrupted");
                 } finally {
                     try {
+                        writer.println("\r" + Strings.repeat(" ", 200));
                         closer.close();
                     } catch (IOException e) {
                         LOGGER.warn("Closer.close() had errors", e);
