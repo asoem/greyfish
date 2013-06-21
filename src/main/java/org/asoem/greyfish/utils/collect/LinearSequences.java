@@ -50,7 +50,7 @@ public class LinearSequences {
                 @Override
                 public Range<Integer> apply(@Nullable List<Integer> input) {
                     assert input != null;
-                    return input.size() == 2 ? Ranges.closed(input.get(0), input.get(1)) : Ranges.atLeast(input.get(0));
+                    return input.size() == 2 ? Range.closed(input.get(0), input.get(1)) : Range.atLeast(input.get(0));
                 }
             }));
 

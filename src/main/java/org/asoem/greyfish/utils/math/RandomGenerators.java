@@ -3,10 +3,12 @@ package org.asoem.greyfish.utils.math;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooLargeException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,7 +39,7 @@ public class RandomGenerators {
      * @return a singleton instance of {@link Well19937c}
      */
     public static RandomGenerator well1993c() {
-        return Well1993cSingleton.instance();
+        return Well1993cSingleton.INSTANCE;
     }
 
     /**
@@ -47,8 +49,10 @@ public class RandomGenerators {
      * @return {@code true} with probability {@code p}, {@code false} otherwise
      */
     public static boolean nextBoolean(RandomGenerator rng, double p) {
+        checkNotNull(rng);
         checkArgument(p >= 0 || p <= 1, "{} is not in [0,1]", p);
-        return rng.nextDouble() < p;
+        final double v = rng.nextDouble();
+        return v < p;
     }
 
     public static <S> S sample(RandomGenerator rng, S e1, S e2) {
@@ -68,7 +72,6 @@ public class RandomGenerators {
         return elements.get(rng.nextInt(elements.size()));
     }
 
-
     /**
      * Generates a random value for the normal distribution with the mean equal to {@code mu} and standard deviation equal to {@code sigma}.
      *
@@ -78,8 +81,9 @@ public class RandomGenerators {
      */
     public static double rnorm(RandomGenerator rng, double mu, double sigma) {
         checkNotNull(rng);
-        checkArgument(sigma <= 0, "Sigma must be strictly positive: %s", sigma);
-        return sigma * rng.nextGaussian() + mu;
+        checkArgument(sigma > 0, "Sigma must be strictly positive, was: %s", sigma);
+        final double gaussian = rng.nextGaussian();
+        return sigma * gaussian + mu;
     }
 
     /**
@@ -116,5 +120,21 @@ public class RandomGenerators {
         }
 
         return u * upper + (1.0 - u) * lower;
+    }
+
+    private static class Well1993cSingleton extends RandomAdaptor implements Serializable {
+
+        private static final Well1993cSingleton INSTANCE = new Well1993cSingleton();
+
+        private Well1993cSingleton() {
+            super(new Well19937c());
+        }
+
+        // preserving singleton-ness gives equals()/hashCode() for free
+        private Object readResolve() {
+            return INSTANCE;
+        }
+
+        private static final long serialVersionUID = 0;
     }
 }

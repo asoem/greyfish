@@ -89,4 +89,17 @@ public class BitSequenceTest {
         // then
         assertThat(asString, is(equalTo("01101001")));
     }
+
+    @Test
+    public void testConcat() throws Exception {
+        // given
+        BitSequence sequence1 = BitSequence.ones(10);
+        BitSequence sequence2 = BitSequence.ones(10);
+
+        // when
+        final BitSequence concat = BitSequence.concat(sequence1, sequence2);
+
+        // then
+        assertThat(concat, is(equalTo(BitSequence.ones(20))));
+    }
 }

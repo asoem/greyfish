@@ -1,14 +1,15 @@
 package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import java.math.BigInteger;
 import java.util.BitSet;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.asoem.greyfish.utils.math.RandomGenerators.nextBoolean;
 
 /**
  * User: christoph
@@ -21,8 +22,10 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
     private final int length;
 
     private BitSequence(BitSet bitSet, int length) {
-        this.length = length;
+        assert bitSet != null;
+
         this.bitSet = bitSet;
+        this.length = length;
     }
 
     @Override
@@ -124,6 +127,12 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         return create(idx, bs);
     }
 
+    public static BitSequence concat(BitSequence sequence1, BitSequence sequence2) {
+        checkNotNull(sequence1);
+        checkNotNull(sequence2);
+        return forIterable(Iterables.concat(sequence1, sequence2));
+    }
+
     /**
      * Create a new {@code BitSequence} from given string {@code s} of '0' and '1' chars
      * @param s a string of '0' and '1' chars
@@ -147,7 +156,7 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         final BitSet bs = new BitSet(length);
         int idx = 0;
         for (int i=0; i<length; ++i)
-            bs.set(idx++, RandomGenerators.nextBoolean(rng, p));
+            bs.set(idx++, nextBoolean(rng, p));
         return new BitSequence(bs, length);
     }
 }

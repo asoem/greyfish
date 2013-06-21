@@ -58,7 +58,8 @@ public final class BitSets {
      * @return A {@code BitSet} whose bits at indices are set to {@code true}, when the reversed input string has a '1' character at the same index.
      */
     public static BitSet parse(String s) {
-        checkArgument(s.matches("[01]*"), "Invalid characters (other than '0' or '1') in string: %s", s);
+        checkNotNull(s);
+        checkArgument(s.matches("^[01]*$"), "Invalid characters (other than '0' or '1') in string: %s", s);
 
         final ImmutableList<Character> characters = Lists.charactersOf(s);
         final BitSet bitSet = new BitSet(characters.size());
