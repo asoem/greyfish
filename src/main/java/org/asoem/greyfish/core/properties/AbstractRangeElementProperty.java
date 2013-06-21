@@ -93,6 +93,6 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
     @Override
     public Range<E> getRange() {
-        return Ranges.closed(lowerBound, upperBound);
+        return Range.closed(lowerBound, upperBound);
     }
 }

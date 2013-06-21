@@ -13,6 +13,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * User: christoph
@@ -76,10 +77,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
     @Override
     public Double mutate(Double allele) {
         checkNotNull(allele);
-        final Double x = mutationKernel.apply(this, ImmutableMap.of("x", allele));
-        if (x == null || Double.isNaN(x))
-            throw new AssertionError("Mutation callback returned an invalid value: " + x);
-        return x;
+        return mutationKernel.apply(this, ImmutableMap.of("x", allele));
     }
 
     @Override

@@ -7,12 +7,15 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.Initializer;
+import org.asoem.greyfish.utils.collect.FunctionalList;
+import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -88,6 +91,7 @@ public class DefaultGreyfishSimulationImplTest {
         given(agent.getPopulation()).willReturn(testPopulation);
         given(agent.hasPopulation(testPopulation)).willReturn(true);
         given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
+        given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<DefaultGreyfishAgent, ?>>of());
         @SuppressWarnings("unchecked")
         final Initializer<DefaultGreyfishAgent> initializer = mock(Initializer.class);
 
@@ -162,6 +166,7 @@ public class DefaultGreyfishSimulationImplTest {
         final Population testPopulation = Population.named("TestPopulation");
         given(agent.getPopulation()).willReturn(testPopulation);
         given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
+        given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<DefaultGreyfishAgent, ?>>of());
         final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
                 new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override

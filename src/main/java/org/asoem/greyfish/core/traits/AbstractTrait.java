@@ -62,12 +62,6 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-        set(createInitialValue());
-    }
-
-    @Override
     public T segregate(T allele1, T allele2) {
         return createInitialValue();
     }

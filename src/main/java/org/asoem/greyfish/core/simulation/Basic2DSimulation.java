@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import jsr166y.ForkJoinPool;
@@ -10,11 +11,12 @@ import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.*;
-import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
+import org.asoem.greyfish.core.traits.Chromosome;
+import org.asoem.greyfish.core.traits.InitializerChromosome;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
@@ -191,8 +193,10 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private void processRequestedAgentActivations() {
         for (AddAgentMessage<A> addAgentMessage : addAgentMessages) {
             final A clone = createClone(addAgentMessage.population);
-            if (addAgentMessage.chromosome != null)
-                addAgentMessage.chromosome.updateAgent(clone);
+            final Chromosome chromosome = Optional
+                    .fromNullable(addAgentMessage.chromosome)
+                    .or(InitializerChromosome.INSTANCE);
+            chromosome.updateAgent(clone);
             addAgentMessage.initializer.initialize(clone);
             addAgent(clone);
         }

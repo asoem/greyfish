@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.*;
 
+import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
@@ -29,6 +30,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
 
     private final Callback<? super AgentTrait<A, T>, T> segregationKernel;
 
+    @Nullable
     private T value;
 
     private HeritableTrait(HeritableTrait<A, T> trait, DeepCloner cloner) {
@@ -87,6 +89,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         return initializationKernel.apply(this, ImmutableMap.<String, Object>of());
     }
 
+    @Nullable
     @Override
     public T get() {
         return value;
@@ -151,6 +154,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         private Callback<? super AgentTrait<A, T>, T> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
         private Callback<? super AgentTrait<A, T>, T> mutationKernel = DEFAULT_MUTATION_KERNEL;
         private Callback<? super AgentTrait<A, T>, T> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
+        @Nullable
         private T value;
         private TypeToken<T> typeToken;
 
@@ -185,7 +189,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         }
 
         // only used internally for serialization
-        protected B value(T value) {
+        protected B value(@Nullable T value) {
             this.value = value;
             return self();
         }
