@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.SpatialAgent;
@@ -32,44 +34,45 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(H2Logger.class);
     private static final int COMMIT_THRESHOLD = 1000;
 
-    private final Connection connection;
+    private final Supplier<Connection> connection;
     private final List<UpdateOperation> updateOperationList;
     private final NameIdMap nameIdMap;
 
-    private H2Logger(String path) {
-        this.connection = initDatabase(path);
+    private H2Logger(final String path) {
+        this.connection = Suppliers.memoize(new Supplier<Connection>() {
+            @Override
+            public Connection get() {
+                loadDriver();
+                checkNotNull(path, "path is null");
+
+                final Connection connection1;
+                try {
+                    connection1 = createConnection(path);
+                    initDatabaseStructure(connection1);
+                    connection1.setAutoCommit(false);
+                } catch (SQLException e) {
+                    throw new IOError(e);
+                }
+
+                Runtime.getRuntime().addShutdownHook(new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            finalizeAndShutdownDatabase();
+                        } catch (SQLException e) {
+                            LOGGER.warn("Exception while finalizing the database", e);
+                        }
+                    }
+                });
+                return connection1;
+            }
+        });
         nameIdMap = new NameIdMap();
         updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
     }
 
     public static <A extends SpatialAgent<A, ?, ?>> H2Logger<A> create(String path) {
         return new H2Logger<A>(path);
-    }
-
-    private Connection initDatabase(String path) {
-        loadDriver();
-        checkNotNull(path, "path is null");
-
-        final Connection connection;
-        try {
-            connection = createConnection(path);
-            initDatabaseStructure(connection);
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new IOError(e);
-        }
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    finalizeAndShutdownDatabase();
-                } catch (SQLException e) {
-                    LOGGER.warn("Exception while finalizing the database", e);
-                }
-            }
-        });
-        return connection;
     }
 
     private Connection createConnection(String path) throws SQLException {
@@ -141,7 +144,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
         catch (SQLException e) {
             try {
-                this.connection.close();
+                this.connection.get().close();
             } catch (SQLException e1) {
                 LOGGER.warn("Exception during connection.close()", e1);
             }
@@ -156,9 +159,9 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         LOGGER.info("Finalizing and shutting down the database");
 
         commit();
-        connection.setAutoCommit(true);
+        connection.get().setAutoCommit(true);
 
-        Statement statement = connection.createStatement();
+        Statement statement = connection.get().createStatement();
         statement.execute(
                 "CREATE INDEX ON quantitative_traits(agent_id)");
         statement.execute(
@@ -204,7 +207,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
             for (UpdateOperation updateOperation : updateOperationList) {
                 final String sql = updateOperation.sqlString();
                 if (!preparedStatementMap.containsKey(sql)) {
-                    preparedStatementMap.put(sql, connection.prepareStatement(sql));
+                    preparedStatementMap.put(sql, connection.get().prepareStatement(sql));
                 }
                 final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
                 updateOperation.update(preparedStatement);
@@ -216,7 +219,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                 preparedStatement.executeBatch();
             }
 
-            connection.commit();
+            connection.get().commit();
         } finally {
             for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
                 closeStatement(preparedStatement);
