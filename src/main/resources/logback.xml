@@ -20,7 +20,7 @@
     <logger name="org.asoem.greyfish.models" additivity="true" level="INFO">
     </logger>
 
-    <logger name="org.asoem.greyfish.cli" additivity="true" level="INFO">
+    <logger name="org.asoem.greyfish.cli" additivity="true" level="OFF">
     </logger>
 
     <root level="WARN">

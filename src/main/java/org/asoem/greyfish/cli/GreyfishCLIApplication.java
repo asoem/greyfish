@@ -1,19 +1,15 @@
 package org.asoem.greyfish.cli;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.io.Closer;
-import com.google.inject.*;
+import com.google.common.io.Files;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Module;
+import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import joptsimple.*;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
@@ -21,22 +17,17 @@ import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.H2Logger;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.SimulationModel;
-import org.asoem.greyfish.core.simulation.Simulations;
+import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.logging.SLF4JLogger;
 import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static java.util.Arrays.asList;
 
@@ -48,176 +39,50 @@ import static java.util.Arrays.asList;
 public final class GreyfishCLIApplication {
 
     private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GreyfishCLIApplication.class);
-
-    private static enum State {
-        STARTUP,
-        RUNNING,
-        SHUTDOWN
-    }
-
-    private State state = State.STARTUP;
-
-    @Inject
-    private GreyfishCLIApplication(final SimulationModel<?> model,
-                                   @Named("steps") final int steps,
-                                   @Nullable @Named("verbose") final String verbose,
-                                   @Named("parallelizationThreshold") final int parallelizationThreshold) {
-        final List<Predicate<Simulation<?>>> predicateList = Lists.newArrayList();
-
-        predicateList.add(new Predicate<Simulation<?>>() {
-            @Override
-            public boolean apply(Simulation<?> parallelizedSimulation) {
-                return parallelizedSimulation.getStep() < steps;
-            }
-        });
-
-        LOGGER.info("Creating simulation for model {}", model.getClass());
-        LOGGER.info("Model parameters after injection: {}",
-                Joiner.on(", ").withKeyValueSeparator("=").useForNull("null").join(ModelParameters.extract(model)));
-
-        final Simulation<?> simulation = model.createSimulation();
-
-        if (verbose != null) {
-            startSimulationMonitor(simulation, verbose, steps);
-        }
-
-        LOGGER.info("Starting {}", simulation);
-        final Runnable simulationTask = new Runnable() {
-            @Override
-            public void run() {
-                state = State.RUNNING;
-                Simulations.runWhile(simulation, Predicates.and(predicateList));
-            }
-        };
-        final Future<?> future = Executors.newSingleThreadExecutor().submit(simulationTask);
-        try {
-            future.get();
-        } catch (InterruptedException e) {
-            LOGGER.error("Simulation thread got interrupted", e);
-        } catch (ExecutionException e) {
-            LOGGER.error("Exception occurred while executing simulation", e);
-        }
-        finally {
-            LOGGER.info("Shutting down simulation {}", simulation);
-            simulation.shutdown();
-            state = State.SHUTDOWN;
-        }
-    }
-
-    private void startSimulationMonitor(final Simulation<?> simulation, final String verbose, final int steps) {
-        OutputStream outputStream = null;
-        try {
-            if (verbose.equals("-")) {
-                outputStream = System.out;
-            }
-            else {
-                File verboseFile = new File(verbose);
-                outputStream = new FileOutputStream(verboseFile);
-                LOGGER.info("Writing verbose output to file {}", verboseFile.getAbsolutePath());
-            }
-        }  catch (IOException e) {
-            LOGGER.error("Error while writing", e);
-        }
-
-        OutputStreamWriter outputStreamWriter;
-        try {
-            outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e);
-        }
-
-        final Closer closer = Closer.create();
-        final PrintWriter writer = closer.register(new PrintWriter(outputStreamWriter, true));
-
-        final Runnable simulationMonitorTask = new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    while (state == State.STARTUP)
-                        Thread.sleep(10);
-
-                    while (state == State.RUNNING) {
-                        //writer.println(simulation.getStep() + " - " + simulation.countAgents());
-                        final double progress = (double) simulation.getStep() / steps;
-                        final String progressBar = String.format("\r[%s%s] %d%% (%d/%d) (%d active agents)",
-                                Strings.repeat("#", (int)(progress * 10)),
-                                Strings.repeat(" ", 10 - (int)(progress * 10)),
-                                (int)(progress * 100),
-                                simulation.getStep(),
-                                steps,
-                                simulation.countAgents());
-                        writer.print(progressBar);
-                        writer.flush();
-                        Thread.sleep(1000);
-                    }
-                } catch (InterruptedException e) {
-                    LOGGER.error("Simulation polling thread got interrupted");
-                } finally {
-                    try {
-                        writer.println("\r" + Strings.repeat(" ", 200));
-                        closer.close();
-                    } catch (IOException e) {
-                        LOGGER.warn("Closer.close() had errors", e);
-                    }
+    private static final OptionParser OPTION_PARSER = new OptionParser();
+    private static final OptionSpecBuilder HELP_OPTION_SPEC =
+            OPTION_PARSER.acceptsAll(asList("h", "?"), "Print this help");
+    private static final ArgumentAcceptingOptionSpec<String> CLASSPATH_OPTION_SPEC =
+            OPTION_PARSER.acceptsAll(asList("cp", "classpath"), "add to classpath (where model classes can be found)")
+            .withRequiredArg().ofType(String.class);
+    private static final OptionSpecBuilder REPRODUCIBLE_MODE_OPTION_SPEC =
+            OPTION_PARSER.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0");
+    private static final ArgumentAcceptingOptionSpec<String> SIMULATION_NAME_OPTION_SPEC =
+            OPTION_PARSER.acceptsAll(asList("n", "name"), "Set simulation name")
+            .withRequiredArg().ofType(String.class);
+    private static final ArgumentAcceptingOptionSpec<Integer> PARALLELIZATION_THRESHOLD_OPTION_SPEC =
+            OPTION_PARSER.accepts("pt", "Set parallelization threshold")
+            .withRequiredArg().ofType(Integer.class).defaultsTo(1000);
+    private static final ArgumentAcceptingOptionSpec<ModelParameterOptionValue> MODEL_PARAMETER_OPTION_SPEC =
+            OPTION_PARSER.accepts("D", "set model parameter for given model class")
+            .withRequiredArg().withValuesConvertedBy(new ValueConverter<ModelParameterOptionValue>() {
+                @Override
+                public ModelParameterOptionValue convert(String value) {
+                    final String[] split = value.split("=", 2);
+                    return new ModelParameterOptionValue(split[0], split[1]);
                 }
-            }
-        };
 
-        Executors.newSingleThreadExecutor().execute(simulationMonitorTask);
-    }
+                @Override
+                public Class<ModelParameterOptionValue> valueType() {
+                    return ModelParameterOptionValue.class;
+                }
 
-    public static void main(final String[] args) {
-        final OptionParser optionParser = createOptionParser();
-        final OptionSet optionSet = optionParser.parse(args);
+                @Override
+                public String valuePattern() {
+                    return "key=value";
+                }
+            }).describedAs("key=value");
+    private static final ArgumentAcceptingOptionSpec<String> WORKING_DIRECTORY_OPTION_SPEC =
+            OPTION_PARSER.accepts("w", "Set working directory").withOptionalArg().ofType(String.class).defaultsTo("./");
+    private static final OptionSpecBuilder QUIET_OPTION_SPEC =
+            OPTION_PARSER.accepts("q", "Be quiet. Don't print progress information");
+    private static final ArgumentAcceptingOptionSpec<Integer> STEPS_OPTION_SPEC =
+            OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
+            .withRequiredArg().ofType(Integer.class);
 
-        if (optionSet.has("h") || optionSet.has("?")) {
-            printHelp(optionParser);
-            System.exit(0);
-        }
+    private GreyfishCLIApplication() {}
 
-        final Module commandLineModule = createCommandLineModule(optionSet, new OptionExceptionHandler() {
-
-            @Override
-            public void exit() {
-                exitWithErrorMessage("");
-            }
-
-            @Override
-            public void exitWithErrorMessage(String message) {
-                System.out.println("ERROR: " + message);
-                printHelp(optionParser);
-                System.exit(1);
-            }
-
-            @Override
-            public void exitWithErrorMessage(String message, Throwable throwable) {
-                LOGGER.error(message, throwable);
-                exitWithErrorMessage(message + throwable.getMessage());
-            }
-        });
-
-        final RandomGenerator randomGenerator =
-                optionSet.has("R") ? new Well19937c(0) : new Well19937c();
-
-        Guice.createInjector(
-                new CoreModule(randomGenerator),
-                commandLineModule
-        ).getInstance(GreyfishCLIApplication.class);
-
-        System.exit(0);
-    }
-
-    private static void printHelp(OptionParser optionParser) {
-        System.out.println("Usage: greyfish [Options] <ModelClass>");
-        try {
-            optionParser.printHelpOn(System.out);
-        } catch (IOException e) {
-            LOGGER.error("Error while writing to System.out", e);
-        }
-    }
-
-    private static Module createCommandLineModule(final OptionSet optionSet, final OptionExceptionHandler optionExceptionHandler) {
+    private static Module createCommandLineModule(final OptionSet optionSet) {
 
         return new AbstractModule() {
             @SuppressWarnings("unchecked")
@@ -225,18 +90,18 @@ public final class GreyfishCLIApplication {
             protected void configure() {
 
                 if (optionSet.nonOptionArguments().size() != 1) {
-                    optionExceptionHandler.exitWithErrorMessage("A single Model CLASS is required");
+                    exitWithErrorMessage("A single Model CLASS is required");
                 }
 
                 final String modelClassName = optionSet.nonOptionArguments().get(0);
 
                 ClassLoader classLoader = GreyfishCLIApplication.class.getClassLoader();
-                if (optionSet.has("classpath")) {
+                if (optionSet.has(CLASSPATH_OPTION_SPEC)) {
                     try {
-                        final String pathname = (String) optionSet.valueOf("classpath");
-                        final File file = new File(pathname);
+                        final String pathName = optionSet.valueOf(CLASSPATH_OPTION_SPEC);
+                        final File file = new File(pathName);
                         if (!file.canRead())
-                            optionExceptionHandler.exitWithErrorMessage("Specified classpath is not readable: " + pathname);
+                            exitWithErrorMessage("Specified classpath is not readable: " + pathName);
 
                         classLoader = URLClassLoader.newInstance(
                                 new URL[]{file.toURI().toURL()},
@@ -250,73 +115,114 @@ public final class GreyfishCLIApplication {
                 try {
                     final Class<?> modelClass = Class.forName(modelClassName, true, classLoader);
                     if (!SimulationModel.class.isAssignableFrom(modelClass))
-                        optionExceptionHandler.exitWithErrorMessage("Specified Class does not implement " + SimulationModel.class);
+                        exitWithErrorMessage("Specified Class does not implement " + SimulationModel.class);
                     bind(new TypeLiteral<SimulationModel<?>>(){}).to((Class<SimulationModel<?>>) modelClass);
                 } catch (ClassNotFoundException e) {
-                    optionExceptionHandler.exitWithErrorMessage("Could not find class " + modelClassName);
+                    exitWithErrorMessage("Could not find class " + modelClassName);
                 }
 
-                if (optionSet.has("D")) {
+                if (optionSet.has(MODEL_PARAMETER_OPTION_SPEC)) {
                     final Map<String, String> properties = Maps.newHashMap();
-                    for (Object s : optionSet.valuesOf("D")) {
-                        if (String.class.isInstance(s)) {
-                            final String[] split = ((String) s).split("=", 2);
-                            if (split.length == 2) {
-                                properties.put(split[0], split[1]);
-                            }
-                            else {
-                                optionExceptionHandler.exitWithErrorMessage(
-                                        "Invalid model property definition (-D): " + s + ". Expected 'key=value'.");
-                            }
-                        }
+                    for (ModelParameterOptionValue s : optionSet.valuesOf(MODEL_PARAMETER_OPTION_SPEC)) {
+                        properties.put(s.key, s.value);
                     }
-
                     bindListener(Matchers.any(), new ModelParameterTypeListener(properties));
                 }
 
                 bind(Integer.class).annotatedWith(Names.named("steps"))
-                        .toInstance((Integer) optionSet.valueOf("steps"));
-                bind(String.class).annotatedWith(Names.named("verbose"))
-                        .toProvider(Providers.of(optionSet.has("v") ? (String) optionSet.valueOf("v") : null));
+                        .toInstance(optionSet.valueOf(STEPS_OPTION_SPEC));
+                bind(Boolean.class).annotatedWith(Names.named("q"))
+                        .toProvider(Providers.of(optionSet.has(QUIET_OPTION_SPEC)));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
-                        .toInstance((Integer) optionSet.valueOf("pt"));
+                        .toInstance(optionSet.valueOf(PARALLELIZATION_THRESHOLD_OPTION_SPEC));
                 try {
-                    final H2Logger<DefaultGreyfishAgent> h2Logger = H2Logger.create(optionSet.valueOf("db").toString());
+                    final String path = Files.simplifyPath(optionSet.valueOf(WORKING_DIRECTORY_OPTION_SPEC) + "./data/" + optionSet.valueOf(SIMULATION_NAME_OPTION_SPEC));
+                    final H2Logger<DefaultGreyfishAgent> h2Logger = H2Logger.create(path);
                     bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
                             .toInstance(SimulationLoggers.synchronizedLogger(
                                     h2Logger));
                 } catch (Exception e) {
-                    optionExceptionHandler.exitWithErrorMessage("Unable to create new database: ", e);
+                    exitWithErrorMessage("Unable to create new database: ", e);
                 }
             }
         };
     }
 
-    @SuppressWarnings("unchecked")
-    private static OptionParser createOptionParser() {
-        final OptionParser parser = new OptionParser();
+    public static void main(final String[] args) {
 
-        parser.accepts("steps", "stop simulation after MAX steps")
-                .withRequiredArg().ofType(Integer.class);
-        parser.accepts("v", "Write simulation status report to file or stout if no argument")
-                .withRequiredArg().ofType(String.class).describedAs("file");
-        parser.accepts("D", "set model parameter for given model class")
-                .withRequiredArg().describedAs("key=value");
-        parser.accepts("pt", "Set parallelization threshold")
-                .withRequiredArg().ofType(Integer.class).defaultsTo(1000);
-        parser.accepts("db", "Set database path")
-                .withRequiredArg().ofType(String.class);
-        parser.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0");
-        parser.accepts("classpath", "add to classpath (where model classes can be found)")
-                .withRequiredArg().ofType(String.class);
-        parser.acceptsAll(asList("h", "?"), "Print this help");
+        final OptionParser optionParser = OPTION_PARSER;
 
-        return parser;
+        try {
+            final OptionSet optionSet = optionParser.parse(args);
+
+            if (optionSet.has(HELP_OPTION_SPEC)) {
+                printHelp(optionParser);
+                System.exit(0);
+            }
+
+            final Module commandLineModule = createCommandLineModule(optionSet);
+
+            final RandomGenerator randomGenerator =
+                    optionSet.has(REPRODUCIBLE_MODE_OPTION_SPEC) ? new Well19937c(0) : new Well19937c();
+
+            final GreyfishSimulationRunner application = Guice.createInjector(
+                    new CoreModule(randomGenerator),
+                    commandLineModule
+            ).getInstance(GreyfishSimulationRunner.class);
+
+            application.run();
+        } catch (OptionException e) {
+            exitWithErrorMessage("Failed parsing options: ", e);
+        } catch (RuntimeException e) {
+            System.out.println("Internal Error: " + e.getMessage());
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
+
+        System.exit(0);
     }
 
-    private static interface OptionExceptionHandler {
-        void exit();
-        void exitWithErrorMessage(String message);
-        void exitWithErrorMessage(String message, Throwable throwable);
+    private static void exitWithErrorMessage(String message) {
+        System.out.println("ERROR: " + message);
+        printHelp(OPTION_PARSER);
+        System.exit(1);
+    }
+
+    private static void exitWithErrorMessage(String message, Throwable throwable) {
+        LOGGER.error(message, throwable);
+        exitWithErrorMessage(message + throwable.getMessage());
+    }
+
+    private static void printHelp(OptionParser optionParser) {
+        System.out.println("Usage: greyfish [Options] <ModelClass>");
+        try {
+            optionParser.printHelpOn(System.out);
+        } catch (IOException e) {
+            LOGGER.error("Error while writing to System.out", e);
+        }
+    }
+
+    private static class ModelParameterOptionValue implements Product2<String, String> {
+
+        private final String value;
+        private final String key;
+
+        private ModelParameterOptionValue(String value, String key) {
+            assert key != null;
+            assert value != null;
+
+            this.value = value;
+            this.key = key;
+        }
+
+        @Override
+        public String _1() {
+            return key;
+        }
+
+        @Override
+        public String _2() {
+            return value;
+        }
     }
 }
