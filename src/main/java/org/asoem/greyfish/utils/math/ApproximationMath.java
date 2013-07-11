@@ -73,7 +73,7 @@ public final class ApproximationMath {
     private static final double EXP_C = 45799.0;  /* Read article for choice of c values */
 
     public static UnivariateFunction gaussianFunction(final double norm, final double mean, double sigma) {
-        Preconditions.checkArgument(sigma > 0);
+        Preconditions.checkArgument(sigma > 0, "Sigma must be strictly positive, but was %s", sigma);
         final double i2s2 = i2s2(sigma);
 
         return new UnivariateFunction() {
