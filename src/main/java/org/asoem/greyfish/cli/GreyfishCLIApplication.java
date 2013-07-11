@@ -71,7 +71,7 @@ public final class GreyfishCLIApplication {
                 public String valuePattern() {
                     return "key=value";
                 }
-            }).describedAs("key=value");
+            });
     private static final ArgumentAcceptingOptionSpec<String> WORKING_DIRECTORY_OPTION_SPEC =
             OPTION_PARSER.accepts("w", "Set working directory").withOptionalArg().ofType(String.class).defaultsTo("./");
     private static final OptionSpecBuilder QUIET_OPTION_SPEC =
@@ -131,7 +131,7 @@ public final class GreyfishCLIApplication {
 
                 bind(Integer.class).annotatedWith(Names.named("steps"))
                         .toInstance(optionSet.valueOf(STEPS_OPTION_SPEC));
-                bind(Boolean.class).annotatedWith(Names.named("q"))
+                bind(Boolean.class).annotatedWith(Names.named("quiet"))
                         .toProvider(Providers.of(optionSet.has(QUIET_OPTION_SPEC)));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance(optionSet.valueOf(PARALLELIZATION_THRESHOLD_OPTION_SPEC));
