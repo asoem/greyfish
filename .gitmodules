@@ -1,0 +1,6 @@
+[submodule "greyfish-core"]
+	path = greyfish-core
+	url = ssh://git@bitbucket.org/oeser/greyfish-core.git
+[submodule "greyfish-utils"]
+	path = greyfish-utils
+	url = ssh://git@bitbucket.org/oeser/greyfish-utils.git
