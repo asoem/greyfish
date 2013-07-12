@@ -7,10 +7,10 @@ import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogger<A> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(H2Logger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(H2Logger.class);
     private static final int COMMIT_THRESHOLD = 1000;
 
     private final Supplier<Connection> connection;

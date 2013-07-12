@@ -1,6 +1,9 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -73,8 +76,8 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     }
 
     public WalledPointSpace(int width, int height, WalledTile[] walledTiles, TwoDimTreeFactory<O> treeFactory) {
-        Preconditions.checkArgument(width >= 0);
-        Preconditions.checkArgument(height >= 0);
+        checkArgument(width >= 0);
+        checkArgument(height >= 0);
         checkNotNull(treeFactory);
 
         this.width = width;
@@ -130,7 +133,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     @Override
     public WalledTile getTileAt(final int x, final int y) {
-        Preconditions.checkArgument(contains(x, y));
+        checkArgument(contains(x, y));
         return tileMatrix[x][y];
     }
 
@@ -391,34 +394,34 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         if (origin == null)
             throw new IllegalArgumentException("Has no projection: " + agent);
 
-        final ImmutablePoint2D destination = ImmutablePoint2D.sum(origin, Geometry2D.polarToCartesian(degrees, Double.MAX_VALUE));
+        final ImmutablePoint2D destination = ImmutablePoint2D.sum(origin, polarToCartesian(degrees, Double.MAX_VALUE));
 
         if (degrees < 90) {
-            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+            borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     0, 0, width(), 0);
             if (borderIntersection == null)
-                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         width(), 0, width(), height());
         }
         else if (degrees < 180) {
-            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+            borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     width(), 0, width(), height());
             if (borderIntersection == null)
-                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         0, height(), width(), height());
         }
         else if (degrees < 270) {
-            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+            borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     0, height(), width(), height());
             if (borderIntersection == null)
-                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         0, 0, 0, height());
         }
         else {
-            borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+            borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     0, 0, 0, height());
             if (borderIntersection == null)
-                borderIntersection = Geometry2D.intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
+                borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         0, 0, width(), 0);
         }
 

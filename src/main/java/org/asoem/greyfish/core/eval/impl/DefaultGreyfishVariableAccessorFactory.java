@@ -10,9 +10,9 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
-import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.utils.AgentComponents;
 
 import java.util.Iterator;

@@ -4,8 +4,8 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Tagged("actions")
 public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Suicide.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Suicide.class);
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private Suicide() {

@@ -3,8 +3,8 @@ package org.asoem.greyfish.core.utils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class AgentComponents {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AgentComponents.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentComponents.class);
 
     private AgentComponents() {}
 

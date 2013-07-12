@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.FunctionalList;

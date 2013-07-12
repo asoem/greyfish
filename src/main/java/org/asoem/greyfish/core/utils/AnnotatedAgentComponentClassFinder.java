@@ -6,12 +6,12 @@ import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.ActionCondition;
-import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.base.ClassFinder;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -24,7 +24,7 @@ import static com.google.common.collect.Iterables.transform;
  * Time: 13:58
  */
 public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFinder {
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AnnotatedAgentComponentClassFinder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnnotatedAgentComponentClassFinder.class);
 
     @Override
     public Iterable<Class<? extends AgentAction>> getAvailableActions() {

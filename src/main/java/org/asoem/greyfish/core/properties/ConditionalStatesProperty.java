@@ -15,8 +15,8 @@ import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +29,7 @@ import java.util.Set;
 @Tagged("properties")
 public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAgentProperty<String, A> implements FiniteStateProperty<String, A> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ConditionalStatesProperty.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConditionalStatesProperty.class);
 
     private Map<String, GreyfishExpression> conditionMap = ImmutableMap.of();
 

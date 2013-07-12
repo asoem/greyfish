@@ -7,11 +7,11 @@ import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Tagged("actions")
 public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAgentAction<A> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GenericMovement.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenericMovement.class);
 
     private Callback<? super GenericMovement<A>, Double> stepSize;
     private Callback<? super GenericMovement<A>, Double> turningAngle;

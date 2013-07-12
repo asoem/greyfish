@@ -12,8 +12,8 @@ import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -28,7 +28,7 @@ import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 @Tagged("actions")
 public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipantAction<A> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(MaleLikeMating.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaleLikeMating.class);
 
     private String ontology;
     private Callback<? super MaleLikeMating<A>, Double> matingProbability;

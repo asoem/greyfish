@@ -4,11 +4,10 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -16,7 +15,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>, A extends Agent<A, ?>> extends AbstractAgentProperty<E,A> implements RangeElementProperty<A, E> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractRangeElementProperty.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
 
     protected E upperBound;
 

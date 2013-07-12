@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
@@ -21,7 +20,7 @@ public class DoubleGeneTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final Callback<Object, Double> callback = Callbacks.constant(1.0);
+        final Callback<Object, Double> callback = constant(1.0);
         final AgentTrait<DefaultGreyfishAgent, Double> doubleGene = DoublePrecisionRealNumberTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(constant(1.0))

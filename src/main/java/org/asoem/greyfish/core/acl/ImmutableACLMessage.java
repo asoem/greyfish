@@ -231,7 +231,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
     }
 
     private static String generateReplyWith(final Object source) {
-        return String.valueOf(source) + java.lang.System.currentTimeMillis();
+        return String.valueOf(source) + System.currentTimeMillis();
     }
 
     public static <T> Builder<T> builder() {

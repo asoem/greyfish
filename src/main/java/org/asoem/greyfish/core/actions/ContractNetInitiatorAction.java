@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends FiniteStateAction<A> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ContractNetInitiatorAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
     private static final int INFORM_TIMEOUT_STEPS = 1;
 

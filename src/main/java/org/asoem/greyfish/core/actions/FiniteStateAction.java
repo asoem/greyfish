@@ -3,14 +3,14 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
 public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(FiniteStateAction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
 
     private int statefulExecutionCount;
     private Object nextStateKey = initialState();

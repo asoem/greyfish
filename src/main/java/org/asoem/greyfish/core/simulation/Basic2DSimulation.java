@@ -19,9 +19,9 @@ import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.InitializerChromosome;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.space.Object2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -39,7 +39,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(Basic2DSimulation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Basic2DSimulation.class);
 
     private final AgentSpace<Z, A, P> space;
     private final AtomicInteger currentStep = new AtomicInteger(-1);

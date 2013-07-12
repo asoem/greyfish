@@ -170,7 +170,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
         private Callback<? super AbstractAgentAction<A>, Void> onSuccess = Callbacks.emptyCallback();
         private int successCount;
         private int stepAtLastSuccess = -1;
-        private ActionState actionState = ActionState.INITIAL;
+        private ActionState actionState = INITIAL;
 
         protected AbstractBuilder() {}
 

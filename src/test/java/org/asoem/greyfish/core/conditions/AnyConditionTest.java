@@ -37,7 +37,7 @@ public class AnyConditionTest {
     }
 
     private static <A extends Agent<A, ?>> Matcher<AnyCondition<A>> isCopyOf(final AnyCondition<A> allCondition) {
-        return Matchers.allOf(
+        return allOf(
                 is(not(sameInstance(allCondition))),
                 has("equal child conditions",
                         new Function<AnyCondition<A>, List<ActionCondition<A>>>() {

@@ -8,13 +8,13 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.collect.FunctionalList;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -29,7 +29,7 @@ import static com.google.common.base.Preconditions.checkState;
  * Time: 17:18
  */
 public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<A>> implements Agent<A, S> {
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractAgent.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends HasName> E findByName(FunctionalList<E> functionalList, final String name) {
         return functionalList.find(new Predicate<HasName>() {

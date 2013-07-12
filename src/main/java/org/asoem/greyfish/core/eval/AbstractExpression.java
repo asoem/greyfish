@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * User: christoph
@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
  * Time: 10:16
  */
 public abstract class AbstractExpression implements Expression {
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(AbstractExpression.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractExpression.class);
 
     @Override
     public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {

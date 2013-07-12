@@ -53,7 +53,7 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
      * Evaluate the this action's condition.
      *
      * @return {@code true} if this action's condition is {@code null} or evaluates
-     *         ({@link org.asoem.greyfish.core.conditions.ActionCondition#evaluate()}) to {@code true},
+     *         ({@link ActionCondition#evaluate()}) to {@code true},
      *         {@code false} otherwise.
      */
     public boolean evaluateCondition();
@@ -61,7 +61,7 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
 
     /**
      * @return the number of times this {@code AgentAction} was executed when in
-     *         {@link org.asoem.greyfish.core.actions.utils.ActionState#INITIAL}
+     *         {@link ActionState#INITIAL}
      */
     public int getCompletionCount();
 

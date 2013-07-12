@@ -13,6 +13,7 @@ import org.asoem.greyfish.utils.space.TwoDimTree;
 import org.asoem.kdtree.*;
 import scala.Product2;
 import scala.Tuple2;
+import scala.collection.immutable.List;
 
 import javax.annotation.Nullable;
 
@@ -43,7 +44,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
                 return new Tuple2<HyperPoint, T>(new HyperPoint2(b._1(), b._2()), t);
             }
         });
-        this.tree = org.asoem.kdtree.KDTree.apply(DIMENSIONS, iterableAsScalaIterable(transform).toList());
+        this.tree = KDTree.apply(DIMENSIONS, iterableAsScalaIterable(transform).toList());
     }
 
     @Override
@@ -53,7 +54,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
                 return ImmutableList.of();
             default:
                 final HyperPoint searchPoint = new HyperPoint2(x, y);
-                final scala.collection.immutable.List<NNResult<T>> nnResultList
+                final List<NNResult<T>> nnResultList
                         = tree.filterRange(searchPoint, range);
                 return Iterables.transform(asJavaIterable(nnResultList), neighbourSearchResultTransformation);
         }

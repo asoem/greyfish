@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.space;
 
 import org.asoem.greyfish.utils.space.Motion2D;
+import org.asoem.greyfish.utils.space.MovingProjectable2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
 /**
@@ -23,7 +24,7 @@ public interface Space2D<T, P extends Object2D> extends Space<T, P> {
      *
      * @param object2d the object to move
      * @param motion2D the motion defining the move
-     * @see org.asoem.greyfish.utils.space.MovingProjectable2D#getMotion()
+     * @see MovingProjectable2D#getMotion()
      */
     void moveObject(T object2d, Motion2D motion2D);
 

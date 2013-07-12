@@ -11,10 +11,10 @@ import org.asoem.greyfish.core.eval.ExpressionFactory;
 import org.asoem.greyfish.core.eval.VariableResolver;
 import org.asoem.greyfish.core.eval.VariableResolvers;
 import org.asoem.greyfish.utils.base.Builder;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
 import org.asoem.greyfish.utils.math.ImmutableMarkovChain;
 import org.asoem.greyfish.utils.math.MarkovChain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.util.Map;
@@ -32,7 +32,7 @@ import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
  */
 public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(ImmutableMarkovChain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImmutableMarkovChain.class);
 
     private final Table<S, S, Expression> markovMatrix;
     private static final Pattern PATTERN = Pattern.compile("^\\s*([\\w\\s\\d_]+)\\s*->\\s*([\\w\\s\\d_]+)\\s*:\\s*(\\S+)\\s*$");
