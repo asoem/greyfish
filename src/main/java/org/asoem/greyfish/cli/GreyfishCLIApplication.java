@@ -161,16 +161,17 @@ public final class GreyfishCLIApplication {
             }
 
             final Module commandLineModule = createCommandLineModule(optionSet);
-
-            final RandomGenerator randomGenerator =
-                    optionSet.has(REPRODUCIBLE_MODE_OPTION_SPEC) ? new Well19937c(0) : new Well19937c();
+            final Module coreModule = new CoreModule(
+                    optionSet.has(REPRODUCIBLE_MODE_OPTION_SPEC)
+                            ? new Well19937c(0) : new Well19937c());
 
             final GreyfishSimulationRunner application = Guice.createInjector(
-                    new CoreModule(randomGenerator),
+                    coreModule,
                     commandLineModule
             ).getInstance(GreyfishSimulationRunner.class);
 
             application.run();
+
         } catch (OptionException e) {
             exitWithErrorMessage("Failed parsing options: ", e);
         } catch (RuntimeException e) {
