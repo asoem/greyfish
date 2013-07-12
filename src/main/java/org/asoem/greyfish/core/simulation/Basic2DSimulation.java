@@ -42,7 +42,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private static final Logger LOGGER = LoggerFactory.getLogger(Basic2DSimulation.class);
 
     private final AgentSpace<Z, A, P> space;
-    private final AtomicInteger currentStep = new AtomicInteger(-1);
+    private final AtomicInteger currentStep = new AtomicInteger(0);
     private final List<AddAgentMessage<A>> addAgentMessages;
     private final List<RemoveAgentMessage<A>> removeAgentMessages;
     private final List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages;
@@ -77,7 +77,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         // TODO: check state of agent (should be initialized)
 
         space.insertObject(agent, agent.getProjection());
-        agent.activate(ActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getStep() + 1));
+        agent.activate(ActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getSteps()));
 
         LOGGER.debug("Agent activated: {}", agent);
 
@@ -142,7 +142,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public int getStep() {
+    public int getSteps() {
         return currentStep.get();
     }
 
@@ -150,8 +150,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     public synchronized void nextStep() {
         setState(SimulationState.PLANING_PHASE);
 
-        final int step = currentStep.incrementAndGet();
-        LOGGER.info("{}: Entering step {}; {}", this, step, countAgents());
+        LOGGER.info("{}: Executing step {} with {} active agents", this, getSteps(), countAgents());
 
         executeAllAgents();
 
@@ -165,6 +164,10 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         afterStepCleanUp();
 
         setState(SimulationState.IDLE);
+
+        LOGGER.info("{}: Finished step {}", this, getSteps());
+
+        currentStep.incrementAndGet();
     }
 
     private void afterStepCleanUp() {
@@ -174,7 +177,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private void processAgentMessageDelivery() {
         for (DeliverAgentMessageMessage<A> message : deliverAgentMessageMessages) {
             for (A agent : message.message.getRecipients()) {
-                agent.receive(new AgentMessage<A>(message.message, getStep()));
+                agent.receive(new AgentMessage<A>(message.message, getSteps()));
             }
         }
         deliverAgentMessageMessages.clear();
@@ -286,6 +289,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void setState(SimulationState state) {
+        LOGGER.debug("Switching state: {} -> {}", this.state, state);
         this.state = state;
     }
 

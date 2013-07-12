@@ -5,6 +5,7 @@ import org.asoem.greyfish.core.simulation.Simulation;
 import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A, S>> implements SimulationContext<S,A>, Serializable {
 
@@ -42,8 +43,11 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
 
     @Override
     public int getAge() {
-        assert simulation.getStep() >= activationStep;
-        return simulation.getStep() - activationStep;
+        checkState(getSimulationStep() >= activationStep,
+                "Agent seems to be born in the future: activationStep={} > getSimulationStep()={}",
+                activationStep, getSimulationStep());
+
+        return simulation.getSteps() - activationStep;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
 
     @Override
     public int getSimulationStep() {
-        return simulation.getStep();
+        return simulation.getSteps();
     }
 
     @Override

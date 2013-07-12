@@ -73,10 +73,10 @@ public interface Simulation<A extends Agent<A, ?>> extends HasName {
     Set<A> getPrototypes();
 
     /**
-     * Get the current step
-     * @return the current step
+     * Get the number of steps executed so far
+     * @return the he number of steps executed so far
      */
-    int getStep();
+    int getSteps();
 
     /**
      * Proceed on step cycle and execute evaluates agents & commands

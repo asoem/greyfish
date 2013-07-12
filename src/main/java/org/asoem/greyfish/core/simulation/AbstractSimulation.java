@@ -42,7 +42,7 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simul
 
     @Override
     public void logAgentEvent(A agent, Object eventOrigin, String title, String message) {
-        getSimulationLogger().logAgentEvent(agent, getStep(), eventOrigin.getClass().getSimpleName(), title, message);
+        getSimulationLogger().logAgentEvent(agent, getSteps(), eventOrigin.getClass().getSimpleName(), title, message);
     }
 
     protected abstract SimulationLogger<? super A> getSimulationLogger();

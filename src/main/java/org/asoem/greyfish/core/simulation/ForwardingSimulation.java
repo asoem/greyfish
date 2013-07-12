@@ -55,8 +55,8 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public int getStep() {
-        return delegate().getStep();
+    public int getSteps() {
+        return delegate().getSteps();
     }
 
     @Override
