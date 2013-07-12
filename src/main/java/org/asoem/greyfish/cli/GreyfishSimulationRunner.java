@@ -42,7 +42,7 @@ public class GreyfishSimulationRunner implements Runnable {
         predicateList.add(new Predicate<Simulation<?>>() {
             @Override
             public boolean apply(Simulation<?> parallelizedSimulation) {
-                return parallelizedSimulation.getStep() < steps;
+                return parallelizedSimulation.getSteps() < steps;
             }
         });
 
@@ -71,6 +71,7 @@ public class GreyfishSimulationRunner implements Runnable {
         final Runnable simulationMonitorTask = new Runnable() {
             @Override
             public void run() {
+                String progressBar = "";
 
                 try {
                     while (state == State.STARTUP)
@@ -78,23 +79,26 @@ public class GreyfishSimulationRunner implements Runnable {
 
                     while (state == State.RUNNING) {
                         //writer.println(simulation.getStep() + " - " + simulation.countAgents());
-                        final double progress = (double) simulation.getStep() / steps;
-                        final String progressBar = String.format("\r[%s%s] %d%% (%d/%d) (%d active agents)",
+                        final double progress = (double) simulation.getSteps() / steps;
+                        writer.print("\r" + Strings.repeat(" ", progressBar.length()));
+                        progressBar = String.format("\r[%s%s] %d%% (%d/%d) (%d active agents)",
                                 Strings.repeat("#", (int) (progress * 10)),
                                 Strings.repeat(" ", 10 - (int)(progress * 10)),
                                 (int)(progress * 100),
-                                simulation.getStep(),
+                                simulation.getSteps(),
                                 steps,
                                 simulation.countAgents());
                         writer.print(progressBar);
                         writer.flush();
                         Thread.sleep(1000);
                     }
+
+                    writer.print("\r" + Strings.repeat(" ", progressBar.length()));
+                    writer.println("\rDone!");
                 } catch (InterruptedException e) {
                     LOGGER.error("Simulation polling thread got interrupted");
                 } finally {
                     try {
-                        writer.println("\r" + Strings.repeat(" ", 200));
                         closer.close();
                     } catch (IOException e) {
                         LOGGER.warn("Closer.close() had errors", e);
