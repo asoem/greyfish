@@ -11,8 +11,8 @@ import com.google.inject.name.Named;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.SimulationModel;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.concurrent.Future;
  */
 public class GreyfishSimulationRunner implements Runnable {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GreyfishSimulationRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishSimulationRunner.class);
     private final Simulation<?> simulation;
     private final List<Predicate<Simulation<?>>> predicateList;
 

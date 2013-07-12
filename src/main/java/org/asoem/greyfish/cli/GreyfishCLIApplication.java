@@ -10,7 +10,6 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import joptsimple.*;
-import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
@@ -19,8 +18,8 @@ import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.simulation.SimulationModel;
 import org.asoem.greyfish.utils.collect.Product2;
-import org.asoem.greyfish.utils.logging.SLF4JLogger;
-import org.asoem.greyfish.utils.logging.SLF4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +37,7 @@ import static java.util.Arrays.asList;
  */
 public final class GreyfishCLIApplication {
 
-    private static final SLF4JLogger LOGGER = SLF4JLoggerFactory.getLogger(GreyfishCLIApplication.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishCLIApplication.class);
     private static final OptionParser OPTION_PARSER = new OptionParser();
     private static final OptionSpecBuilder HELP_OPTION_SPEC =
             OPTION_PARSER.acceptsAll(asList("h", "?"), "Print this help");
