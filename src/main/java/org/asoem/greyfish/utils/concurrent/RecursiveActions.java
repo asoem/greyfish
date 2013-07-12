@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.concurrent;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
 
 import javax.annotation.Nullable;
@@ -38,7 +39,7 @@ public final class RecursiveActions {
      * @param list the elements on which the function will be applied
      * @param f the function to apply
      * @param size the desired size of each sublist (the last may be smaller)
-     * @return a {@code RecursiveAction} which should be executed with a {@link jsr166y.ForkJoinPool}
+     * @return a {@code RecursiveAction} which should be executed with a {@link ForkJoinPool}
      */
     public static <T> RecursiveAction foreach(final List<T> list, final Function<? super T, Void> f, final int size) {
         checkNotNull(list);

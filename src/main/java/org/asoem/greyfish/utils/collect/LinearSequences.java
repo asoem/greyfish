@@ -5,7 +5,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 
 import javax.annotation.Nullable;
 import java.util.List;
