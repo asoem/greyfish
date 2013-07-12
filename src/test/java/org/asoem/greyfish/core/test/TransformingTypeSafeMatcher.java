@@ -1,4 +1,4 @@
-package org.asoem.utils.test;
+package org.asoem.greyfish.core.test;
 
 import com.google.common.base.Function;
 import org.hamcrest.CustomTypeSafeMatcher;

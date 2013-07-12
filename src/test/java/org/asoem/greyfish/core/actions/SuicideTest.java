@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import javax.annotation.Nullable;
 
-import static org.asoem.utils.test.GreyfishMatchers.has;
+import static org.asoem.greyfish.core.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
