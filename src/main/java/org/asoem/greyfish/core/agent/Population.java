@@ -1,7 +1,5 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.utils.base.HasName;
-
 import java.awt.*;
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -13,7 +11,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Used to identify agents as being clones of the same prototype. Can be shared.
  */
-public class Population implements HasName, Comparable<Population>, Serializable {
+public class Population implements Comparable<Population>, Serializable {
 
 	private final String name;
 	private final Color color;

@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.traits;
 
 import com.google.common.reflect.TypeToken;
-import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.TypedSupplier;
 
 import javax.annotation.Nullable;
@@ -13,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Date: 25.04.12
  * Time: 15:30
  */
-public class TraitVector<T> implements TypedSupplier<T>, HasName {
+public class TraitVector<T> implements TypedSupplier<T> {
     @Nullable
     private final T value;
     private final double recombinationProbability;
@@ -48,7 +47,6 @@ public class TraitVector<T> implements TypedSupplier<T>, HasName {
         return new TraitVector<T>(value, recombinationProbability, typeToken, name);
     }
 
-    @Override
     public String getName() {
         return name;
     }

@@ -1,12 +1,10 @@
 package org.asoem.greyfish.core.agent;
 
 
-import org.asoem.greyfish.utils.base.HasName;
-
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
-public interface AgentComponent<A extends Agent<A, ?>> extends HasName, AgentNode, Serializable {
+public interface AgentComponent<A extends Agent<A, ?>> extends AgentNode, Serializable {
 
     /**
      * Get the agent this component was added to or {@code null} if it was not.
@@ -32,4 +30,9 @@ public interface AgentComponent<A extends Agent<A, ?>> extends HasName, AgentNod
      * @param name the new name
      */
     void setName(String name);
+
+    /**
+     * @return the name of this component
+     */
+    public String getName();
 }

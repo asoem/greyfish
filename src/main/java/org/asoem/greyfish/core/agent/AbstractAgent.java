@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +30,10 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<A>> implements Agent<A, S> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
-    private static <E extends HasName> E findByName(FunctionalList<E> functionalList, final String name) {
-        return functionalList.find(new Predicate<HasName>() {
+    private static <E extends AgentComponent> E findByName(FunctionalList<E> functionalList, final String name) {
+        return functionalList.find(new Predicate<AgentComponent>() {
             @Override
-            public boolean apply(HasName agentAction) {
+            public boolean apply(AgentComponent agentAction) {
                 return agentAction.getName().equals(name);
             }
         });

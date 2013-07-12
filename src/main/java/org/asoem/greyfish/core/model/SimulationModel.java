@@ -1,4 +1,6 @@
-package org.asoem.greyfish.core.simulation;
+package org.asoem.greyfish.core.model;
+
+import org.asoem.greyfish.core.simulation.Simulation;
 
 /**
  * User: christoph

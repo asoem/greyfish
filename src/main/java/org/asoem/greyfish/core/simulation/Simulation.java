@@ -4,7 +4,6 @@ import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.utils.base.HasName;
 import org.asoem.greyfish.utils.base.Initializer;
 
 import java.util.Collection;
@@ -15,7 +14,7 @@ import java.util.Set;
  * Date: 21.11.12
  * Time: 15:32
  */
-public interface Simulation<A extends Agent<A, ?>> extends HasName {
+public interface Simulation<A extends Agent<A, ?>> {
     /**
      * Get all active {@code Agent}s which are part of the given {@code population}
      * @param population The common population
@@ -82,6 +81,11 @@ public interface Simulation<A extends Agent<A, ?>> extends HasName {
      * Proceed on step cycle and execute evaluates agents & commands
      */
     void nextStep();
+
+    /**
+     * @return the name of this simulation
+     */
+    public String getName();
 
     /**
      * Set the name of this simulation
