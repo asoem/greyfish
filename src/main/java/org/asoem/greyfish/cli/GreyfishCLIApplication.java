@@ -135,7 +135,7 @@ public final class GreyfishCLIApplication {
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance(optionSet.valueOf(PARALLELIZATION_THRESHOLD_OPTION_SPEC));
                 try {
-                    final String path = Files.simplifyPath(optionSet.valueOf(WORKING_DIRECTORY_OPTION_SPEC) + "./data/" + optionSet.valueOf(SIMULATION_NAME_OPTION_SPEC));
+                    final String path = Files.simplifyPath(optionSet.valueOf(WORKING_DIRECTORY_OPTION_SPEC) + "./" + optionSet.valueOf(SIMULATION_NAME_OPTION_SPEC));
                     final H2Logger<DefaultGreyfishAgent> h2Logger = H2Logger.create(path);
                     bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
                             .toInstance(SimulationLoggers.synchronizedLogger(
