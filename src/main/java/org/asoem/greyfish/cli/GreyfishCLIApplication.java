@@ -118,6 +118,7 @@ public final class GreyfishCLIApplication {
                         exitWithErrorMessage("Specified Class does not implement " + SimulationModel.class);
                     bind(new TypeLiteral<SimulationModel<?>>(){}).to((Class<SimulationModel<?>>) modelClass);
                 } catch (ClassNotFoundException e) {
+                    LOGGER.error("Unable to load class {}", modelClassName, e);
                     exitWithErrorMessage("Could not find class " + modelClassName);
                 }
 
