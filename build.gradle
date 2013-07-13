@@ -1,13 +1,14 @@
-group = "org.asoem"
-version = "0.1.0"
+group = "org.asoem.greyfish"
+version = "1.0.0-SNAPSHOT"
 
 apply plugin: 'java'
 sourceCompatibility = 1.6
 
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 apply plugin: 'application'
 mainClassName = "org.asoem.greyfish.cli.GreyfishCLIApplication"
+startScripts.applicationName 'greyfish'
 
 repositories {
     mavenLocal()
@@ -24,3 +25,12 @@ dependencies {
 
     runtime 'ch.qos.logback:logback-classic:1.0.13'
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
