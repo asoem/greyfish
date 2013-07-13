@@ -1,5 +1,5 @@
-group = "org.asoem"
-version = "0.1.0"
+group = "org.asoem.greyfish"
+version = "1.0.0-SNAPSHOT"
 
 apply plugin: 'java'
 sourceCompatibility = 1.6
