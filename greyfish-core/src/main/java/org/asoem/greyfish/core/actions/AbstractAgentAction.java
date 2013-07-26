@@ -17,7 +17,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
-public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends AbstractAgentComponent<A> implements AgentAction<A> {
+public abstract class AbstractAgentAction<A extends Agent<A, ?>>
+        extends AbstractAgentComponent<A> implements AgentAction<A> {
 
     @Nullable
     private ActionCondition<A> rootCondition;
@@ -33,7 +34,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractAgentAction(final AbstractBuilder<A, ? extends AbstractAgentAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected AbstractAgentAction(final AbstractBuilder<A, ? extends AbstractAgentAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.onSuccess = builder.onSuccess;
         this.successCount = builder.successCount;
@@ -54,12 +55,13 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
      */
     @Override
     public ActionState apply() {
+        assert stepAtLastSuccess < agent().getSimulationStep()
+                : "actions must not get executed twice per step: "
+                    + stepAtLastSuccess + " >= " + agent().getSimulationStep();
 
-        assert stepAtLastSuccess < agent().getSimulationStep() :
-                "actions must not get executed twice per step: " + stepAtLastSuccess + " >= " + agent().getSimulationStep();
-
-        if (INITIAL == actionState)
+        if (INITIAL == actionState) {
             checkPreconditions();
+        }
 
         if (PRECONDITIONS_MET == actionState
                 || INTERMEDIATE == actionState) {
@@ -86,7 +88,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
 
     protected abstract ActionState proceed();
 
-    protected void setState(final ActionState state) {
+    private void setState(final ActionState state) {
         assert state != null;
         actionState = state;
     }
@@ -100,10 +102,11 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
     public ActionState checkPreconditions() {
         checkState(actionState == INITIAL, "Action not is state %s", INITIAL);
         final boolean preconditionsMet = evaluateCondition();
-        if (preconditionsMet)
+        if (preconditionsMet) {
             setState(PRECONDITIONS_MET);
-        else
+        } else {
             setState(PRECONDITIONS_FAILED);
+        }
         return getState();
     }
 
@@ -183,12 +186,12 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
             this.actionState = action.actionState;
         }
 
-        public B executedIf(final ActionCondition<A> condition) {
+        public final B executedIf(final ActionCondition<A> condition) {
             this.condition = condition;
             return self();
         }
 
-        public B onSuccess(final Callback<? super AbstractAgentAction<A>, Void> expression) {
+        public final B onSuccess(final Callback<? super AbstractAgentAction<A>, Void> expression) {
             this.onSuccess = checkNotNull(expression);
             return self();
         }
