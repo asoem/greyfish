@@ -1,6 +1,5 @@
 package org.asoem.greyfish.cli;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Strings;
@@ -8,9 +7,8 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Closer;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import org.asoem.greyfish.core.model.ModelParameters;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.model.SimulationModel;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +40,13 @@ public class GreyfishSimulationRunner implements Runnable {
 
         predicateList.add(new Predicate<Simulation<?>>() {
             @Override
-            public boolean apply(Simulation<?> parallelizedSimulation) {
+            public boolean apply(final Simulation<?> parallelizedSimulation) {
                 return parallelizedSimulation.getSteps() < steps;
             }
         });
 
         LOGGER.info("Creating simulation for model {}", model.getClass());
-        LOGGER.info("Model parameters after injection: {}",
-                Joiner.on(", ").withKeyValueSeparator("=").useForNull("null").join(ModelParameters.extract(model)));
+        LOGGER.info("Created model {}", model);
 
         simulation = model.createSimulation();
 
@@ -58,8 +55,8 @@ public class GreyfishSimulationRunner implements Runnable {
         }
     }
 
-    private void startSimulationMonitor(final Simulation<?> simulation, final int steps, OutputStream outputStream) {
-        OutputStreamWriter outputStreamWriter;
+    private void startSimulationMonitor(final Simulation<?> simulation, final int steps, final OutputStream outputStream) {
+        final OutputStreamWriter outputStreamWriter;
         try {
             outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-8");
         } catch (UnsupportedEncodingException e) {
