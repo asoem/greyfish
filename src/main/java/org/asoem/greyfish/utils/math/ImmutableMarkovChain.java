@@ -25,12 +25,12 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
     private final Table<S, S, Double> markovMatrix;
 
-    private ImmutableMarkovChain(Table<S, S, Double> markovMatrix) {
+    private ImmutableMarkovChain(final Table<S, S, Double> markovMatrix) {
         this.markovMatrix = markovMatrix;
     }
 
     @Override
-    public S apply(S state) {
+    public S apply(final S state) {
         checkNotNull(state, "State must not be null");
 
         if (!markovMatrix.containsRow(state)) {
@@ -49,8 +49,8 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
         }
 
         double sum = 0;
-        double rand = rng().nextDouble();
-        for (Map.Entry<S, Double> cell : row.entrySet()) {
+        final double rand = rng().nextDouble();
+        for (final Map.Entry<S, Double> cell : row.entrySet()) {
             sum += cell.getValue();
             if (sum > rand) {
                 return cell.getKey();
@@ -69,21 +69,21 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
         return new ChainBuilder<S>();
     }
 
-    public static ImmutableMarkovChain<String> parse(String rule) {
-        ChainBuilder<String> builder = builder();
+    public static ImmutableMarkovChain<String> parse(final String rule) {
+        final ChainBuilder<String> builder = builder();
 
         final Splitter splitter = Splitter.onPattern("\r?\n|;").trimResults();
         final Iterable<String> lines = splitter.split(rule);
 
         final Pattern pattern = Pattern.compile("^(.+)->(.+):(.+)$");
-        for (String line : lines) {
+        for (final String line : lines) {
             if(line.isEmpty())
                 continue;
             final Matcher matcher = pattern.matcher(line);
             if (matcher.matches()) {
-                String state1 = matcher.group(1).trim();
-                String state2 = matcher.group(2).trim();
-                String p = matcher.group(3).trim();
+                final String state1 = matcher.group(1).trim();
+                final String state2 = matcher.group(2).trim();
+                final String p = matcher.group(3).trim();
                 
                 builder.put(state1, state2, Double.parseDouble(p));
             }
@@ -97,17 +97,17 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
         private final Table<S, S, Double> table = HashBasedTable.create();
 
-        public ChainBuilder<S> put(S state, S nextState, double p) {
+        public ChainBuilder<S> put(final S state, final S nextState, final double p) {
             table.put(state, nextState, p);
             return this;
         }
 
         @Override
-        public ImmutableMarkovChain<S> build() throws IllegalStateException {
+        public ImmutableMarkovChain<S> build() {
             // todo: check if sum of transition probabilities in rows are <= 1
-            for (S state : table.rowKeySet()) {
+            for (final S state : table.rowKeySet()) {
                 double sum = 0.0;
-                for (Double value : table.row(state).values()) {
+                for (final Double value : table.row(state).values()) {
                     sum += value;
                 }
                 if (sum < 0 || sum > 1)
@@ -118,9 +118,9 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
     }
     
     public String toRule() {
-        StringBuilder builder = new StringBuilder();
-        for (Map.Entry<S, Map<S,Double>> entry : markovMatrix.rowMap().entrySet()) {
-            for (Map.Entry<S, Double> doubleEntry : entry.getValue().entrySet()) {
+        final StringBuilder builder = new StringBuilder();
+        for (final Map.Entry<S, Map<S,Double>> entry : markovMatrix.rowMap().entrySet()) {
+            for (final Map.Entry<S, Double> doubleEntry : entry.getValue().entrySet()) {
                 builder.append(entry.getKey());
                 builder.append(" -> ");
                 builder.append(doubleEntry.getKey());

@@ -44,7 +44,7 @@ public final class Trees {
                     NodeIteratorPair<T> currentPair = pairStack.peek();
 
                     while (currentPair.iterator.hasNext()) {
-                        T nextNode = currentPair.iterator.next();
+                        final T nextNode = currentPair.iterator.next();
                         currentPair = new NodeIteratorPair<T>(nextNode, childrenFunction.apply(nextNode));
 
                         pairStack.push(currentPair);
@@ -80,7 +80,7 @@ public final class Trees {
                 }
                 else {
 
-                    NodeIteratorPair<T> currentPair = pairStack.peek();
+                    final NodeIteratorPair<T> currentPair = pairStack.peek();
 
                     if (firstCallToComputeNext) {
                         firstCallToComputeNext = false;
@@ -88,7 +88,7 @@ public final class Trees {
                     }
 
                     if (currentPair.iterator.hasNext()) {
-                        T ret = currentPair.iterator.next();
+                        final T ret = currentPair.iterator.next();
                         pairStack.push(new NodeIteratorPair<T>(ret, childrenFunction.apply(ret)));
                         return ret;
                     }
@@ -101,11 +101,11 @@ public final class Trees {
         };
     }
 
-    public static <T extends TreeNode<T>> TreeIterator<T> postOrderView(T root) {
+    public static <T extends TreeNode<T>> TreeIterator<T> postOrderView(final T root) {
         return postOrderView(checkNotNull(root), new Function<T, Iterator<? extends T>>() {
             @Nullable
             @Override
-            public Iterator<? extends T> apply(@Nullable T input) {
+            public Iterator<? extends T> apply(@Nullable final T input) {
                 return checkNotNull(input).children().iterator();
             }
         });
@@ -115,7 +115,7 @@ public final class Trees {
         private final T node;
         private final Iterator<? extends T> iterator;
 
-        private NodeIteratorPair(T node, Iterator<? extends T> iterator) {
+        private NodeIteratorPair(final T node, final Iterator<? extends T> iterator) {
             this.node = node;
             this.iterator = iterator;
         }
@@ -125,7 +125,7 @@ public final class Trees {
 
         protected final Stack<NodeIteratorPair<T>> pairStack = new Stack<NodeIteratorPair<T>>();
 
-        protected AbstractStackBasedTreeIterator(NodeIteratorPair<T> root) {
+        protected AbstractStackBasedTreeIterator(final NodeIteratorPair<T> root) {
             pairStack.push(root);
         }
 

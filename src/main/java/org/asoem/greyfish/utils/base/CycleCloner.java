@@ -31,7 +31,7 @@ public class CycleCloner implements DeepCloner {
      * @param clone the clone of original
      */
     @Override
-    public <T extends DeepCloneable> void addClone(T original, T clone) {
+    public <T extends DeepCloneable> void addClone(final T original, final T clone) {
         checkNotNull(original);
         checkNotNull(clone);
         checkArgument(original.getClass() == clone.getClass(),
@@ -49,7 +49,7 @@ public class CycleCloner implements DeepCloner {
     @Override
     @Nullable
     @SuppressWarnings("unchecked") // safe
-    public <T extends DeepCloneable> T getClone(@Nullable T cloneable) {
+    public <T extends DeepCloneable> T getClone(@Nullable final T cloneable) {
         if (cloneable == null) {
             return null;
         }
@@ -68,7 +68,7 @@ public class CycleCloner implements DeepCloner {
      * @param <T> the type of {@code cloneable}
      * @return a deep clone of {@code cloneable}
      */
-    public static <T extends DeepCloneable> T clone(@Nullable T cloneable) {
+    public static <T extends DeepCloneable> T clone(@Nullable final T cloneable) {
         return cloneable == null ? null : new CycleCloner().getClone(cloneable);
     }
 }

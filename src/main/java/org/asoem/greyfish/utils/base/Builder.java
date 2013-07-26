@@ -11,5 +11,5 @@ public interface Builder<T> {
      * @return a new instance of {@code E}
      * @throws IllegalStateException if this Builder is not in a state to produce a valid instance of {@code T}
      */
-    T build() throws IllegalStateException;
+    T build();
 }

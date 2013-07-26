@@ -11,13 +11,13 @@ public final class Exceptions {
 
     private Exceptions() {}
 
-    public static RuntimeException asRuntimeException(Exception e) {
+    public static RuntimeException asRuntimeException(final Exception e) {
         Exceptions.<RuntimeException>throwAs(e);
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    private static <E extends Throwable> void throwAs(Throwable e) throws E {
+    private static <E extends Throwable> void throwAs(final Throwable e) throws E {
         throw (E)e;
     }
 }

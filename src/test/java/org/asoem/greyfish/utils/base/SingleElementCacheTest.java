@@ -82,7 +82,7 @@ public class SingleElementCacheTest {
         final Supplier<Integer> supplier = mock(Supplier.class);
         given(supplier.get()).willAnswer(new Answer<Integer>() {
             @Override
-            public Integer answer(InvocationOnMock invocation) throws Throwable {
+            public Integer answer(final InvocationOnMock invocation) throws Throwable {
                 Thread.sleep(10);
                 return 42;
             }

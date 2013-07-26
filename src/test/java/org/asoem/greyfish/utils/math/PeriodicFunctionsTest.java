@@ -20,9 +20,9 @@ import static org.hamcrest.Matchers.*;
 public class PeriodicFunctionsTest {
     @Test
     public void testTriangleWave() throws Exception {
-        UnivariateFunction wave = PeriodicFunctions.triangleWave(1.0, 0.0);
+        final UnivariateFunction wave = PeriodicFunctions.triangleWave(1.0, 0.0);
         
-        List<Double> generated = Lists.newArrayList();
+        final List<Double> generated = Lists.newArrayList();
         BigDecimal x = BigDecimal.valueOf(-1.0);
         while (x.doubleValue() <= 1.0) {
             final double y = wave.value(x.doubleValue());
@@ -41,9 +41,9 @@ public class PeriodicFunctionsTest {
 
     @Test
     public void testSawtoothWave() throws Exception {
-        UnivariateFunction wave = PeriodicFunctions.sawtoothWave(1.0, 0.0);
+        final UnivariateFunction wave = PeriodicFunctions.sawtoothWave(1.0, 0.0);
 
-        List<Double> generated = Lists.newArrayList();
+        final List<Double> generated = Lists.newArrayList();
         BigDecimal x = BigDecimal.valueOf(-1.0);
         while (x.doubleValue() <= 1.0) {
             final double y = wave.value(x.doubleValue());
@@ -62,9 +62,9 @@ public class PeriodicFunctionsTest {
 
     @Test
     public void testSquareWave() throws Exception {
-        UnivariateFunction wave = PeriodicFunctions.squareWave(1.0, 0.0);
+        final UnivariateFunction wave = PeriodicFunctions.squareWave(1.0, 0.0);
 
-        List<Double> generated = Lists.newArrayList();
+        final List<Double> generated = Lists.newArrayList();
         BigDecimal x = BigDecimal.valueOf(-1.0);
         while (x.doubleValue() <= 1.0) {
             final double y = wave.value(x.doubleValue());

@@ -20,54 +20,54 @@ public class Products {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <E1, E2> Product2<Iterable<E1>, Iterable<E2>> unzip(Iterable<? extends Product2<E1, E2>> products) {
+    public static <E1, E2> Product2<Iterable<E1>, Iterable<E2>> unzip(final Iterable<? extends Product2<E1, E2>> products) {
         final Iterable<E1> transform = Iterables.transform(products, new Function<Product2<E1, E2>, E1>() {
 
             @Override
-            public E1 apply(Product2<E1, E2> e1E2Product2) {
+            public E1 apply(final Product2<E1, E2> e1E2Product2) {
                 return checkNotNull(e1E2Product2)._1();
             }
         });
         final Iterable<E2> transform1 = Iterables.transform(products, new Function<Product2<E1, E2>, E2>() {
 
             @Override
-            public E2 apply(Product2<E1, E2> e1E2Product2) {
+            public E2 apply(final Product2<E1, E2> e1E2Product2) {
                 return checkNotNull(e1E2Product2)._2();
             }
         });
         return Tuple2.of(transform, transform1);
     }
 
-    public static <E1, E2> Iterable<Product2<E1, E2>> zip(Iterable<E1> i1, Iterable<E2> i2) {
+    public static <E1, E2> Iterable<Product2<E1, E2>> zip(final Iterable<E1> i1, final Iterable<E2> i2) {
         checkNotNull(i1);
         checkNotNull(i2);
         return new Zip2<E1, E2>(i1, i2);
     }
 
-    public static <E1, E2, E3> Iterable<Product3<E1, E2, E3>> zip(Iterable<E1> i1, Iterable<E2> i2, Iterable<E3> i3) {
+    public static <E1, E2, E3> Iterable<Product3<E1, E2, E3>> zip(final Iterable<E1> i1, final Iterable<E2> i2, final Iterable<E3> i3) {
         checkNotNull(i1);
         checkNotNull(i2);
         checkNotNull(i3);
         return new Zip3<E1, E2, E3>(i1, i2, i3);
     }
 
-    public static <E> Iterable<Product2<E, Integer>> zipWithIndex(Iterable<E> i1) {
+    public static <E> Iterable<Product2<E, Integer>> zipWithIndex(final Iterable<E> i1) {
         checkNotNull(i1);
         return new Zip2<E, Integer>(i1, ContiguousSet.create(Range.atLeast(0), DiscreteDomain.integers()));
     }
 
-    public static <E1, E2> Iterable<Product2<E1, E2>> zipAll(Iterable<E1> i1, Iterable<E2> i2, E1 thisElement, E2 thatElement) {
+    public static <E1, E2> Iterable<Product2<E1, E2>> zipAll(final Iterable<E1> i1, final Iterable<E2> i2, final E1 thisElement, final E2 thatElement) {
         return new ZipAll2<E1, E2>(i1, i2, thisElement, thatElement);
     }
 
     private static class SwappedProduct2<E2, E1> implements Product2<E2, E1> {
         private final Product2<E1, E2> product;
 
-        private SwappedProduct2(Product2<E1, E2> product) {
+        private SwappedProduct2(final Product2<E1, E2> product) {
             this.product = product;
         }
 
-        public static <E2, E1> Product2<E2, E1> of(Product2<E1, E2> product) {
+        public static <E2, E1> Product2<E2, E1> of(final Product2<E1, E2> product) {
             checkNotNull(product);
             if (product instanceof SwappedProduct2)
                 return ((SwappedProduct2<E1, E2>) product).product;
@@ -91,7 +91,7 @@ public class Products {
         private final Iterable<E1> i1;
         private final Iterable<E2> i2;
 
-        public Zip2(Iterable<E1> i1, Iterable<E2> i2) {
+        public Zip2(final Iterable<E1> i1, final Iterable<E2> i2) {
             this.i1 = i1;
             this.i2 = i2;
         }
@@ -121,7 +121,7 @@ public class Products {
         private final E1 thisElement;
         private final E2 thatElement;
 
-        public ZipAll2(Iterable<E1> i1, Iterable<E2> i2, E1 thisElement, E2 thatElement) {
+        public ZipAll2(final Iterable<E1> i1, final Iterable<E2> i2, final E1 thisElement, final E2 thatElement) {
             this.i1 = i1;
             this.i2 = i2;
             this.thisElement = thisElement;
@@ -156,7 +156,7 @@ public class Products {
     */
     private static class Zip3<E1, E2, E3> extends Tuple3<Iterable<E1>, Iterable<E2>, Iterable<E3>> implements Iterable<Product3<E1, E2, E3>> {
 
-        public Zip3(Iterable<E1> i1, Iterable<E2> i2, Iterable<E3> i3) {
+        public Zip3(final Iterable<E1> i1, final Iterable<E2> i2, final Iterable<E3> i3) {
             super(i1, i2, i3);
         }
 
@@ -179,7 +179,7 @@ public class Products {
             };
         }
 
-        public static <I1, I2, I3> Zip3<I1, I2, I3> of(Iterable<I1> i1, Iterable<I2> i2, Iterable<I3> i3) {
+        public static <I1, I2, I3> Zip3<I1, I2, I3> of(final Iterable<I1> i1, final Iterable<I2> i2, final Iterable<I3> i3) {
             return new Zip3<I1, I2, I3>(i1, i2, i3);
         }
     }

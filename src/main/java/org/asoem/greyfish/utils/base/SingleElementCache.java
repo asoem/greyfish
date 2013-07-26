@@ -15,7 +15,7 @@ public class SingleElementCache<T> implements Supplier<T> {
     private transient T value;
     private transient AtomicReference<CacheState> state = new AtomicReference<CacheState>(CacheState.INVALID);
 
-    private SingleElementCache(Supplier<T> delegate) {
+    private SingleElementCache(final Supplier<T> delegate) {
         this.delegate = delegate;
     }
 
@@ -40,7 +40,7 @@ public class SingleElementCache<T> implements Supplier<T> {
         state.set(CacheState.INVALID);
     }
 
-    public static <T> SingleElementCache<T> memoize(Supplier<T> delegate) {
+    public static <T> SingleElementCache<T> memoize(final Supplier<T> delegate) {
         return new SingleElementCache<T>(delegate);
     }
 

@@ -72,7 +72,7 @@ public final class Persisters {
         }
     }
 
-    public static <T> T deserialize(Persister persister, InputSupplier<? extends InputStream> inputSupplier, Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
+    public static <T> T deserialize(final Persister persister, final InputSupplier<? extends InputStream> inputSupplier, final Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
         final InputStream input = inputSupplier.getInput();
         boolean threw = true;
         try {
@@ -84,7 +84,7 @@ public final class Persisters {
         }
     }
 
-    public static void serialize(Persister persister, Object object, OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
+    public static void serialize(final Persister persister, final Object object, final OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
         final OutputStream output = outputSupplier.getOutput();
         boolean threw = true;
         try {

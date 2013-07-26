@@ -6,11 +6,11 @@ public class MutableMotion2D implements Motion2D {
 
     public MutableMotion2D() {}
 
-    public void setRotation(double alpha) {
+    public void setRotation(final double alpha) {
         setMotion(alpha % Math.PI, getTranslation());
     }
 
-    public void setTranslation(double translation) {
+    public void setTranslation(final double translation) {
         setMotion(getRotation(), translation);
     }
 
@@ -40,7 +40,7 @@ public class MutableMotion2D implements Motion2D {
      * @param angle The value to sum to the angle of this object's motion vector
      * @param velocity The value to sum to the length of this object's motion vector
      */
-    public void changeMotion(double angle, double velocity) {
+    public void changeMotion(final double angle, final double velocity) {
         motion2D = motion2D.modified(angle, velocity);
     }
 
@@ -50,7 +50,7 @@ public class MutableMotion2D implements Motion2D {
      * @param angle The new value of the angle of this object's motion vector
      * @param velocity The new value of the length of this object's motion vector
      */
-    public void setMotion(double angle, double velocity) {
+    public void setMotion(final double angle, final double velocity) {
         motion2D = ImmutableMotion2D.of(angle, velocity);
     }
 }

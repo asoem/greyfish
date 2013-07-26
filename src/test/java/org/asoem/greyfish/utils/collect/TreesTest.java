@@ -2,8 +2,6 @@ package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import org.asoem.greyfish.utils.collect.TreeNode;
-import org.asoem.greyfish.utils.collect.Trees;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -36,9 +34,9 @@ public class TreesTest {
     @Test
     public void postOrderViewTest() {
         // when
-        Iterator<TreeNodeImpl> postOrderView = Trees.postOrderView(f, new Function<TreeNodeImpl, Iterator<? extends TreeNodeImpl>>() {
+        final Iterator<TreeNodeImpl> postOrderView = Trees.postOrderView(f, new Function<TreeNodeImpl, Iterator<? extends TreeNodeImpl>>() {
             @Override
-            public Iterator<? extends TreeNodeImpl> apply(@Nullable TreeNodeImpl stringTreeNode) {
+            public Iterator<? extends TreeNodeImpl> apply(@Nullable final TreeNodeImpl stringTreeNode) {
                 assert stringTreeNode != null;
                 return stringTreeNode.children().iterator();
             }
@@ -51,9 +49,9 @@ public class TreesTest {
     @Test
     public void preOrderViewTest() {
         // when
-        Iterator<TreeNodeImpl> postOrderView = Trees.preOrderView(f, new Function<TreeNodeImpl, Iterator<? extends TreeNodeImpl>>() {
+        final Iterator<TreeNodeImpl> postOrderView = Trees.preOrderView(f, new Function<TreeNodeImpl, Iterator<? extends TreeNodeImpl>>() {
             @Override
-            public Iterator<? extends TreeNodeImpl> apply(@Nullable TreeNodeImpl stringTreeNode) {
+            public Iterator<? extends TreeNodeImpl> apply(@Nullable final TreeNodeImpl stringTreeNode) {
                 assert stringTreeNode != null;
                 return stringTreeNode.children().iterator();
             }
@@ -63,11 +61,11 @@ public class TreesTest {
         assertEquals(ImmutableList.of(f, b, a, d, c, e, g, i, h), ImmutableList.copyOf(postOrderView));
     }
 
-    private static TreeNodeImpl node(String name) {
+    private static TreeNodeImpl node(final String name) {
         return new TreeNodeImpl(ImmutableList.<TreeNodeImpl>of(), name);
     }
 
-    private static TreeNodeImpl node(String name, TreeNodeImpl... children) {
+    private static TreeNodeImpl node(final String name, final TreeNodeImpl... children) {
         return new TreeNodeImpl(ImmutableList.copyOf(children), name);
     }
 
@@ -77,7 +75,7 @@ public class TreesTest {
 
         private final Iterable<TreeNodeImpl> children;
 
-        public TreeNodeImpl(Iterable<TreeNodeImpl> treeNodes, String name) {
+        public TreeNodeImpl(final Iterable<TreeNodeImpl> treeNodes, final String name) {
             this.children = treeNodes;
             this.name = name;
         }

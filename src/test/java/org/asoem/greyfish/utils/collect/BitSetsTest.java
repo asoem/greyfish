@@ -18,7 +18,7 @@ public class BitSetsTest {
     public void testParse() throws Exception {
         // given
         final String s = "001011001101";
-        BitSet bs = new BitSet(s.length());
+        final BitSet bs = new BitSet(s.length());
         bs.set(0, true);
         bs.set(2, true);
         bs.set(3, true);

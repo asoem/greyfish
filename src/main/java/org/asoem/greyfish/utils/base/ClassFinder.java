@@ -25,10 +25,10 @@ public enum ClassFinder {
         /*
       Defined classpath
      */
-        String classpath = System.getProperty("java.class.path");
+        final String classpath = System.getProperty("java.class.path");
         final StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
-        int count = st.countTokens();
-        File[] classPathDirs = new File[count];
+        final int count = st.countTokens();
+        final File[] classPathDirs = new File[count];
         //final ArrayList<String> jar = new ArrayList<String>();
         final ArrayList<String> bin = new ArrayList<String>();
         for (int i = 0; i < count; i++) {
@@ -60,10 +60,10 @@ public enum ClassFinder {
      * @return Array of found classes
      * @throws ClassNotFoundException
      */
-    public Iterable<Class<?>> getAll(String packageName) throws ClassNotFoundException {
+    public Iterable<Class<?>> getAll(final String packageName) throws ClassNotFoundException {
         String packageDir = convertPackege(packageName);
         final ArrayList<Class<?>> classes = Lists.newArrayList();
-        for (String binDir : binDirs) {
+        for (final String binDir : binDirs) {
             packageDir = binDir + File.separator + packageDir;
             final File dir = new File(packageDir);
             classes.addAll(extractClasses(packageName, dir));
@@ -79,15 +79,15 @@ public enum ClassFinder {
      * @return ArrayList with evaluates found directories
      * @throws ClassNotFoundException
      */
-    private ArrayList<Class<?>> extractClasses(String packageName, File dir) throws ClassNotFoundException {
+    private ArrayList<Class<?>> extractClasses(final String packageName, final File dir) throws ClassNotFoundException {
         final ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-        File[] files = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String filename) {
+        final File[] files = dir.listFiles(new FilenameFilter() {
+            public boolean accept(final File dir, final String filename) {
                 return filename.endsWith(".class");
             }
         });
         if (files!=null) {	// directories without .class files may exist
-            for (File file : files) {
+            for (final File file : files) {
                 String className = packageName + "." + file.getName();
                 className = className.substring(0, className
                         .lastIndexOf(".class"));
@@ -102,7 +102,7 @@ public enum ClassFinder {
      * @param packageName name of the package as 'ch.sahits.civ'
      * @return relativ directory to the package
      */
-    private String convertPackege(String packageName) {
+    private String convertPackege(final String packageName) {
         return packageName.replace(".", File.separator);
     }
 
@@ -115,21 +115,21 @@ public enum ClassFinder {
      * @return Array of found classes
      * @throws ClassNotFoundException
      */
-    public Class<?>[] getAllRecursive(String packageName) throws ClassNotFoundException {
+    public Class<?>[] getAllRecursive(final String packageName) throws ClassNotFoundException {
         String packageDir = convertPackege(packageName);
         final ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-        for (String binDir : binDirs) {
+        for (final String binDir : binDirs) {
             packageDir = binDir + File.separator + packageDir;
             final File dir = new File(packageDir);
             classes.addAll(extractClasses(packageName, dir));
             if (dir.isDirectory()) {
                 final File[] sub = dir.listFiles();
                 if (sub != null) {
-                    for (File aSub : sub) {
+                    for (final File aSub : sub) {
                         if (aSub.isDirectory()) {
-                            Class<?>[] rec = getAllRecursive(packageName + "."
+                            final Class<?>[] rec = getAllRecursive(packageName + "."
                                     + aSub.getName());
-                            ArrayList<Class<?>> temp = new ArrayList<Class<?>>(rec.length);
+                            final ArrayList<Class<?>> temp = new ArrayList<Class<?>>(rec.length);
                             temp.addAll(Arrays.asList(rec));
                             classes.addAll(temp);
                         }

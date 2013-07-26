@@ -21,13 +21,13 @@ class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements 
     final private E e0;
     final private E e1;
 
-    ImmutableFunctionalList2(E e0, E e1) {
+    ImmutableFunctionalList2(final E e0, final E e1) {
         this.e0 = checkNotNull(e0);
         this.e1 = checkNotNull(e1);
     }
 
     @Override
-    public E get(int index) {
+    public E get(final int index) {
         switch (index) {
             case 0: return e0;
             case 1: return e1;
@@ -41,7 +41,7 @@ class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public E find(Predicate<? super E> predicate) {
+    public E find(final Predicate<? super E> predicate) {
         checkNotNull(predicate, "Predicate is null");
         if (predicate.apply(e0))
             return e0;
@@ -51,7 +51,7 @@ class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public E find(Predicate<? super E> predicate, E defaultValue) {
+    public E find(final Predicate<? super E> predicate, final E defaultValue) {
         checkNotNull(predicate, "Predicate is null");
         if (predicate.apply(e0))
             return e0;
@@ -61,19 +61,19 @@ class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public boolean any(Predicate<E> predicate) {
+    public boolean any(final Predicate<E> predicate) {
         checkNotNull(predicate);
         return predicate.apply(e0) || predicate.apply(e1);
     }
 
-    private void readObject(ObjectInputStream s)
+    private void readObject(final ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (e0 == null || e1 == null)
             throw new InvalidObjectException("Class does not accept null values");
     }
 
-    public static <E> FunctionalList<E> of(E e, E e1) {
+    public static <E> FunctionalList<E> of(final E e, final E e1) {
         return new ImmutableFunctionalList2<E>(e, e1);
     }
 }

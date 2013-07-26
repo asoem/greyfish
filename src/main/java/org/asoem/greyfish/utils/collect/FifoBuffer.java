@@ -44,7 +44,7 @@ public class FifoBuffer<E> extends ForwardingCollection<E> implements Serializab
     }
 
     @Override
-    public boolean add(E element) {
+    public boolean add(final E element) {
         synchronized (this) {
             final boolean add = super.add(element);
             if (size() > capacity)
@@ -54,16 +54,16 @@ public class FifoBuffer<E> extends ForwardingCollection<E> implements Serializab
     }
 
     @Override
-    public boolean addAll(@Nonnull Collection<? extends E> collection) {
+    public boolean addAll(@Nonnull final Collection<? extends E> collection) {
         return standardAddAll(collection);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof FifoBuffer)) return false;
 
-        FifoBuffer that = (FifoBuffer) o;
+        final FifoBuffer that = (FifoBuffer) o;
 
         if (capacity != that.capacity) return false;
         if (!delegate.equals(that.delegate)) return false;
@@ -78,7 +78,7 @@ public class FifoBuffer<E> extends ForwardingCollection<E> implements Serializab
         return result;
     }
 
-    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+    private void readObject(final ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         if (capacity <= 0)
             throw new InvalidObjectException("box must not be null");
@@ -88,7 +88,7 @@ public class FifoBuffer<E> extends ForwardingCollection<E> implements Serializab
 
     private static final long serialVersionUID = 0;
 
-    public static <T> FifoBuffer<T> newInstance(int size) {
+    public static <T> FifoBuffer<T> newInstance(final int size) {
         return new FifoBuffer<T>(size);
     }
 }

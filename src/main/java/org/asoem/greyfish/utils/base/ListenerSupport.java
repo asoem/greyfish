@@ -21,15 +21,15 @@ public class ListenerSupport<T> {
         return listeners;
     }
 
-	public void addListener(T listener) {
+	public void addListener(final T listener) {
 		getListeners().add(listener);
 	}
 
-	public void removeListener(T listener) {
+	public void removeListener(final T listener) {
 		getListeners().remove(listener);
 	}
 
-	public void notifyListeners(Function<T, Void> command) {
+	public void notifyListeners(final Function<T, Void> command) {
 		for (Iterator<T> i=getListeners().iterator(); i.hasNext(); ) {
 			final T l = i.next();
 			try {

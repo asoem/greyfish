@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public abstract class VoidCallback<T> implements Callback<T, Void> {
     @Override
-    public Void apply(T caller, Map<String, ?> args) {
+    public Void apply(final T caller, final Map<String, ?> args) {
         exec(caller, args);
         return null;
     }

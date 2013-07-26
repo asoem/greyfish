@@ -5,7 +5,7 @@ import com.google.common.base.Function;
 import javax.annotation.Nullable;
 
 public abstract class VoidFunction<T> implements Function<T, Void> {
-    public Void apply(@Nullable T t) {
+    public Void apply(@Nullable final T t) {
         process(t);
         return null;
     }

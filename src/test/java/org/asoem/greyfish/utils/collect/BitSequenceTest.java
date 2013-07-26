@@ -21,7 +21,7 @@ public class BitSequenceTest {
         final BitSequence bitSequence = BitSequence.parse("00010001");
 
         // when
-        String s = bitSequence.toString();
+        final String s = bitSequence.toString();
 
         // then
         assertThat(s, is(equalTo("00010001")));
@@ -93,8 +93,8 @@ public class BitSequenceTest {
     @Test
     public void testConcat() throws Exception {
         // given
-        BitSequence sequence1 = BitSequence.ones(10);
-        BitSequence sequence2 = BitSequence.ones(10);
+        final BitSequence sequence1 = BitSequence.ones(10);
+        final BitSequence sequence2 = BitSequence.ones(10);
 
         // when
         final BitSequence concat = BitSequence.concat(sequence1, sequence2);

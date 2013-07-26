@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
@@ -22,12 +21,12 @@ public class ImmutableMapBuilderTest {
     @Test
     public void immutableMapBuilderTest() {
         // given
-        ImmutableMapBuilder<String, Integer> builder = ImmutableMapBuilder.newInstance();
+        final ImmutableMapBuilder<String, Integer> builder = ImmutableMapBuilder.newInstance();
 
         // when
-        Map<String,Integer> map = builder.putAll(ImmutableList.<String>of("A","B"), Functions.<String>identity(), new Function<String, Integer>() {
+        final Map<String,Integer> map = builder.putAll(ImmutableList.<String>of("A","B"), Functions.<String>identity(), new Function<String, Integer>() {
             @Override
-            public Integer apply(@Nullable String s) {
+            public Integer apply(@Nullable final String s) {
                 return 1;
             }
         }).build();

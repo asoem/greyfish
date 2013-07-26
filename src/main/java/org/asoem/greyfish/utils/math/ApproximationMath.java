@@ -23,7 +23,7 @@ public final class ApproximationMath {
      * @param sigma the standard deviation
      * @return norm * e ^ -((x - mean)^2 / 2 * sigma^2)
      */
-    public static double gaussian(double x, double norm, double mean, double sigma) {
+    public static double gaussian(final double x, final double norm, final double mean, final double sigma) {
         Preconditions.checkArgument(sigma > 0, "Sigma must be strictly positive, but was %s", sigma);
         return gaussianHelper(x - mean, norm, i2s2(sigma));
     }
@@ -38,7 +38,7 @@ public final class ApproximationMath {
      * @param i2s2 1 / 2 * sigma * sigma
      * @return norm * e ^ -(xMinusMean^2 * i2s2)
      */
-    private static double gaussianHelper(double xMinusMean, double norm, double i2s2) {
+    private static double gaussianHelper(final double xMinusMean, final double norm, final double i2s2) {
         final double x = -xMinusMean * xMinusMean * i2s2;
         if (x < -700) {
             return norm * ZERO_CLOSEST_POSITIVE;
@@ -52,7 +52,7 @@ public final class ApproximationMath {
      * @param sigma the standard deviation for the gaussian function
      * @return 1 / (2sigma^2)
      */
-    private static double i2s2(double sigma) {
+    private static double i2s2(final double sigma) {
         return 1 / (2 * sigma * sigma);
     }
 
@@ -64,7 +64,7 @@ public final class ApproximationMath {
      * @param x the exponent
      * @return an approximated value for e^x
      */
-    public static double exp(double x) {
+    public static double exp(final double x) {
         final long tmp = (long) (EXP_A * x + (EXP_B - EXP_C));
         return Double.longBitsToDouble(tmp << 32);
     }
@@ -72,22 +72,22 @@ public final class ApproximationMath {
     private static final double EXP_B = 1023.0 * Math.pow(2, 20);
     private static final double EXP_C = 45799.0;  /* Read article for choice of c values */
 
-    public static UnivariateFunction gaussianFunction(final double norm, final double mean, double sigma) {
+    public static UnivariateFunction gaussianFunction(final double norm, final double mean, final double sigma) {
         Preconditions.checkArgument(sigma > 0, "Sigma must be strictly positive, but was %s", sigma);
         final double i2s2 = i2s2(sigma);
 
         return new UnivariateFunction() {
             @Override
-             public double value(double x) {
+             public double value(final double x) {
                  return gaussianHelper(x - mean, norm, i2s2);
              }
          };
     }
 
-    public static void main(String[] args) {
-        double x1 = -10.0;
-        double x2 = 10.0;
-        double stepLength = 0.01;
+    public static void main(final String[] args) {
+        final double x1 = -10.0;
+        final double x2 = 10.0;
+        final double stepLength = 0.01;
         final double v = (x2 - x1) / stepLength;
         final UnivariateFunction function = gaussianFunction(1.0, 0.0, 2.0);
         for (int i = 0; i <= v; i++) {

@@ -18,11 +18,11 @@ public enum JavaPersister implements Persister {
     INSTANCE;
 
     @Override
-    public <T> T deserialize(File file, Class<T> clazz) throws IOException, ClassNotFoundException {
+    public <T> T deserialize(final File file, final Class<T> clazz) throws IOException, ClassNotFoundException {
         return deserialize(Files.newInputStreamSupplier(file), clazz);
     }
 
-    private <T> T deserialize(InputSupplier<? extends InputStream> inputSupplier, Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
+    private <T> T deserialize(final InputSupplier<? extends InputStream> inputSupplier, final Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
         final InputStream input = inputSupplier.getInput();
         boolean threw = true;
         try {
@@ -35,14 +35,14 @@ public enum JavaPersister implements Persister {
     }
 
     @Override
-    public <T> T deserialize(InputStream inputStream, Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
+    public <T> T deserialize(final InputStream inputStream, final Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
         checkNotNull(inputStream);
         checkNotNull(clazz);
-        ObjectInputStream in = new ObjectInputStream(inputStream);
+        final ObjectInputStream in = new ObjectInputStream(inputStream);
         return clazz.cast(in.readObject());
     }
 
-    private void serialize(Object object, OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
+    private void serialize(final Object object, final OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
         final OutputStream output = outputSupplier.getOutput();
         boolean threw = true;
         try {
@@ -54,15 +54,15 @@ public enum JavaPersister implements Persister {
     }
 
     @Override
-    public void serialize(Object object, File file) throws IOException {
+    public void serialize(final Object object, final File file) throws IOException {
         serialize(object, Files.newOutputStreamSupplier(file));
     }
 
     @Override
-    public void serialize(Object object, OutputStream outputStream) throws IOException {
+    public void serialize(final Object object, final OutputStream outputStream) throws IOException {
         checkNotNull(object);
         checkNotNull(outputStream);
-        ObjectOutputStream out = new ObjectOutputStream(outputStream);
+        final ObjectOutputStream out = new ObjectOutputStream(outputStream);
         out.writeObject(object);
     }
 }

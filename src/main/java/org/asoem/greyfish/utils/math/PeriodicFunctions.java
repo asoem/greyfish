@@ -20,7 +20,7 @@ public class PeriodicFunctions {
         return new UnivariateFunction() {
             private final UnivariateFunction sawtoothWave = sawtoothWave(period, phase < 0.75 ? phase + 0.25 : -0.75 + phase);
             @Override
-            public double value(double x) {
+            public double value(final double x) {
                 return 2*FastMath.abs(sawtoothWave.value(x))-1;
             }
         };
@@ -33,7 +33,7 @@ public class PeriodicFunctions {
         if (period == 1.0) {
             return new UnivariateFunction() {
                 @Override
-                public double value(double x) {
+                public double value(final double x) {
                     final double x_p = x + phase;
                     return 2 * (x_p - FastMath.floor(0.5 + x_p));
                 }
@@ -43,7 +43,7 @@ public class PeriodicFunctions {
             return new UnivariateFunction() {
                 final double absolutePhaseShift = phase * period;
                 @Override
-                public double value(double x) {
+                public double value(final double x) {
                     final double x_p = (x + absolutePhaseShift) / period;
                     return 2 * (x_p - FastMath.floor(0.5 + x_p));
                 }
@@ -58,7 +58,7 @@ public class PeriodicFunctions {
             private final UnivariateFunction sawtoothWave = sawtoothWave(period, phase);
 
             @Override
-            public double value(double x) {
+            public double value(final double x) {
                 return sawtoothWave.value(x) >= 0 ? 1.0 : -1.0;
             }
         };

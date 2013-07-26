@@ -30,7 +30,7 @@ public abstract class InheritableBuilder<T, B extends InheritableBuilder<? super
      * Overwritten implementations should call the {@code super} method of their super class
      * unless if their direct base class is not {@link InheritableBuilder}.
      * @throws IllegalStateException if the {@code InheritableBuilder} is in a State
-     * which prevents this builder to {@link #build()}
+     * which prevents this builder to {@link Builder#build()}
      */
     protected void checkBuilder() throws IllegalStateException {}
 }

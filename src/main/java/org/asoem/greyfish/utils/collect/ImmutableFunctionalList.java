@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Time: 12:50
  */
 public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<E> {
-    public static <E> FunctionalList<E> copyOf(List<? extends E> list) {
+    public static <E> FunctionalList<E> copyOf(final List<? extends E> list) {
         checkNotNull(list);
         final int size = list.size();
         switch (size) {
@@ -24,7 +24,7 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
         }
     }
 
-    public static <E> FunctionalList<E> copyOf(Iterable<? extends E> components) {
+    public static <E> FunctionalList<E> copyOf(final Iterable<? extends E> components) {
         return copyOf(ImmutableList.copyOf(components));
     }
 
@@ -33,15 +33,15 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
         return EmptyFunctionalList.instance();
     }
 
-    private static <E> FunctionalList<E> of(E e0, E e1) {
+    private static <E> FunctionalList<E> of(final E e0, final E e1) {
         return new ImmutableFunctionalList2<E>(e0, e1);
     }
 
-    private static <E> FunctionalList<E> of(E e0, E e1, E e2) {
+    private static <E> FunctionalList<E> of(final E e0, final E e1, final E e2) {
         return new ImmutableFunctionalList3<E>(e0, e1, e2);
     }
 
-    private static <E> FunctionalList<E> of(E e0, E e1, E e2, E e3) {
+    private static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3) {
         return new ImmutableFunctionalList4<E>(e0, e1, e2, e3);
     }
 }

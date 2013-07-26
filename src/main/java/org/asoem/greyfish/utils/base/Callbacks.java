@@ -30,28 +30,28 @@ public final class Callbacks {
         return EmptyCallback.instance();
     }
 
-    public static <C, T> T call(Callback<C, T> callback, C caller) {
+    public static <C, T> T call(final Callback<C, T> callback, final C caller) {
         return callback.apply(caller, ImmutableMap.<String, Object>of());
     }
 
     public static <C, T> Callback<C, T> forSupplier(final Supplier<T> supplier) {
         return new Callback<C, T>() {
             @Override
-            public T apply(C caller, Map<String, ?> args) {
+            public T apply(final C caller, final Map<String, ?> args) {
                 return supplier.get();
             }
         };
     }
 
-    public static Callback<Object, Object> returnArgument(String key) {
+    public static Callback<Object, Object> returnArgument(final String key) {
         return new ArgumentCallback(key);
     }
 
-    public static <R> Callback<Object, R> returnArgument(String x, Class<R> clazz) {
+    public static <R> Callback<Object, R> returnArgument(final String x, final Class<R> clazz) {
         return new CastingCallback<Object, R>(clazz, returnArgument(x));
     }
 
-    public static <R> Callback<Object, R> willThrow(RuntimeException exception) {
+    public static <R> Callback<Object, R> willThrow(final RuntimeException exception) {
         return new ThrowingCallable<R>(exception);
     }
 
@@ -62,7 +62,7 @@ public final class Callbacks {
      * @param <T> the type of the values
      * @return the given values in order.
      */
-    public static <T> Callback<Object, T> iterate(T ... values) {
+    public static <T> Callback<Object, T> iterate(final T ... values) {
         return new IteratingCallback<T>(Iterators.forArray(values));
     }
 
@@ -82,7 +82,7 @@ public final class Callbacks {
         INSTANCE;
 
         @Override
-        public Void apply(Object caller, Map<String, ?> args) {
+        public Void apply(final Object caller, final Map<String, ?> args) {
             return null;
         }
 
@@ -97,22 +97,22 @@ public final class Callbacks {
         @Nullable
         private final T value;
 
-        public ConstantCallback(@Nullable T returnValue) {
+        public ConstantCallback(@Nullable final T returnValue) {
             this.value = returnValue;
         }
 
         @Override
-        public T apply(Object caller, Map<String, ?> args) {
+        public T apply(final Object caller, final Map<String, ?> args) {
             return value;
         }
 
         @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
             if (!(o instanceof ConstantCallback)) return false;
 
-            ConstantCallback that = (ConstantCallback) o;
+            final ConstantCallback that = (ConstantCallback) o;
 
             if (value != null ? !value.equals(that.value) : that.value != null) return false;
 
@@ -137,12 +137,12 @@ public final class Callbacks {
     private static class ArgumentCallback implements Callback<Object, Object>, Serializable {
         private final String x;
 
-        public ArgumentCallback(String x) {
+        public ArgumentCallback(final String x) {
             this.x = checkNotNull(x);
         }
 
         @Override
-        public Object apply(Object caller, Map<String, ?> args) {
+        public Object apply(final Object caller, final Map<String, ?> args) {
             return args.get(x);
         }
 
@@ -154,13 +154,13 @@ public final class Callbacks {
         private final Class<R> clazz;
         private final Callback<C, ?> delegate;
 
-        private CastingCallback(Class<R> clazz, Callback<C, ?> delegate) {
+        private CastingCallback(final Class<R> clazz, final Callback<C, ?> delegate) {
             this.clazz = clazz;
             this.delegate = delegate;
         }
 
         @Override
-        public R apply(C caller, Map<String, ?> args) {
+        public R apply(final C caller, final Map<String, ?> args) {
             return clazz.cast(delegate.apply(caller, args));
         }
     }
@@ -168,12 +168,12 @@ public final class Callbacks {
     private static class ThrowingCallable<R> implements Callback<Object, R>, Serializable {
         private final RuntimeException exception;
 
-        public ThrowingCallable(RuntimeException exception) {
+        public ThrowingCallable(final RuntimeException exception) {
             this.exception = checkNotNull(exception);
         }
 
         @Override
-        public R apply(Object caller, Map<String, ?> args) {
+        public R apply(final Object caller, final Map<String, ?> args) {
             throw exception;
         }
 
@@ -184,12 +184,12 @@ public final class Callbacks {
         private final Iterator<T> values;
         private T current = null;
 
-        public IteratingCallback(Iterator<T> values) {
+        public IteratingCallback(final Iterator<T> values) {
             this.values = values;
         }
 
         @Override
-        public T apply(Object caller, Map<String, ?> args) {
+        public T apply(final Object caller, final Map<String, ?> args) {
             if (values.hasNext())
                 current = values.next();
             return current;
@@ -200,13 +200,13 @@ public final class Callbacks {
         private final T e1;
         private final T e2;
 
-        public Sample2Callback(T e1, T e2) {
+        public Sample2Callback(final T e1, final T e2) {
             this.e1 = e1;
             this.e2 = e2;
         }
 
         @Override
-        public T apply(Object caller, Map<String, ?> args) {
+        public T apply(final Object caller, final Map<String, ?> args) {
             return RandomGenerators.sample(RandomGenerators.rng(), e1, e2);
         }
     }
@@ -217,12 +217,12 @@ public final class Callbacks {
 
         private final boolean bool;
 
-        BooleanConstantCallback(boolean bool) {
+        BooleanConstantCallback(final boolean bool) {
             this.bool = bool;
         }
 
         @Override
-        public Boolean apply(Object caller, Map<String, ?> args) {
+        public Boolean apply(final Object caller, final Map<String, ?> args) {
            return bool;
         }
     }

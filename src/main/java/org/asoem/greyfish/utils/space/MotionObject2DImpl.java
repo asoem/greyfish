@@ -10,7 +10,7 @@ public class MotionObject2DImpl extends ForwardingObject2D implements Object2D, 
     private final boolean collision;
     private final ImmutableObject2D delegate;
 
-    public MotionObject2DImpl(Point2D anchorPoint, boolean collision) {
+    public MotionObject2DImpl(final Point2D anchorPoint, final boolean collision) {
         this.delegate = ImmutableObject2D.of(anchorPoint.getX(), anchorPoint.getY());
         this.collision = collision;
     }
@@ -21,12 +21,12 @@ public class MotionObject2DImpl extends ForwardingObject2D implements Object2D, 
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        MotionObject2DImpl that = (MotionObject2DImpl) o;
+        final MotionObject2DImpl that = (MotionObject2DImpl) o;
 
         if (collision != that.collision) return false;
 
@@ -40,19 +40,19 @@ public class MotionObject2DImpl extends ForwardingObject2D implements Object2D, 
         return result;
     }
 
-    public static MotionObject2DImpl of(double x, double y, boolean b) {
+    public static MotionObject2DImpl of(final double x, final double y, final boolean b) {
         return new MotionObject2DImpl(ImmutablePoint2D.at(x, y), b);
     }
 
-    public static MotionObject2DImpl copyOf(MotionObject2D projection) {
+    public static MotionObject2DImpl copyOf(final MotionObject2D projection) {
         return new MotionObject2DImpl(projection.getCentroid(), false);
     }
 
-    public static MotionObject2DImpl reorientated(MotionObject2D projection) {
+    public static MotionObject2DImpl reorientated(final MotionObject2D projection) {
         return new MotionObject2DImpl(projection.getCentroid(), false);
     }
 
-    public static MotionObject2DImpl of(double x, double y) {
+    public static MotionObject2DImpl of(final double x, final double y) {
         return of(x, y, false);
     }
 

@@ -19,7 +19,7 @@ class EmptyFunctionalList extends AbstractFunctionalList<Object> implements Seri
     private EmptyFunctionalList() {}
 
     @Override
-    public Object get(int index) {
+    public Object get(final int index) {
         checkElementIndex(index, 0);
         throw new AssertionError("unreachable");
     }
@@ -30,17 +30,17 @@ class EmptyFunctionalList extends AbstractFunctionalList<Object> implements Seri
     }
 
     @Override
-    public Object find(Predicate<? super Object> predicate) throws NoSuchElementException {
+    public Object find(final Predicate<? super Object> predicate) throws NoSuchElementException {
         throw new NoSuchElementException();
     }
 
     @Override
-    public Object find(Predicate<? super Object> predicate, Object defaultValue) {
+    public Object find(final Predicate<? super Object> predicate, final Object defaultValue) {
         return defaultValue;
     }
 
     @Override
-    public Iterable<Object> filter(Predicate<? super Object> predicate) {
+    public Iterable<Object> filter(final Predicate<? super Object> predicate) {
         return this;
     }
 

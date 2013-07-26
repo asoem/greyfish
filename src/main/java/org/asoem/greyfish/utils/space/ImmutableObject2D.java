@@ -9,7 +9,7 @@ public class ImmutableObject2D implements Object2D {
 
     private final Point2D anchorPoint;
 
-    protected ImmutableObject2D(Point2D anchorPoint) {
+    protected ImmutableObject2D(final Point2D anchorPoint) {
         this.anchorPoint = ImmutablePoint2D.at(anchorPoint);
     }
 
@@ -24,11 +24,11 @@ public class ImmutableObject2D implements Object2D {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ImmutableObject2D that = (ImmutableObject2D) o;
+        final ImmutableObject2D that = (ImmutableObject2D) o;
 
         if (!anchorPoint.equals(that.anchorPoint)) return false;
 
@@ -40,11 +40,11 @@ public class ImmutableObject2D implements Object2D {
         return anchorPoint.hashCode();
     }
 
-    public static ImmutableObject2D copyOf(Object2D object2D) {
+    public static ImmutableObject2D copyOf(final Object2D object2D) {
         return new ImmutableObject2D(object2D.getCentroid());
     }
 
-    public static ImmutableObject2D of(double x, double y) {
+    public static ImmutableObject2D of(final double x, final double y) {
         return new ImmutableObject2D(ImmutablePoint2D.at(x, y));
     }
 }

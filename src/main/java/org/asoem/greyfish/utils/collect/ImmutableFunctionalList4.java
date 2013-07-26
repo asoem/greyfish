@@ -23,7 +23,7 @@ class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> implements 
     final private E e2;
     final private E e3;
 
-    ImmutableFunctionalList4(E e0, E e1, E e2, E e3) {
+    ImmutableFunctionalList4(final E e0, final E e1, final E e2, final E e3) {
         this.e0 = checkNotNull(e0);
         this.e1 = checkNotNull(e1);
         this.e2 = checkNotNull(e2);
@@ -31,7 +31,7 @@ class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public E get(int index) {
+    public E get(final int index) {
         switch (index) {
             case 0: return e0;
             case 1: return e1;
@@ -47,7 +47,7 @@ class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public E find(Predicate<? super E> predicate) {
+    public E find(final Predicate<? super E> predicate) {
         checkNotNull(predicate, "Predicate is null");
         if (predicate.apply(e0))
             return e0;
@@ -62,7 +62,7 @@ class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public E find(Predicate<? super E> predicate, E defaultValue) {
+    public E find(final Predicate<? super E> predicate, final E defaultValue) {
         checkNotNull(predicate, "Predicate is null");
         if (predicate.apply(e0))
             return e0;
@@ -76,14 +76,14 @@ class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> implements 
             return defaultValue;
     }
 
-    private void readObject(ObjectInputStream s)
+    private void readObject(final ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (e0 == null || e1 == null || e2 == null)
             throw new InvalidObjectException("Class does not accept null values");
     }
 
-    public static <E> FunctionalList<E> of(E e0, E e1, E e2, E e3) {
+    public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3) {
         return new ImmutableFunctionalList4<E>(e0, e1, e2, e3);
     }
 }

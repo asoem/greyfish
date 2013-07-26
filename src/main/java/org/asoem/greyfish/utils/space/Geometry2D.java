@@ -24,8 +24,8 @@ public class Geometry2D {
      * @return The {@code ImmutablePoint2D} where the line segments intersect or {@code null} if they don't.
      */
     @Nullable
-    public static ImmutablePoint2D intersection(double l1x1, double l1y1, double l1x2, double l1y2,
-                                                   double l2x1, double l2y1, double l2x2, double l2y2) {
+    public static ImmutablePoint2D intersection(final double l1x1, final double l1y1, final double l1x2, final double l1y2,
+                                                   final double l2x1, final double l2y1, final double l2x2, final double l2y2) {
         final double dx1 = l1x2 - l1x1;
         final double dx2 = l2x2 - l2x1;
         final double dy1 = l1y2 - l1y1;
@@ -49,18 +49,18 @@ public class Geometry2D {
         return ImmutablePoint2D.at(ix, iy);
     }
 
-    public static boolean rectangleContains(int x, int y, int w, int h, double x1, double y1) {
+    public static boolean rectangleContains(final int x, final int y, final int w, final int h, final double x1, final double y1) {
         return (x1 >= x &&
                 y1 >= y &&
                 x1 < x + w &&
                 y1 < y + h);
     }
 
-    public static double distance(Point2D point1, Point2D point2) {
+    public static double distance(final Point2D point1, final Point2D point2) {
         return 0; // TODO: implement
     }
 
-    public static Point2D polarToCartesian(double angle, double radius) {
+    public static Point2D polarToCartesian(final double angle, final double radius) {
         return ImmutablePoint2D.at(
                 radius * FastMath.cos(angle),
                 radius * FastMath.sin(angle)

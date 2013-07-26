@@ -9,7 +9,7 @@ public class MutableObject2D implements Object2D {
 
     private MutablePoint2D anchorPoint = new MutablePoint2D();
 
-    public MutableObject2D(double x, double y, double angle) {
+    public MutableObject2D(final double x, final double y, final double angle) {
         setX(x);
         setY(y);
     }
@@ -19,23 +19,23 @@ public class MutableObject2D implements Object2D {
         return anchorPoint;
     }
 
-    public static MutableObject2D locatedAt(double x, double y) {
+    public static MutableObject2D locatedAt(final double x, final double y) {
         return new MutableObject2D(x, y, 0);
     }
 
-    public static MutableObject2D at(double x, double y, double angle) {
+    public static MutableObject2D at(final double x, final double y, final double angle) {
         return new MutableObject2D(x, y, angle);
     }
 
-    public static MutableObject2D at(Point2D locatable2D, double angle) {
+    public static MutableObject2D at(final Point2D locatable2D, final double angle) {
         return new MutableObject2D(locatable2D.getX(), locatable2D.getY(), angle);
     }
 
-    public void setX(double x) {
+    public void setX(final double x) {
         anchorPoint.setX(x);
     }
 
-    public void setY(double y) {
+    public void setY(final double y) {
         anchorPoint.setY(y);
     }
 
@@ -45,11 +45,11 @@ public class MutableObject2D implements Object2D {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MutableObject2D that = (MutableObject2D) o;
+        final MutableObject2D that = (MutableObject2D) o;
 
         if (!anchorPoint.equals(that.anchorPoint)) return false;
 

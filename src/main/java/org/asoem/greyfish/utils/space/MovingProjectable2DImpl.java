@@ -15,7 +15,7 @@ public class MovingProjectable2DImpl implements MovingProjectable2D {
     }
 
     @Override
-    public void setProjection(MotionObject2D projection) {
+    public void setProjection(final MotionObject2D projection) {
         this.projection = projection;
     }
 
@@ -25,7 +25,7 @@ public class MovingProjectable2DImpl implements MovingProjectable2D {
     }
 
     @Override
-    public void setMotion(Motion2D motion) {
+    public void setMotion(final Motion2D motion) {
         this.motion = motion;
     }
 }

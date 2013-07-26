@@ -1,5 +1,8 @@
 package org.asoem.greyfish.utils.math;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooLargeException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
@@ -9,21 +12,23 @@ import org.apache.commons.math3.random.Well19937c;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 29.05.13
- * Time: 11:47
- *
- * Singleton Instances of some default generators
+ * A collection of common functions using a {@link RandomGenerator}.
  */
-public class RandomGenerators {
+public final class RandomGenerators {
 
-    private RandomGenerators() {}
+    /**
+     * Prevent instantiation of this class.
+     */
+    private RandomGenerators() {
+        throw new AssertionError();
+    }
 
     /**
      *
@@ -39,7 +44,7 @@ public class RandomGenerators {
      * @return a singleton instance of {@link Well19937c}
      */
     public static RandomGenerator well1993c() {
-        return Well1993cSingleton.INSTANCE;
+        return Well19937cSingleton.INSTANCE;
     }
 
     /**
@@ -48,28 +53,102 @@ public class RandomGenerators {
      * @param p the probability for generating a {@code true} value
      * @return {@code true} with probability {@code p}, {@code false} otherwise
      */
-    public static boolean nextBoolean(RandomGenerator rng, double p) {
+    public static boolean nextBoolean(final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 || p <= 1, "{} is not in [0,1]", p);
         final double v = rng.nextDouble();
         return v < p;
     }
 
-    public static <S> S sample(RandomGenerator rng, S e1, S e2) {
+    /**
+     * Randomly sample one element out of {@code e1} and {@code e2}.
+     *
+     * @param rng the generator to use for sampling
+     * @param e1 the first element to sample from
+     * @param e2 the second element to sample from
+     * @param <S> the type of the elements to sample
+     * @return {@code e1} or {@code e2}
+     */
+    public static <S> S sample(final RandomGenerator rng, final S e1, final S e2) {
         return rng.nextBoolean() ? e1 : e2;
     }
 
-    public static int nextInt(RandomGenerator rng, final Integer minIncl, final Integer maxExcl) {
+    /**
+     * Get a random value in the range [{@code minIncl}, {@code maxExcl}).
+     * @param rng the generator to use
+     * @param minIncl the minimum inclusive value of the range
+     * @param maxExcl the maximum exclusive value of the range
+     * @return a random number in [{@code minIncl}, {@code maxExcl})
+     */
+    public static int nextInt(final RandomGenerator rng, final int minIncl, final int maxExcl) {
         checkNotNull(rng);
         checkArgument(maxExcl >= minIncl);
         return minIncl + rng.nextInt(maxExcl - minIncl);
     }
 
+    /**
+     * Randomly sample one element from given {@code elements} using {@code rng}.
+     *
+     * @param rng the random number generator to use
+     * @param elements the elements to sample
+     * @param <T> the type of the elements to sample
+     * @return the sampled element
+     */
     @Nullable
-    public static <T> T sample(RandomGenerator rng, List<T> elements) {
+    public static <T> T sample(final RandomGenerator rng, final Collection<? extends T> elements) {
         checkNotNull(rng);
         checkNotNull(elements);
-        return elements.get(rng.nextInt(elements.size()));
+        checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
+        return Iterables.get(elements, rng.nextInt(elements.size()));
+    }
+
+    /**
+     * Randomly sample {@code sampleSize} elements from given {@code elements} using {@code rng}.
+     * {@code sampleSize} must be less than or equal to the size of {@code elements}.
+     *
+     * @param rng the random number generator to use
+     * @param elements the elements to sample
+     * @param sampleSize the number of elements to sample
+     * @param <T> the type of the elements to sample
+     * @return the collection of sampled elements
+     */
+    public static <T> Set<T> sampleUnique(final RandomGenerator rng, final Set<? extends T> elements, final int sampleSize) {
+        checkNotNull(rng);
+        checkNotNull(elements);
+        checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
+        checkArgument(sampleSize <= elements.size(), "Cannot sample {} unique elements from set of size {}", sampleSize, elements.size());
+
+        if (sampleSize == elements.size()) {
+            @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
+            final Set<T> safeElements = (Set<T>) elements;
+            return safeElements;
+        }
+
+        final Set<T> samples = Sets.newHashSetWithExpectedSize(sampleSize);
+        while (samples.size() < sampleSize) {
+            samples.add(sample(rng, elements));
+        }
+        return samples;
+    }
+
+    /**
+     * Randomly sample {@code sampleSize} elements from given {@code elements} using {@code rng}.
+     *
+     * @param rng the random number generator to use
+     * @param elements the elements to sample
+     * @param sampleSize the number of elements to sample
+     * @param <T> the type of the elements to sample
+     * @return the collection of sampled elements
+     */
+    public static <T> Collection<T> sample(final RandomGenerator rng, final Collection<? extends T> elements, final int sampleSize) {
+        checkNotNull(rng);
+        checkNotNull(elements);
+        checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
+        final ImmutableList.Builder<T> builder = ImmutableList.builder();
+        for (int i = 0; i < sampleSize; i++) {
+            builder.add(sample(rng, elements));
+        }
+        return builder.build();
     }
 
     /**
@@ -79,7 +158,7 @@ public class RandomGenerators {
      * @param sigma the standard deviation of the distribution
      * @return a random value for the given normal distribution
      */
-    public static double rnorm(RandomGenerator rng, double mu, double sigma) {
+    public static double rnorm(final RandomGenerator rng, final double mu, final double sigma) {
         checkNotNull(rng);
         checkArgument(sigma > 0, "Sigma must be strictly positive, was: %s", sigma);
         final double gaussian = rng.nextGaussian();
@@ -94,11 +173,11 @@ public class RandomGenerators {
      * @param upper the upper bound
      * @return a uniformly distributed random value from the open interval (lower,upper)
      */
-    public static double nextDouble(RandomGenerator rng, double lower, double upper) {
+    public static double nextDouble(final RandomGenerator rng, final double lower, final double upper) {
         return nextDouble(rng, lower, upper, true);
     }
 
-    private static double nextDouble(RandomGenerator rng, double lower, double upper, boolean lowerInclusive) {
+    private static double nextDouble(final RandomGenerator rng, final double lower, final double upper, final boolean lowerInclusive) {
 
         if (lower >= upper) {
             throw new NumberIsTooLargeException(LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
@@ -122,11 +201,26 @@ public class RandomGenerators {
         return u * upper + (1.0 - u) * lower;
     }
 
-    private static class Well1993cSingleton extends RandomAdaptor implements Serializable {
+    /**
+     * Get an instance of the default random number generator initialized with {@code seed}.
+     * Currently delegates to {@link #well1993c(long)}.
+     *
+     * @param seed the seed for the generator
+     * @return a new instance of the default random number generator.
+     */
+    public static RandomGenerator rng(final long seed) {
+        return well1993c(seed);
+    }
 
-        private static final Well1993cSingleton INSTANCE = new Well1993cSingleton();
+    private static RandomGenerator well1993c(final long seed) {
+        return new Well19937c(seed);
+    }
 
-        private Well1993cSingleton() {
+    private static class Well19937cSingleton extends RandomAdaptor implements Serializable {
+
+        private static final Well19937cSingleton INSTANCE = new Well19937cSingleton();
+
+        private Well19937cSingleton() {
             super(new Well19937c());
         }
 

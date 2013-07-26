@@ -15,7 +15,7 @@ public enum TileDirection {
     private final int xTranslation;
     private final int yTranslation;
 
-    TileDirection(int yTranslation, int xTranslation) {
+    TileDirection(final int yTranslation, final int xTranslation) {
         this.xTranslation = xTranslation;
         this.yTranslation = yTranslation;
     }
@@ -36,9 +36,9 @@ public enum TileDirection {
         }
     }
 
-    public static TileDirection forAdjacentTiles(Tile origin, Tile destination) {
-        int xDiff = destination.getX() - origin.getX();
-        int yDiff = destination.getY() - origin.getY();
+    public static TileDirection forAdjacentTiles(final Tile origin, final Tile destination) {
+        final int xDiff = destination.getX() - origin.getX();
+        final int yDiff = destination.getY() - origin.getY();
 
         if (Math.abs(xDiff) > 1 || Math.abs(yDiff) > 1)
             throw new IllegalArgumentException("Cannot calculate direction for non adjacent tiles: origin=" + origin + ", destination=" + destination);

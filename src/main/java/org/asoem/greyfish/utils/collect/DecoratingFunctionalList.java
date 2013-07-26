@@ -15,7 +15,7 @@ public class DecoratingFunctionalList<E> extends AbstractFunctionalList<E> imple
 
     private final List<E> list;
 
-    public DecoratingFunctionalList(List<E> list) {
+    public DecoratingFunctionalList(final List<E> list) {
         this.list = list;
     }
 
@@ -23,7 +23,7 @@ public class DecoratingFunctionalList<E> extends AbstractFunctionalList<E> imple
         return new DecoratingFunctionalList<E>(list);
     }
 
-    private void readObject(ObjectInputStream s)
+    private void readObject(final ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (list == null)
@@ -33,7 +33,7 @@ public class DecoratingFunctionalList<E> extends AbstractFunctionalList<E> imple
     private static final long serialVersionUID = 0;
 
     @Override
-    public E get(int index) {
+    public E get(final int index) {
         return list.get(index);
     }
 

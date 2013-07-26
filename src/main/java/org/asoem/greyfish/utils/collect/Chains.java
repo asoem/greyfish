@@ -36,7 +36,7 @@ public final class Chains {
                             if (next == null)
                                 return endOfData();
                             else {
-                                T ret = next;
+                                final T ret = next;
                                 next = nextElementFunction.apply(next);
                                 return ret;
                             }

@@ -15,30 +15,30 @@ public class ImmutableMotion2D implements Motion2D, Serializable {
 
     private final double rotation;
 
-    public ImmutableMotion2D(double angle, double v) {
+    public ImmutableMotion2D(final double angle, final double v) {
         this.translation = v;
         this.rotation = angle;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public ImmutableMotion2D rotated(double phi) {
+    public ImmutableMotion2D rotated(final double phi) {
         return new ImmutableMotion2D(getRotation() + phi, getTranslation());
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public ImmutableMotion2D translated(double distance) {
+    public ImmutableMotion2D translated(final double distance) {
         return new ImmutableMotion2D(getRotation(), getTranslation() + distance);
     }
 
-    public ImmutableMotion2D modified(double phi, double distance) {
+    public ImmutableMotion2D modified(final double phi, final double distance) {
         return new ImmutableMotion2D(getRotation() + phi, getTranslation() + distance);
     }
 
-    public static ImmutableMotion2D newInstance(double phi, double length) {
+    public static ImmutableMotion2D newInstance(final double phi, final double length) {
         return new ImmutableMotion2D(phi, length);
     }
 
-    public static ImmutableMotion2D of(double angle, double velocity) {
+    public static ImmutableMotion2D of(final double angle, final double velocity) {
         return new ImmutableMotion2D(angle, velocity);
     }
 
@@ -64,11 +64,11 @@ public class ImmutableMotion2D implements Motion2D, Serializable {
 
     @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ImmutableMotion2D that = (ImmutableMotion2D) o;
+        final ImmutableMotion2D that = (ImmutableMotion2D) o;
 
         if (Double.compare(that.rotation, rotation) != 0) return false;
         if (Double.compare(that.translation, translation) != 0) return false;

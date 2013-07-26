@@ -14,7 +14,7 @@ public class MutablePoint2D extends AbstractPoint2D {
     public MutablePoint2D() {
     }
 
-    public MutablePoint2D(double x, double y) {
+    public MutablePoint2D(final double x, final double y) {
         this.x = x;
         this.y = y;
     }
@@ -24,7 +24,7 @@ public class MutablePoint2D extends AbstractPoint2D {
         return x;
     }
 
-    public void setX(double x) {
+    public void setX(final double x) {
        this.x = x;
     }
 
@@ -33,16 +33,16 @@ public class MutablePoint2D extends AbstractPoint2D {
         return y;
     }
 
-    public void setY(double y) {
+    public void setY(final double y) {
         this.y = y;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof MutablePoint2D)) return false;
 
-        MutablePoint2D that = (MutablePoint2D) o;
+        final MutablePoint2D that = (MutablePoint2D) o;
 
         if (Double.compare(that.x, x) != 0) return false;
         if (Double.compare(that.y, y) != 0) return false;

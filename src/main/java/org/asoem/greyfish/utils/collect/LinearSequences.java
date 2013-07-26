@@ -33,7 +33,7 @@ public class LinearSequences {
      * @param <E> the type of the elements in {@code Iterable}s
      * @return a product of Iterables with crossovers at the given indices
      */
-    public static <E> Product2<Iterable<E>, Iterable<E>> crossover(Iterable<E> x, Iterable<E> y, final Set<Integer> indices) {
+    public static <E> Product2<Iterable<E>, Iterable<E>> crossover(final Iterable<E> x, final Iterable<E> y, final Set<Integer> indices) {
         checkNotNull(x);
         checkNotNull(y);
         checkNotNull(indices);
@@ -47,7 +47,7 @@ public class LinearSequences {
                     Ordering.natural().immutableSortedCopy(indices), 2), new Function<List<Integer>, Range<Integer>>() {
                 @Nullable
                 @Override
-                public Range<Integer> apply(@Nullable List<Integer> input) {
+                public Range<Integer> apply(@Nullable final List<Integer> input) {
                     assert input != null;
                     return input.size() == 2 ? Range.closed(input.get(0), input.get(1)) : Range.atLeast(input.get(0));
                 }
@@ -60,7 +60,7 @@ public class LinearSequences {
                     assert input != null;
                     return ranges.any(new Predicate<Range<Integer>>() {
                         @Override
-                        public boolean apply(@Nullable Range<Integer> range) {
+                        public boolean apply(@Nullable final Range<Integer> range) {
                             assert range != null;
                             return range.contains(input._2());
                         }
@@ -70,11 +70,11 @@ public class LinearSequences {
         }
     }
 
-    public static <E> int hammingDistance(List<E> a, List<E> b) {
+    public static <E> int hammingDistance(final List<E> a, final List<E> b) {
         checkArgument(checkNotNull(a).size() == checkNotNull(b.size()));
         final Iterable<Product2<E, E>> zipped = Products.zip(a, b);
         int sum = 0;
-        for (Product2<E, E> el : zipped) {
+        for (final Product2<E, E> el : zipped) {
             if (!el._1().equals(el._2()))
                 ++sum;
         }

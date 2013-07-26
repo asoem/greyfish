@@ -33,9 +33,6 @@ public final class RecursiveActions {
      * If the size of the list exceeds the given {@code size},
      * then the list will be split into partitions of that {@code size} and {@code f} will be applied on them in parallel.
      *
-     *
-     *
-     *
      * @param list the elements on which the function will be applied
      * @param f the function to apply
      * @param size the desired size of each sublist (the last may be smaller)
@@ -52,7 +49,8 @@ public final class RecursiveActions {
             return new RecursiveAction() {
                 @Override
                 protected void compute() {
-                    checkState(inForkJoinPool(), "This action is executed from outside of an ForkJoinPool which is forbidden");
+                    checkState(inForkJoinPool(),
+                            "This action is executed from outside of an ForkJoinPool which is forbidden");
 
                     if (list.size() < size) {
                         applyFunction(list);
@@ -78,9 +76,10 @@ public final class RecursiveActions {
                     }));
                 }
 
-                private void applyFunction(Iterable<T> elements) {
-                    for (T element : elements)
+                private void applyFunction(final Iterable<T> elements) {
+                    for (final T element : elements) {
                         f.apply(element);
+                    }
                 }
             };
         }
