@@ -56,7 +56,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private final AtomicInteger agentIdSequence = new AtomicInteger();
     private SimulationState state;
 
-    protected Basic2DSimulation(Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
+    protected Basic2DSimulation(final Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.prototypes = checkNotNull(builder.prototypes);
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
@@ -71,7 +71,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public void addAgent(A agent) {
+    public void addAgent(final A agent) {
         checkState(state != SimulationState.PLANING_PHASE);
         checkNotNull(agent, "agent is null");
         // TODO: check state of agent (should be initialized)
@@ -86,8 +86,8 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
     protected abstract S self();
 
-    private void passivateAgentsInternal(List<? extends A> agents) {
-        for (A agent : agents) {
+    private void passivateAgentsInternal(final List<? extends A> agents) {
+        for (final A agent : agents) {
             agent.deactivate(PassiveSimulationContext.<S, A>instance());
             releaseAgent(agent);
         }
@@ -109,7 +109,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public int countAgents(Population population) {
+    public int countAgents(final Population population) {
         return space.count(population);
     }
 
@@ -137,7 +137,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public double distance(A agent, double degrees) {
+    public double distance(final A agent, final double degrees) {
         return space.distance(agent, degrees);
     }
 
@@ -175,8 +175,8 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void processAgentMessageDelivery() {
-        for (DeliverAgentMessageMessage<A> message : deliverAgentMessageMessages) {
-            for (A agent : message.message.getRecipients()) {
+        for (final DeliverAgentMessageMessage<A> message : deliverAgentMessageMessages) {
+            for (final A agent : message.message.getRecipients()) {
                 agent.receive(new AgentMessage<A>(message.message, getSteps()));
             }
         }
@@ -186,7 +186,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private void executeAllAgents() {
         final RecursiveAction executeAllAgents = RecursiveActions.foreach(ImmutableList.copyOf(getAgents()), new VoidFunction<Simulatable<S, A>>() {
             @Override
-            public void process(Simulatable<S, A> agent) {
+            public void process(final Simulatable<S, A> agent) {
                 agent.execute();
             }
         }, parallelizationThreshold);
@@ -194,7 +194,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void processRequestedAgentActivations() {
-        for (AddAgentMessage<A> addAgentMessage : addAgentMessages) {
+        for (final AddAgentMessage<A> addAgentMessage : addAgentMessages) {
             final A clone = createClone(addAgentMessage.population);
             final Chromosome chromosome = Optional
                     .fromNullable(addAgentMessage.chromosome)
@@ -209,7 +209,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private void processAgentsMovement() {
         final RecursiveAction moveAllAgents = RecursiveActions.foreach(ImmutableList.copyOf(getAgents()), new VoidFunction<A>() {
             @Override
-            public void process(A agent) {
+            public void process(final A agent) {
                 space.moveObject(agent, agent.getMotion());
             }
         }, parallelizationThreshold);
@@ -221,7 +221,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         if (removeAgentMessages.size() > 0) {
             passivateAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage<A>, A>() {
                 @Override
-                public A apply(RemoveAgentMessage<A> removeAgentMessage) {
+                public A apply(final RemoveAgentMessage<A> removeAgentMessage) {
                     return removeAgentMessage.agent;
                 }
             }));
@@ -236,32 +236,32 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public boolean hasStepValue(String key) {
+    public boolean hasStepValue(final String key) {
         return snapshotValues.containsKey(key);
     }
 
     @Override
-    public void setStepValue(String key, Object value) {
+    public void setStepValue(final String key, final Object value) {
         snapshotValues.put(key, value);
     }
 
     @Override
-    public Object getStepValue(String key) {
+    public Object getStepValue(final String key) {
         return snapshotValues.get(key);
     }
 
     @Override
-    public void createAgent(Population population, Initializer<? super A> initializer) {
+    public void createAgent(final Population population, final Initializer<? super A> initializer) {
         addAgentMessages.add(new AddAgentMessage<A>(population, null, initializer));
     }
 
-    protected void enqueueAgentCreation(Population population, P projection) {
+    protected void enqueueAgentCreation(final Population population, final P projection) {
         checkNotNull(population);
         checkNotNull(projection);
         addAgentMessages.add(new AddAgentMessage<A>(population, null, AgentInitializers.projection(projection)));
     }
 
-    protected void enqueueAgentCreation(Population population, Chromosome chromosome, P projection) {
+    protected void enqueueAgentCreation(final Population population, final Chromosome chromosome, final P projection) {
         checkNotNull(population);
         checkNotNull(chromosome);
         checkNotNull(projection);
@@ -274,12 +274,12 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public void setName(String name) {
+    public void setName(final String name) {
         this.title = checkNotNull(name);
     }
 
     @Override
-    public Iterable<A> getAgents(Population population) {
+    public Iterable<A> getAgents(final Population population) {
         return space.getAgents(population);
     }
 
@@ -288,7 +288,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         return simulationLogger;
     }
 
-    private void setState(SimulationState state) {
+    private void setState(final SimulationState state) {
         LOGGER.debug("Switching state: {} -> {}", this.state, state);
         this.state = state;
     }
@@ -304,7 +304,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         @Nullable
         private final Chromosome chromosome;
 
-        private AddAgentMessage(Population population, @Nullable Chromosome chromosome, Initializer<? super T> initializer) {
+        private AddAgentMessage(final Population population, @Nullable final Chromosome chromosome, final Initializer<? super T> initializer) {
             assert population != null;
             assert initializer != null;
             this.chromosome = chromosome;
@@ -317,7 +317,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
         private final T agent;
 
-        public RemoveAgentMessage(T agent) {
+        public RemoveAgentMessage(final T agent) {
             assert agent != null;
             this.agent = agent;
         }
@@ -328,7 +328,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
         private final ACLMessage<T> message;
 
-        public DeliverAgentMessageMessage(ACLMessage<T> message) {
+        public DeliverAgentMessageMessage(final ACLMessage<T> message) {
             this.message = message;
         }
 
@@ -340,12 +340,12 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         private final Multimap<Population, T> agentsByPopulation;
         private final Predicate<T> INACTIVE_AGENT_PREDICATE = new Predicate<T>() {
             @Override
-            public boolean apply(T input) {
+            public boolean apply(final T input) {
                 return !input.isActive();
             }
         };
 
-        private AgentSpace(Z delegate) {
+        private AgentSpace(final Z delegate) {
             assert delegate != null;
 
             this.delegate = delegate;
@@ -357,13 +357,13 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             return delegate;
         }
 
-        public int count(Population population) {
+        public int count(final Population population) {
             checkNotNull(population);
             return agentsByPopulation.get(population).size();
         }
 
         @Override
-        public boolean insertObject(T object, P projection) {
+        public boolean insertObject(final T object, final P projection) {
             checkNotNull(object, "projectable is null");
             checkNotNull(projection, "projection is null");
             if (super.insertObject(object, projection)) {
@@ -375,7 +375,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         }
 
         @Override
-        public boolean removeObject(T agent) {
+        public boolean removeObject(final T agent) {
             checkNotNull(agent);
             if (super.removeObject(agent)) {
                 final boolean remove = agentsByPopulation.get(agent.getPopulation()).remove(agent);
@@ -386,7 +386,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         }
 
         @Override
-        public P getProjection(T object) {
+        public P getProjection(final T object) {
             return checkNotNull(object).getProjection();
         }
 
@@ -396,7 +396,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             }
         }
 
-        public Iterable<T> getAgents(Population population) {
+        public Iterable<T> getAgents(final Population population) {
             checkNotNull(population);
             return agentsByPopulation.get(population);
         }
@@ -410,7 +410,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         private final Set<A> prototypes;
         private SimulationLogger<? super A> simulationLogger = new ConsoleLogger<A>();
 
-        public Basic2DSimulationBuilder(Z space, final Set<A> prototypes) {
+        public Basic2DSimulationBuilder(final Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
             agentPool(new StackKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
@@ -418,43 +418,43 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
                 Map<Population, A> map = Maps.uniqueIndex(prototypes, new Function<A, Population>() {
                     @Nullable
                     @Override
-                    public Population apply(A input) {
+                    public Population apply(final A input) {
                         return input.getPopulation();
                     }
                 });
 
                 @SuppressWarnings("unchecked") // casting a clone should be safe
                 @Override
-                public A makeObject(Population population) throws Exception {
+                public A makeObject(final Population population) throws Exception {
                     return CycleCloner.clone(map.get(population));
                 }
             }, 1000));
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             checkState(agentPool != null, "No AgentPool has been defined");
             checkState(!prototypes.contains(null), "Prototypes contains null");
             checkState(space.isEmpty(), "Space is not empty");
         }
 
-        public B agentPool(KeyedObjectPool<Population, A> pool) {
+        public B agentPool(final KeyedObjectPool<Population, A> pool) {
             this.agentPool = checkNotNull(pool);
             return self();
         }
 
-        public B parallelizationThreshold(int parallelizationThreshold) {
+        public B parallelizationThreshold(final int parallelizationThreshold) {
             checkArgument(parallelizationThreshold > 0, "parallelizationThreshold must be positive");
             this.parallelizationThreshold = parallelizationThreshold;
             return self();
         }
 
-        public B simulationLogger(SimulationLogger<? super A> simulationLogger) {
+        public B simulationLogger(final SimulationLogger<? super A> simulationLogger) {
             this.simulationLogger = simulationLogger;
             return self();
         }
 
-        public B simulationStepListener(Callback<? super DefaultGreyfishSimulation, ? extends Void> callback) {
+        public B simulationStepListener(final Callback<? super DefaultGreyfishSimulation, ? extends Void> callback) {
             return self();
         }
     }

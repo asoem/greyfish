@@ -16,14 +16,14 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
     private Object nextStateKey = initialState();
     private boolean endStateReached = false;
 
-    protected FiniteStateAction(AbstractBuilder<A, ? extends FiniteStateAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    protected FiniteStateAction(final AbstractBuilder<A, ? extends FiniteStateAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.statefulExecutionCount = builder.statefulExecutionCount;
         this.nextStateKey = builder.nextStateKey;
         this.endStateReached = builder.endStateReached;
     }
 
-    protected FiniteStateAction(FiniteStateAction<A> cloneable, DeepCloner cloner) {
+    protected FiniteStateAction(final FiniteStateAction<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
         this.statefulExecutionCount = cloneable.statefulExecutionCount;
         this.nextStateKey = cloneable.nextStateKey;
@@ -56,17 +56,17 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
         endStateReached = false;
     }
 
-    protected final <T> void transition(T state) {
+    protected final <T> void transition(final T state) {
         LOGGER.debug("{}: Transition to {}", this, state);
         nextStateKey = state;
     }
 
-    protected final void failure(String message) {
+    protected final void failure(final String message) {
         endStateReached = true;
         LOGGER.debug("{}: End Transition to ERROR state: {}", this, message);
     }
 
-    protected final <T> void endTransition(T state) {
+    protected final <T> void endTransition(final T state) {
         LOGGER.debug("{}: End transition to {}", this, state);
         nextStateKey = state;
         endStateReached = true;
@@ -111,7 +111,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(FiniteStateAction<A> action) {
+        protected AbstractBuilder(final FiniteStateAction<A> action) {
             super(action);
             this.statefulExecutionCount = action.statefulExecutionCount;
             this.nextStateKey = action.nextStateKey;

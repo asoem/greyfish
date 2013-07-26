@@ -7,15 +7,15 @@ public class VariableResolutionException extends IllegalArgumentException {
     public VariableResolutionException() {
     }
 
-    public VariableResolutionException(String s) {
+    public VariableResolutionException(final String s) {
         super(s);
     }
 
-    public VariableResolutionException(String message, Throwable cause) {
+    public VariableResolutionException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public VariableResolutionException(Throwable cause) {
+    public VariableResolutionException(final Throwable cause) {
         super(cause);
     }
 }

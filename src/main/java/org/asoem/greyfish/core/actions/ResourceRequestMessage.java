@@ -10,7 +10,7 @@ public class ResourceRequestMessage {
     private final double requestAmount;
     private final Object requestClassifier;
 
-    public ResourceRequestMessage(double requestAmount, Object requestClassifier) {
+    public ResourceRequestMessage(final double requestAmount, final Object requestClassifier) {
         this.requestAmount = requestAmount;
         this.requestClassifier = requestClassifier;
     }

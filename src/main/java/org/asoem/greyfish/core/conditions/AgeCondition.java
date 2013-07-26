@@ -10,16 +10,16 @@ public class AgeCondition<A extends Agent<A, ?>> extends IntCompareCondition<A> 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AgeCondition() {}
 
-    private AgeCondition(AgeCondition<A> condition, DeepCloner map) {
+    private AgeCondition(final AgeCondition<A> condition, final DeepCloner map) {
         super(condition, map);
     }
 
-    private AgeCondition(AbstractBuilder<?, ?, A> builder) {
+    private AgeCondition(final AbstractBuilder<?, ?, A> builder) {
         super(builder);
     }
 
     @Override
-    public AgeCondition<A> deepClone(DeepCloner cloner) {
+    public AgeCondition<A> deepClone(final DeepCloner cloner) {
         return new AgeCondition<A>(this, cloner);
     }
 

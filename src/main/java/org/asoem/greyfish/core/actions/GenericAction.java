@@ -25,12 +25,12 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
         super(new Builder<A>());
     }
 
-    protected GenericAction(GenericAction<A> genericAction, DeepCloner cloner) {
+    protected GenericAction(final GenericAction<A> genericAction, final DeepCloner cloner) {
         super(genericAction, cloner);
         this.callback = genericAction.callback;
     }
 
-    protected GenericAction(AbstractBuilder<A, ? extends GenericAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected GenericAction(final AbstractBuilder<A, ? extends GenericAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -42,7 +42,7 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
     }
 
     @Override
-    public GenericAction<A> deepClone(DeepCloner cloner) {
+    public GenericAction<A> deepClone(final DeepCloner cloner) {
         return new GenericAction<A>(this, cloner);
     }
 
@@ -72,7 +72,7 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
 
         public Callback<? super GenericAction<A>, Void> callback = Callbacks.emptyCallback();
 
-        public B executes(Callback<? super GenericAction<A>, Void> callback) {
+        public B executes(final Callback<? super GenericAction<A>, Void> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }

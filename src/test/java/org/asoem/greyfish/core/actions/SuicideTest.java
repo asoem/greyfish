@@ -37,27 +37,27 @@ public class SuicideTest {
         assertThat(copy, is(sameAs(suicide)));
     }
 
-    private Matcher<Suicide<?>> sameAs(Suicide<?> suicide) {
+    private Matcher<Suicide<?>> sameAs(final Suicide<?> suicide) {
         return allOf(
                 is(notNullValue()),
                 has("name", new Function<Suicide<?>, String>() {
                     @Nullable
                     @Override
-                    public String apply(Suicide<?> input) {
+                    public String apply(final Suicide<?> input) {
                         return input.getName();
                     }
                 }, equalTo(suicide.getName())),
                 has("condition", new Function<Suicide<?>, Object>() {
                     @Nullable
                     @Override
-                    public Object apply(Suicide<?> input) {
+                    public Object apply(final Suicide<?> input) {
                         return input.getCondition();
                     }
                 }, is(instanceOf(suicide.getCondition().getClass()))),
                 has("onSuccessCallback", new Function<Suicide<?>, Object>() {
                     @Nullable
                     @Override
-                    public Object apply(Suicide<?> input) {
+                    public Object apply(final Suicide<?> input) {
                         return input.getSuccessCallback();
                     }
                 }, is(Matchers.<Object>equalTo(suicide.getSuccessCallback())))

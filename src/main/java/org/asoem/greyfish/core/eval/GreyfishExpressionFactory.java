@@ -12,12 +12,12 @@ public class GreyfishExpressionFactory implements ExpressionFactory {
     private final EvaluatorFactory evaluatorFactory;
 
     @Inject
-    public GreyfishExpressionFactory(EvaluatorFactory evaluatorFactory) {
+    public GreyfishExpressionFactory(final EvaluatorFactory evaluatorFactory) {
         this.evaluatorFactory = evaluatorFactory;
     }
 
     @Override
-    public boolean isValidExpression(String s) {
+    public boolean isValidExpression(final String s) {
         try {
             new GreyfishExpression(s, evaluatorFactory); // TODO: Using exceptions for control flow is not good practice
             return true;
@@ -28,7 +28,7 @@ public class GreyfishExpressionFactory implements ExpressionFactory {
     }
 
     @Override
-    public GreyfishExpression compile(String s) {
+    public GreyfishExpression compile(final String s) {
         return new GreyfishExpression(s, evaluatorFactory);
     }
 }

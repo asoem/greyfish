@@ -16,13 +16,13 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
 
     private final int agentId;
 
-    private ActiveSimulationContext(S simulation, int agentId, int simulationStep) {
+    private ActiveSimulationContext(final S simulation, final int agentId, final int simulationStep) {
         this.simulation = checkNotNull(simulation);
         this.agentId = agentId;
         this.activationStep = simulationStep;
     }
 
-    public static <S extends Simulation<A>, A extends Agent<A, S>> ActiveSimulationContext<S, A> create(S simulation, int agentId, int simulationStep) {
+    public static <S extends Simulation<A>, A extends Agent<A, S>> ActiveSimulationContext<S, A> create(final S simulation, final int agentId, final int simulationStep) {
         return new ActiveSimulationContext<S, A>(simulation, agentId, simulationStep);
     }
 
@@ -51,7 +51,7 @@ public class ActiveSimulationContext<S extends Simulation<A>, A extends Agent<A,
     }
 
     @Override
-    public void logEvent(A agent, Object eventOrigin, String title, String message) {
+    public void logEvent(final A agent, final Object eventOrigin, final String title, final String message) {
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);

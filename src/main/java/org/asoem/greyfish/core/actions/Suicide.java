@@ -22,24 +22,23 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
         this(new Builder<A>());
     }
 
-    private Suicide(Suicide<A> cloneable, DeepCloner map) {
+    private Suicide(final Suicide<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
     }
 
-    private Suicide(AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    private Suicide(final AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
     }
 
     @Override
     protected ActionState proceed() {
         agent().die();
-        LOGGER.info("{}: Dying", agent());
         agent().logEvent(this, "dies", "");
         return ActionState.COMPLETED;
     }
 
     @Override
-    public Suicide<A> deepClone(DeepCloner cloner) {
+    public Suicide<A> deepClone(final DeepCloner cloner) {
         return new Suicide<A>(this, cloner);
     }
 
@@ -47,7 +46,7 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
         return new Builder<A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
@@ -59,7 +58,7 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
     public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
-        private Builder(Suicide<A> suicide) {
+        private Builder(final Suicide<A> suicide) {
             super(suicide);
         }
 

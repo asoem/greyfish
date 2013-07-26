@@ -34,7 +34,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddGene() throws Exception {
         // given
-        DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).build();
+        final DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).build();
 
         // when
         agent.addTrait(mock(AgentTrait.class));
@@ -46,7 +46,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddAction() throws Exception {
         // given
-        DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).build();
+        final DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).build();
 
         // when
         agent.addAction(mock(AgentAction.class));
@@ -58,7 +58,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddProperty() throws Exception {
         // given
-        DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).build();
+        final DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).build();
 
         // when
         agent.addProperty(mock(AgentProperty.class));
@@ -70,13 +70,13 @@ public class DefaultGreyfishAgentImplTest {
     @Test
     public void testGetGene() throws Exception {
         // given
-        AgentTrait<DefaultGreyfishAgent, Object> gene = mock(AgentTrait.class);
+        final AgentTrait<DefaultGreyfishAgent, Object> gene = mock(AgentTrait.class);
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
-        DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).addTraits(gene).build();
+        final DefaultGreyfishAgentImpl agent = DefaultGreyfishAgentImpl.builder(mock(Population.class)).addTraits(gene).build();
 
         // when
-        AgentTrait<DefaultGreyfishAgent, Object> ret = (AgentTrait<DefaultGreyfishAgent, Object>) agent.getTrait("foo");
+        final AgentTrait<DefaultGreyfishAgent, Object> ret = (AgentTrait<DefaultGreyfishAgent, Object>) agent.getTrait("foo");
 
         // then
         verify(gene).setAgent(agent);
@@ -115,31 +115,31 @@ public class DefaultGreyfishAgentImplTest {
         assertThat(copy, isSameAs(frozenAgent));
     }
 
-    private static Matcher<? super DefaultGreyfishAgentImpl> isSameAs(DefaultGreyfishAgentImpl agent) {
+    private static Matcher<? super DefaultGreyfishAgentImpl> isSameAs(final DefaultGreyfishAgentImpl agent) {
         return Matchers.<DefaultGreyfishAgentImpl>allOf(
                 has("population " + agent.getPopulation(),
                         new Function<DefaultGreyfishAgentImpl, Population>() {
                             @Override
-                            public Population apply(DefaultGreyfishAgentImpl frozenAgent) {
+                            public Population apply(final DefaultGreyfishAgentImpl frozenAgent) {
                                 return frozenAgent.getPopulation();
                             }
                         },
                         is(equalTo(agent.getPopulation()))),
                 has(agent.getActions().size() + " actions", new Function<DefaultGreyfishAgentImpl, FunctionalList<AgentAction<DefaultGreyfishAgent>>>() {
                     @Override
-                    public FunctionalList<AgentAction<DefaultGreyfishAgent>> apply(DefaultGreyfishAgentImpl frozenAgent) {
+                    public FunctionalList<AgentAction<DefaultGreyfishAgent>> apply(final DefaultGreyfishAgentImpl frozenAgent) {
                         return frozenAgent.getActions();
                     }
                 }, hasSize(agent.getActions().size())),
                 has(agent.getProperties().size() + " properties", new Function<DefaultGreyfishAgentImpl, FunctionalList<AgentProperty<DefaultGreyfishAgent, ?>>>() {
                     @Override
-                    public FunctionalList<AgentProperty<DefaultGreyfishAgent, ?>> apply(DefaultGreyfishAgentImpl frozenAgent) {
+                    public FunctionalList<AgentProperty<DefaultGreyfishAgent, ?>> apply(final DefaultGreyfishAgentImpl frozenAgent) {
                         return frozenAgent.getProperties();
                     }
                 }, hasSize(agent.getProperties().size())),
                 has(agent.getTraits().size() + " traits", new Function<DefaultGreyfishAgentImpl, FunctionalList<AgentTrait<DefaultGreyfishAgent, ?>>>() {
                     @Override
-                    public FunctionalList<AgentTrait<DefaultGreyfishAgent, ?>> apply(DefaultGreyfishAgentImpl frozenAgent) {
+                    public FunctionalList<AgentTrait<DefaultGreyfishAgent, ?>> apply(final DefaultGreyfishAgentImpl frozenAgent) {
                         return frozenAgent.getTraits();
                     }
                 }, hasSize(agent.getTraits().size()))

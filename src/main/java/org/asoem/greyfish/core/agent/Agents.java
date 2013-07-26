@@ -20,7 +20,7 @@ public final class Agents {
             private final Predicate<? super AgentProperty<A, ?>> componentNamePredicate = new ComponentNamePredicate<A>(propertyName);
 
             @Override
-            public T apply(A input) {
+            public T apply(final A input) {
                 return (T) checkNotNull(input).findProperty(componentNamePredicate);
             }
         };
@@ -31,7 +31,7 @@ public final class Agents {
             private final Predicate<AgentComponent<A>> componentNamePredicate = new ComponentNamePredicate<A>(traitName);
 
             @Override
-            public T apply(A input) {
+            public T apply(final A input) {
                 return (T) checkNotNull(input).findTrait(componentNamePredicate);
             }
         };
@@ -40,12 +40,12 @@ public final class Agents {
     private static class ComponentNamePredicate<A extends Agent<A, ?>> implements Predicate<AgentComponent<A>> {
         private final String name;
 
-        public ComponentNamePredicate(String name) {
+        public ComponentNamePredicate(final String name) {
             this.name = checkNotNull(name);
         }
 
         @Override
-        public boolean apply(AgentComponent<A> input) {
+        public boolean apply(final AgentComponent<A> input) {
             return name.equals(input.getName());
         }
 
@@ -56,11 +56,11 @@ public final class Agents {
 
         @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
             if (!(o instanceof ComponentNamePredicate)) return false;
 
-            ComponentNamePredicate that = (ComponentNamePredicate) o;
+            final ComponentNamePredicate that = (ComponentNamePredicate) o;
 
             if (!name.equals(that.name)) return false;
 

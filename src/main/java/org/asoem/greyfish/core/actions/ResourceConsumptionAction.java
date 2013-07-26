@@ -56,7 +56,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message) {
 
         final Object messageContent = message.getContent();
         if (! (messageContent instanceof Double))
@@ -72,7 +72,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     }
 
     @Override
-    protected void handleInform(ACLMessage<A> message) {
+    protected void handleInform(final ACLMessage<A> message) {
         final Object messageContent = message.getContent();
         if (! (messageContent instanceof Double))
             throw new NotUnderstoodException("Expected a payload of type Double");
@@ -104,11 +104,11 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     }
 
     @Override
-    public ResourceConsumptionAction<A> deepClone(DeepCloner cloner) {
+    public ResourceConsumptionAction<A> deepClone(final DeepCloner cloner) {
         return new ResourceConsumptionAction<A>(this, cloner);
     }
 
-    protected ResourceConsumptionAction(ResourceConsumptionAction<A> cloneable, DeepCloner cloner) {
+    protected ResourceConsumptionAction(final ResourceConsumptionAction<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
@@ -117,7 +117,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
         this.classification = cloneable.classification;
     }
 
-    protected ResourceConsumptionAction(AbstractBuilder<A, ? extends ResourceConsumptionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected ResourceConsumptionAction(final AbstractBuilder<A, ? extends ResourceConsumptionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.requestAmount = builder.requestAmount;
@@ -163,33 +163,33 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
         private Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization = Callbacks.emptyCallback();
         private Callback<? super ResourceConsumptionAction<A>, ?> classification = Callbacks.constant(0.42);
 
-        public B ontology(String parameterMessageType) {
+        public B ontology(final String parameterMessageType) {
             this.ontology = checkNotNull(parameterMessageType);
             return self();
         }
 
-        public B requestAmount(Callback<? super ResourceConsumptionAction<A>, Double> amountPerRequest) {
+        public B requestAmount(final Callback<? super ResourceConsumptionAction<A>, Double> amountPerRequest) {
             this.requestAmount = amountPerRequest;
             return self();
         }
 
-        public B interactionRadius(Callback<? super ResourceConsumptionAction<A>, Double> sensorRange) {
+        public B interactionRadius(final Callback<? super ResourceConsumptionAction<A>, Double> sensorRange) {
             this.interactionRadius = sensorRange;
             return self();
         }
 
-        public B uptakeUtilization(Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization) {
+        public B uptakeUtilization(final Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization) {
             this.uptakeUtilization = checkNotNull(uptakeUtilization);
             return self();
         }
 
-        public B classification(Callback<? super ResourceConsumptionAction<A>, Object> classification) {
+        public B classification(final Callback<? super ResourceConsumptionAction<A>, Object> classification) {
             this.classification = checkNotNull(classification);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
         }
     }

@@ -51,24 +51,24 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         this(new Builder<A>());
     }
 
-    private FemaleLikeMating(FemaleLikeMating<A> cloneable, DeepCloner cloner) {
+    private FemaleLikeMating(final FemaleLikeMating<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.interactionRadius = cloneable.interactionRadius;
         this.matingProbability = cloneable.matingProbability;
     }
 
-    protected FemaleLikeMating(AbstractBuilder<A, ? extends FemaleLikeMating<A>, ? extends AbstractBuilder<A, ?,?>> builder) {
+    protected FemaleLikeMating(final AbstractBuilder<A, ? extends FemaleLikeMating<A>, ? extends AbstractBuilder<A, ?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
         this.matingProbability = builder.matingProbability;
     }
 
-    private void receiveSperm(Chromosome chromosome, A sender) {
+    private void receiveSperm(final Chromosome chromosome, final A sender) {
         receivedSperm.add(chromosome);
         agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
-        LOGGER.info(getAgent() + " received sperm: " + chromosome);
+        LOGGER.debug(getAgent() + " received sperm: " + chromosome);
     }
 
     @Override
@@ -88,21 +88,22 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException {
+    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message) {
         final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, agent());
         final Object messageContent = message.getContent();
-        if (! (messageContent instanceof Chromosome))
+        if (!(messageContent instanceof Chromosome)) {
             throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + messageContent);
+        }
 
-        Chromosome chromosome = (Chromosome) messageContent;
+        final Chromosome chromosome = (Chromosome) messageContent;
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (RandomGenerators.nextBoolean(RandomGenerators.rng(), probability)) {
             receiveSperm(chromosome, message.getSender());
             builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
-            LOGGER.info("Accepted mating with p={}", probability);
+            LOGGER.debug("Accepted mating with p={}", probability);
         } else {
             builder.performative(ACLPerformative.REJECT_PROPOSAL);
-            LOGGER.info("Refused mating with p={}", probability);
+            LOGGER.debug("Refused mating with p={}", probability);
         }
 
         return builder;
@@ -138,7 +139,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
     }
 
     @Override
-    public FemaleLikeMating<A> deepClone(DeepCloner cloner) {
+    public FemaleLikeMating<A> deepClone(final DeepCloner cloner) {
         return new FemaleLikeMating<A>(this, cloner);
     }
 
@@ -177,23 +178,23 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
          * @param callback the callback function to calculate the mating probability
          * @return this builder
          */
-        public B matingProbability(Callback<? super FemaleLikeMating<A>, Double> callback) {
+        public B matingProbability(final Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.matingProbability = checkNotNull(callback);
             return self();
         }
 
-        public B ontology(String ontology) {
+        public B ontology(final String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public B interactionRadius(Callback<? super FemaleLikeMating<A>, Double> callback) {
+        public B interactionRadius(final Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.sensorRange = callback;
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
             if (Strings.isNullOrEmpty(ontology))
                 LOGGER.warn(FemaleLikeMating.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");

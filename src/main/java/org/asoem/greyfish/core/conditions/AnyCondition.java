@@ -20,24 +20,24 @@ import java.io.Serializable;
 @Tagged("conditions")
 public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    private AnyCondition(Builder<A> builder) {
+    private AnyCondition(final Builder<A> builder) {
         super(builder);
     }
 
-    private AnyCondition(AnyCondition<A> condition, DeepCloner map) {
+    private AnyCondition(final AnyCondition<A> condition, final DeepCloner map) {
         super(condition, map);
     }
 
     @Override
     public boolean evaluate() {
-        for (ActionCondition condition : getChildConditions())
+        for (final ActionCondition condition : getChildConditions())
             if (condition.evaluate())
                 return true;
         return false;
     }
 
     @Override
-    public AnyCondition<A> deepClone(DeepCloner cloner) {
+    public AnyCondition<A> deepClone(final DeepCloner cloner) {
         return new AnyCondition<A>(this, cloner);
     }
 
@@ -45,7 +45,7 @@ public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         return new Builder<A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
@@ -54,7 +54,7 @@ public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         return new Builder<A>();
     }
 
-    public static <A extends Agent<A, ?>> AnyCondition<A> evaluates(ActionCondition<A> ... conditions) {
+    public static <A extends Agent<A, ?>> AnyCondition<A> evaluates(final ActionCondition<A> ... conditions) {
         return new Builder<A>().add(conditions).build();
     }
 
@@ -62,7 +62,7 @@ public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         private Builder() {
         }
 
-        private Builder(AnyCondition<A> anyCondition) {
+        private Builder(final AnyCondition<A> anyCondition) {
             super(anyCondition);
         }
 

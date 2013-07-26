@@ -22,7 +22,7 @@ public class AcquiredTrait<A extends Agent<A, ?>, T extends Comparable<T>> exten
     private T value;
     private final Range<T> range;
 
-    private AcquiredTrait(AcquiredTrait<A, T> trait, DeepCloner cloner) {
+    private AcquiredTrait(final AcquiredTrait<A, T> trait, final DeepCloner cloner) {
         this.value = trait.value;
         this.typeToken = trait.typeToken;
         this.range = trait.range;
@@ -40,7 +40,7 @@ public class AcquiredTrait<A extends Agent<A, ?>, T extends Comparable<T>> exten
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return new AcquiredTrait<A, T>(this, cloner);
     }
 
@@ -50,7 +50,7 @@ public class AcquiredTrait<A extends Agent<A, ?>, T extends Comparable<T>> exten
     }
 
     @Override
-    public void set(T value) {
+    public void set(final T value) {
         checkArgument(range.contains(value));
         this.value = value;
     }

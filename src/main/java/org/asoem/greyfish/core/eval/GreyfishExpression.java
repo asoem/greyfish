@@ -30,7 +30,7 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
      * @throws IllegalArgumentException if expression is null or not valid
      */
     @Inject
-    public GreyfishExpression(@Assisted String expression, EvaluatorFactory evaluatorFactory) {
+    public GreyfishExpression(@Assisted final String expression, final EvaluatorFactory evaluatorFactory) {
         checkNotNull(expression);
         checkNotNull(evaluatorFactory);
         try {
@@ -43,12 +43,12 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
         this.expression = expression;
     }
 
-    public EvaluationResult evaluateForContext(Object context) throws EvaluationException {
+    public EvaluationResult evaluateForContext(final Object context) throws EvaluationException {
         checkNotNull(context, "Context must not be null");
         return evaluate(createContextResolver(context));
     }
 
-    public EvaluationResult evaluateForContext(Object context, String n1, Object v1) throws EvaluationException {
+    public EvaluationResult evaluateForContext(final Object context, final String n1, final Object v1) throws EvaluationException {
         checkNotNull(context, "Context must not be null");
         final VariableResolver contextResolver = createContextResolver(context);
         final VariableResolver resolver = VariableResolvers.forMap(ImmutableMap.of(n1, v1));
@@ -56,7 +56,7 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
         return evaluate(contextResolver);
     }
 
-    public EvaluationResult evaluateForContext(Object context, Map<String, ?> localVariables) throws EvaluationException {
+    public EvaluationResult evaluateForContext(final Object context, final Map<String, ?> localVariables) throws EvaluationException {
         checkNotNull(context, "Context must not be null");
         final VariableResolver contextResolver = createContextResolver(context);
         final VariableResolver resolver = VariableResolvers.forMap(localVariables);
@@ -64,7 +64,7 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
         return evaluate(contextResolver);
     }
 
-    private static String parameterizeDollarFunction(String expression) {
+    private static String parameterizeDollarFunction(final String expression) {
         return DOLLAR_FUNCTION_PATTERN.matcher(expression).replaceAll("\\$($1, _ctx_)");
     }
 
@@ -78,16 +78,16 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
         return expression;
     }
 
-    public static VariableResolver createContextResolver(@Nullable Object ctx) {
+    public static VariableResolver createContextResolver(@Nullable final Object ctx) {
         return VariableResolvers.forMap(ImmutableMap.of("_ctx_", ctx));
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        GreyfishExpression that = (GreyfishExpression) o;
+        final GreyfishExpression that = (GreyfishExpression) o;
 
         return evaluator.equals(that.evaluator) && expression.equals(that.expression);
     }

@@ -34,13 +34,13 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         this(new Builder<A>());
     }
 
-    private GenericMovement(GenericMovement<A> cloneable, DeepCloner map) {
+    private GenericMovement(final GenericMovement<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
         this.stepSize = cloneable.stepSize;
         this.turningAngle = cloneable.turningAngle;
     }
 
-    protected GenericMovement(AbstractBuilder<A, ? extends GenericMovement<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected GenericMovement(final AbstractBuilder<A, ? extends GenericMovement<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.stepSize = builder.stepSize;
         this.turningAngle = builder.turningAngle;
@@ -59,7 +59,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
     }
 
     @Override
-    public GenericMovement<A> deepClone(DeepCloner cloner) {
+    public GenericMovement<A> deepClone(final DeepCloner cloner) {
         return new GenericMovement<A>(this, cloner);
     }
 
@@ -80,7 +80,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         return new Builder<A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
@@ -89,7 +89,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         private Builder() {
         }
 
-        private Builder(GenericMovement<A> genericMovement) {
+        private Builder(final GenericMovement<A> genericMovement) {
             super(genericMovement);
         }
 
@@ -119,12 +119,12 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         private Callback<? super GenericMovement<A>, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement<A>, Double> turningAngle = new Callback<GenericMovement<A>, Double>() {
             @Override
-            public Double apply(GenericMovement<A> caller, Map<String, ?> args) {
+            public Double apply(final GenericMovement<A> caller, final Map<String, ?> args) {
                 return RandomGenerators.rnorm(RandomGenerators.rng(), 0.0, FastMath.PI / 2);
             }
         };
 
-        protected AbstractBuilder(GenericMovement<A> genericMovement) {
+        protected AbstractBuilder(final GenericMovement<A> genericMovement) {
             super(genericMovement);
             this.stepSize = genericMovement.stepSize;
             this.turningAngle = genericMovement.turningAngle;
@@ -133,12 +133,12 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         protected AbstractBuilder() {
         }
 
-        public B turningAngle(Callback<? super GenericMovement<A>, Double> rotation) {
+        public B turningAngle(final Callback<? super GenericMovement<A>, Double> rotation) {
             this.turningAngle = checkNotNull(rotation);
             return self();
         }
 
-        public B stepSize(Callback<? super GenericMovement<A>, Double> speedFunction) {
+        public B stepSize(final Callback<? super GenericMovement<A>, Double> speedFunction) {
             this.stepSize = checkNotNull(speedFunction);
             return self();
         }

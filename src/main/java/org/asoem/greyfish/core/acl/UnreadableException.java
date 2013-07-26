@@ -7,7 +7,7 @@ public class UnreadableException extends Exception {
 * message.
 * @param the detail message.
 */
-  UnreadableException(String msg) {
+  UnreadableException(final String msg) {
     super(msg);
   }
 

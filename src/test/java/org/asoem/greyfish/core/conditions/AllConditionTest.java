@@ -24,7 +24,7 @@ public class AllConditionTest {
         final AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(childMock, childMock);
 
         // when
-        AllCondition<DefaultGreyfishAgent> clone = CycleCloner.clone(allCondition);
+        final AllCondition<DefaultGreyfishAgent> clone = CycleCloner.clone(allCondition);
 
         // then
         assertThat(clone.getChildConditions(), hasSize(allCondition.getChildConditions().size()));
@@ -35,7 +35,7 @@ public class AllConditionTest {
     public void testSerialization() throws Exception {
         // given
         final ActionCondition<DefaultGreyfishAgent> condition = mock(ActionCondition.class, withSettings().serializable());
-        AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(condition, condition);
+        final AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(condition, condition);
 
         // when
         final AllCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(allCondition, Persisters.javaSerialization());

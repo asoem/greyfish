@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.simulation;
 
+import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
@@ -17,7 +18,7 @@ import java.util.Set;
  */
 public class DefaultGreyfishSimulationImpl extends Basic2DSimulation<DefaultGreyfishAgent, DefaultGreyfishSimulation, DefaultGreyfishSpace, Point2D> implements DefaultGreyfishSimulation {
 
-    private DefaultGreyfishSimulationImpl(Builder builder) {
+    private DefaultGreyfishSimulationImpl(final Builder builder) {
         super(builder);
     }
 
@@ -26,28 +27,32 @@ public class DefaultGreyfishSimulationImpl extends Basic2DSimulation<DefaultGrey
         return this;
     }
 
-    public static Builder builder(DefaultGreyfishSpace space, Set<DefaultGreyfishAgent> prototypes) {
+    public static Builder builder(final DefaultGreyfishSpace space, final DefaultGreyfishAgent prototype) {
+        return new Builder(space, ImmutableSet.of(prototype));
+    }
+
+    public static Builder builder(final DefaultGreyfishSpace space, final Set<DefaultGreyfishAgent> prototypes) {
         return new Builder(space, prototypes);
     }
 
     @Override
-    public void createAgent(Population population) {
+    public void createAgent(final Population population) {
         createAgent(population, ImmutablePoint2D.at(RandomGenerators.nextDouble(RandomGenerators.rng(), 0.0, getSpace().width()), RandomGenerators.nextDouble(RandomGenerators.rng(), 0.0, getSpace().height())));
     }
 
     @Override
-    public void createAgent(Population population, Point2D location) {
+    public void createAgent(final Population population, final Point2D location) {
         enqueueAgentCreation(population, location);
     }
 
     @Override
-    public void createAgent(Population population, Point2D location, Chromosome chromosome) {
+    public void createAgent(final Population population, final Point2D location, final Chromosome chromosome) {
         enqueueAgentCreation(population, chromosome, location);
     }
 
     public static class Builder extends Basic2DSimulationBuilder<Builder, DefaultGreyfishSimulationImpl, DefaultGreyfishSimulation, DefaultGreyfishAgent, DefaultGreyfishSpace, Point2D> {
 
-        public Builder(DefaultGreyfishSpace space, final Set<DefaultGreyfishAgent> prototypes) {
+        public Builder(final DefaultGreyfishSpace space, final Set<DefaultGreyfishAgent> prototypes) {
             super(space, prototypes);
         }
 

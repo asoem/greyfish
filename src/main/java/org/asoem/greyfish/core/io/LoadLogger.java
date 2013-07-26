@@ -39,11 +39,11 @@ public class LoadLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
     }
 
     @Override
-    public void logAgentCreation(A agent) {
+    public void logAgentCreation(final A agent) {
     }
 
     @Override
-    public void logAgentEvent(A agent, int currentStep, String source, String title, String message) {
+    public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
         ++logCount;
     }
 }

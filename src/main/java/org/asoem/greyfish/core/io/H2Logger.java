@@ -71,7 +71,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         updateOperationList = new ArrayList<UpdateOperation>(COMMIT_THRESHOLD);
     }
 
-    public static <A extends SpatialAgent<A, ?, ?>> H2Logger<A> create(String path) {
+    public static <A extends SpatialAgent<A, ?, ?>> H2Logger<A> create(final String path) {
         return new H2Logger<A>(path);
     }
 
@@ -95,7 +95,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
     }
 
-    private void initDatabaseStructure(Connection connection) throws SQLException {
+    private void initDatabaseStructure(final Connection connection) throws SQLException {
         assert connection != null;
         final Statement statement = connection.createStatement();
         try {
@@ -161,7 +161,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         commit();
         connection.get().setAutoCommit(true);
 
-        Statement statement = connection.get().createStatement();
+        final Statement statement = connection.get().createStatement();
         statement.execute(
                 "CREATE INDEX ON quantitative_traits(agent_id)");
         statement.execute(
@@ -204,7 +204,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
 
         try {
-            for (UpdateOperation updateOperation : updateOperationList) {
+            for (final UpdateOperation updateOperation : updateOperationList) {
                 final String sql = updateOperation.sqlString();
                 if (!preparedStatementMap.containsKey(sql)) {
                     preparedStatementMap.put(sql, connection.get().prepareStatement(sql));
@@ -215,13 +215,13 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
             }
             updateOperationList.clear();
 
-            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+            for (final PreparedStatement preparedStatement : preparedStatementMap.values()) {
                 preparedStatement.executeBatch();
             }
 
             connection.get().commit();
         } finally {
-            for (PreparedStatement preparedStatement : preparedStatementMap.values()) {
+            for (final PreparedStatement preparedStatement : preparedStatementMap.values()) {
                 closeStatement(preparedStatement);
             }
         }
@@ -231,7 +231,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         return updateOperationList.size() >= COMMIT_THRESHOLD;
     }
 
-    private static void closeStatement(@Nullable Statement statement) {
+    private static void closeStatement(@Nullable final Statement statement) {
         if (statement == null)
             return;
         try{
@@ -243,11 +243,11 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
     }
 
-    private void addUpdateOperation(UpdateOperation updateOperation) {
+    private void addUpdateOperation(final UpdateOperation updateOperation) {
         updateOperationList.add(updateOperation);
     }
 
-    private short idForName(String name) {
+    private short idForName(final String name) {
         if (nameIdMap.contains(name)) {
             return nameIdMap.get(name);
         }
@@ -259,17 +259,17 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     }
 
     @Override
-    public void logAgentCreation(A agent) {
+    public void logAgentCreation(final A agent) {
         addUpdateOperation(new InsertAgentOperation(
                 agent.getId(),
                 idForName(agent.getPopulation().getName()),
                 agent.getTimeOfBirth()));
 
         final Set<Integer> parents = agent.getParents();
-        for (Integer parentId : parents) {
+        for (final Integer parentId : parents) {
             addUpdateOperation(new InsertChromosomeOperation(agent.getId(), parentId));
         }
-        for (AgentTrait<?, ?> trait : agent.getTraits()) {
+        for (final AgentTrait<?, ?> trait : agent.getTraits()) {
             assert trait != null;
 
             final TypeToken<?> valueType = trait.getValueType();
@@ -295,7 +295,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     }
 
     @Override
-    public void logAgentEvent(A agent, int currentStep, String source, String title, String message) {
+    public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
         addUpdateOperation(new InsertEventOperation(currentStep, agent.getId(), agent.getProjection(), idForName(source), idForName(title), message));
         tryCommit();
     }
@@ -313,7 +313,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final short titleNameId;
         private final String message;
 
-        public InsertEventOperation(int currentStep, int agentId, Object2D coordinate, short sourceNameId, short titleNameId, String message) {
+        public InsertEventOperation(final int currentStep, final int agentId, final Object2D coordinate, final short sourceNameId, final short titleNameId, final String message) {
             this.currentStep = currentStep;
             this.agentId = agentId;
             this.coordinates = coordinate.getCentroid();
@@ -328,7 +328,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(PreparedStatement statement) throws SQLException {
+        public void update(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, currentStep);
             statement.setInt(2, agentId);
             statement.setShort(3, sourceNameId);
@@ -344,7 +344,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final short populationNameId;
         private final int timeOfBirth;
 
-        public InsertAgentOperation(int id, short populationNameId, int timeOfBirth) {
+        public InsertAgentOperation(final int id, final short populationNameId, final int timeOfBirth) {
             this.id = id;
             this.populationNameId = populationNameId;
             this.timeOfBirth = timeOfBirth;
@@ -356,7 +356,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(PreparedStatement statement) throws SQLException {
+        public void update(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, id);
             statement.setShort(2, populationNameId);
             statement.setInt(3, timeOfBirth);
@@ -367,7 +367,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final int childAgentId;
         private final int parentAgentId;
 
-        public InsertChromosomeOperation(int childAgentId, int parentAgentId) {
+        public InsertChromosomeOperation(final int childAgentId, final int parentAgentId) {
             this.childAgentId = childAgentId;
             this.parentAgentId = parentAgentId;
         }
@@ -378,7 +378,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(PreparedStatement statement) throws SQLException {
+        public void update(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, childAgentId);
             statement.setInt(2, parentAgentId);
         }
@@ -389,7 +389,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final short geneNameId;
         private final Double allele;
 
-        public InsertTraitAsDoubleOperation(int agentId, short geneNameId, Double allele) {
+        public InsertTraitAsDoubleOperation(final int agentId, final short geneNameId, final Double allele) {
             this.agentId = agentId;
             this.geneNameId = geneNameId;
             this.allele = allele;
@@ -401,7 +401,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(PreparedStatement statement) throws SQLException {
+        public void update(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, agentId);
             statement.setShort(2, geneNameId);
             statement.setDouble(3, allele);
@@ -413,7 +413,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final short geneNameId;
         private final short traitValueId;
 
-        public InsertTraitAsStringOperation(int agentId, short geneNameId, short traitValueId) {
+        public InsertTraitAsStringOperation(final int agentId, final short geneNameId, final short traitValueId) {
             this.agentId = agentId;
             this.geneNameId = geneNameId;
             this.traitValueId = traitValueId;
@@ -425,7 +425,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(PreparedStatement statement) throws SQLException {
+        public void update(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, agentId);
             statement.setShort(2, geneNameId);
             statement.setShort(3, traitValueId);
@@ -436,7 +436,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final String name;
         private final short id;
 
-        public InsertNameOperation(short id, String name) {
+        public InsertNameOperation(final short id, final String name) {
             this.id = id;
             this.name = name;
         }
@@ -447,7 +447,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(PreparedStatement statement) throws SQLException {
+        public void update(final PreparedStatement statement) throws SQLException {
             statement.setShort(1, id);
             statement.setString(2, name);
         }
@@ -457,7 +457,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final Map<String, Short> map = Maps.newHashMap();
         private short maxId = 0;
 
-        public short create(String s) {
+        public short create(final String s) {
             assert s != null;
 
             if (map.containsKey(s))
@@ -470,11 +470,11 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
             return value;
         }
 
-        public boolean contains(String name) {
+        public boolean contains(final String name) {
             return map.containsKey(name);
         }
 
-        public short get(String name) {
+        public short get(final String name) {
             return map.get(name);
         }
     }

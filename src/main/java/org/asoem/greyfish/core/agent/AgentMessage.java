@@ -15,7 +15,7 @@ public class AgentMessage<A extends Agent<A, ?>> extends ForwardingACLMessage<A>
     private final ACLMessage<A> delegate;
     private final int receivedTimestamp;
 
-    public AgentMessage(ACLMessage<A> delegate, int receivedTimestamp) {
+    public AgentMessage(final ACLMessage<A> delegate, final int receivedTimestamp) {
         this.delegate = delegate;
         this.receivedTimestamp = receivedTimestamp;
     }
@@ -38,11 +38,11 @@ public class AgentMessage<A extends Agent<A, ?>> extends ForwardingACLMessage<A>
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AgentMessage that = (AgentMessage) o;
+        final AgentMessage that = (AgentMessage) o;
 
         if (receivedTimestamp != that.receivedTimestamp) return false;
         if (!delegate.equals(that.delegate)) return false;

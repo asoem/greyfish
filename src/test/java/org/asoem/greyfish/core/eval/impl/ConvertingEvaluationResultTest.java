@@ -16,7 +16,7 @@ public class ConvertingEvaluationResultTest {
     @Test
     public void testDoubleAsDouble() throws Exception {
         // given
-        EvaluationResult result = new ConvertingEvaluationResult(42.0);
+        final EvaluationResult result = new ConvertingEvaluationResult(42.0);
 
         // when
         final double b = result.asDouble();
@@ -28,7 +28,7 @@ public class ConvertingEvaluationResultTest {
     @Test
     public void testBooleanAsBoolean() throws Exception {
         // given
-        EvaluationResult result = new ConvertingEvaluationResult(true);
+        final EvaluationResult result = new ConvertingEvaluationResult(true);
 
         // when
         final boolean b = result.asBoolean();
@@ -40,7 +40,7 @@ public class ConvertingEvaluationResultTest {
     @Test
     public void testStringAsDouble() throws Exception {
         // given
-        EvaluationResult result = new ConvertingEvaluationResult("42.0");
+        final EvaluationResult result = new ConvertingEvaluationResult("42.0");
 
         // when
         final double b = result.asDouble();
@@ -52,7 +52,7 @@ public class ConvertingEvaluationResultTest {
     @Test
     public void testStringAsBoolean() throws Exception {
         // given
-        EvaluationResult result = new ConvertingEvaluationResult("true");
+        final EvaluationResult result = new ConvertingEvaluationResult("true");
 
         // when
         final boolean b = result.asBoolean();

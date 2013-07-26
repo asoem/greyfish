@@ -25,17 +25,17 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     protected AbstractCondition() {}
 
     @SuppressWarnings("unchecked") // casting a clone should be safe
-    protected AbstractCondition(AbstractCondition<A> cloneable, DeepCloner cloner) {
+    protected AbstractCondition(final AbstractCondition<A> cloneable, final DeepCloner cloner) {
         cloner.addClone(cloneable, this);
         this.action = cloner.getClone(cloneable.action);
         this.parentCondition = cloner.getClone(cloneable.parentCondition);
     }
 
-    protected AbstractCondition(AbstractBuilder<A, ? extends AbstractCondition<A>, ?> builder) {
+    protected AbstractCondition(final AbstractBuilder<A, ? extends AbstractCondition<A>, ?> builder) {
     }
 
     @Override
-    public void setParent(@Nullable ActionCondition<A> parent) {
+    public void setParent(@Nullable final ActionCondition<A> parent) {
         this.parentCondition = parent;
         setAction(parent != null ? parent.getAction() : null);
     }
@@ -46,7 +46,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     @Override
-    public void setAction(@Nullable AgentAction<A> action) {
+    public void setAction(@Nullable final AgentAction<A> action) {
         this.action = action;
         assert parentCondition == null || parentCondition.getAction() == action;
     }
@@ -70,7 +70,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     @Override
-    public void setAgent(@Nullable A agent) {
+    public void setAgent(@Nullable final A agent) {
         throw new UnsupportedOperationException();
     }
 
@@ -89,13 +89,13 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     public A agent() {
-        A agent = getAgent();
+        final A agent = getAgent();
         checkState(agent != null);
         return agent;
     }
 
     @Override
-    public void setName(String name) {
+    public void setName(final String name) {
         throw new UnsupportedOperationException("Conditions don't use names");
     }
 
@@ -125,7 +125,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
-        public AbstractBuilder(AbstractCondition<A> leafCondition) {
+        public AbstractBuilder(final AbstractCondition<A> leafCondition) {
         }
 
         protected AbstractBuilder() {

@@ -15,7 +15,7 @@ public final class AgentInitializers {
     public static <P extends Object2D> Initializer<? super SpatialAgent<?, ?, P>> projection(final P projection) {
         return new Initializer<SpatialAgent<?, ?, P>>() {
             @Override
-            public void initialize(SpatialAgent<?, ?, P> agent) {
+            public void initialize(final SpatialAgent<?, ?, P> agent) {
                 agent.setProjection(projection);
             }
         };

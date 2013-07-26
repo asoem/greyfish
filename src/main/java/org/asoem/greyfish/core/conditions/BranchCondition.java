@@ -30,13 +30,13 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     private final List<ActionCondition<A>> conditions = Lists.newArrayList();
 
     @SuppressWarnings("unchecked") // casting a clone should be safe
-    protected BranchCondition(BranchCondition<A> cloneable, DeepCloner cloner) {
+    protected BranchCondition(final BranchCondition<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
-        for (ActionCondition<A> condition : cloneable.getChildConditions())
+        for (final ActionCondition<A> condition : cloneable.getChildConditions())
             add(cloner.getClone(condition));
     }
 
-    protected BranchCondition(AbstractBuilder<A, ?, ?> builder) {
+    protected BranchCondition(final AbstractBuilder<A, ?, ?> builder) {
         addAll(builder.conditions);
     }
 
@@ -53,45 +53,45 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     @Override
     public void initialize() {
         super.initialize();
-        for (ActionCondition<A> condition : getChildConditions())
+        for (final ActionCondition<A> condition : getChildConditions())
             condition.initialize();
     }
 
-    public void addAll(Iterable<? extends ActionCondition<A>> childConditions) {
+    public void addAll(final Iterable<? extends ActionCondition<A>> childConditions) {
         checkState(!isFrozen());
-        for (ActionCondition<A> childCondition : childConditions) {
+        for (final ActionCondition<A> childCondition : childConditions) {
             add(childCondition);
         }
     }
 
-    public int indexOf(ActionCondition<A> currentCondition) {
+    public int indexOf(final ActionCondition<A> currentCondition) {
         return getChildConditions().indexOf(currentCondition);
     }
 
     @Override
-    public void add(ActionCondition<A> newChild) {
+    public void add(final ActionCondition<A> newChild) {
         checkState(!isFrozen());
         insert(newChild, getChildConditions().size());
     }
 
     @Override
-    public void insert(ActionCondition<A> condition, int index) {
+    public void insert(final ActionCondition<A> condition, final int index) {
         checkState(!isFrozen());
         checkNotNull(condition);
         getChildConditions().add(index, condition);
         condition.setParent(this);
     }
 
-    public ActionCondition<A> remove(int index) {
+    public ActionCondition<A> remove(final int index) {
         checkState(!isFrozen());
         checkPositionIndex(index, getChildConditions().size());
-        ActionCondition<A> ret = getChildConditions().remove(index);
+        final ActionCondition<A> ret = getChildConditions().remove(index);
         ret.setParent(null);
         return ret;
     }
 
     @Override
-    public void remove(ActionCondition<A> condition) {
+    public void remove(final ActionCondition<A> condition) {
         checkState(!isFrozen());
         remove(getChildConditions().indexOf(condition));
     }
@@ -99,23 +99,23 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     @Override
     public void removeAll() {
         checkState(!isFrozen());
-        for (ActionCondition<A> condition : getChildConditions()) {
+        for (final ActionCondition<A> condition : getChildConditions()) {
             remove(condition);
         }
     }
 
     @Override
-    public void setAction(AgentAction<A> action) {
+    public void setAction(final AgentAction<A> action) {
         super.setAction(action);
-        for (ActionCondition<A> condition : getChildConditions()) {
+        for (final ActionCondition<A> condition : getChildConditions()) {
             condition.setAction(action);
         }
     }
 
     @Override
-    public void setParent(@Nullable ActionCondition<A> parent) {
+    public void setParent(@Nullable final ActionCondition<A> parent) {
         super.setParent(parent);
-        for (ActionCondition<A> condition : getChildConditions()) {
+        for (final ActionCondition<A> condition : getChildConditions()) {
             condition.setParent(this);
         }
     }
@@ -136,12 +136,12 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
         protected AbstractBuilder() {
         }
 
-        protected AbstractBuilder(BranchCondition<A> branchCondition) {
+        protected AbstractBuilder(final BranchCondition<A> branchCondition) {
             addAll(branchCondition.conditions);
         }
 
-        protected T add(ActionCondition<A> condition) { this.conditions.add(checkNotNull(condition)); return self(); }
-        protected T add(ActionCondition<A>... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
-        protected T addAll(Iterable<? extends ActionCondition<A>> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
+        protected T add(final ActionCondition<A> condition) { this.conditions.add(checkNotNull(condition)); return self(); }
+        protected T add(final ActionCondition<A>... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
+        protected T addAll(final Iterable<? extends ActionCondition<A>> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
     }
 }

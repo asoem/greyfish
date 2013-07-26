@@ -10,11 +10,11 @@ public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A>
         this(new Builder<A>());
     }
 
-    private AlwaysTrueCondition(AlwaysTrueCondition<A> condition, DeepCloner map) {
+    private AlwaysTrueCondition(final AlwaysTrueCondition<A> condition, final DeepCloner map) {
         super(condition, map);
     }
 
-    private AlwaysTrueCondition(AbstractBuilder<A, ?,?> builder) {
+    private AlwaysTrueCondition(final AbstractBuilder<A, ?,?> builder) {
         super(builder);
     }
 
@@ -24,7 +24,7 @@ public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A>
     }
 
     @Override
-    public AlwaysTrueCondition<A> deepClone(DeepCloner cloner) {
+    public AlwaysTrueCondition<A> deepClone(final DeepCloner cloner) {
         return new AlwaysTrueCondition<A>(this, cloner);
     }
 

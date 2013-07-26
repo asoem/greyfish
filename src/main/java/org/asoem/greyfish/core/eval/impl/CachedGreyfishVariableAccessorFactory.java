@@ -18,27 +18,27 @@ public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAc
 
     private final Map<ResolverCacheKey, Function<?, ?>> resolverMap = Maps.newHashMap();
 
-    public CachedGreyfishVariableAccessorFactory(GreyfishVariableAccessorFactory delegate) {
+    public CachedGreyfishVariableAccessorFactory(final GreyfishVariableAccessorFactory delegate) {
         this.delegate = delegate;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Function<T, ?> get(String varName, Class<T> context) throws VariableResolutionException {
-        ResolverCacheKey key = new ResolverCacheKey(varName, context);
+    public <T> Function<T, ?> get(final String varName, final Class<T> context) throws VariableResolutionException {
+        final ResolverCacheKey key = new ResolverCacheKey(varName, context);
         if (resolverMap.containsKey(key)) {
             return (Function<T, ?>) resolverMap.get(key);
         }
         else {
-            Function<T, ?> fun = delegate.get(varName, context);
+            final Function<T, ?> fun = delegate.get(varName, context);
             resolverMap.put(key, fun);
             return fun;
         }
     }
 
     @Override
-    public boolean canConvert(String name, Class<?> contextClass) {
-        ResolverCacheKey key = new ResolverCacheKey(name, contextClass);
+    public boolean canConvert(final String name, final Class<?> contextClass) {
+        final ResolverCacheKey key = new ResolverCacheKey(name, contextClass);
         return resolverMap.containsKey(key) || delegate.canConvert(name, contextClass);
     }
 
@@ -46,17 +46,17 @@ public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAc
         private final String varName;
         private final Class<?> context;
 
-        public ResolverCacheKey(String varName, Class<?> context) {
+        public ResolverCacheKey(final String varName, final Class<?> context) {
             this.varName = varName;
             this.context = context;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            ResolverCacheKey that = (ResolverCacheKey) o;
+            final ResolverCacheKey that = (ResolverCacheKey) o;
 
             return !(context != null ? !context.equals(that.context) : that.context != null)
                     && !(varName != null ? !varName.equals(that.varName) : that.varName != null);

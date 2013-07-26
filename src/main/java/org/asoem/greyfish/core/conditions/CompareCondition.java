@@ -14,13 +14,13 @@ public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<
 
     protected CompareCondition() {}
 
-    protected CompareCondition(CompareCondition<T, A> condition, DeepCloner map) {
+    protected CompareCondition(final CompareCondition<T, A> condition, final DeepCloner map) {
         super(condition, map);
         this.compareOperator = condition.compareOperator;
         this.value = condition.value;
     }
 
-    protected CompareCondition(AbstractBuilder<A, ?, ?, T> builder) {
+    protected CompareCondition(final AbstractBuilder<A, ?, ?, T> builder) {
         super(builder);
         this.compareOperator = builder.compareOperator;
         this.value = builder.value;
@@ -37,7 +37,7 @@ public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<
         private CompareOperator compareOperator;
         private E value;
 
-        public T is(CompareOperator compareOperator) { this.compareOperator = checkNotNull(compareOperator); return self(); }
-        public T to(E value) { this.value = checkNotNull(value); return self(); }
+        public T is(final CompareOperator compareOperator) { this.compareOperator = checkNotNull(compareOperator); return self(); }
+        public T to(final E value) { this.value = checkNotNull(value); return self(); }
     }
 }

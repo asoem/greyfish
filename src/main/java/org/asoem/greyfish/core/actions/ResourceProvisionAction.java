@@ -44,7 +44,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message) {
+    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message) {
         final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, getAgent());
         if (proposalSent)
             return reply.performative(ACLPerformative.REFUSE);
@@ -71,7 +71,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message) {
         final Object messageContent = message.getContent();
         if (! (messageContent instanceof Double))
             throw new NotUnderstoodException("Expected payload of type Double");
@@ -88,17 +88,17 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
     }
 
     @Override
-    public ResourceProvisionAction<A> deepClone(DeepCloner cloner) {
+    public ResourceProvisionAction<A> deepClone(final DeepCloner cloner) {
         return new ResourceProvisionAction<A>(this, cloner);
     }
 
-    protected ResourceProvisionAction(ResourceProvisionAction<A> cloneable, DeepCloner cloner) {
+    protected ResourceProvisionAction(final ResourceProvisionAction<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
         this.provides = cloneable.provides;
         this.ontology = cloneable.ontology;
     }
 
-    protected ResourceProvisionAction(AbstractBuilder<A, ? extends ResourceProvisionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected ResourceProvisionAction(final AbstractBuilder<A, ? extends ResourceProvisionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.provides = builder.provides;
@@ -134,18 +134,18 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         private String ontology;
         private Callback<? super ResourceProvisionAction<A>, Double> provides;
 
-        public B ontology(String ontology) {
+        public B ontology(final String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public B provides(Callback<? super ResourceProvisionAction<A>, Double> expression) {
+        public B provides(final Callback<? super ResourceProvisionAction<A>, Double> expression) {
             this.provides = checkNotNull(expression);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             checkState(ontology != null, "The messageType is mandatory");
             checkState(provides != null, "You must define what this resource should provide");
             super.checkBuilder();

@@ -16,7 +16,7 @@ public class GreyfishExpressionFactoryHolder {
      * @param expression The expression string
      * @return A new GreyfishExpression
      */
-    public static GreyfishExpression compile(String expression) {
+    public static GreyfishExpression compile(final String expression) {
         return factory.compile(expression);
     }
 

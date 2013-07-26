@@ -18,12 +18,12 @@ public abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S 
     protected abstract SpatialAgent<A, S, P> delegate();
 
     @Override
-    public Iterable<A> findNeighbours(double radius) {
+    public Iterable<A> findNeighbours(final double radius) {
         return delegate().findNeighbours(radius);
     }
 
     @Override
-    public double distance(A agent, double degrees) {
+    public double distance(final A agent, final double degrees) {
         return delegate().distance(agent, degrees);
     }
 
@@ -33,7 +33,7 @@ public abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S 
     }
 
     @Override
-    public void setMotion(Motion2D motion) {
+    public void setMotion(final Motion2D motion) {
         delegate().setMotion(motion);
     }
 
@@ -43,17 +43,17 @@ public abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S 
     }
 
     @Override
-    public void setProjection(P projection) {
+    public void setProjection(final P projection) {
         delegate().setProjection(projection);
     }
 
     @Override
-    public void reproduce(Chromosome chromosome) {
+    public void reproduce(final Chromosome chromosome) {
         delegate().reproduce(chromosome);
     }
 
     @Override
-    public void setParents(Set<Integer> parents) {
+    public void setParents(final Set<Integer> parents) {
         delegate().setParents(parents);
     }
 }

@@ -12,7 +12,7 @@ public abstract class AbstractExpression implements Expression {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractExpression.class);
 
     @Override
-    public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
+    public EvaluationResult evaluate(final VariableResolver resolver) throws EvaluationException {
         final EvaluationResult result = getEvaluator().evaluate(resolver);
         LOGGER.debug("{} got evaluated to {} with resolver {}", getExpression(), result, resolver);
         return result;

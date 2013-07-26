@@ -52,7 +52,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     private Set<Integer> parents = Collections.emptySet();
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private DefaultGreyfishAgentImpl(DefaultGreyfishAgentImpl frozenAgent, final DeepCloner cloner) {
+    private DefaultGreyfishAgentImpl(final DefaultGreyfishAgentImpl frozenAgent, final DeepCloner cloner) {
         cloner.addClone(frozenAgent, this);
         // share
         this.population = frozenAgent.population;
@@ -60,21 +60,21 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
         this.actions = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.actions, new Function<AgentAction<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
             @SuppressWarnings("unchecked")
             @Override
-            public AgentAction<DefaultGreyfishAgent> apply(@Nullable AgentAction<DefaultGreyfishAgent> agentAction) {
+            public AgentAction<DefaultGreyfishAgent> apply(@Nullable final AgentAction<DefaultGreyfishAgent> agentAction) {
                 return cloner.getClone(agentAction);
             }
         }));
         this.properties = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.properties, new Function<AgentProperty<DefaultGreyfishAgent, ?>, AgentProperty<DefaultGreyfishAgent, ?>>() {
             @SuppressWarnings("unchecked")
             @Override
-            public AgentProperty<DefaultGreyfishAgent, ?> apply(@Nullable AgentProperty<DefaultGreyfishAgent, ?> agentProperty) {
+            public AgentProperty<DefaultGreyfishAgent, ?> apply(@Nullable final AgentProperty<DefaultGreyfishAgent, ?> agentProperty) {
                 return cloner.getClone(agentProperty);
             }
         }));
         this.traits = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.traits, new Function<AgentTrait<DefaultGreyfishAgent, ?>, AgentTrait<DefaultGreyfishAgent, ?>>() {
             @SuppressWarnings("unchecked")
             @Override
-            public AgentTrait<DefaultGreyfishAgent, ?> apply(@Nullable AgentTrait<DefaultGreyfishAgent, ?> agentTrait) {
+            public AgentTrait<DefaultGreyfishAgent, ?> apply(@Nullable final AgentTrait<DefaultGreyfishAgent, ?> agentTrait) {
                 return cloner.getClone(agentTrait);
             }
         }));
@@ -83,17 +83,17 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
         this.inBox = new FixedSizeMessageBox<AgentMessage<DefaultGreyfishAgent>>();
     }
 
-    private DefaultGreyfishAgentImpl(Builder builder) {
+    private DefaultGreyfishAgentImpl(final Builder builder) {
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
-        for (AgentProperty<DefaultGreyfishAgent, ?> property : builder.properties) {
+        for (final AgentProperty<DefaultGreyfishAgent, ?> property : builder.properties) {
             property.setAgent(this);
         }
         this.actions = ImmutableFunctionalList.copyOf(builder.actions);
-        for (AgentAction<DefaultGreyfishAgent> action : builder.actions) {
+        for (final AgentAction<DefaultGreyfishAgent> action : builder.actions) {
             action.setAgent(this);
         }
         this.traits = ImmutableFunctionalList.copyOf(builder.traits);
-        for (AgentTrait<DefaultGreyfishAgent, ?> trait : builder.traits) {
+        for (final AgentTrait<DefaultGreyfishAgent, ?> trait : builder.traits) {
             trait.setAgent(this);
         }
         this.population = builder.population;
@@ -107,7 +107,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    public void setPopulation(Population population) {
+    public void setPopulation(final Population population) {
         this.population = checkNotNull(population);
     }
 
@@ -148,7 +148,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    public void setProjection(@Nullable Point2D projection) {
+    public void setProjection(@Nullable final Point2D projection) {
         this.projection = projection;
     }
 
@@ -158,12 +158,12 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    public void reproduce(Chromosome chromosome) {
+    public void reproduce(final Chromosome chromosome) {
         simulation().createAgent(getPopulation(), getProjection(), chromosome);
     }
 
     @Override
-    public void setMotion(Motion2D motion) {
+    public void setMotion(final Motion2D motion) {
         this.motion = checkNotNull(motion);
     }
 
@@ -183,7 +183,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    protected void setSimulationContext(SimulationContext<DefaultGreyfishSimulation, DefaultGreyfishAgent> simulationContext) {
+    protected void setSimulationContext(final SimulationContext<DefaultGreyfishSimulation, DefaultGreyfishAgent> simulationContext) {
         this.simulationContext = simulationContext;
     }
 
@@ -193,17 +193,17 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
     }
 
     @Override
-    public void setParents(Set<Integer> parents) {
+    public void setParents(final Set<Integer> parents) {
         checkNotNull(parents);
         this.parents = parents;
     }
 
     @Override
-    public DefaultGreyfishAgentImpl deepClone(DeepCloner cloner) {
+    public DefaultGreyfishAgentImpl deepClone(final DeepCloner cloner) {
         return new DefaultGreyfishAgentImpl(this, cloner);
     }
 
-    public static Builder builder(Population population) {
+    public static Builder builder(final Population population) {
         return new Builder(population);
     }
 
@@ -213,48 +213,48 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
         private final List<AgentProperty<DefaultGreyfishAgent, ?>> properties = Lists.newArrayList();
         private final List<AgentTrait<DefaultGreyfishAgent, ?>> traits = Lists.newArrayList();
 
-        protected Builder(Population population) {
+        protected Builder(final Population population) {
             this.population = checkNotNull(population, "Population must not be null");
         }
 
-        protected Builder(DefaultGreyfishAgentImpl abstractAgent) {
+        protected Builder(final DefaultGreyfishAgentImpl abstractAgent) {
             this.population = abstractAgent.population;
             this.actions.addAll(abstractAgent.actions);
             this.properties.addAll(abstractAgent.properties);
             this.traits.addAll(abstractAgent.traits);
         }
 
-        public Builder addTraits(AgentTrait<DefaultGreyfishAgent, ?>... traits) {
+        public Builder addTraits(final AgentTrait<DefaultGreyfishAgent, ?>... traits) {
             this.traits.addAll(asList(checkNotNull(traits)));
             return this;
         }
 
-        public Builder addTraits(Iterable<? extends AgentTrait<DefaultGreyfishAgent, ?>> traits) {
+        public Builder addTraits(final Iterable<? extends AgentTrait<DefaultGreyfishAgent, ?>> traits) {
             Iterables.addAll(this.traits, checkNotNull(traits));
             return this;
         }
 
-        public Builder addAction(AgentAction<DefaultGreyfishAgent> action) {
+        public Builder addAction(final AgentAction<DefaultGreyfishAgent> action) {
             this.actions.add(checkNotNull(action));
             return this;
         }
 
-        public Builder addActions(AgentAction<DefaultGreyfishAgent>... actions) {
+        public Builder addActions(final AgentAction<DefaultGreyfishAgent>... actions) {
             this.actions.addAll(asList(checkNotNull(actions)));
             return this;
         }
 
-        public Builder addActions(Iterable<? extends AgentAction<DefaultGreyfishAgent>> actions) {
+        public Builder addActions(final Iterable<? extends AgentAction<DefaultGreyfishAgent>> actions) {
             Iterables.addAll(this.actions, checkNotNull(actions));
             return this;
         }
 
-        public Builder addProperties(AgentProperty<DefaultGreyfishAgent, ?>... properties) {
+        public Builder addProperties(final AgentProperty<DefaultGreyfishAgent, ?>... properties) {
             this.properties.addAll(asList(checkNotNull(properties)));
             return this;
         }
 
-        public Builder addProperties(Iterable<? extends AgentProperty<DefaultGreyfishAgent, ?>> properties) {
+        public Builder addProperties(final Iterable<? extends AgentProperty<DefaultGreyfishAgent, ?>> properties) {
             Iterables.addAll(this.properties, checkNotNull(properties));
             return this;
         }
@@ -262,7 +262,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
         public DefaultGreyfishAgentImpl build() throws IllegalStateException {
             final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent<DefaultGreyfishAgent>, String>() {
                 @Override
-                public String apply(AgentComponent<DefaultGreyfishAgent> input) {
+                public String apply(final AgentComponent<DefaultGreyfishAgent> input) {
                     return input.getName();
                 }
             });
@@ -270,7 +270,7 @@ public class DefaultGreyfishAgentImpl extends AbstractSpatialAgent<DefaultGreyfi
                 private final Set<String> nameSet = Sets.newHashSet();
 
                 @Override
-                public boolean apply(@Nullable String input) {
+                public boolean apply(@Nullable final String input) {
                     return ! nameSet.add(input);
                 }
             }, null);

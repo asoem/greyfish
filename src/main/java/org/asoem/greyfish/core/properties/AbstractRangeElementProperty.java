@@ -25,7 +25,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
     protected E value;
 
-    protected AbstractRangeElementProperty(AbstractRangeElementProperty<E, A> property, DeepCloner cloner) {
+    protected AbstractRangeElementProperty(final AbstractRangeElementProperty<E, A> property, final DeepCloner cloner) {
         super(property, cloner);
         this.lowerBound = property.lowerBound;
         this.upperBound = property.upperBound;
@@ -38,7 +38,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         return value;
     }
 
-    protected void checkAndSet(E amount) {
+    protected void checkAndSet(final E amount) {
         checkNotNull(amount);
 
         if (Objects.equal(value, amount))
@@ -63,7 +63,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         checkAndSet(initialValue);
     }
 
-    protected AbstractRangeElementProperty(AbstractBuilder<A, ? extends AbstractRangeElementProperty<E,A>, ? extends AbstractBuilder<A, ?, ?, E>, E> builder) {
+    protected AbstractRangeElementProperty(final AbstractBuilder<A, ? extends AbstractRangeElementProperty<E,A>, ? extends AbstractBuilder<A, ?, ?, E>, E> builder) {
         super(builder);
         this.lowerBound = builder.lowerBound;
         this.upperBound = builder.upperBound;
@@ -75,12 +75,12 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         protected E lowerBound;
         protected E initialValue;
 
-        public T upperBound(E upperBound) { this.upperBound = checkNotNull(upperBound); return self(); }
-        public T lowerBound(E lowerBound) { this.lowerBound = checkNotNull(lowerBound); return self(); }
-        public T initialValue(E initialValue) { this.initialValue = checkNotNull(initialValue); return self(); }
+        public T upperBound(final E upperBound) { this.upperBound = checkNotNull(upperBound); return self(); }
+        public T lowerBound(final E lowerBound) { this.lowerBound = checkNotNull(lowerBound); return self(); }
+        public T initialValue(final E initialValue) { this.initialValue = checkNotNull(initialValue); return self(); }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
 
             checkState(lowerBound != null);

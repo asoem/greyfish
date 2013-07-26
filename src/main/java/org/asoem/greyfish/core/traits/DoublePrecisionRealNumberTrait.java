@@ -32,7 +32,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
 
     private double value = 0.0;
 
-    private DoublePrecisionRealNumberTrait(DoublePrecisionRealNumberTrait<A> doubleMutableGene, DeepCloner cloner) {
+    private DoublePrecisionRealNumberTrait(final DoublePrecisionRealNumberTrait<A> doubleMutableGene, final DeepCloner cloner) {
         super(doubleMutableGene, cloner);
         this.initializationKernel = doubleMutableGene.initializationKernel;
         this.mutationKernel = doubleMutableGene.mutationKernel;
@@ -40,7 +40,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         this.value = doubleMutableGene.value;
     }
 
-    private DoublePrecisionRealNumberTrait(AbstractBuilder<A, ? extends AgentTrait<A, Double>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    private DoublePrecisionRealNumberTrait(final AbstractBuilder<A, ? extends AgentTrait<A, Double>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
@@ -49,7 +49,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return new DoublePrecisionRealNumberTrait<A>(this, cloner);
     }
 
@@ -67,20 +67,20 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
     }
 
     @Override
-    public void set(Double value) {
+    public void set(final Double value) {
         checkNotNull(value);
         checkArgument(!Double.isNaN(value), "allele is NaN: " + value);
         this.value = value;
     }
 
     @Override
-    public Double mutate(Double allele) {
+    public Double mutate(final Double allele) {
         checkNotNull(allele);
         return mutationKernel.apply(this, ImmutableMap.of("x", allele));
     }
 
     @Override
-    public Double segregate(Double allele1, Double allele2) {
+    public Double segregate(final Double allele1, final Double allele2) {
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
@@ -111,7 +111,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         return new Builder<A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException{
         throw new InvalidObjectException("Builder required");
     }
@@ -119,7 +119,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
     public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, DoublePrecisionRealNumberTrait<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
-        private Builder(DoublePrecisionRealNumberTrait<A> quantitativeTrait) {
+        private Builder(final DoublePrecisionRealNumberTrait<A> quantitativeTrait) {
             super(quantitativeTrait);
         }
 
@@ -155,7 +155,7 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         private Callback<? super AgentTrait<A, Double>, Double> segregationKernel = DEFAULT_SEGREGATION_KERNEL;
         private double value;
 
-        protected AbstractBuilder(DoublePrecisionRealNumberTrait<A> quantitativeTrait) {
+        protected AbstractBuilder(final DoublePrecisionRealNumberTrait<A> quantitativeTrait) {
             super(quantitativeTrait);
             this.initializationKernel = quantitativeTrait.initializationKernel;
             this.mutationKernel = quantitativeTrait.mutationKernel;
@@ -165,23 +165,23 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
 
         protected AbstractBuilder() {}
 
-        public B initialization(Callback<? super AgentTrait<A, Double>, Double> callback) {
+        public B initialization(final Callback<? super AgentTrait<A, Double>, Double> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B mutation(Callback<? super AgentTrait<A, Double>, Double> callback) {
+        public B mutation(final Callback<? super AgentTrait<A, Double>, Double> callback) {
             this.mutationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super AgentTrait<A, Double>, Double> callback) {
+        public B segregation(final Callback<? super AgentTrait<A, Double>, Double> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }
 
         // only used internally for serialization
-        protected B value(double value) {
+        protected B value(final double value) {
             this.value = value;
             return self();
         }

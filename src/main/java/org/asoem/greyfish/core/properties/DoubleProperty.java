@@ -17,29 +17,29 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
         this(new Builder<A>());
     }
 
-    protected DoubleProperty(AbstractBuilder<A, ? extends DoubleProperty<A>, ? extends AbstractBuilder<A,? extends DoubleProperty<A>,?>> builder) {
+    protected DoubleProperty(final AbstractBuilder<A, ? extends DoubleProperty<A>, ? extends AbstractBuilder<A,? extends DoubleProperty<A>,?>> builder) {
         super(builder);
     }
 
-    protected DoubleProperty(DoubleProperty<A> property, DeepCloner cloner) {
+    protected DoubleProperty(final DoubleProperty<A> property, final DeepCloner cloner) {
         super(property, cloner);
     }
 
     @Override
-    public DoubleProperty<A> deepClone(DeepCloner cloner) {
+    public DoubleProperty<A> deepClone(final DeepCloner cloner) {
         return new DoubleProperty<A>(this, cloner);
     }
 
-    public void subtract(double val) {
+    public void subtract(final double val) {
         checkAndSet(value - val);
 	}
 	
-	public void add(Double val) {
+	public void add(final Double val) {
 		checkAndSet(value + val);
 	}
 
     @Override
-    public void set(Double value) {
+    public void set(final Double value) {
         this.value = value;
     }
 

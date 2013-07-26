@@ -19,7 +19,7 @@ public class TraitVector<T> implements TypedSupplier<T> {
     private final TypeToken<T> typeToken;
     private final String name;
 
-    private TraitVector(@Nullable T value, double recombinationProbability, TypeToken<T> typeToken, String name) {
+    private TraitVector(@Nullable final T value, final double recombinationProbability, final TypeToken<T> typeToken, final String name) {
         this.value = value;
         this.recombinationProbability = recombinationProbability;
         this.typeToken = typeToken;
@@ -41,7 +41,7 @@ public class TraitVector<T> implements TypedSupplier<T> {
         return typeToken;
     }
 
-    public static <T> TraitVector<T> create(@Nullable T value, double recombinationProbability, TypeToken<T> typeToken, String name) {
+    public static <T> TraitVector<T> create(@Nullable final T value, final double recombinationProbability, final TypeToken<T> typeToken, final String name) {
         checkNotNull(typeToken);
         checkNotNull(name);
         return new TraitVector<T>(value, recombinationProbability, typeToken, name);
@@ -51,7 +51,7 @@ public class TraitVector<T> implements TypedSupplier<T> {
         return name;
     }
 
-    public static <T> TraitVector<T> copyOf(AgentTrait<?, T> input) {
+    public static <T> TraitVector<T> copyOf(final AgentTrait<?, T> input) {
         checkNotNull(input);
         return create(input.get(), input.getRecombinationProbability(), input.getValueType(), input.getName());
     }

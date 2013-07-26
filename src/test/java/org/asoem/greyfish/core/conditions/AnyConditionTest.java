@@ -27,7 +27,7 @@ public class AnyConditionTest {
     public void testSerialization() throws Exception {
         // given
         final ActionCondition<DefaultGreyfishAgent> condition = mock(ActionCondition.class, withSettings().serializable());
-        AnyCondition<DefaultGreyfishAgent> anyCondition = AnyCondition.evaluates(condition);
+        final AnyCondition<DefaultGreyfishAgent> anyCondition = AnyCondition.evaluates(condition);
 
         // when
         final AnyCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(anyCondition, Persisters.javaSerialization());
@@ -42,7 +42,7 @@ public class AnyConditionTest {
                 has("equal child conditions",
                         new Function<AnyCondition<A>, List<ActionCondition<A>>>() {
                             @Override
-                            public List<ActionCondition<A>> apply(AnyCondition<A> input) {
+                            public List<ActionCondition<A>> apply(final AnyCondition<A> input) {
                                 return input.getChildConditions();
                             }
                         },

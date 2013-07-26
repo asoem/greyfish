@@ -25,7 +25,7 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public Iterable<A> getAgents(Population population) {
+    public Iterable<A> getAgents(final Population population) {
         return delegate().getAgents(population);
     }
 
@@ -35,7 +35,7 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public void removeAgent(A agent) {
+    public void removeAgent(final A agent) {
         delegate().removeAgent(agent);
     }
 
@@ -45,7 +45,7 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public int countAgents(Population population) {
+    public int countAgents(final Population population) {
         return delegate().countAgents(population);
     }
 
@@ -65,12 +65,12 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public void setName(String name) {
+    public void setName(final String name) {
         delegate().setName(name);
     }
 
     @Override
-    public void deliverMessage(ACLMessage<A> message) {
+    public void deliverMessage(final ACLMessage<A> message) {
         delegate().deliverMessage(message);
     }
 
@@ -80,17 +80,17 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public void createAgent(Population population, Initializer<? super A> initializer) {
+    public void createAgent(final Population population, final Initializer<? super A> initializer) {
         delegate().createAgent(population, initializer);
     }
 
     @Override
-    public void createAgent(Population population) {
+    public void createAgent(final Population population) {
         delegate().createAgent(population);
     }
 
     @Override
-    public void addAgent(A agent) {
+    public void addAgent(final A agent) {
         delegate().addAgent(agent);
     }
 
@@ -100,27 +100,27 @@ public abstract class ForwardingSimulation<A extends Agent<A, ?>> extends Forwar
     }
 
     @Override
-    public void logAgentEvent(A agent, Object eventOrigin, String title, String message) {
+    public void logAgentEvent(final A agent, final Object eventOrigin, final String title, final String message) {
         delegate().logAgentEvent(agent, eventOrigin, title, message);
     }
 
     @Override
-    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+    public Iterable<A> filterAgents(final Predicate<? super A> predicate) {
         return delegate().filterAgents(predicate);
     }
 
     @Override
-    public boolean hasStepValue(String key) {
+    public boolean hasStepValue(final String key) {
         return delegate().hasStepValue(key);
     }
 
     @Override
-    public void setStepValue(String key, Object value) {
+    public void setStepValue(final String key, final Object value) {
         delegate().setStepValue(key, value);
     }
 
     @Override
-    public Object getStepValue(String key) {
+    public Object getStepValue(final String key) {
         return delegate().getStepValue(key);
     }
 }

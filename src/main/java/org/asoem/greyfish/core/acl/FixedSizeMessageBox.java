@@ -28,7 +28,7 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
         this.buffer = FifoBuffer.newInstance(8);
     }
 
-    public FixedSizeMessageBox(int size) {
+    public FixedSizeMessageBox(final int size) {
         this.buffer = FifoBuffer.newInstance(size);
     }
 
@@ -41,7 +41,7 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
     public List<M> extract(final Predicate<? super M> predicate) {
         final ImmutableList.Builder<M> ret = ImmutableList.builder();
         for (Iterator<M> iterator = buffer.iterator(); iterator.hasNext(); ) {
-            M message = iterator.next();
+            final M message = iterator.next();
             if (predicate.apply(message)) {
                 iterator.remove();
                 ret.add(message);
@@ -51,26 +51,26 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
     }
 
     @Override
-    public M find(Predicate<? super M> predicate) throws NoSuchElementException {
+    public M find(final Predicate<? super M> predicate) throws NoSuchElementException {
         return Iterables.find(buffer, predicate);
     }
 
     @Override
-    public M find(Predicate<? super M> predicate, M defaultValue) {
+    public M find(final Predicate<? super M> predicate, final M defaultValue) {
         return Iterables.find(buffer, predicate, defaultValue);
     }
 
     @Override
-    public Iterable<M> filter(Predicate<? super M> predicate) {
+    public Iterable<M> filter(final Predicate<? super M> predicate) {
         return Iterables.filter(buffer, predicate);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof FixedSizeMessageBox)) return false;
 
-        FixedSizeMessageBox that = (FixedSizeMessageBox) o;
+        final FixedSizeMessageBox that = (FixedSizeMessageBox) o;
 
         if (!buffer.equals(that.buffer)) return false;
 
@@ -86,17 +86,17 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
         return new SerializedForm<M>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Proxy required");
     }
 
-    public static <M extends ACLMessage<?>> FixedSizeMessageBox<M> withCapacity(int size) {
+    public static <M extends ACLMessage<?>> FixedSizeMessageBox<M> withCapacity(final int size) {
         return new FixedSizeMessageBox<M>(size);
     }
 
     @Override
-    public boolean any(Predicate<M> predicate) {
+    public boolean any(final Predicate<M> predicate) {
         return Iterables.any(buffer, predicate);
     }
 
@@ -104,14 +104,14 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
         private final List<M> messages;
         private final int maxSize;
 
-        SerializedForm(FixedSizeMessageBox<M> box) {
+        SerializedForm(final FixedSizeMessageBox<M> box) {
             this.messages = Lists.newArrayList(box.buffer);
             this.maxSize = box.buffer.capacity();
         }
 
         private Object readResolve() {
             final FixedSizeMessageBox<M> messageBox = new FixedSizeMessageBox<M>(maxSize);
-            for (M message : messages) {
+            for (final M message : messages) {
                 messageBox.add(message);
             }
             return messageBox;

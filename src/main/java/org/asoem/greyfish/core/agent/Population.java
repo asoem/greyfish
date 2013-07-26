@@ -16,11 +16,11 @@ public class Population implements Comparable<Population>, Serializable {
 	private final String name;
 	private final Color color;
 
-    public Population(String name) {
+    public Population(final String name) {
         this(name, Color.black);
     }
 
-    public Population(String name, Color color) {
+    public Population(final String name, final Color color) {
         this.name = checkNotNull(name);
         this.color = checkNotNull(color);
     }
@@ -45,11 +45,11 @@ public class Population implements Comparable<Population>, Serializable {
 	}
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Population that = (Population) o;
+        final Population that = (Population) o;
 
         if (!color.equals(that.color)) return false;
         if (!name.equals(that.name)) return false;
@@ -65,19 +65,19 @@ public class Population implements Comparable<Population>, Serializable {
     }
 
     @Override
-    public int compareTo(Population o) {
+    public int compareTo(final Population o) {
         return name.compareTo(o.name);
     }
 
-    public static Population named(String asexualPopulation) {
+    public static Population named(final String asexualPopulation) {
         return newPopulation(asexualPopulation, Color.black);
     }
 
-    public static Population newPopulation(String name, Color color) {
+    public static Population newPopulation(final String name, final Color color) {
         return new Population(name, color);
     }
 
-    private void readObject(ObjectInputStream s)
+    private void readObject(final ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (name == null || color == null)

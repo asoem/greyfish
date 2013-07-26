@@ -32,7 +32,7 @@ public enum PassiveSimulationContext implements SimulationContext {
     }
 
     @Override
-    public void logEvent(Agent agent, Object eventOrigin, String title, String message) {
+    public void logEvent(final Agent agent, final Object eventOrigin, final String title, final String message) {
         throw new UnsupportedOperationException();
     }
 

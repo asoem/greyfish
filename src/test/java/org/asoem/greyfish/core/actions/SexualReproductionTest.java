@@ -33,7 +33,7 @@ public class SexualReproductionTest {
                 .build();
 
         // when
-        SexualReproduction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
+        final SexualReproduction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

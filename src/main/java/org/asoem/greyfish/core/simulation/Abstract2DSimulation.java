@@ -13,7 +13,7 @@ import java.util.Collection;
 public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, ?>, Z extends Space2D<A, ?>> extends AbstractSimulation<A> implements SpatialSimulation2D<A, Z> {
 
     @Override
-    public Iterable<A> findNeighbours(A agent, double distance) {
+    public Iterable<A> findNeighbours(final A agent, final double distance) {
         return getSpace().getVisibleNeighbours(agent, distance);
     }
 

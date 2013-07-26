@@ -38,14 +38,14 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
     private final Expression jexlCompiledExpression;
 
-    public CommonsJEXLEvaluator(String expression) {
+    public CommonsJEXLEvaluator(final String expression) {
         checkNotNull(expression);
         this.jexlCompiledExpression = JEXL_ENGINE.createExpression(prepare(expression));
         assert expression != null;
     }
 
     @Override
-    public EvaluationResult evaluate(VariableResolver resolver) {
+    public EvaluationResult evaluate(final VariableResolver resolver) {
         checkNotNull(resolver);
         final Object result = jexlCompiledExpression.evaluate(addGlobalVariables(resolver));
         return new ConvertingEvaluationResult(result);
@@ -56,7 +56,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
         return jexlCompiledExpression.getExpression();
     }
 
-    private static String prepare(String expression) {
+    private static String prepare(final String expression) {
         // This will lift some function in the global namespace and allows users to write 'fun' instead of 'ns:fun'.
         return expression
                 .replaceAll("\\$\\(([^\\)]+)\\)", "fish:\\$($1)")
@@ -64,7 +64,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
                 .replaceAll("((min|max|abs|sin|cos|tan|log|log10)\\([^\\)]+\\))", "math:$1");
     }
 
-    private static JEXLResolverAdaptor addGlobalVariables(VariableResolver resolver) {
+    private static JEXLResolverAdaptor addGlobalVariables(final VariableResolver resolver) {
         assert resolver != null;
 
         final VariableResolver variableResolver = VariableResolvers.forMap(GLOBAL_VARIABLES);
@@ -81,11 +81,11 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CommonsJEXLEvaluator that = (CommonsJEXLEvaluator) o;
+        final CommonsJEXLEvaluator that = (CommonsJEXLEvaluator) o;
 
         if (!jexlCompiledExpression.getExpression().equals(that.jexlCompiledExpression.getExpression())) return false;
 
@@ -100,7 +100,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
     private static class SerializedForm implements Serializable {
         final String expression;
 
-        SerializedForm(String expression) {
+        SerializedForm(final String expression) {
             this.expression = expression;
         }
         Object readResolve() {
@@ -116,7 +116,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
     private static class JEXLResolverAdaptor extends ForwardingVariableResolver implements JexlContext, Serializable {
         private final VariableResolver resolver;
 
-        public JEXLResolverAdaptor(VariableResolver resolver) {
+        public JEXLResolverAdaptor(final VariableResolver resolver) {
             this.resolver = resolver;
         }
 
@@ -126,26 +126,26 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
         }
 
         @Override
-        public Object get(String s) {
+        public Object get(final String s) {
             return resolve(s);
         }
 
         @Override
-        public void set(String s, Object o) {
+        public void set(final String s, final Object o) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean has(String s) {
+        public boolean has(final String s) {
             return canResolve(s);
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            JEXLResolverAdaptor that = (JEXLResolverAdaptor) o;
+            final JEXLResolverAdaptor that = (JEXLResolverAdaptor) o;
 
             if (!resolver.equals(that.resolver)) return false;
 

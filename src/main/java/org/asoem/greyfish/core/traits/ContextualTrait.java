@@ -33,7 +33,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
 
     private int lastModificationStep = -1;
 
-    private ContextualTrait(ContextualTrait<A, T> simulationStepProperty, DeepCloner cloner) {
+    private ContextualTrait(final ContextualTrait<A, T> simulationStepProperty, final DeepCloner cloner) {
         super(simulationStepProperty, cloner);
         this.valueCallback = simulationStepProperty.valueCallback;
         this.expirationCallback = simulationStepProperty.expirationCallback;
@@ -45,7 +45,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         });
     }
 
-    private ContextualTrait(AbstractBuilder<T, A, ? extends ContextualTrait<A, T>, ? extends Builder<T, A>> builder) {
+    private ContextualTrait(final AbstractBuilder<T, A, ? extends ContextualTrait<A, T>, ? extends Builder<T, A>> builder) {
         super(builder);
         this.valueCallback = builder.valueCallback;
         this.expirationCallback = builder.expirationCallback;
@@ -73,7 +73,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return new ContextualTrait<A, T>(this, cloner);
     }
 
@@ -109,7 +109,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
 
         private Builder() {}
 
-        private Builder(ContextualTrait<A, T> contextualTrait) {
+        private Builder(final ContextualTrait<A, T> contextualTrait) {
             super(contextualTrait);
         }
 
@@ -141,23 +141,23 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(ContextualTrait<A, T> simulationStepProperty) {
+        protected AbstractBuilder(final ContextualTrait<A, T> simulationStepProperty) {
             super(simulationStepProperty);
             this.valueCallback = simulationStepProperty.valueCallback;
         }
 
-        public B value(Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback) {
+        public B value(final Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback) {
             this.valueCallback = checkNotNull(valueCallback);
             return self();
         }
 
-        public B expires(Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback) {
+        public B expires(final Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback) {
             this.expirationCallback = checkNotNull(expirationCallback);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             checkState(this.valueCallback != null, "No valueCallback has been defined");
         }
     }
@@ -166,7 +166,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         return new Builder<T, A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
@@ -179,7 +179,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         INSTANCE;
 
         @Override
-        public Boolean apply(ContextualTrait<?,?> caller, Map<String, ?> args) {
+        public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
             final Agent<?,?> agent = caller.agent();
             return caller.getLastModificationStep() < agent.getTimeOfBirth();
         }
@@ -193,7 +193,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         INSTANCE;
 
         @Override
-        public Boolean apply(ContextualTrait<?,?> caller, Map<String, ?> args) {
+        public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
             final Agent<?,?> agent = caller.agent();
             return caller.getLastModificationStep() != agent.getSimulationStep();
         }

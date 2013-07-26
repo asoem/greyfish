@@ -34,7 +34,7 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
 
             final Iterable<TraitVector<?>> traitVectors = Iterables.transform(agent().getTraits(), new Function<AgentTrait<A, ?>, TraitVector<?>>() {
                 @Override
-                public TraitVector<?> apply(@Nullable AgentTrait<A, ?> trait) {
+                public TraitVector<?> apply(@Nullable final AgentTrait<A, ?> trait) {
                     assert trait != null;
                     return mutatedVector(trait);
                 }
@@ -49,21 +49,21 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         return ActionState.COMPLETED;
     }
 
-    private static <T> TraitVector<T> mutatedVector(AgentTrait<?, T> trait) {
+    private static <T> TraitVector<T> mutatedVector(final AgentTrait<?, T> trait) {
         return TraitVector.create(trait.mutate(trait.get()), trait.getRecombinationProbability(), trait.getValueType(), trait.getName());
     }
 
     @Override
-    public ClonalReproduction<A> deepClone(DeepCloner cloner) {
+    public ClonalReproduction<A> deepClone(final DeepCloner cloner) {
         return new ClonalReproduction<A>(this, cloner);
     }
 
-    public ClonalReproduction(ClonalReproduction<A> cloneable, DeepCloner map) {
+    public ClonalReproduction(final ClonalReproduction<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
         this.clutchSize = cloneable.clutchSize;
     }
 
-    protected ClonalReproduction(AbstractBuilder<A, ? extends ClonalReproduction<A>, ? extends AbstractBuilder<A, ClonalReproduction<A>, ?>> builder) {
+    protected ClonalReproduction(final AbstractBuilder<A, ? extends ClonalReproduction<A>, ? extends AbstractBuilder<A, ClonalReproduction<A>, ?>> builder) {
         super(builder);
         this.clutchSize = builder.nClones;
     }
@@ -72,7 +72,7 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         return clutchSize;
     }
 
-    public void setClutchSize(Callback<? super ClonalReproduction<A>, Integer> clutchSize) {
+    public void setClutchSize(final Callback<? super ClonalReproduction<A>, Integer> clutchSize) {
         this.clutchSize = clutchSize;
     }
 
@@ -97,23 +97,23 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         private Callback<? super ClonalReproduction<A>, Integer> nClones;
         private Callback<? super ClonalReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
 
-        public B nClones(int n) {
+        public B nClones(final int n) {
             checkArgument(n >= 0);
             return nClones(Callbacks.constant(n));
         }
 
-        public B nClones(Callback<? super ClonalReproduction<A>, Integer> nClones) {
+        public B nClones(final Callback<? super ClonalReproduction<A>, Integer> nClones) {
             this.nClones = checkNotNull(nClones);
             return self();
         }
 
-        public B offspringInitializer(Callback<? super ClonalReproduction<A>, Void> projectionFactory) {
+        public B offspringInitializer(final Callback<? super ClonalReproduction<A>, Void> projectionFactory) {
             this.offspringInitializer = checkNotNull(projectionFactory);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             checkState(nClones != null);
             checkState(offspringInitializer != null);
         }

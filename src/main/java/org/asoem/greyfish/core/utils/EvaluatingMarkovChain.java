@@ -16,7 +16,6 @@ import org.asoem.greyfish.utils.math.MarkovChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -37,7 +36,7 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
     private final Table<S, S, Expression> markovMatrix;
     private static final Pattern PATTERN = Pattern.compile("^\\s*([\\w\\s\\d_]+)\\s*->\\s*([\\w\\s\\d_]+)\\s*:\\s*(\\S+)\\s*$");
 
-    private EvaluatingMarkovChain(ChainBuilder<S> builder) {
+    private EvaluatingMarkovChain(final ChainBuilder<S> builder) {
         this.markovMatrix = ImmutableTable.copyOf(builder.table);
     }
 
@@ -48,7 +47,7 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
      * @param resolver the context for the transition probability evaluation
      * @return the next state
      */
-    public S apply(S state, VariableResolver resolver) {
+    public S apply(final S state, final VariableResolver resolver) {
         checkNotNull(state, "State must not be null");
 
         if (!markovMatrix.containsRow(state)) {
@@ -69,13 +68,9 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         }
 
         double sum = 0;
-        double rand = rng().nextDouble();
-        for (Map.Entry<S, Expression> cell : row.entrySet()) {
-            try {
-                sum += cell.getValue().evaluate(resolver).asDouble();
-            } catch (ParseException e) {
-                throw new AssertionError("expression '" + cell.getValue() + "' could not get evaluated as a double value");
-            }
+        final double rand = rng().nextDouble();
+        for (final Map.Entry<S, Expression> cell : row.entrySet()) {
+            sum += cell.getValue().evaluate(resolver).asDouble();
             if (sum > rand) {
                 return cell.getKey();
             }
@@ -93,11 +88,11 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         return state;
     }
 
-    public static <S> ChainBuilder<S> builder(ExpressionFactory expressionFactory) {
+    public static <S> ChainBuilder<S> builder(final ExpressionFactory expressionFactory) {
         return new ChainBuilder<S>(expressionFactory);
     }
 
-    public static EvaluatingMarkovChain<String> parse(String rule, ExpressionFactory factory) {
+    public static EvaluatingMarkovChain<String> parse(final String rule, final ExpressionFactory factory) {
         checkNotNull(rule);
         checkNotNull(factory);
         
@@ -106,14 +101,14 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         final Splitter splitter = Splitter.onPattern("\r?\n|;").trimResults();
         final Iterable<String> lines = splitter.split(rule);
 
-        for (String line : lines) {
+        for (final String line : lines) {
             if(line.isEmpty())
                 continue;
             final Matcher matcher = PATTERN.matcher(line);
             if (matcher.matches()) {
-                String state1 = matcher.group(1).trim();
-                String state2 = matcher.group(2).trim();
-                String p = matcher.group(3).trim();
+                final String state1 = matcher.group(1).trim();
+                final String state2 = matcher.group(2).trim();
+                final String p = matcher.group(3).trim();
 
                 builder.put(state1, state2, p);
             }
@@ -129,7 +124,7 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
     }
 
     @Override
-    public S apply(S state) {
+    public S apply(final S state) {
         return apply(state, VariableResolvers.emptyResolver());
     }
 
@@ -138,12 +133,12 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         private final Table<S, S, Expression> table = HashBasedTable.create();
         private final ExpressionFactory expressionFactory;
 
-        public ChainBuilder(ExpressionFactory expressionFactory) {
+        public ChainBuilder(final ExpressionFactory expressionFactory) {
 
             this.expressionFactory = checkNotNull(expressionFactory);
         }
 
-        public ChainBuilder<S> put(S state, S nextState, String expression) {
+        public ChainBuilder<S> put(final S state, final S nextState, final String expression) {
             checkNotNull(state);
             checkNotNull(nextState);
             checkNotNull(expression);
@@ -153,15 +148,15 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         }
 
         @Override
-        public EvaluatingMarkovChain<S> build() throws IllegalStateException {
+        public EvaluatingMarkovChain<S> build() {
             return new EvaluatingMarkovChain<S>(this);
         }
     }
 
     public String toRule() {
-        StringBuilder builder = new StringBuilder();
-        for (Map.Entry<S, Map<S, Expression>> entry : markovMatrix.rowMap().entrySet()) {
-            for (Map.Entry<S, Expression> doubleEntry : entry.getValue().entrySet()) {
+        final StringBuilder builder = new StringBuilder();
+        for (final Map.Entry<S, Map<S, Expression>> entry : markovMatrix.rowMap().entrySet()) {
+            for (final Map.Entry<S, Expression> doubleEntry : entry.getValue().entrySet()) {
                 builder.append(entry.getKey());
                 builder.append(" -> ");
                 builder.append(doubleEntry.getKey());
@@ -179,11 +174,11 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof EvaluatingMarkovChain)) return false;
 
-        EvaluatingMarkovChain that = (EvaluatingMarkovChain) o;
+        final EvaluatingMarkovChain that = (EvaluatingMarkovChain) o;
 
         return markovMatrix.equals(that.markovMatrix);
 

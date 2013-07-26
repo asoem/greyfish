@@ -24,11 +24,14 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
     private int nProposalsReceived;
     private int nInformReceived;
 
-    protected ContractNetInitiatorAction(AbstractBuilder<A, ? extends ContractNetInitiatorAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected ContractNetInitiatorAction(
+            final AbstractBuilder<A,
+                    ? extends ContractNetInitiatorAction<A>,
+                    ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
     }
 
-    protected ContractNetInitiatorAction(ContractNetInitiatorAction<A> cloneable, DeepCloner cloner) {
+    protected ContractNetInitiatorAction(final ContractNetInitiatorAction<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
     }
 
@@ -40,18 +43,17 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
     private int nProposalsMax;
 
     @Override
-    protected Object initialState() {
+    protected final Object initialState() {
         return State.SEND_CFP;
     }
 
     @Override
-    protected void executeState(Object state) {
+    protected final void executeState(final Object state) {
         if (State.SEND_CFP.equals(state)) {
             if (!canInitiate()) {
                 endTransition(State.NO_RECEIVERS);
-            }
-            else {
-                ImmutableACLMessage<A> cfpMessage = createCFP()
+            } else {
+                final ImmutableACLMessage<A> cfpMessage = createCFP()
                         .sender(agent())
                         .performative(ACLPerformative.CFP).build();
                 LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
@@ -64,10 +66,9 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
 
                 transition(State.WAIT_FOR_PROPOSALS);
             }
-        }
-        else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
-            Collection<ACLMessage<A>> proposeReplies = Lists.newArrayList();
-            for (ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
+        } else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
+            final Collection<ACLMessage<A>> proposeReplies = Lists.newArrayList();
+            for (final ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
                 assert (receivedMessage != null);
 
                 ACLMessage<A> proposeReply;
@@ -102,7 +103,9 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
                         break;
 
                     default:
-                        LOGGER.debug("{}: Protocol Error: Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.", this, receivedMessage.getPerformative());
+                        LOGGER.debug("{}: Protocol Error:"
+                                + "Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.",
+                                this, receivedMessage.getPerformative());
                         --nProposalsMax;
                         break;
                 }
@@ -115,26 +118,24 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
             if (nProposalsMax == 0) {
                 LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsMax);
                 endTransition(State.END);
-            }
-            else if (nProposalsReceived == nProposalsMax) {
+            } else if (nProposalsReceived == nProposalsMax) {
                 template = createAcceptReplyTemplate(proposeReplies);
                 nInformReceived = 0;
                 timeoutCounter = 0;
                 transition(State.WAIT_FOR_INFORM);
-            }
-            else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS) {
-                LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals", this, nProposalsReceived);
+            } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS) {
+                LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals",
+                        this, nProposalsReceived);
 
                 timeoutCounter = 0;
                 failure("Timeout for INFORM Messages");
             }
 
             // else: No transition
-        }
-        else if (State.WAIT_FOR_INFORM.equals(state)) {
+        } else if (State.WAIT_FOR_INFORM.equals(state)) {
             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-            for (ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
+            for (final ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
                 assert receivedMessage != null;
 
                 switch (receivedMessage.getPerformative()) {
@@ -153,7 +154,8 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
                         break;
 
                     default:
-                        LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}", ContractNetInitiatorAction.this, receivedMessage);
+                        LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}",
+                                ContractNetInitiatorAction.this, receivedMessage);
                         break;
                 }
 
@@ -162,60 +164,64 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
 
             ++timeoutCounter;
 
-            if (nInformReceived == nProposalsReceived)
+            if (nInformReceived == nProposalsReceived) {
                 endTransition(State.END);
-            else if (timeoutCounter > INFORM_TIMEOUT_STEPS)
+            } else if (timeoutCounter > INFORM_TIMEOUT_STEPS) {
                 failure("Timeout for INFORM Messages");
-        }
-        else
+            }
+        } else {
             throw unknownState();
+        }
     }
 
     protected abstract boolean canInitiate();
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage<?>> acceptMessages) {
-        if (Iterables.isEmpty(acceptMessages))
+        if (Iterables.isEmpty(acceptMessages)) {
             return MessageTemplates.alwaysFalse();
-        else
+        } else {
             return MessageTemplates.or( // is a reply
                     Iterables.toArray(
                             Iterables.transform(acceptMessages, new Function<ACLMessage, MessageTemplate>() {
                                 @Override
-                                public MessageTemplate apply(ACLMessage aclMessage) {
+                                public MessageTemplate apply(final ACLMessage aclMessage) {
                                     return MessageTemplates.isReplyTo(aclMessage);
                                 }
                             }),
                             MessageTemplate.class));
+        }
     }
 
     private static <A extends Agent<A, ?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
         return MessageTemplates.isReplyTo(cfp);
     }
 
-    private static void checkProposeReply(ACLMessage response) {
-        assert(response != null);
-        assert(response.matches(MessageTemplates.or(
+    private static void checkProposeReply(final ACLMessage response) {
+        assert response != null;
+        assert response.matches(MessageTemplates.or(
                 MessageTemplates.performative(ACLPerformative.ACCEPT_PROPOSAL),
                 MessageTemplates.performative(ACLPerformative.REJECT_PROPOSAL),
-                MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
+                MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD)));
     }
 
     protected abstract ImmutableACLMessage.Builder<A> createCFP();
 
-    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message) throws NotUnderstoodException;
+    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleRefuse(ACLMessage<A> message) {}
+    protected void handleRefuse(final ACLMessage<A> message) {}
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleFailure(ACLMessage<A> message) {}
+    protected void handleFailure(final ACLMessage<A> message) {}
 
-    protected void handleInform(ACLMessage<A> message) {}
+    protected void handleInform(final ACLMessage<A> message) {}
 
     protected abstract String getOntology();
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetInitiatorAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
-
+    protected abstract static class AbstractBuilder<A extends Agent<A, ?>,
+            C extends ContractNetInitiatorAction<A>,
+            B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B>
+            implements Serializable {
     }
 
     private static enum State {

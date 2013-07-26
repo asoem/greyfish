@@ -30,6 +30,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
     private final Set<T> receivers;
     private final Set<T> reply_to;
 
+    @Nullable
     private final Object content;
 
     @Nullable
@@ -47,7 +48,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
     @Nullable
     private final String inReplyTo;
 
-    private ImmutableACLMessage(Builder<T> builder) {
+    private ImmutableACLMessage(final Builder<T> builder) {
         this.reply_to = builder.reply_to;
         this.sender = builder.sender;
         this.receivers = builder.receivers;
@@ -140,17 +141,17 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
      * @return the ACLMessage to send as a reply
      */
     @SuppressWarnings("UnusedDeclaration")
-    public Builder<T> replyTo(T sender) {
+    public Builder<T> replyTo(final T sender) {
         return createReply(this, sender);
     }
 
     @Override
-    public boolean matches(MessageTemplate performative) {
+    public boolean matches(final MessageTemplate performative) {
         return performative.apply(this);
     }
 
     @Override
-    public <C> C userDefinedParameter(String key, Class<C> clazz) {
+    public <C> C userDefinedParameter(final String key, final Class<C> clazz) {
         return clazz.cast(userDefinedParameter.get(key));
     }
 
@@ -169,7 +170,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         str.append(":receivers [").append(Joiner.on(" ").join(receivers)).append("]\n");
         str.append(":reply-to [").append(Joiner.on(" ").join(reply_to)).append("]\n");
 
-        str.append(":Content" + " <").append(this.content.getClass().getSimpleName()).append("> \n");
+        str.append(":Content" + " <").append(this.content).append("> \n");
 
         // Description of Content
         str.append(":encoding ").append(getEncoding()).append("\n");
@@ -189,11 +190,11 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
 
     @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof ImmutableACLMessage)) return false;
 
-        ImmutableACLMessage that = (ImmutableACLMessage) o;
+        final ImmutableACLMessage that = (ImmutableACLMessage) o;
 
         if (conversationId != that.conversationId) return false;
         if (content != null ? !content.equals(that.content) : that.content != null) return false;
@@ -238,7 +239,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         return new Builder<T>();
     }
 
-    public static <T> Builder<T> createReply(ACLMessage<T> message, T id) {
+    public static <T> Builder<T> createReply(final ACLMessage<T> message, final T id) {
         checkNotNull(message);
         checkArgument(message.getSender() != null, "Cannot reply to an anonymous sender");
         return new Builder<T>()
@@ -259,28 +260,37 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         return new Builder<T>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Proxy required");
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public static class Builder<T> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>>, Serializable {
+        @Nullable
         private ACLPerformative performative;
+        @Nullable
         private T sender;
         private final Set<T> receivers = Sets.newHashSet();
         private final Set<T> reply_to = Sets.newHashSet();
+        @Nullable
         private Object content;
+        @Nullable
         private String reply_with;
+        @Nullable
         private String inReplyTo;
+        @Nullable
         private String encoding;
+        @Nullable
         private String language;
+        @Nullable
         private String ontology;
+        @Nullable
         private String protocol;
         private int conversationId = 0;
         private final Map<String, Object> userDefinedParameter = Maps.newHashMap();
 
-        public Builder(ImmutableACLMessage<T> message) {
+        public Builder(final ImmutableACLMessage<T> message) {
             this.performative = message.performative;
             this.sender = message.sender;
             this.receivers.addAll(message.receivers);
@@ -299,31 +309,31 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         public Builder() {
         }
 
-        public Builder<T> performative(ACLPerformative performative) { this.performative = checkNotNull(performative); return this; }
-        public Builder<T> sender(T source) { this.sender = source; return this; }
-        public Builder<T> reply_with(String reply_with) { this.reply_with = reply_with; return this; }
-        public Builder<T> in_reply_to(String in_reply_to) { this.inReplyTo = in_reply_to; return this; }
+        public Builder<T> performative(final ACLPerformative performative) { this.performative = checkNotNull(performative); return this; }
+        public Builder<T> sender(final T source) { this.sender = source; return this; }
+        public Builder<T> reply_with(final String reply_with) { this.reply_with = reply_with; return this; }
+        public Builder<T> in_reply_to(final String in_reply_to) { this.inReplyTo = in_reply_to; return this; }
 
-        public Builder<T> encoding(String encoding) { this.encoding = encoding; return this; }
-        public Builder<T> language(String language) { this.language = language; return this; }
-        public Builder<T> ontology(String ontology) { this.ontology = ontology; return this; }
-        public Builder<T> protocol(String protocol) { this.protocol = protocol; return this; }
+        public Builder<T> encoding(final String encoding) { this.encoding = encoding; return this; }
+        public Builder<T> language(final String language) { this.language = language; return this; }
+        public Builder<T> ontology(final String ontology) { this.ontology = ontology; return this; }
+        public Builder<T> protocol(final String protocol) { this.protocol = protocol; return this; }
 
-        public Builder<T> conversationId(int conversationId) { this.conversationId = conversationId; return this; }
+        public Builder<T> conversationId(final int conversationId) { this.conversationId = conversationId; return this; }
 
-        public Builder<T> addReceiver(T receiver) { this.receivers.add(receiver); return this; }
-        public Builder<T> setReceivers(T ... receivers) { Collections.addAll(this.receivers, receivers); return this; }
+        public Builder<T> addReceiver(final T receiver) { this.receivers.add(receiver); return this; }
+        public Builder<T> setReceivers(final T ... receivers) { Collections.addAll(this.receivers, receivers); return this; }
 
-        public Builder<T> addReplyTo(T replyTo) { this.reply_to.add(replyTo); return this; }
-        public Builder<T> addReplyTo(T... replyToReceivers) { Collections.addAll(this.reply_to, replyToReceivers); return this; }
-        public Builder<T> addReplyTo(Set<T> replyToReceivers) { this.reply_to.addAll(replyToReceivers); return this; }
+        public Builder<T> addReplyTo(final T replyTo) { this.reply_to.add(replyTo); return this; }
+        public Builder<T> addReplyTo(final T... replyToReceivers) { Collections.addAll(this.reply_to, replyToReceivers); return this; }
+        public Builder<T> addReplyTo(final Set<T> replyToReceivers) { this.reply_to.addAll(replyToReceivers); return this; }
 
-        public <C> Builder<T> content(C content, Class<C> contentType) {
+        public <C> Builder<T> content(final C content, final Class<C> contentType) {
             this.content = checkNotNull(content);
             return this;
         }
 
-        public Builder<T> addUserDefinedParameter(String name, Object value) {
+        public Builder<T> addUserDefinedParameter(final String name, final Object value) {
             checkNotNull(name);
             checkArgument(!userDefinedParameter.containsKey(name), "No duplicate parameters allowed");
             checkNotNull(value);

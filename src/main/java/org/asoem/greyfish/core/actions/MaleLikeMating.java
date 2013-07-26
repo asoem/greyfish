@@ -40,7 +40,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         this(new Builder<A>());
     }
 
-    private MaleLikeMating(MaleLikeMating<A> cloneable, DeepCloner cloner) {
+    private MaleLikeMating(final MaleLikeMating<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
         this.ontology = cloneable.ontology;
         this.matingProbability = cloneable.matingProbability;
@@ -48,7 +48,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         this.proposalSent = cloneable.proposalSent;
     }
 
-    private MaleLikeMating(AbstractBuilder<A, ? extends MaleLikeMating<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    private MaleLikeMating(final AbstractBuilder<A, ? extends MaleLikeMating<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.matingProbability = builder.matingProbabilityExpression;
@@ -73,7 +73,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message) {
+    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message) {
         final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, agent());
 
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
@@ -98,18 +98,18 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message) {
         // costs for mating define quality of the agentTraitList
 //        DoubleProperty doubleProperty = null;
 //        GeneComponentList sperm = null;
-//        doubleProperty.subtract(spermEvaluationFunction.parallelApply(sperm));
+//        doubleProperty.subtract(spermEvaluationFunction.evaluate(sperm));
         ++matingCount;
         return ImmutableACLMessage.createReply(message, agent())
                 .performative(ACLPerformative.INFORM);
     }
 
     @Override
-    public MaleLikeMating<A> deepClone(DeepCloner cloner) {
+    public MaleLikeMating<A> deepClone(final DeepCloner cloner) {
         return new MaleLikeMating<A>(this, cloner);
     }
 
@@ -129,13 +129,13 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         return new Builder<A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
 
     public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
-        private Builder(MaleLikeMating<A> maleLikeMating) {
+        private Builder(final MaleLikeMating<A> maleLikeMating) {
             super(maleLikeMating);
         }
 
@@ -168,7 +168,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         private int matingCount;
         private boolean proposalSent;
 
-        protected AbstractBuilder(MaleLikeMating<A> maleLikeMating) {
+        protected AbstractBuilder(final MaleLikeMating<A> maleLikeMating) {
             super(maleLikeMating);
             this.ontology = maleLikeMating.ontology;
             this.matingProbabilityExpression = maleLikeMating.matingProbability;
@@ -178,18 +178,18 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
 
         protected AbstractBuilder() {}
 
-        public B matingProbability(Callback<? super MaleLikeMating<A>, Double> matingProbability) {
+        public B matingProbability(final Callback<? super MaleLikeMating<A>, Double> matingProbability) {
             this.matingProbabilityExpression = checkNotNull(matingProbability);
             return self();
         }
 
-        public B ontology(String ontology) {
+        public B ontology(final String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
             checkState(!Strings.isNullOrEmpty(ontology));
         }

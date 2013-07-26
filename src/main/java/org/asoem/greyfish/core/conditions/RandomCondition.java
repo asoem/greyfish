@@ -11,7 +11,7 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
     private double probability;
 
-    private RandomCondition(RandomCondition<A> condition, DeepCloner map) {
+    private RandomCondition(final RandomCondition<A> condition, final DeepCloner map) {
         super(condition, map);
         this.probability = condition.probability;
     }
@@ -22,7 +22,7 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
     }
 
     @Override
-    public RandomCondition<A> deepClone(DeepCloner cloner) {
+    public RandomCondition<A> deepClone(final DeepCloner cloner) {
         return new RandomCondition<A>(this, cloner);
     }
 
@@ -31,7 +31,7 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
         this(new Builder<A>());
     }
 
-    private RandomCondition(AbstractBuilder<A, ?, ?> builder) {
+    private RandomCondition(final AbstractBuilder<A, ?, ?> builder) {
         super(builder);
     }
 
@@ -44,7 +44,7 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends RandomCondition<A>, T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {
         private double probability;
 
-        public T probability(double probability) {
+        public T probability(final double probability) {
             checkArgument(probability >= 0 && probability <= 1, "Value is not in open interval [0,1]: " + probability);
             this.probability = probability;
             return self();

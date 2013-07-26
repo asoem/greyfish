@@ -27,13 +27,13 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
     private ActionState actionState;
 
     @SuppressWarnings("unchecked")
-    protected AbstractAgentAction(AbstractAgentAction<A> cloneable, DeepCloner map) {
+    protected AbstractAgentAction(final AbstractAgentAction<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
         this.rootCondition = map.getClone(cloneable.rootCondition);
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractAgentAction(AbstractBuilder<A, ? extends AbstractAgentAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected AbstractAgentAction(final AbstractBuilder<A, ? extends AbstractAgentAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.onSuccess = builder.onSuccess;
         this.successCount = builder.successCount;
@@ -86,7 +86,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
 
     protected abstract ActionState proceed();
 
-    protected void setState(ActionState state) {
+    protected void setState(final ActionState state) {
         assert state != null;
         actionState = state;
     }
@@ -128,7 +128,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
     }
 
     @Override
-    public void setCondition(@Nullable ActionCondition<A> rootCondition) {
+    public void setCondition(@Nullable final ActionCondition<A> rootCondition) {
         this.rootCondition = rootCondition;
         if (rootCondition != null) {
             rootCondition.setAction(this);
@@ -140,7 +140,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
         return this.successCount;
     }
 
-    public boolean wasNotExecutedForAtLeast(int steps) {
+    public boolean wasNotExecutedForAtLeast(final int steps) {
         // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
         return agent().getSimulationStep() - stepAtLastSuccess >= steps;
     }
@@ -174,7 +174,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(AbstractAgentAction<A> action) {
+        protected AbstractBuilder(final AbstractAgentAction<A> action) {
             super(action);
             this.condition = action.rootCondition;
             this.onSuccess = action.onSuccess;
@@ -183,12 +183,12 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>> extends Abstrac
             this.actionState = action.actionState;
         }
 
-        public B executedIf(ActionCondition<A> condition) {
+        public B executedIf(final ActionCondition<A> condition) {
             this.condition = condition;
             return self();
         }
 
-        public B onSuccess(Callback<? super AbstractAgentAction<A>, Void> expression) {
+        public B onSuccess(final Callback<? super AbstractAgentAction<A>, Void> expression) {
             this.onSuccess = checkNotNull(expression);
             return self();
         }

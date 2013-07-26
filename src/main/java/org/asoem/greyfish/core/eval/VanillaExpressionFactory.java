@@ -12,12 +12,12 @@ public class VanillaExpressionFactory implements ExpressionFactory {
     private final EvaluatorFactory evaluatorProvider;
 
     @Inject
-    public VanillaExpressionFactory(EvaluatorFactory evaluatorFactory) {
+    public VanillaExpressionFactory(final EvaluatorFactory evaluatorFactory) {
         this.evaluatorProvider = evaluatorFactory;
     }
 
     @Override
-    public boolean isValidExpression(String s) {
+    public boolean isValidExpression(final String s) {
         try {
             new VanillaExpression(s, evaluatorProvider);
             return true;
@@ -27,7 +27,7 @@ public class VanillaExpressionFactory implements ExpressionFactory {
     }
 
     @Override
-    public Expression compile(String s) {
+    public Expression compile(final String s) {
         return new VanillaExpression(s, evaluatorProvider);
     }
 }

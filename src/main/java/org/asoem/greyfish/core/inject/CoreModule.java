@@ -27,7 +27,7 @@ public class CoreModule extends AbstractModule {
         this.randomGenerator = RandomGenerators.rng();
     }
 
-    public CoreModule(RandomGenerator randomGenerator) {
+    public CoreModule(final RandomGenerator randomGenerator) {
         checkNotNull(randomGenerator);
         this.randomGenerator = randomGenerator;
     }
@@ -44,7 +44,7 @@ public class CoreModule extends AbstractModule {
         // GreyfishExpression
         bind(EvaluatorFactory.class).toInstance(new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) {
+            public Evaluator createEvaluator(final String expression) {
                 return new CommonsJEXLEvaluator(expression);
             }
         });

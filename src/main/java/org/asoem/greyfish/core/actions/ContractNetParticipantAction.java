@@ -23,14 +23,14 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
     private int nExpectedProposeAnswers;
     private MessageTemplate template = MessageTemplates.alwaysFalse();
 
-    protected ContractNetParticipantAction(ContractNetParticipantAction<A> cloneable, DeepCloner cloner) {
+    protected ContractNetParticipantAction(final ContractNetParticipantAction<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
         this.timeoutCounter = cloneable.timeoutCounter;
         this.nExpectedProposeAnswers = cloneable.nExpectedProposeAnswers;
         this.template = cloneable.template;
     }
 
-    protected ContractNetParticipantAction(AbstractBuilder<A, ? extends ContractNetParticipantAction<A>,? extends AbstractBuilder<A,?,?>> builder) {
+    protected ContractNetParticipantAction(final AbstractBuilder<A, ? extends ContractNetParticipantAction<A>,? extends AbstractBuilder<A,?,?>> builder) {
         super(builder);
         this.timeoutCounter = builder.timeoutCounter;
         this.nExpectedProposeAnswers = builder.nExpectedProposeAnswers;
@@ -47,7 +47,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
     }
 
     @Override
-    protected void executeState(Object state) {
+    protected void executeState(final Object state) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();
@@ -55,7 +55,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
 
             final List<ACLMessage<A>> cfpReplies = Lists.newArrayList();
             final Iterable<AgentMessage<A>> proposalCalls = agent().getMessages(template);
-            for (ACLMessage<A> cfp : proposalCalls) {
+            for (final ACLMessage<A> cfp : proposalCalls) {
 
                 ACLMessage<A> cfpReply;
                 try {
@@ -85,7 +85,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
         }
         else if (State.WAIT_FOR_ACCEPT == state) {
             final Iterable<AgentMessage<A>> receivedMessages = agent().getMessages(getTemplate());
-            for (ACLMessage<A> receivedMessage : receivedMessages) {
+            for (final ACLMessage<A> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:
                         ACLMessage<A> informMessage;
@@ -129,19 +129,19 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
 
     protected abstract String getOntology();
 
-    private static MessageTemplate createProposalReplyTemplate(Iterable<? extends ACLMessage> cfpReplies) {
+    private static MessageTemplate createProposalReplyTemplate(final Iterable<? extends ACLMessage> cfpReplies) {
         return MessageTemplates.or(
                 Iterables.toArray(
                         Iterables.transform(cfpReplies, new Function<ACLMessage, MessageTemplate>() {
                             @Override
-                            public MessageTemplate apply(ACLMessage aclMessage) {
+                            public MessageTemplate apply(final ACLMessage aclMessage) {
                                 return MessageTemplates.isReplyTo(aclMessage);
                             }
                         }),
                         MessageTemplate.class));
     }
 
-    private static void checkCFPReply(ACLMessage response) {
+    private static void checkCFPReply(final ACLMessage response) {
         assert (response != null);
         assert (response.matches(MessageTemplates.or(
                 MessageTemplates.performative(ACLPerformative.PROPOSE),
@@ -149,7 +149,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    private static void checkAcceptReply(ACLMessage response) {
+    private static void checkAcceptReply(final ACLMessage response) {
         assert (response != null);
         assert (response.matches(MessageTemplates.or(
                 MessageTemplates.performative(ACLPerformative.INFORM),
@@ -162,7 +162,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
     protected abstract ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleReject(ACLMessage<A> message) {}
+    protected void handleReject(final ACLMessage<A> message) {}
 
     protected abstract ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message);
 
@@ -181,7 +181,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(ContractNetParticipantAction<A> action) {
+        protected AbstractBuilder(final ContractNetParticipantAction<A> action) {
             super(action);
             this.timeoutCounter = action.timeoutCounter;
             this.nExpectedProposeAnswers = action.nExpectedProposeAnswers;

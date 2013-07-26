@@ -24,14 +24,14 @@ public class ChromosomeImpl implements Chromosome {
 
     private static final Predicate<AgentTrait<? extends Agent<?,?>,?>> IS_HERITABLE = new Predicate<AgentTrait<? extends Agent<?, ?>, ?>>() {
         @Override
-        public boolean apply(AgentTrait<? extends Agent<?, ?>, ?> input) {
+        public boolean apply(final AgentTrait<? extends Agent<?, ?>, ?> input) {
             return input.isHeritable();
         }
     };
     private final List<TraitVector<?>> traitVectors;
     private final Set<Integer> parents;
 
-    public ChromosomeImpl(Iterable<? extends TraitVector<?>> genes, Set<Integer> parents) {
+    public ChromosomeImpl(final Iterable<? extends TraitVector<?>> genes, final Set<Integer> parents) {
         this.traitVectors = ImmutableList.copyOf(genes);
         this.parents = checkNotNull(parents);
     }
@@ -52,14 +52,14 @@ public class ChromosomeImpl implements Chromosome {
     }
 
     @Override
-    public <A extends Agent<A, ?>> void updateAgent(Agent<A, ?> agent) {
+    public <A extends Agent<A, ?>> void updateAgent(final Agent<A, ?> agent) {
         checkNotNull(agent, "Agent is null");
         final FunctionalList<AgentTrait<A, ?>> traits = agent.getTraits();
         final Iterable<AgentTrait<A, ?>> filter = traits.filter(IS_HERITABLE);
         final List<TraitVector<?>> traitVectors1 = getTraitVectors();
         final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zip = Products.zip(filter, traitVectors1);
 
-        for (Product2<AgentTrait<A, ?>, TraitVector<?>> tuple2 : zip) {
+        for (final Product2<AgentTrait<A, ?>, TraitVector<?>> tuple2 : zip) {
             final AgentTrait<?, ?> trait = tuple2._1();
             final TraitVector<?> supplier = tuple2._2();
             assert trait.getName().equals(supplier.getName());
@@ -68,13 +68,13 @@ public class ChromosomeImpl implements Chromosome {
         agent.setParents(getParents());
     }
 
-    public static ChromosomeImpl forAgent(Agent<?, ?> agent) {
+    public static ChromosomeImpl forAgent(final Agent<?, ?> agent) {
         checkNotNull(agent, "Agent is null");
         final Iterable<? extends AgentTrait<? extends Agent<?, ?>, ?>> traits = agent.getTraits().filter(IS_HERITABLE);
         return new ChromosomeImpl(
                 Iterables.transform(traits, new Function<AgentTrait<? extends Agent<?, ?>, ?>, TraitVector<?>>() {
                     @Override
-                    public TraitVector<?> apply(AgentTrait<? extends Agent<?, ?>, ?> input) {
+                    public TraitVector<?> apply(final AgentTrait<? extends Agent<?, ?>, ?> input) {
                         return TraitVector.copyOf(input);
                     }
                 }), Sets.newHashSet(agent.getId()));

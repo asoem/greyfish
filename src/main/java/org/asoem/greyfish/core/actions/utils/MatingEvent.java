@@ -9,7 +9,7 @@ public class MatingEvent {
     private final int agentId;
     private final double quality;
 
-    public MatingEvent(int agentId, double quality) {
+    public MatingEvent(final int agentId, final double quality) {
         this.quality = quality;
         this.agentId = agentId;
     }

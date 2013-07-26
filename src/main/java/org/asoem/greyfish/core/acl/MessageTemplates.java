@@ -23,7 +23,7 @@ public final class MessageTemplates {
         return new PerformativeMessageTemplate(performative);
     }
 
-    public static MessageTemplate ontology(@Nullable String ontology) {
+    public static MessageTemplate ontology(@Nullable final String ontology) {
         return new LiteralTemplate(ontology, ACLLiteralMessageField.ONTOLOGY);
     }
 
@@ -31,11 +31,11 @@ public final class MessageTemplates {
         return new ConversationIdMessageTemplate(conversationId);
     }
 
-    public static MessageTemplate inReplyTo(String inReplyTo) {
+    public static MessageTemplate inReplyTo(final String inReplyTo) {
         return new LiteralTemplate(inReplyTo, ACLLiteralMessageField.IN_REPLY_TO);
     }
 
-    public static MessageTemplate replyWith(String replyWith) {
+    public static MessageTemplate replyWith(final String replyWith) {
         return new LiteralTemplate(replyWith, ACLLiteralMessageField.REPLY_WITH);
     }
 
@@ -51,19 +51,19 @@ public final class MessageTemplates {
         return new SentToMessageTemplate(receiver);
     }
 
-    public static MessageTemplate and(MessageTemplate t1, MessageTemplate t2) {
+    public static MessageTemplate and(final MessageTemplate t1, final MessageTemplate t2) {
         return forPredicate(Predicates.<ACLMessage<?>>and(t1, t2));
     }
 
-    public static MessageTemplate and(MessageTemplate ... templates) {
+    public static MessageTemplate and(final MessageTemplate ... templates) {
         return forPredicate(Predicates.<ACLMessage<?>>and(templates));
     }
 
-    public static MessageTemplate or(MessageTemplate t1, MessageTemplate t2) {
+    public static MessageTemplate or(final MessageTemplate t1, final MessageTemplate t2) {
         return forPredicate(Predicates.<ACLMessage<?>>or(t1, t2));
     }
 
-    public static MessageTemplate or(MessageTemplate... templates) {
+    public static MessageTemplate or(final MessageTemplate... templates) {
         return forPredicate(Predicates.<ACLMessage<?>>or(templates));
     }
 
@@ -85,7 +85,7 @@ public final class MessageTemplates {
         INSTANCE;
 
         @Override
-        public boolean apply(@Nullable ACLMessage<?> input) {
+        public boolean apply(@Nullable final ACLMessage<?> input) {
             return true;
         }
     }
@@ -94,7 +94,7 @@ public final class MessageTemplates {
         INSTANCE;
 
         @Override
-        public boolean apply(@Nullable ACLMessage<?> input) {
+        public boolean apply(@Nullable final ACLMessage<?> input) {
             return false;
         }
     }
@@ -109,7 +109,7 @@ public final class MessageTemplates {
         }
 
         @Override
-        public boolean apply(ACLMessage<?> object) {
+        public boolean apply(final ACLMessage<?> object) {
 
             String compare = null;
             switch (field) {
@@ -140,12 +140,12 @@ public final class MessageTemplates {
     private static class PerformativeMessageTemplate implements MessageTemplate, Serializable {
         private final ACLPerformative performative;
 
-        public PerformativeMessageTemplate(ACLPerformative performative) {
+        public PerformativeMessageTemplate(final ACLPerformative performative) {
             this.performative = performative;
         }
 
         @Override
-        public boolean apply(ACLMessage<?> aclMessage) {
+        public boolean apply(final ACLMessage<?> aclMessage) {
             return checkNotNull(aclMessage).getPerformative().equals(performative);
         }
     }
@@ -153,12 +153,12 @@ public final class MessageTemplates {
     private static class ConversationIdMessageTemplate implements MessageTemplate, Serializable {
         private final int conversationId;
 
-        public ConversationIdMessageTemplate(int conversationId) {
+        public ConversationIdMessageTemplate(final int conversationId) {
             this.conversationId = conversationId;
         }
 
         @Override
-        public boolean apply(ACLMessage<?> aclMessage) {
+        public boolean apply(final ACLMessage<?> aclMessage) {
             return aclMessage.getConversationId() == conversationId;
         }
     }
@@ -166,13 +166,13 @@ public final class MessageTemplates {
     private static class ReplyToMessageTemplate implements MessageTemplate, Serializable {
         private final ACLMessage<?> message;
 
-        public ReplyToMessageTemplate(ACLMessage<?> message) {
+        public ReplyToMessageTemplate(final ACLMessage<?> message) {
             this.message = message;
         }
 
         @Override
-        public boolean apply(ACLMessage<?> reply) {
-            ACLMessage<?> replyNonNull = checkNotNull(reply);
+        public boolean apply(final ACLMessage<?> reply) {
+            final ACLMessage<?> replyNonNull = checkNotNull(reply);
             return replyNonNull.getConversationId() == message.getConversationId()
                     && message.getReplyWith().equals(replyNonNull.getInReplyTo());
         }
@@ -182,14 +182,14 @@ public final class MessageTemplates {
         private final Class<T> clazz;
         private final Predicate<T> predicate;
 
-        public ContentMessageTemplate(Class<T> clazz, Predicate<T> predicate) {
+        public ContentMessageTemplate(final Class<T> clazz, final Predicate<T> predicate) {
             this.clazz = clazz;
             this.predicate = predicate;
         }
 
         @Override
-        public boolean apply(ACLMessage<?> aclMessage) {
-            ACLMessage<?> message = checkNotNull(aclMessage);
+        public boolean apply(final ACLMessage<?> aclMessage) {
+            final ACLMessage<?> message = checkNotNull(aclMessage);
             return clazz.isInstance(message.getContent())
                     && predicate.apply(clazz.cast(message.getContent()));
         }
@@ -198,12 +198,12 @@ public final class MessageTemplates {
     private static class SentToMessageTemplate implements MessageTemplate, Serializable {
         private final Object receiver;
 
-        public SentToMessageTemplate(Object receiver) {
+        public SentToMessageTemplate(final Object receiver) {
             this.receiver = receiver;
         }
 
         @Override
-        public boolean apply(ACLMessage<?> aclMessage) {
+        public boolean apply(final ACLMessage<?> aclMessage) {
             return Iterables.any(checkNotNull(aclMessage).getRecipients(), Predicates.equalTo(receiver));
         }
     }
@@ -211,12 +211,12 @@ public final class MessageTemplates {
     private static class ForwardingMessageTemplate implements MessageTemplate, Serializable {
         private final Predicate<ACLMessage<?>> predicate;
 
-        public ForwardingMessageTemplate(Predicate<ACLMessage<?>> predicate) {
+        public ForwardingMessageTemplate(final Predicate<ACLMessage<?>> predicate) {
             this.predicate = predicate;
         }
 
         @Override
-        public boolean apply(ACLMessage<?> aclMessage) {
+        public boolean apply(final ACLMessage<?> aclMessage) {
             return predicate.apply(aclMessage);
         }
     }

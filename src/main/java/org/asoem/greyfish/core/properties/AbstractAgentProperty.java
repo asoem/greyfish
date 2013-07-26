@@ -13,11 +13,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends AbstractAgentComponent<A> implements AgentProperty<A, T> {
 
-    protected AbstractAgentProperty(AbstractBuilder<? extends AbstractAgentProperty<T,A>, A, ? extends AbstractBuilder<?,A,?>> builder) {
+    protected AbstractAgentProperty(final AbstractBuilder<? extends AbstractAgentProperty<T,A>, A, ? extends AbstractBuilder<?,A,?>> builder) {
         super(builder);
     }
 
-    protected AbstractAgentProperty(AbstractAgentProperty<T,A> cloneable, DeepCloner map) {
+    protected AbstractAgentProperty(final AbstractAgentProperty<T,A> cloneable, final DeepCloner map) {
         super(cloneable, map);
     }
 
@@ -32,20 +32,20 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
     }
 
     @Override
-    public void set(T value) {
+    public void set(final T value) {
         throw new UnsupportedOperationException(
                 "This property does not support a value modification through the set method");
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void copyFrom(TypedSupplier<?> supplier) {
+    public void copyFrom(final TypedSupplier<?> supplier) {
         checkArgument(getValueType().isAssignableFrom(supplier.getValueType()));
         set((T) supplier.get());
     }
 
     protected static abstract class AbstractBuilder<C extends AbstractAgentProperty<?,A>, A extends Agent<A, ?>, B extends AbstractBuilder<C,A,B>> extends AbstractAgentComponent.AbstractBuilder<A,C,B>  implements Serializable {
-        protected AbstractBuilder(AbstractAgentProperty<?,A> abstractAgentProperty) {
+        protected AbstractBuilder(final AbstractAgentProperty<?,A> abstractAgentProperty) {
             super(abstractAgentProperty);
         }
 

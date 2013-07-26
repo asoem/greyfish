@@ -18,7 +18,7 @@ public class CommonsJEXLEvaluatorTest {
     @Test
     public void testDollarFunction() throws Exception {
         // given
-        Evaluator evaluator = new CommonsJEXLEvaluator("$('testVal', 'hello')");
+        final Evaluator evaluator = new CommonsJEXLEvaluator("$('testVal', 'hello')");
 
         // when
         final double ret = evaluator.evaluate(VariableResolvers.emptyResolver()).asDouble();

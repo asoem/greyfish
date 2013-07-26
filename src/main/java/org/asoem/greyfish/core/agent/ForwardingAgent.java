@@ -24,12 +24,12 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void setPopulation(Population population) {
+    public void setPopulation(final Population population) {
         delegate().setPopulation(population);
     }
 
     @Override
-    public boolean hasPopulation(Population population) {
+    public boolean hasPopulation(final Population population) {
         return delegate().hasPopulation(population);
     }
 
@@ -37,12 +37,12 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
      * If you wish overwrite {@link Agent#addAction}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
-    public boolean addAction(AgentAction<A> action) {
+    public boolean addAction(final AgentAction<A> action) {
         return delegate().addAction(action);
     }
 
     @Override
-    public boolean removeAction(AgentAction<A> action) {
+    public boolean removeAction(final AgentAction<A> action) {
         return delegate().removeAction(action);
     }
 
@@ -60,12 +60,12 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
      * If you wish overwrite {@link Agent#addProperty}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
      */
     @Override
-    public boolean addProperty(AgentProperty<A, ?> property) {
+    public boolean addProperty(final AgentProperty<A, ?> property) {
         return delegate().addProperty(property);
     }
 
     @Override
-    public boolean removeProperty(AgentProperty<A, ?> property) {
+    public boolean removeProperty(final AgentProperty<A, ?> property) {
         return delegate().removeProperty(property);
     }
 
@@ -80,17 +80,17 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public AgentProperty<A, ?> getProperty(String name) {
+    public AgentProperty<A, ?> getProperty(final String name) {
         return delegate().getProperty(name);
     }
 
     @Override
-    public AgentProperty<A, ?> findProperty(Predicate<? super AgentProperty<A, ?>> predicate) {
+    public AgentProperty<A, ?> findProperty(final Predicate<? super AgentProperty<A, ?>> predicate) {
         return delegate().findProperty(predicate);
     }
 
     @Override
-    public void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2) {
+    public void changeActionExecutionOrder(final AgentAction<A> object, final AgentAction<A> object2) {
         delegate().changeActionExecutionOrder(object, object2);
     }
 
@@ -120,32 +120,32 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void setColor(Color color) {
+    public void setColor(final Color color) {
         delegate().setColor(color);
     }
 
     @Override
-    public Iterable<AgentMessage<A>> getMessages(MessageTemplate template) {
+    public Iterable<AgentMessage<A>> getMessages(final MessageTemplate template) {
         return delegate().getMessages(template);
     }
 
     @Override
-    public boolean hasMessages(MessageTemplate template) {
+    public boolean hasMessages(final MessageTemplate template) {
         return delegate().hasMessages(template);
     }
 
     @Override
-    public void logEvent(Object eventOrigin, String title, String message) {
+    public void logEvent(final Object eventOrigin, final String title, final String message) {
         delegate().logEvent(eventOrigin, title, message);
     }
 
     @Override
-    public void receiveAll(Iterable<? extends AgentMessage<A>> messages) {
+    public void receiveAll(final Iterable<? extends AgentMessage<A>> messages) {
         delegate().receiveAll(messages);
     }
 
     @Override
-    public void receive(AgentMessage<A> messages) {
+    public void receive(final AgentMessage<A> messages) {
         delegate().receive(messages);
     }
 
@@ -160,7 +160,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void deactivate(SimulationContext<S, A> context) {
+    public void deactivate(final SimulationContext<S, A> context) {
         delegate().deactivate(PassiveSimulationContext.<S, A>instance());
     }
 
@@ -175,27 +175,27 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void activate(SimulationContext<S, A> context) {
+    public void activate(final SimulationContext<S, A> context) {
         delegate().activate(context);
     }
 
     @Override
-    public AgentAction<A> getAction(String actionName) {
+    public AgentAction<A> getAction(final String actionName) {
         return delegate().getAction(actionName);
     }
 
     @Override
-    public AgentTrait<A, ?> getTrait(String geneName) {
+    public AgentTrait<A, ?> getTrait(final String geneName) {
         return delegate().getTrait(geneName);
     }
 
     @Override
-    public boolean addTrait(AgentTrait<A, ?> gene) {
+    public boolean addTrait(final AgentTrait<A, ?> gene) {
         return delegate().addTrait(gene);
     }
 
     @Override
-    public boolean removeGene(AgentTrait<A, ?> gene) {
+    public boolean removeGene(final AgentTrait<A, ?> gene) {
         return delegate().removeGene(gene);
     }
 
@@ -215,7 +215,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate) {
+    public AgentTrait<A, ?> findTrait(final Predicate<? super AgentTrait<A, ?>> traitPredicate) {
         return delegate().findTrait(traitPredicate);
     }
 
@@ -240,7 +240,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+    public Iterable<A> filterAgents(final Predicate<? super A> predicate) {
         return delegate().filterAgents(predicate);
     }
 
@@ -255,7 +255,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void sendMessage(ACLMessage<A> message) {
+    public void sendMessage(final ACLMessage<A> message) {
         delegate().sendMessage(message);
     }
 }

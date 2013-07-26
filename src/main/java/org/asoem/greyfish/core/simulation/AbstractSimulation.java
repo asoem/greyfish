@@ -25,7 +25,7 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simul
 
         return Iterables.filter(getAgents(), new Predicate<A>() {
             @Override
-            public boolean apply(A agent) {
+            public boolean apply(final A agent) {
                 return agent.hasPopulation(population);
             }
         });
@@ -41,14 +41,14 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Simul
     }
 
     @Override
-    public void logAgentEvent(A agent, Object eventOrigin, String title, String message) {
+    public void logAgentEvent(final A agent, final Object eventOrigin, final String title, final String message) {
         getSimulationLogger().logAgentEvent(agent, getSteps(), eventOrigin.getClass().getSimpleName(), title, message);
     }
 
     protected abstract SimulationLogger<? super A> getSimulationLogger();
 
     @Override
-    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+    public Iterable<A> filterAgents(final Predicate<? super A> predicate) {
         return Iterables.filter(getAgents(), predicate);
     }
 }

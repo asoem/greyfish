@@ -12,24 +12,24 @@ import java.io.Serializable;
 @Tagged("conditions")
 public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
-    private NoneCondition(NoneCondition<A> condition, DeepCloner map) {
+    private NoneCondition(final NoneCondition<A> condition, final DeepCloner map) {
         super(condition, map);
     }
 
-    private NoneCondition(Builder<A> builder) {
+    private NoneCondition(final Builder<A> builder) {
         super(builder);
     }
 
     @Override
     public boolean evaluate() {
-        for (ActionCondition<A> condition : getChildConditions())
+        for (final ActionCondition<A> condition : getChildConditions())
             if (condition.evaluate())
                 return false;
         return true;
     }
 
     @Override
-    public NoneCondition<A> deepClone(DeepCloner cloner) {
+    public NoneCondition<A> deepClone(final DeepCloner cloner) {
         return new NoneCondition<A>(this, cloner);
     }
 
@@ -37,16 +37,16 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         return new Builder<A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(ActionCondition<A> condition) {
+    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(final ActionCondition<A> condition) {
         return new Builder<A>().add(condition).build();
     }
 
-    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(ActionCondition<A>... conditions) {
+    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(final ActionCondition<A>... conditions) {
         return new Builder<A>().add(conditions).build();
     }
 
@@ -58,7 +58,7 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         private Builder() {
         }
 
-        private Builder(NoneCondition<A> noneCondition) {
+        private Builder(final NoneCondition<A> noneCondition) {
             super(noneCondition);
         }
 

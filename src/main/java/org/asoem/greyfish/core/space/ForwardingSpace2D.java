@@ -23,7 +23,7 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     }
 
     @Override
-    public boolean contains(double x, double y) {
+    public boolean contains(final double x, final double y) {
         return delegate().contains(x, y);
     }
 
@@ -33,22 +33,22 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     }
 
     @Override
-    public boolean removeObject(O object) {
+    public boolean removeObject(final O object) {
         return delegate().removeObject(object);
     }
 
     @Override
-    public void moveObject(O object2d, Motion2D motion2D) {
+    public void moveObject(final O object2d, final Motion2D motion2D) {
         delegate().moveObject(object2d, motion2D);
     }
 
     @Override
-    public Iterable<O> findObjects(double x, double y, double radius) {
+    public Iterable<O> findObjects(final double x, final double y, final double radius) {
         return delegate().findObjects(x, y, radius);
     }
 
     @Override
-    public boolean insertObject(O object, P projection) {
+    public boolean insertObject(final O object, final P projection) {
         return delegate().insertObject(object, projection);
     }
 
@@ -58,12 +58,12 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     }
 
     @Override
-    public boolean removeIf(Predicate<O> predicate) {
+    public boolean removeIf(final Predicate<O> predicate) {
         return delegate().removeIf(predicate);
     }
 
     @Override
-    public Iterable<O> getVisibleNeighbours(O object, double radius) {
+    public Iterable<O> getVisibleNeighbours(final O object, final double radius) {
         return delegate().getVisibleNeighbours(object, radius);
     }
 
@@ -78,7 +78,7 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     }
 
     @Override
-    public P getProjection(O object) {
+    public P getProjection(final O object) {
         return delegate().getProjection(object);
     }
 
@@ -88,7 +88,7 @@ public abstract class ForwardingSpace2D<O, P extends Object2D> extends Forwardin
     }
 
     @Override
-    public double distance(O agent, double degrees) {
+    public double distance(final O agent, final double degrees) {
         return delegate().distance(agent, degrees);
     }
 }

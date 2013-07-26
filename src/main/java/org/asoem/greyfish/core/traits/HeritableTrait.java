@@ -33,7 +33,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
     @Nullable
     private T value;
 
-    private HeritableTrait(HeritableTrait<A, T> trait, DeepCloner cloner) {
+    private HeritableTrait(final HeritableTrait<A, T> trait, final DeepCloner cloner) {
         super(trait, cloner);
         this.initializationKernel = trait.initializationKernel;
         this.mutationKernel = trait.mutationKernel;
@@ -42,7 +42,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         this.typeToken = trait.typeToken;
     }
 
-    private HeritableTrait(AbstractBuilder<A, ? extends AgentTrait<A, T>, ? extends AbstractBuilder<A, ?, ?, T>, T> builder) {
+    private HeritableTrait(final AbstractBuilder<A, ? extends AgentTrait<A, T>, ? extends AbstractBuilder<A, ?, ?, T>, T> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
@@ -52,7 +52,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return new HeritableTrait<A, T>(this, cloner);
     }
 
@@ -70,17 +70,17 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
     }
 
     @Override
-    public void set(T value) {
+    public void set(final T value) {
         this.value = value;
     }
 
     @Override
-    public T mutate(T allele) {
+    public T mutate(final T allele) {
         return mutationKernel.apply(this, ImmutableMap.of("x", allele));
     }
 
     @Override
-    public T segregate(T allele1, T allele2) {
+    public T segregate(final T allele1, final T allele2) {
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
@@ -112,7 +112,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         return new Builder<A, T>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException{
         throw new InvalidObjectException("Builder required");
     }
@@ -120,7 +120,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
     public static class Builder<A extends Agent<A, ?>, T> extends AbstractBuilder<A, HeritableTrait<A, T>, Builder<A, T>, T> implements Serializable {
         private Builder() {}
 
-        private Builder(HeritableTrait<A, T> quantitativeTrait) {
+        private Builder(final HeritableTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
         }
 
@@ -158,7 +158,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         private T value;
         private TypeToken<T> typeToken;
 
-        protected AbstractBuilder(HeritableTrait<A, T> quantitativeTrait) {
+        protected AbstractBuilder(final HeritableTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
             this.initializationKernel = quantitativeTrait.initializationKernel;
             this.mutationKernel = quantitativeTrait.mutationKernel;
@@ -168,28 +168,28 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
 
         protected AbstractBuilder() {}
 
-        public B initialization(Callback<? super AgentTrait<A, T>, T> callback) {
+        public B initialization(final Callback<? super AgentTrait<A, T>, T> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B mutation(Callback<? super AgentTrait<A, T>, T> callback) {
+        public B mutation(final Callback<? super AgentTrait<A, T>, T> callback) {
             this.mutationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super AgentTrait<A, T>, T> callback) {
+        public B segregation(final Callback<? super AgentTrait<A, T>, T> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B ofType(TypeToken<T> typeToken) {
+        public B ofType(final TypeToken<T> typeToken) {
             this.typeToken = typeToken;
             return self();
         }
 
         // only used internally for serialization
-        protected B value(@Nullable T value) {
+        protected B value(@Nullable final T value) {
             this.value = value;
             return self();
         }

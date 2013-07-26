@@ -12,7 +12,7 @@ public class VanillaExpression extends AbstractExpression {
     private final String expression;
     private final Evaluator evaluator;
 
-    public VanillaExpression(String expression, EvaluatorFactory evaluator) {
+    public VanillaExpression(final String expression, final EvaluatorFactory evaluator) {
         this.expression = expression;
         this.evaluator = evaluator.createEvaluator(expression);
     }
@@ -28,11 +28,11 @@ public class VanillaExpression extends AbstractExpression {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof VanillaExpression)) return false;
 
-        VanillaExpression that = (VanillaExpression) o;
+        final VanillaExpression that = (VanillaExpression) o;
 
         return evaluator.equals(that.evaluator) && expression.equals(that.expression);
 

@@ -21,18 +21,18 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     private final SpatialAgent<A, S, P> delegate;
     private P projection;
 
-    public Avatar(SpatialAgent<A, S, P> delegate) {
+    public Avatar(final SpatialAgent<A, S, P> delegate) {
         this(delegate, null);
     }
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private Avatar(Avatar<A, S, P> avatar, DeepCloner cloner) {
+    private Avatar(final Avatar<A, S, P> avatar, final DeepCloner cloner) {
         cloner.addClone(avatar, this);
         this.delegate = cloner.getClone(avatar.delegate);
         this.projection = avatar.projection;
     }
 
-    public Avatar(SpatialAgent<A, S, P> delegate, P projection) {
+    public Avatar(final SpatialAgent<A, S, P> delegate, final P projection) {
         this.delegate = checkNotNull(delegate);
         this.projection = checkNotNull(projection);
     }
@@ -43,12 +43,12 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     }
 
     @Override
-    public Avatar<A, S, P> deepClone(DeepCloner cloner) {
+    public Avatar<A, S, P> deepClone(final DeepCloner cloner) {
         return new Avatar<A, S, P>(this, cloner);
     }
 
     @Override
-    public void setProjection(P projection) {
+    public void setProjection(final P projection) {
         this.projection = checkNotNull(projection);
     }
 
@@ -58,11 +58,11 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof Avatar)) return false;
 
-        Avatar avatar = (Avatar) o;
+        final Avatar avatar = (Avatar) o;
 
         if (delegate != null ? !delegate.equals(avatar.delegate) : avatar.delegate != null) return false;
         if (projection != null ? !projection.equals(avatar.projection) : avatar.projection != null) return false;
@@ -81,7 +81,7 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
         return new SerializedForm<A, S, P>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Proxy required");
     }
@@ -90,7 +90,7 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
         private final SpatialAgent<A, S, P> delegate;
         private final P projection;
 
-        public SerializedForm(Avatar<A, S, P> avatar) {
+        public SerializedForm(final Avatar<A, S, P> avatar) {
             this.delegate = avatar.delegate;
             this.projection = avatar.projection;
         }

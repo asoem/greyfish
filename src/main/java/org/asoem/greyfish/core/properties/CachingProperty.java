@@ -33,7 +33,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
 
     private int lastModificationStep = -1;
 
-    private CachingProperty(CachingProperty<A, T> simulationStepProperty, DeepCloner cloner) {
+    private CachingProperty(final CachingProperty<A, T> simulationStepProperty, final DeepCloner cloner) {
         super(simulationStepProperty, cloner);
         this.valueCallback = simulationStepProperty.valueCallback;
         this.expirationCallback = simulationStepProperty.expirationCallback;
@@ -45,7 +45,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         });
     }
 
-    private CachingProperty(AbstractBuilder<T, A, ? extends CachingProperty<A, T>, ? extends Builder<T, A>> builder) {
+    private CachingProperty(final AbstractBuilder<T, A, ? extends CachingProperty<A, T>, ? extends Builder<T, A>> builder) {
         super(builder);
         this.valueCallback = builder.valueCallback;
         this.expirationCallback = builder.expirationCallback;
@@ -73,7 +73,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return new CachingProperty<A, T>(this, cloner);
     }
 
@@ -99,7 +99,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
 
         private Builder() {}
 
-        private Builder(CachingProperty<A, T> simulationStepProperty) {
+        private Builder(final CachingProperty<A, T> simulationStepProperty) {
             super(simulationStepProperty);
         }
 
@@ -131,23 +131,23 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
 
         protected AbstractBuilder() {}
 
-        protected AbstractBuilder(CachingProperty<A, T> simulationStepProperty) {
+        protected AbstractBuilder(final CachingProperty<A, T> simulationStepProperty) {
             super(simulationStepProperty);
             this.valueCallback = simulationStepProperty.valueCallback;
         }
 
-        public B value(Callback<? super CachingProperty<A, T>, ? extends T> valueCallback) {
+        public B value(final Callback<? super CachingProperty<A, T>, ? extends T> valueCallback) {
             this.valueCallback = checkNotNull(valueCallback);
             return self();
         }
 
-        public B expires(Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback) {
+        public B expires(final Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback) {
             this.expirationCallback = checkNotNull(expirationCallback);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             checkState(this.valueCallback != null, "No valueCallback has been defined");
         }
     }
@@ -156,7 +156,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         return new Builder<T, A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
@@ -169,7 +169,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         INSTANCE;
 
         @Override
-        public Boolean apply(CachingProperty<?,?> caller, Map<String, ?> args) {
+        public Boolean apply(final CachingProperty<?,?> caller, final Map<String, ?> args) {
             final Agent<?,?> agent = caller.agent();
             return caller.getLastModificationStep() < agent.getTimeOfBirth();
         }
@@ -183,7 +183,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         INSTANCE;
 
         @Override
-        public Boolean apply(CachingProperty<?,?> caller, Map<String, ?> args) {
+        public Boolean apply(final CachingProperty<?,?> caller, final Map<String, ?> args) {
             final Agent<?,?> agent = caller.agent();
             return caller.getLastModificationStep() != agent.getSimulationStep();
         }

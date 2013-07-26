@@ -16,7 +16,7 @@ public final class AgentComponents {
 
     private AgentComponents() {}
 
-    public static <T extends AgentComponent> T createNewInstance(Class<T> clazz) throws RuntimeException {
+    public static <T extends AgentComponent> T createNewInstance(final Class<T> clazz) throws RuntimeException {
         try {
             return clazz.getConstructor().newInstance();
         }
@@ -26,20 +26,20 @@ public final class AgentComponents {
         }
     }
 
-    public static <T extends AgentComponent> T createNewInstance(Class<T> clazz, String name) throws RuntimeException {
-        T ret = createNewInstance(clazz);
+    public static <T extends AgentComponent> T createNewInstance(final Class<T> clazz, final String name) throws RuntimeException {
+        final T ret = createNewInstance(clazz);
         ret.setName(name);
         return ret;
     }
 
     @Nullable
-    public static AgentComponent findByName(Iterable<? extends AgentComponent> components, final String s) {
+    public static AgentComponent findByName(final Iterable<? extends AgentComponent> components, final String s) {
         checkNotNull(components);
         checkNotNull(s);
 
         return Iterables.find(components, new Predicate<AgentComponent>() {
             @Override
-            public boolean apply(AgentComponent agentComponent) {
+            public boolean apply(final AgentComponent agentComponent) {
                 return agentComponent.getName().equals(s);
             }
         }, null);

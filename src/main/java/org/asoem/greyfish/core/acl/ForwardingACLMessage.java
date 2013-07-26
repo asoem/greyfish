@@ -68,17 +68,17 @@ public abstract class ForwardingACLMessage<T> implements ACLMessage<T> {
     }
 
     @Override
-    public void send(ACLMessageTransmitter transmitter) {
+    public void send(final ACLMessageTransmitter transmitter) {
         delegate().send(transmitter);
     }
 
     @Override
-    public boolean matches(MessageTemplate performative) {
+    public boolean matches(final MessageTemplate performative) {
         return delegate().matches(performative);
     }
 
     @Override
-    public <C> C userDefinedParameter(String key, Class<C> clazz) {
+    public <C> C userDefinedParameter(final String key, final Class<C> clazz) {
         return delegate().userDefinedParameter(key, clazz);
     }
 

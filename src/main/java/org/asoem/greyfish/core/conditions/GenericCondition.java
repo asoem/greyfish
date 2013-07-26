@@ -22,12 +22,12 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
 
     private final Callback<? super GenericCondition<A>, Boolean> callback;
 
-    private GenericCondition(GenericCondition<A> genericCondition, DeepCloner cloner) {
+    private GenericCondition(final GenericCondition<A> genericCondition, final DeepCloner cloner) {
         super(genericCondition, cloner);
         this.callback = genericCondition.callback;
     }
 
-    private GenericCondition(Builder<A> builder) {
+    private GenericCondition(final Builder<A> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -38,7 +38,7 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
     }
 
     @Override
-    public GenericCondition<A> deepClone(DeepCloner cloner) {
+    public GenericCondition<A> deepClone(final DeepCloner cloner) {
         return new GenericCondition<A>(this, cloner);
     }
 
@@ -55,12 +55,12 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
         return new Builder<A>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?>> GenericCondition<A> evaluate(Callback<? super GenericCondition<A>, Boolean> callback) {
+    public static <A extends Agent<A, ?>> GenericCondition<A> evaluate(final Callback<? super GenericCondition<A>, Boolean> callback) {
         return new Builder<A>().callback(callback).build();
     }
 
@@ -74,7 +74,7 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
         private Builder() {
         }
 
-        private Builder(GenericCondition<A> genericCondition) {
+        private Builder(final GenericCondition<A> genericCondition) {
             super(genericCondition);
             this.callback = genericCondition.callback;
         }
@@ -90,7 +90,7 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
             return new GenericCondition<A>(this);
         }
 
-        public Builder<A> callback(Callback<? super GenericCondition<A>, Boolean> callback) {
+        public Builder<A> callback(final Callback<? super GenericCondition<A>, Boolean> callback) {
             this.callback = checkNotNull(callback);
             return self();
         }

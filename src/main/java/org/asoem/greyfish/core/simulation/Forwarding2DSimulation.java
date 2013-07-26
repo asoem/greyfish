@@ -15,7 +15,7 @@ public abstract class Forwarding2DSimulation<A extends SpatialAgent<A, ?, P>, Z 
     protected abstract SpatialSimulation2D<A, Z> delegate();
 
     @Override
-    public Iterable<A> findNeighbours(A agent, double distance) {
+    public Iterable<A> findNeighbours(final A agent, final double distance) {
         return delegate().findNeighbours(agent, distance);
     }
 
@@ -25,7 +25,7 @@ public abstract class Forwarding2DSimulation<A extends SpatialAgent<A, ?, P>, Z 
     }
 
     @Override
-    public double distance(A agent, double degrees) {
+    public double distance(final A agent, final double degrees) {
         return delegate().distance(agent, degrees);
     }
 }

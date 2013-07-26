@@ -21,20 +21,20 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     }
 
     @SuppressWarnings("unchecked") // cloning is save
-    protected AbstractAgentComponent(AbstractAgentComponent<A> cloneable, DeepCloner map) {
+    protected AbstractAgentComponent(final AbstractAgentComponent<A> cloneable, final DeepCloner map) {
         map.addClone(cloneable, this);
         initializeObject(cloneable.name, map.getClone(cloneable.agent));
     }
 
-    protected AbstractAgentComponent(AbstractBuilder<A, ? extends AbstractAgentComponent<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected AbstractAgentComponent(final AbstractBuilder<A, ? extends AbstractAgentComponent<A>, ? extends AbstractBuilder<A,?,?>> builder) {
         initializeObject(builder.name, builder.agent);
     }
 
-    protected AbstractAgentComponent(String name) {
+    protected AbstractAgentComponent(final String name) {
         initializeObject(name, null);
     }
 
-    protected void initializeObject(String name, A agent) {
+    protected void initializeObject(final String name, final A agent) {
         this.name = name;
         this.agent = agent;
     }
@@ -58,11 +58,11 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     }
 
     @Override
-    public void setAgent(@Nullable A agent) {
+    public void setAgent(@Nullable final A agent) {
         this.agent = agent;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         Preconditions.checkNotNull(name);
         this.name = name;
     }
@@ -92,11 +92,11 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AbstractAgentComponent that = (AbstractAgentComponent) o;
+        final AbstractAgentComponent that = (AbstractAgentComponent) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
@@ -114,7 +114,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         // for serialization only
         private A agent;
 
-        protected AbstractBuilder(AbstractAgentComponent<A> component) {
+        protected AbstractBuilder(final AbstractAgentComponent<A> component) {
             this.agent = component.agent;
             this.name = component.name;
         }
@@ -122,13 +122,13 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         protected AbstractBuilder() {
         }
 
-        public B name(String name) {
+        public B name(final String name) {
             this.name = name;
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
             checkState(name != null, "No name was defined");
         }

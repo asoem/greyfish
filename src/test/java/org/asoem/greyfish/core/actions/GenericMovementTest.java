@@ -19,7 +19,7 @@ public class GenericMovementTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        GenericMovement<DefaultGreyfishAgent> genericMovement = GenericMovement.<DefaultGreyfishAgent>builder()
+        final GenericMovement<DefaultGreyfishAgent> genericMovement = GenericMovement.<DefaultGreyfishAgent>builder()
                 .name("foo")
                 .stepSize(Callbacks.constant(1.0))
                 .turningAngle(Callbacks.constant(0.42))

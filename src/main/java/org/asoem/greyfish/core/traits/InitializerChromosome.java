@@ -25,7 +25,7 @@ public enum InitializerChromosome implements Chromosome {
 
     private static final Predicate<AgentTrait<? extends Agent<?,?>,?>> IS_HERITABLE = new Predicate<AgentTrait<? extends Agent<?, ?>, ?>>() {
         @Override
-        public boolean apply(AgentTrait<? extends Agent<?, ?>, ?> input) {
+        public boolean apply(final AgentTrait<? extends Agent<?, ?>, ?> input) {
             return input.isHeritable();
         }
     };
@@ -46,7 +46,7 @@ public enum InitializerChromosome implements Chromosome {
     }
 
     @Override
-    public <A extends Agent<A, ?>> void updateAgent(Agent<A, ?> agent) {
+    public <A extends Agent<A, ?>> void updateAgent(final Agent<A, ?> agent) {
         checkNotNull(agent, "Agent is null");
         final FunctionalList<AgentTrait<A, ?>> traits = agent.getTraits();
         checkState(traits != null, "Agent#getTraits() returned null");
@@ -55,12 +55,12 @@ public enum InitializerChromosome implements Chromosome {
         final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zip = Products.zip(filter, Iterables.transform(filter, new Function<AgentTrait<A, ?>, TraitVector<?>>() {
             @Nullable
             @Override
-            public TraitVector<?> apply(AgentTrait<A, ?> input) {
+            public TraitVector<?> apply(final AgentTrait<A, ?> input) {
                 return createInitialValueTraitVector(input);
             }
         }));
 
-        for (Product2<AgentTrait<A, ?>, TraitVector<?>> tuple2 : zip) {
+        for (final Product2<AgentTrait<A, ?>, TraitVector<?>> tuple2 : zip) {
             final AgentTrait<?, ?> trait = tuple2._1();
             final TraitVector<?> supplier = tuple2._2();
             assert trait.getName().equals(supplier.getName());
@@ -68,7 +68,7 @@ public enum InitializerChromosome implements Chromosome {
         }
     }
 
-    private static <T> TraitVector<T> createInitialValueTraitVector(AgentTrait<?, T> input) {
+    private static <T> TraitVector<T> createInitialValueTraitVector(final AgentTrait<?, T> input) {
         return TraitVector.create(input.createInitialValue(), input.getRecombinationProbability(), input.getValueType(), input.getName());
     }
 }

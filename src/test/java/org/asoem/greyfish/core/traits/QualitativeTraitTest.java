@@ -20,7 +20,7 @@ public class QualitativeTraitTest {
     @Test
     public void testMutation() throws Exception {
         // given
-        IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -41,7 +41,7 @@ public class QualitativeTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMutateIllegalArgument() throws Exception {
         // given
-        IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -58,7 +58,7 @@ public class QualitativeTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetAlleleIllegalArgument() throws Exception {
         // given
-        IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -75,7 +75,7 @@ public class QualitativeTraitTest {
     @Test
     public void testGetStates() throws Exception {
         // given
-        IdentifierTrait<DefaultGreyfishAgent> identifierTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final IdentifierTrait<DefaultGreyfishAgent> identifierTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", 1)

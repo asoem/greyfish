@@ -27,7 +27,7 @@ public class NoneConditionTest {
     public void testSerialization() throws Exception {
         // given
         final ActionCondition<DefaultGreyfishAgent> condition = mock(ActionCondition.class, withSettings().serializable());
-        NoneCondition<DefaultGreyfishAgent> noneCondition = NoneCondition.evaluates(condition);
+        final NoneCondition<DefaultGreyfishAgent> noneCondition = NoneCondition.evaluates(condition);
 
         // when
         final NoneCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(noneCondition, Persisters.javaSerialization());
@@ -42,7 +42,7 @@ public class NoneConditionTest {
                 has("equal child conditions",
                         new Function<NoneCondition<A>, List<ActionCondition<A>>>() {
                             @Override
-                            public List<ActionCondition<A>> apply(NoneCondition<A> input) {
+                            public List<ActionCondition<A>> apply(final NoneCondition<A> input) {
                                 return input.getChildConditions();
                             }
                         },

@@ -14,8 +14,8 @@ public enum EvaluatorFake implements Evaluator {
     INSTANCE;
 
     @Override
-    public EvaluationResult evaluate(VariableResolver resolver) throws EvaluationException {
-        return null;
+    public EvaluationResult evaluate(final VariableResolver resolver) throws EvaluationException {
+        return new ConvertingEvaluationResult(null);
     }
 
     @Override

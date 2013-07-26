@@ -45,7 +45,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         given(action.getAgent()).willReturn(agent);
 
         // when
-        Object ret = converter.get("this.agent", AgentAction.class).apply(action);
+        final Object ret = converter.get("this.agent", AgentAction.class).apply(action);
 
         // then
         assertEquals(agent, ret);
@@ -61,7 +61,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         given(agent.simulation()).willReturn(simulation);
 
         // when
-        Object ret = converter.get("this.agent.simulation", AgentAction.class).apply(action);
+        final Object ret = converter.get("this.agent.simulation", AgentAction.class).apply(action);
 
         // then
         assertEquals(simulation, ret);
@@ -73,7 +73,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         final AgentProperty<DefaultGreyfishAgent, Object> property = mock(AgentProperty.class);
 
         // when
-        Object ret = converter.get("this", AgentProperty.class).apply(property);
+        final Object ret = converter.get("this", AgentProperty.class).apply(property);
 
         // then
         assertEquals(property, ret);
@@ -87,7 +87,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         given(property.getAgent()).willReturn(agent);
 
         // when
-        Object ret = converter.get("this.agent", AgentProperty.class).apply(property);
+        final Object ret = converter.get("this.agent", AgentProperty.class).apply(property);
 
         // then
         assertEquals(agent, ret);
@@ -102,7 +102,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         given(action.getAgent()).willReturn(agent);
 
         // when
-        Object ret = converter.get("this.agent.age", AgentAction.class).apply(action);
+        final Object ret = converter.get("this.agent.age", AgentAction.class).apply(action);
 
         // then
         MatcherAssert.assertThat(ret, is(equalTo((Object)23)));

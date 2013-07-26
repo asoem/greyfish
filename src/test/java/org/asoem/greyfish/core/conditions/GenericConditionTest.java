@@ -57,25 +57,25 @@ public class GenericConditionTest {
         assertThat(copy, isSameAs(genericCondition));
     }
 
-    private static Matcher<? super GenericCondition<DefaultGreyfishAgent>> isSameAs(GenericCondition<DefaultGreyfishAgent> genericCondition) {
+    private static Matcher<? super GenericCondition<DefaultGreyfishAgent>> isSameAs(final GenericCondition<DefaultGreyfishAgent> genericCondition) {
         return Matchers.<GenericCondition<DefaultGreyfishAgent>>allOf(
                 is(not(nullValue())),
                 is(not(sameInstance(genericCondition))),
                 has("callback == " + genericCondition.getCallback(), new Function<GenericCondition<DefaultGreyfishAgent>, Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean>>() {
                     @Override
-                    public Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean> apply(GenericCondition<DefaultGreyfishAgent> input) {
+                    public Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean> apply(final GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getCallback();
                     }
                 }, is(Matchers.<Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean>>equalTo(genericCondition.getCallback()))),
                 has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
                     @Override
-                    public AgentAction<DefaultGreyfishAgent> apply(GenericCondition<DefaultGreyfishAgent> input) {
+                    public AgentAction<DefaultGreyfishAgent> apply(final GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getAction();
                     }
                 }, is(genericCondition.getAction() == null ? nullValue() : instanceOf(AgentAction.class))),
                 has("parent ~= " + genericCondition.getParent(), new Function<GenericCondition<DefaultGreyfishAgent>, ActionCondition<DefaultGreyfishAgent>>() {
                     @Override
-                    public ActionCondition<DefaultGreyfishAgent> apply(GenericCondition<DefaultGreyfishAgent> input) {
+                    public ActionCondition<DefaultGreyfishAgent> apply(final GenericCondition<DefaultGreyfishAgent> input) {
                         return input.getParent();
                     }
                 }, is(genericCondition.getParent() == null ? nullValue() : instanceOf(ActionCondition.class)))

@@ -42,7 +42,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         this(new Builder<A>());
     }
 
-    private SexualReproduction(SexualReproduction<A> cloneable, DeepCloner map) {
+    private SexualReproduction(final SexualReproduction<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
         this.spermSupplier = cloneable.spermSupplier;
         this.clutchSize = cloneable.clutchSize;
@@ -50,7 +50,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
     }
 
-    protected SexualReproduction(AbstractBuilder<A, ? extends SexualReproduction<A>, ? extends AbstractBuilder<A , ?, ?>> builder) {
+    protected SexualReproduction(final AbstractBuilder<A, ? extends SexualReproduction<A>, ? extends AbstractBuilder<A , ?, ?>> builder) {
         super(builder);
         this.spermSupplier = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
@@ -71,7 +71,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         final int eggCount = call(clutchSize, this);
         LOGGER.info("{}: Producing {} offspring ", agent(), eggCount);
 
-        for (Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
+        for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
             final Set<Integer> parents = sperm.getParents();
             if ( parents.size() != 1 )
@@ -89,7 +89,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         return COMPLETED;
     }
 
-    private static <A extends Agent<A, ?>> Chromosome blend(FunctionalList<AgentTrait<A, ?>> egg, Chromosome sperm, int femaleID, int maleID) {
+    private static <A extends Agent<A, ?>> Chromosome blend(final FunctionalList<AgentTrait<A, ?>> egg, final Chromosome sperm, final int femaleID, final int maleID) {
 
         // zip chromosomes
         final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zipped = Products.zip(egg, sperm.getTraitVectors());
@@ -97,7 +97,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         // segregate
         final Iterable<TraitVector<?>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, TraitVector<?>>, TraitVector<?>>() {
             @Override
-            public TraitVector<?> apply(Product2<AgentTrait<A, ?>, TraitVector<?>> tuple) {
+            public TraitVector<?> apply(final Product2<AgentTrait<A, ?>, TraitVector<?>> tuple) {
                 final AgentTrait<A, ?> trait = tuple._1();
                 final TraitVector<?> traitVector = tuple._2();
                 return combine(trait, traitVector);
@@ -108,7 +108,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> TraitVector<?> combine(AgentTrait<?,T> trait, TypedSupplier<?> supplier) {
+    private static <T> TraitVector<?> combine(final AgentTrait<?,T> trait, final TypedSupplier<?> supplier) {
         checkArgument(trait.getValueType().equals(supplier.getValueType()));
         return TraitVector.create(
                 trait.mutate(trait.segregate(trait.get(), (T) supplier.get())),
@@ -118,7 +118,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     }
 
     @Override
-    public SexualReproduction<A> deepClone(DeepCloner cloner) {
+    public SexualReproduction<A> deepClone(final DeepCloner cloner) {
         return new SexualReproduction<A>(this, cloner);
     }
 
@@ -150,7 +150,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
                 .name(getName());
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
@@ -186,33 +186,33 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
         private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
-        public B spermSupplier(Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage) {
+        public B spermSupplier(final Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage) {
             this.spermStorage = checkNotNull(spermStorage);
             return self();
         }
 
-        public B clutchSize(int nOffspring) {
+        public B clutchSize(final int nOffspring) {
             checkArgument(nOffspring >= 0);
             return clutchSize(Callbacks.constant(nOffspring));
         }
 
-        public B clutchSize(Callback<? super SexualReproduction<A>, Integer> nOffspring) {
+        public B clutchSize(final Callback<? super SexualReproduction<A>, Integer> nOffspring) {
             this.clutchSize = checkNotNull(nOffspring);
             return self();
         }
 
-        public B spermSelectionStrategy(ElementSelectionStrategy<Chromosome> selectionStrategy) {
+        public B spermSelectionStrategy(final ElementSelectionStrategy<Chromosome> selectionStrategy) {
             this.spermSelectionStrategy = checkNotNull(selectionStrategy);
             return self();
         }
 
-        public B spermFitnessCallback(Callback<? super SexualReproduction<A>, Double> callback) {
+        public B spermFitnessCallback(final Callback<? super SexualReproduction<A>, Double> callback) {
             this.spermFitnessEvaluator = checkNotNull(callback);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
             checkState(spermStorage != null);
             checkState(clutchSize != null);

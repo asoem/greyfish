@@ -20,13 +20,13 @@ public class WalledTile implements Tile {
     private int wallFlags = 0;
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private WalledTile(int x, int y) {
+    private WalledTile(final int x, final int y) {
         this.x = x;
         this.y = y;
         this.wallFlagsMask = 0;
     }
 
-    WalledTile(TiledSpace<?, ?, WalledTile> space, int x, int y) {
+    WalledTile(final TiledSpace<?, ?, WalledTile> space, final int x, final int y) {
         this.x = x;
         this.y = y;
 
@@ -58,7 +58,7 @@ public class WalledTile implements Tile {
      *         or the location in the given {@code direction}, if present, has a border in the opposite direction,
      *         {@code false} otherwise.
      */
-    public boolean hasWall(TileDirection direction) {
+    public boolean hasWall(final TileDirection direction) {
 
         switch (direction) {
             case CENTER:
@@ -93,11 +93,11 @@ public class WalledTile implements Tile {
         return false;
     }
 
-    private boolean isWallFlagSet(int flags) {
+    private boolean isWallFlagSet(final int flags) {
         return ((wallFlags | wallFlagsMask) & flags) != 0;
     }
 
-    public void setWall(TileDirection direction, boolean b) {
+    public void setWall(final TileDirection direction, final boolean b) {
         switch (direction) {
             case CENTER:
                 throw new IllegalArgumentException("A border at CENTER makes no sense");
@@ -132,15 +132,15 @@ public class WalledTile implements Tile {
         return wallFlags;
     }
 
-    public void setWallFlags(int borderFlags) {
+    public void setWallFlags(final int borderFlags) {
         this.wallFlags = borderFlags;
     }
 
-    public void toggleWall(TileDirection direction) {
+    public void toggleWall(final TileDirection direction) {
         setWall(direction, !hasWall(direction));
     }
 
-    public boolean covers(Point2D locatable) {
+    public boolean covers(final Point2D locatable) {
         return covers(locatable.getX(), locatable.getY());
     }
 
@@ -154,20 +154,20 @@ public class WalledTile implements Tile {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        WalledTile other = (WalledTile) obj;
+        final WalledTile other = (WalledTile) obj;
         return x == other.x && y == other.y;
     }
 
     @Override
     public String toString() {
-        ArrayList<String> walls = Lists.newArrayList();
+        final ArrayList<String> walls = Lists.newArrayList();
 
         if (hasWall(NORTH)) walls.add("N");
         if (hasWall(NORTHEAST)) walls.add("NE");
@@ -181,7 +181,7 @@ public class WalledTile implements Tile {
         return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(walls) + ")";
     }
 
-    public boolean covers(double x, double y) {
+    public boolean covers(final double x, final double y) {
         return Geometry2D.rectangleContains(getX(), getY(), 1, 1, x, y);
     }
 }

@@ -20,11 +20,11 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
 
     protected AbstractTrait() {}
 
-    protected AbstractTrait(AbstractAgentComponent<A> cloneable, DeepCloner map) {
+    protected AbstractTrait(final AbstractAgentComponent<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
     }
 
-    public AbstractTrait(AbstractBuilder<A, ? extends AbstractTrait<A, T>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    public AbstractTrait(final AbstractBuilder<A, ? extends AbstractTrait<A, T>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
     }
 
@@ -39,13 +39,13 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public void set(T value) {
+    public void set(final T value) {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unchecked") // should be safe if TypedSupplier is implemented correctly
     @Override
-    public void copyFrom(TypedSupplier<?> supplier) {
+    public void copyFrom(final TypedSupplier<?> supplier) {
         checkNotNull(supplier);
         checkArgument(supplier.getValueType().equals(this.getValueType()));
         set((T) supplier.get());
@@ -62,12 +62,12 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public T segregate(T allele1, T allele2) {
+    public T segregate(final T allele1, final T allele2) {
         return createInitialValue();
     }
 
     @Override
-    public T mutate(T allele) {
+    public T mutate(final T allele) {
         return createInitialValue();
     }
 }

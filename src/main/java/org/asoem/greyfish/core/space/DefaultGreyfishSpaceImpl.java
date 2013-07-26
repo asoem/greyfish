@@ -13,7 +13,7 @@ import org.asoem.greyfish.utils.space.TileDirection;
 public class DefaultGreyfishSpaceImpl extends ForwardingSpace2D<DefaultGreyfishAgent, Point2D> implements DefaultGreyfishSpace {
     private final TiledSpace<DefaultGreyfishAgent, Point2D, WalledTile> space;
 
-    public DefaultGreyfishSpaceImpl(TiledSpace<DefaultGreyfishAgent, Point2D, WalledTile> space) {
+    public DefaultGreyfishSpaceImpl(final TiledSpace<DefaultGreyfishAgent, Point2D, WalledTile> space) {
         this.space = space;
     }
 
@@ -33,12 +33,12 @@ public class DefaultGreyfishSpaceImpl extends ForwardingSpace2D<DefaultGreyfishA
     }
 
     @Override
-    public boolean hasTileAt(int x, int y) {
+    public boolean hasTileAt(final int x, final int y) {
         return space.hasTileAt(x, y);
     }
 
     @Override
-    public WalledTile getTileAt(int x, int y) {
+    public WalledTile getTileAt(final int x, final int y) {
         return space.getTileAt(x, y);
     }
 
@@ -48,16 +48,16 @@ public class DefaultGreyfishSpaceImpl extends ForwardingSpace2D<DefaultGreyfishA
     }
 
     @Override
-    public WalledTile getAdjacentTile(WalledTile tile, TileDirection direction) {
+    public WalledTile getAdjacentTile(final WalledTile tile, final TileDirection direction) {
         return space.getAdjacentTile(tile, direction);
     }
 
     @Override
-    public Iterable<DefaultGreyfishAgent> getObjects(Iterable<? extends Tile> tiles) {
+    public Iterable<DefaultGreyfishAgent> getObjects(final Iterable<? extends Tile> tiles) {
         return space.getObjects(tiles);
     }
 
-    public static DefaultGreyfishSpace ofSize(int width, int height) {
+    public static DefaultGreyfishSpace ofSize(final int width, final int height) {
         return new DefaultGreyfishSpaceImpl(WalledPointSpace.<DefaultGreyfishAgent>ofSize(width, height));
     }
 }

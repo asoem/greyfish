@@ -24,18 +24,18 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
 
     private ExecutionLog executionLog;
 
-    public DefaultActionExecutionStrategy(List<? extends AgentAction<?>> actions) {
+    public DefaultActionExecutionStrategy(final List<? extends AgentAction<?>> actions) {
         this.actions = checkNotNull(actions);
         this.executionLog = EmptyExecutionLog.INSTANCE;
     }
 
-    private DefaultActionExecutionStrategy(List<? extends AgentAction<?>> agentActions, ExecutionLog executionLog) {
+    private DefaultActionExecutionStrategy(final List<? extends AgentAction<?>> agentActions, final ExecutionLog executionLog) {
         this.actions = agentActions;
         this.executionLog = executionLog;
     }
 
     @Override
-    public void execute() {
+    public final boolean execute() {
 
         @Nullable
         AgentAction<?> nextAction = null;
@@ -44,7 +44,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         if (executionLog.hasUncompletedAction()) {
             nextAction = executionLog.getAction();
         } else {
-            for (AgentAction<?> action : actions) {
+            for (final AgentAction<?> action : actions) {
                 if (action.getState() != INITIAL)
                     action.reset();
 
@@ -59,9 +59,11 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         if (nextAction != null) {
             final ActionState state = nextAction.apply();
             executionLog = new BasicExecutionLog(nextAction, state);
-        }
-        else
+            return true;
+        } else {
             executionLog = EmptyExecutionLog.INSTANCE;
+            return false;
+        }
     }
 
     @Override
@@ -81,6 +83,14 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         executionLog = EmptyExecutionLog.INSTANCE;
     }
 
+    @Override
+    public String toString() {
+        return "DefaultActionExecutionStrategy{" +
+                "actions=" + actions +
+                ", executionLog=" + executionLog +
+                '}';
+    }
+
     private Object writeReplace() {
         return new SerializedForm(this);
     }
@@ -89,7 +99,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         private final List<? extends AgentAction<?>> actions;
         private final ExecutionLog executionLog;
 
-        SerializedForm(DefaultActionExecutionStrategy strategy) {
+        SerializedForm(final DefaultActionExecutionStrategy strategy) {
             this.actions = strategy.actions;
             this.executionLog = strategy.executionLog;
         }
@@ -109,7 +119,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         private final AgentAction<?> action;
         private final ActionState state;
 
-        private BasicExecutionLog(AgentAction<?> action, ActionState state) {
+        private BasicExecutionLog(final AgentAction<?> action, final ActionState state) {
             this.action = action;
             this.state = state;
         }
@@ -127,6 +137,14 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         @Override
         public ActionState getState() {
             return state;
+        }
+
+        @Override
+        public String toString() {
+            return "BasicExecutionLog{" +
+                    "action=" + action +
+                    ", state=" + state +
+                    '}';
         }
 
         private static final long serialVersionUID = 0;
@@ -151,12 +169,7 @@ public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, 
         }
     }
 
-    /**
-     * User: christoph
-     * Date: 09.10.12
-     * Time: 12:00
-     */
-    private static interface ExecutionLog {
+    private interface ExecutionLog {
         boolean hasUncompletedAction();
         @Nullable
         AgentAction<?> getAction();

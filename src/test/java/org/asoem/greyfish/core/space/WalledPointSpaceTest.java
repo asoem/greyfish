@@ -30,11 +30,11 @@ public class WalledPointSpaceTest {
     @Test
     public void testOfSize() throws Exception {
         // given
-        int width = 2;
-        int height = 3;
+        final int width = 2;
+        final int height = 3;
 
         // when
-        WalledPointSpace<Object> tiledSpace = WalledPointSpace.ofSize(width, height);
+        final WalledPointSpace<Object> tiledSpace = WalledPointSpace.ofSize(width, height);
 
         // then
         assertThat(tiledSpace.getTiles(), is(Matchers.<WalledTile>iterableWithSize(width * height)));
@@ -43,9 +43,9 @@ public class WalledPointSpaceTest {
     @Test
     public void testMaxTransitionWithNorthernWall() throws Exception {
         // given
-        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
-        Point2D destination = ImmutablePoint2D.at(0.0, -1.0);
-        WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
+        final Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        final Point2D destination = ImmutablePoint2D.at(0.0, -1.0);
+        final WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.NORTH, true);
 
         // when
@@ -58,9 +58,9 @@ public class WalledPointSpaceTest {
     @Test
     public void testMaxTransitionWithEasternWall() throws Exception {
         // given
-        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
-        Point2D destination = ImmutablePoint2D.at(2.0, 0.0);
-        WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
+        final Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        final Point2D destination = ImmutablePoint2D.at(2.0, 0.0);
+        final WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.EAST, true);
 
         // when
@@ -73,9 +73,9 @@ public class WalledPointSpaceTest {
     @Test
     public void testMaxTransitionWithSouthernWall() throws Exception {
         // given
-        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
-        Point2D destination = ImmutablePoint2D.at(0.0, 2.0);
-        WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
+        final Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        final Point2D destination = ImmutablePoint2D.at(0.0, 2.0);
+        final WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
@@ -88,9 +88,9 @@ public class WalledPointSpaceTest {
     @Test
     public void testMaxTransitionWithWesternWall() throws Exception {
         // given
-        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
-        Point2D destination = ImmutablePoint2D.at(-1.0, 0.0);
-        WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
+        final Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        final Point2D destination = ImmutablePoint2D.at(-1.0, 0.0);
+        final WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.WEST, true);
 
         // when
@@ -103,9 +103,9 @@ public class WalledPointSpaceTest {
     @Test
     public void testMaxTransitionWithAtEdge() throws Exception {
         // given
-        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
-        Point2D destination = ImmutablePoint2D.at(2.0, 2.0);
-        WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
+        final Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        final Point2D destination = ImmutablePoint2D.at(2.0, 2.0);
+        final WalledPointSpace<Object> space = new WalledPointSpace<Object>(3, 3);
         space.getTileAt(0, 0).setWall(TileDirection.SOUTH, true);
 
         // when
@@ -118,9 +118,9 @@ public class WalledPointSpaceTest {
     @Test
     public void testNoMaxTransition() throws Exception {
         // given
-        Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
-        Point2D destination = ImmutablePoint2D.at(0.5, 0.5);
-        WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(1, 1);
+        final Point2D origin = ImmutablePoint2D.at(0.0, 0.0);
+        final Point2D destination = ImmutablePoint2D.at(0.5, 0.5);
+        final WalledPointSpace<Agent> space = new WalledPointSpace<Agent>(1, 1);
 
         // when
         final Point2D maxTransition = space.maxTransition(origin, destination);
@@ -149,9 +149,9 @@ public class WalledPointSpaceTest {
     @Test
     public void testMaxTransitionWithEasternSpaceBorder() throws Exception {
         // given
-        Point2D origin = ImmutablePoint2D.at(4.835470690262208, 9.9999999997506);
-        Point2D destination = ImmutablePoint2D.at(4.9251314448644665, 10.044282607873617);
-        WalledPointSpace<Object> space = new WalledPointSpace<Object>(10, 10);
+        final Point2D origin = ImmutablePoint2D.at(4.835470690262208, 9.9999999997506);
+        final Point2D destination = ImmutablePoint2D.at(4.9251314448644665, 10.044282607873617);
+        final WalledPointSpace<Object> space = new WalledPointSpace<Object>(10, 10);
 
         // when
         final Point2D maxTransition = space.maxTransition(origin, destination);
@@ -166,7 +166,7 @@ public class WalledPointSpaceTest {
     public void testCollision() throws Exception {
         // given
         final WalledPointSpace<Object> space = WalledPointSpace.ofSize(1, 1);
-        Object agent = mock(Object.class);
+        final Object agent = mock(Object.class);
         space.insertObject(agent, ImmutablePoint2D.at(0, 0));
 
         // when
@@ -183,7 +183,7 @@ public class WalledPointSpaceTest {
     public void testNoCollision() throws Exception {
         // given
         final WalledPointSpace<Object> space = WalledPointSpace.ofSize(1, 1);
-        Object agent = mock(Object.class);
+        final Object agent = mock(Object.class);
         space.insertObject(agent, ImmutablePoint2D.at(0, 0));
 
         // when

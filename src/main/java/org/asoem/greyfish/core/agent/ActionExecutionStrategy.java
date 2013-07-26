@@ -11,7 +11,11 @@ import javax.annotation.Nullable;
  * Time: 10:39
  */
 public interface ActionExecutionStrategy {
-    void execute();
+    /**
+     * Execute the next action.
+     * @return {@code true} if an action got executed, {@code false} otherwise.
+     */
+    boolean execute();
 
     @Nullable
     AgentAction<?> lastExecutedAction();

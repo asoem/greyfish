@@ -36,7 +36,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
     @Nullable
     private String state;
 
-    private IdentifierTrait(AbstractBuilder<A, ? extends AgentTrait<A, String>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    private IdentifierTrait(final AbstractBuilder<A, ? extends AgentTrait<A, String>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.mutationTable = ImmutableTable.copyOf(builder.mutationTable);
         this.initializationKernel = builder.initializationKernel;
@@ -44,7 +44,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
         this.state = builder.state;
     }
 
-    private IdentifierTrait(IdentifierTrait<A> discreteTrait, DeepCloner cloner) {
+    private IdentifierTrait(final IdentifierTrait<A> discreteTrait, final DeepCloner cloner) {
         super(discreteTrait, cloner);
         this.mutationTable = discreteTrait.mutationTable;
         this.initializationKernel = discreteTrait.initializationKernel;
@@ -53,13 +53,13 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
     }
 
     @Override
-    public void set(String value) {
+    public void set(final String value) {
         checkValidState(value);
         state = value;
     }
 
     @Override
-    public String mutate(String allele) {
+    public String mutate(final String allele) {
         checkValidState(allele);
 
         final Map<String, Callback<? super AgentTrait<A, String>, Double>> row = mutationTable.row(allele);
@@ -70,8 +70,8 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
         }
 
         double sum = 0;
-        double rand = RandomGenerators.rng().nextDouble();
-        for (Map.Entry<String, Callback<? super AgentTrait<A, String>, Double>> cell : row.entrySet()) {
+        final double rand = RandomGenerators.rng().nextDouble();
+        for (final Map.Entry<String, Callback<? super AgentTrait<A, String>, Double>> cell : row.entrySet()) {
             final double transitionProbability = Callbacks.call(cell.getValue(), IdentifierTrait.this);
             if (transitionProbability < 0)
                 throw new AssertionError("Every transition probability should be >= 0, was " + transitionProbability);
@@ -89,14 +89,14 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
-    private void checkValidState(Object state) {
+    private void checkValidState(final Object state) {
         checkArgument(getPossibleValues().contains(state),
                 "State '{}' does not match any of the valid states [{}]",
                 state, Joiner.on(", ").join(getPossibleValues()));
     }
 
     @Override
-    public String segregate(String allele1, String allele2) {
+    public String segregate(final String allele1, final String allele2) {
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
@@ -111,7 +111,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
     }
 
     @Override
-    public AgentTrait<A, String> deepClone(DeepCloner cloner) {
+    public AgentTrait<A, String> deepClone(final DeepCloner cloner) {
         return new IdentifierTrait<A>(this, cloner);
     }
 
@@ -152,7 +152,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
         return true;
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
@@ -164,7 +164,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
     public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, IdentifierTrait<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
-        private Builder(IdentifierTrait<A> discreteTrait) {
+        private Builder(final IdentifierTrait<A> discreteTrait) {
             super(discreteTrait);
         }
 
@@ -200,7 +200,7 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
             this.mutationTable = HashBasedTable.create();
         }
 
-        protected AbstractBuilder(IdentifierTrait<A> discreteTrait) {
+        protected AbstractBuilder(final IdentifierTrait<A> discreteTrait) {
             super(discreteTrait);
             this.mutationTable = HashBasedTable.create(discreteTrait.mutationTable);
             this.segregationKernel = discreteTrait.segregationKernel;
@@ -208,35 +208,35 @@ public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Str
             this.state = discreteTrait.state;
         }
 
-        public B addMutation(String state1, String state2, Callback<? super AgentTrait<A, String>, Double> transitionCallback) {
+        public B addMutation(final String state1, final String state2, final Callback<? super AgentTrait<A, String>, Double> transitionCallback) {
             mutationTable.put(state1, state2, transitionCallback);
             return self();
         }
 
-        public B addMutation(String state1, String state2, double p) {
+        public B addMutation(final String state1, final String state2, final double p) {
             addMutation(state1, state2, Callbacks.constant(p));
             return self();
         }
 
-        public B initialization(Callback<? super AgentTrait<A, String>, String> callback) {
+        public B initialization(final Callback<? super AgentTrait<A, String>, String> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super AgentTrait<A, String>, String> callback) {
+        public B segregation(final Callback<? super AgentTrait<A, String>, String> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
             if (initializationKernel == null)
                 throw new IllegalStateException();
             if (segregationKernel == null)
                 segregationKernel = new Callback<AgentTrait<A, String>, String>() {
                     @Override
-                    public String apply(AgentTrait<A, String> caller, Map<String, ?> args) {
+                    public String apply(final AgentTrait<A, String> caller, final Map<String, ?> args) {
                         return (String) RandomGenerators.sample(RandomGenerators.rng(), args.get("x"), args.get("y"));
                     }
                 };

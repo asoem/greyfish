@@ -34,7 +34,7 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
 
     private T value;
 
-    private CustomTrait(CustomTrait<A, T> customTrait, DeepCloner cloner) {
+    private CustomTrait(final CustomTrait<A, T> customTrait, final DeepCloner cloner) {
         super(customTrait, cloner);
         this.initializationKernel = customTrait.initializationKernel;
         this.mutationKernel = customTrait.mutationKernel;
@@ -44,7 +44,7 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
         set(customTrait.value);
     }
 
-    private CustomTrait(AbstractBuilder<A, T, ? extends CustomTrait<A, T>, ? extends AbstractBuilder<A, T, ?, ?>> builder) {
+    private CustomTrait(final AbstractBuilder<A, T, ? extends CustomTrait<A, T>, ? extends AbstractBuilder<A, T, ?, ?>> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.typeToken = builder.typeToken;
@@ -53,7 +53,7 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
             this.mutationKernel = new Callback<CustomTrait<A, T>, T>() {
                 @SuppressWarnings("unchecked")
                 @Override
-                public T apply(CustomTrait<A, T> caller, Map<String, ?> args) {
+                public T apply(final CustomTrait<A, T> caller, final Map<String, ?> args) {
                     return (T) args.get("x");
                 }
             };
@@ -64,7 +64,7 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
             this.segregationKernel = new Callback<CustomTrait<A, T>, T>() {
                 @SuppressWarnings("unchecked")
                 @Override
-                public T apply(CustomTrait<A, T> caller, Map<String, ?> args) {
+                public T apply(final CustomTrait<A, T> caller, final Map<String, ?> args) {
                     return (T) args.get("x");
                 }
             };
@@ -80,7 +80,7 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return new CustomTrait<A, T>(this, cloner);
     }
 
@@ -102,18 +102,18 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
     }
 
     @Override
-    public void set(T value) {
+    public void set(final T value) {
         checkArgument(Callbacks.call(valueConstraint, this));
         this.value = value;
     }
 
     @Override
-    public T mutate(T allele) {
+    public T mutate(final T allele) {
         return mutationKernel.apply(this, ImmutableMap.of("x", allele));
     }
 
     @Override
-    public T segregate(T allele1, T allele2) {
+    public T segregate(final T allele1, final T allele2) {
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
@@ -132,7 +132,7 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
         return true;
     }
 
-    public static <A extends Agent<A, ?>, T> Builder<A, T> builder(TypeToken<T> typeToken) {
+    public static <A extends Agent<A, ?>, T> Builder<A, T> builder(final TypeToken<T> typeToken) {
         checkNotNull(typeToken);
         return new Builder<A, T>(typeToken);
     }
@@ -141,17 +141,17 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
         return new Builder<A, T>(this);
     }
 
-    private void readObject(ObjectInputStream stream)
+    private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException{
         throw new InvalidObjectException("Builder required");
     }
 
     public static class Builder<A extends Agent<A, ?>, T> extends AbstractBuilder<A, T, CustomTrait<A, T>, Builder<A, T>> implements Serializable {
-        private Builder(TypeToken<T> typeToken) {
+        private Builder(final TypeToken<T> typeToken) {
             super(typeToken);
         }
 
-        private Builder(CustomTrait<A, T> quantitativeTrait) {
+        private Builder(final CustomTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
         }
 
@@ -187,7 +187,7 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
         private T value;
         private Callback<? super CustomTrait<A, T>, Boolean> valueConstraint;
 
-        protected AbstractBuilder(CustomTrait<A, T> customTrait) {
+        protected AbstractBuilder(final CustomTrait<A, T> customTrait) {
             super(customTrait);
             this.initializationKernel = customTrait.initializationKernel;
             this.mutationKernel = customTrait.mutationKernel;
@@ -197,38 +197,38 @@ public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> i
             this.valueConstraint = customTrait.valueConstraint;
         }
 
-        protected AbstractBuilder(TypeToken<T> typeToken) {
+        protected AbstractBuilder(final TypeToken<T> typeToken) {
             this.typeToken = typeToken;
         }
 
-        public B initialization(Callback<? super CustomTrait<A, T>, T> callback) {
+        public B initialization(final Callback<? super CustomTrait<A, T>, T> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B mutation(Callback<? super CustomTrait<A, T>, T> callback) {
+        public B mutation(final Callback<? super CustomTrait<A, T>, T> callback) {
             this.mutationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(Callback<? super CustomTrait<A, T>, T> callback) {
+        public B segregation(final Callback<? super CustomTrait<A, T>, T> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B constraint(Callback<? super CustomTrait<A, T>, Boolean> callback) {
+        public B constraint(final Callback<? super CustomTrait<A, T>, Boolean> callback) {
             this.valueConstraint = checkNotNull(callback);
             return self();
         }
 
         @Override
-        protected void checkBuilder() throws IllegalStateException {
+        protected void checkBuilder() {
             super.checkBuilder();
             checkState(initializationKernel != null, "initializationKernel must not be null");
         }
 
         // only used internally for serialization
-        protected B value(T value) {
+        protected B value(final T value) {
             this.value = value;
             return self();
         }

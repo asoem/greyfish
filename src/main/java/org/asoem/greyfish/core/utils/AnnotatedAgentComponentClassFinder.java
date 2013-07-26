@@ -48,15 +48,15 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
 
     private <T extends AgentComponent> Iterable<Class<? extends T>> findClasses(final Class<T> clazz, final String tag) {
         try {
-            Iterable<Class<?>> classes = ClassFinder.getInstance().getAll(clazz.getPackage().getName());
+            final Iterable<Class<?>> classes = ClassFinder.getInstance().getAll(clazz.getPackage().getName());
 
             return ImmutableList.copyOf(
                     transform(
                             filter(classes, new Predicate<Class<?>>() {
                                 @Override
-                                public boolean apply(Class<?> aClass) {
+                                public boolean apply(final Class<?> aClass) {
                                     if (clazz.isAssignableFrom(aClass) && aClass.isAnnotationPresent(Tagged.class)) {
-                                        String[] tags = aClass.getAnnotation(Tagged.class).value();
+                                        final String[] tags = aClass.getAnnotation(Tagged.class).value();
                                         return Arrays.binarySearch(tags, tag) >= 0;
                                     }
                                     return false;
@@ -64,7 +64,7 @@ public class AnnotatedAgentComponentClassFinder implements AgentComponentClassFi
                             }), new Function<Class<?>, Class<? extends T>>() {
                         @Override
                         @SuppressWarnings("unchecked") // the previous filter guarantees that the cast will not fail
-                        public Class<? extends T> apply(Class<?> aClass) {
+                        public Class<? extends T> apply(final Class<?> aClass) {
                             return (Class<? extends T>) aClass;
                         }
                     })

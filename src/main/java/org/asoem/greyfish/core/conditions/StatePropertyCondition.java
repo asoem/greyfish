@@ -21,14 +21,14 @@ public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition
         this(new Builder<A>());
     }
 
-    private StatePropertyCondition(AbstractBuilder<A, ?, ?> builder) {
+    private StatePropertyCondition(final AbstractBuilder<A, ?, ?> builder) {
         super(builder);
         this.state = builder.state;
         this.stateProperty = builder.property;
     }
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private StatePropertyCondition(StatePropertyCondition<A> condition, DeepCloner cloner) {
+    private StatePropertyCondition(final StatePropertyCondition<A> condition, final DeepCloner cloner) {
         super(condition, cloner);
         this.stateProperty = cloner.getClone(condition.stateProperty);
         this.state = condition.state;
@@ -41,7 +41,7 @@ public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition
     }
 
     @Override
-    public StatePropertyCondition<A> deepClone(DeepCloner cloner) {
+    public StatePropertyCondition<A> deepClone(final DeepCloner cloner) {
         return new StatePropertyCondition<A>(this, cloner);
     }
 
@@ -57,7 +57,7 @@ public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition
         private FiniteStateProperty<?, A> property;
         private Object state;
 
-        public T property(FiniteStateProperty<?, A> property) { this.property = checkNotNull(property); return self(); }
-        public T hasState(Object state) { this.state = checkNotNull(state); return self(); }
+        public T property(final FiniteStateProperty<?, A> property) { this.property = checkNotNull(property); return self(); }
+        public T hasState(final Object state) { this.state = checkNotNull(state); return self(); }
     }
 }

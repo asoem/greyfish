@@ -16,7 +16,7 @@ public abstract class ForwardingVariableResolver extends ForwardingObject implem
     protected abstract VariableResolver delegate();
 
     @Override
-    public Object resolve(String varName) throws VariableResolutionException {
+    public Object resolve(final String varName) throws VariableResolutionException {
         return delegate().resolve(varName);
     }
 
@@ -26,7 +26,7 @@ public abstract class ForwardingVariableResolver extends ForwardingObject implem
     }
 
     @Override
-    public boolean canResolve(String name) {
+    public boolean canResolve(final String name) {
         return delegate().canResolve(name);
     }
 
@@ -36,7 +36,7 @@ public abstract class ForwardingVariableResolver extends ForwardingObject implem
     }
 
     @Override
-    public void append(@Nullable VariableResolver next) {
+    public void append(@Nullable final VariableResolver next) {
         delegate().append(next);
     }
 }

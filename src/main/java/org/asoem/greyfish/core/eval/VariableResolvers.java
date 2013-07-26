@@ -19,12 +19,12 @@ public final class VariableResolvers {
 
         return new AbstractVariableResolver() {
             @Override
-            public boolean canResolveLocal(String name) {
+            public boolean canResolveLocal(final String name) {
                 return map.containsKey(name);
             }
 
             @Override
-            public Object resolveLocal(String varName) throws VariableResolutionException {
+            public Object resolveLocal(final String varName) throws VariableResolutionException {
                 return map.get(varName);
             }
 
@@ -46,12 +46,12 @@ public final class VariableResolvers {
             }
 
             @Override
-            public boolean canResolveLocal(String name) {
+            public boolean canResolveLocal(final String name) {
                 return false;
             }
 
             @Override
-            public Object resolveLocal(String varName) throws VariableResolutionException {
+            public Object resolveLocal(final String varName) throws VariableResolutionException {
                 throw new VariableResolutionException("No variable can be resolved by " + this + " and therefore also not variable " + varName);
             }
         };
@@ -60,12 +60,12 @@ public final class VariableResolvers {
     private static class BindingsAdaptor extends ForwardingMap<String, Object> implements Bindings {
         private final Map<String, Object> map;
 
-        public BindingsAdaptor(Map<String, Object> map) {
+        public BindingsAdaptor(final Map<String, Object> map) {
             this.map = map;
         }
 
         @Override
-        public Object put(String name, Object value) {
+        public Object put(final String name, final Object value) {
             return new UnsupportedOperationException();
         }
 

@@ -8,11 +8,11 @@ public abstract class IntCompareCondition<A extends Agent<A, ?>> extends Compare
     protected IntCompareCondition() {
     }
 
-    protected IntCompareCondition(IntCompareCondition<A> condition, DeepCloner map) {
+    protected IntCompareCondition(final IntCompareCondition<A> condition, final DeepCloner map) {
         super(condition, map);
     }
 
-    protected IntCompareCondition(AbstractBuilder<?, ?, A> builder) {
+    protected IntCompareCondition(final AbstractBuilder<?, ?, A> builder) {
         super(builder);
     }
 

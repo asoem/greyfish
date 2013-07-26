@@ -20,7 +20,7 @@ public abstract class AbstractVariableResolver implements VariableResolver {
     }
 
     @Override
-    public void append(@Nullable VariableResolver next) {
+    public void append(@Nullable final VariableResolver next) {
         if (nextVariableResolver == null)
             this.nextVariableResolver = next;
         else
@@ -28,14 +28,14 @@ public abstract class AbstractVariableResolver implements VariableResolver {
     }
 
     @Override
-    public final boolean canResolve(String name) {
+    public final boolean canResolve(final String name) {
         return canResolveLocal(name) || nextVariableResolver != null && nextVariableResolver.canResolve(name);
     }
 
     protected abstract boolean canResolveLocal(String name);
 
     @Override
-    public final Object resolve(String varName) throws VariableResolutionException {
+    public final Object resolve(final String varName) throws VariableResolutionException {
         if (canResolveLocal(varName))
             return resolveLocal(varName);
 
@@ -49,11 +49,11 @@ public abstract class AbstractVariableResolver implements VariableResolver {
     protected abstract Object resolveLocal(String varName);
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AbstractVariableResolver that = (AbstractVariableResolver) o;
+        final AbstractVariableResolver that = (AbstractVariableResolver) o;
 
         if (!Objects.equal(bindings(), that.bindings())) return false;
         if (nextVariableResolver != null ? !nextVariableResolver.equals(that.nextVariableResolver) : that.nextVariableResolver != null)

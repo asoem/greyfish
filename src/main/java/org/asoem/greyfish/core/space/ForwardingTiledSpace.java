@@ -25,12 +25,12 @@ public abstract class ForwardingTiledSpace<O, P extends Object2D, T extends Tile
     }
 
     @Override
-    public boolean hasTileAt(int x, int y) {
+    public boolean hasTileAt(final int x, final int y) {
         return delegate().hasTileAt(x, y);
     }
 
     @Override
-    public T getTileAt(int x, int y) {
+    public T getTileAt(final int x, final int y) {
         return delegate().getTileAt(x, y);
     }
 
@@ -40,12 +40,12 @@ public abstract class ForwardingTiledSpace<O, P extends Object2D, T extends Tile
     }
 
     @Override
-    public T getAdjacentTile(T tile, TileDirection direction) {
+    public T getAdjacentTile(final T tile, final TileDirection direction) {
         return delegate().getAdjacentTile(tile, direction);
     }
 
     @Override
-    public Iterable<O> getObjects(Iterable<? extends Tile> tiles) {
+    public Iterable<O> getObjects(final Iterable<? extends Tile> tiles) {
         return delegate().getObjects(tiles);
     }
 

@@ -12,11 +12,11 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
 
     protected LeafCondition() {}
 
-    protected LeafCondition(LeafCondition<A> cloneable, DeepCloner cloner) {
+    protected LeafCondition(final LeafCondition<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
     }
 
-    protected LeafCondition(AbstractBuilder<A, ?, ?> builder) {
+    protected LeafCondition(final AbstractBuilder<A, ?, ?> builder) {
         super(builder);
     }
 
@@ -36,7 +36,7 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
     }
 
     @Override
-    public final void remove(ActionCondition<A> condition) {
+    public final void remove(final ActionCondition<A> condition) {
         throw new UnsupportedOperationException();
     }
 
@@ -46,12 +46,12 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
     }
 
     @Override
-    public final void add(ActionCondition<A> condition) {
+    public final void add(final ActionCondition<A> condition) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void insert(ActionCondition<A> condition, int index) {
+    public void insert(final ActionCondition<A> condition, final int index) {
         throw new UnsupportedOperationException();
     }
 
@@ -61,7 +61,7 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends AbstractCondition.AbstractBuilder<A, C, B> {
-        protected AbstractBuilder(LeafCondition<A> leafCondition) {
+        protected AbstractBuilder(final LeafCondition<A> leafCondition) {
             super(leafCondition);
         }
 

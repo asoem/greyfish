@@ -28,17 +28,17 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
 
     private final Function<NNResult<T>,T> neighbourSearchResultTransformation = new Function<NNResult<T>, T>() {
         @Override
-        public T apply(NNResult<T> o) {
+        public T apply(final NNResult<T> o) {
             return o.value();
         }
     };
 
     private AsoemScalaTwoDimTree(
-            Iterable<? extends T> elements,
+            final Iterable<? extends T> elements,
             final Function<? super T, ? extends org.asoem.greyfish.utils.collect.Product2<Double, Double>> mappingFunction) {
         final Iterable<Product2<HyperPoint, T>> transform = Iterables.transform(elements, new Function<T, Product2<HyperPoint, T>>() {
             @Override
-            public Product2<HyperPoint, T> apply(T t) {
+            public Product2<HyperPoint, T> apply(final T t) {
                 final org.asoem.greyfish.utils.collect.Product2<Double, Double> b = mappingFunction.apply(t);
                 assert b != null;
                 return new Tuple2<HyperPoint, T>(new HyperPoint2(b._1(), b._2()), t);
@@ -48,7 +48,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
     }
 
     @Override
-    public Iterable<T> findObjects(double x, double y, double range) {
+    public Iterable<T> findObjects(final double x, final double y, final double range) {
         switch (tree.size()) {
             case 0:
                 return ImmutableList.of();
@@ -61,7 +61,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
     }
 
     @Override
-    public Iterable<T> findObjects(Point2D center, double range) {
+    public Iterable<T> findObjects(final Point2D center, final double range) {
         return findObjects(center.getX(), center.getY(), range);
     }
 
@@ -85,7 +85,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
                             new Function<KDNode<T>, org.asoem.greyfish.utils.space.KDNode<Point2D, T>>() {
                                 @Nullable
                                 @Override
-                                public org.asoem.greyfish.utils.space.KDNode<Point2D, T> apply(@Nullable KDNode<T> input) {
+                                public org.asoem.greyfish.utils.space.KDNode<Point2D, T> apply(@Nullable final KDNode<T> input) {
                                     return asTreeNode(input);
                                 }
                             }));
@@ -115,7 +115,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<Point2D, T> {
     }
 
     public static <T> AsoemScalaTwoDimTree<T> of(
-            Iterable<? extends T> elements,
+            final Iterable<? extends T> elements,
             final Function<? super T, ? extends org.asoem.greyfish.utils.collect.Product2<Double, Double>> mappingFunction) {
         return new AsoemScalaTwoDimTree<T>(elements, mappingFunction);
     }

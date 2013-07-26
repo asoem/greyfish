@@ -49,10 +49,10 @@ public class DefaultGreyfishSimulationImplTest {
         final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
 
         // when
-        DefaultGreyfishSimulationImpl simulation = DefaultGreyfishSimulationImpl.builder(space, ImmutableSet.of(prototype))
+        final DefaultGreyfishSimulationImpl simulation = DefaultGreyfishSimulationImpl.builder(space, ImmutableSet.of(prototype))
                 .agentPool(new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
-                    public DefaultGreyfishAgent makeObject(Population o) throws Exception {
+                    public DefaultGreyfishAgent makeObject(final Population o) throws Exception {
                         return CycleCloner.clone(prototype);
                     }
                 })).build();
@@ -97,7 +97,7 @@ public class DefaultGreyfishSimulationImplTest {
         final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
                 new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
-                    public DefaultGreyfishAgent makeObject(Population population) throws Exception {
+                    public DefaultGreyfishAgent makeObject(final Population population) throws Exception {
                         return agent;
                     }
                 });
@@ -136,7 +136,7 @@ public class DefaultGreyfishSimulationImplTest {
         final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
                 new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
-                    public DefaultGreyfishAgent makeObject(Population population) throws Exception {
+                    public DefaultGreyfishAgent makeObject(final Population population) throws Exception {
                         return agent;
                     }
                 });
@@ -169,7 +169,7 @@ public class DefaultGreyfishSimulationImplTest {
         final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
                 new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
                     @Override
-                    public DefaultGreyfishAgent makeObject(Population population) throws Exception {
+                    public DefaultGreyfishAgent makeObject(final Population population) throws Exception {
                         return agent;
                     }
                 });

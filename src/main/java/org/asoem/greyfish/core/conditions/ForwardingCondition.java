@@ -29,7 +29,7 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
         return delegate().action();
     }
 
-    public void setAction(AgentAction<A> action) {
+    public void setAction(final AgentAction<A> action) {
         delegate().setAction(action);
     }
 
@@ -43,7 +43,7 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
         return delegate().getRoot();
     }
 
-    public void setParent(@Nullable ActionCondition<A> parent) {
+    public void setParent(@Nullable final ActionCondition<A> parent) {
         delegate().setParent(parent);
     }
 
@@ -52,15 +52,15 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
         return delegate().getParent();
     }
 
-    public void insert(ActionCondition<A> condition, int index) {
+    public void insert(final ActionCondition<A> condition, final int index) {
         delegate().insert(condition, index);
     }
 
-    public void add(ActionCondition<A> condition) {
+    public void add(final ActionCondition<A> condition) {
         delegate().add(condition);
     }
 
-    public void remove(ActionCondition<A> condition) {
+    public void remove(final ActionCondition<A> condition) {
         delegate().remove(condition);
     }
 
@@ -95,12 +95,12 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
         return delegate().agent();
     }
 
-    public void setAgent(@Nullable A agent) {
+    public void setAgent(@Nullable final A agent) {
         delegate().setAgent(agent);
     }
 
     @Override
-    public void setName(String name) {
+    public void setName(final String name) {
         delegate().setName(name);
     }
 
@@ -136,7 +136,7 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return delegate().deepClone(cloner);
     }
 }

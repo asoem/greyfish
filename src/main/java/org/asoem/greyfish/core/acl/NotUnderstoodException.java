@@ -11,21 +11,21 @@ public class NotUnderstoodException extends RuntimeException {
     public NotUnderstoodException() {
     }
 
-    public NotUnderstoodException(String message) {
+    public NotUnderstoodException(final String message) {
         super(message);
     }
 
-    public NotUnderstoodException(String formattedMessage, Object ... args) {
+    public NotUnderstoodException(final String formattedMessage, final Object ... args) {
         super(String.format(formattedMessage, args));
     }
 
-    public NotUnderstoodException(Throwable cause) {
+    public NotUnderstoodException(final Throwable cause) {
         super(cause);
     }
 
-    public static NotUnderstoodException unexpectedPayloadType(ACLMessage<?> message, Class<?> clazz) {
+    public static NotUnderstoodException unexpectedPayloadType(final ACLMessage<?> message, final Class<?> clazz) {
         checkNotNull(message);
-        Class<?> clazzReceived = message.getContent().getClass();
+        final Class<?> clazzReceived = message.getContent().getClass();
         return new NotUnderstoodException("Unexpected Payload Type: Received %s while expect was %s", (clazzReceived==null) ? null : clazzReceived, clazz);
     }
 }

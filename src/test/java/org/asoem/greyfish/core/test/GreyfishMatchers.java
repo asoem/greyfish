@@ -18,18 +18,18 @@ public class GreyfishMatchers {
     public static <T> Matcher<T> isA(final TypeToken<T> typeToken) {
         return new BaseMatcher<T>() {
             @Override
-            public boolean matches(Object item) {
+            public boolean matches(final Object item) {
                 return item != null && typeToken.isAssignableFrom(item.getClass());
             }
 
             @Override
-            public void describeTo(Description description) {
+            public void describeTo(final Description description) {
                 description.appendText("an instance of ").appendValue(typeToken.getType());
             }
         };
     }
 
-    public static <I,O> TransformingTypeSafeMatcher<I, O> has(String description, Function<I, O> transformation, Matcher<? super O> transformMatcher) {
+    public static <I,O> TransformingTypeSafeMatcher<I, O> has(final String description, final Function<I, O> transformation, final Matcher<? super O> transformMatcher) {
         return new TransformingTypeSafeMatcher<I, O>(description, transformation, transformMatcher);
     }
 }

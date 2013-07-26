@@ -38,13 +38,13 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
         this(new Builder<A>());
     }
 
-    protected ConditionalStatesProperty(AbstractBuilder<A, ?, ?> builder) {
+    protected ConditionalStatesProperty(final AbstractBuilder<A, ?, ?> builder) {
         super(builder);
 
         conditionMap = builder.phenotypeConditionMap;
     }
 
-    protected ConditionalStatesProperty(ConditionalStatesProperty<A> cloneable, DeepCloner map) {
+    protected ConditionalStatesProperty(final ConditionalStatesProperty<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
 
         conditionMap = cloneable.conditionMap;
@@ -61,7 +61,7 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
         // TODO: Compare performance to a version where evaluates logic from below is inside an expression. Could be faster than evaluation multiple expression.
         return Iterables.find(conditionMap.keySet(), new Predicate<String>() {
             @Override
-            public boolean apply(String phenotype) {
+            public boolean apply(final String phenotype) {
                 try {
                     return conditionMap.get(phenotype).evaluateForContext(ConditionalStatesProperty.this).asBoolean();
                 } catch (EvaluationException e) {
@@ -72,21 +72,21 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
         });
     }
 
-    private String toParsable(Map<String, GreyfishExpression> conditionMap) {
+    private String toParsable(final Map<String, GreyfishExpression> conditionMap) {
         return Joiner.on("\n").withKeyValueSeparator(" : ").join(conditionMap);
     }
 
-    private Map<? extends String, ? extends GreyfishExpression> parse(String arg0) {
+    private Map<? extends String, ? extends GreyfishExpression> parse(final String arg0) {
         return Maps.transformValues(Splitter.on("\n").withKeyValueSeparator(":").split(arg0), new Function<String, GreyfishExpression>() {
             @Override
-            public GreyfishExpression apply(String s) {
+            public GreyfishExpression apply(final String s) {
                 return GreyfishExpressionFactoryHolder.compile(s);
             }
         });
     }
 
     @Override
-    public DeepCloneable deepClone(DeepCloner cloner) {
+    public DeepCloneable deepClone(final DeepCloner cloner) {
         return new ConditionalStatesProperty<A>(this, cloner);
     }
 
@@ -115,7 +115,7 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends ConditionalStatesProperty<A>,T extends AbstractBuilder<A,E,T>> extends AbstractAgentProperty.AbstractBuilder<E,A,T> {
         private final Map<String, GreyfishExpression> phenotypeConditionMap = Maps.newHashMap();
 
-        public T addState(String state, String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactoryHolder.compile(when)); return self();}
+        public T addState(final String state, final String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactoryHolder.compile(when)); return self();}
     }
 
 }

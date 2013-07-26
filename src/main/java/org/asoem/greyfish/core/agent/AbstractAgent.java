@@ -30,10 +30,10 @@ import static com.google.common.base.Preconditions.checkState;
 public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<A>> implements Agent<A, S> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
-    private static <E extends AgentComponent> E findByName(FunctionalList<E> functionalList, final String name) {
+    private static <E extends AgentComponent> E findByName(final FunctionalList<E> functionalList, final String name) {
         return functionalList.find(new Predicate<AgentComponent>() {
             @Override
-            public boolean apply(AgentComponent agentAction) {
+            public boolean apply(final AgentComponent agentAction) {
                 return agentAction.getName().equals(name);
             }
         });
@@ -42,11 +42,11 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     protected abstract A self();
 
     @Override
-    public boolean hasPopulation(@Nullable Population population) {
+    public boolean hasPopulation(@Nullable final Population population) {
         return Objects.equal(getPopulation(), population);
     }
 
-    private <E extends AgentComponent<A>> boolean addComponent(FunctionalList<E> list, E element) {
+    private <E extends AgentComponent<A>> boolean addComponent(final FunctionalList<E> list, final E element) {
         if (list.add(element)) {
             element.setAgent(self());
             return true;
@@ -54,7 +54,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
         return false;
     }
 
-    private <E extends AgentComponent<A>> boolean removeComponent(FunctionalList<? extends E> list, E element) {
+    private <E extends AgentComponent<A>> boolean removeComponent(final FunctionalList<? extends E> list, final E element) {
         if (list.remove(element)) {
             element.setAgent(self());
             return true;
@@ -62,20 +62,20 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
         return false;
     }
 
-    private void clearComponentList(FunctionalList<? extends AgentComponent<A>> list) {
-        List<AgentComponent<A>> temp = ImmutableList.copyOf(list);
+    private void clearComponentList(final FunctionalList<? extends AgentComponent<A>> list) {
+        final List<AgentComponent<A>> temp = ImmutableList.copyOf(list);
         list.clear();
-        for (AgentComponent<A> component : temp)
+        for (final AgentComponent<A> component : temp)
             component.setAgent(null);
     }
 
     @Override
-    public boolean addAction(AgentAction<A> action) {
+    public boolean addAction(final AgentAction<A> action) {
         return addComponent(getActions(), action);
     }
 
     @Override
-    public boolean removeAction(AgentAction<A> action) {
+    public boolean removeAction(final AgentAction<A> action) {
         return removeComponent(getActions(), action);
     }
 
@@ -85,17 +85,17 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public AgentAction<A> getAction(String name) {
+    public AgentAction<A> getAction(final String name) {
         return findByName(getActions(), name);
     }
 
     @Override
-    public boolean addProperty(AgentProperty<A, ?> property) {
+    public boolean addProperty(final AgentProperty<A, ?> property) {
         return addComponent(getProperties(), property);
     }
 
     @Override
-    public boolean removeProperty(AgentProperty<A, ?> property) {
+    public boolean removeProperty(final AgentProperty<A, ?> property) {
         return removeComponent(getProperties(), property);
     }
 
@@ -105,22 +105,22 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public AgentProperty<A, ?> getProperty(String name) {
+    public AgentProperty<A, ?> getProperty(final String name) {
         return findByName(getProperties(), name);
     }
 
     @Override
-    public AgentProperty<A, ?> findProperty(Predicate<? super AgentProperty<A, ?>> predicate) {
+    public final AgentProperty<A, ?> findProperty(final Predicate<? super AgentProperty<A, ?>> predicate) {
         return getProperties().find(predicate);
     }
 
     @Override
-    public boolean addTrait(AgentTrait<A, ?> gene) {
+    public boolean addTrait(final AgentTrait<A, ?> gene) {
         return addComponent(getTraits(), gene);
     }
 
     @Override
-    public boolean removeGene(AgentTrait<A, ?> gene) {
+    public boolean removeGene(final AgentTrait<A, ?> gene) {
         return removeComponent(getTraits(), gene);
     }
 
@@ -134,23 +134,23 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     @Nullable
-    public AgentTrait<A, ?> getTrait(String name) {
+    public AgentTrait<A, ?> getTrait(final String name) {
         return findByName(getTraits(), name);
     }
 
     @Override
-    public void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2) {
+    public void changeActionExecutionOrder(final AgentAction<A> object, final AgentAction<A> object2) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void receive(AgentMessage<A> message) {
+    public void receive(final AgentMessage<A> message) {
         LOGGER.debug("{} received a message: {}", this, message);
         getInBox().add(message);
     }
 
     @Override
-    public void receiveAll(Iterable<? extends AgentMessage<A>> messages) {
+    public void receiveAll(final Iterable<? extends AgentMessage<A>> messages) {
         LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
         Iterables.addAll(getInBox(), messages);
     }
@@ -178,21 +178,21 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public void setColor(Color color) {
+    public void setColor(final Color color) {
     }
 
     @Override
-    public Iterable<AgentMessage<A>> getMessages(MessageTemplate template) {
+    public Iterable<AgentMessage<A>> getMessages(final MessageTemplate template) {
         return getInBox().extract(template);
     }
 
     @Override
-    public boolean hasMessages(MessageTemplate template) {
+    public boolean hasMessages(final MessageTemplate template) {
         return Iterables.any(getInBox(), template);
     }
 
     @Override
-    public void logEvent(Object eventOrigin, String title, String message) {
+    public void logEvent(final Object eventOrigin, final String title, final String message) {
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);
@@ -202,12 +202,15 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     public void execute() {
-        getActionExecutionStrategy().execute();
-        LOGGER.info("{} executed {}", this, getActionExecutionStrategy().lastExecutedAction());
+        final ActionExecutionStrategy actionExecutionStrategy = getActionExecutionStrategy();
+        final boolean executeSuccess = actionExecutionStrategy.execute();
+        if (executeSuccess) {
+            LOGGER.debug("{} executed {}", this, actionExecutionStrategy);
+        }
     }
 
     @Override
-    public void deactivate(SimulationContext<S, A> context) {
+    public void deactivate(final SimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
         getInBox().clear();
@@ -230,7 +233,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public void activate(SimulationContext<S, A> context) {
+    public void activate(final SimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
         getActionExecutionStrategy().reset();
@@ -239,7 +242,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     public void initialize() {
-        for (AgentNode node : children()) {
+        for (final AgentNode node : children()) {
             node.initialize();
         }
     }
@@ -263,7 +266,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public Iterable<A> filterAgents(Predicate<? super A> predicate) {
+    public Iterable<A> filterAgents(final Predicate<? super A> predicate) {
         return simulation().filterAgents(predicate);
     }
 
@@ -273,12 +276,12 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public void sendMessage(ACLMessage<A> message) {
+    public void sendMessage(final ACLMessage<A> message) {
         simulation().deliverMessage(message);
     }
 
     @Override
-    public AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate) {
+    public AgentTrait<A, ?> findTrait(final Predicate<? super AgentTrait<A, ?>> traitPredicate) {
         return getTraits().find(traitPredicate);
     }
 

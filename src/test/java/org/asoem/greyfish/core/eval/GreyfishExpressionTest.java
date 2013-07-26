@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.asoem.greyfish.utils.persistence.Persisters.createCopy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -29,25 +30,29 @@ public class GreyfishExpressionTest {
 
     @Test(expected = NullPointerException.class)
     public void testCreationWithNullEvaluatorFactory() {
+        // when
         new GreyfishExpression("", null);
+
+        // then
+        fail("Unreachable");
     }
 
     @Test
     public void testEvaluateAsDouble() throws Exception {
         // given
-        EvaluationResult evaluationResult = mock(EvaluationResult.class);
+        final EvaluationResult evaluationResult = mock(EvaluationResult.class);
         final Evaluator evaluator = mock(Evaluator.class);
         given(evaluator.evaluate(any(VariableResolver.class))).willReturn(evaluationResult);
         given(evaluationResult.asDouble()).willReturn(5.0);     
 
         // when
-        GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
+        final GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) {
+            public Evaluator createEvaluator(final String expression) {
                 return evaluator;
             }
         });
-        double ret = expression.evaluateForContext(mock(Object.class)).asDouble();
+        final double ret = expression.evaluateForContext(mock(Object.class)).asDouble();
 
         // then
         assertThat(ret, is(equalTo(5.0)));
@@ -56,19 +61,19 @@ public class GreyfishExpressionTest {
     @Test
     public void testEvaluateAsBoolean() throws Exception {
         // given
-        EvaluationResult evaluationResult = mock(EvaluationResult.class);
+        final EvaluationResult evaluationResult = mock(EvaluationResult.class);
         final Evaluator evaluator = mock(Evaluator.class);
         given(evaluator.evaluate(any(VariableResolver.class))).willReturn(evaluationResult);
         given(evaluationResult.asBoolean()).willReturn(true);
 
         // when
-        GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
+        final GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) {
+            public Evaluator createEvaluator(final String expression) {
                 return evaluator;
             }
         });
-        boolean ret = expression.evaluateForContext(mock(Object.class)).asBoolean();
+        final boolean ret = expression.evaluateForContext(mock(Object.class)).asBoolean();
 
         // then
         assertThat(ret, is(true));
@@ -79,7 +84,7 @@ public class GreyfishExpressionTest {
         // given
         final GreyfishExpression expression = new GreyfishExpression("42.0", new EvaluatorFactory() {
             @Override
-            public Evaluator createEvaluator(String expression) {
+            public Evaluator createEvaluator(final String expression) {
                 return EvaluatorFake.INSTANCE;
             }
         });

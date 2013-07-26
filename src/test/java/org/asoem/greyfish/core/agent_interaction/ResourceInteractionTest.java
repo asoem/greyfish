@@ -50,7 +50,7 @@ public class ResourceInteractionTest {
                 .requestAmount(Callbacks.constant(1.0))
                 .uptakeUtilization(new Callback<ResourceConsumptionAction<DefaultGreyfishAgent>, Void>() {
                     @Override
-                    public Void apply(ResourceConsumptionAction<DefaultGreyfishAgent> caller, Map<String, ?> args) {
+                    public Void apply(final ResourceConsumptionAction<DefaultGreyfishAgent> caller, final Map<String, ?> args) {
                         ((DoubleProperty<DefaultGreyfishAgent>) caller.agent().getProperty("resourceStorage")).add((Double) args.get("offer") * 2);
                         return null;
                     }

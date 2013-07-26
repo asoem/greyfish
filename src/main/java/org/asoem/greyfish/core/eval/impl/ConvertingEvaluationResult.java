@@ -20,7 +20,7 @@ public class ConvertingEvaluationResult implements EvaluationResult {
     private final Object result;
     private final RESULT_TYPE resultType;
 
-    public ConvertingEvaluationResult(@Nullable Object result) {
+    public ConvertingEvaluationResult(@Nullable final Object result) {
         this.result = result;
         if (result == null)
             resultType = RESULT_TYPE.NULL;
@@ -38,34 +38,35 @@ public class ConvertingEvaluationResult implements EvaluationResult {
             resultType = RESULT_TYPE.OBJECT;
     }
 
-    @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
-    public Number asNumber() throws EvaluationException, ParseException {
+    public Number asNumber() throws EvaluationException {
         switch (resultType) {
             case STRING:
-                return NumberFormat.getInstance(Locale.US).parse((String) result); // TODO: cache
+                try {
+                    return NumberFormat.getInstance(Locale.US).parse((String) result); // TODO: cache result?
+                } catch (ParseException e) {
+                    throw new EvaluationException(e);
+                }
             case DOUBLE:
             case INTEGER:
             case FLOAT:
                 return (Number) result;
             case BOOLEAN:
-                return ((Boolean) result) ? 1 : 0;
+                return Boolean.class.cast(result) ? 1 : 0;
             default: throw new EvaluationException(result + " cannot be converted to a Number");
         }
     }
 
-    @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
-    public double asDouble() throws EvaluationException, ParseException {
+    public double asDouble() throws EvaluationException {
         return asNumber().doubleValue();
     }
 
-    @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
     public boolean asBoolean() throws EvaluationException {
         switch (resultType) {
-            case BOOLEAN: return (Boolean)result;
-            case STRING: return Boolean.parseBoolean((String)result); // TODO: include 1 as true
+            case BOOLEAN: return Boolean.class.cast(result);
+            case STRING: return Boolean.parseBoolean(String.class.cast(result)); // TODO: include 1 as true
             default: throw new EvaluationException(result + " cannot be converted to Boolean");
         }
     }
@@ -82,7 +83,7 @@ public class ConvertingEvaluationResult implements EvaluationResult {
 
     @SuppressWarnings("ConstantConditions") // result is only null if resultType is NULL
     @Override
-    public int asInt() throws EvaluationException, ParseException {
+    public int asInt() throws EvaluationException {
         return asNumber().intValue();
     }
 
@@ -97,11 +98,11 @@ public class ConvertingEvaluationResult implements EvaluationResult {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ConvertingEvaluationResult that = (ConvertingEvaluationResult) o;
+        final ConvertingEvaluationResult that = (ConvertingEvaluationResult) o;
 
         return !(result != null ? !result.equals(that.result) : that.result != null) && resultType == that.resultType;
 
