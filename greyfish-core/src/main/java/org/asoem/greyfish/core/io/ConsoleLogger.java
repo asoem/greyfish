@@ -2,12 +2,14 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
 
+import java.io.IOException;
+
 /**
- * User: christoph
- * Date: 20.02.12
- * Time: 13:47
+ * A logger that logs all messages to {@link System#out}.
+ *
+ * TODO: extract an abstract stream logger
  */
-public class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+public final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
 
     @Override
     public void logAgentCreation(final A agent) {
@@ -23,5 +25,9 @@ public class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A>
                         //Doubles.join(",", agent.getProjection()) + "\t" +
                         title + "\t" +
                         message + "\n");
+    }
+
+    @Override
+    public void close() throws IOException {
     }
 }

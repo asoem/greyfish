@@ -2,15 +2,23 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
 
+import java.io.IOException;
+
 /**
- * User: christoph
- * Date: 16.08.12
- * Time: 16:50
+ * Utility functions for {@link SimulationLogger}s
  */
 public final class SimulationLoggers {
 
-    private SimulationLoggers() {}
+    private SimulationLoggers() {
+        throw new AssertionError();
+    }
 
+    /**
+     * Make {@code logger} thread safe.
+     * @param logger the logger to wrap
+     * @param <A> the {@link Agent} type of the logger
+     * @return a new logger with synchronized methods
+     */
     public static <A extends Agent<A, ?>> SimulationLogger<A> synchronizedLogger(final SimulationLogger<A> logger) {
         return new SynchronizedLogger<A>(logger);
     }
@@ -34,6 +42,13 @@ public final class SimulationLoggers {
         public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
             synchronized (this) {
                 logger.logAgentEvent(agent, currentStep, source, title, message);
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            synchronized (this) {
+                logger.close();
             }
         }
     }

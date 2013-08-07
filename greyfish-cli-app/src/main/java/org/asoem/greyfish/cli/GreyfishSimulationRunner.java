@@ -15,9 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * User: christoph
@@ -89,13 +87,15 @@ public class GreyfishSimulationRunner implements Runnable {
                         writer.print(progressBar);
                         writer.flush();
                         Thread.sleep(1000);
+                        writer.print("\r" + Strings.repeat(" ", progressBar.length()));
+                        writer.print("\rDone!");
                     }
-
-                    writer.print("\r" + Strings.repeat(" ", progressBar.length()));
-                    writer.println("\rDone!");
                 } catch (InterruptedException e) {
                     LOGGER.error("Simulation polling thread got interrupted");
+                    writer.print("\r" + Strings.repeat(" ", progressBar.length()));
+                    writer.print("\rInterrupted!");
                 } finally {
+                    writer.println();
                     try {
                         closer.close();
                     } catch (IOException e) {
@@ -111,23 +111,11 @@ public class GreyfishSimulationRunner implements Runnable {
     @Override
     public void run() {
         LOGGER.info("Starting {}", simulation);
-        final Runnable simulationTask = new Runnable() {
-            @Override
-            public void run() {
-                state = State.RUNNING;
-                Simulations.runWhile(simulation, Predicates.and(predicateList));
-            }
-        };
-        final Future<?> future = Executors.newSingleThreadExecutor().submit(simulationTask);
+
+        state = State.RUNNING;
         try {
-            future.get();
-        } catch (InterruptedException e) {
-            LOGGER.error("Simulation thread got interrupted", e);
-        } catch (ExecutionException e) {
-            LOGGER.error("Exception occurred while executing simulation", e);
-        }
-        finally {
-            LOGGER.info("Shutting down simulation {}", simulation);
+            Simulations.runWhile(simulation, Predicates.and(predicateList));
+        } finally {
             simulation.shutdown();
             state = State.SHUTDOWN;
         }

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOError;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,17 +54,6 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                 } catch (SQLException e) {
                     throw new IOError(e);
                 }
-
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            finalizeAndShutdownDatabase();
-                        } catch (SQLException e) {
-                            LOGGER.warn("Exception while finalizing the database", e);
-                        }
-                    }
-                });
                 return connection1;
             }
         });
@@ -79,7 +69,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         path = path.replace("~",System.getProperty("user.home"));
         final File file = new File(path + ".h2.db");
         LOGGER.info("Creating H2 database file at {}", file.getAbsolutePath());
-        checkArgument(!file.exists(), "Database file exists");
+        checkArgument(!file.exists(), "Database file exists: %s", file.getAbsolutePath());
         final String url = String.format("jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE", path);
         final Connection connection = DriverManager.getConnection(url, "sa", "");
         LOGGER.info("Connection opened to url {}", url);
@@ -298,6 +288,15 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
         addUpdateOperation(new InsertEventOperation(currentStep, agent.getId(), agent.getProjection(), idForName(source), idForName(title), message));
         tryCommit();
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            finalizeAndShutdownDatabase();
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
     }
 
     private static interface UpdateOperation {

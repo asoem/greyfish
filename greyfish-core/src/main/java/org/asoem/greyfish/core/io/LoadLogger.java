@@ -5,6 +5,8 @@ import com.google.common.util.concurrent.Service;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.core.agent.Agent;
 
+import java.io.IOException;
+
 /**
  * User: christoph
  * Date: 23.03.12
@@ -45,5 +47,10 @@ public class LoadLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
     @Override
     public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
         ++logCount;
+    }
+
+    @Override
+    public void close() throws IOException {
+        service.stop();
     }
 }

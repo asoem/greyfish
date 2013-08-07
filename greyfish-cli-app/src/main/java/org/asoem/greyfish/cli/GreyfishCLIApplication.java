@@ -2,6 +2,10 @@ package org.asoem.greyfish.cli;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFutureTask;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
@@ -28,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import static java.util.Arrays.asList;
 
@@ -145,6 +150,16 @@ public final class GreyfishCLIApplication {
                 try {
                     final SimulationLogger<DefaultGreyfishAgent> simulationLogger =
                             SimulationLoggers.synchronizedLogger(H2Logger.<DefaultGreyfishAgent>create(path));
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                simulationLogger.close();
+                            } catch (IOException e) {
+                                LOGGER.warn("Exception while closing the database", e);
+                            }
+                        }
+                    });
                     bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
                             .toInstance(simulationLogger);
                 } catch (Exception e) {
@@ -171,33 +186,46 @@ public final class GreyfishCLIApplication {
                     optionSet.has(REPRODUCIBLE_MODE_OPTION_SPEC)
                             ? new Well19937c(0) : new Well19937c());
 
-            final GreyfishSimulationRunner application = Guice.createInjector(
+            final GreyfishSimulationRunner runner = Guice.createInjector(
                     coreModule,
                     commandLineModule
             ).getInstance(GreyfishSimulationRunner.class);
 
-            application.run();
+            final ListenableFutureTask<Object> task = ListenableFutureTask.create(runner, null);
+            ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+            service.submit(task);
 
+            Futures.getUnchecked(task);
         } catch (OptionException e) {
-            exitWithErrorMessage("Failed parsing options: ", e);
-        } catch (RuntimeException e) {
-            System.out.println("Internal Error: " + e.getMessage());
-            e.printStackTrace(System.err);
-            System.exit(1);
+            exitWithErrorMessage("Failed parsing options: ", e, true);
+        } catch (Throwable e) {
+            exitWithErrorMessage(String.format("%s.\n"
+                    + "Check log file for detailed information",
+                    e.getCause().getMessage()));
         }
 
         System.exit(0);
     }
 
     private static void exitWithErrorMessage(final String message) {
+        exitWithErrorMessage(message, false);
+    }
+
+    private static void exitWithErrorMessage(final String message, final boolean printHelp) {
         System.out.println("ERROR: " + message);
-        printHelp(OPTION_PARSER);
+        if (printHelp) {
+            printHelp(OPTION_PARSER);
+        }
         System.exit(1);
     }
 
     private static void exitWithErrorMessage(final String message, final Throwable throwable) {
+        exitWithErrorMessage(message, throwable, false);
+    }
+
+    private static void exitWithErrorMessage(final String message, final Throwable throwable, final boolean printHelp) {
         LOGGER.error(message, throwable);
-        exitWithErrorMessage(message + throwable.getMessage());
+        exitWithErrorMessage(message + throwable.getMessage(), printHelp);
     }
 
     private static void printHelp(final OptionParser optionParser) {
