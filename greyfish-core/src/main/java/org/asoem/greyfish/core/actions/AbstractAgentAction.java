@@ -21,7 +21,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
         extends AbstractAgentComponent<A> implements AgentAction<A> {
 
     @Nullable
-    private ActionCondition<A> rootCondition;
+    private ActionCondition<A> condition;
     private Callback<? super AbstractAgentAction<A>, Void> onSuccess;
     private int successCount;
     private int stepAtLastSuccess;
@@ -30,11 +30,12 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     @SuppressWarnings("unchecked")
     protected AbstractAgentAction(final AbstractAgentAction<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
-        this.rootCondition = map.getClone(cloneable.rootCondition);
+        this.condition = map.getClone(cloneable.condition);
         this.onSuccess = cloneable.onSuccess;
     }
 
-    protected AbstractAgentAction(final AbstractBuilder<A, ? extends AbstractAgentAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    protected AbstractAgentAction(final AbstractBuilder<A, ? extends AbstractAgentAction<A>,
+            ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.onSuccess = builder.onSuccess;
         this.successCount = builder.successCount;
@@ -46,18 +47,17 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
 
     @Override
     public final boolean evaluateCondition() {
-        return rootCondition == null || rootCondition.evaluate();
+        return condition == null || condition.evaluate();
     }
 
     /**
      * Called by the {@code Agent} which contains this {@code AgentAction}
-     *
      */
     @Override
-    public ActionState apply() {
+    public final ActionState apply() {
         assert stepAtLastSuccess < agent().getSimulationStep()
                 : "actions must not get executed twice per step: "
-                    + stepAtLastSuccess + " >= " + agent().getSimulationStep();
+                + stepAtLastSuccess + " >= " + agent().getSimulationStep();
 
         if (INITIAL == actionState) {
             checkPreconditions();
@@ -94,12 +94,12 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     }
 
     @Override
-    public void reset() {
+    public final void reset() {
         setState(INITIAL);
     }
 
     @Override
-    public ActionState checkPreconditions() {
+    public final ActionState checkPreconditions() {
         checkState(actionState == INITIAL, "Action not is state %s", INITIAL);
         final boolean preconditionsMet = evaluateCondition();
         if (preconditionsMet) {
@@ -111,7 +111,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     }
 
     @Override
-    public ActionState getState() {
+    public final ActionState getState() {
         return actionState;
     }
 
@@ -119,67 +119,72 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     public void initialize() {
         super.initialize();
         reset();
-        if (rootCondition != null)
-            rootCondition.initialize();
+        if (condition != null) {
+            condition.initialize();
+        }
         successCount = 0;
         stepAtLastSuccess = -1;
     }
 
     @Nullable
-    public ActionCondition<A> getCondition() {
-        return rootCondition;
+    public final ActionCondition<A> getCondition() {
+        return condition;
     }
 
     @Override
-    public void setCondition(@Nullable final ActionCondition<A> rootCondition) {
-        this.rootCondition = rootCondition;
-        if (rootCondition != null) {
-            rootCondition.setAction(this);
+    public final void setCondition(@Nullable final ActionCondition<A> condition) {
+        this.condition = condition;
+        if (condition != null) {
+            condition.setAction(this);
         }
     }
 
     @Override
-    public int getCompletionCount() {
+    public final int getCompletionCount() {
         return this.successCount;
     }
 
-    public boolean wasNotExecutedForAtLeast(final int steps) {
+    public final boolean wasNotExecutedForAtLeast(final int steps) {
         // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
         return agent().getSimulationStep() - stepAtLastSuccess >= steps;
     }
 
     @Override
-    public int lastCompletionStep() {
+    public final int lastCompletionStep() {
         return stepAtLastSuccess;
     }
 
     @Override
-    public Iterable<AgentNode> children() {
-        return rootCondition != null ? Collections.<AgentNode>singletonList(getCondition()) : Collections.<AgentNode>emptyList();
+    public final Iterable<AgentNode> children() {
+        return condition != null ? Collections.<AgentNode>singletonList(getCondition()) : Collections.<AgentNode>emptyList();
     }
 
     @Override
-    public AgentNode parent() {
+    public final AgentNode parent() {
         return getAgent();
     }
 
-    public Callback<? super AbstractAgentAction<A>, Void> getSuccessCallback() {
+    public final Callback<? super AbstractAgentAction<A>, Void> getSuccessCallback() {
         return onSuccess;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, T extends AbstractAgentAction<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
+    protected abstract static class AbstractBuilder<A extends Agent<A, ?>,
+            T extends AbstractAgentAction<A>,
+            B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B>
+            implements Serializable {
         private ActionCondition<A> condition;
         private Callback<? super AbstractAgentAction<A>, Void> onSuccess = Callbacks.emptyCallback();
         private int successCount;
         private int stepAtLastSuccess = -1;
         private ActionState actionState = INITIAL;
 
-        protected AbstractBuilder() {}
+        protected AbstractBuilder() {
+        }
 
         protected AbstractBuilder(final AbstractAgentAction<A> action) {
             super(action);
-            this.condition = action.rootCondition;
+            this.condition = action.condition;
             this.onSuccess = action.onSuccess;
             this.successCount = action.successCount;
             this.stepAtLastSuccess = action.stepAtLastSuccess;

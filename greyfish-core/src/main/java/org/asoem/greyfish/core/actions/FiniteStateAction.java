@@ -92,14 +92,6 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
         );
     }
 
-    /**
-     * Won't report the number af actual invocations of this {@code FiniteStateAction}. Use {@link #getStatefulExecutionCount}
-     */
-    @Override
-    public int getCompletionCount() {
-        return super.getCompletionCount();
-    }
-
     public int getStatefulExecutionCount() {
         return statefulExecutionCount;
     }
