@@ -70,6 +70,7 @@ public final class Agents {
      * @param <A> the {@link Agent}'s type
      * @param <T> the type of the trait
      * @return a new accessor instance
+     * @throws ClassCastException if the trait could be found but is not of type {@code tClass}
      */
     public static <A extends Agent<A, ?>, T extends AgentTrait<A, ?>>
     ComponentAccessor<A, T> traitAccessor(final String traitName, final Class<T> tClass) {
@@ -89,10 +90,12 @@ public final class Agents {
      * (Fast means faster than {@link Agent#getTrait(String)}
      * @param traitName the name of the trait to find
      * @param typeToken the expected type of the trait value
-     *                  {@link org.asoem.greyfish.core.traits.AgentTrait#getValueType()}
+     *      {@link org.asoem.greyfish.core.traits.AgentTrait#getValueType()}
      * @param <A> the {@link Agent}'s type
      * @param <V> the value type of the trait
      * @return a new accessor instance
+     * @throws IllegalArgumentException if the trait could be found
+     *      but its value type is not assignable to {@code typeToken}
      */
     public static <A extends Agent<A, ?>, V>
     ComponentAccessor<A, AgentTrait<A, V>> traitAccessor(final String traitName, final TypeToken<V> typeToken) {
