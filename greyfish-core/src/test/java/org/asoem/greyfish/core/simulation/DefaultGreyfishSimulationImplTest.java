@@ -132,6 +132,7 @@ public class DefaultGreyfishSimulationImplTest {
         given(agent.getProjection()).willReturn(point2D);
         given(agent.getPopulation()).willReturn(testPopulation);
         given(agent.hasPopulation(testPopulation)).willReturn(true);
+        given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<DefaultGreyfishAgent, ?>>of());
 
         final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
                 new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
@@ -154,7 +155,6 @@ public class DefaultGreyfishSimulationImplTest {
         // then
         assertThat(simulation.getAgents(), contains(agent));
         verify(agent).activate(any(ActiveSimulationContext.class));
-        verify(chromosome).updateAgent(agent);
         verify(agent).setProjection(point2D);
     }
 

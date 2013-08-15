@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.core.traits.ChromosomeImpl;
+import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.core.traits.TraitVector;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -40,7 +40,7 @@ public class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
                 }
             });
 
-            final ChromosomeImpl chromosome = new ChromosomeImpl(traitVectors, Sets.newHashSet(agent().getId()));
+            final HeritableTraitsChromosome chromosome = new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent().getId()));
 
             agent().reproduce(chromosome);
 

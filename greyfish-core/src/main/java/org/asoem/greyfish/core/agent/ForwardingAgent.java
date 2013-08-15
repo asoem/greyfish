@@ -190,8 +190,8 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public boolean addTrait(final AgentTrait<A, ?> gene) {
-        return delegate().addTrait(gene);
+    public boolean addTrait(final AgentTrait<A, ?> trait) {
+        return delegate().addTrait(trait);
     }
 
     @Override

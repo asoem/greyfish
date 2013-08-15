@@ -115,8 +115,8 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public boolean addTrait(final AgentTrait<A, ?> gene) {
-        return addComponent(getTraits(), gene);
+    public boolean addTrait(final AgentTrait<A, ?> trait) {
+        return addComponent(getTraits(), trait);
     }
 
     @Override

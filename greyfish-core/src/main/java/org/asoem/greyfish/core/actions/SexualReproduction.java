@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
-import org.asoem.greyfish.core.traits.ChromosomeImpl;
+import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.core.traits.TraitVector;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.collect.*;
@@ -104,7 +104,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             }
         });
 
-        return new ChromosomeImpl(genes, Sets.newHashSet(femaleID, maleID));
+        return new HeritableTraitsChromosome(genes, Sets.newHashSet(femaleID, maleID));
     }
 
     @SuppressWarnings("unchecked")

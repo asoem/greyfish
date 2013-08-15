@@ -17,16 +17,40 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Set;
 
-public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends DeepCloneable, Freezable, Simulatable<S, A>, AgentNode {
+/**
+ * An Agent which is the basic {@link Simulatable} unit of a {@link Simulation}.
+ * @param <A> The type of the Agent implementation
+ * @param <S> The type of the Simulation implementation
+ */
+public interface Agent<A extends Agent<A, S>, S extends Simulation<A>>
+        extends DeepCloneable, Freezable, Simulatable<S, A>, AgentNode {
 
     void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2);
 
+    /**
+     * Get the population
+     * @return the population
+     */
     Population getPopulation();
 
+    /**
+     * Set the population
+     * @param population the new population
+     */
     void setPopulation(Population population);
 
+    /**
+     * Check if the population of this agent is equal to {@code population}.
+     * @param population the population to test against
+     * @return {@code true} if the populations are equal, {@code false} otherwise
+     */
     boolean hasPopulation(Population population);
 
+    /**
+     * Add a new action to this agent.
+     * @param action the action to add
+     * @return {@code true} if the action was added, {@code false} otherwise
+     */
     boolean addAction(AgentAction<A> action);
 
     boolean removeAction(AgentAction<A> action);
@@ -37,6 +61,11 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
 
     AgentAction<A> getAction(String name);
 
+    /**
+     * Add a new property to this agent.
+     * @param property the property to add
+     * @return {@code true} if the property was added, {@code false} otherwise
+     */
     boolean addProperty(AgentProperty<A, ?> property);
 
     boolean removeProperty(AgentProperty<A, ?> property);
@@ -49,7 +78,12 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>> extends D
 
     AgentProperty<A, ?> findProperty(Predicate<? super AgentProperty<A, ?>> predicate);
 
-    boolean addTrait(AgentTrait<A, ?> gene);
+    /**
+     * Add a new trait to this agent.
+     * @param trait the trait to add
+     * @return {@code true} if the trait was added, {@code false} otherwise
+     */
+    boolean addTrait(AgentTrait<A, ?> trait);
 
     boolean removeGene(AgentTrait<A, ?> gene);
 

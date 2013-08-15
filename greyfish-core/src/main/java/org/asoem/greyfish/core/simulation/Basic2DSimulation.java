@@ -16,7 +16,7 @@ import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.core.traits.Chromosome;
-import org.asoem.greyfish.core.traits.InitializerChromosome;
+import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.utils.base.*;
 import org.asoem.greyfish.utils.concurrent.RecursiveActions;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -37,7 +37,8 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>, Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
+public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>,
+        Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Basic2DSimulation.class);
 
@@ -71,7 +72,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public void addAgent(final A agent) {
+    public final void addAgent(final A agent) {
         checkState(state != SimulationState.PLANING_PHASE);
         checkNotNull(agent, "agent is null");
         // TODO: check state of agent (should be initialized)
@@ -95,7 +96,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public void removeAgent(final A agent) {
+    public final void removeAgent(final A agent) {
         checkNotNull(agent);
         removeAgentMessages.add(new RemoveAgentMessage<A>(agent));
     }
@@ -109,7 +110,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public int countAgents(final Population population) {
+    public final int countAgents(final Population population) {
         return space.count(population);
     }
 
@@ -127,27 +128,27 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public Set<A> getPrototypes() {
+    public final Set<A> getPrototypes() {
         return prototypes;
     }
 
     @Override
-    public Z getSpace() {
+    public final Z getSpace() {
         return space.delegate();
     }
 
     @Override
-    public double distance(final A agent, final double degrees) {
+    public final double distance(final A agent, final double degrees) {
         return space.distance(agent, degrees);
     }
 
     @Override
-    public int getSteps() {
+    public final int getSteps() {
         return currentStep.get();
     }
 
     @Override
-    public synchronized void nextStep() {
+    public final synchronized void nextStep() {
         setState(SimulationState.PLANING_PHASE);
 
         LOGGER.info("{}: Executing step {} with {} active agents", this, getSteps(), countAgents());
@@ -198,7 +199,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             final A clone = createClone(addAgentMessage.population);
             final Chromosome chromosome = Optional
                     .fromNullable(addAgentMessage.chromosome)
-                    .or(InitializerChromosome.INSTANCE);
+                    .or(HeritableTraitsChromosome.initializeFromAgent(clone));
             chromosome.updateAgent(clone);
             addAgentMessage.initializer.initialize(clone);
             addAgent(clone);
@@ -207,7 +208,9 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void processAgentsMovement() {
-        final RecursiveAction moveAllAgents = RecursiveActions.foreach(ImmutableList.copyOf(getAgents()), new VoidFunction<A>() {
+        final RecursiveAction moveAllAgents = RecursiveActions.foreach(
+                ImmutableList.copyOf(getAgents()),
+                new VoidFunction<A>() {
             @Override
             public void process(final A agent) {
                 space.moveObject(agent, agent.getMotion());
@@ -230,38 +233,38 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public void deliverMessage(final ACLMessage<A> message) {
+    public final void deliverMessage(final ACLMessage<A> message) {
         checkNotNull(message);
         deliverAgentMessageMessages.add(new DeliverAgentMessageMessage<A>(message));
     }
 
     @Override
-    public boolean hasStepValue(final String key) {
+    public final boolean hasStepValue(final String key) {
         return snapshotValues.containsKey(key);
     }
 
     @Override
-    public void setStepValue(final String key, final Object value) {
+    public final void setStepValue(final String key, final Object value) {
         snapshotValues.put(key, value);
     }
 
     @Override
-    public Object getStepValue(final String key) {
+    public final Object getStepValue(final String key) {
         return snapshotValues.get(key);
     }
 
     @Override
-    public void createAgent(final Population population, final Initializer<? super A> initializer) {
+    public final void createAgent(final Population population, final Initializer<? super A> initializer) {
         addAgentMessages.add(new AddAgentMessage<A>(population, null, initializer));
     }
 
-    protected void enqueueAgentCreation(final Population population, final P projection) {
+    protected final void enqueueAgentCreation(final Population population, final P projection) {
         checkNotNull(population);
         checkNotNull(projection);
         addAgentMessages.add(new AddAgentMessage<A>(population, null, AgentInitializers.projection(projection)));
     }
 
-    protected void enqueueAgentCreation(final Population population, final Chromosome chromosome, final P projection) {
+    protected final void enqueueAgentCreation(final Population population, final Chromosome chromosome, final P projection) {
         checkNotNull(population);
         checkNotNull(chromosome);
         checkNotNull(projection);
@@ -269,22 +272,22 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return title;
     }
 
     @Override
-    public void setName(final String name) {
+    public final void setName(final String name) {
         this.title = checkNotNull(name);
     }
 
     @Override
-    public Iterable<A> getAgents(final Population population) {
+    public final Iterable<A> getAgents(final Population population) {
         return space.getAgents(population);
     }
 
     @Override
-    protected SimulationLogger<? super A> getSimulationLogger() {
+    protected final SimulationLogger<? super A> getSimulationLogger() {
         return simulationLogger;
     }
 
@@ -293,7 +296,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         this.state = state;
     }
 
-    public SimulationState getState() {
+    public final SimulationState getState() {
         return state;
     }
 
@@ -304,7 +307,8 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         @Nullable
         private final Chromosome chromosome;
 
-        private AddAgentMessage(final Population population, @Nullable final Chromosome chromosome, final Initializer<? super T> initializer) {
+        private AddAgentMessage(final Population population, @Nullable final Chromosome chromosome,
+                                final Initializer<? super T> initializer) {
             assert population != null;
             assert initializer != null;
             this.chromosome = chromosome;
@@ -338,7 +342,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
         private final Z delegate;
         private final Multimap<Population, T> agentsByPopulation;
-        private final Predicate<T> INACTIVE_AGENT_PREDICATE = new Predicate<T>() {
+        private final Predicate<T> inactiveAgentPredicate = new Predicate<T>() {
             @Override
             public boolean apply(final T input) {
                 return !input.isActive();
@@ -391,8 +395,8 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         }
 
         public void removeInactiveAgents() {
-            if (super.removeIf(INACTIVE_AGENT_PREDICATE)) {
-                Iterables.removeIf(agentsByPopulation.values(), INACTIVE_AGENT_PREDICATE);
+            if (super.removeIf(inactiveAgentPredicate)) {
+                Iterables.removeIf(agentsByPopulation.values(), inactiveAgentPredicate);
             }
         }
 
@@ -438,23 +442,23 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             checkState(space.isEmpty(), "Space is not empty");
         }
 
-        public B agentPool(final KeyedObjectPool<Population, A> pool) {
+        public final B agentPool(final KeyedObjectPool<Population, A> pool) {
             this.agentPool = checkNotNull(pool);
             return self();
         }
 
-        public B parallelizationThreshold(final int parallelizationThreshold) {
+        public final B parallelizationThreshold(final int parallelizationThreshold) {
             checkArgument(parallelizationThreshold > 0, "parallelizationThreshold must be positive");
             this.parallelizationThreshold = parallelizationThreshold;
             return self();
         }
 
-        public B simulationLogger(final SimulationLogger<? super A> simulationLogger) {
+        public final B simulationLogger(final SimulationLogger<? super A> simulationLogger) {
             this.simulationLogger = simulationLogger;
             return self();
         }
 
-        public B simulationStepListener(final Callback<? super DefaultGreyfishSimulation, ? extends Void> callback) {
+        public final B simulationStepListener(final Callback<? super DefaultGreyfishSimulation, ? extends Void> callback) {
             return self();
         }
     }

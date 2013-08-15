@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.traits.Chromosome;
-import org.asoem.greyfish.core.traits.ChromosomeImpl;
+import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -82,7 +82,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (nextBoolean(rng(), probability)) {
 
-            final Chromosome chromosome = ChromosomeImpl.forAgent(agent());
+            final Chromosome chromosome = HeritableTraitsChromosome.copyFromAgent(agent());
             reply.content(chromosome, Chromosome.class)
                     .performative(ACLPerformative.PROPOSE);
 
