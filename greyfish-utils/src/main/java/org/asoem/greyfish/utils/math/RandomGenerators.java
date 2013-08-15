@@ -1,13 +1,14 @@
 package org.asoem.greyfish.utils.math;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooLargeException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
-import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.SynchronizedRandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,7 @@ public final class RandomGenerators {
      * Prevent instantiation of this class.
      */
     private RandomGenerators() {
-        throw new AssertionError();
+        throw new AssertionError("Not instantiable");
     }
 
     /**
@@ -44,7 +45,7 @@ public final class RandomGenerators {
      * @return a singleton instance of {@link Well19937c}
      */
     public static RandomGenerator well1993c() {
-        return Well19937cSingleton.INSTANCE;
+        return Well19937cHolder.INSTANCE;
     }
 
     /**
@@ -112,11 +113,14 @@ public final class RandomGenerators {
      * @param <T> the type of the elements to sample
      * @return the collection of sampled elements
      */
-    public static <T> Set<T> sampleUnique(final RandomGenerator rng, final Set<? extends T> elements, final int sampleSize) {
+    public static <T> Set<T> sampleUnique(final RandomGenerator rng,
+                                          final Set<? extends T> elements, final int sampleSize) {
         checkNotNull(rng);
         checkNotNull(elements);
-        checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
-        checkArgument(sampleSize <= elements.size(), "Cannot sample {} unique elements from set of size {}", sampleSize, elements.size());
+        checkArgument(!elements.isEmpty(),
+                "Cannot sample element from empty list");
+        checkArgument(sampleSize <= elements.size(),
+                "Cannot sample {} unique elements from set of size {}", sampleSize, elements.size());
 
         if (sampleSize == elements.size()) {
             @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
@@ -140,7 +144,8 @@ public final class RandomGenerators {
      * @param <T> the type of the elements to sample
      * @return the collection of sampled elements
      */
-    public static <T> Collection<T> sample(final RandomGenerator rng, final Collection<? extends T> elements, final int sampleSize) {
+    public static <T> Collection<T> sample(final RandomGenerator rng,
+                                           final Collection<? extends T> elements, final int sampleSize) {
         checkNotNull(rng);
         checkNotNull(elements);
         checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
@@ -152,7 +157,8 @@ public final class RandomGenerators {
     }
 
     /**
-     * Generates a random value for the normal distribution with the mean equal to {@code mu} and standard deviation equal to {@code sigma}.
+     * Generates a random value for the normal distribution
+     * with the mean equal to {@code mu} and standard deviation equal to {@code sigma}.
      *
      * @param mu the mean of the distribution
      * @param sigma the standard deviation of the distribution
@@ -177,7 +183,8 @@ public final class RandomGenerators {
         return nextDouble(rng, lower, upper, true);
     }
 
-    private static double nextDouble(final RandomGenerator rng, final double lower, final double upper, final boolean lowerInclusive) {
+    private static double nextDouble(final RandomGenerator rng, final double lower,
+                                     final double upper, final boolean lowerInclusive) {
 
         if (lower >= upper) {
             throw new NumberIsTooLargeException(LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
@@ -216,13 +223,23 @@ public final class RandomGenerators {
         return new Well19937c(seed);
     }
 
-    private static class Well19937cSingleton extends RandomAdaptor implements Serializable {
-
-        private static final Well19937cSingleton INSTANCE = new Well19937cSingleton();
-
-        private Well19937cSingleton() {
-            super(new Well19937c());
+    /**
+     * Create a thread safe {@code RandomGenerator} wrapping given {@code randomGenerator}.
+     * @param randomGenerator the generator to wrap
+     * @return a thread safe {@code RandomGenerator}
+     * @see SynchronizedRandomGenerator
+     */
+    public static RandomGenerator synchronizedGenerator(final RandomGenerator randomGenerator) {
+        if (randomGenerator instanceof SynchronizedRandomGenerator) {
+            return randomGenerator;
+        } else {
+            return new SynchronizedRandomGenerator(randomGenerator);
         }
+    }
+
+    private static class Well19937cHolder implements Serializable {
+
+        private static final Well19937c INSTANCE = new Well19937c();
 
         // preserving singleton-ness gives equals()/hashCode() for free
         private Object readResolve() {
@@ -230,5 +247,37 @@ public final class RandomGenerators {
         }
 
         private static final long serialVersionUID = 0;
+    }
+
+    /**
+     * Create a {@code RandomGenerator} which delegates all methods to a thread local instance
+     * of a generator created by the given {@code generatorSupplier}.
+     * @param generatorSupplier the factory to create the thread local instances
+     * @return a new generator delegating to a thread local instance
+     * @see ThreadLocal
+     */
+    public static RandomGenerator threadLocalGenerator(final Supplier<RandomGenerator> generatorSupplier) {
+        checkNotNull(generatorSupplier);
+        return new ThreadLocalRandomGenerator(generatorSupplier);
+    }
+
+    private static class ThreadLocalRandomGenerator extends ForwardingRandomGenerator {
+
+        private final Supplier<RandomGenerator> generatorSupplier;
+        private final ThreadLocal<RandomGenerator> localRandom = new ThreadLocal<RandomGenerator>() {
+            @Override
+            protected RandomGenerator initialValue() {
+                return generatorSupplier.get();
+            }
+        };
+
+        private ThreadLocalRandomGenerator(final Supplier<RandomGenerator> generatorSupplier) {
+            this.generatorSupplier = generatorSupplier;
+        }
+
+        @Override
+        protected RandomGenerator delegate() {
+            return localRandom.get();
+        }
     }
 }
