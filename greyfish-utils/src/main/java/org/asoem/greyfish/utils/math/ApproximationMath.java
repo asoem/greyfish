@@ -4,13 +4,13 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /**
- * User: christoph
- * Date: 23.07.12
- * Time: 16:06
+ * Math functions with less accuracy but increased performance.
  */
 public final class ApproximationMath {
 
-    private ApproximationMath() {}
+    private ApproximationMath() {
+        throw new AssertionError("Not instantiable");
+    }
 
     private static final double ZERO_CLOSEST_POSITIVE = Math.nextUp(0.0);
 
@@ -42,9 +42,9 @@ public final class ApproximationMath {
         final double x = -xMinusMean * xMinusMean * i2s2;
         if (x < -700) {
             return norm * ZERO_CLOSEST_POSITIVE;
-        }
-        else
+        } else {
             return norm * exp(x);
+        }
     }
 
     /**
@@ -72,26 +72,44 @@ public final class ApproximationMath {
     private static final double EXP_B = 1023.0 * Math.pow(2, 20);
     private static final double EXP_C = 45799.0;  /* Read article for choice of c values */
 
+    /**
+     * Create a gaussian function.
+     * @param norm the normalization factor
+     * @param mean the mean of the distribution
+     * @param sigma the standard deviation of the distribution
+     * @return a new gaussian function object
+     */
     public static UnivariateFunction gaussianFunction(final double norm, final double mean, final double sigma) {
         Preconditions.checkArgument(sigma > 0, "Sigma must be strictly positive, but was %s", sigma);
-        final double i2s2 = i2s2(sigma);
-
-        return new UnivariateFunction() {
-            @Override
-             public double value(final double x) {
-                 return gaussianHelper(x - mean, norm, i2s2);
-             }
-         };
+        return new GaussianFunction(sigma, mean, norm);
     }
 
-    public static void main(final String[] args) {
-        final double x1 = -10.0;
-        final double x2 = 10.0;
-        final double stepLength = 0.01;
-        final double v = (x2 - x1) / stepLength;
-        final UnivariateFunction function = gaussianFunction(1.0, 0.0, 2.0);
-        for (int i = 0; i <= v; i++) {
-            System.out.println(function.value(x1 + i * stepLength));
+    private static class GaussianFunction implements UnivariateFunction {
+        private final double sigma;
+        private final double mean;
+        private final double norm;
+
+        private final double i2s2;
+
+        public GaussianFunction(final double sigma, final double mean, final double norm) {
+            this.sigma = sigma;
+            this.mean = mean;
+            this.norm = norm;
+            this.i2s2 = ApproximationMath.i2s2(sigma);
+        }
+
+        @Override
+        public double value(final double x) {
+            return ApproximationMath.gaussianHelper(x - mean, norm, i2s2);
+        }
+
+        @Override
+        public String toString() {
+            return "GaussianFunction{" +
+                    "norm=" + norm +
+                    ", mean=" + mean +
+                    ", sigma=" + sigma +
+                    '}';
         }
     }
 }
