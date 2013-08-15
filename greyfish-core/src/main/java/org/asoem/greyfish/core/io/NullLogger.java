@@ -23,6 +23,10 @@ public final class NullLogger<A extends Agent<A, ?>> implements SimulationLogger
     }
 
     @Override
+    public void logProperty(final String marker, final String key, final String value) {
+    }
+
+    @Override
     public void close() throws IOException {
     }
 }

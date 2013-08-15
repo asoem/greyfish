@@ -22,39 +22,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
- * User: christoph
- * Date: 23.04.12
- * Time: 14:49
+ * A {@code SimulationLogger} implementation which logs events to a H2 Database.
+ * {@see http://http://h2database.com/}
  */
-public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogger<A> {
+public final class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogger<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(H2Logger.class);
     private static final int COMMIT_THRESHOLD = 1000;
 
-    private final Supplier<Connection> connection;
+    private final Supplier<Connection> connectionSupplier;
     private final List<UpdateOperation> updateOperationList;
     private final NameIdMap nameIdMap;
 
     private H2Logger(final String path) {
-        this.connection = Suppliers.memoize(new Supplier<Connection>() {
+        checkNotNull(path);
+        connectionSupplier = Suppliers.memoize(new Supplier<Connection>() {
             @Override
             public Connection get() {
                 loadDriver();
-                checkNotNull(path, "path is null");
 
-                final Connection connection1;
+                final Connection newConnection;
                 try {
-                    connection1 = createConnection(path);
-                    initDatabaseStructure(connection1);
-                    connection1.setAutoCommit(false);
+                    newConnection = createConnection(path);
+                    initDatabaseStructure(newConnection);
+                    newConnection.setAutoCommit(false);
                 } catch (SQLException e) {
                     throw new IOError(e);
                 }
-                return connection1;
+                return newConnection;
             }
         });
         nameIdMap = new NameIdMap();
@@ -65,16 +64,19 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         return new H2Logger<A>(path);
     }
 
-    private Connection createConnection(String path) throws SQLException {
-        path = path.replace("~",System.getProperty("user.home"));
-        final File file = new File(path + ".h2.db");
-        LOGGER.info("Creating H2 database file at {}", file.getAbsolutePath());
-        checkArgument(!file.exists(), "Database file exists: %s", file.getAbsolutePath());
-        final String url = String.format("jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE", path);
-        final Connection connection = DriverManager.getConnection(url, "sa", "");
+    private static Connection createConnection(final String path) throws SQLException {
+        final String absolutePath = path.replace("~", System.getProperty("user.home"));
+        final File file = new File(absolutePath + ".h2.db");
+        checkState(!file.exists(), "Database file exists: %s", file.getAbsolutePath());
+
+        final String url = String.format(
+                "jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE", path);
+        LOGGER.info("Connecting to database at {}", url);
+
+        final Connection newConnection = DriverManager.getConnection(url, "sa", "");
         LOGGER.info("Connection opened to url {}", url);
-        assert connection != null;
-        return connection;
+        assert newConnection != null;
+        return newConnection;
     }
 
     private void loadDriver() {
@@ -85,9 +87,8 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
     }
 
-    private void initDatabaseStructure(final Connection connection) throws SQLException {
-        assert connection != null;
-        final Statement statement = connection.createStatement();
+    private static void initDatabaseStructure(final Connection newConnection) throws SQLException {
+        final Statement statement = newConnection.createStatement();
         try {
             statement.execute(
                     "CREATE TABLE agents (" +
@@ -131,16 +132,22 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                             "x REAL NOT NULL, " +
                             "y REAL NOT NULL " +
                             ")");
-        }
-        catch (SQLException e) {
+            statement.execute(
+                    "CREATE TABLE properties (" +
+                            "id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, " +
+                            "type VARCHAR(255) NOT NULL, " +
+                            "key VARCHAR(255) NOT NULL, " +
+                            "value VARCHAR(255) NOT NULL" +
+                            ")"
+            );
+        } catch (SQLException e) {
             try {
-                this.connection.get().close();
+                newConnection.close();
             } catch (SQLException e1) {
                 LOGGER.warn("Exception during connection.close()", e1);
             }
             throw e;
-        }
-        finally {
+        } finally {
             closeStatement(statement);
         }
     }
@@ -149,9 +156,10 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         LOGGER.info("Finalizing and shutting down the database");
 
         commit();
-        connection.get().setAutoCommit(true);
+        final Connection connection = connectionSupplier.get();
+        connection.setAutoCommit(true);
 
-        final Statement statement = connection.get().createStatement();
+        final Statement statement = connection.createStatement();
         statement.execute(
                 "CREATE INDEX ON quantitative_traits(agent_id)");
         statement.execute(
@@ -182,10 +190,10 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
 
     private void tryCommit() {
         try {
-            if (shouldCommit())
+            if (shouldCommit()) {
                 commit();
-        }
-        catch (SQLException e) {
+            }
+        } catch (SQLException e) {
             throw new IOError(e);
         }
     }
@@ -194,13 +202,14 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         final Map<String, PreparedStatement> preparedStatementMap = Maps.newHashMap();
 
         try {
+            final Connection connection = connectionSupplier.get();
             for (final UpdateOperation updateOperation : updateOperationList) {
                 final String sql = updateOperation.sqlString();
                 if (!preparedStatementMap.containsKey(sql)) {
-                    preparedStatementMap.put(sql, connection.get().prepareStatement(sql));
+                    preparedStatementMap.put(sql, connection.prepareStatement(sql));
                 }
                 final PreparedStatement preparedStatement = preparedStatementMap.get(sql);
-                updateOperation.update(preparedStatement);
+                updateOperation.setValues(preparedStatement);
                 preparedStatement.addBatch();
             }
             updateOperationList.clear();
@@ -209,7 +218,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                 preparedStatement.executeBatch();
             }
 
-            connection.get().commit();
+            connection.commit();
         } finally {
             for (final PreparedStatement preparedStatement : preparedStatementMap.values()) {
                 closeStatement(preparedStatement);
@@ -222,13 +231,14 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     }
 
     private static void closeStatement(@Nullable final Statement statement) {
-        if (statement == null)
+        if (statement == null) {
             return;
-        try{
-            if (!statement.isClosed())
-                statement.close();
         }
-        catch (SQLException e) {
+        try {
+            if (!statement.isClosed()) {
+                statement.close();
+            }
+        } catch (SQLException e) {
             LOGGER.warn("Exception occurred while closing statement {}", statement, e);
         }
     }
@@ -240,8 +250,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     private short idForName(final String name) {
         if (nameIdMap.contains(name)) {
             return nameIdMap.get(name);
-        }
-        else {
+        } else {
             final short id = nameIdMap.create(name);
             addUpdateOperation(new InsertNameOperation(id, name));
             return id;
@@ -273,8 +282,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
                         agent.getId(),
                         idForName(trait.getName()),
                         Optional.fromNullable((Number) value).or(Double.NaN).doubleValue()));
-            }
-            else {
+            } else {
                 addUpdateOperation(new InsertTraitAsStringOperation(
                         agent.getId(),
                         idForName(trait.getName()),
@@ -285,8 +293,20 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
     }
 
     @Override
-    public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
-        addUpdateOperation(new InsertEventOperation(currentStep, agent.getId(), agent.getProjection(), idForName(source), idForName(title), message));
+    public void logAgentEvent(final A agent, final int currentStep, final String source,
+                              final String title, final String message) {
+        final InsertEventOperation insertEventOperation =
+                new InsertEventOperation(
+                        currentStep, agent.getId(), agent.getProjection(),
+                        idForName(source), idForName(title), message);
+        addUpdateOperation(insertEventOperation);
+        tryCommit();
+    }
+
+    @Override
+    public void logProperty(final String marker, final String key, final String value) {
+        final InsertPropertyOperation insertPropertyOperation = new InsertPropertyOperation(marker, key, value);
+        addUpdateOperation(insertPropertyOperation);
         tryCommit();
     }
 
@@ -299,12 +319,21 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
     }
 
-    private static interface UpdateOperation {
-        public String sqlString();
-        public void update(PreparedStatement statement) throws SQLException;
+    private interface UpdateOperation {
+        /**
+         * @return the sql string to insert into {@link Connection#prepareStatement(String)}
+         */
+        String sqlString();
+
+        /**
+         * Set the values for the prepared {@code statement}.
+         * @param statement the statement returned by {@link #sqlString()}
+         * @throws SQLException if an error occurred when setting values
+         */
+        void setValues(PreparedStatement statement) throws SQLException;
     }
 
-    private static class InsertEventOperation implements UpdateOperation {
+    private static final class InsertEventOperation implements UpdateOperation {
         private final int currentStep;
         private final int agentId;
         private final Point2D coordinates;
@@ -312,7 +341,9 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         private final short titleNameId;
         private final String message;
 
-        public InsertEventOperation(final int currentStep, final int agentId, final Object2D coordinate, final short sourceNameId, final short titleNameId, final String message) {
+        public InsertEventOperation(final int currentStep, final int agentId,
+                                    final Object2D coordinate, final short sourceNameId,
+                                    final short titleNameId, final String message) {
             this.currentStep = currentStep;
             this.agentId = agentId;
             this.coordinates = coordinate.getCentroid();
@@ -323,11 +354,13 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
 
         @Override
         public String sqlString() {
-            return "INSERT INTO agent_events (simulation_step, agent_id, source_name_id, title_name_id, message, x, y) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            return "INSERT INTO " +
+                    "agent_events (simulation_step, agent_id, source_name_id, title_name_id, message, x, y) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
         }
 
         @Override
-        public void update(final PreparedStatement statement) throws SQLException {
+        public void setValues(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, currentStep);
             statement.setInt(2, agentId);
             statement.setShort(3, sourceNameId);
@@ -338,7 +371,7 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
     }
 
-    private static class InsertAgentOperation implements UpdateOperation {
+    private static final class InsertAgentOperation implements UpdateOperation {
         private final int id;
         private final short populationNameId;
         private final int timeOfBirth;
@@ -355,14 +388,14 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(final PreparedStatement statement) throws SQLException {
+        public void setValues(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, id);
             statement.setShort(2, populationNameId);
             statement.setInt(3, timeOfBirth);
         }
     }
 
-    private static class InsertChromosomeOperation implements UpdateOperation {
+    private static final class InsertChromosomeOperation implements UpdateOperation {
         private final int childAgentId;
         private final int parentAgentId;
 
@@ -377,13 +410,13 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(final PreparedStatement statement) throws SQLException {
+        public void setValues(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, childAgentId);
             statement.setInt(2, parentAgentId);
         }
     }
 
-    private static class InsertTraitAsDoubleOperation implements UpdateOperation {
+    private static final class InsertTraitAsDoubleOperation implements UpdateOperation {
         private final int agentId;
         private final short geneNameId;
         private final Double allele;
@@ -400,14 +433,14 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(final PreparedStatement statement) throws SQLException {
+        public void setValues(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, agentId);
             statement.setShort(2, geneNameId);
             statement.setDouble(3, allele);
         }
     }
 
-    private static class InsertTraitAsStringOperation implements UpdateOperation {
+    private static final class InsertTraitAsStringOperation implements UpdateOperation {
         private final int agentId;
         private final short geneNameId;
         private final short traitValueId;
@@ -424,14 +457,14 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(final PreparedStatement statement) throws SQLException {
+        public void setValues(final PreparedStatement statement) throws SQLException {
             statement.setInt(1, agentId);
             statement.setShort(2, geneNameId);
             statement.setShort(3, traitValueId);
         }
     }
 
-    private static class InsertNameOperation implements UpdateOperation {
+    private static final class InsertNameOperation implements UpdateOperation {
         private final String name;
         private final short id;
 
@@ -446,21 +479,22 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
         }
 
         @Override
-        public void update(final PreparedStatement statement) throws SQLException {
+        public void setValues(final PreparedStatement statement) throws SQLException {
             statement.setShort(1, id);
             statement.setString(2, name);
         }
     }
 
-    private static class NameIdMap {
+    private static final class NameIdMap {
         private final Map<String, Short> map = Maps.newHashMap();
         private short maxId = 0;
 
         public short create(final String s) {
             assert s != null;
 
-            if (map.containsKey(s))
+            if (map.containsKey(s)) {
                 throw new IllegalArgumentException("Key already exists: " + s);
+            }
 
             final short value = ++maxId;
             final Short previous = map.put(s, value);
@@ -475,6 +509,30 @@ public class H2Logger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogg
 
         public short get(final String name) {
             return map.get(name);
+        }
+    }
+
+    private static final class InsertPropertyOperation implements UpdateOperation {
+        private final String type;
+        private final String key;
+        private final String value;
+
+        public InsertPropertyOperation(final String type, final String key, final String value) {
+            this.type = type;
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String sqlString() {
+            return "INSERT INTO properties (type, key, value) VALUES (?, ?, ?)";
+        }
+
+        @Override
+        public void setValues(final PreparedStatement statement) throws SQLException {
+            statement.setString(1, type);
+            statement.setString(2, key);
+            statement.setString(3, value);
         }
     }
 }

@@ -10,7 +10,7 @@ import java.io.IOException;
 public final class SimulationLoggers {
 
     private SimulationLoggers() {
-        throw new AssertionError();
+        throw new AssertionError("Not instantiable");
     }
 
     /**
@@ -23,7 +23,7 @@ public final class SimulationLoggers {
         return new SynchronizedLogger<A>(logger);
     }
 
-    private static class SynchronizedLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+    private static final class SynchronizedLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
         private final SimulationLogger<A> logger;
 
         public SynchronizedLogger(final SimulationLogger<A> logger) {
@@ -39,9 +39,17 @@ public final class SimulationLoggers {
         }
 
         @Override
-        public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
+        public void logAgentEvent(final A agent, final int currentStep, final String source,
+                                  final String title, final String message) {
             synchronized (this) {
                 logger.logAgentEvent(agent, currentStep, source, title, message);
+            }
+        }
+
+        @Override
+        public void logProperty(final String marker, final String key, final String value) {
+            synchronized (this) {
+                logger.logProperty(marker, key, value);
             }
         }
 
