@@ -1,19 +1,18 @@
 package org.asoem.greyfish.cli;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
+import com.google.common.io.Closer;
 import com.google.common.io.Files;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFutureTask;
-import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.Monitor;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
+import com.google.common.util.concurrent.Service;
+import com.google.inject.*;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 import joptsimple.*;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
@@ -23,6 +22,7 @@ import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
 import org.asoem.greyfish.core.model.SimulationModel;
 import org.asoem.greyfish.utils.collect.Product2;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 import static java.util.Arrays.asList;
 
@@ -50,8 +49,8 @@ public final class GreyfishCLIApplication {
     private static final ArgumentAcceptingOptionSpec<String> CLASSPATH_OPTION_SPEC =
             OPTION_PARSER.acceptsAll(asList("cp", "classpath"), "add to classpath (where model classes can be found)")
                     .withRequiredArg().ofType(String.class);
-    private static final OptionSpecBuilder REPRODUCIBLE_MODE_OPTION_SPEC =
-            OPTION_PARSER.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0");
+    /* private static final OptionSpecBuilder REPRODUCIBLE_MODE_OPTION_SPEC =
+            OPTION_PARSER.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0"); */
     private static final ArgumentAcceptingOptionSpec<String> SIMULATION_NAME_OPTION_SPEC =
             OPTION_PARSER.acceptsAll(asList("n", "name"), "Set simulation name")
                     .withRequiredArg().ofType(String.class);
@@ -84,6 +83,8 @@ public final class GreyfishCLIApplication {
     private static final ArgumentAcceptingOptionSpec<Integer> STEPS_OPTION_SPEC =
             OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
                     .withRequiredArg().ofType(Integer.class).required();
+
+    private static final Closer CLOSER = Closer.create();
 
     private GreyfishCLIApplication() {}
 
@@ -130,8 +131,12 @@ public final class GreyfishCLIApplication {
 
                 if (optionSet.has(MODEL_PARAMETER_OPTION_SPEC)) {
                     final Map<String, String> properties = Maps.newHashMap();
-                    for (final ModelParameterOptionValue s : optionSet.valuesOf(MODEL_PARAMETER_OPTION_SPEC)) {
-                        properties.put(s.key, s.value);
+                    for (final ModelParameterOptionValue modelParameterOption : optionSet.valuesOf(MODEL_PARAMETER_OPTION_SPEC)) {
+                        if (properties.containsKey(modelParameterOption.key)) {
+                            LOGGER.warn("Model parameter {} was defined twice. Overwriting value {} with {}",
+                                    modelParameterOption.key, properties.get(modelParameterOption.key), modelParameterOption.value);
+                        }
+                        properties.put(modelParameterOption.key, modelParameterOption.value);
                     }
                     bindListener(Matchers.any(), new ModelParameterTypeListener(properties));
                 }
@@ -150,16 +155,7 @@ public final class GreyfishCLIApplication {
                 try {
                     final SimulationLogger<DefaultGreyfishAgent> simulationLogger =
                             SimulationLoggers.synchronizedLogger(H2Logger.<DefaultGreyfishAgent>create(path));
-                    Runtime.getRuntime().addShutdownHook(new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                simulationLogger.close();
-                            } catch (IOException e) {
-                                LOGGER.warn("Exception while closing the database", e);
-                            }
-                        }
-                    });
+                    CLOSER.register(simulationLogger);
                     bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
                             .toInstance(simulationLogger);
                 } catch (Exception e) {
@@ -170,6 +166,17 @@ public final class GreyfishCLIApplication {
     }
 
     public static void main(final String[] args) {
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    CLOSER.close();
+                } catch (IOException e) {
+                    LOGGER.warn("Exception while closing resources", e);
+                }
+            }
+        });
 
         final OptionParser optionParser = OPTION_PARSER;
 
@@ -182,24 +189,99 @@ public final class GreyfishCLIApplication {
             }
 
             final Module commandLineModule = createCommandLineModule(optionSet);
-            final Module coreModule = new CoreModule(
-                    optionSet.has(REPRODUCIBLE_MODE_OPTION_SPEC)
-                            ? new Well19937c(0) : new Well19937c());
+            final RandomGenerator randomGenerator = RandomGenerators.threadLocalGenerator(
+                    new Supplier<RandomGenerator>() {
+                        @Override
+                        public RandomGenerator get() {
+                            return new Well19937c();
+                        }
+                    });
+            final Module coreModule = new CoreModule(randomGenerator);
 
-            final GreyfishSimulationRunner runner = Guice.createInjector(
+            final Injector injector = Guice.createInjector(
                     coreModule,
                     commandLineModule
-            ).getInstance(GreyfishSimulationRunner.class);
+            );
 
-            final ListenableFutureTask<Object> task = ListenableFutureTask.create(runner, null);
-            ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
-            service.submit(task);
+            /* TODO: this monitor will be deprecated as soon as guava 15.0 is released.
+                Services will have their own monitors */
+            final Monitor monitor = new Monitor();
 
-            Futures.getUnchecked(task);
+            final SimulationExecutionService simulationExecutionService =
+                    injector.getInstance(SimulationExecutionService.class);
+            simulationExecutionService.addListener(new Service.Listener() {
+                @Override public void starting() {
+                    monitor.enter();
+                    monitor.leave();
+                }
+                @Override public void running() {}
+                @Override public void stopping(final Service.State from) {}
+                @Override public void terminated(final Service.State from) {
+                    monitor.enter();
+                    monitor.leave();
+                }
+                @Override public void failed(final Service.State from, final Throwable failure) {
+                    monitor.enter();
+                    monitor.leave();
+                }
+            }, MoreExecutors.sameThreadExecutor());
+
+            if (!optionSet.has(QUIET_OPTION_SPEC)) {
+                final SimulationMonitorService monitorService =
+                        new SimulationMonitorService(simulationExecutionService.getSimulation(), System.out, optionSet.valueOf(STEPS_OPTION_SPEC));
+                monitorService.addListener(new Service.Listener() {
+                    @Override public void starting() {}
+                    @Override public void running() {}
+                    @Override public void stopping(final Service.State from) {}
+                    @Override public void terminated(final Service.State from) {}
+                    @Override public void failed(final Service.State from, final Throwable failure) {
+                        LOGGER.error("Monitor service failed", failure);
+                    }
+                }, MoreExecutors.sameThreadExecutor());
+                simulationExecutionService.addListener(new Service.Listener() {
+                    @Override public void starting() {}
+                    @Override public void running() {
+                        monitorService.startAndWait();
+                    }
+                    @Override public void stopping(final Service.State from) {}
+                    @Override public void terminated(final Service.State from) {
+                        monitorService.stopAndWait();
+                    }
+                    @Override public void failed(final Service.State from, final Throwable failure) {
+                        monitorService.stopAndWait();
+                    }
+                }, MoreExecutors.sameThreadExecutor());
+            }
+
+
+            // start simulation
+            simulationExecutionService.startAndWait();
+
+            // stop simulation on shutdown request (^C)
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    if (simulationExecutionService.isRunning()) {
+                        simulationExecutionService.stopAndWait();
+                    }
+                }
+            });
+
+            // await termination
+            monitor.enterWhenUninterruptibly(new Monitor.Guard(monitor) {
+                @Override
+                public boolean isSatisfied() {
+                    return simulationExecutionService.state() == Service.State.TERMINATED
+                            || simulationExecutionService.state() == Service.State.FAILED;
+                }
+            });
+            monitor.leave();
         } catch (OptionException e) {
+            LOGGER.error("Failed parsing options: {}", e);
             exitWithErrorMessage("Failed parsing options: ", e, true);
         } catch (Throwable e) {
-            exitWithErrorMessage(String.format("%s.\n"
+            LOGGER.error("Exception during simulation execution", e);
+            exitWithErrorMessage(String.format("Exception during simulation execution: %s.\n"
                     + "Check log file for detailed information",
                     e.getCause().getMessage()));
         }
