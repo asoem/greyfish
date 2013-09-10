@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.acl;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ImmutableList;
@@ -13,7 +14,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * User: christoph
@@ -51,13 +51,8 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
     }
 
     @Override
-    public M find(final Predicate<? super M> predicate) throws NoSuchElementException {
-        return Iterables.find(buffer, predicate);
-    }
-
-    @Override
-    public M find(final Predicate<? super M> predicate, final M defaultValue) {
-        return Iterables.find(buffer, predicate, defaultValue);
+    public Optional<M> findFirst(final Predicate<? super M> predicate) {
+        return Optional.fromNullable(Iterables.find(buffer, predicate, null));
     }
 
     @Override

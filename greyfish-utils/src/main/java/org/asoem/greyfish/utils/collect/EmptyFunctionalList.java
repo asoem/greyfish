@@ -1,10 +1,10 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import java.io.InvalidObjectException;
 import java.io.Serializable;
-import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
 
@@ -30,13 +30,8 @@ class EmptyFunctionalList extends AbstractFunctionalList<Object> implements Seri
     }
 
     @Override
-    public Object find(final Predicate<? super Object> predicate) throws NoSuchElementException {
-        throw new NoSuchElementException();
-    }
-
-    @Override
-    public Object find(final Predicate<? super Object> predicate, final Object defaultValue) {
-        return defaultValue;
+    public Optional<Object> findFirst(final Predicate<? super Object> predicate) {
+        return Optional.absent();
     }
 
     @Override

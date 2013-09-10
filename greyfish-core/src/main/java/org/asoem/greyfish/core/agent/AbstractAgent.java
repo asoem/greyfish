@@ -31,12 +31,12 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends AgentComponent> E findByName(final FunctionalList<E> functionalList, final String name) {
-        return functionalList.find(new Predicate<AgentComponent>() {
+        return functionalList.findFirst(new Predicate<AgentComponent>() {
             @Override
             public boolean apply(final AgentComponent agentAction) {
                 return agentAction.getName().equals(name);
             }
-        });
+        }).get();
     }
 
     protected abstract A self();
@@ -111,7 +111,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     public final AgentProperty<A, ?> findProperty(final Predicate<? super AgentProperty<A, ?>> predicate) {
-        return getProperties().find(predicate);
+        return getProperties().findFirst(predicate).get();
     }
 
     @Override
@@ -282,7 +282,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     public AgentTrait<A, ?> findTrait(final Predicate<? super AgentTrait<A, ?>> traitPredicate) {
-        return getTraits().find(traitPredicate);
+        return getTraits().findFirst(traitPredicate).get();
     }
 
     @Override

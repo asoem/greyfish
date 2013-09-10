@@ -1,12 +1,12 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndex;
@@ -47,34 +47,21 @@ class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public E find(final Predicate<? super E> predicate) {
+    public Optional<E> findFirst(final Predicate<? super E> predicate) {
         checkNotNull(predicate, "Predicate is null");
-        if (predicate.apply(e0))
-            return e0;
-        else if (predicate.apply(e1))
-            return e1;
-        else if (predicate.apply(e2))
-            return e2;
-        else if (predicate.apply(e3))
-            return e3;
-        else
-            throw new NoSuchElementException("No element was found matching the given predicate: " + predicate);
+        if (predicate.apply(e0)) {
+            return Optional.of(e0);
+        } else if (predicate.apply(e1)) {
+            return Optional.of(e1);
+        } else if (predicate.apply(e2)) {
+            return Optional.of(e2);
+        } else if (predicate.apply(e3)) {
+            return Optional.of(e3);
+        } else {
+            return Optional.absent();
+        }
     }
 
-    @Override
-    public E find(final Predicate<? super E> predicate, final E defaultValue) {
-        checkNotNull(predicate, "Predicate is null");
-        if (predicate.apply(e0))
-            return e0;
-        else if (predicate.apply(e1))
-            return e1;
-        else if (predicate.apply(e2))
-            return e2;
-        else if (predicate.apply(e3))
-            return e3;
-        else
-            return defaultValue;
-    }
 
     private void readObject(final ObjectInputStream s)
             throws IOException, ClassNotFoundException {

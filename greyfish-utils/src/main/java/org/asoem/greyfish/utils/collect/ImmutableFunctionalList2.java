@@ -1,12 +1,12 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndex;
@@ -18,8 +18,8 @@ import static com.google.common.base.Preconditions.checkPositionIndex;
  */
 class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements Serializable, FunctionalList<E> {
 
-    final private E e0;
-    final private E e1;
+    private final E e0;
+    private final E e1;
 
     ImmutableFunctionalList2(final E e0, final E e1) {
         this.e0 = checkNotNull(e0);
@@ -41,23 +41,15 @@ class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements 
     }
 
     @Override
-    public E find(final Predicate<? super E> predicate) {
+    public Optional<E> findFirst(final Predicate<? super E> predicate) {
         checkNotNull(predicate, "Predicate is null");
-        if (predicate.apply(e0))
-            return e0;
-        if (predicate.apply(e1))
-            return e1;
-        throw new NoSuchElementException();
-    }
-
-    @Override
-    public E find(final Predicate<? super E> predicate, final E defaultValue) {
-        checkNotNull(predicate, "Predicate is null");
-        if (predicate.apply(e0))
-            return e0;
-        if (predicate.apply(e1))
-            return e1;
-        return defaultValue;
+        if (predicate.apply(e0)) {
+            return Optional.of(e0);
+        } else if (predicate.apply(e1)) {
+            return Optional.of(e1);
+        } else {
+            return Optional.absent();
+        }
     }
 
     @Override

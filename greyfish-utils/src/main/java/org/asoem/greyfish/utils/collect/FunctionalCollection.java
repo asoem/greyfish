@@ -5,10 +5,13 @@ import com.google.common.base.Predicate;
 import java.util.Collection;
 
 /**
- * User: christoph
- * Date: 15.01.13
- * Time: 18:14
+ * A {@link Collection} which supports functional style operations.
  */
 public interface FunctionalCollection<E> extends Collection<E>, Searchable<E> {
-    public boolean any(Predicate<E> predicate);
+    /**
+     * Check if at least one of the elements satisfies the given {@code predicate}.
+     * @param predicate the {@code Predicate} to check against
+     * @return {@code true} if at least one element satisfies {@code predicate}, {@code false} otherwise
+     */
+    boolean any(Predicate<E> predicate);
 }
