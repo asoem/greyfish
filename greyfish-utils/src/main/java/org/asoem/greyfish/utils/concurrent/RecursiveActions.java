@@ -2,9 +2,11 @@ package org.asoem.greyfish.utils.concurrent;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
+import jsr166y.RecursiveTask;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -44,8 +46,7 @@ public final class RecursiveActions {
 
         if (list.isEmpty()) {
             return NULL_ACTION;
-        }
-        else {
+        } else {
             return new RecursiveAction() {
                 @Override
                 protected void compute() {
@@ -54,8 +55,7 @@ public final class RecursiveActions {
 
                     if (list.size() < size) {
                         applyFunction(list);
-                    }
-                    else {
+                    } else {
                         invokeAll(partitionAndFork(list));
                     }
                 }
@@ -82,6 +82,84 @@ public final class RecursiveActions {
                     }
                 }
             };
+        }
+    }
+
+    public static <T, S> RecursiveAction foldLeft(final T initialValue, final List<T> list, final Function<? super T, S> f, final int size) {
+        checkNotNull(list);
+        checkNotNull(f);
+
+        if (list.isEmpty()) {
+            return NULL_ACTION;
+        } else {
+            return new RecursiveAction() {
+                @Override
+                protected void compute() {
+                    checkState(inForkJoinPool(),
+                            "This action is executed from outside of an ForkJoinPool which is forbidden");
+
+                    if (list.size() < size) {
+                        applyFunction(list);
+                    } else {
+                        invokeAll(partitionAndFork(list));
+                    }
+                }
+
+                private List<RecursiveAction> partitionAndFork(final List<T> list) {
+                    // copyOf is prevents deadlock!
+                    return ImmutableList.copyOf(Lists.transform(Lists.partition(list, size), new Function<List<T>, RecursiveAction>() {
+                        @Nullable
+                        @Override
+                        public RecursiveAction apply(@Nullable final List<T> input) {
+                            return new RecursiveAction() {
+                                @Override
+                                protected void compute() {
+                                    applyFunction(input);
+                                }
+                            };
+                        }
+                    }));
+                }
+
+                private void applyFunction(final Iterable<T> elements) {
+                    for (final T element : elements) {
+                        f.apply(element);
+                    }
+                }
+            };
+        }
+    }
+
+    public static final class Transform<E1, E2> extends RecursiveTask<Iterable<E2>> {
+
+        private final List<? extends E1> list;
+        private final int start;
+        private final int end;
+        private final int sequentialThreshold;
+        private final Function<? super E1, ? extends E2> transform;
+
+        public Transform(final List<? extends E1> list, final int start, final int end, final int sequentialThreshold, final Function<? super E1, ? extends E2> transform) {
+            this.list = list;
+            this.start = start;
+            this.end = end;
+            this.sequentialThreshold = sequentialThreshold;
+            this.transform = transform;
+        }
+
+        @Override
+        protected Iterable<E2> compute() {
+            if (end - start <= sequentialThreshold) {
+                return Iterables.transform(list.subList(start, end), transform);
+            } else {
+                int mid = start + (end - start) / 2;
+                final Transform<E1, E2> leftTransform = new Transform<E1, E2>(list, start, mid, sequentialThreshold, transform);
+                final Transform<E1, E2> rightTransform = new Transform<E1, E2>(list, mid, end, sequentialThreshold, transform);
+
+                leftTransform.fork();
+                final Iterable<E2> rightAnswer = rightTransform.invoke();
+                final Iterable<E2> leftAnswer = leftTransform.join();
+                return Iterables.concat(leftAnswer, rightAnswer);
+            }
         }
     }
 

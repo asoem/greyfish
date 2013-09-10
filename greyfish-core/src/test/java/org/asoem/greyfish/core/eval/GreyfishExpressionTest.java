@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.asoem.greyfish.utils.persistence.Persisters.createCopy;
+import static org.asoem.greyfish.utils.persistence.Persisters.copyAsync;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
@@ -90,7 +90,7 @@ public class GreyfishExpressionTest {
         });
 
         // when
-        final GreyfishExpression copy = createCopy(expression, Persisters.javaSerialization());
+        final GreyfishExpression copy = copyAsync(expression, Persisters.javaSerialization());
 
         // then
         assertThat(copy, both(is(equalTo(expression))).and(is(not(sameInstance((Object) expression)))));

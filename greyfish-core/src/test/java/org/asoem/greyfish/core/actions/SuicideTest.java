@@ -31,7 +31,7 @@ public class SuicideTest {
                 .build();
 
         // when
-        final Suicide<DefaultGreyfishAgent> copy = Persisters.createCopy(suicide, Persisters.javaSerialization());
+        final Suicide<DefaultGreyfishAgent> copy = Persisters.copyAsync(suicide, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(sameAs(suicide)));

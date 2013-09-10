@@ -23,7 +23,7 @@ public class ClonalReproductionTest {
                 .nClones(Callbacks.constant(5))
                 .build();
         // when
-        final ClonalReproduction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
+        final ClonalReproduction<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

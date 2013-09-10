@@ -28,7 +28,7 @@ public class MaleLikeMatingTest {
                 .build();
 
         // when
-        final MaleLikeMating<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
+        final MaleLikeMating<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
 

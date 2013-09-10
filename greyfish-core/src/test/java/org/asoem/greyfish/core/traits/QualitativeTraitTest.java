@@ -104,7 +104,7 @@ public class QualitativeTraitTest {
         //discreteTrait.setAgent(agent);
 
         // when
-        final IdentifierTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(discreteTrait, Persisters.javaSerialization());
+        final IdentifierTrait<DefaultGreyfishAgent> copy = Persisters.copyAsync(discreteTrait, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(discreteTrait)));

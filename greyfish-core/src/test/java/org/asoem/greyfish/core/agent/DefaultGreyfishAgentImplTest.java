@@ -109,7 +109,7 @@ public class DefaultGreyfishAgentImplTest {
                 .build();
 
         // when
-        final DefaultGreyfishAgentImpl copy = Persisters.createCopy(frozenAgent, Persisters.javaSerialization());
+        final DefaultGreyfishAgentImpl copy = Persisters.copyAsync(frozenAgent, Persisters.javaSerialization());
 
         // then
         assertThat(copy, isSameAs(frozenAgent));

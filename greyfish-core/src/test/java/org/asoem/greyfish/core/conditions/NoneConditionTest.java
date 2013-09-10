@@ -30,7 +30,7 @@ public class NoneConditionTest {
         final NoneCondition<DefaultGreyfishAgent> noneCondition = NoneCondition.evaluates(condition);
 
         // when
-        final NoneCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(noneCondition, Persisters.javaSerialization());
+        final NoneCondition<DefaultGreyfishAgent> copy = Persisters.copyAsync(noneCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy, isCopyOf(noneCondition));

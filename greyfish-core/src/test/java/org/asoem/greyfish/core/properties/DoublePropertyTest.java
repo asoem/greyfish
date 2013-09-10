@@ -26,7 +26,7 @@ public class DoublePropertyTest {
                 .build();
         
         // when
-        final DoubleProperty<DefaultGreyfishAgent> persistent = Persisters.createCopy(doubleProperty, Persisters.javaSerialization());
+        final DoubleProperty<DefaultGreyfishAgent> persistent = Persisters.copyAsync(doubleProperty, Persisters.javaSerialization());
         
         // then
         MatcherAssert.assertThat(persistent, is(equalTo(doubleProperty)));

@@ -4,7 +4,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
-import com.google.common.util.concurrent.Monitor;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
 import com.google.inject.*;
@@ -16,9 +15,8 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.io.H2Logger;
+import org.asoem.greyfish.core.io.JDBCLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
 import org.asoem.greyfish.core.model.SimulationModel;
 import org.asoem.greyfish.utils.collect.Product2;
@@ -26,6 +24,7 @@ import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -150,18 +149,23 @@ public final class GreyfishCLIApplication {
 
                 final String pathname = optionSet.valueOf(WORKING_DIRECTORY_OPTION_SPEC) + "/"
                         + optionSet.valueOf(SIMULATION_NAME_OPTION_SPEC);
-
                 final String path = Files.simplifyPath(pathname);
+
                 try {
-                    final SimulationLogger<DefaultGreyfishAgent> simulationLogger =
-                            SimulationLoggers.synchronizedLogger(H2Logger.<DefaultGreyfishAgent>create(path));
-                    CLOSER.register(simulationLogger);
-                    bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>(){})
-                            .toInstance(simulationLogger);
+                    final GreyfishH2ConnectionManager connectionSupplier =
+                            GreyfishH2ConnectionManager.create(path);
+                    final JDBCLogger<DefaultGreyfishAgent> jdbcLogger =
+                            new JDBCLogger<DefaultGreyfishAgent>(connectionSupplier, 1000);
+
+                    CLOSER.register(connectionSupplier);
+                    CLOSER.register(jdbcLogger); // Must be closed before the connection (put on stack after the connection)
+
+                    bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>() {}).toInstance(jdbcLogger);
                 } catch (Exception e) {
                     exitWithErrorMessage("Unable to create new database: ", e);
                 }
             }
+
         };
     }
 
@@ -203,32 +207,13 @@ public final class GreyfishCLIApplication {
                     commandLineModule
             );
 
-            /* TODO: this monitor will be deprecated as soon as guava 15.0 is released.
-                Services will have their own monitors */
-            final Monitor monitor = new Monitor();
-
             final SimulationExecutionService simulationExecutionService =
                     injector.getInstance(SimulationExecutionService.class);
-            simulationExecutionService.addListener(new Service.Listener() {
-                @Override public void starting() {
-                    monitor.enter();
-                    monitor.leave();
-                }
-                @Override public void running() {}
-                @Override public void stopping(final Service.State from) {}
-                @Override public void terminated(final Service.State from) {
-                    monitor.enter();
-                    monitor.leave();
-                }
-                @Override public void failed(final Service.State from, final Throwable failure) {
-                    monitor.enter();
-                    monitor.leave();
-                }
-            }, MoreExecutors.sameThreadExecutor());
 
             if (!optionSet.has(QUIET_OPTION_SPEC)) {
                 final SimulationMonitorService monitorService =
                         new SimulationMonitorService(simulationExecutionService.getSimulation(), System.out, optionSet.valueOf(STEPS_OPTION_SPEC));
+
                 monitorService.addListener(new Service.Listener() {
                     @Override public void starting() {}
                     @Override public void running() {}
@@ -238,49 +223,43 @@ public final class GreyfishCLIApplication {
                         LOGGER.error("Monitor service failed", failure);
                     }
                 }, MoreExecutors.sameThreadExecutor());
+
                 simulationExecutionService.addListener(new Service.Listener() {
-                    @Override public void starting() {}
-                    @Override public void running() {
-                        monitorService.startAndWait();
+                    @Override public void starting() {
+                        monitorService.startAsync();
                     }
+                    @Override public void running() {}
                     @Override public void stopping(final Service.State from) {}
                     @Override public void terminated(final Service.State from) {
-                        monitorService.stopAndWait();
+                        monitorService.stopAsync();
                     }
                     @Override public void failed(final Service.State from, final Throwable failure) {
-                        monitorService.stopAndWait();
+                        monitorService.stopAsync();
                     }
                 }, MoreExecutors.sameThreadExecutor());
             }
 
-
             // start simulation
-            simulationExecutionService.startAndWait();
+            simulationExecutionService.startAsync();
 
             // stop simulation on shutdown request (^C)
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
                     if (simulationExecutionService.isRunning()) {
-                        simulationExecutionService.stopAndWait();
+                        simulationExecutionService.stopAsync().awaitTerminated();
                     }
                 }
             });
 
-            // await termination
-            monitor.enterWhenUninterruptibly(new Monitor.Guard(monitor) {
-                @Override
-                public boolean isSatisfied() {
-                    return simulationExecutionService.state() == Service.State.TERMINATED
-                            || simulationExecutionService.state() == Service.State.FAILED;
-                }
-            });
-            monitor.leave();
+            try {
+                simulationExecutionService.awaitTerminated();
+            } catch (IllegalStateException e) {
+                exitWithErrorMessage("Simulation execution failed", e);
+            }
         } catch (OptionException e) {
-            LOGGER.error("Failed parsing options: {}", e);
             exitWithErrorMessage("Failed parsing options: ", e, true);
         } catch (Throwable e) {
-            LOGGER.error("Exception during simulation execution", e);
             exitWithErrorMessage(String.format("Exception during simulation execution: %s.\n"
                     + "Check log file for detailed information",
                     e.getCause().getMessage()));
@@ -294,20 +273,26 @@ public final class GreyfishCLIApplication {
     }
 
     private static void exitWithErrorMessage(final String message, final boolean printHelp) {
-        System.out.println("ERROR: " + message);
-        if (printHelp) {
-            printHelp(OPTION_PARSER);
-        }
-        System.exit(1);
+        exitWithErrorMessage(message, null, printHelp);
     }
 
     private static void exitWithErrorMessage(final String message, final Throwable throwable) {
         exitWithErrorMessage(message, throwable, false);
     }
 
-    private static void exitWithErrorMessage(final String message, final Throwable throwable, final boolean printHelp) {
+    private static void exitWithErrorMessage(final String message, @Nullable final Throwable throwable, final boolean printHelp) {
+        assert message != null;
+
         LOGGER.error(message, throwable);
-        exitWithErrorMessage(message + throwable.getMessage(), printHelp);
+
+        final String throwableMessage = (throwable != null) ? throwable.getMessage() : "";
+        System.out.println("ERROR: " + message + throwableMessage);
+
+        if (printHelp) {
+            printHelp(OPTION_PARSER);
+        }
+
+        System.exit(1);
     }
 
     private static void printHelp(final OptionParser optionParser) {
@@ -342,4 +327,5 @@ public final class GreyfishCLIApplication {
             return value;
         }
     }
+
 }

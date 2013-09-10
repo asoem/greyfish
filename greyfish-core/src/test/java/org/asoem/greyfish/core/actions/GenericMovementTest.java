@@ -28,7 +28,7 @@ public class GenericMovementTest {
                 .build();
 
         // when
-        final GenericMovement<DefaultGreyfishAgent> copy = Persisters.createCopy(genericMovement, Persisters.javaSerialization());
+        final GenericMovement<DefaultGreyfishAgent> copy = Persisters.copyAsync(genericMovement, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(genericMovement)));

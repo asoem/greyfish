@@ -1,9 +1,7 @@
 package org.asoem.greyfish.utils.collect;
 
 /**
- * User: christoph
- * Date: 05.10.11
- * Time: 09:04
+ * A node of a {@link Tree}
  */
 public interface TreeNode<T extends TreeNode<T>> {
     Iterable<T> children();

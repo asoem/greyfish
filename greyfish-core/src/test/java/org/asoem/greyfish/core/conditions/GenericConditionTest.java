@@ -52,7 +52,7 @@ public class GenericConditionTest {
         // given
         final GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(Callbacks.constant(true));
         // when
-        final GenericCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(genericCondition, Persisters.javaSerialization());
+        final GenericCondition<DefaultGreyfishAgent> copy = Persisters.copyAsync(genericCondition, Persisters.javaSerialization());
         // then
         assertThat(copy, isSameAs(genericCondition));
     }

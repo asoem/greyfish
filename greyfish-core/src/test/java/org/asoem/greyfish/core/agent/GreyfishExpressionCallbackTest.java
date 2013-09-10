@@ -33,7 +33,7 @@ public class GreyfishExpressionCallbackTest {
                 GreyfishExpressionCallback.doubleExpression(expressionFactory.compile("1.0"));
 
         // when
-        final GreyfishExpressionCallback<Object, Double> copy = Persisters.createCopy(callback, Persisters.javaSerialization());
+        final GreyfishExpressionCallback<Object, Double> copy = Persisters.copyAsync(callback, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(callback)));

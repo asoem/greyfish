@@ -30,7 +30,7 @@ public class AnyConditionTest {
         final AnyCondition<DefaultGreyfishAgent> anyCondition = AnyCondition.evaluates(condition);
 
         // when
-        final AnyCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(anyCondition, Persisters.javaSerialization());
+        final AnyCondition<DefaultGreyfishAgent> copy = Persisters.copyAsync(anyCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy, isCopyOf(anyCondition));

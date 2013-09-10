@@ -1,17 +1,13 @@
 package org.asoem.greyfish.core.space;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
+import com.google.common.base.*;
+import com.google.common.collect.BinaryTreeTraverser;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.math3.util.MathUtils;
 import org.asoem.greyfish.utils.base.Builder;
 import org.asoem.greyfish.utils.base.SingleElementCache;
-import org.asoem.greyfish.utils.collect.Trees;
 import org.asoem.greyfish.utils.space.*;
 
 import javax.annotation.Nullable;
@@ -22,10 +18,9 @@ import static org.asoem.greyfish.utils.space.Geometry2D.intersection;
 import static org.asoem.greyfish.utils.space.Geometry2D.polarToCartesian;
 
 /**
- * @author christoph
- *         This class is used to handle a 2D space implemented as a Matrix of Locations.
+ * @author christoph This class is used to handle a 2D space implemented as a Matrix of Locations.
  */
-public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
+public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     private final int height;
 
@@ -105,8 +100,9 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
     private void setWalledTiles(final WalledTile[] tiles) {
         if (tiles != null) {
-            for (final WalledTile location : tiles)
+            for (final WalledTile location : tiles) {
                 getTileAt(location.getX(), location.getY()).setWallFlags(location.getWallFlags());
+            }
         }
     }
 
@@ -162,36 +158,36 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         final double translation = motion.getTranslation();
         final double rotation = motion.getRotation();
 
-        if (translation == 0 && rotation == 0)
+        if (translation == 0 && rotation == 0) {
             return;
-        if (translation < 0)
+        }
+        if (translation < 0) {
             throw new IllegalStateException("Translations < 0 are not supported: " + translation);
+        }
 
         final double newOrientation = (rotation == 0)
                 ? 0
                 : ((rotation) % MathUtils.TWO_PI + MathUtils.TWO_PI) % MathUtils.TWO_PI;
 
         final Point2D currentProjection = getProjection(object);
-        checkState(currentProjection != null, "Projection of {} is null", object);
-        final Point2D anchorPoint = currentProjection.getCentroid();
+        final Point2D anchorPoint =
+                checkNotNull(currentProjection, "Projection of {} is null", object).getCentroid();
         if (translation != 0) {
             final Point2D preferredPoint = ImmutablePoint2D.sum(anchorPoint, polarToCartesian(newOrientation, translation));
             final Point2D maxPoint = maxTransition(anchorPoint, preferredPoint);
             //final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), !preferredPoint.equals(maxPoint));
             //object.setProjection(projection);
         }
-        else {
-            //object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(), anchorPoint.getY(), newOrientation, false));
-        }
+        // else: object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(), anchorPoint.getY(), newOrientation, false));
 
         tree.invalidate();
     }
 
     /**
      * Get the location of the transition from {@code origin} to {@code destination} respecting collision with walls.
-     * So, if there is no wall between {@code origin} and {@code destination} that this method returns {@code destination}.
-     * Otherwise it returns the first {@code Point2D} at which the line from {@code origin} to {@code destination}
-     * intersects with a wall of any crossing tile.
+     * So, if there is no wall between {@code origin} and {@code destination} that this method returns {@code
+     * destination}. Otherwise it returns the first {@code Point2D} at which the line from {@code origin} to {@code
+     * destination} intersects with a wall of any crossing tile.
      *
      * @param origin      The origin of the transition
      * @param destination The destination of the transition
@@ -210,22 +206,25 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     }
 
     /**
-     * Checks if the line {@code xo, yo, xd, yd} crosses an edge of the {@code tile} or any adjacent tile in the direction of movement which has a wall present.
-     * If such a crossing is found, than the point closest to this crossing is returned, {@code null}, otherwise.
+     * Checks if the line {@code xo, yo, xd, yd} crosses an edge of the {@code tile} or any adjacent tile in the
+     * direction of movement which has a wall present. If such a crossing is found, than the point closest to this
+     * crossing is returned, {@code null}, otherwise.
      *
      * @param tile the tile to check for a collision
      * @param xo   Movement line x origin
      * @param yo   Movement line y origin
      * @param xd   Movement line x destination
      * @param yd   Movement line x destination
-     * @return the location on the line closest to the point of a collision with a wall or {@code null} if none could be found
+     * @return the location on the line closest to the point of a collision with a wall or {@code null} if none could be
+     *         found
      */
     @Nullable
     private Point2D collision(final WalledTile tile, final double xo, final double yo, final double xd, final double yd) {
         assert tile != null;
 
-        if (tile.covers(xd, yd))
+        if (tile.covers(xd, yd)) {
             return null;
+        }
 
         TileDirection follow1 = null;
         TileDirection follow2 = null;
@@ -237,10 +236,11 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                     xo, yo, xd, yd);
 
             if (intersection != null) {
-                if (tile.hasWall(TileDirection.NORTH))
+                if (tile.hasWall(TileDirection.NORTH)) {
                     return intersection;
-                else
+                } else {
                     follow1 = TileDirection.NORTH;
+                }
             }
         }
 
@@ -254,8 +254,11 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                 if (tile.hasWall(TileDirection.EAST)) {
                     return intersection;
                 } else {
-                    if (follow1 == null) follow1 = TileDirection.EAST;
-                    else follow2 = TileDirection.EAST;
+                    if (follow1 == null) {
+                        follow1 = TileDirection.EAST;
+                    } else {
+                        follow2 = TileDirection.EAST;
+                    }
                 }
             }
         }
@@ -267,11 +270,14 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                     xo, yo, xd, yd);
 
             if (intersection != null) {
-                if (tile.hasWall(TileDirection.SOUTH))
+                if (tile.hasWall(TileDirection.SOUTH)) {
                     return intersection;
-                else {
-                    if (follow1 == null) follow1 = TileDirection.SOUTH;
-                    else follow2 = TileDirection.SOUTH;
+                } else {
+                    if (follow1 == null) {
+                        follow1 = TileDirection.SOUTH;
+                    } else {
+                        follow2 = TileDirection.SOUTH;
+                    }
                 }
             }
         }
@@ -283,23 +289,27 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                     xo, yo, xd, yd);
 
             if (intersection != null) {
-                if (tile.hasWall(TileDirection.WEST))
+                if (tile.hasWall(TileDirection.WEST)) {
                     return intersection;
-                else {
-                    if (follow1 == null) follow1 = TileDirection.WEST;
-                    else follow2 = TileDirection.WEST;
+                } else {
+                    if (follow1 == null) {
+                        follow1 = TileDirection.WEST;
+                    } else {
+                        follow2 = TileDirection.WEST;
+                    }
                 }
             }
         }
 
         if (follow1 != null && hasAdjacentTile(tile, follow1)) {
             final Point2D collision = collision(getAdjacentTile(tile, follow1), xo, yo, xd, yd);
-            if (collision != null)
+            if (collision != null) {
                 return collision;
-            else if (follow2 != null && hasAdjacentTile(tile, follow2)) {
+            } else if (follow2 != null && hasAdjacentTile(tile, follow2)) {
                 final Point2D collision1 = collision(getAdjacentTile(tile, follow2), xo, yo, xd, yd);
-                if (collision1 != null)
+                if (collision1 != null) {
                     return collision1;
+                }
             }
         }
 
@@ -323,8 +333,9 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             return Iterables.filter(findObjects(anchorPoint.getX(), anchorPoint.getY(), range), new Predicate<O>() {
                 @Override
                 public boolean apply(final O t) {
-                    if (t.equals(object))
+                    if (t.equals(object)) {
                         return false;
+                    }
 
                     final Point2D neighborProjection = getProjection(t);
                     assert neighborProjection != null;
@@ -333,9 +344,9 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
                             neighborProjectionAnchorPoint.getX(), neighborProjectionAnchorPoint.getY()) == null;
                 }
             });
-        }
-        else
+        } else {
             throw new IllegalArgumentException("Projectable has no projection");
+        }
     }
 
     @Override
@@ -369,13 +380,28 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     @Override
     @Nullable
     public Point2D getProjection(final O object) {
-        final KDNode<Point2D, O> node = Iterators.find(Trees.postOrderView(tree.get().root()), new Predicate<KDNode<Point2D, O>>() {
+
+        final BinaryTreeTraverser<KDNode<Point2D, O>> traverser = new BinaryTreeTraverser<KDNode<Point2D, O>>() {
             @Override
-            public boolean apply(final KDNode<Point2D, O> input) {
-                return object.equals(input.value());
+            public Optional<KDNode<Point2D, O>> leftChild(final KDNode<Point2D, O> root) {
+                return Optional.fromNullable(root.leftChild());
             }
-        }, null);
-        return node == null ? null : node.point();
+
+            @Override
+            public Optional<KDNode<Point2D, O>> rightChild(final KDNode<Point2D, O> root) {
+                return Optional.fromNullable(root.rightChild());
+            }
+        };
+
+        final Optional<KDNode<Point2D, O>> node = traverser.postOrderTraversal(tree.get().root()).firstMatch(
+                new Predicate<KDNode<Point2D, O>>() {
+                    @Override
+                    public boolean apply(final KDNode<Point2D, O> input) {
+                        return object.equals(input.value());
+                    }
+                });
+
+        return node.isPresent() ? node.get().point() : null;
     }
 
     @Override
@@ -391,38 +417,40 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
         Point2D borderIntersection;
 
         final Point2D origin = getProjection(agent);
-        if (origin == null)
+        if (origin == null) {
             throw new IllegalArgumentException("Has no projection: " + agent);
+        }
 
         final ImmutablePoint2D destination = ImmutablePoint2D.sum(origin, polarToCartesian(degrees, Double.MAX_VALUE));
 
         if (degrees < 90) {
             borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     0, 0, width(), 0);
-            if (borderIntersection == null)
+            if (borderIntersection == null) {
                 borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         width(), 0, width(), height());
-        }
-        else if (degrees < 180) {
+            }
+        } else if (degrees < 180) {
             borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     width(), 0, width(), height());
-            if (borderIntersection == null)
+            if (borderIntersection == null) {
                 borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         0, height(), width(), height());
-        }
-        else if (degrees < 270) {
+            }
+        } else if (degrees < 270) {
             borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     0, height(), width(), height());
-            if (borderIntersection == null)
+            if (borderIntersection == null) {
                 borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         0, 0, 0, height());
-        }
-        else {
+            }
+        } else {
             borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                     0, 0, 0, height());
-            if (borderIntersection == null)
+            if (borderIntersection == null) {
                 borderIntersection = intersection(origin.getX(), origin.getY(), destination.getX(), destination.getY(),
                         0, 0, width(), 0);
+            }
         }
 
         assert borderIntersection != null; // There must always be an intersection with one border
@@ -463,8 +491,9 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
             if (point2DMap.remove(agent) != null) {
                 tree.invalidate();
                 return true;
-            } else
+            } else {
                 return false;
+            }
         }
     }
 
@@ -512,7 +541,7 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public static class TiledSpaceBuilder<O> implements Builder<WalledPointSpace<O>> {
+    public final static class TiledSpaceBuilder<O> implements Builder<WalledPointSpace<O>> {
 
         private final int width;
         private final int height;
@@ -578,19 +607,20 @@ public class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledTile> {
 
         @Override
         public WalledPointSpace<O> build() {
-            if (treeFactory == null)
+            if (treeFactory == null) {
                 treeFactory = createDefaultTreeFactory();
+            }
             return new WalledPointSpace<O>(this);
         }
 
-        private static interface WallDefinition {
+        private interface WallDefinition {
             void apply(WalledPointSpace<?> space);
         }
     }
 
     /**
-     * Set (b={@code true}) or unset (b={@code false}) the wall of the tile at x,y in the given direction.
-     * Automatically adjusts the wall in the opposite direction at the adjacent tile in the given {@code direction}
+     * Set (b={@code true}) or unset (b={@code false}) the wall of the tile at x,y in the given direction. Automatically
+     * adjusts the wall in the opposite direction at the adjacent tile in the given {@code direction}
      *
      * @param x         x of the tile location
      * @param y         y of the tile location

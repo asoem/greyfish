@@ -29,7 +29,7 @@ public class DoubleGeneTest {
                 .build();
 
         // when
-        final AgentTrait<DefaultGreyfishAgent, Double> copy = Persisters.createCopy(doubleGene, Persisters.javaSerialization());
+        final AgentTrait<DefaultGreyfishAgent, Double> copy = Persisters.copyAsync(doubleGene, Persisters.javaSerialization());
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(doubleGene)));

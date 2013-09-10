@@ -38,7 +38,7 @@ public class AllConditionTest {
         final AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(condition, condition);
 
         // when
-        final AllCondition<DefaultGreyfishAgent> copy = Persisters.createCopy(allCondition, Persisters.javaSerialization());
+        final AllCondition<DefaultGreyfishAgent> copy = Persisters.copyAsync(allCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy.getChildConditions(), hasSize(allCondition.getChildConditions().size()));

@@ -28,7 +28,7 @@ public class FixedSizeMessageBoxTest {
         messageBox.add(message);
 
         // when
-        final FixedSizeMessageBox<ACLMessage<Integer>> copy = Persisters.createCopy(messageBox, Persisters.javaSerialization());
+        final FixedSizeMessageBox<ACLMessage<Integer>> copy = Persisters.copyAsync(messageBox, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(messageBox)));

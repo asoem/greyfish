@@ -29,7 +29,7 @@ public class ResourceConsumptionActionTest {
                 .build();
 
         // when
-        final ResourceConsumptionAction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
+        final ResourceConsumptionAction<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

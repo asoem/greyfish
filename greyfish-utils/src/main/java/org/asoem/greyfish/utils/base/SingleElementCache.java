@@ -5,15 +5,16 @@ import com.google.common.base.Supplier;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * User: christoph
- * Date: 05.04.13
- * Time: 11:41
+ * A single element cache is a supplier of an object of type {@code T}.
+ * This value has an associated context which makes it valid or invalid.
+ * @param <T> the type of the element to supply
  */
 public class SingleElementCache<T> implements Supplier<T> {
 
     private final Supplier<T> delegate;
-    private transient T value;
-    private transient AtomicReference<CacheState> state = new AtomicReference<CacheState>(CacheState.INVALID);
+    private final AtomicReference<CacheState> state =
+            new AtomicReference<CacheState>(CacheState.INVALID);
+    private T value;
 
     private SingleElementCache(final Supplier<T> delegate) {
         this.delegate = delegate;
@@ -40,6 +41,13 @@ public class SingleElementCache<T> implements Supplier<T> {
         state.set(CacheState.INVALID);
     }
 
+    /**
+     * Create a new {@code SingleElementCache} which reloads it's supplying element,
+     * if it is in an invalid state. Therefore the {@link #get()} operation will always return a valid element.
+     * @param delegate the reload strategy
+     * @param <T> the type of the element to cache
+     * @return a new cache
+     */
     public static <T> SingleElementCache<T> memoize(final Supplier<T> delegate) {
         return new SingleElementCache<T>(delegate);
     }

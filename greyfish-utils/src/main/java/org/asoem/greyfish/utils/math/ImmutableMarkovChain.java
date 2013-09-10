@@ -16,11 +16,6 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
-/**
- * User: christoph
- * Date: 07.02.12
- * Time: 11:30
- */
 public class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
     private final Table<S, S, Double> markovMatrix;
@@ -36,9 +31,12 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
         if (!markovMatrix.containsRow(state)) {
             if (markovMatrix.containsColumn(state)) {
                 return state;
+            } else {
+                final String message = "State '" + state
+                        + "' does not match any of the defined states in set {"
+                        + Joiner.on(", ").join(getStates()) + "}";
+                throw new IllegalArgumentException(message);
             }
-            else
-                throw new IllegalArgumentException("State '" + state + "' does not match any of the defined states in set {" + Joiner.on(", ").join(getStates()) + "}");
         }
 
 
@@ -77,8 +75,9 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
         final Pattern pattern = Pattern.compile("^(.+)->(.+):(.+)$");
         for (final String line : lines) {
-            if(line.isEmpty())
+            if (line.isEmpty()) {
                 continue;
+            }
             final Matcher matcher = pattern.matcher(line);
             if (matcher.matches()) {
                 final String state1 = matcher.group(1).trim();
@@ -86,14 +85,15 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
                 final String p = matcher.group(3).trim();
                 
                 builder.put(state1, state2, Double.parseDouble(p));
+            } else {
+                throw new IllegalArgumentException("Rule has errors at " + line);
             }
-            else throw new IllegalArgumentException("Rule has errors at " + line);
         }
 
         return builder.build();
     }
 
-    public static class ChainBuilder<S> implements Builder<ImmutableMarkovChain<S>> {
+    public static final class ChainBuilder<S> implements Builder<ImmutableMarkovChain<S>> {
 
         private final Table<S, S, Double> table = HashBasedTable.create();
 
@@ -110,8 +110,11 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
                 for (final Double value : table.row(state).values()) {
                     sum += value;
                 }
-                if (sum < 0 || sum > 1)
-                    throw new IllegalArgumentException("Sum of transition probabilities from state " + state + " must be in >= 0 and <= 1");
+                if (sum < 0 || sum > 1) {
+                    final String message = "Sum of transition probabilities from state "
+                            + state + " must be in >= 0 and <= 1";
+                    throw new IllegalArgumentException(message);
+                }
             }
             return new ImmutableMarkovChain<S>(ImmutableTable.copyOf(table));
         }
@@ -119,7 +122,7 @@ public class ImmutableMarkovChain<S> implements MarkovChain<S> {
     
     public String toRule() {
         final StringBuilder builder = new StringBuilder();
-        for (final Map.Entry<S, Map<S,Double>> entry : markovMatrix.rowMap().entrySet()) {
+        for (final Map.Entry<S, Map<S, Double>> entry : markovMatrix.rowMap().entrySet()) {
             for (final Map.Entry<S, Double> doubleEntry : entry.getValue().entrySet()) {
                 builder.append(entry.getKey());
                 builder.append(" -> ");

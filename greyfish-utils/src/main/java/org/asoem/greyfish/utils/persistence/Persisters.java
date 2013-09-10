@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils.persistence;
 
 import com.google.common.io.Closeables;
+import com.google.common.io.Closer;
 import com.google.common.io.InputSupplier;
 import com.google.common.io.OutputSupplier;
 
@@ -23,52 +24,73 @@ public final class Persisters {
 
     /**
      * Create a copy of the given object {@code o} by serializing it with the given {@code Persister}.
-     * No guarantees can be made about how exact the copy will be, as this is dependent of the {@code Persister} implementation.
+     * What copy means in this context, dependents fully on the {@code Persister} implementation.
+     *
      * @param o the object you wish to copy
      * @param persister the {@code Persister} to use for the serialization process
-     * @param <T> the type of the object
      * @return a copy of {@code o}
      * @throws Exception if some errors occur during the serialization process
      */
-    public static <T> T createCopy(final T o, final Persister persister) throws Exception {
+    public static <T> T copyAsync(final T o, final Persister persister) throws Exception {
         checkNotNull(o);
         checkNotNull(persister);
 
-        final PipedOutputStream pipedOutputStream = new PipedOutputStream();
-        final PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream);
-
-        final Future<T> deserializeFuture = Executors.newSingleThreadExecutor().submit(new Callable<T>() {
-            @SuppressWarnings("unchecked") // safe if persister is implemented correctly
-            @Override
-            public T call() throws Exception {
-                try {
-                    return (T) persister.deserialize(pipedInputStream, o.getClass());
-                } catch (Exception e) {
-                    pipedInputStream.close();
-                    throw e;
-                }
-            }
-        });
+        final Closer closer = Closer.create();
 
         try {
+            final PipedOutputStream pipedOutputStream = closer.register(new PipedOutputStream());
+            final PipedInputStream pipedInputStream = closer.register(new PipedInputStream(pipedOutputStream));
+
+            final Future<T> deserializeFuture = Executors.newSingleThreadExecutor().submit(new Callable<T>() {
+                @SuppressWarnings("unchecked") // safe if persister is implemented correctly
+                @Override
+                public T call() throws Exception {
+                    try {
+                        return (T) persister.deserialize(pipedInputStream, o.getClass());
+                    } catch (Exception e) {
+                        pipedInputStream.close();
+                        throw e;
+                    }
+                }
+            });
+
             try {
                 persister.serialize(o, pipedOutputStream);
             } catch (Exception e) {
                 if (!deserializeFuture.isDone()) {
                     deserializeFuture.cancel(true);
                     throw e;
-                }
-                else { // the future task had an exception and closed the stream, which caused this exception
+                } else { // the future task had an exception and closed the stream, which caused this exception
                     deserializeFuture.get(); // throws the exception
                     throw new AssertionError("unreachable");
                 }
             }
-            finally {
-                pipedOutputStream.close();
-            }
             return deserializeFuture.get(3, TimeUnit.SECONDS);
         } finally {
-            pipedInputStream.close();
+            closer.close();
+        }
+    }
+
+    /**
+     * Create a copy of the given object {@code o} through serialization unsing the given {@code persister}.
+     * @param o the object to copy
+     * @param persister the persister to use for serialization and deserialization.
+     * @param clazz the class to cast the deserialized object to
+     * @param <T> the type of {@code o}
+     * @return a copy of {@code o}, as implemented by the given {@code persister}
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static <T> T copy(final T o, final Persister persister, final Class<T> clazz) throws IOException, ClassNotFoundException {
+        final Closer closer = Closer.create();
+
+        try {
+            final ByteArrayOutputStream outputStream = closer.register(new ByteArrayOutputStream());
+            persister.serialize(o, outputStream);
+            final ByteArrayInputStream inputStream = closer.register(new ByteArrayInputStream(outputStream.toByteArray()));
+            return persister.deserialize(inputStream, clazz);
+        } finally {
+            closer.close();
         }
     }
 

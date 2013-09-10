@@ -23,7 +23,7 @@ public class GenericActionTest {
                 .executes(Callbacks.emptyCallback()).build();
 
         // when
-        final GenericAction<DefaultGreyfishAgent> copy = Persisters.createCopy(action, Persisters.javaSerialization());
+        final GenericAction<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

@@ -5,23 +5,22 @@ import org.apache.commons.math3.util.FastMath;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-/**
- * User: christoph
- * Date: 21.01.13
- * Time: 14:10
- */
 public class PeriodicFunctions {
-    private PeriodicFunctions() {}
+
+    private PeriodicFunctions() {
+        throw new AssertionError("Not instantiable");
+    }
 
     public static UnivariateFunction triangleWave(final double period, final double phase) {
         checkArgument(period > 0, "Period should be > 0, was %s", period);
         checkArgument(phase >= 0 && phase < 1, "Phase expected in [0,1), was %s", phase);
 
         return new UnivariateFunction() {
-            private final UnivariateFunction sawtoothWave = sawtoothWave(period, phase < 0.75 ? phase + 0.25 : -0.75 + phase);
+            private final UnivariateFunction sawtoothWave =
+                    sawtoothWave(period, phase < 0.75 ? phase + 0.25 : -0.75 + phase);
             @Override
             public double value(final double x) {
-                return 2*FastMath.abs(sawtoothWave.value(x))-1;
+                return 2 * FastMath.abs(sawtoothWave.value(x)) - 1;
             }
         };
     }
@@ -38,16 +37,17 @@ public class PeriodicFunctions {
                     return 2 * (x_p - FastMath.floor(0.5 + x_p));
                 }
             };
-        }
-        else
+        } else {
             return new UnivariateFunction() {
-                final double absolutePhaseShift = phase * period;
+                private final double absolutePhaseShift = phase * period;
+
                 @Override
                 public double value(final double x) {
                     final double x_p = (x + absolutePhaseShift) / period;
                     return 2 * (x_p - FastMath.floor(0.5 + x_p));
                 }
             };
+        }
     }
 
     public static UnivariateFunction squareWave(final double period, final double phase) {

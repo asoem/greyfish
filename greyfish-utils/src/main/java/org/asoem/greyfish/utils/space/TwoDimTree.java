@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-public interface TwoDimTree<P extends Point2D, T> extends KDTree<P,T> {
+public interface TwoDimTree<P extends Point2D, T> extends KDTree<P, T> {
 
     /**
      *

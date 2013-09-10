@@ -3,9 +3,8 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 import com.google.common.collect.*;
-import jsr166y.ForkJoinPool;
-import jsr166y.RecursiveAction;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
@@ -17,24 +16,26 @@ import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
-import org.asoem.greyfish.utils.base.*;
-import org.asoem.greyfish.utils.concurrent.RecursiveActions;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.CycleCloner;
+import org.asoem.greyfish.utils.base.InheritableBuilder;
+import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
 
 /**
- * A {@code Simulation} that uses a {@link ForkJoinPool} to execute {@link Agent}s
+ * A {@code Simulation} that uses a cached thread pool to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
 public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>,
@@ -48,7 +49,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private final List<RemoveAgentMessage<A>> removeAgentMessages;
     private final List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages;
     private final KeyedObjectPool<Population, A> agentPool;
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
     private final Set<A> prototypes;
@@ -149,18 +150,25 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
     @Override
     public final synchronized void nextStep() {
-        setState(SimulationState.PLANING_PHASE);
+
 
         LOGGER.info("{}: Executing step {} with {} active agents", this, getSteps(), countAgents());
 
-        executeAllAgents();
+        try {
+            setState(SimulationState.PLANING_PHASE);
 
-        setState(SimulationState.MODIFICATION_PHASE);
+            executeAllAgents();
 
-        processAgentMessageDelivery();
-        processRequestedAgentRemovals();
-        processAgentsMovement();
-        processRequestedAgentActivations();
+            setState(SimulationState.MODIFICATION_PHASE);
+
+            processAgentMessageDelivery();
+            processRequestedAgentRemovals();
+            processAgentsMovement();
+            processRequestedAgentActivations();
+
+        } catch (InterruptedException e) {
+            throw Throwables.propagate(e);
+        }
 
         afterStepCleanUp();
 
@@ -184,14 +192,24 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         deliverAgentMessageMessages.clear();
     }
 
-    private void executeAllAgents() {
-        final RecursiveAction executeAllAgents = RecursiveActions.foreach(ImmutableList.copyOf(getAgents()), new VoidFunction<Simulatable<S, A>>() {
+    private void executeAllAgents() throws InterruptedException {
+        final List<List<A>> partition = Lists.partition(ImmutableList.copyOf(getAgents()), parallelizationThreshold);
+        final Collection<Callable<Void>> callables = Lists.transform(partition, new Function<List<A>, Callable<Void>>() {
             @Override
-            public void process(final Simulatable<S, A> agent) {
-                agent.execute();
+            public Callable<Void> apply(final List<A> input) {
+                return new Callable<Void>() {
+                    @Override
+                    public Void call() {
+                        for (A a : input) {
+                            a.execute();
+                        }
+                        return null;
+                    }
+                };
             }
-        }, parallelizationThreshold);
-        forkJoinPool.invoke(executeAllAgents);
+        });
+
+        executorService.invokeAll(callables);
     }
 
     private void processRequestedAgentActivations() {
@@ -207,18 +225,29 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         addAgentMessages.clear();
     }
 
-    private void processAgentsMovement() {
-        final RecursiveAction moveAllAgents = RecursiveActions.foreach(
-                ImmutableList.copyOf(getAgents()),
-                new VoidFunction<A>() {
+    private void processAgentsMovement() throws InterruptedException {
+        final List<List<A>> partition = Lists.partition(ImmutableList.copyOf(getAgents()), parallelizationThreshold);
+        final Collection<Callable<Void>> callables = Lists.transform(partition, new Function<List<A>, Callable<Void>>() {
             @Override
-            public void process(final A agent) {
-                space.moveObject(agent, agent.getMotion());
+            public Callable<Void> apply(final List<A> input) {
+                return new Callable<Void>() {
+                    @Override
+                    public Void call() {
+                        for (A a : input) {
+                            space.moveObject(a, a.getMotion());
+                        }
+                        return null;
+                    }
+                };
             }
-        }, parallelizationThreshold);
-        forkJoinPool.invoke(moveAllAgents);
+        });
+
+        executorService.invokeAll(callables);
     }
 
+    /**
+     * Remove all agents from this simulation and the underlying {@code #space} as requested by {@link #removeAgentMessages}
+     */
     private void processRequestedAgentRemovals() {
         LOGGER.debug("Removing {} agent(s)", removeAgentMessages.size());
         if (removeAgentMessages.size() > 0) {

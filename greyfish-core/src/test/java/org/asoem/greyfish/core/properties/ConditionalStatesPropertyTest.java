@@ -22,7 +22,7 @@ public class ConditionalStatesPropertyTest {
                 .addState("A", "true").build();
         
         // when
-        final ConditionalStatesProperty<DefaultGreyfishAgent> persistent = Persisters.createCopy(statesProperty, Persisters.javaSerialization());
+        final ConditionalStatesProperty<DefaultGreyfishAgent> persistent = Persisters.copyAsync(statesProperty, Persisters.javaSerialization());
 
         // then
         MatcherAssert.assertThat(persistent, is(equalTo(statesProperty)));

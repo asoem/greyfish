@@ -29,7 +29,7 @@ public class DoublePrecisionRealNumberTraitTest {
         //quantitativeTrait.setAgent(agent);
 
         // when
-        final DoublePrecisionRealNumberTrait<DefaultGreyfishAgent> copy = Persisters.createCopy(quantitativeTrait, Persisters.javaSerialization());
+        final DoublePrecisionRealNumberTrait<DefaultGreyfishAgent> copy = Persisters.copyAsync(quantitativeTrait, Persisters.javaSerialization());
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(quantitativeTrait)));
