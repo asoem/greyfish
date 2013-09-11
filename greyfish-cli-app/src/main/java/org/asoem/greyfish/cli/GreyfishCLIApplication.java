@@ -82,6 +82,9 @@ public final class GreyfishCLIApplication {
     private static final ArgumentAcceptingOptionSpec<Integer> STEPS_OPTION_SPEC =
             OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
                     .withRequiredArg().ofType(Integer.class).required();
+    private static final ArgumentAcceptingOptionSpec<Integer> COMMIT_THRESHOLD_SPEC =
+            OPTION_PARSER.accepts("ct", "Commit threshold for JDBC batch operations")
+                    .withRequiredArg().ofType(int.class).defaultsTo(1000);
 
     private static final Closer CLOSER = Closer.create();
 
@@ -147,6 +150,7 @@ public final class GreyfishCLIApplication {
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance(optionSet.valueOf(PARALLELIZATION_THRESHOLD_OPTION_SPEC));
 
+                // TODO: One should be able to define the database url independent of the working directory
                 final String pathname = optionSet.valueOf(WORKING_DIRECTORY_OPTION_SPEC) + "/"
                         + optionSet.valueOf(SIMULATION_NAME_OPTION_SPEC);
                 final String path = Files.simplifyPath(pathname);
@@ -155,7 +159,7 @@ public final class GreyfishCLIApplication {
                     final GreyfishH2ConnectionManager connectionSupplier =
                             GreyfishH2ConnectionManager.create(path);
                     final JDBCLogger<DefaultGreyfishAgent> jdbcLogger =
-                            new JDBCLogger<DefaultGreyfishAgent>(connectionSupplier, 1000);
+                            new JDBCLogger<DefaultGreyfishAgent>(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
 
                     CLOSER.register(connectionSupplier);
                     CLOSER.register(jdbcLogger); // Must be closed before the connection (put on stack after the connection)
