@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import javax.annotation.Nullable;
@@ -22,12 +21,11 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.*;
 
 /**
- * User: christoph
- * Date: 07.02.12
- * Time: 11:28
+ * A Trait which holds "identifier" values
  */
-@Tagged("traits")
-public class IdentifierTrait<A extends Agent<A, ?>> extends AbstractTrait<A, String> implements Serializable, AgentTrait<A,String> {
+public final class IdentifierTrait<A extends Agent<A, ?>>
+        extends AbstractTrait<A, String>
+        implements Serializable, AgentTrait<A, String> {
 
     private static final TypeToken<String> STRING_TYPE_TOKEN = TypeToken.of(String.class);
     private final Table<String, String, Callback<? super AgentTrait<A, String>, Double>> mutationTable;

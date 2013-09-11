@@ -18,9 +18,9 @@ public interface Chromosome {
     List<TraitVector<?>> getTraitVectors();
 
     /**
-     * Get the IDs of the agents which created this {@code Chromosome).
-     * {@link org.asoem.greyfish.core.agent.Agent#getId()}
+     * Get the IDs of the agents which created this {@code Chromosome}.
      * @return a set of gent IDs
+     * @see org.asoem.greyfish.core.agent.Agent#getId()
      */
     Set<Integer> getParents();
 

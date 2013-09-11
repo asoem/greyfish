@@ -1,9 +1,7 @@
 package org.asoem.greyfish.core.eval;
 
 /**
- * User: christoph
- * Date: 17.02.12
- * Time: 16:09
+ * The result object of an evaluated {@link Evaluator}.
  */
 public interface EvaluationResult {
     /**
@@ -23,21 +21,21 @@ public interface EvaluationResult {
     /**
      *
      * @return the evaluation result as a {@code double}, if possible.
-     * @throws EvaluationException if this result cannot be interpreted as a {@link double}
+     * @throws EvaluationException if this result cannot be interpreted as a {@code double}
      */
     double asDouble() throws EvaluationException;
 
     /**
      *
      * @return the evaluation result as an {@code int}, if possible.
-     * @throws EvaluationException if this result cannot be interpreted as a {@link int}
+     * @throws EvaluationException if this result cannot be interpreted as a {@code int}
      */
     int asInt() throws EvaluationException;
 
     /**
      *
      * @return the evaluation result as a {@code boolean}, if possible.
-     * @throws EvaluationException if this result cannot be interpreted as a {@link boolean}
+     * @throws EvaluationException if this result cannot be interpreted as a {@code boolean}
      */
     boolean asBoolean() throws EvaluationException;
 

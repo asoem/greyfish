@@ -68,12 +68,12 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
     /**
      *
      * @param steps
-     * @return
+     * @return {@code true} if this action was not executed for at least the given number of {@code steps}
      */
     public boolean wasNotExecutedForAtLeast(final int steps);
 
     /**
-     * @return
+     * @return the last step at which this action reached {@link ActionState#COMPLETED}
      */
     int lastCompletionStep();
 
