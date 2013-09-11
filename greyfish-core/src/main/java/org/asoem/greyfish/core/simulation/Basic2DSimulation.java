@@ -26,10 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.*;
@@ -166,7 +163,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             processAgentsMovement();
             processRequestedAgentActivations();
 
-        } catch (InterruptedException e) {
+        } catch (Throwable e) {
             throw Throwables.propagate(e);
         }
 
@@ -192,7 +189,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         deliverAgentMessageMessages.clear();
     }
 
-    private void executeAllAgents() throws InterruptedException {
+    private void executeAllAgents() throws InterruptedException, ExecutionException {
         final List<List<A>> partition = Lists.partition(ImmutableList.copyOf(getAgents()), parallelizationThreshold);
         final Collection<Callable<Void>> callables = Lists.transform(partition, new Function<List<A>, Callable<Void>>() {
             @Override
@@ -209,7 +206,10 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             }
         });
 
-        executorService.invokeAll(callables);
+        final List<Future<Void>> futures = executorService.invokeAll(callables);
+        for (Future<Void> future : futures) {
+            future.get();
+        }
     }
 
     private void processRequestedAgentActivations() {

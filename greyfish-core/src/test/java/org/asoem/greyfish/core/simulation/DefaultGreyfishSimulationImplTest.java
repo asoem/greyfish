@@ -26,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -190,5 +191,35 @@ public class DefaultGreyfishSimulationImplTest {
         assertThat(simulation.getAgents(), is(empty()));
         assertThat(simulation.getAgents(testPopulation), is(emptyIterable()));
         assertThat(agent.isActive(), is(false));
+    }
+
+    @Test(expected = Throwable.class)
+    public void testNextStepWithException() throws Exception {
+        // given
+        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
+        final Population testPopulation = Population.named("TestPopulation");
+        given(agent.getPopulation()).willReturn(testPopulation);
+        given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
+        given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<DefaultGreyfishAgent, ?>>of());
+        doThrow(new RuntimeException()).when(agent).execute();
+        final KeyedObjectPool<Population, DefaultGreyfishAgent> pool =
+                new StackKeyedObjectPool<Population, DefaultGreyfishAgent>(new BaseKeyedPoolableObjectFactory<Population, DefaultGreyfishAgent>() {
+                    @Override
+                    public DefaultGreyfishAgent makeObject(final Population population) throws Exception {
+                        return agent;
+                    }
+                });
+        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1, 1);
+        final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(agent);
+        final DefaultGreyfishSimulationImpl simulation = DefaultGreyfishSimulationImpl.builder(space, prototypes)
+                .agentPool(pool)
+                .build();
+        simulation.addAgent(agent);
+
+        // when
+        simulation.nextStep();
+
+        // then
+        fail();
     }
 }
