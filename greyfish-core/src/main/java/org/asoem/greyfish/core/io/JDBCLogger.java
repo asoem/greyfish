@@ -226,7 +226,14 @@ public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements Simula
         if (nameIdMap.contains(name)) {
             return nameIdMap.get(name);
         } else {
-            final short id = nameIdMap.create(name);
+            short id;
+            synchronized (nameIdMap) {
+                if (nameIdMap.contains(name)) {
+                    id = nameIdMap.get(name);
+                } else {
+                    id = nameIdMap.create(name);
+                }
+            }
             addQuery(new InsertNameQuery(id, name));
             return id;
         }
