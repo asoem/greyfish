@@ -23,8 +23,8 @@ public abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S 
     }
 
     @Override
-    public double distance(final A agent, final double degrees) {
-        return delegate().distance(agent, degrees);
+    public double distance(final double degrees) {
+        return delegate().distance(degrees);
     }
 
     @Override

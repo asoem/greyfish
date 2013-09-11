@@ -7,20 +7,24 @@ import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Projectable;
 
 /**
- * User: christoph
- * Date: 04.12.12
- * Time: 10:32
+ * An agent for spatial simulations.
  */
-public interface SpatialAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D> extends Agent<A, S>, Moving<Motion2D>, Projectable<P> {
+public interface SpatialAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
+        extends Agent<A, S>, Moving<Motion2D>, Projectable<P> {
 
     /**
-     * Measure the distance from given agent to the first obstacle in the given direction (in degrees [0, 360))
+     * Measure the distance from this agent to the first obstacle in the given direction (in {@code degrees} [0, 360))
      *
-     * @param agent
-     * @param degrees
-     * @return
+     * @param degrees the angle in which to measure the distance
+     * @return the distance to the first obstacle
+     * @see SpatialSimulation2D#distance(SpatialAgent, double)
      */
-    double distance(A agent, double degrees);
+    double distance(double degrees);
 
+    /**
+     * Find all agent which are located around this agent inside given {@code radius}.
+     * @param radius the radius of the search
+     * @return all agents with distance smaller or equal to {@code radius} to this agent
+     */
     Iterable<A> findNeighbours(double radius);
 }
