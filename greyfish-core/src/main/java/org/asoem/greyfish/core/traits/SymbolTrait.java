@@ -21,33 +21,39 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.*;
 
 /**
- * A Trait which holds "identifier" values
+ * A qualitative trait which holds arbitrary "symbolic" values.
+ * @deprecated Use {@link HeritableTrait} with a
+ * {@link org.asoem.greyfish.utils.math.MarkovChain} in the mutation {@link Callback}
  */
-public final class IdentifierTrait<A extends Agent<A, ?>>
+@Deprecated
+public final class SymbolTrait<A extends Agent<A, ?>>
         extends AbstractTrait<A, String>
         implements Serializable, AgentTrait<A, String> {
 
     private static final TypeToken<String> STRING_TYPE_TOKEN = TypeToken.of(String.class);
     private final Table<String, String, Callback<? super AgentTrait<A, String>, Double>> mutationTable;
+    private final Callback<? super AgentTrait<A, String>, String> mutationKernel;
     private final Callback<? super AgentTrait<A, String>, String> initializationKernel;
     private final Callback<? super AgentTrait<A, String>, String> segregationKernel;
     @Nullable
     private String state;
 
-    private IdentifierTrait(final AbstractBuilder<A, ? extends AgentTrait<A, String>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    private SymbolTrait(final AbstractBuilder<A, ? extends AgentTrait<A, String>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.mutationTable = ImmutableTable.copyOf(builder.mutationTable);
         this.initializationKernel = builder.initializationKernel;
         this.segregationKernel = builder.segregationKernel;
+        this.mutationKernel = builder.mutationKernel;
         this.state = builder.state;
     }
 
-    private IdentifierTrait(final IdentifierTrait<A> discreteTrait, final DeepCloner cloner) {
-        super(discreteTrait, cloner);
-        this.mutationTable = discreteTrait.mutationTable;
-        this.initializationKernel = discreteTrait.initializationKernel;
-        this.segregationKernel = discreteTrait.segregationKernel;
-        this.state = discreteTrait.state;
+    private SymbolTrait(final SymbolTrait<A> symbolTrait, final DeepCloner cloner) {
+        super(symbolTrait, cloner);
+        this.mutationTable = symbolTrait.mutationTable;
+        this.initializationKernel = symbolTrait.initializationKernel;
+        this.segregationKernel = symbolTrait.segregationKernel;
+        this.mutationKernel = symbolTrait.mutationKernel;
+        this.state = symbolTrait.state;
     }
 
     @Override
@@ -70,7 +76,7 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
         double sum = 0;
         final double rand = RandomGenerators.rng().nextDouble();
         for (final Map.Entry<String, Callback<? super AgentTrait<A, String>, Double>> cell : row.entrySet()) {
-            final double transitionProbability = Callbacks.call(cell.getValue(), IdentifierTrait.this);
+            final double transitionProbability = Callbacks.call(cell.getValue(), SymbolTrait.this);
             if (transitionProbability < 0)
                 throw new AssertionError("Every transition probability should be >= 0, was " + transitionProbability);
 
@@ -100,7 +106,7 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
 
     @Override
     public String createInitialValue() {
-        return Callbacks.call(initializationKernel, IdentifierTrait.this);
+        return Callbacks.call(initializationKernel, SymbolTrait.this);
     }
 
     @Override
@@ -110,7 +116,7 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
 
     @Override
     public AgentTrait<A, String> deepClone(final DeepCloner cloner) {
-        return new IdentifierTrait<A>(this, cloner);
+        return new SymbolTrait<A>(this, cloner);
     }
 
     @Override
@@ -159,10 +165,10 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
         return new Builder<A>();
     }
 
-    public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, IdentifierTrait<A>, Builder<A>> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, SymbolTrait<A>, Builder<A>> implements Serializable {
         private Builder() {}
 
-        private Builder(final IdentifierTrait<A> discreteTrait) {
+        private Builder(final SymbolTrait<A> discreteTrait) {
             super(discreteTrait);
         }
 
@@ -172,8 +178,8 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
         }
 
         @Override
-        protected IdentifierTrait<A> checkedBuild() {
-            return new IdentifierTrait<A>(this);
+        protected SymbolTrait<A> checkedBuild() {
+            return new SymbolTrait<A>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -187,18 +193,19 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
         private static final long serialVersionUID = 0;
     }
 
-    protected abstract static class AbstractBuilder<A extends Agent<A, ?>, T extends IdentifierTrait<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
+    protected abstract static class AbstractBuilder<A extends Agent<A, ?>, T extends SymbolTrait<A>, B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B> implements Serializable {
 
         private final Table<String, String, Callback<? super AgentTrait<A, String>, Double>> mutationTable;
         private Callback<? super AgentTrait<A, String>, String> initializationKernel;
         private Callback<? super AgentTrait<A, String>, String> segregationKernel;
+        private Callback<? super AgentTrait<A, String>, String> mutationKernel;
         private String state;
 
         protected AbstractBuilder() {
             this.mutationTable = HashBasedTable.create();
         }
 
-        protected AbstractBuilder(final IdentifierTrait<A> discreteTrait) {
+        protected AbstractBuilder(final SymbolTrait<A> discreteTrait) {
             super(discreteTrait);
             this.mutationTable = HashBasedTable.create(discreteTrait.mutationTable);
             this.segregationKernel = discreteTrait.segregationKernel;
@@ -206,22 +213,27 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
             this.state = discreteTrait.state;
         }
 
-        public B addMutation(final String state1, final String state2, final Callback<? super AgentTrait<A, String>, Double> transitionCallback) {
+        public final B addMutation(final String state1, final String state2, final Callback<? super AgentTrait<A, String>, Double> transitionCallback) {
             mutationTable.put(state1, state2, transitionCallback);
             return self();
         }
 
-        public B addMutation(final String state1, final String state2, final double p) {
+        public final B addMutation(final String state1, final String state2, final double p) {
             addMutation(state1, state2, Callbacks.constant(p));
             return self();
         }
 
-        public B initialization(final Callback<? super AgentTrait<A, String>, String> callback) {
+        public final B initialization(final Callback<? super AgentTrait<A, String>, String> callback) {
             this.initializationKernel = checkNotNull(callback);
             return self();
         }
 
-        public B segregation(final Callback<? super AgentTrait<A, String>, String> callback) {
+        public final B mutation(final Callback<? super AgentTrait<A, String>, String> callback) {
+            this.mutationKernel = checkNotNull(callback);
+            return self();
+        }
+
+        public final B segregation(final Callback<? super AgentTrait<A, String>, String> callback) {
             this.segregationKernel = checkNotNull(callback);
             return self();
         }
@@ -229,15 +241,17 @@ public final class IdentifierTrait<A extends Agent<A, ?>>
         @Override
         protected void checkBuilder() {
             super.checkBuilder();
-            if (initializationKernel == null)
+            if (initializationKernel == null) {
                 throw new IllegalStateException();
-            if (segregationKernel == null)
+            }
+            if (segregationKernel == null) {
                 segregationKernel = new Callback<AgentTrait<A, String>, String>() {
                     @Override
                     public String apply(final AgentTrait<A, String> caller, final Map<String, ?> args) {
                         return (String) RandomGenerators.sample(RandomGenerators.rng(), args.get("x"), args.get("y"));
                     }
                 };
+            }
         }
     }
 }

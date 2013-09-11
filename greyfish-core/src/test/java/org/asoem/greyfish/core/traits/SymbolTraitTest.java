@@ -10,17 +10,12 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-/**
- * User: christoph
- * Date: 16.10.12
- * Time: 14:41
- */
-public class QualitativeTraitTest {
+public class SymbolTraitTest {
 
     @Test
     public void testMutation() throws Exception {
         // given
-        final IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -41,7 +36,7 @@ public class QualitativeTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMutateIllegalArgument() throws Exception {
         // given
-        final IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -58,7 +53,7 @@ public class QualitativeTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetAlleleIllegalArgument() throws Exception {
         // given
-        final IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -75,7 +70,7 @@ public class QualitativeTraitTest {
     @Test
     public void testGetStates() throws Exception {
         // given
-        final IdentifierTrait<DefaultGreyfishAgent> identifierTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<DefaultGreyfishAgent> symbolTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", 1)
@@ -84,7 +79,7 @@ public class QualitativeTraitTest {
                 .build();
 
         // when
-        final Set<String> states = identifierTrait.getPossibleValues();
+        final Set<String> states = symbolTrait.getPossibleValues();
 
         // then
         assertThat(states, containsInAnyOrder("a", "b", "c"));
@@ -93,7 +88,7 @@ public class QualitativeTraitTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final IdentifierTrait<DefaultGreyfishAgent> discreteTrait = IdentifierTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("foo"))
                 .segregation(Callbacks.constant("bar"))
@@ -104,7 +99,7 @@ public class QualitativeTraitTest {
         //discreteTrait.setAgent(agent);
 
         // when
-        final IdentifierTrait<DefaultGreyfishAgent> copy = Persisters.copyAsync(discreteTrait, Persisters.javaSerialization());
+        final SymbolTrait<DefaultGreyfishAgent> copy = Persisters.copyAsync(discreteTrait, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(discreteTrait)));
