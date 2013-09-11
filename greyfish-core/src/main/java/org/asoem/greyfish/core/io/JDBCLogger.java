@@ -5,7 +5,6 @@ import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
@@ -24,12 +23,12 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -41,24 +40,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogger<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
+    private static final int RING_BUFFER_SIZE = 1024;
+
     private final ConnectionManager connectionManager;
     private final Disruptor<BindEvent> disruptor;
-    private final Deque<BatchQuery> queries;
+    private final List<BatchQuery> queries;
     private final NameIdMap nameIdMap = new NameIdMap();
+
     private Throwable consumerException;
 
     public JDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
         checkArgument(commitThreshold > 0);
         this.connectionManager = checkNotNull(connectionManager);
 
-        final int ringBufferSize = Integer.highestOneBit(commitThreshold) << 1; // TODO: Evaluate optimal size
         final ExecutorService executor = Executors.newSingleThreadExecutor();
         disruptor = new Disruptor<BindEvent>(new EventFactory<BindEvent>() {
             @Override
             public BindEvent newInstance() {
                 return new BindEvent();
             }
-        }, ringBufferSize, executor);
+        }, RING_BUFFER_SIZE, executor);
 
         final EventHandler<BindEvent> eventHandler = new EventHandler<BindEvent>() {
             @Override
@@ -98,7 +99,7 @@ public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements Simula
         } catch (Throwable t) {
             LoggerFactory.getLogger(JDBCLogger.class).error("Disruptor failed to start", t);
         }
-        queries = new ArrayDeque<BatchQuery>(commitThreshold);
+        queries = new ArrayList<BatchQuery>(commitThreshold);
     }
 
     /**
@@ -223,20 +224,15 @@ public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements Simula
     }
 
     private short idForName(final String name) {
-        if (nameIdMap.contains(name)) {
-            return nameIdMap.get(name);
-        } else {
-            short id;
+        if (!nameIdMap.contains(name)) {
             synchronized (nameIdMap) {
-                if (nameIdMap.contains(name)) {
-                    id = nameIdMap.get(name);
-                } else {
-                    id = nameIdMap.create(name);
+                if (!nameIdMap.contains(name)) {
+                    addQuery(new InsertNameQuery(nameIdMap.get(name), name));
                 }
             }
-            addQuery(new InsertNameQuery(id, name));
-            return id;
         }
+
+        return nameIdMap.get(name);
     }
 
     private interface BatchQuery {
@@ -403,29 +399,33 @@ public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements Simula
     }
 
     private static final class NameIdMap {
-        private final Map<String, Short> map = Maps.newHashMap();
-        private short maxId = 0;
+        private final LoadingCache<String, Short> cache = CacheBuilder.newBuilder()
+                .build(new CacheLoader<String, Short>() {
+                    private AtomicInteger idSequence = new AtomicInteger(0);
 
-        public short create(final String s) {
-            assert s != null;
+                    @Override
+                    public Short load(final String key) throws Exception {
+                        return (short) idSequence.incrementAndGet();
+                    }
+                });
 
-            if (map.containsKey(s)) {
-                throw new IllegalArgumentException("Key already exists: " + s);
-            }
-
-            final short value = ++maxId;
-            final Short previous = map.put(s, value);
-            assert previous == null;
-
-            return value;
-        }
-
+        /**
+         * Check if an id has been generated for {@code name}.
+         * @param name the name
+         * @return {@code true} if an id exists, {@code false} otherwise
+         */
         public boolean contains(final String name) {
-            return map.containsKey(name);
+            return cache.asMap().containsKey(name);
         }
 
+        /**
+         * Get the id for given {@code name}.
+         * If no id has been generated yet, this method will generate one.
+         * @param name the name
+         * @return the unique id for {@code name}
+         */
         public short get(final String name) {
-            return map.get(name);
+            return cache.getUnchecked(name);
         }
     }
 
