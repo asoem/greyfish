@@ -13,7 +13,9 @@ import org.apache.commons.math3.random.Well19937c;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -149,11 +151,11 @@ public final class RandomGenerators {
         checkNotNull(rng);
         checkNotNull(elements);
         checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
-        final ImmutableList.Builder<T> builder = ImmutableList.builder();
+        final List<T> list = new ArrayList<T>(sampleSize);
         for (int i = 0; i < sampleSize; i++) {
-            builder.add(sample(rng, elements));
+            list.add(sample(rng, elements));
         }
-        return builder.build();
+        return ImmutableList.copyOf(list);
     }
 
     /**
