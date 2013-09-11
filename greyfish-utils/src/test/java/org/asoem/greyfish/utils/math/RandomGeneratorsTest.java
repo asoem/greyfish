@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -75,7 +76,7 @@ public class RandomGeneratorsTest {
     }
 
     @Test
-    public void testThreadLocalGeneratorTwoThreads() {
+    public void testThreadLocalGeneratorTwoThreads() throws ExecutionException, InterruptedException {
         // given
         final Supplier generatorSupplier = mock(Supplier.class);
         final RandomGenerator randomGeneratorThread1 = mock(RandomGenerator.class);
@@ -89,7 +90,7 @@ public class RandomGeneratorsTest {
             public Object call() throws Exception {
                 return threadLocalRandomGenerator.nextBoolean();
             }
-        });
+        }).get();
         threadLocalRandomGenerator.nextBoolean();
 
         // then
