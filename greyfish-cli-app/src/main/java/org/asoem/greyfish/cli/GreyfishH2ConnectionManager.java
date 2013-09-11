@@ -18,8 +18,8 @@ import java.sql.Statement;
 import static com.google.common.base.Preconditions.*;
 
 /**
-* This {@code ConnectionManager} implementation manages a single connection to a H2 database.
-*/
+ * This {@code ConnectionManager} implementation manages a single connection to a H2 database.
+ */
 final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishH2ConnectionManager.class);
 
@@ -93,6 +93,7 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
 
     @Override
     public void close() throws IOException {
+        // TODO: Verify that the connection has been opened!
         try {
             final StringBuilder stringBuilder = new StringBuilder();
             CharStreams.copy(new InputSupplier<InputStreamReader>() {

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
-public class ImmutableMarkovChain<S> implements MarkovChain<S> {
+public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
     private final Table<S, S, Double> markovMatrix;
 

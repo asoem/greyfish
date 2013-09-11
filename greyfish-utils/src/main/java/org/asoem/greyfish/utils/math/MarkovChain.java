@@ -3,9 +3,7 @@ package org.asoem.greyfish.utils.math;
 import java.util.Set;
 
 /**
- * User: christoph
- * Date: 22.02.12
- * Time: 12:17
+ * A markov chain defines a set of states and a function to transform any of these states into a following state.
  */
 public interface MarkovChain<S> {
 
