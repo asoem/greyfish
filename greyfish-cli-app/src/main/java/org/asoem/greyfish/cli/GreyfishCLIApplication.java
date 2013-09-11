@@ -285,8 +285,17 @@ public final class GreyfishCLIApplication {
 
         LOGGER.error(message, throwable);
 
-        final String throwableMessage = (throwable != null) ? throwable.getMessage() : "";
-        System.out.println("ERROR: " + message + throwableMessage);
+        final StringBuilder messageBuilder = new StringBuilder();
+        messageBuilder
+                .append("ERROR: ")
+                .append(message);
+        if (throwable != null) {
+            messageBuilder
+                    .append(" Exception: ")
+                    .append(throwable.getMessage());
+        }
+
+        System.out.println(messageBuilder.toString());
 
         if (printHelp) {
             printHelp(OPTION_PARSER);
