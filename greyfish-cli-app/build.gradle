@@ -32,14 +32,6 @@ dependencies {
             "org.objenesis:objenesis:1.2"
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-}
-
 buildscript {
     repositories {
         mavenLocal()
