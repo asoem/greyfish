@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -18,14 +18,14 @@ public class ResourceProvisionActionTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final ResourceProvisionAction<DefaultGreyfishAgent> action = ResourceProvisionAction.<DefaultGreyfishAgent>with()
+        final ResourceProvisionAction<Basic2DAgent> action = ResourceProvisionAction.<Basic2DAgent>with()
                 .name("test")
                 .ontology("foo")
                 .provides(Callbacks.constant(42.0))
                 .build();
 
         // when
-        final ResourceProvisionAction<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
+        final ResourceProvisionAction<Basic2DAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

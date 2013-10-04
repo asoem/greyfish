@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A {@code SimulationLogger} which logs to a JDBC {@link Connection}.
  * This implementation uses a {@link Disruptor} to handle the incoming events and therefore is threadsafe.
  */
-public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements SimulationLogger<A> {
+final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
     private static final int RING_BUFFER_SIZE = 1024;
@@ -49,7 +49,7 @@ public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements Simula
 
     private Throwable consumerException;
 
-    public JDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
+    JDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
         checkArgument(commitThreshold > 0);
         this.connectionManager = checkNotNull(connectionManager);
 
@@ -142,11 +142,11 @@ public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements Simula
     }
 
     @Override
-    public void logAgentCreation(final A agent) {
+    public void logAgentCreation(final SpatialAgent<?, ?, ?> agent) {
         addQuery(new InsertAgentQuery(
                 agent.getId(),
                 idForName(agent.getPopulation().getName()),
-                agent.getTimeOfBirth()));
+                (int) agent.getTimeOfBirth()));
 
         final Set<Integer> parents = agent.getParents();
         for (final Integer parentId : parents) {
@@ -189,11 +189,11 @@ public final class JDBCLogger<A extends SpatialAgent<A, ?, ?>> implements Simula
     }
 
     @Override
-    public void logAgentEvent(final A agent, final int currentStep, final String source,
+    public void logAgentEvent(final SpatialAgent<?, ?, ?> agent, final long currentStep, final String source,
                               final String title, final String message) {
         final InsertEventQuery insertEventOperation =
                 new InsertEventQuery(
-                        currentStep, agent.getId(), agent.getProjection(),
+                        (int) currentStep, agent.getId(), agent.getProjection(),
                         idForName(source), idForName(title), message);
         addQuery(insertEventOperation);
     }

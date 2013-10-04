@@ -5,14 +5,18 @@ import org.asoem.greyfish.core.agent.Agent;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * A logger that logs all messages to {@link System#out}.
- *
- * TODO: extract an abstract stream logger
  */
-public final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
 
-    private PrintStream printStream = System.out;
+    private final PrintStream printStream;
+
+    public ConsoleLogger(final PrintStream printStream) {
+        this.printStream = checkNotNull(printStream);
+    }
 
     @Override
     public void logAgentCreation(final A agent) {
@@ -21,7 +25,7 @@ public final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLog
     }
 
     @Override
-    public void logAgentEvent(final A agent, final int currentStep, final String source,
+    public void logAgentEvent(final A agent, final long currentStep, final String source,
                               final String title, final String message) {
         final String logLine = String.format("%s\t%s\t%s\t%s\t%s",
                 currentStep, agent.getPopulation(),

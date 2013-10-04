@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.traits.Chromosome;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -22,18 +22,18 @@ public class SexualReproductionTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final SexualReproduction<DefaultGreyfishAgent> action = SexualReproduction.<DefaultGreyfishAgent>builder()
+        final SexualReproduction<Basic2DAgent> action = SexualReproduction.<Basic2DAgent>builder()
                 .name("test")
                 .clutchSize(Callbacks.constant(1))
                 .spermSupplier(Callbacks.constant(Lists.<Chromosome>newArrayList()))
                 .spermSelectionStrategy(ElementSelectionStrategies.<Chromosome>randomSelection())
                 .spermFitnessCallback(Callbacks.constant(0.42))
                 .onSuccess(Callbacks.emptyCallback())
-                .executedIf(new AlwaysTrueCondition<DefaultGreyfishAgent>())
+                .executedIf(new AlwaysTrueCondition<Basic2DAgent>())
                 .build();
 
         // when
-        final SexualReproduction<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
+        final SexualReproduction<Basic2DAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

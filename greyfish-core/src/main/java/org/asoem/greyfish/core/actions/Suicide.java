@@ -3,19 +3,19 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Tagged;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-@Tagged("actions")
+/**
+ *
+ * @param <A>
+ * @deprecated Use a {@link GenericAction} to remove an agent from a simulation
+ */
+@Deprecated
 public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Suicide.class);
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private Suicide() {
@@ -32,9 +32,12 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     @Override
     protected ActionState proceed() {
+        throw new UnsupportedOperationException("");
+        /*
         agent().die();
         agent().logEvent(this, "dies", "");
         return ActionState.COMPLETED;
+        */
     }
 
     @Override

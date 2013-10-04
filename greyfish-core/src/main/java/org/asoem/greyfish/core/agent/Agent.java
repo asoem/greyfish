@@ -5,12 +5,11 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.simulation.Simulatable;
-import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.Freezable;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
 import javax.annotation.Nullable;
@@ -18,12 +17,12 @@ import java.awt.*;
 import java.util.Set;
 
 /**
- * An Agent which is the basic {@link Simulatable} unit of a {@link Simulation}.
+ * An Agent which is the basic {@link Simulatable} unit of a {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
  * @param <A> The type of the Agent implementation
  * @param <S> The type of the Simulation implementation
  */
-public interface Agent<A extends Agent<A, S>, S extends Simulation<A>>
-        extends DeepCloneable, Freezable, Simulatable<S, A>, AgentNode {
+public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>>
+        extends DeepCloneable, Simulatable<S, A>, AgentNode {
 
     void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2);
 
@@ -32,12 +31,6 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>>
      * @return the population
      */
     Population getPopulation();
-
-    /**
-     * Set the population
-     * @param population the new population
-     */
-    void setPopulation(Population population);
 
     /**
      * Check if the population of this agent is equal to {@code population}.
@@ -104,15 +97,15 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>>
 
     int getId();
 
-    int getTimeOfBirth();
+    long getTimeOfBirth();
 
-    int getAge();
+    long getAge();
 
-    void receive(AgentMessage<A> message);
+    void receive(ACLMessage<A> message);
 
-    void receiveAll(Iterable<? extends AgentMessage<A>> message);
+    void receiveAll(Iterable<? extends ACLMessage<A>> message);
 
-    Iterable<AgentMessage<A>> getMessages(MessageTemplate template);
+    Iterable<ACLMessage<A>> getMessages(MessageTemplate template);
 
     boolean hasMessages(MessageTemplate template);
 
@@ -120,15 +113,14 @@ public interface Agent<A extends Agent<A, S>, S extends Simulation<A>>
 
     Set<Integer> getParents();
 
-    int getSimulationStep();
+    long getSimulationStep();
 
+    @Deprecated
     void reproduce(Chromosome chromosome);
 
     Iterable<A> getAllAgents();
 
     Iterable<A> filterAgents(Predicate<? super A> predicate);
-
-    void die();
 
     void sendMessage(ACLMessage<A> message);
 

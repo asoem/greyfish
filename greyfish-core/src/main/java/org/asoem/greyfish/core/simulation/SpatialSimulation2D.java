@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.space.Space2D;
  * Date: 08.10.11
  * Time: 10:50
  */
-public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends Space2D<A, ?>> extends Simulation<A> {
+public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends Space2D<A, ?>> extends DiscreteTimeSimulation<A> {
 
     /**
      * Find all neighbours of {@code agent} within the given {@code distance}
@@ -33,4 +33,11 @@ public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends 
      * @return the distance from agent to the next object in this simulations space
      */
     double distance(A agent, double degrees);
+
+    /**
+     * Remove agent from this {@code Simulation}
+     *
+     * @param agent the {@code Agent} to be removed from this {@code Simulation}
+     */
+    void removeAgent(A agent);
 }

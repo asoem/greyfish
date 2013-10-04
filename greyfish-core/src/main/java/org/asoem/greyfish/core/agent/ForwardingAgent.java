@@ -6,14 +6,14 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
 import java.awt.*;
 import java.util.Set;
 
-public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulation<A>> extends ForwardingObject implements Agent<A, S> {
+public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>> extends ForwardingObject implements Agent<A, S> {
 
     @Override
     protected abstract Agent<A, S> delegate();
@@ -21,11 +21,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     @Override
     public Population getPopulation() {
         return delegate().getPopulation();
-    }
-
-    @Override
-    public void setPopulation(final Population population) {
-        delegate().setPopulation(population);
     }
 
     @Override
@@ -95,22 +90,12 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void freeze() {
-        delegate().freeze();
-    }
-
-    @Override
-    public boolean isFrozen() {
-        return delegate().isFrozen();
-    }
-
-    @Override
     public int getId() {
         return delegate().getId();
     }
 
     @Override
-    public int getTimeOfBirth() {
+    public long getTimeOfBirth() {
         return delegate().getTimeOfBirth();
     }
 
@@ -125,7 +110,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public Iterable<AgentMessage<A>> getMessages(final MessageTemplate template) {
+    public Iterable<ACLMessage<A>> getMessages(final MessageTemplate template) {
         return delegate().getMessages(template);
     }
 
@@ -140,28 +125,28 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void receiveAll(final Iterable<? extends AgentMessage<A>> messages) {
+    public void receiveAll(final Iterable<? extends ACLMessage<A>> messages) {
         delegate().receiveAll(messages);
     }
 
     @Override
-    public void receive(final AgentMessage<A> messages) {
+    public void receive(final ACLMessage<A> messages) {
         delegate().receive(messages);
     }
 
     @Override
-    public int getAge() {
+    public long getAge() {
         return delegate().getAge();
     }
 
     @Override
-    public void execute() {
-        delegate().execute();
+    public void run() {
+        delegate().run();
     }
 
     @Override
-    public void deactivate(final SimulationContext<S, A> context) {
-        delegate().deactivate(PassiveSimulationContext.<S, A>instance());
+    public void deactivate(final PassiveSimulationContext<S, A> context) {
+        delegate().deactivate(context);
     }
 
     @Override
@@ -175,7 +160,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void activate(final SimulationContext<S, A> context) {
+    public void activate(final ActiveSimulationContext<S, A> context) {
         delegate().activate(context);
     }
 
@@ -235,11 +220,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public void die() {
-        delegate().die();
-    }
-
-    @Override
     public Iterable<A> filterAgents(final Predicate<? super A> predicate) {
         return delegate().filterAgents(predicate);
     }
@@ -250,7 +230,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends Simulatio
     }
 
     @Override
-    public int getSimulationStep() {
+    public long getSimulationStep() {
         return delegate().getSimulationStep();
     }
 

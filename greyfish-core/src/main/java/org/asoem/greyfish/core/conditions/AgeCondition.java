@@ -5,7 +5,7 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 @Tagged("conditions")
-public class AgeCondition<A extends Agent<A, ?>> extends IntCompareCondition<A> {
+public class AgeCondition<A extends Agent<A, ?>> extends LongCompareCondition<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AgeCondition() {}
@@ -24,7 +24,7 @@ public class AgeCondition<A extends Agent<A, ?>> extends IntCompareCondition<A> 
     }
 
     @Override
-    protected Integer getCompareValue() {
+    protected Long getCompareValue() {
         return agent().getAge();
     }
 
@@ -33,5 +33,5 @@ public class AgeCondition<A extends Agent<A, ?>> extends IntCompareCondition<A> 
         @Override protected AgeCondition<A> checkedBuild() { return new AgeCondition<A>(this); }
     }
 
-    protected static abstract class AbstractBuilder<E extends AgeCondition<A>, T extends AbstractBuilder<E,T, A>, A extends Agent<A, ?>> extends IntCompareCondition.AbstractBuilder<E, T, A> {}
+    protected static abstract class AbstractBuilder<E extends AgeCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<A, ?>> extends LongCompareCondition.AbstractBuilder<E, T, A> {}
 }

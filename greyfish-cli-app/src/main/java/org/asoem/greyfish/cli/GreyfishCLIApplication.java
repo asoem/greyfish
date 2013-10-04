@@ -13,10 +13,10 @@ import com.google.inject.util.Providers;
 import joptsimple.*;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.io.JDBCLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
 import org.asoem.greyfish.core.model.SimulationModel;
 import org.asoem.greyfish.utils.collect.Product2;
@@ -158,13 +158,13 @@ public final class GreyfishCLIApplication {
                 try {
                     final GreyfishH2ConnectionManager connectionSupplier =
                             GreyfishH2ConnectionManager.create(path);
-                    final JDBCLogger<DefaultGreyfishAgent> jdbcLogger =
-                            new JDBCLogger<DefaultGreyfishAgent>(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
+                    final SimulationLogger<SpatialAgent<?, ?, ?>> jdbcLogger =
+                            SimulationLoggers.createJDBCLogger(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
 
                     CLOSER.register(connectionSupplier);
                     CLOSER.register(jdbcLogger); // Must be closed before the connection (put on stack after the connection)
 
-                    bind(new TypeLiteral<SimulationLogger<DefaultGreyfishAgent>>() {}).toInstance(jdbcLogger);
+                    bind(SimulationLogger.class).toInstance(jdbcLogger);
                 } catch (Exception e) {
                     exitWithErrorMessage("Unable to create new database: ", e);
                 }

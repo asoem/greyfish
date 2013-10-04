@@ -31,7 +31,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
 
     private final SingleElementCache<T> valueCache;
 
-    private int lastModificationStep = -1;
+    private long lastModificationStep = -1;
 
     private CachingProperty(final CachingProperty<A, T> simulationStepProperty, final DeepCloner cloner) {
         super(simulationStepProperty, cloner);
@@ -91,7 +91,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         return new Builder<T, A>();
     }
 
-    public int getLastModificationStep() {
+    public long getLastModificationStep() {
         return lastModificationStep;
     }
 

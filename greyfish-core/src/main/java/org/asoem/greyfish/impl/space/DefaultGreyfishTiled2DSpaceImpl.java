@@ -1,6 +1,7 @@
-package org.asoem.greyfish.core.space;
+package org.asoem.greyfish.impl.space;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.core.space.*;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.asoem.greyfish.utils.space.Tile;
 import org.asoem.greyfish.utils.space.TileDirection;
@@ -10,15 +11,15 @@ import org.asoem.greyfish.utils.space.TileDirection;
  * Date: 14.11.12
  * Time: 14:39
  */
-public class DefaultGreyfishSpaceImpl extends ForwardingSpace2D<DefaultGreyfishAgent, Point2D> implements DefaultGreyfishSpace {
-    private final TiledSpace<DefaultGreyfishAgent, Point2D, WalledTile> space;
+public class DefaultGreyfishTiled2DSpaceImpl extends ForwardingSpace2D<Basic2DAgent, Point2D> implements DefaultGreyfishTiled2DSpace {
+    private final TiledSpace<Basic2DAgent, Point2D, WalledTile> space;
 
-    public DefaultGreyfishSpaceImpl(final TiledSpace<DefaultGreyfishAgent, Point2D, WalledTile> space) {
+    public DefaultGreyfishTiled2DSpaceImpl(final TiledSpace<Basic2DAgent, Point2D, WalledTile> space) {
         this.space = space;
     }
 
     @Override
-    protected Space2D<DefaultGreyfishAgent, Point2D> delegate() {
+    protected Space2D<Basic2DAgent, Point2D> delegate() {
         return space;
     }
 
@@ -53,11 +54,11 @@ public class DefaultGreyfishSpaceImpl extends ForwardingSpace2D<DefaultGreyfishA
     }
 
     @Override
-    public Iterable<DefaultGreyfishAgent> getObjects(final Iterable<? extends Tile> tiles) {
+    public Iterable<Basic2DAgent> getObjects(final Iterable<? extends Tile> tiles) {
         return space.getObjects(tiles);
     }
 
-    public static DefaultGreyfishSpace ofSize(final int width, final int height) {
-        return new DefaultGreyfishSpaceImpl(WalledPointSpace.<DefaultGreyfishAgent>ofSize(width, height));
+    public static DefaultGreyfishTiled2DSpace ofSize(final int width, final int height) {
+        return new DefaultGreyfishTiled2DSpaceImpl(WalledPointSpace.<Basic2DAgent>ofSize(width, height));
     }
 }

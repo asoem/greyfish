@@ -10,6 +10,6 @@ import java.util.Set;
  * Date: 05.07.12
  * Time: 15:55
  */
-public interface SimulationFactory<S extends Simulation<A>, A extends Agent<A, S>>  {
+public interface SimulationFactory<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>>  {
     public Simulation<A> createSimulation(S space, Set<? extends A> prototypes, CloneFactory<A> cloneFactory);
 }

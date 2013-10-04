@@ -6,9 +6,7 @@ import org.asoem.greyfish.core.space.Space2D;
 import java.util.Collection;
 
 /**
- * User: christoph
- * Date: 03.10.12
- * Time: 22:08
+ * Basic class for implementing 2D simulations.
  */
 public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, ?>, Z extends Space2D<A, ?>> extends AbstractSimulation<A> implements SpatialSimulation2D<A, Z> {
 
@@ -26,4 +24,11 @@ public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, ?>, Z ex
     public int countAgents() {
         return getSpace().countObjects();
     }
+
+    /**
+     * Remove agent from this {@code Simulation}
+     *
+     * @param agent the {@code Agent} to be removed from this {@code Simulation}
+     */
+    public abstract void removeAgent(A agent);
 }

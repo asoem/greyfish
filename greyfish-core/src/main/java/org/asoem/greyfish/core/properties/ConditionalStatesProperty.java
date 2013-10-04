@@ -99,11 +99,6 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
         return conditionMap;
     }
 
-    @Override
-    public void freeze() {
-        conditionMap = ImmutableMap.copyOf(conditionMap);
-    }
-
     public static <A extends Agent<A, ?>> Builder<A> with() { return new Builder<A>(); }
 
     public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, ConditionalStatesProperty<A>, Builder<A>> {

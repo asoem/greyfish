@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -19,12 +19,12 @@ public class AllConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final ActionCondition<DefaultGreyfishAgent> childMock = mock(ActionCondition.class);
+        final ActionCondition<Basic2DAgent> childMock = mock(ActionCondition.class);
         when(childMock.deepClone(any(DeepCloner.class))).thenReturn(mock(ActionCondition.class));
-        final AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(childMock, childMock);
+        final AllCondition<Basic2DAgent> allCondition = AllCondition.evaluates(childMock, childMock);
 
         // when
-        final AllCondition<DefaultGreyfishAgent> clone = CycleCloner.clone(allCondition);
+        final AllCondition<Basic2DAgent> clone = CycleCloner.clone(allCondition);
 
         // then
         assertThat(clone.getChildConditions(), hasSize(allCondition.getChildConditions().size()));
@@ -34,11 +34,11 @@ public class AllConditionTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final ActionCondition<DefaultGreyfishAgent> condition = mock(ActionCondition.class, withSettings().serializable());
-        final AllCondition<DefaultGreyfishAgent> allCondition = AllCondition.evaluates(condition, condition);
+        final ActionCondition<Basic2DAgent> condition = mock(ActionCondition.class, withSettings().serializable());
+        final AllCondition<Basic2DAgent> allCondition = AllCondition.evaluates(condition, condition);
 
         // when
-        final AllCondition<DefaultGreyfishAgent> copy = Persisters.copyAsync(allCondition, Persisters.javaSerialization());
+        final AllCondition<Basic2DAgent> copy = Persisters.copyAsync(allCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy.getChildConditions(), hasSize(allCondition.getChildConditions().size()));

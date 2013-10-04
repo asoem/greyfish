@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class FemaleLikeMatingTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final FemaleLikeMating<DefaultGreyfishAgent> action = FemaleLikeMating.<DefaultGreyfishAgent>with()
+        final FemaleLikeMating<Basic2DAgent> action = FemaleLikeMating.<Basic2DAgent>with()
                 .name("test")
                 .ontology("foo")
                 .matingProbability(constant(0.42))
@@ -27,7 +27,7 @@ public class FemaleLikeMatingTest {
                 .build();
 
         // when
-        final FemaleLikeMating<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
+        final FemaleLikeMating<Basic2DAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

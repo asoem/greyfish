@@ -2,7 +2,7 @@ package org.asoem.greyfish.cli;
 
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.AbstractScheduledService;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -14,17 +14,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * This service monitors a given {@link Simulation} and prints messages to a given {@link OutputStream} every second.
+ * This service monitors a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation} and prints messages to a given {@link OutputStream} every second.
  */
 final class SimulationMonitorService extends AbstractScheduledService {
 
-    private final Simulation<?> simulation;
+    private final DiscreteTimeSimulation<?> simulation;
     private final PrintWriter writer;
     private final int steps;
 
     private String lastMessage = "";
 
-    public SimulationMonitorService(final Simulation<?> simulation, final OutputStream outputStream, final int steps) {
+    public SimulationMonitorService(final DiscreteTimeSimulation<?> simulation, final OutputStream outputStream, final int steps) {
         checkArgument(steps > 0);
         this.steps = steps;
         this.simulation = checkNotNull(simulation);
@@ -41,13 +41,13 @@ final class SimulationMonitorService extends AbstractScheduledService {
 
     @Override
     protected void runOneIteration() throws Exception {
-        final double progress = (double) simulation.getSteps() / steps;
+        final double progress = (double) simulation.getTime() / steps;
         assert progress >= 0 && progress <= 1;
         final String message = String.format("[%s%s] %d%% (%d/%d) (%d active agents)",
                 Strings.repeat("#", (int) (progress * 10)),
                 Strings.repeat(" ", 10 - (int) (progress * 10)),
                 (int) (progress * 100),
-                simulation.getSteps(),
+                simulation.getTime(),
                 steps,
                 simulation.countAgents());
         replaceStatusLine(message, false);

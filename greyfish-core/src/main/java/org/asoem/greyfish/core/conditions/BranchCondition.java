@@ -16,7 +16,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkPositionIndex;
 import static java.util.Arrays.asList;
 
 
@@ -58,7 +59,6 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
     }
 
     public void addAll(final Iterable<? extends ActionCondition<A>> childConditions) {
-        checkState(!isFrozen());
         for (final ActionCondition<A> childCondition : childConditions) {
             add(childCondition);
         }
@@ -70,20 +70,17 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
 
     @Override
     public void add(final ActionCondition<A> newChild) {
-        checkState(!isFrozen());
         insert(newChild, getChildConditions().size());
     }
 
     @Override
     public void insert(final ActionCondition<A> condition, final int index) {
-        checkState(!isFrozen());
         checkNotNull(condition);
         getChildConditions().add(index, condition);
         condition.setParent(this);
     }
 
     public ActionCondition<A> remove(final int index) {
-        checkState(!isFrozen());
         checkPositionIndex(index, getChildConditions().size());
         final ActionCondition<A> ret = getChildConditions().remove(index);
         ret.setParent(null);
@@ -92,13 +89,11 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
 
     @Override
     public void remove(final ActionCondition<A> condition) {
-        checkState(!isFrozen());
         remove(getChildConditions().indexOf(condition));
     }
 
     @Override
     public void removeAll() {
-        checkState(!isFrozen());
         for (final ActionCondition<A> condition : getChildConditions()) {
             remove(condition);
         }

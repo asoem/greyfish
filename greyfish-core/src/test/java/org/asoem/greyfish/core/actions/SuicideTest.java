@@ -1,8 +1,8 @@
 package org.asoem.greyfish.core.actions;
 
 import com.google.common.base.Function;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
@@ -24,14 +24,14 @@ public class SuicideTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final Suicide<DefaultGreyfishAgent> suicide = Suicide.<DefaultGreyfishAgent>builder()
+        final Suicide<Basic2DAgent> suicide = Suicide.<Basic2DAgent>builder()
                 .name("foo")
-                .executedIf(AlwaysTrueCondition.<DefaultGreyfishAgent>builder().build())
+                .executedIf(AlwaysTrueCondition.<Basic2DAgent>builder().build())
                 .onSuccess(Callbacks.emptyCallback())
                 .build();
 
         // when
-        final Suicide<DefaultGreyfishAgent> copy = Persisters.copyAsync(suicide, Persisters.javaSerialization());
+        final Suicide<Basic2DAgent> copy = Persisters.copyAsync(suicide, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(sameAs(suicide)));

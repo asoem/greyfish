@@ -24,7 +24,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     private ActionCondition<A> condition;
     private Callback<? super AbstractAgentAction<A>, Void> onSuccess;
     private int successCount;
-    private int stepAtLastSuccess;
+    private long stepAtLastSuccess;
     private ActionState actionState;
 
     @SuppressWarnings("unchecked")
@@ -150,7 +150,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     }
 
     @Override
-    public final int lastCompletionStep() {
+    public final long lastCompletionStep() {
         return stepAtLastSuccess;
     }
 
@@ -176,7 +176,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
         private ActionCondition<A> condition;
         private Callback<? super AbstractAgentAction<A>, Void> onSuccess = Callbacks.emptyCallback();
         private int successCount;
-        private int stepAtLastSuccess = -1;
+        private long stepAtLastSuccess = -1;
         private ActionState actionState = INITIAL;
 
         protected AbstractBuilder() {

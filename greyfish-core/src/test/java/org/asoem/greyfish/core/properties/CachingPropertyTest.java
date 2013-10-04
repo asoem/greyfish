@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.properties;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.junit.Test;
 
@@ -20,14 +20,14 @@ public class CachingPropertyTest {
     @Test
     public void testDefaultLifetimeExpiration() throws Exception {
         // given
-        final Callback<CachingProperty<DefaultGreyfishAgent, Object>, Object> function = mock(Callback.class);
+        final Callback<CachingProperty<Basic2DAgent, Object>, Object> function = mock(Callback.class);
         given(function.apply(any(CachingProperty.class), any(Map.class))).willReturn(mock(Object.class));
-        final CachingProperty<DefaultGreyfishAgent, Object> lifetimeProperty = CachingProperty.<Object, DefaultGreyfishAgent>builder()
+        final CachingProperty<Basic2DAgent, Object> lifetimeProperty = CachingProperty.<Object, Basic2DAgent>builder()
                 .value(function)
                 .expires(CachingProperty.expiresAtBirth())
                 .build();
-        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
-        given(agent.getSimulationStep()).willReturn(0, 0, 1, 1);
+        final Basic2DAgent agent = mock(Basic2DAgent.class);
+        given(agent.getSimulationStep()).willReturn(0L, 0L, 1L, 1L);
         lifetimeProperty.setAgent(agent);
 
         // when
@@ -42,14 +42,14 @@ public class CachingPropertyTest {
     @Test
     public void testStepExpiration() throws Exception {
         // given
-        final Callback<CachingProperty<DefaultGreyfishAgent, Object>, Object> function = mock(Callback.class);
+        final Callback<CachingProperty<Basic2DAgent, Object>, Object> function = mock(Callback.class);
         given(function.apply(any(CachingProperty.class), any(Map.class))).willReturn(mock(Object.class));
-        final CachingProperty<DefaultGreyfishAgent, Object> lifetimeProperty = CachingProperty.<Object, DefaultGreyfishAgent>builder()
+        final CachingProperty<Basic2DAgent, Object> lifetimeProperty = CachingProperty.<Object, Basic2DAgent>builder()
                 .value(function)
                 .expires(CachingProperty.expiresEveryStep())
                 .build();
-        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
-        given(agent.getSimulationStep()).willReturn(0, 0, 1, 1);
+        final Basic2DAgent agent = mock(Basic2DAgent.class);
+        given(agent.getSimulationStep()).willReturn(0L, 0L, 1L, 1L);
         lifetimeProperty.setAgent(agent);
 
         // when

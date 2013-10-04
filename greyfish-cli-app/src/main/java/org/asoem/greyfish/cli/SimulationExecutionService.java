@@ -7,7 +7,7 @@ import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import org.asoem.greyfish.core.model.SimulationModel;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.simulation.Simulations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,28 +18,28 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * This service executes a given {@link Simulation}.
+ * This service executes a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
  */
 final class SimulationExecutionService extends AbstractExecutionThreadService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulationExecutionService.class);
-    private final Simulation<?> simulation;
-    private final List<Predicate<Simulation<?>>> predicateList;
+    private final DiscreteTimeSimulation<?> simulation;
+    private final List<Predicate<DiscreteTimeSimulation<?>>> predicateList;
 
     @Inject
     private SimulationExecutionService(final SimulationModel<?> model,
                                      @Named("steps") final int steps) {
         this.predicateList = Lists.newArrayList();
 
-        this.predicateList.add(new Predicate<Simulation<?>>() {
+        this.predicateList.add(new Predicate<DiscreteTimeSimulation<?>>() {
             @Override
-            public boolean apply(final Simulation<?> simulation) {
-                return simulation.getSteps() < steps;
+            public boolean apply(final DiscreteTimeSimulation<?> simulation) {
+                return simulation.getTime() < steps;
             }
         });
-        this.predicateList.add(new Predicate<Simulation<?>>() {
+        this.predicateList.add(new Predicate<DiscreteTimeSimulation<?>>() {
             @Override
-            public boolean apply(@Nullable final Simulation<?> input) {
+            public boolean apply(@Nullable final DiscreteTimeSimulation<?> input) {
                 return isRunning();
             }
         });
@@ -56,7 +56,7 @@ final class SimulationExecutionService extends AbstractExecutionThreadService {
         Simulations.runWhile(simulation, Predicates.and(predicateList));
     }
 
-    public Simulation<?> getSimulation() {
+    public DiscreteTimeSimulation<?> getSimulation() {
         return simulation;
     }
 }

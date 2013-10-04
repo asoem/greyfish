@@ -11,6 +11,7 @@ import org.asoem.greyfish.core.agent.AgentComponent;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.properties.AgentProperty;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.utils.AgentComponents;
@@ -83,11 +84,11 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                             // TODO: We should have direct access to simulation object through a component
                         }
                     });
-                } else if (Simulation.class.isAssignableFrom(contextClass)) {
+                } else if (DiscreteTimeSimulation.class.isAssignableFrom(contextClass)) {
                     return simulation(gomParts, new Function<T, Simulation<?>>() {
                         @Override
                         public Simulation<?> apply(final T t) {
-                            return Simulation.class.cast(t);
+                            return DiscreteTimeSimulation.class.cast(t);
                         }
                     });
                 } else {
@@ -217,9 +218,9 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
 
             if (nextPart.matches("conditions\\[.+\\]")) {
             } else if (nextPart.equals("stepsSinceLastExecution")) {
-                return Functions.compose(new Function<AgentAction, Integer>() {
+                return Functions.compose(new Function<AgentAction, Long>() {
                     @Override
-                    public Integer apply(final AgentAction o) {
+                    public Long apply(final AgentAction o) {
                         return checkNotNull(o).lastCompletionStep();
                     }
                 }, ret);

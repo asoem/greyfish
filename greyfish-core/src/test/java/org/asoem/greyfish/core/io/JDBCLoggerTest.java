@@ -12,9 +12,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * User: christoph Date: 05.09.13 Time: 11:37
- */
 public class JDBCLoggerTest {
     @Test
     public void testCommitThreshold1() throws Exception {
@@ -23,7 +20,7 @@ public class JDBCLoggerTest {
         final Connection connectionMock = mock(Connection.class);
         given(connectionMock.prepareStatement(any(String.class))).willReturn(mock(PreparedStatement.class));
         final ConnectionManager mock = when(mock(ConnectionManager.class).get()).thenReturn(connectionMock).getMock();
-        JDBCLogger jdbcLogger = new JDBCLogger(mock, commitThreshold);
+        SimulationLogger<SpatialAgent<?, ?, ?>> jdbcLogger = SimulationLoggers.createJDBCLogger(mock, commitThreshold);
         final SpatialAgent agentMock = mock(SpatialAgent.class);
         when(agentMock.getPopulation()).thenReturn(Population.named(""));
         when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.of());
@@ -44,7 +41,7 @@ public class JDBCLoggerTest {
         final Connection connectionMock = mock(Connection.class);
         given(connectionMock.prepareStatement(any(String.class))).willReturn(mock(PreparedStatement.class));
         final ConnectionManager mock = when(mock(ConnectionManager.class).get()).thenReturn(connectionMock).getMock();
-        JDBCLogger jdbcLogger = new JDBCLogger(mock, commitThreshold);
+        SimulationLogger<SpatialAgent<?, ?, ?>> jdbcLogger = SimulationLoggers.createJDBCLogger(mock, commitThreshold);
         final SpatialAgent agentMock = mock(SpatialAgent.class);
         when(agentMock.getPopulation()).thenReturn(Population.named(""));
         when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.of());

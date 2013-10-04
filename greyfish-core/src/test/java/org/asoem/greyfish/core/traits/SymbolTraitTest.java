@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.traits;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class SymbolTraitTest {
     @Test
     public void testMutation() throws Exception {
         // given
-        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<Basic2DAgent> discreteTrait = SymbolTrait.<Basic2DAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -36,7 +36,7 @@ public class SymbolTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMutateIllegalArgument() throws Exception {
         // given
-        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<Basic2DAgent> discreteTrait = SymbolTrait.<Basic2DAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -53,7 +53,7 @@ public class SymbolTraitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetAlleleIllegalArgument() throws Exception {
         // given
-        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<Basic2DAgent> discreteTrait = SymbolTrait.<Basic2DAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", Callbacks.constant(1.0))
@@ -70,7 +70,7 @@ public class SymbolTraitTest {
     @Test
     public void testGetStates() throws Exception {
         // given
-        final SymbolTrait<DefaultGreyfishAgent> symbolTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<Basic2DAgent> symbolTrait = SymbolTrait.<Basic2DAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("a"))
                 .addMutation("a", "b", 1)
@@ -88,7 +88,7 @@ public class SymbolTraitTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final SymbolTrait<DefaultGreyfishAgent> discreteTrait = SymbolTrait.<DefaultGreyfishAgent>builder()
+        final SymbolTrait<Basic2DAgent> discreteTrait = SymbolTrait.<Basic2DAgent>builder()
                 .name("test")
                 .initialization(Callbacks.constant("foo"))
                 .segregation(Callbacks.constant("bar"))
@@ -99,7 +99,7 @@ public class SymbolTraitTest {
         //discreteTrait.setAgent(agent);
 
         // when
-        final SymbolTrait<DefaultGreyfishAgent> copy = Persisters.copyAsync(discreteTrait, Persisters.javaSerialization());
+        final SymbolTrait<Basic2DAgent> copy = Persisters.copyAsync(discreteTrait, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(discreteTrait)));

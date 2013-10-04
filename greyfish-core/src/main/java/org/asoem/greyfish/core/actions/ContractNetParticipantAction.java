@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.AgentMessage;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<A>> cfpReplies = Lists.newArrayList();
-            final Iterable<AgentMessage<A>> proposalCalls = agent().getMessages(template);
+            final Iterable<ACLMessage<A>> proposalCalls = agent().getMessages(template);
             for (final ACLMessage<A> cfp : proposalCalls) {
 
                 ACLMessage<A> cfpReply;
@@ -84,7 +83,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                 endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT == state) {
-            final Iterable<AgentMessage<A>> receivedMessages = agent().getMessages(getTemplate());
+            final Iterable<ACLMessage<A>> receivedMessages = agent().getMessages(getTemplate());
             for (final ACLMessage<A> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:

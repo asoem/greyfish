@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -19,11 +19,11 @@ public class ClonalReproductionTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final ClonalReproduction<DefaultGreyfishAgent> action = ClonalReproduction.<DefaultGreyfishAgent>with()
+        final ClonalReproduction<Basic2DAgent> action = ClonalReproduction.<Basic2DAgent>with()
                 .nClones(Callbacks.constant(5))
                 .build();
         // when
-        final ClonalReproduction<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
+        final ClonalReproduction<Basic2DAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

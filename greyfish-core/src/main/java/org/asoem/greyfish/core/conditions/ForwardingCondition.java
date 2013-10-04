@@ -126,16 +126,6 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     }
 
     @Override
-    public void freeze() {
-        delegate().freeze();
-    }
-
-    @Override
-    public boolean isFrozen() {
-        return delegate().isFrozen();
-    }
-
-    @Override
     public DeepCloneable deepClone(final DeepCloner cloner) {
         return delegate().deepClone(cloner);
     }

@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.traits;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.MatcherAssert;
@@ -18,7 +18,7 @@ public class DoublePrecisionRealNumberTraitTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final DoublePrecisionRealNumberTrait<DefaultGreyfishAgent> quantitativeTrait = DoublePrecisionRealNumberTrait.<DefaultGreyfishAgent>builder()
+        final DoublePrecisionRealNumberTrait<Basic2DAgent> quantitativeTrait = DoublePrecisionRealNumberTrait.<Basic2DAgent>builder()
                 .name("Test")
                 .initialization(Callbacks.constant(1.0))
                 .mutation(Callbacks.constant(2.0))
@@ -29,7 +29,7 @@ public class DoublePrecisionRealNumberTraitTest {
         //quantitativeTrait.setAgent(agent);
 
         // when
-        final DoublePrecisionRealNumberTrait<DefaultGreyfishAgent> copy = Persisters.copyAsync(quantitativeTrait, Persisters.javaSerialization());
+        final DoublePrecisionRealNumberTrait<Basic2DAgent> copy = Persisters.copyAsync(quantitativeTrait, Persisters.javaSerialization());
 
         // then
         MatcherAssert.assertThat(copy, is(equalTo(quantitativeTrait)));

@@ -8,7 +8,9 @@ import javax.annotation.Nullable;
  * Time: 12:56
  */
 public interface Projectable<T extends SpatialObject> {
+
     @Nullable
     T getProjection();
-    void setProjection(T projection);
+
+    void setProjection(@Nullable T projection);
 }

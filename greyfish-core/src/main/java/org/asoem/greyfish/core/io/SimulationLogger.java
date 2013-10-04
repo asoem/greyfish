@@ -7,7 +7,7 @@ import java.io.Closeable;
 /**
  * A SimulationLogger defines methods to write simulation events to a given destination of type {@link Closeable}.
  */
-public interface SimulationLogger<A extends Agent<A, ?>> extends Closeable {
+public interface SimulationLogger<A extends Agent<?, ?>> extends Closeable {
     /**
      * Log the creation of an agent.
      * @param agent the agent which got created.
@@ -22,7 +22,7 @@ public interface SimulationLogger<A extends Agent<A, ?>> extends Closeable {
      * @param title the title of the event
      * @param message the message for the event
      */
-    void logAgentEvent(A agent, int currentStep, String source, String title, String message);
+    void logAgentEvent(A agent, long currentStep, String source, String title, String message);
 
     /**
      * Log a property of type {@code marker}

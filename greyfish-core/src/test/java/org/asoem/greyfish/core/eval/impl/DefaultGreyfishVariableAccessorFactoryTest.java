@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.eval.impl;
 
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
+import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnTheContextItselfForAnAction() {
         // given
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
+        final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
 
         // when
         final Object ret = converter.get("this", AgentAction.class).apply(action);
@@ -40,8 +40,8 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnTheAgentForAnAction() {
         // given
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
-        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
+        final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
+        final Basic2DAgent agent = mock(Basic2DAgent.class);
         given(action.getAgent()).willReturn(agent);
 
         // when
@@ -54,9 +54,9 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnTheSimulationForAnAction() {
         // given
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
-        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
-        final DefaultGreyfishSimulation simulation = mock(DefaultGreyfishSimulation.class);
+        final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
+        final Basic2DAgent agent = mock(Basic2DAgent.class);
+        final Basic2DSimulation simulation = mock(Basic2DSimulation.class);
         given(action.getAgent()).willReturn(agent);
         given(agent.simulation()).willReturn(simulation);
 
@@ -70,7 +70,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnTheContextItselfForAProperty() {
         // given
-        final AgentProperty<DefaultGreyfishAgent, Object> property = mock(AgentProperty.class);
+        final AgentProperty<Basic2DAgent, Object> property = mock(AgentProperty.class);
 
         // when
         final Object ret = converter.get("this", AgentProperty.class).apply(property);
@@ -82,8 +82,8 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnTheAgentForAProperty() {
         // given
-        final AgentProperty<DefaultGreyfishAgent, Object> property = mock(AgentProperty.class);
-        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
+        final AgentProperty<Basic2DAgent, Object> property = mock(AgentProperty.class);
+        final Basic2DAgent agent = mock(Basic2DAgent.class);
         given(property.getAgent()).willReturn(agent);
 
         // when
@@ -96,9 +96,9 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @Test
     public void shouldReturnAgentsAgeForAnAction() {
         // given
-        final DefaultGreyfishAgent agent = mock(DefaultGreyfishAgent.class);
-        given(agent.getAge()).willReturn(23);
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
+        final Basic2DAgent agent = mock(Basic2DAgent.class);
+        given(agent.getAge()).willReturn(23L);
+        final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
         given(action.getAgent()).willReturn(agent);
 
         // when
@@ -111,7 +111,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     @SuppressWarnings({"NullableProblems"})
     @Test(expected = NullPointerException.class)
     public void shouldScreamIfContextClassIsNull() {
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
+        final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
 
         converter.get("this", null).apply(action);
     }
@@ -123,14 +123,14 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldScreamIfExpressionIsEmpty() {
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
+        final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
 
         converter.get("", AgentAction.class).apply(action);
     }
 
     @Test(expected = RuntimeException.class)
     public void shouldScreamIfExpressionIsInvalid() {
-        final AgentAction<DefaultGreyfishAgent> action = mock(AgentAction.class);
+        final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
 
         converter.get("fooBar", AgentAction.class).apply(action);
     }

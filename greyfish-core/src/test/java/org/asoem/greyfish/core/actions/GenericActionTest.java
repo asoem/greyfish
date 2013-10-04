@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -18,12 +18,12 @@ public class GenericActionTest {
     @Test
     public void testPersistence() throws Exception {
         // given
-        final GenericAction<DefaultGreyfishAgent> action = GenericAction.<DefaultGreyfishAgent>builder()
+        final GenericAction<Basic2DAgent> action = GenericAction.<Basic2DAgent>builder()
                 .name("test")
                 .executes(Callbacks.emptyCallback()).build();
 
         // when
-        final GenericAction<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
+        final GenericAction<Basic2DAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
         assertThat(copy, is(equalTo(action)));

@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
@@ -19,16 +19,16 @@ public class MaleLikeMatingTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final MaleLikeMating<DefaultGreyfishAgent> action = MaleLikeMating.<DefaultGreyfishAgent>with()
+        final MaleLikeMating<Basic2DAgent> action = MaleLikeMating.<Basic2DAgent>with()
                 .name("foo")
-                .executedIf(AlwaysTrueCondition.<DefaultGreyfishAgent>builder().build())
+                .executedIf(AlwaysTrueCondition.<Basic2DAgent>builder().build())
                 .onSuccess(Callbacks.emptyCallback())
                 .ontology("foo")
                 .matingProbability(Callbacks.constant(0.42))
                 .build();
 
         // when
-        final MaleLikeMating<DefaultGreyfishAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
+        final MaleLikeMating<Basic2DAgent> copy = Persisters.copyAsync(action, Persisters.javaSerialization());
 
         // then
 

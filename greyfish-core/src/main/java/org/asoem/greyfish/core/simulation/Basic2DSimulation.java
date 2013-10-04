@@ -1,22 +1,19 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Throwables;
+import com.google.common.base.*;
 import com.google.common.collect.*;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.*;
-import org.asoem.greyfish.core.io.ConsoleLogger;
 import org.asoem.greyfish.core.io.SimulationLogger;
+import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
-import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.core.utils.DiscreteTimeListener;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.base.Initializer;
@@ -42,11 +39,11 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
     private final AgentSpace<Z, A, P> space;
     private final AtomicInteger currentStep = new AtomicInteger(0);
-    private final List<AddAgentMessage<A>> addAgentMessages;
+    private final List<NewAgentEvent<P, A>> addAgentMessages;
     private final List<RemoveAgentMessage<A>> removeAgentMessages;
     private final List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages;
     private final KeyedObjectPool<Population, A> agentPool;
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService;
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
     private final Set<A> prototypes;
@@ -62,21 +59,30 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         this.space = new AgentSpace<Z, A, P>(checkNotNull(builder.space));
         this.simulationLogger = checkNotNull(builder.simulationLogger);
 
-        this.addAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<AddAgentMessage<A>>newArrayList()));
+        this.addAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<NewAgentEvent<P, A>>newArrayList()));
         this.removeAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()));
         this.deliverAgentMessageMessages = checkNotNull(Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
 
         this.snapshotValues = Maps.newConcurrentMap();
+        executorService = builder.executionService;
     }
 
-    @Override
-    public final void addAgent(final A agent) {
+    /**
+     * Add an agent to this simulation at given {@code projection} in space.
+     * @param agent the agent insert
+     * @param projection the projection
+     */
+    public final void addAgent(final A agent, final P projection) {
+        addAgentMessages.add(new InjectedAgentEvent(agent, projection));
+    }
+
+    private void insertAgent(final A agent, final P projection) {
         checkState(state != SimulationState.PLANING_PHASE);
         checkNotNull(agent, "agent is null");
         // TODO: check state of agent (should be initialized)
 
-        space.insertObject(agent, agent.getProjection());
-        agent.activate(ActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getSteps()));
+        space.insertObject(agent, projection);
+        agent.activate(DefaultActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getTime()));
 
         LOGGER.debug("Agent activated: {}", agent);
 
@@ -87,7 +93,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
     private void passivateAgentsInternal(final List<? extends A> agents) {
         for (final A agent : agents) {
-            agent.deactivate(PassiveSimulationContext.<S, A>instance());
+            agent.deactivate(SimulationContexts.<S, A>instance());
             releaseAgent(agent);
         }
         space.removeInactiveAgents();
@@ -126,11 +132,6 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public final Set<A> getPrototypes() {
-        return prototypes;
-    }
-
-    @Override
     public final Z getSpace() {
         return space.delegate();
     }
@@ -141,7 +142,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public final int getSteps() {
+    public final long getTime() {
         return currentStep.get();
     }
 
@@ -149,7 +150,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     public final synchronized void nextStep() {
 
 
-        LOGGER.info("{}: Executing step {} with {} active agents", this, getSteps(), countAgents());
+        LOGGER.debug("{}: Executing step {} with {} active agents", this, getTime(), countAgents());
 
         try {
             setState(SimulationState.PLANING_PHASE);
@@ -171,7 +172,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
 
         setState(SimulationState.IDLE);
 
-        LOGGER.info("{}: Finished step {}", this, getSteps());
+        LOGGER.debug("{}: Finished step {}", this, getTime());
 
         currentStep.incrementAndGet();
     }
@@ -183,7 +184,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private void processAgentMessageDelivery() {
         for (final DeliverAgentMessageMessage<A> message : deliverAgentMessageMessages) {
             for (final A agent : message.message.getRecipients()) {
-                agent.receive(new AgentMessage<A>(message.message, getSteps()));
+                agent.receive(message.message);
             }
         }
         deliverAgentMessageMessages.clear();
@@ -198,7 +199,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
                     @Override
                     public Void call() {
                         for (A a : input) {
-                            a.execute();
+                            a.run();
                         }
                         return null;
                     }
@@ -213,14 +214,9 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     private void processRequestedAgentActivations() {
-        for (final AddAgentMessage<A> addAgentMessage : addAgentMessages) {
-            final A clone = createClone(addAgentMessage.population);
-            final Chromosome chromosome = Optional
-                    .fromNullable(addAgentMessage.chromosome)
-                    .or(HeritableTraitsChromosome.initializeFromAgent(clone));
-            chromosome.updateAgent(clone);
-            addAgentMessage.initializer.initialize(clone);
-            addAgent(clone);
+        for (final NewAgentEvent<P, A> addAgentMessage : addAgentMessages) {
+            final A clone = addAgentMessage.getAgent();
+            insertAgent(clone, addAgentMessage.getProjection());
         }
         addAgentMessages.clear();
     }
@@ -267,37 +263,17 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         deliverAgentMessageMessages.add(new DeliverAgentMessageMessage<A>(message));
     }
 
-    @Override
-    public final boolean hasStepValue(final String key) {
-        return snapshotValues.containsKey(key);
-    }
-
-    @Override
-    public final void setStepValue(final String key, final Object value) {
-        snapshotValues.put(key, value);
-    }
-
-    @Override
-    public final Object getStepValue(final String key) {
-        return snapshotValues.get(key);
-    }
-
-    @Override
-    public final void createAgent(final Population population, final Initializer<? super A> initializer) {
-        addAgentMessages.add(new AddAgentMessage<A>(population, null, initializer));
-    }
-
     protected final void enqueueAgentCreation(final Population population, final P projection) {
         checkNotNull(population);
         checkNotNull(projection);
-        addAgentMessages.add(new AddAgentMessage<A>(population, null, AgentInitializers.projection(projection)));
+        addAgentMessages.add(new CreateCloneMessage(population, null, AgentInitializers.projection(projection)));
     }
 
     protected final void enqueueAgentCreation(final Population population, final Chromosome chromosome, final P projection) {
         checkNotNull(population);
         checkNotNull(chromosome);
         checkNotNull(projection);
-        addAgentMessages.add(new AddAgentMessage<A>(population, chromosome, AgentInitializers.projection(projection)));
+        addAgentMessages.add(new CreateCloneMessage(population, chromosome, AgentInitializers.projection(projection)));
     }
 
     @Override
@@ -306,13 +282,13 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     }
 
     @Override
-    public final void setName(final String name) {
-        this.title = checkNotNull(name);
+    public final Iterable<A> getAgents(final Population population) {
+        return space.getAgents(population);
     }
 
     @Override
-    public final Iterable<A> getAgents(final Population population) {
-        return space.getAgents(population);
+    public final int numberOfPopulations() {
+        return space.agentsByPopulation.size();
     }
 
     @Override
@@ -329,45 +305,100 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         return state;
     }
 
-    private static class AddAgentMessage<T> {
+    @Override
+    public final void addTimeChangeListener(final DiscreteTimeListener timeListener) {
+        throw new UnsupportedOperationException("Not yet implemented"); // TODO implement
+    }
+
+    private interface NewAgentEvent<P extends Object2D, A extends SpatialAgent<A, ?, P>> {
+        A getAgent();
+
+        P getProjection();
+    }
+
+    private class CreateCloneMessage implements NewAgentEvent<P, A> {
 
         private final Population population;
-        private final Initializer<? super T> initializer;
+        private final Initializer<? super A> initializer;
         @Nullable
         private final Chromosome chromosome;
 
-        private AddAgentMessage(final Population population, @Nullable final Chromosome chromosome,
-                                final Initializer<? super T> initializer) {
+        private final Supplier<A> supplier = Suppliers.memoize(new Supplier<A>() {
+            @Override
+            public A get() {
+                final A clone = createClone(population);
+                Optional.fromNullable(chromosome)
+                        .or(HeritableTraitsChromosome.initializeFromAgent(clone))
+                        .updateAgent(clone);
+                initializer.initialize(clone);
+                return clone;
+            }
+        });
+
+        private CreateCloneMessage(final Population population, @Nullable final Chromosome chromosome,
+                                   final Initializer<? super A> initializer) {
             assert population != null;
             assert initializer != null;
             this.chromosome = chromosome;
             this.population = population;
             this.initializer = initializer;
         }
+
+        @Override
+        public A getAgent() {
+           return supplier.get();
+        }
+
+        @Override
+        public P getProjection() {
+            return getAgent().getProjection();
+        }
     }
 
-    private static class RemoveAgentMessage<T> {
+    private class InjectedAgentEvent implements NewAgentEvent<P, A> {
 
-        private final T agent;
+        private final A agent;
+        private final P projection;
 
-        public RemoveAgentMessage(final T agent) {
+        private InjectedAgentEvent(final A agent, final P projection) {
+            this.projection = checkNotNull(projection);
+            this.agent = checkNotNull(agent);
+        }
+
+        @Override
+        public A getAgent() {
+            return agent;
+        }
+
+        @Override
+        public P getProjection() {
+            return projection;
+        }
+    }
+
+    private static class RemoveAgentMessage<A> {
+
+        private final A agent;
+
+        public RemoveAgentMessage(final A agent) {
             assert agent != null;
             this.agent = agent;
         }
 
     }
 
-    private static class DeliverAgentMessageMessage<T> {
+    private static class DeliverAgentMessageMessage<A> {
 
-        private final ACLMessage<T> message;
+        private final ACLMessage<A> message;
 
-        public DeliverAgentMessageMessage(final ACLMessage<T> message) {
+        public DeliverAgentMessageMessage(final ACLMessage<A> message) {
             this.message = message;
         }
 
     }
 
-    private static class AgentSpace<Z extends Space2D<T, P>, T extends SpatialAgent<?, ?, P>, P extends Object2D> extends ForwardingSpace2D<T, P> {
+    private static final class AgentSpace<Z extends Space2D<T, P>, T extends SpatialAgent<?, ?, P>, P extends Object2D>
+            extends ForwardingSpace2D<T, P> {
 
         private final Z delegate;
         private final Multimap<Population, T> agentsByPopulation;
@@ -399,8 +430,10 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         public boolean insertObject(final T object, final P projection) {
             checkNotNull(object, "projectable is null");
             checkNotNull(projection, "projection is null");
+
             if (super.insertObject(object, projection)) {
                 final boolean add = agentsByPopulation.get(object.getPopulation()).add(object);
+                object.setProjection(projection);
                 assert add : "Could not add " + object;
                 return true;
             }
@@ -412,6 +445,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             checkNotNull(agent);
             if (super.removeObject(agent)) {
                 final boolean remove = agentsByPopulation.get(agent.getPopulation()).remove(agent);
+                agent.setProjection(null);
                 assert remove : "Could not remove " + agent;
                 return true;
             }
@@ -441,14 +475,15 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         private int parallelizationThreshold = 1000;
         private final Z space;
         private final Set<A> prototypes;
-        private SimulationLogger<? super A> simulationLogger = new ConsoleLogger<A>();
+        private SimulationLogger<? super A> simulationLogger = SimulationLoggers.<A>consoleLogger();
+        private ExecutorService executionService = Executors.newCachedThreadPool();
 
         public Basic2DSimulationBuilder(final Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
             agentPool(new StackKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
 
-                Map<Population, A> map = Maps.uniqueIndex(prototypes, new Function<A, Population>() {
+                private final Map<Population, A> map = Maps.uniqueIndex(prototypes, new Function<A, Population>() {
                     @Nullable
                     @Override
                     public Population apply(final A input) {
@@ -469,25 +504,48 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
             checkState(agentPool != null, "No AgentPool has been defined");
             checkState(!prototypes.contains(null), "Prototypes contains null");
             checkState(space.isEmpty(), "Space is not empty");
+            checkState(executionService != null, "The execution service must not be null");
         }
 
+        /**
+         * Set the agent pool to use for recycling objects of tye {@code A}.
+         * @param pool the pool to use for recycling
+         * @return this builder
+         */
         public final B agentPool(final KeyedObjectPool<Population, A> pool) {
             this.agentPool = checkNotNull(pool);
             return self();
         }
 
+        /**
+         * Set the parallelization threshold after above which to parallelize agent executions.
+         * @param parallelizationThreshold the threshold for parallelling agent executions
+         * @return this builder
+         */
         public final B parallelizationThreshold(final int parallelizationThreshold) {
             checkArgument(parallelizationThreshold > 0, "parallelizationThreshold must be positive");
             this.parallelizationThreshold = parallelizationThreshold;
             return self();
         }
 
+        /**
+         * Set the simulation logger to use for logging simulation events.
+         * @param simulationLogger the simulation logger
+         * @return this builder
+         */
         public final B simulationLogger(final SimulationLogger<? super A> simulationLogger) {
-            this.simulationLogger = simulationLogger;
+            this.simulationLogger = checkNotNull(simulationLogger);
             return self();
         }
 
-        public final B simulationStepListener(final Callback<? super DefaultGreyfishSimulation, ? extends Void> callback) {
+        /**
+         * Set the executor service used to execute agents.
+         * @see org.asoem.greyfish.core.agent.Agent#run()
+         * @param executionService the execution servive to use
+         * @return this builder
+         */
+        public final B executionService(final ExecutorService executionService) {
+            this.executionService = checkNotNull(executionService);
             return self();
         }
     }

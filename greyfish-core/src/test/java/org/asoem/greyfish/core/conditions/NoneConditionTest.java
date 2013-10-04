@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -26,11 +26,11 @@ public class NoneConditionTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final ActionCondition<DefaultGreyfishAgent> condition = mock(ActionCondition.class, withSettings().serializable());
-        final NoneCondition<DefaultGreyfishAgent> noneCondition = NoneCondition.evaluates(condition);
+        final ActionCondition<Basic2DAgent> condition = mock(ActionCondition.class, withSettings().serializable());
+        final NoneCondition<Basic2DAgent> noneCondition = NoneCondition.evaluates(condition);
 
         // when
-        final NoneCondition<DefaultGreyfishAgent> copy = Persisters.copyAsync(noneCondition, Persisters.javaSerialization());
+        final NoneCondition<Basic2DAgent> copy = Persisters.copyAsync(noneCondition, Persisters.javaSerialization());
 
         // then
         assertThat(copy, isCopyOf(noneCondition));

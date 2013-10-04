@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.junit.Test;
 
@@ -72,5 +72,6 @@ public class AgentsTest {
     }
 
     private static interface TestAgent extends Agent<TestAgent, TestSimulation> {}
-    private static interface TestSimulation extends Simulation<TestAgent> {}
+    private static interface TestSimulation extends DiscreteTimeSimulation<TestAgent> {
+    }
 }

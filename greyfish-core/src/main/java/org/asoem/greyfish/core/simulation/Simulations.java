@@ -18,7 +18,7 @@ public final class Simulations {
      *
      * @param predicate the {@code Predicate} which will be checked after each step
      */
-    public static <T extends Simulation<?>> void runWhile(final T simulation, final Predicate<? super T> predicate) {
+    public static <T extends DiscreteTimeSimulation<?>> void runWhile(final T simulation, final Predicate<? super T> predicate) {
         checkNotNull(predicate);
 
         while (predicate.apply(simulation)) {
@@ -26,7 +26,7 @@ public final class Simulations {
         }
     }
 
-    public static void proceed(final Simulation<?> simulation, final int steps) {
+    public static void proceed(final DiscreteTimeSimulation<?> simulation, final int steps) {
         for (int i = 0; i < steps; i++) {
             simulation.nextStep();
         }

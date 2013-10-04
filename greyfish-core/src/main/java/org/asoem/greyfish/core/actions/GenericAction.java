@@ -5,32 +5,24 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Tagged;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 /**
- * User: christoph
- * Date: 20.02.12
- * Time: 18:24
+ * A generic action which uses a {@link Callback}.
+ * @param <A> the type of the agent to which this action will be added to
  */
-@Tagged("actions")
-public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
+public final class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
 
     private Callback<? super GenericAction<A>, Void> callback;
 
-    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public GenericAction() {
-        super(new Builder<A>());
-    }
-
-    protected GenericAction(final GenericAction<A> genericAction, final DeepCloner cloner) {
+    private GenericAction(final GenericAction<A> genericAction, final DeepCloner cloner) {
         super(genericAction, cloner);
         this.callback = genericAction.callback;
     }
 
-    protected GenericAction(final AbstractBuilder<A, ? extends GenericAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    private GenericAction(final AbstractBuilder<A, ? extends GenericAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.callback = builder.callback;
     }
@@ -54,7 +46,7 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
         return callback;
     }
 
-    public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, GenericAction<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, GenericAction<A>, Builder<A>> {
 
         @Override
         protected Builder<A> self() {
@@ -67,10 +59,9 @@ public class GenericAction<A extends Agent<A, ?>> extends AbstractAgentAction<A>
         }
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends GenericAction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+    protected abstract static class AbstractBuilder<A extends Agent<A, ?>, C extends GenericAction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
 
-        public Callback<? super GenericAction<A>, Void> callback = Callbacks.emptyCallback();
+        private Callback<? super GenericAction<A>, Void> callback = Callbacks.emptyCallback();
 
         public B executes(final Callback<? super GenericAction<A>, Void> callback) {
             this.callback = checkNotNull(callback);

@@ -78,6 +78,10 @@ public final class Callbacks {
         return BooleanConstantCallback.FALSE;
     }
 
+    public static Callback<Object, Boolean> random() {
+        return RandomCallback.INSTANCE;
+    }
+
     private static enum EmptyCallback implements Callback<Object, Void> {
         INSTANCE;
 
@@ -224,6 +228,15 @@ public final class Callbacks {
         @Override
         public Boolean apply(final Object caller, final Map<String, ?> args) {
            return bool;
+        }
+    }
+
+    private enum RandomCallback implements Callback<Object, Boolean> {
+        INSTANCE;
+
+        @Override
+        public Boolean apply(final Object caller, final Map<String, ?> args) {
+            return RandomGenerators.rng().nextBoolean();
         }
     }
 }

@@ -3,13 +3,14 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.slf4j.Logger;
@@ -23,11 +24,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * User: christoph
- * Date: 20.11.12
- * Time: 17:18
+ *
  */
-public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<A>> implements Agent<A, S> {
+public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>> implements Agent<A, S> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends AgentComponent> E findByName(final FunctionalList<E> functionalList, final String name) {
@@ -42,7 +41,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     protected abstract A self();
 
     @Override
-    public boolean hasPopulation(@Nullable final Population population) {
+    public final boolean hasPopulation(@Nullable final Population population) {
         return Objects.equal(getPopulation(), population);
     }
 
@@ -70,42 +69,42 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public boolean addAction(final AgentAction<A> action) {
+    public final boolean addAction(final AgentAction<A> action) {
         return addComponent(getActions(), action);
     }
 
     @Override
-    public boolean removeAction(final AgentAction<A> action) {
+    public final boolean removeAction(final AgentAction<A> action) {
         return removeComponent(getActions(), action);
     }
 
     @Override
-    public void removeAllActions() {
+    public final void removeAllActions() {
         clearComponentList(getActions());
     }
 
     @Override
-    public AgentAction<A> getAction(final String name) {
+    public final AgentAction<A> getAction(final String name) {
         return findByName(getActions(), name);
     }
 
     @Override
-    public boolean addProperty(final AgentProperty<A, ?> property) {
+    public final boolean addProperty(final AgentProperty<A, ?> property) {
         return addComponent(getProperties(), property);
     }
 
     @Override
-    public boolean removeProperty(final AgentProperty<A, ?> property) {
+    public final boolean removeProperty(final AgentProperty<A, ?> property) {
         return removeComponent(getProperties(), property);
     }
 
     @Override
-    public void removeAllProperties() {
+    public final void removeAllProperties() {
         clearComponentList(getProperties());
     }
 
     @Override
-    public AgentProperty<A, ?> getProperty(final String name) {
+    public final AgentProperty<A, ?> getProperty(final String name) {
         return findByName(getProperties(), name);
     }
 
@@ -115,17 +114,17 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public boolean addTrait(final AgentTrait<A, ?> trait) {
+    public final boolean addTrait(final AgentTrait<A, ?> trait) {
         return addComponent(getTraits(), trait);
     }
 
     @Override
-    public boolean removeGene(final AgentTrait<A, ?> gene) {
+    public final boolean removeGene(final AgentTrait<A, ?> gene) {
         return removeComponent(getTraits(), gene);
     }
 
     @Override
-    public void removeAllGenes() {
+    public final void removeAllGenes() {
         clearComponentList(getTraits());
     }
 
@@ -134,45 +133,45 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
 
     @Override
     @Nullable
-    public AgentTrait<A, ?> getTrait(final String name) {
+    public final AgentTrait<A, ?> getTrait(final String name) {
         return findByName(getTraits(), name);
     }
 
     @Override
-    public void changeActionExecutionOrder(final AgentAction<A> object, final AgentAction<A> object2) {
+    public final void changeActionExecutionOrder(final AgentAction<A> object, final AgentAction<A> object2) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void receive(final AgentMessage<A> message) {
+    public final void receive(final ACLMessage<A> message) {
         LOGGER.debug("{} received a message: {}", this, message);
         getInBox().add(message);
     }
 
     @Override
-    public void receiveAll(final Iterable<? extends AgentMessage<A>> messages) {
+    public final void receiveAll(final Iterable<? extends ACLMessage<A>> messages) {
         LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
         Iterables.addAll(getInBox(), messages);
     }
 
     @Override
-    public int getId() {
+    public final int getId() {
         return getSimulationContext().getAgentId();
     }
 
     @Override
-    public int getTimeOfBirth() {
+    public final long getTimeOfBirth() {
         return getSimulationContext().getActivationStep();
     }
 
     @Override
-    public int getAge() {
+    public final long getAge() {
         return getSimulationContext().getAge();
     }
 
     @Override
     @Nullable
-    public Color getColor() {
+    public final Color getColor() {
         final Population population = getPopulation();
         return (population != null) ? population.getColor() : null;
     }
@@ -182,17 +181,17 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public Iterable<AgentMessage<A>> getMessages(final MessageTemplate template) {
+    public final Iterable<ACLMessage<A>> getMessages(final MessageTemplate template) {
         return getInBox().extract(template);
     }
 
     @Override
-    public boolean hasMessages(final MessageTemplate template) {
+    public final boolean hasMessages(final MessageTemplate template) {
         return Iterables.any(getInBox(), template);
     }
 
     @Override
-    public void logEvent(final Object eventOrigin, final String title, final String message) {
+    public final void logEvent(final Object eventOrigin, final String title, final String message) {
         checkNotNull(eventOrigin);
         checkNotNull(title);
         checkNotNull(message);
@@ -201,7 +200,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public void execute() {
+    public final void run() {
         final ActionExecutionStrategy actionExecutionStrategy = getActionExecutionStrategy();
         final boolean executeSuccess = actionExecutionStrategy.execute();
         if (executeSuccess) {
@@ -210,30 +209,26 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public void deactivate(final SimulationContext<S, A> context) {
+    public final void deactivate(final PassiveSimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
         getInBox().clear();
+        setParents(ImmutableSet.<Integer>of());
     }
 
     @Override
-    public boolean isActive() {
+    public final boolean isActive() {
         return getSimulationContext().isActiveContext();
     }
 
     @Override
-    public S simulation() {
+    public final S simulation() {
         checkState(isActive(), "A passive Agent has no associated simulation");
         return getSimulationContext().getSimulation();
     }
 
     @Override
-    public void freeze() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void activate(final SimulationContext<S, A> context) {
+    public final void activate(final ActiveSimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
         getActionExecutionStrategy().reset();
@@ -241,7 +236,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public void initialize() {
+    public final void initialize() {
         for (final AgentNode node : children()) {
             node.initialize();
         }
@@ -261,32 +256,27 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     */
 
     @Override
-    public Iterable<A> getAllAgents() {
+    public final Iterable<A> getAllAgents() {
         return simulation().getAgents();
     }
 
     @Override
-    public Iterable<A> filterAgents(final Predicate<? super A> predicate) {
+    public final Iterable<A> filterAgents(final Predicate<? super A> predicate) {
         return simulation().filterAgents(predicate);
     }
 
     @Override
-    public void die() {
-        simulation().removeAgent(self());
-    }
-
-    @Override
-    public void sendMessage(final ACLMessage<A> message) {
+    public final void sendMessage(final ACLMessage<A> message) {
         simulation().deliverMessage(message);
     }
 
     @Override
-    public AgentTrait<A, ?> findTrait(final Predicate<? super AgentTrait<A, ?>> traitPredicate) {
+    public final AgentTrait<A, ?> findTrait(final Predicate<? super AgentTrait<A, ?>> traitPredicate) {
         return getTraits().findFirst(traitPredicate).get();
     }
 
     @Override
-    public Iterable<AgentNode> children() {
+    public final Iterable<AgentNode> children() {
         return Iterables.<AgentNode>concat(
                 getProperties(),
                 getActions(),
@@ -295,20 +285,20 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends Simulation<
     }
 
     @Override
-    public AgentNode parent() {
+    public final AgentNode parent() {
         return null;
     }
 
     protected abstract SimulationContext<S, A> getSimulationContext();
 
-    protected abstract MessageBox<AgentMessage<A>> getInBox();
+    protected abstract MessageBox<ACLMessage<A>> getInBox();
 
     protected abstract void setSimulationContext(SimulationContext<S, A> simulationContext);
 
     protected abstract ActionExecutionStrategy getActionExecutionStrategy();
 
     @Override
-    public int getSimulationStep() {
+    public long getSimulationStep() {
         return getSimulationContext().getSimulationStep();
     }
 }

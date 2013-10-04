@@ -23,13 +23,6 @@ public class CycleCloner implements DeepCloner {
 
     private CycleCloner() {}
 
-    /**
-     * Register {@code clone} as the clone of {@code original}.
-     * This method must be called in the (super)constructor of {@code clone} before any of the fields get cloned using this cloner.
-     *
-     * @param original a cloneable
-     * @param clone the clone of original
-     */
     @Override
     public <T extends DeepCloneable> void addClone(final T original, final T clone) {
         checkNotNull(original);
@@ -39,13 +32,6 @@ public class CycleCloner implements DeepCloner {
         map.put(original, clone);
     }
 
-    /**
-     * Get the deep clone of {@code cloneable}
-     *
-     *
-     * @param cloneable the object to clone
-     * @return the deep clone of {@code cloneable}, {@code null} if {@code cloneable} is {@code null}
-     */
     @Override
     @Nullable
     @SuppressWarnings("unchecked") // safe
@@ -61,8 +47,7 @@ public class CycleCloner implements DeepCloner {
     }
 
     /**
-     * Create a deep clone of {@code cloneable}
-     *
+     * Create a deep clone of given {@code cloneable}
      *
      * @param cloneable the object to make a deep clone of
      * @param <T> the type of {@code cloneable}

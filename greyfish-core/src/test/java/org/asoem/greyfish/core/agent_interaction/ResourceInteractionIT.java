@@ -4,16 +4,16 @@ import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgentImpl;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulation;
-import org.asoem.greyfish.core.simulation.DefaultGreyfishSimulationImpl;
 import org.asoem.greyfish.core.simulation.Simulations;
-import org.asoem.greyfish.core.space.DefaultGreyfishSpace;
-import org.asoem.greyfish.core.space.DefaultGreyfishSpaceImpl;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
+import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
+import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
+import org.asoem.greyfish.impl.simulation.DefaultBasic2DSimulation;
+import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpace;
+import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpaceImpl;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ResourceInteractionTest {
+public class ResourceInteractionIT {
 
     @Test
     public void testNormalInteraction() throws Exception {
@@ -38,60 +38,58 @@ public class ResourceInteractionTest {
 
         final String messageClassifier = "mate";
 
-        final DoubleProperty<DefaultGreyfishAgent> energyStorage = DoubleProperty.<DefaultGreyfishAgent>with()
+        final DoubleProperty<Basic2DAgent> energyStorage = DoubleProperty.<Basic2DAgent>with()
                 .name("resourceStorage")
                 .lowerBound(0.0)
                 .upperBound(2.0)
                 .initialValue(0.0)
                 .build();
-        final ResourceConsumptionAction<DefaultGreyfishAgent> consumptionAction = ResourceConsumptionAction.<DefaultGreyfishAgent>with()
+        final ResourceConsumptionAction<Basic2DAgent> consumptionAction = ResourceConsumptionAction.<Basic2DAgent>with()
                 .name("eat")
                 .ontology(messageClassifier)
                 .requestAmount(Callbacks.constant(1.0))
-                .uptakeUtilization(new Callback<ResourceConsumptionAction<DefaultGreyfishAgent>, Void>() {
+                .uptakeUtilization(new Callback<ResourceConsumptionAction<Basic2DAgent>, Void>() {
                     @Override
-                    public Void apply(final ResourceConsumptionAction<DefaultGreyfishAgent> caller, final Map<String, ?> args) {
-                        ((DoubleProperty<DefaultGreyfishAgent>) caller.agent().getProperty("resourceStorage")).add((Double) args.get("offer") * 2);
+                    public Void apply(final ResourceConsumptionAction<Basic2DAgent> caller, final Map<String, ?> args) {
+                        ((DoubleProperty<Basic2DAgent>) caller.agent().getProperty("resourceStorage")).add((Double) args.get("offer") * 2);
                         return null;
                     }
                 })
-                .executedIf(GenericCondition.<DefaultGreyfishAgent>evaluate(Callbacks.iterate(true, false)))
+                .executedIf(GenericCondition.<Basic2DAgent>evaluate(Callbacks.iterate(true, false)))
                 .build();
 
 
-        final DoubleProperty<DefaultGreyfishAgent> resourceProperty = new DoubleProperty.Builder<DefaultGreyfishAgent>()
+        final DoubleProperty<Basic2DAgent> resourceProperty = new DoubleProperty.Builder<Basic2DAgent>()
                 .name("test")
                 .lowerBound(0.0)
                 .upperBound(1.0)
                 .initialValue(1.0)
                 .build();
-        final ResourceProvisionAction<DefaultGreyfishAgent> provisionAction = ResourceProvisionAction.<DefaultGreyfishAgent>with()
+        final ResourceProvisionAction<Basic2DAgent> provisionAction = ResourceProvisionAction.<Basic2DAgent>with()
                 .name("feed")
                 .ontology(messageClassifier)
                 .provides(Callbacks.constant(1.0))
-                .executedIf(GenericCondition.<DefaultGreyfishAgent>evaluate(Callbacks.iterate(false, true, false)))
+                .executedIf(GenericCondition.<Basic2DAgent>evaluate(Callbacks.iterate(false, true, false)))
                 .build();
 
-        final DefaultGreyfishAgent consumer = DefaultGreyfishAgentImpl.builder(consumerPopulation)
+        final Basic2DAgent consumer = DefaultBasic2DAgent.builder(consumerPopulation)
                 .addProperties(energyStorage)
                 .addAction(consumptionAction)
                 .build();
-        consumer.setProjection(ImmutablePoint2D.at(0,0));
         consumer.initialize();
-        final DefaultGreyfishAgent provisioner = DefaultGreyfishAgentImpl.builder(providerPopulation)
+        final Basic2DAgent provisioner = DefaultBasic2DAgent.builder(providerPopulation)
                 .addProperties(resourceProperty)
                 .addAction(provisionAction)
                 .build();
-        provisioner.setProjection(ImmutablePoint2D.at(0,0));
         provisioner.initialize();
 
 
-        final DefaultGreyfishSpace space = DefaultGreyfishSpaceImpl.ofSize(1,1);
-        final ImmutableSet<DefaultGreyfishAgent> prototypes = ImmutableSet.of(consumer, provisioner);
-        final DefaultGreyfishSimulation simulation = DefaultGreyfishSimulationImpl.builder(space, prototypes).build();
+        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(consumer, provisioner);
+        final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes).build();
 
-        simulation.addAgent(consumer);
-        simulation.addAgent(provisioner);
+        simulation.addAgent(consumer, ImmutablePoint2D.at(0,0));
+        simulation.addAgent(provisioner, ImmutablePoint2D.at(0,0));
         Simulations.proceed(simulation, 4);
         final ActionState provisionActionState = provisionAction.getState();
         Simulations.proceed(simulation, 1);

@@ -75,7 +75,7 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
     /**
      * @return the last step at which this action reached {@link ActionState#COMPLETED}
      */
-    int lastCompletionStep();
+    long lastCompletionStep();
 
     ActionState getState();
 }

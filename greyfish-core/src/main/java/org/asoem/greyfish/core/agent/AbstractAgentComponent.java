@@ -78,16 +78,6 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     }
 
     @Override
-    public void freeze() {
-    }
-
-    @Override
-    public boolean isFrozen() {
-        final A agent = getAgent();
-        return agent != null && agent.isFrozen();
-    }
-
-    @Override
     public void initialize() {
     }
 

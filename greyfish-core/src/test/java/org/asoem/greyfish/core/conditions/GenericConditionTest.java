@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.agent.DefaultGreyfishAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.CycleCloner;
@@ -30,18 +30,18 @@ public class GenericConditionTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final AgentAction<DefaultGreyfishAgent> action = when(mock(AgentAction.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentAction.class)).getMock();
+        final AgentAction<Basic2DAgent> action = when(mock(AgentAction.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentAction.class)).getMock();
 
-        final ActionCondition<DefaultGreyfishAgent> condition = when(mock(ActionCondition.class).deepClone(any(DeepCloner.class))).thenReturn(mock(ActionCondition.class)).getMock();
+        final ActionCondition<Basic2DAgent> condition = when(mock(ActionCondition.class).deepClone(any(DeepCloner.class))).thenReturn(mock(ActionCondition.class)).getMock();
         given(condition.getAction()).willReturn(action);
 
         final Callback<Object, Boolean> callback = Callbacks.constant(true);
 
-        final GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(callback);
+        final GenericCondition<Basic2DAgent> genericCondition = GenericCondition.evaluate(callback);
         genericCondition.setParent(condition);
 
         // when
-        final GenericCondition<DefaultGreyfishAgent> clone = CycleCloner.clone(genericCondition);
+        final GenericCondition<Basic2DAgent> clone = CycleCloner.clone(genericCondition);
 
         // then
         assertThat(clone, isSameAs(genericCondition));
@@ -50,32 +50,32 @@ public class GenericConditionTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final GenericCondition<DefaultGreyfishAgent> genericCondition = GenericCondition.evaluate(Callbacks.constant(true));
+        final GenericCondition<Basic2DAgent> genericCondition = GenericCondition.evaluate(Callbacks.constant(true));
         // when
-        final GenericCondition<DefaultGreyfishAgent> copy = Persisters.copyAsync(genericCondition, Persisters.javaSerialization());
+        final GenericCondition<Basic2DAgent> copy = Persisters.copyAsync(genericCondition, Persisters.javaSerialization());
         // then
         assertThat(copy, isSameAs(genericCondition));
     }
 
-    private static Matcher<? super GenericCondition<DefaultGreyfishAgent>> isSameAs(final GenericCondition<DefaultGreyfishAgent> genericCondition) {
-        return Matchers.<GenericCondition<DefaultGreyfishAgent>>allOf(
+    private static Matcher<? super GenericCondition<Basic2DAgent>> isSameAs(final GenericCondition<Basic2DAgent> genericCondition) {
+        return Matchers.<GenericCondition<Basic2DAgent>>allOf(
                 is(not(nullValue())),
                 is(not(sameInstance(genericCondition))),
-                has("callback == " + genericCondition.getCallback(), new Function<GenericCondition<DefaultGreyfishAgent>, Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean>>() {
+                has("callback == " + genericCondition.getCallback(), new Function<GenericCondition<Basic2DAgent>, Callback<? super GenericCondition<Basic2DAgent>, Boolean>>() {
                     @Override
-                    public Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean> apply(final GenericCondition<DefaultGreyfishAgent> input) {
+                    public Callback<? super GenericCondition<Basic2DAgent>, Boolean> apply(final GenericCondition<Basic2DAgent> input) {
                         return input.getCallback();
                     }
-                }, is(Matchers.<Callback<? super GenericCondition<DefaultGreyfishAgent>, Boolean>>equalTo(genericCondition.getCallback()))),
-                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<DefaultGreyfishAgent>, AgentAction<DefaultGreyfishAgent>>() {
+                }, is(Matchers.<Callback<? super GenericCondition<Basic2DAgent>, Boolean>>equalTo(genericCondition.getCallback()))),
+                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<Basic2DAgent>, AgentAction<Basic2DAgent>>() {
                     @Override
-                    public AgentAction<DefaultGreyfishAgent> apply(final GenericCondition<DefaultGreyfishAgent> input) {
+                    public AgentAction<Basic2DAgent> apply(final GenericCondition<Basic2DAgent> input) {
                         return input.getAction();
                     }
                 }, is(genericCondition.getAction() == null ? nullValue() : instanceOf(AgentAction.class))),
-                has("parent ~= " + genericCondition.getParent(), new Function<GenericCondition<DefaultGreyfishAgent>, ActionCondition<DefaultGreyfishAgent>>() {
+                has("parent ~= " + genericCondition.getParent(), new Function<GenericCondition<Basic2DAgent>, ActionCondition<Basic2DAgent>>() {
                     @Override
-                    public ActionCondition<DefaultGreyfishAgent> apply(final GenericCondition<DefaultGreyfishAgent> input) {
+                    public ActionCondition<Basic2DAgent> apply(final GenericCondition<Basic2DAgent> input) {
                         return input.getParent();
                     }
                 }, is(genericCondition.getParent() == null ? nullValue() : instanceOf(ActionCondition.class)))

@@ -100,17 +100,6 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     @Override
-    public void freeze() {
-        throw new UnsupportedOperationException("Conditions don't have a frozen state of their own and use their action's state");
-    }
-
-    @Override
-    public boolean isFrozen() {
-        final AgentAction<A> action = getAction();
-        return action != null && action.isFrozen();
-    }
-
-    @Override
     public String getName() {
         throw new UnsupportedOperationException("Conditions don't use names");
     }

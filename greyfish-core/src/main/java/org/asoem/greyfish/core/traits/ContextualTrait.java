@@ -19,9 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * User: christoph
- * Date: 09.05.12
- * Time: 11:29
+ *
  */
 public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> {
 
@@ -31,7 +29,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
 
     private final SingleElementCache<T> valueCache;
 
-    private int lastModificationStep = -1;
+    private long lastModificationStep = -1;
 
     private ContextualTrait(final ContextualTrait<A, T> simulationStepProperty, final DeepCloner cloner) {
         super(simulationStepProperty, cloner);
@@ -91,7 +89,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         return new Builder<T, A>();
     }
 
-    public int getLastModificationStep() {
+    public long getLastModificationStep() {
         return lastModificationStep;
     }
 

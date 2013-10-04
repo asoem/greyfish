@@ -1,25 +1,21 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.inject.Inject;
 import org.asoem.greyfish.core.agent.Agent;
 
 import java.io.IOException;
 
 /**
- * A logger that does nothing
+ * A logger with empty methods.
  */
-public final class NullLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+enum NullLogger implements SimulationLogger<Agent<?, ?>> {
+    INSTANCE;
 
-    @Inject
-    public NullLogger() {
+    @Override
+    public void logAgentCreation(final Agent<?, ?> agent) {
     }
 
     @Override
-    public void logAgentCreation(final A agent) {
-    }
-
-    @Override
-    public void logAgentEvent(final A agent, final int currentStep, final String source, final String title, final String message) {
+    public void logAgentEvent(final Agent<?, ?> agent, final long currentStep, final String source, final String title, final String message) {
     }
 
     @Override
