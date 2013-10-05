@@ -17,11 +17,10 @@ import java.util.List;
  * If the limit is reached, any further addition will replace the the oldest element.
  * Does not permit null values.
  */
-public class FifoBuffer<E> extends ForwardingCollection<E> implements Serializable {
+public final class FifoBuffer<E> extends ForwardingCollection<E> implements Serializable {
 
     private final LinkedList<E> delegate;
     private final int capacity;
-
 
     public FifoBuffer(final int size) {
         Preconditions.checkArgument(size > 0);
