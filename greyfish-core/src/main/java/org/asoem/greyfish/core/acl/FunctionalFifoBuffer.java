@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.utils.collect.FifoBuffer;
+import org.asoem.greyfish.utils.collect.FunctionalCollection;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -16,19 +17,18 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * User: christoph
- * Date: 17.10.11
- * Time: 18:44
+ * This class implements {@code FunctionalCollection} with an underlying {@link FifoBuffer}.
  */
-public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingCollection<M> implements MessageBox<M>, Serializable {
+public final class FunctionalFifoBuffer<M> extends ForwardingCollection<M>
+        implements Serializable, FunctionalCollection<M> {
 
     private final FifoBuffer<M> buffer;
 
-    public FixedSizeMessageBox() {
+    public FunctionalFifoBuffer() {
         this.buffer = FifoBuffer.newInstance(8);
     }
 
-    public FixedSizeMessageBox(final int size) {
+    public FunctionalFifoBuffer(final int size) {
         this.buffer = FifoBuffer.newInstance(size);
     }
 
@@ -38,7 +38,7 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
     }
 
     @Override
-    public List<M> extract(final Predicate<? super M> predicate) {
+    public List<M> remove(final Predicate<? super M> predicate) {
         final ImmutableList.Builder<M> ret = ImmutableList.builder();
         for (Iterator<M> iterator = buffer.iterator(); iterator.hasNext(); ) {
             final M message = iterator.next();
@@ -63,9 +63,9 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof FixedSizeMessageBox)) return false;
+        if (!(o instanceof FunctionalFifoBuffer)) return false;
 
-        final FixedSizeMessageBox that = (FixedSizeMessageBox) o;
+        final FunctionalFifoBuffer that = (FunctionalFifoBuffer) o;
 
         if (!buffer.equals(that.buffer)) return false;
 
@@ -86,8 +86,8 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
         throw new InvalidObjectException("Proxy required");
     }
 
-    public static <M extends ACLMessage<?>> FixedSizeMessageBox<M> withCapacity(final int size) {
-        return new FixedSizeMessageBox<M>(size);
+    public static <M> FunctionalFifoBuffer<M> withCapacity(final int size) {
+        return new FunctionalFifoBuffer<M>(size);
     }
 
     @Override
@@ -95,17 +95,17 @@ public class FixedSizeMessageBox<M extends ACLMessage<?>> extends ForwardingColl
         return Iterables.any(buffer, predicate);
     }
 
-    private static class SerializedForm<M extends ACLMessage<?>> implements Serializable {
+    private static class SerializedForm<M> implements Serializable {
         private final List<M> messages;
         private final int maxSize;
 
-        SerializedForm(final FixedSizeMessageBox<M> box) {
+        SerializedForm(final FunctionalFifoBuffer<M> box) {
             this.messages = Lists.newArrayList(box.buffer);
             this.maxSize = box.buffer.capacity();
         }
 
         private Object readResolve() {
-            final FixedSizeMessageBox<M> messageBox = new FixedSizeMessageBox<M>(maxSize);
+            final FunctionalFifoBuffer<M> messageBox = new FunctionalFifoBuffer<M>(maxSize);
             for (final M message : messages) {
                 messageBox.add(message);
             }
