@@ -32,10 +32,10 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a cached thread pool to execute {@link Agent}s
  * and process their addition, removal, migration and communication in parallel.
  */
-public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>,
+public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>,
         Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Basic2DSimulation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Generic2DSimulation.class);
 
     private final AgentSpace<Z, A, P> space;
     private final AtomicInteger currentStep = new AtomicInteger(0);
@@ -52,7 +52,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
     private final AtomicInteger agentIdSequence = new AtomicInteger();
     private SimulationState state;
 
-    protected Basic2DSimulation(final Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
+    protected Generic2DSimulation(final Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.prototypes = checkNotNull(builder.prototypes);
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
@@ -469,7 +469,7 @@ public abstract class Basic2DSimulation<A extends SpatialAgent<A, S, P>, S exten
         }
     }
 
-    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Basic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<Population, A> agentPool;
         private int parallelizationThreshold = 1000;

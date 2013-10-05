@@ -14,9 +14,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.INITIAL;
 import static org.asoem.greyfish.core.actions.utils.ActionState.PRECONDITIONS_MET;
 
 /**
- * User: christoph
- * Date: 09.10.12
- * Time: 10:46
+ * The default implementation of an {@code ActionExecutionStrategy}.
  */
 public class DefaultActionExecutionStrategy implements ActionExecutionStrategy, Serializable {
 

@@ -6,25 +6,24 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
+import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.awt.*;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- *
+ * This class provides a skeletal implementation of the {@code Agent} interface.
  */
 public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>> implements Agent<A, S> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
@@ -38,6 +37,10 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
         }).get();
     }
 
+    /**
+     * The class implementing this {@code AbstractAgent} which defines the actual type of {@code A} should return {@code this} here.
+     * @return the agent instance
+     */
     protected abstract A self();
 
     @Override
@@ -138,11 +141,6 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     @Override
-    public final void changeActionExecutionOrder(final AgentAction<A> object, final AgentAction<A> object2) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public final void receive(final ACLMessage<A> message) {
         LOGGER.debug("{} received a message: {}", this, message);
         getInBox().add(message);
@@ -170,19 +168,8 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     @Override
-    @Nullable
-    public final Color getColor() {
-        final Population population = getPopulation();
-        return (population != null) ? population.getColor() : null;
-    }
-
-    @Override
-    public void setColor(final Color color) {
-    }
-
-    @Override
     public final Iterable<ACLMessage<A>> getMessages(final MessageTemplate template) {
-        return getInBox().extract(template);
+        return getInBox().remove(template);
     }
 
     @Override
@@ -214,6 +201,14 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
         setSimulationContext(context);
         getInBox().clear();
         setParents(ImmutableSet.<Integer>of());
+        getActionExecutionStrategy().reset();
+        deactivated();
+    }
+
+    /**
+     * A hook method which gets called when this agent gets deactivated using {@link #deactivate(PassiveSimulationContext)}
+     */
+    protected void deactivated() {
     }
 
     @Override
@@ -231,8 +226,14 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     public final void activate(final ActiveSimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
-        getActionExecutionStrategy().reset();
         logEvent(this, "activated", "");
+        activated();
+    }
+
+    /**
+     * A hook that gets called when this agent was activated with {@link #activate(ActiveSimulationContext)}.
+     */
+    protected void activated() {
     }
 
     @Override
@@ -289,16 +290,32 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
         return null;
     }
 
+    /**
+     * Get the simulation context.
+     * @return the simulation context
+     */
     protected abstract SimulationContext<S, A> getSimulationContext();
 
-    protected abstract MessageBox<ACLMessage<A>> getInBox();
+    /**
+     * Get the message box.
+     * @return the message box
+     */
+    protected abstract FunctionalCollection<ACLMessage<A>> getInBox();
 
+    /**
+     * Set the simulation context to {@code simulationContext}.
+     * @param simulationContext the new simulation context
+     */
     protected abstract void setSimulationContext(SimulationContext<S, A> simulationContext);
 
+    /**
+     * Get the action execution strategy.
+     * @return the action execution strategy
+     */
     protected abstract ActionExecutionStrategy getActionExecutionStrategy();
 
     @Override
-    public long getSimulationStep() {
+    public final long getSimulationStep() {
         return getSimulationContext().getSimulationStep();
     }
 }

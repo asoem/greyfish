@@ -188,7 +188,7 @@ public final class DefaultBasicSimulation
         private ExecutorService executorService = Executors.newCachedThreadPool();
         private SimulationLogger<? super BasicAgent> logger = SimulationLoggers.nullLogger();
         private DefaultSimulationContextFactory<BasicSimulation, BasicAgent> simulationContextFactory =
-                new DefaultSimulationContextFactory<BasicSimulation, BasicAgent>();
+                DefaultSimulationContextFactory.<BasicSimulation, BasicAgent>create();
 
         private Builder(final String name) {
             this.name = name;

@@ -7,8 +7,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.FixedSizeMessageBox;
-import org.asoem.greyfish.core.acl.MessageBox;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
@@ -17,6 +15,8 @@ import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
+import org.asoem.greyfish.utils.collect.FunctionalCollection;
+import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
@@ -36,17 +36,16 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
 
 /**
- * User: christoph
- * Date: 14.11.12
- * Time: 14:37
+ * The default implementation of {@code Basic2DAgent}.
  */
-public class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basic2DSimulation, Point2D> implements Basic2DAgent, Serializable {
+public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basic2DSimulation, Point2D>
+        implements Basic2DAgent, Serializable {
 
     private final FunctionalList<AgentProperty<Basic2DAgent, ?>> properties;
     private final FunctionalList<AgentAction<Basic2DAgent>> actions;
     private final FunctionalList<AgentTrait<Basic2DAgent, ?>> traits;
     private final ActionExecutionStrategy actionExecutionStrategy;
-    private final MessageBox<ACLMessage<Basic2DAgent>> inBox;
+    private final FunctionalCollection<ACLMessage<Basic2DAgent>> inBox;
     private Population population;
     @Nullable
     private Point2D projection;
@@ -84,7 +83,7 @@ public class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basi
         }));
         // reconstruct
         this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
-        this.inBox = new FixedSizeMessageBox<ACLMessage<Basic2DAgent>>();
+        this.inBox = new FunctionalFifoBuffer<ACLMessage<Basic2DAgent>>();
     }
 
     private DefaultBasic2DAgent(final Builder builder) {
@@ -102,7 +101,7 @@ public class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basi
         }
         this.population = builder.population;
         this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
-        this.inBox = new FixedSizeMessageBox<ACLMessage<Basic2DAgent>>();
+        this.inBox = new FunctionalFifoBuffer<ACLMessage<Basic2DAgent>>();
     }
 
     @Override
@@ -174,7 +173,7 @@ public class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basi
     }
 
     @Override
-    protected MessageBox<ACLMessage<Basic2DAgent>> getInBox() {
+    protected FunctionalCollection<ACLMessage<Basic2DAgent>> getInBox() {
         return inBox;
     }
 

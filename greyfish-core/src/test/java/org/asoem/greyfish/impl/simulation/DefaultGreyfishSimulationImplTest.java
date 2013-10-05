@@ -50,7 +50,7 @@ public class DefaultGreyfishSimulationImplTest {
     @Test
     public void testNewSimulation() {
         // given
-        final Population population = new Population("testPopulation");
+        final Population population = Population.named("testPopulation");
         final Basic2DAgent prototype = DefaultBasic2DAgent.builder(population).build();
         final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
 
@@ -73,7 +73,7 @@ public class DefaultGreyfishSimulationImplTest {
     @Test
     public void testCreateSimulationFromAgents() {
         // given
-        final Population population = new Population("testPopulation");
+        final Population population = Population.named("testPopulation");
         final Basic2DAgent agent1 = DefaultBasic2DAgent.builder(population).build();
         final Collection<Basic2DAgent> agents = ImmutableList.of(agent1);
         final Basic2DAgent prototype = DefaultBasic2DAgent.builder(population).build();

@@ -20,7 +20,6 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         initializeObject("", null);
     }
 
-    @SuppressWarnings("unchecked") // cloning is save
     protected AbstractAgentComponent(final AbstractAgentComponent<A> cloneable, final DeepCloner map) {
         map.addClone(cloneable, this);
         initializeObject(cloneable.name, map.getClone(cloneable.agent));
@@ -41,7 +40,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
 
     @Override
     @Nullable
-    public A getAgent() {
+    public final A getAgent() {
         return agent;
     }
 
@@ -51,24 +50,24 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
      * @see #getAgent()
      */
     @Override
-    public A agent() throws IllegalStateException {
+    public final A agent() throws IllegalStateException {
         final A agent = getAgent();
         checkState(agent != null, "Cannot access agent of %s because none is attached", this);
         return agent;
     }
 
     @Override
-    public void setAgent(@Nullable final A agent) {
+    public final void setAgent(@Nullable final A agent) {
         this.agent = agent;
     }
 
-    public void setName(final String name) {
+    public final void setName(final String name) {
         Preconditions.checkNotNull(name);
         this.name = name;
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
@@ -98,7 +97,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         return name != null ? name.hashCode() : 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> implements Serializable {
+    protected abstract static class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> implements Serializable {
         private String name;
 
         // for serialization only
@@ -112,7 +111,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         protected AbstractBuilder() {
         }
 
-        public B name(final String name) {
+        public final B name(final String name) {
             this.name = name;
             return self();
         }

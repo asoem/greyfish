@@ -10,7 +10,6 @@ import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
-import java.awt.*;
 import java.util.Set;
 
 public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>> extends ForwardingObject implements Agent<A, S> {
@@ -85,11 +84,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     }
 
     @Override
-    public void changeActionExecutionOrder(final AgentAction<A> object, final AgentAction<A> object2) {
-        delegate().changeActionExecutionOrder(object, object2);
-    }
-
-    @Override
     public int getId() {
         return delegate().getId();
     }
@@ -97,16 +91,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     @Override
     public long getTimeOfBirth() {
         return delegate().getTimeOfBirth();
-    }
-
-    @Override
-    public Color getColor() {
-        return delegate().getColor();
-    }
-
-    @Override
-    public void setColor(final Color color) {
-        delegate().setColor(color);
     }
 
     @Override

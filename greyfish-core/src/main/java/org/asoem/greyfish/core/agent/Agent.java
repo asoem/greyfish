@@ -12,8 +12,6 @@ import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
-import javax.annotation.Nullable;
-import java.awt.*;
 import java.util.Set;
 
 /**
@@ -23,8 +21,6 @@ import java.util.Set;
  */
 public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>>
         extends DeepCloneable, Simulatable<S, A>, AgentNode {
-
-    void changeActionExecutionOrder(AgentAction<A> object, AgentAction<A> object2);
 
     /**
      * Get the population
@@ -87,11 +83,6 @@ public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A
     AgentTrait<A, ?> getTrait(String name);
 
     AgentTrait<A, ?> findTrait(Predicate<? super AgentTrait<A, ?>> traitPredicate);
-
-    @Nullable
-    Color getColor();
-
-    void setColor(Color color);
 
     boolean isActive();
 

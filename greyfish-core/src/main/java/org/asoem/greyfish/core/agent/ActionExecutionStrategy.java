@@ -6,9 +6,8 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import javax.annotation.Nullable;
 
 /**
- * User: christoph
- * Date: 09.10.12
- * Time: 10:39
+ * An {@code ActionExecutionStrategy} defines how instances of {@code AgentAction} get executed by the {@code Agent}
+ * and logs the execution history.
  */
 public interface ActionExecutionStrategy {
     /**
@@ -17,11 +16,22 @@ public interface ActionExecutionStrategy {
      */
     boolean execute();
 
+    /**
+     * Get the last {@code AgentAction} which was executed
+     * @return the last action that was executed
+     */
     @Nullable
     AgentAction<?> lastExecutedAction();
 
+    /**
+     * Get the last action state of the action that was executed
+     * @return the {@code ActionState} of the last executed action
+     */
     @Nullable
     ActionState lastExecutedActionState();
 
+    /**
+     * Reset the history.
+     */
     void reset();
 }
