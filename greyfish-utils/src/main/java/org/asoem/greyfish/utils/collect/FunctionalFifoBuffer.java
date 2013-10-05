@@ -1,4 +1,4 @@
-package org.asoem.greyfish.core.acl;
+package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -6,8 +6,6 @@ import com.google.common.collect.ForwardingCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.utils.collect.FifoBuffer;
-import org.asoem.greyfish.utils.collect.FunctionalCollection;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -96,17 +94,17 @@ public final class FunctionalFifoBuffer<M> extends ForwardingCollection<M>
     }
 
     private static class SerializedForm<M> implements Serializable {
-        private final List<M> messages;
+        private final List<M> elements;
         private final int maxSize;
 
         SerializedForm(final FunctionalFifoBuffer<M> box) {
-            this.messages = Lists.newArrayList(box.buffer);
+            this.elements = Lists.newArrayList(box.buffer);
             this.maxSize = box.buffer.capacity();
         }
 
         private Object readResolve() {
             final FunctionalFifoBuffer<M> messageBox = new FunctionalFifoBuffer<M>(maxSize);
-            for (final M message : messages) {
+            for (final M message : elements) {
                 messageBox.add(message);
             }
             return messageBox;
