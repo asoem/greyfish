@@ -7,33 +7,78 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.stat.inference.TTest;
+import org.asoem.greyfish.utils.collect.Tuple2;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.*;
 
+import static org.asoem.greyfish.utils.math.SignificanceLevel.HIGHLY_SIGNIFICANT;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.*;
 
 public class ThreadLocalRandomGeneratorAT {
+
+    private final TaskFactory taskFactory = new TaskFactory() {
+        @Override
+        Callable<Long> createTask(final RandomGenerator generator) {
+            final int nIterations = 1000;
+            return measureBooleanGeneration(generator, nIterations, TimeUnit.MICROSECONDS);
+        }
+    };
+    private final int nMeasurements = 1000;
+    private final Supplier<RandomGenerator> generatorSupplier = new Supplier<RandomGenerator>() {
+        @Override
+        public RandomGenerator get() {
+            return new Well19937c();
+        }
+    };
+
     @Test
-    public void testThreadLocalGeneratorPerformanceVsSynchronized() throws Exception {
+    public void acceptSignificantBenefitWith2Threads() throws Exception {
         // given
-        final RandomGenerator synchronizedRandomGenerator = RandomGenerators.synchronizedGenerator(new Well19937c());
-        final RandomGenerator threadLocalRandomGenerator = RandomGenerators.threadLocalGenerator(new Supplier<RandomGenerator>() {
-            @Override
-            public RandomGenerator get() {
-                return new Well19937c();
-            }
-        });
+        final int nThreads = 2;
 
         // when
-        final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        final Tuple2<SummaryStatistics, SummaryStatistics> results =
+                measure(nThreads, generatorSupplier, nMeasurements, taskFactory);
+
+        // then
+        assertThat(results._2().getMean(), is(lessThan(results._1().getMean())));
+
+        double p = new TTest().tTest(results._1(), results._2());
+        System.out.println("t-Test: p=" + p);
+        assertThat(p, is(lessThanOrEqualTo(HIGHLY_SIGNIFICANT.getAlpha())));
+    }
+
+    @Test
+    public void acceptSignificantBenefitWith10Threads() throws Exception {
+        // given
+        final int nThreads = 10;
+
+        // when
+        final Tuple2<SummaryStatistics, SummaryStatistics> results =
+                measure(nThreads, generatorSupplier, nMeasurements, taskFactory);
+
+        // then
+        assertThat(results._2().getMean(), is(lessThan(results._1().getMean())));
+
+        double p = new TTest().tTest(results._1(), results._2());
+        System.out.println("t-Test: p=" + p);
+        assertThat(p, is(lessThanOrEqualTo(HIGHLY_SIGNIFICANT.getAlpha())));
+    }
+
+    private static Tuple2<SummaryStatistics, SummaryStatistics> measure(final int nThreads, final Supplier<RandomGenerator> generatorSupplier, final int nMeasurements, final TaskFactory taskFactory) throws InterruptedException, ExecutionException {
+        // given
+        final RandomGenerator synchronizedRandomGenerator = RandomGenerators.synchronizedGenerator(generatorSupplier.get());
+        final RandomGenerator threadLocalRandomGenerator = RandomGenerators.threadLocalGenerator(generatorSupplier);
+
+        // when
+        final ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
 
         final List<Future<Long>> futuresSynchronized = Lists.newArrayList();
-        for (int i = 0; i < 100; i++) {
-            final Callable<Long> task = measureBooleanGeneration(synchronizedRandomGenerator, 1000, TimeUnit.MICROSECONDS);
+        for (int i = 0; i < nMeasurements; i++) {
+            final Callable<Long> task = taskFactory.createTask(synchronizedRandomGenerator);
             final Future<Long> future = executorService.submit(task);
             futuresSynchronized.add(future);
         }
@@ -43,8 +88,8 @@ public class ThreadLocalRandomGeneratorAT {
         }
 
         final List<Future<Long>> futuresThreadLocal = Lists.newArrayList();
-        for (int i = 0; i < 100; i++) {
-            final Callable<Long> task = measureBooleanGeneration(threadLocalRandomGenerator, 1000, TimeUnit.MICROSECONDS);
+        for (int i = 0; i < nMeasurements; i++) {
+            final Callable<Long> task = taskFactory.createTask(threadLocalRandomGenerator);
             final Future<Long> future = executorService.submit(task);
             futuresThreadLocal.add(future);
         }
@@ -53,14 +98,10 @@ public class ThreadLocalRandomGeneratorAT {
             statisticsThreadLocal.addValue(longFuture.get());
         }
 
-        // then
-        System.out.println("ThreadLocal stats in us: " + statisticsThreadLocal);
         System.out.println("Synchronized stats in us: " + statisticsSynchronized);
-        assertThat(statisticsThreadLocal.getMean(), is(lessThan(statisticsSynchronized.getMean())));
+        System.out.println("ThreadLocal stats in us: " + statisticsThreadLocal);
 
-        double tTest = new TTest().tTest(statisticsSynchronized, statisticsThreadLocal);
-        System.out.println("t-Test: p=" + tTest);
-        assertThat(tTest, is(lessThan(0.5))); // minimum significance
+        return Tuple2.of(statisticsSynchronized, statisticsThreadLocal);
     }
 
     private static Callable<Long> measureBooleanGeneration(final RandomGenerator randomGenerator, final int iterations, final TimeUnit timeUnit) {
@@ -74,5 +115,9 @@ public class ThreadLocalRandomGeneratorAT {
                 return stopwatch.elapsed(timeUnit);
             }
         };
+    }
+
+    private abstract class TaskFactory {
+        abstract Callable<Long> createTask(RandomGenerator generator);
     }
 }
