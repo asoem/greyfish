@@ -3,21 +3,27 @@ package org.asoem.greyfish.impl.simulation;
 import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 
+import java.util.concurrent.Executor;
+
 /**
  * The simulation environment for agents of type {@link org.asoem.greyfish.impl.agent.BasicAgent}.
  */
 public interface BasicSimulation extends DiscreteTimeSimulation<BasicAgent> {
     /**
-     * Remove agent from this {@code Simulation}.
-     * The addition will get effective after the next call to {@link #nextStep()}.
+     * Add the removal of given {@code agent} to this simulations modification queue.
      * @param agent the {@code Agent} to be removed from this {@code Simulation}
      */
-    void removeAgent(BasicAgent agent);
+    void enqueueRemoval(BasicAgent agent);
 
     /**
-     * Add given {@code agent} to this simulation.
-     * The addition will get effective after the next call to {@link #nextStep()}.
+     * Add the removal of given {@code agent} to this simulations modification queue.
+     * @param agent the {@code Agent} to be removed from this {@code Simulation}
+     */
+    void enqueueRemoval(BasicAgent agent, Runnable listener, Executor executor);
+
+    /**
+     * Add the addition of given {@code agent} to this simulations modification queue.
      * @param agent the agent to add
      */
-    void addAgent(BasicAgent agent);
+    void enqueueAddition(BasicAgent agent);
 }

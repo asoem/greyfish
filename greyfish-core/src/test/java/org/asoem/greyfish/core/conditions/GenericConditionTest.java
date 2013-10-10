@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callback;
@@ -33,7 +34,7 @@ public class GenericConditionTest {
         final AgentAction<Basic2DAgent> action = when(mock(AgentAction.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentAction.class)).getMock();
 
         final ActionCondition<Basic2DAgent> condition = when(mock(ActionCondition.class).deepClone(any(DeepCloner.class))).thenReturn(mock(ActionCondition.class)).getMock();
-        given(condition.getAction()).willReturn(action);
+        given(condition.getAction()).willReturn(Optional.of(action));
 
         final Callback<Object, Boolean> callback = Callbacks.constant(true);
 
@@ -67,12 +68,12 @@ public class GenericConditionTest {
                         return input.getCallback();
                     }
                 }, is(Matchers.<Callback<? super GenericCondition<Basic2DAgent>, Boolean>>equalTo(genericCondition.getCallback()))),
-                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<Basic2DAgent>, AgentAction<Basic2DAgent>>() {
+                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<Basic2DAgent>, Optional<AgentAction<Basic2DAgent>>>() {
                     @Override
-                    public AgentAction<Basic2DAgent> apply(final GenericCondition<Basic2DAgent> input) {
+                    public Optional<AgentAction<Basic2DAgent>> apply(final GenericCondition<Basic2DAgent> input) {
                         return input.getAction();
                     }
-                }, is(genericCondition.getAction() == null ? nullValue() : instanceOf(AgentAction.class))),
+                }, is(instanceOf(Optional.class))),
                 has("parent ~= " + genericCondition.getParent(), new Function<GenericCondition<Basic2DAgent>, ActionCondition<Basic2DAgent>>() {
                     @Override
                     public ActionCondition<Basic2DAgent> apply(final GenericCondition<Basic2DAgent> input) {

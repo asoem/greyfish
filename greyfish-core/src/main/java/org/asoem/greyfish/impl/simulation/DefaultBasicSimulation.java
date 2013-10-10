@@ -3,6 +3,7 @@ package org.asoem.greyfish.impl.simulation;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.DefaultSimulationContextFactory;
 import org.asoem.greyfish.core.agent.Population;
@@ -14,6 +15,7 @@ import org.asoem.greyfish.core.utils.DiscreteTimeListener;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 
 import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,6 +31,12 @@ public final class DefaultBasicSimulation
         extends AbstractSimulation<BasicAgent>
         implements BasicSimulation {
 
+    private static final Runnable EMPTY_RUNNABLE = new Runnable() {
+        @Override
+        public void run() {
+
+        }
+    };
     private final List<BasicAgent> agents = Lists.newArrayList();
     private final Queue<ModificationEvent> modificationEvents = Queues.newConcurrentLinkedQueue();
     private final transient Collection<BasicAgent> unmodifiableAgents = Collections.unmodifiableCollection(agents);
@@ -103,23 +111,29 @@ public final class DefaultBasicSimulation
     }
 
     @Override
-    public void removeAgent(final BasicAgent agent) {
+    public void enqueueRemoval(final BasicAgent agent) {
+        enqueueRemoval(agent, EMPTY_RUNNABLE, MoreExecutors.sameThreadExecutor());
+    }
+
+    @Override
+    public void enqueueRemoval(final BasicAgent agent, final Runnable listener, final Executor executor) {
         checkNotNull(agent);
-        checkArgument(agent.isActive());
-        checkArgument(this.equals(agent.simulation()));
+        checkArgument(agent.isActive(), "Agent is not active");
+        checkArgument(this.equals(agent.simulation()), "Agent not is active in another simulation");
         checkState(!Phase.MODIFICATION.equals(phase.get()));
         this.modificationEvents.add(new ModificationEvent() {
             @Override
             public void apply() {
-                agent.deactivate(contextFactory.createPassiveContext());
+                agent.deactivate();
+                executor.execute(listener); // TODO: Agent is not removed yet, only marked for removal
             }
         });
     }
 
     @Override
-    public void addAgent(final BasicAgent agent) {
+    public void enqueueAddition(final BasicAgent agent) {
         checkNotNull(agent);
-        checkArgument(!agent.isActive());
+        checkArgument(!agent.isActive(), "Agent is active");
         checkState(!Phase.MODIFICATION.equals(phase.get()));
         this.modificationEvents.add(new ModificationEvent() {
             @Override

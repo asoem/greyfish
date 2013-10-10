@@ -54,10 +54,10 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
                 endTransition(State.NO_RECEIVERS);
             } else {
                 final ImmutableACLMessage<A> cfpMessage = createCFP()
-                        .sender(agent())
+                        .sender(agent().get())
                         .performative(ACLPerformative.CFP).build();
                 LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
-                agent().sendMessage(cfpMessage);
+                agent().get().sendMessage(cfpMessage);
 
                 nProposalsMax = cfpMessage.getRecipients().size();
                 timeoutCounter = 0;
@@ -68,7 +68,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
             }
         } else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
             final Collection<ACLMessage<A>> proposeReplies = Lists.newArrayList();
-            for (final ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
+            for (final ACLMessage<A> receivedMessage : agent().get().getMessages(getTemplate())) {
                 assert (receivedMessage != null);
 
                 ACLMessage<A> proposeReply;
@@ -81,14 +81,14 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
                             ++nProposalsReceived;
                             LOGGER.debug("{}: Received proposal", this, receivedMessage);
                         } catch (NotUnderstoodException e) {
-                            proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent())
+                            proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent().get())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage(), String.class).build();
                             LOGGER.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkProposeReply(proposeReply);
                         LOGGER.debug("{}: Replying to proposal", this, proposeReply);
-                        agent().sendMessage(proposeReply);
+                        agent().get().sendMessage(proposeReply);
                         break;
 
                     case REFUSE:
@@ -135,7 +135,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
         } else if (State.WAIT_FOR_INFORM.equals(state)) {
             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-            for (final ACLMessage<A> receivedMessage : agent().getMessages(getTemplate())) {
+            for (final ACLMessage<A> receivedMessage : agent().get().getMessages(getTemplate())) {
                 assert receivedMessage != null;
 
                 switch (receivedMessage.getPerformative()) {

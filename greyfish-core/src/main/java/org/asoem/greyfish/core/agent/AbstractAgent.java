@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -154,17 +155,17 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
 
     @Override
     public final int getId() {
-        return getSimulationContext().getAgentId();
+        return getSimulationContext().get().getAgentId();
     }
 
     @Override
     public final long getTimeOfBirth() {
-        return getSimulationContext().getActivationStep();
+        return getSimulationContext().get().getActivationStep();
     }
 
     @Override
     public final long getAge() {
-        return getSimulationContext().getAge();
+        return getSimulationContext().get().getAge();
     }
 
     @Override
@@ -183,7 +184,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
         checkNotNull(title);
         checkNotNull(message);
 
-        getSimulationContext().logEvent(self(), eventOrigin, title, message);
+        getSimulationContext().get().logEvent(self(), eventOrigin, title, message);
     }
 
     @Override
@@ -196,34 +197,30 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     @Override
-    public final void deactivate(final PassiveSimulationContext<S, A> context) {
-        checkNotNull(context);
-        setSimulationContext(context);
-        getInBox().clear();
-        setParents(ImmutableSet.<Integer>of());
-        getActionExecutionStrategy().reset();
+    public final void deactivate() {
+        initialize();
         deactivated();
     }
 
     /**
-     * A hook method which gets called when this agent gets deactivated using {@link #deactivate(PassiveSimulationContext)}
+     * A hook method which gets called when this agent gets deactivated using {@link org.asoem.greyfish.core.simulation.Simulatable#deactivate()}
      */
     protected void deactivated() {
     }
 
     @Override
     public final boolean isActive() {
-        return getSimulationContext().isActiveContext();
+        return getSimulationContext().isPresent();
     }
 
     @Override
     public final S simulation() {
         checkState(isActive(), "A passive Agent has no associated simulation");
-        return getSimulationContext().getSimulation();
+        return getSimulationContext().get().getSimulation();
     }
 
     @Override
-    public final void activate(final ActiveSimulationContext<S, A> context) {
+    public final void activate(final SimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
         logEvent(this, "activated", "");
@@ -231,13 +228,17 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     /**
-     * A hook that gets called when this agent was activated with {@link #activate(ActiveSimulationContext)}.
+     * A hook that gets called when this agent was activated with {@link org.asoem.greyfish.core.simulation.Simulatable#activate(SimulationContext)}.
      */
     protected void activated() {
     }
 
     @Override
     public final void initialize() {
+        setSimulationContext(null);
+        getInBox().clear();
+        setParents(ImmutableSet.<Integer>of());
+        getActionExecutionStrategy().reset();
         for (final AgentNode node : children()) {
             node.initialize();
         }
@@ -294,19 +295,19 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
      * Get the simulation context.
      * @return the simulation context
      */
-    protected abstract SimulationContext<S, A> getSimulationContext();
+    protected abstract Optional<SimulationContext<S, A>> getSimulationContext();
+
+    /**
+     * Set the simulation context to {@code simulationContext}.
+     * @param simulationContext the new simulation context
+     */
+    protected abstract void setSimulationContext(@Nullable SimulationContext<S, A> simulationContext);
 
     /**
      * Get the message box.
      * @return the message box
      */
     protected abstract FunctionalCollection<ACLMessage<A>> getInBox();
-
-    /**
-     * Set the simulation context to {@code simulationContext}.
-     * @param simulationContext the new simulation context
-     */
-    protected abstract void setSimulationContext(SimulationContext<S, A> simulationContext);
 
     /**
      * Get the action execution strategy.
@@ -316,6 +317,6 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
 
     @Override
     public final long getSimulationStep() {
-        return getSimulationContext().getSimulationStep();
+        return getSimulationContext().get().getSimulationStep();
     }
 }

@@ -93,7 +93,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
     private void passivateAgentsInternal(final List<? extends A> agents) {
         for (final A agent : agents) {
-            agent.deactivate(SimulationContexts.<S, A>instance());
+            agent.deactivate();
             releaseAgent(agent);
         }
         space.removeInactiveAgents();

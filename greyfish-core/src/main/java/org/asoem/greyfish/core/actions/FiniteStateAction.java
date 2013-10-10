@@ -33,17 +33,19 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
     @Override
     protected final ActionState proceed() {
 
-        if (endStateReached)
+        if (endStateReached) {
             resetTransition();
+        }
 
         executeState(nextStateKey);
 
         ++statefulExecutionCount;
 
-        if (endStateReached)
+        if (endStateReached) {
             return ActionState.COMPLETED;
-        else
+        } else {
             return ActionState.INTERMEDIATE;
+        }
     }
 
     protected abstract Object initialState();
@@ -88,7 +90,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
     public String toString() {
         return this.getClass().getSimpleName() +
                 "[" + getName() + "@" + nextStateKey + "]" +
-                "°<" + ((getAgent() == null) ? "null" : String.valueOf(agent().getId()) + "><"
+                "°<" + ((!agent().isPresent()) ? "null" : String.valueOf(agent().get().getId()) + "><"
         );
     }
 

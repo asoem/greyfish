@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
@@ -20,9 +21,9 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         initializeObject("", null);
     }
 
-    protected AbstractAgentComponent(final AbstractAgentComponent<A> cloneable, final DeepCloner map) {
-        map.addClone(cloneable, this);
-        initializeObject(cloneable.name, map.getClone(cloneable.agent));
+    protected AbstractAgentComponent(final AbstractAgentComponent<A> cloneable, final DeepCloner cloner) {
+        cloner.addClone(cloneable, this);
+        initializeObject(cloneable.name, cloner.getClone(cloneable.agent));
     }
 
     protected AbstractAgentComponent(final AbstractBuilder<A, ? extends AbstractAgentComponent<A>, ? extends AbstractBuilder<A,?,?>> builder) {
@@ -38,22 +39,12 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         this.agent = agent;
     }
 
-    @Override
-    @Nullable
-    public final A getAgent() {
-        return agent;
-    }
-
     /**
-     * @return this components {@code Agent}
-     * @throws IllegalStateException if this components {@code Agent} is {@code null}
-     * @see #getAgent()
+     * @return this components optional {@code Agent}
      */
     @Override
-    public final A agent() throws IllegalStateException {
-        final A agent = getAgent();
-        checkState(agent != null, "Cannot access agent of %s because none is attached", this);
-        return agent;
+    public final Optional<A> agent() {
+        return Optional.fromNullable(agent);
     }
 
     @Override

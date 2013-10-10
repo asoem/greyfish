@@ -67,8 +67,8 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
 
     private void receiveSperm(final Chromosome chromosome, final A sender) {
         receivedSperm.add(chromosome);
-        agent().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
-        LOGGER.debug(getAgent() + " received sperm: " + chromosome);
+        agent().get().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
+        LOGGER.debug(agent().orNull() + " received sperm: " + chromosome);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         sensedMates = ImmutableList.of();
 
         return ImmutableACLMessage.<A>builder()
-                .sender(agent())
+                .sender(agent().get())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose randomly one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
@@ -89,7 +89,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
 
     @Override
     protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message) {
-        final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, agent());
+        final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, agent().get());
         final Object messageContent = message.getContent();
         if (!(messageContent instanceof Chromosome)) {
             throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + messageContent);
@@ -134,7 +134,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
 
     @Override
     protected boolean canInitiate() {
-        sensedMates = ImmutableList.copyOf(agent().findNeighbours(call(interactionRadius, this)));
+        sensedMates = ImmutableList.copyOf(agent().get().findNeighbours(call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
 

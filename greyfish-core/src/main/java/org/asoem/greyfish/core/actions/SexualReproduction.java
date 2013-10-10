@@ -69,7 +69,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             return ABORTED;
 
         final int eggCount = call(clutchSize, this);
-        LOGGER.info("{}: Producing {} offspring ", agent(), eggCount);
+        LOGGER.info("{}: Producing {} offspring ", agent().get(), eggCount);
 
         for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
@@ -77,11 +77,11 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             if ( parents.size() != 1 )
                 throw new AssertionError("Sperm must have an uniparental history");
 
-            final Chromosome chromosome = blend(agent().getTraits(), sperm, agent().getId(), Iterables.getOnlyElement(parents));
+            final Chromosome chromosome = blend(agent().get().getTraits(), sperm, agent().get().getId(), Iterables.getOnlyElement(parents));
 
-            agent().reproduce(chromosome);
+            agent().get().reproduce(chromosome);
 
-            agent().logEvent(this, "offspringProduced", "");
+            agent().get().logEvent(this, "offspringProduced", "");
         }
 
         offspringCount += eggCount;

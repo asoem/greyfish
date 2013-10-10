@@ -52,9 +52,4 @@ public interface SimulationContext<S extends DiscreteTimeSimulation<A>, A extend
      */
     long getSimulationStep();
 
-    /**
-     * Check if this context is an active context.
-     * @return {@code true} if this context represents an active context, {@code false} if passive
-     */
-    boolean isActiveContext();
 }

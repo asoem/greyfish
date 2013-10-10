@@ -28,10 +28,13 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     private ActionState actionState;
 
     @SuppressWarnings("unchecked")
-    protected AbstractAgentAction(final AbstractAgentAction<A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
-        this.condition = map.getClone(cloneable.condition);
+    protected AbstractAgentAction(final AbstractAgentAction<A> cloneable, final DeepCloner cloner) {
+        super(cloneable, cloner);
+        this.condition = cloner.getClone(cloneable.condition);
         this.onSuccess = cloneable.onSuccess;
+        this.stepAtLastSuccess = cloneable.stepAtLastSuccess;
+        this.successCount = cloneable.successCount;
+        this.actionState = cloneable.actionState;
     }
 
     protected AbstractAgentAction(final AbstractBuilder<A, ? extends AbstractAgentAction<A>,
@@ -55,9 +58,10 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
      */
     @Override
     public final ActionState apply() {
-        assert stepAtLastSuccess < agent().getSimulationStep()
+        final A agent = agent().get();
+        assert stepAtLastSuccess < agent.getSimulationStep()
                 : "actions must not get executed twice per step: "
-                + stepAtLastSuccess + " >= " + agent().getSimulationStep();
+                + stepAtLastSuccess + " >= " + agent.getSimulationStep();
 
         if (INITIAL == actionState) {
             checkPreconditions();
@@ -72,7 +76,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
 
                 case COMPLETED:
                     ++successCount;
-                    stepAtLastSuccess = agent().getSimulationStep();
+                    stepAtLastSuccess = agent.getSimulationStep();
                     Callbacks.call(onSuccess, this);
                     break;
 
@@ -146,7 +150,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
 
     public final boolean wasNotExecutedForAtLeast(final int steps) {
         // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
-        return agent().getSimulationStep() - stepAtLastSuccess >= steps;
+        return agent().get().getSimulationStep() - stepAtLastSuccess >= steps;
     }
 
     @Override
@@ -161,7 +165,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
 
     @Override
     public final AgentNode parent() {
-        return getAgent();
+        return agent().orNull();
     }
 
     public final Callback<? super AbstractAgentAction<A>, Void> getSuccessCallback() {

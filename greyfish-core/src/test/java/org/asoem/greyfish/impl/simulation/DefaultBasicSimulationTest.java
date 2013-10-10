@@ -2,14 +2,14 @@ package org.asoem.greyfish.impl.simulation;
 
 import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
-import org.asoem.greyfish.core.agent.PassiveSimulationContext;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -17,7 +17,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class DefaultSimpleGreyfishSimulationTest {
+public class DefaultBasicSimulationTest {
     @Test
     public void testBuilder() throws Exception {
         // when
@@ -64,10 +64,10 @@ public class DefaultSimpleGreyfishSimulationTest {
         // given
         final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
         final BasicAgent agentMock = mock(BasicAgent.class);
-        given(agentMock.isActive()).willReturn(true);
+        given(agentMock.isActive()).willReturn(false, true);
 
         // when
-        simulation.addAgent(agentMock);
+        simulation.enqueueAddition(agentMock);
         final int agentCountBeforeStep = simulation.countAgents();
         simulation.nextStep();
         final int agentCountAfterStep = simulation.countAgents();
@@ -75,7 +75,7 @@ public class DefaultSimpleGreyfishSimulationTest {
         // then
         assertThat(agentCountBeforeStep, is(0));
         assertThat(agentCountAfterStep, is(1));
-        verify(agentMock).activate(any(DefaultActiveSimulationContext.class));
+        verify(agentMock).activate(any(SimulationContext.class));
     }
 
     @Test
@@ -83,12 +83,16 @@ public class DefaultSimpleGreyfishSimulationTest {
         // given
         final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
         final BasicAgent agentMock = mock(BasicAgent.class);
-        given(agentMock.isActive()).willReturn(true, false);
-        simulation.addAgent(agentMock);
+        given(agentMock.isActive()).willReturn(false, true);
+        given(agentMock.simulation()).willReturn(simulation);
+        simulation.enqueueAddition(agentMock);
         simulation.nextStep();
+        checkState(simulation.countAgents() == 1);
+        given(agentMock.isActive()).willReturn(true, false);
+
 
         // when
-        simulation.removeAgent(agentMock);
+        simulation.enqueueRemoval(agentMock);
         final int agentCountBeforeStep = simulation.countAgents();
         simulation.nextStep();
         final int agentCountAfterStep = simulation.countAgents();
@@ -96,7 +100,7 @@ public class DefaultSimpleGreyfishSimulationTest {
         // then
         assertThat(agentCountBeforeStep, is(1));
         assertThat(agentCountAfterStep, is(0));
-        verify(agentMock).deactivate(any(PassiveSimulationContext.class));
+        verify(agentMock).deactivate();
     }
 
     @Test
@@ -104,8 +108,8 @@ public class DefaultSimpleGreyfishSimulationTest {
         // given
         final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
         final BasicAgent agentMock = mock(BasicAgent.class);
-        given(agentMock.isActive()).willReturn(true);
-        simulation.addAgent(agentMock);
+        given(agentMock.isActive()).willReturn(false, true);
+        simulation.enqueueAddition(agentMock);
         final ACLMessage<BasicAgent> message = mock(ACLMessage.class);
         given(message.getRecipients()).willReturn(ImmutableSet.of(agentMock));
 

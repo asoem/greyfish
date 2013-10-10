@@ -25,7 +25,7 @@ public class AgeCondition<A extends Agent<A, ?>> extends LongCompareCondition<A>
 
     @Override
     protected Long getCompareValue() {
-        return agent().getAge();
+        return agent().get().getAge();
     }
 
     public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<AgeCondition<A>, Builder<A>, A> {

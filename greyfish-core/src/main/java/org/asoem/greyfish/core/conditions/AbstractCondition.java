@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
@@ -7,8 +8,6 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 
 import javax.annotation.Nullable;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * A class that implements the <code>Condition</code> interface.
@@ -19,6 +18,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
 
     @Nullable
     private ActionCondition<A> parentCondition;
+
     @Nullable
     private transient AgentAction<A> action;
 
@@ -37,7 +37,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     @Override
     public void setParent(@Nullable final ActionCondition<A> parent) {
         this.parentCondition = parent;
-        setAction(parent != null ? parent.getAction() : null);
+        setAction(parent != null ? parent.getAction().orNull() : null);
     }
 
     @Override
@@ -48,20 +48,17 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     @Override
     public void setAction(@Nullable final AgentAction<A> action) {
         this.action = action;
-        assert parentCondition == null || parentCondition.getAction() == action;
+        assert parentCondition == null || parentCondition.getAction().orNull() == action;
     }
 
     @Override
-    @Nullable
-    public AgentAction<A> getAction() {
-        return action;
+    public Optional<AgentAction<A>> getAction() {
+        return Optional.fromNullable(action);
     }
 
     @Override
     public AgentAction<A> action() {
-        final AgentAction<A> agentAction = getAction();
-        checkState(agentAction != null);
-        return agentAction;
+        return Optional.fromNullable(action).get();
     }
 
     @Override
@@ -81,17 +78,9 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
                 : this;
     }
 
-    @Override
-    @Nullable
-    public A getAgent() {
-        final AgentAction<A> action = getAction();
-        return action != null ? action.getAgent() : null;
-    }
-
-    public A agent() {
-        final A agent = getAgent();
-        checkState(agent != null);
-        return agent;
+    public Optional<A> agent() {
+        final A nullableAgent = getAction().isPresent() ? getAction().get().agent().orNull() : null;
+        return Optional.fromNullable(nullableAgent);
     }
 
     @Override

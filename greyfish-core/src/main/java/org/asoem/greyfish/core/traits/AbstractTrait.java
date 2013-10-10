@@ -58,7 +58,7 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
 
     @Override
     public AgentNode parent() {
-        return getAgent();
+        return agent().orNull();
     }
 
     @Override

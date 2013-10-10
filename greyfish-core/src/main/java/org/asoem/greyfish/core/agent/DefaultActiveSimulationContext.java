@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @param <S> the type of the simulation
  * @param <A> the type of the agent
  */
-public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> extends ActiveSimulationContext<S,A> {
+public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> implements SimulationContext<S,A> {
 
     private final S simulation;
 
@@ -26,7 +26,7 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
     }
 
     public static <S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>>
-    ActiveSimulationContext<S, A> create(final S simulation, final int agentId, final long simulationStep) {
+    DefaultActiveSimulationContext<S, A> create(final S simulation, final int agentId, final long simulationStep) {
         return new DefaultActiveSimulationContext<S, A>(simulation, agentId, simulationStep);
     }
 

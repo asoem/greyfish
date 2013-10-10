@@ -74,7 +74,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
 
     @Override
     protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message) {
-        final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, agent());
+        final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, agent().get());
 
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
             return reply.performative(ACLPerformative.REFUSE);
@@ -82,7 +82,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (nextBoolean(rng(), probability)) {
 
-            final Chromosome chromosome = HeritableTraitsChromosome.copyFromAgent(agent());
+            final Chromosome chromosome = HeritableTraitsChromosome.copyFromAgent(agent().get());
             reply.content(chromosome, Chromosome.class)
                     .performative(ACLPerformative.PROPOSE);
 
@@ -104,7 +104,7 @@ public class MaleLikeMating<A extends Agent<A, ?>> extends ContractNetParticipan
 //        GeneComponentList sperm = null;
 //        doubleProperty.subtract(spermEvaluationFunction.evaluate(sperm));
         ++matingCount;
-        return ImmutableACLMessage.createReply(message, agent())
+        return ImmutableACLMessage.createReply(message, agent().get())
                 .performative(ACLPerformative.INFORM);
     }
 

@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.eval.impl;
 
+import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
@@ -42,7 +43,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         // given
         final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        given(action.getAgent()).willReturn(agent);
+        given(action.agent()).willReturn(Optional.of(agent));
 
         // when
         final Object ret = converter.get("this.agent", AgentAction.class).apply(action);
@@ -57,7 +58,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
         final Basic2DAgent agent = mock(Basic2DAgent.class);
         final Basic2DSimulation simulation = mock(Basic2DSimulation.class);
-        given(action.getAgent()).willReturn(agent);
+        given(action.agent()).willReturn(Optional.of(agent));
         given(agent.simulation()).willReturn(simulation);
 
         // when
@@ -84,7 +85,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         // given
         final AgentProperty<Basic2DAgent, Object> property = mock(AgentProperty.class);
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        given(property.getAgent()).willReturn(agent);
+        given(property.agent()).willReturn(Optional.of(agent));
 
         // when
         final Object ret = converter.get("this.agent", AgentProperty.class).apply(property);
@@ -99,13 +100,13 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         final Basic2DAgent agent = mock(Basic2DAgent.class);
         given(agent.getAge()).willReturn(23L);
         final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
-        given(action.getAgent()).willReturn(agent);
+        given(action.agent()).willReturn(Optional.of(agent));
 
         // when
         final Object ret = converter.get("this.agent.age", AgentAction.class).apply(action);
 
         // then
-        MatcherAssert.assertThat(ret, is(equalTo((Object)23)));
+        MatcherAssert.assertThat(ret, is(equalTo((Object)23L)));
     }
 
     @SuppressWarnings({"NullableProblems"})

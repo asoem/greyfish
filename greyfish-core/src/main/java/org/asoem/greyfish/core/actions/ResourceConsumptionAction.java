@@ -47,7 +47,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
         final A receiver = Iterables.get(sensedMates, RandomGenerators.rng().nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
         return ImmutableACLMessage.<A>builder()
-                .sender(agent())
+                .sender(agent().get())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
@@ -66,7 +66,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
 
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
-        return ImmutableACLMessage.createReply(message, agent())
+        return ImmutableACLMessage.createReply(message, agent().get())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .content(offer, Double.class);
     }
@@ -89,7 +89,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
 
     @Override
     protected boolean canInitiate() {
-        sensedMates = agent().findNeighbours(call(interactionRadius, this));
+        sensedMates = agent().get().findNeighbours(call(interactionRadius, this));
         return !isEmpty(sensedMates);
     }
 

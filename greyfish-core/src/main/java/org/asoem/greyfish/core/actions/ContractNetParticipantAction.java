@@ -53,14 +53,14 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<A>> cfpReplies = Lists.newArrayList();
-            final Iterable<ACLMessage<A>> proposalCalls = agent().getMessages(template);
+            final Iterable<ACLMessage<A>> proposalCalls = agent().get().getMessages(template);
             for (final ACLMessage<A> cfp : proposalCalls) {
 
                 ACLMessage<A> cfpReply;
                 try {
                     cfpReply = checkNotNull(handleCFP(cfp)).build();
                 } catch (NotUnderstoodException e) {
-                    cfpReply = ImmutableACLMessage.createReply(cfp, agent())
+                    cfpReply = ImmutableACLMessage.createReply(cfp, agent().get())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
                             .content(e.getMessage(), String.class).build();
                     LOGGER.warn("Message not understood {}", cfp, e);
@@ -68,7 +68,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
                 LOGGER.debug("{}: Replying to CFP with {}", this, cfpReply);
-                agent().sendMessage(cfpReply);
+                agent().get().sendMessage(cfpReply);
 
                 if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE)))
                     ++nExpectedProposeAnswers;
@@ -83,7 +83,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                 endTransition(State.NO_CFP);
         }
         else if (State.WAIT_FOR_ACCEPT == state) {
-            final Iterable<ACLMessage<A>> receivedMessages = agent().getMessages(getTemplate());
+            final Iterable<ACLMessage<A>> receivedMessages = agent().get().getMessages(getTemplate());
             for (final ACLMessage<A> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:
@@ -91,7 +91,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                         try {
                             informMessage = handleAccept(receivedMessage).build();
                         } catch (NotUnderstoodException e) {
-                            informMessage = ImmutableACLMessage.createReply(receivedMessage, agent())
+                            informMessage = ImmutableACLMessage.createReply(receivedMessage, agent().get())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage(), String.class).build();
 
@@ -99,7 +99,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                         }
                         checkAcceptReply(informMessage);
                         LOGGER.debug("{}: Accepting proposal", this);
-                        agent().sendMessage(informMessage);
+                        agent().get().sendMessage(informMessage);
                         break;
                     case REJECT_PROPOSAL:
                         handleReject(receivedMessage);

@@ -129,8 +129,8 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     }
 
     @Override
-    public void deactivate(final PassiveSimulationContext<S, A> context) {
-        delegate().deactivate(context);
+    public void deactivate() {
+        delegate().deactivate();
     }
 
     @Override
@@ -144,7 +144,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     }
 
     @Override
-    public void activate(final ActiveSimulationContext<S, A> context) {
+    public void activate(final SimulationContext<S, A> context) {
         delegate().activate(context);
     }
 

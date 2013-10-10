@@ -26,5 +26,20 @@ subprojects {
             }
         }
     }
+
+    test {
+        include '**/*Test.class'
+        exclude '**/Abstract*.class'
+    }
+
+    task integrationTest(type: Test, dependsOn: test) {
+        include '**/*IT.class'
+        exclude '**/Abstract*.class'
+    }
+
+    task acceptanceTest(type: Test, dependsOn: integrationTest) {
+        include '**/*AT.class'
+        exclude '**/Abstract*.class'
+    }
 }
 

@@ -1,6 +1,7 @@
 package org.asoem.greyfish.impl.agent;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -36,9 +37,11 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     private final FunctionalList<AgentTrait<BasicAgent, ?>> traits;
     private final FunctionalList<AgentProperty<BasicAgent, ?>> properties;
     private final FunctionalCollection<ACLMessage<BasicAgent>> inBox;
-    private final ActionExecutionStrategy actionExecutionStrategy;
+    private final ActionExecutionStrategyFactory actionExecutionStrategyFactory;
+    private final transient ActionExecutionStrategy actionExecutionStrategy;
 
     private Set<Integer> parents;
+    @Nullable
     private SimulationContext<BasicSimulation, BasicAgent> simulationContext;
 
     private DefaultBasicAgent(final DefaultBasicAgent original, final DeepCloner cloner) {
@@ -70,7 +73,8 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         this.parents = original.parents;
         this.simulationContext = original.simulationContext;
         this.inBox = original.inBox;
-        this.actionExecutionStrategy = original.actionExecutionStrategy;
+        this.actionExecutionStrategyFactory = original.actionExecutionStrategyFactory;
+        this.actionExecutionStrategy = actionExecutionStrategyFactory.create(actions);
     }
 
     private DefaultBasicAgent(final Builder builder) {
@@ -81,7 +85,20 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
         this.parents = builder.parents;
         this.inBox = builder.inBox;
-        this.actionExecutionStrategy = builder.actionExecutionStrategyFactory.create(actions);
+        this.actionExecutionStrategyFactory = builder.actionExecutionStrategyFactory;
+
+        // TODO: write test for the following steps
+        this.actionExecutionStrategy = actionExecutionStrategyFactory.create(actions);
+        this.simulationContext = null;
+        for (AgentAction<BasicAgent> action : actions) {
+            action.setAgent(this);
+        }
+        for (AgentTrait<BasicAgent, ?> trait : traits) {
+            trait.setAgent(this);
+        }
+        for (AgentProperty<BasicAgent, ?> property : properties) {
+            property.setAgent(this);
+        }
     }
 
     @Override
@@ -125,8 +142,8 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    protected SimulationContext<BasicSimulation, BasicAgent> getSimulationContext() {
-        return simulationContext;
+    protected Optional<SimulationContext<BasicSimulation, BasicAgent>> getSimulationContext() {
+        return Optional.fromNullable(simulationContext);
     }
 
     @Override
@@ -135,8 +152,8 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    protected void setSimulationContext(final SimulationContext<BasicSimulation, BasicAgent> simulationContext) {
-        this.simulationContext = checkNotNull(simulationContext);
+    protected void setSimulationContext(@Nullable final SimulationContext<BasicSimulation, BasicAgent> simulationContext) {
+        this.simulationContext = simulationContext;
     }
 
     @Override

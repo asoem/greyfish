@@ -4,6 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
+import org.asoem.greyfish.utils.base.CycleCloner;
+import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -151,6 +153,29 @@ public final class Agents {
         @Override
         public int hashCode() {
             return name.hashCode();
+        }
+    }
+
+    public static <A extends Agent<?, ?>> CloneBuilder<A> createClone(final A original) {
+        return new CloneBuilder<A>(original);
+    }
+
+    public static final class CloneBuilder<A extends Agent<?, ?>> {
+        private final A original;
+
+        public CloneBuilder(final A original) {
+            this.original = original;
+        }
+
+        public A build() {
+            final CycleCloner cycleCloner = CycleCloner.create();
+            return build(cycleCloner);
+        }
+
+        public A build(final DeepCloner cloner) {
+            final A clone = cloner.getClone(original);
+            clone.initialize();
+            return clone;
         }
     }
 }

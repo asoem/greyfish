@@ -45,7 +45,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
 
     @Override
     protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message) {
-        final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, getAgent());
+        final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, agent().orNull());
         if (proposalSent)
             return reply.performative(ACLPerformative.REFUSE);
 
@@ -61,10 +61,10 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         if (offeredAmount > 0) {
             reply.performative(ACLPerformative.PROPOSE).content(offeredAmount, Double.class);
             proposalSent = true;
-            LOGGER.trace("{}: Offering {}", agent(), offeredAmount);
+            LOGGER.trace("{}: Offering {}", agent().get(), offeredAmount);
         } else {
             reply.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount", String.class);
-            LOGGER.trace("{}: Nothing to offeredAmount", agent());
+            LOGGER.trace("{}: Nothing to offeredAmount", agent().get());
         }
 
         return reply;
@@ -78,11 +78,11 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
 
         final Double offer = (Double) messageContent;
 
-        LOGGER.info("{}: Provided {}", agent(), offer);
+        LOGGER.info("{}: Provided {}", agent().get(), offer);
 
         this.providedAmount += offer;
 
-        return ImmutableACLMessage.createReply(message, getAgent())
+        return ImmutableACLMessage.createReply(message, agent().orNull())
                 .performative(ACLPerformative.INFORM)
                 .content(offer, Double.class);
     }

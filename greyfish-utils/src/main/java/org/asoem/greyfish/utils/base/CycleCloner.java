@@ -56,4 +56,12 @@ public class CycleCloner implements DeepCloner {
     public static <T extends DeepCloneable> T clone(@Nullable final T cloneable) {
         return cloneable == null ? null : new CycleCloner().getClone(cloneable);
     }
+
+    /**
+     * Create a new {@code CycleCloner} instance
+     * @return a new {@code CycleCloner} instance
+     */
+    public static CycleCloner create() {
+        return new CycleCloner();
+    }
 }

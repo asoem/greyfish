@@ -28,7 +28,7 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
 
     @Override
     public AgentNode parent() {
-        return getAgent();
+        return agent().orNull();
     }
 
     @Override

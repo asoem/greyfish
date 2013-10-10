@@ -37,12 +37,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultGreyfishSimulationImplTest {
+public class DefaultBasic2DSimulationTest {
 
     @Inject
     private Persister persister;
 
-    public DefaultGreyfishSimulationImplTest() {
+    public DefaultBasic2DSimulationTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 

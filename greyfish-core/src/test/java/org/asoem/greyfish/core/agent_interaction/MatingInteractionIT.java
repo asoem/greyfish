@@ -69,7 +69,7 @@ public class MatingInteractionIT {
 
         simulation.addAgent(male, ImmutablePoint2D.at(0,0));
         simulation.addAgent(female, ImmutablePoint2D.at(0,0));
-        Simulations.proceed(simulation, 4);
+        Simulations.proceed(simulation, 5);
         final ActionState maleLikeMatingState = maleLikeMating.getState();
         Simulations.proceed(simulation, 1);
         final ActionState femaleLikeMatingState = femaleLikeMating.getState();

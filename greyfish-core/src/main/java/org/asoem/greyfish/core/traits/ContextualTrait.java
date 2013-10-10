@@ -65,7 +65,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         if (expirationCallback.apply(ContextualTrait.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
             valueCache.update();
-            lastModificationStep = agent().getSimulationStep();
+            lastModificationStep = agent().get().getSimulationStep();
         }
         return valueCache.get();
     }
@@ -178,7 +178,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
 
         @Override
         public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
-            final Agent<?,?> agent = caller.agent();
+            final Agent<?,?> agent = caller.agent().get();
             return caller.getLastModificationStep() < agent.getTimeOfBirth();
         }
     }
@@ -192,7 +192,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
 
         @Override
         public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
-            final Agent<?,?> agent = caller.agent();
+            final Agent<?,?> agent = caller.agent().get();
             return caller.getLastModificationStep() != agent.getSimulationStep();
         }
     }

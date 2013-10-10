@@ -51,7 +51,7 @@ public class ResourceInteractionIT {
                 .uptakeUtilization(new Callback<ResourceConsumptionAction<Basic2DAgent>, Void>() {
                     @Override
                     public Void apply(final ResourceConsumptionAction<Basic2DAgent> caller, final Map<String, ?> args) {
-                        ((DoubleProperty<Basic2DAgent>) caller.agent().getProperty("resourceStorage")).add((Double) args.get("offer") * 2);
+                        ((DoubleProperty<Basic2DAgent>) caller.agent().get().getProperty("resourceStorage")).add((Double) args.get("offer") * 2);
                         return null;
                     }
                 })

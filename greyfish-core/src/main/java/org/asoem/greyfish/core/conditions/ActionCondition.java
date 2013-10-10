@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.conditions;
 
 
+import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public interface ActionCondition<A extends Agent<A, ?>> extends AgentComponent<A> {
 
-    AgentAction<A> getAction();
+    Optional<AgentAction<A>> getAction();
     AgentAction<A> action();
     void setAction(AgentAction<A> action);
 

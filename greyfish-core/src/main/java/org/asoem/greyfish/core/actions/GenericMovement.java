@@ -52,7 +52,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends AbstractAg
         final double evaluatedStepSize = Callbacks.call(stepSize, this);
 
         final Motion2D motion = ImmutableMotion2D.of(evaluatedTurningAngle, evaluatedStepSize);
-        agent().setMotion(motion);
+        agent().get().setMotion(motion);
 
         LOGGER.info("{}: Changing movement to {}", agent(), motion);
         return ActionState.COMPLETED;

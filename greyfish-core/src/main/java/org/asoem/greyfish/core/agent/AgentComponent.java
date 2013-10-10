@@ -1,23 +1,18 @@
 package org.asoem.greyfish.core.agent;
 
 
+import com.google.common.base.Optional;
+
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
 public interface AgentComponent<A extends Agent<A, ?>> extends AgentNode, Serializable {
 
     /**
-     * Get the agent this component was added to or {@code null} if it was not.
-     * @return the agent for this component
-     */
-    @Nullable A getAgent();
-
-    /**
      * Get the agent this component was added to.
-     * This method throws an {@code IllegalStateException} if the agent is {@code null}.
      * @return the agent for this component
      */
-    A agent() throws IllegalStateException;
+    Optional<A> agent();
 
     /**
      * Sets the connected agent. This method should only be called by an Agent implementation in an addXXX method.

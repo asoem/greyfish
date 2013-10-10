@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
@@ -20,7 +21,7 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     protected abstract ActionCondition<A> delegate();
 
     @Override
-    public AgentAction<A> getAction() {
+    public Optional<AgentAction<A>> getAction() {
         return delegate().getAction();
     }
 
@@ -85,13 +86,7 @@ public abstract class ForwardingCondition<A extends Agent<A, ?>> extends Forward
     }
 
     @Override
-    @Nullable
-    public A getAgent() {
-        return delegate().getAgent();
-    }
-
-    @Override
-    public A agent() throws IllegalStateException {
+    public Optional<A> agent() throws IllegalStateException {
         return delegate().agent();
     }
 

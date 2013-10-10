@@ -44,14 +44,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
 
             if ("this".equals(root) || "self".equals(root)) {
                 if (AgentAction.class.isAssignableFrom(contextClass)) {
-                    return action(gomParts, new Function<T, AgentAction>() {
+                    return action(gomParts, new Function<T, AgentAction<?>>() {
                         @Override
                         public AgentAction apply(final T agentComponent) {
                             return AgentAction.class.cast(agentComponent);
                         }
                     });
                 } else if (AgentProperty.class.isAssignableFrom(contextClass)) {
-                    return property(gomParts, new Function<T, AgentProperty>() {
+                    return property(gomParts, new Function<T, AgentProperty<?, ?>>() {
                         @Override
                         public AgentProperty apply(final T agentComponent) {
                             return AgentProperty.class.cast(agentComponent);
@@ -65,7 +65,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         }
                     });
                 } else if (ActionCondition.class.isAssignableFrom(contextClass)) {
-                    return condition(gomParts, new Function<T, ActionCondition>() {
+                    return condition(gomParts, new Function<T, ActionCondition<?>>() {
                         @Override
                         public ActionCondition apply(final T agentComponent) {
                             return ActionCondition.class.cast(agentComponent);
@@ -79,7 +79,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                     return simulation(gomParts, new Function<T, Simulation<?>>() {
                         @Override
                         public Simulation<?> apply(final T gfComponent) {
-                            final Agent agent = AgentComponent.class.cast(gfComponent).getAgent();
+                            final Agent<?, ?> agent = ((AgentComponent<?>) AgentComponent.class.cast(gfComponent)).agent().orNull();
                             return checkNotNull(agent).simulation();
                             // TODO: We should have direct access to simulation object through a component
                         }
@@ -123,48 +123,54 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         }
 
                         private Function<T, ?> composeFunction(final T t) {
-                            final AgentComponent component = AgentComponent.class.cast(t);
-                            final Agent agent = component.getAgent();
-                            if (agent == null)
+                            final AgentComponent<?> component = (AgentComponent<?>) t;
+                            final Agent<?, ?> agent = component.agent().orNull();
+                            if (agent == null) {
                                 throw new AssertionError("Agent must not be null at this point");
-                            final Iterable<AgentComponent> components = Iterables.concat(agent.getActions(), agent.getProperties(), agent.getTraits());
+                            }
+                            final Iterable<AgentComponent<?>> components = Iterables.concat(agent.getActions(), agent.getProperties(), agent.getTraits());
                             final AgentComponent target = AgentComponents.findByName(components, componentName);
 
-                            if (target == null)
+                            if (target == null) {
                                 throw new IllegalArgumentException("Cannot find component with name equal to " + componentName);
+                            }
 
                             if (AgentAction.class.isInstance(target)) {
-                                return action(gomParts, new Function<T, AgentAction>() {
+                                return action(gomParts, new Function<T, AgentAction<?>>() {
                                     @Override
                                     public AgentAction apply(final T t) {
-                                        final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
-                                        if (agent1 == null)
+                                        final Agent<?, ?> agent1 = ((AgentComponent<?>) AgentComponent.class.cast(checkNotNull(t))).agent().orNull();
+                                        if (agent1 == null) {
                                             throw new AssertionError("Agent must not be null at this point");
+                                        }
                                         return agent1.getAction(componentName);
                                     }
                                 });
                             } else if (AgentProperty.class.isInstance(target)) {
-                                return property(gomParts, new Function<T, AgentProperty>() {
+                                return property(gomParts, new Function<T, AgentProperty<?, ?>>() {
                                     @Override
-                                    public AgentProperty apply(final T t) {
-                                        final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
-                                        if (agent1 == null)
+                                    public AgentProperty<?, ?> apply(final T t) {
+                                        final Agent<?, ?> agent1 = ((AgentComponent<?>) AgentComponent.class.cast(checkNotNull(t))).agent().orNull();
+                                        if (agent1 == null) {
                                             throw new AssertionError("Agent must not be null at this point");
+                                        }
                                         return agent1.getProperty(componentName);
                                     }
                                 });
                             } else if (AgentTrait.class.isInstance(target)) {
                                 return gene(gomParts, new Function<T, AgentTrait>() {
                                     @Override
-                                    public AgentTrait apply(final T t) {
-                                        final Agent agent1 = AgentComponent.class.cast(checkNotNull(t)).getAgent();
-                                        if (agent1 == null)
+                                    public AgentTrait<?, ?> apply(final T t) {
+                                        final Agent<?, ?> agent1 = ((AgentComponent<?>) AgentComponent.class.cast(checkNotNull(t))).agent().orNull();
+                                        if (agent1 == null) {
                                             throw new AssertionError("Agent must not be null at this point");
+                                        }
                                         return agent1.getTrait(componentName);
                                     }
                                 });
-                            } else
+                            } else {
                                 throw new UnsupportedOperationException("Component of class " + target.getClass() + " is not supported");
+                            }
                         }
                     };
                 }
@@ -176,14 +182,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         throw new IllegalArgumentException("Variable Name does not meet the syntax requirements: " + varName);
     }
 
-    private <T> Function<T, ?> condition(final Iterator<String> parts, final Function<T, ActionCondition> function) {
+    private <T> Function<T, ?> condition(final Iterator<String> parts, final Function<T, ActionCondition<?>> function) {
         if (parts.hasNext()) {
             final String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
-                return agent(parts, Functions.compose(new Function<ActionCondition, Agent>() {
+                return agent(parts, Functions.compose(new Function<ActionCondition<?>, Agent>() {
                     @Override
-                    public Agent apply(final ActionCondition action) {
-                        return checkNotNull(action).getAgent();
+                    public Agent apply(final ActionCondition<?> action) {
+                        return checkNotNull(action).agent().orNull();
                     }
                 }, function));
             }
@@ -204,14 +210,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         }
     }
 
-    private <T> Function<T, ?> action(final Iterator<String> parts, final Function<T, AgentAction> ret) {
+    private <T> Function<T, ?> action(final Iterator<String> parts, final Function<T, AgentAction<?>> ret) {
         if (parts.hasNext()) {
             final String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
-                return agent(parts, Functions.compose(new Function<AgentAction, Agent>() {
+                return agent(parts, Functions.compose(new Function<AgentAction<?>, Agent>() {
                     @Override
-                    public Agent apply(final AgentAction action) {
-                        return checkNotNull(action).getAgent();
+                    public Agent apply(final AgentAction<?> action) {
+                        return checkNotNull(action).agent().orNull();
                     }
                 }, ret));
             }
@@ -231,14 +237,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         }
     }
 
-    private <T> Function<T, ?> property(final Iterator<String> parts, final Function<T, AgentProperty> ret) {
+    private <T> Function<T, ?> property(final Iterator<String> parts, final Function<T, AgentProperty<?, ?>> ret) {
         if (parts.hasNext()) {
             final String nextPart = parts.next();
             if ("agent".equals(nextPart)) {
-                return agent(parts, Functions.compose(new Function<AgentProperty, Agent>() {
+                return agent(parts, Functions.compose(new Function<AgentProperty<?, ?>, Agent>() {
                     @Override
-                    public Agent apply(final AgentProperty property) {
-                        return checkNotNull(property).getAgent();
+                    public Agent apply(final AgentProperty<?, ?> property) {
+                        return checkNotNull(property).agent().orNull();
                     }
                 }, ret));
             } else
@@ -316,7 +322,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             matcher = Pattern.compile("properties\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
             if (matcher.matches()) {
                 final String propertyName = matcher.group(1);
-                return property(parts, Functions.compose(new Function<Agent, AgentProperty>() {
+                return property(parts, Functions.compose(new Function<Agent, AgentProperty<?, ?>>() {
                     @Override
                     public AgentProperty apply(final Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen
@@ -328,7 +334,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             matcher = Pattern.compile("actions\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
             if (matcher.matches()) {
                 final String actionName = matcher.group(1);
-                return action(parts, Functions.compose(new Function<Agent, AgentAction>() {
+                return action(parts, Functions.compose(new Function<Agent, AgentAction<?>>() {
                     @Override
                     public AgentAction apply(final Agent agent) {
                         // todo: access by name could be replaced by access by index if agent is frozen

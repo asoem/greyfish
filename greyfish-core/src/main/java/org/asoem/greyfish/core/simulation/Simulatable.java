@@ -1,8 +1,7 @@
 package org.asoem.greyfish.core.simulation;
 
-import org.asoem.greyfish.core.agent.ActiveSimulationContext;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.PassiveSimulationContext;
+import org.asoem.greyfish.core.agent.SimulationContext;
 
 /**
  * User: christoph
@@ -11,8 +10,8 @@ import org.asoem.greyfish.core.agent.PassiveSimulationContext;
  */
 public interface Simulatable<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> extends Runnable {
     S simulation();
-    void activate(ActiveSimulationContext<S, A> context);
+    void activate(SimulationContext<S, A> context);
     @Override
     void run();
-    void deactivate(PassiveSimulationContext<S, A> context);
+    void deactivate();
 }
