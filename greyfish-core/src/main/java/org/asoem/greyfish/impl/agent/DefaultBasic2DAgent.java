@@ -155,7 +155,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     public void reproduce(final Chromosome chromosome) {
         final Basic2DAgent clone = CycleCloner.clone(this);
         chromosome.updateAgent(clone);
-        simulation().addAgent(clone, getProjection());
+        simulation().enqueueAddition(clone, getProjection());
     }
 
     @Override

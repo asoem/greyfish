@@ -5,11 +5,13 @@ import org.apache.commons.math3.util.FastMath;
 import javax.annotation.Nullable;
 
 /**
- * User: christoph
- * Date: 29.02.12
- * Time: 10:23
+ * Utility class for geometric calculations.
  */
-public class Geometry2D {
+public final class Geometry2D {
+
+    private Geometry2D() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Adapted from {@code org.newdawn.slick.geom.Line.java}
@@ -57,7 +59,7 @@ public class Geometry2D {
     }
 
     public static double distance(final Point2D point1, final Point2D point2) {
-        return 0; // TODO: implement
+        return distance(point1.getX(), point1.getY(), point2.getX(),point2.getY());
     }
 
     public static Point2D polarToCartesian(final double angle, final double radius) {
@@ -65,5 +67,9 @@ public class Geometry2D {
                 radius * FastMath.cos(angle),
                 radius * FastMath.sin(angle)
         );
+    }
+
+    public static double distance(final double x, final double y, final double x1, final double y1) {
+        return FastMath.sqrt(x * x1 + y * y1);
     }
 }

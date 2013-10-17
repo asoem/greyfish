@@ -1,22 +1,24 @@
 package org.asoem.greyfish.core.simulation;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 import com.google.common.collect.*;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
+import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.core.traits.Chromosome;
-import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.core.utils.DiscreteTimeListener;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
-import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -263,17 +265,10 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         deliverAgentMessageMessages.add(new DeliverAgentMessageMessage<A>(message));
     }
 
-    protected final void enqueueAgentCreation(final Population population, final P projection) {
+    protected final void enqueueAgentCreation(final A population, final P projection) {
         checkNotNull(population);
         checkNotNull(projection);
-        addAgentMessages.add(new CreateCloneMessage(population, null, AgentInitializers.projection(projection)));
-    }
-
-    protected final void enqueueAgentCreation(final Population population, final Chromosome chromosome, final P projection) {
-        checkNotNull(population);
-        checkNotNull(chromosome);
-        checkNotNull(projection);
-        addAgentMessages.add(new CreateCloneMessage(population, chromosome, AgentInitializers.projection(projection)));
+        addAgentMessages.add(new AddAgentMessage(population, projection));
     }
 
     @Override
@@ -316,42 +311,24 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         P getProjection();
     }
 
-    private class CreateCloneMessage implements NewAgentEvent<P, A> {
+    private class AddAgentMessage implements NewAgentEvent<P, A> {
 
-        private final Population population;
-        private final Initializer<? super A> initializer;
-        @Nullable
-        private final Chromosome chromosome;
+        private final A agent;
+        private final P projection;
 
-        private final Supplier<A> supplier = Suppliers.memoize(new Supplier<A>() {
-            @Override
-            public A get() {
-                final A clone = createClone(population);
-                Optional.fromNullable(chromosome)
-                        .or(HeritableTraitsChromosome.initializeFromAgent(clone))
-                        .updateAgent(clone);
-                initializer.initialize(clone);
-                return clone;
-            }
-        });
-
-        private CreateCloneMessage(final Population population, @Nullable final Chromosome chromosome,
-                                   final Initializer<? super A> initializer) {
-            assert population != null;
-            assert initializer != null;
-            this.chromosome = chromosome;
-            this.population = population;
-            this.initializer = initializer;
+        public AddAgentMessage(final A agent, final P projection) {
+            this.agent = checkNotNull(agent);
+            this.projection = checkNotNull(projection);
         }
 
         @Override
         public A getAgent() {
-           return supplier.get();
+           return agent;
         }
 
         @Override
         public P getProjection() {
-            return getAgent().getProjection();
+            return projection;
         }
     }
 

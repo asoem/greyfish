@@ -5,18 +5,19 @@ import javax.annotation.Nullable;
 /**
  * A node of a {@link BinaryTree}
  */
-public interface BinaryTreeNode<T extends BinaryTreeNode<T>> extends TreeNode<T> {
+public interface BinaryTreeNode<N extends BinaryTreeNode<N, T>, T> extends TreeNode<N, T> {
     /**
      * Get the left child of the node.
      * @return the left child, which might be {@code null}
      */
     @Nullable
-    T leftChild();
+    N leftChild();
 
     /**
      * Get the right child of the node.
      * @return the right child, which might be {@code null}
      */
     @Nullable
-    T rightChild();
+    N rightChild();
+
 }

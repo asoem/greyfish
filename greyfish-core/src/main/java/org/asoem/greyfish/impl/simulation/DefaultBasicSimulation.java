@@ -13,12 +13,15 @@ import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.simulation.AbstractSimulation;
 import org.asoem.greyfish.core.utils.DiscreteTimeListener;
 import org.asoem.greyfish.impl.agent.BasicAgent;
+import org.asoem.greyfish.utils.concurrent.Runnables;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,12 +34,7 @@ public final class DefaultBasicSimulation
         extends AbstractSimulation<BasicAgent>
         implements BasicSimulation {
 
-    private static final Runnable EMPTY_RUNNABLE = new Runnable() {
-        @Override
-        public void run() {
-
-        }
-    };
+    @GuardedBy("this")
     private final List<BasicAgent> agents = Lists.newArrayList();
     private final Queue<ModificationEvent> modificationEvents = Queues.newConcurrentLinkedQueue();
     private final transient Collection<BasicAgent> unmodifiableAgents = Collections.unmodifiableCollection(agents);
@@ -44,9 +42,10 @@ public final class DefaultBasicSimulation
     private final ExecutorService executorService;
     private final String name;
     private final SimulationContextFactory<BasicSimulation, BasicAgent> contextFactory;
-    private AtomicLong steps = new AtomicLong(0);
-    private int agentIdSequence = 0;
-    private AtomicReference<Phase> phase = new AtomicReference<Phase>(Phase.IDLE);
+    private final AtomicLong steps = new AtomicLong(0);
+    private final AtomicInteger agentIdSequence = new AtomicInteger();
+    private final AtomicReference<Phase> phase = new AtomicReference<Phase>(Phase.IDLE);
+    private final List<DiscreteTimeListener> timeListeners = Lists.newCopyOnWriteArrayList();
 
     public DefaultBasicSimulation(final String name, final ExecutorService executorService, final SimulationLogger<? super BasicAgent> logger, final DefaultSimulationContextFactory<BasicSimulation, BasicAgent> simulationContextFactory) {
         this.executorService = executorService;
@@ -62,7 +61,7 @@ public final class DefaultBasicSimulation
 
     @Override
     public void addTimeChangeListener(final DiscreteTimeListener timeListener) {
-        throw new UnsupportedOperationException("Not yet implemented"); // TODO implement
+        timeListeners.add(timeListener);
     }
 
     @Override
@@ -95,7 +94,10 @@ public final class DefaultBasicSimulation
                 Futures.getUnchecked(agentExecution);
             }
 
-            steps.incrementAndGet();
+            final long previousStep = steps.getAndIncrement();
+            for (DiscreteTimeListener timeListener : timeListeners) {
+                timeListener.timeChanged(this, previousStep, steps.get());
+            }
             checkState(this.phase.compareAndSet(Phase.EXECUTION, Phase.IDLE));
         }
     }
@@ -112,7 +114,7 @@ public final class DefaultBasicSimulation
 
     @Override
     public void enqueueRemoval(final BasicAgent agent) {
-        enqueueRemoval(agent, EMPTY_RUNNABLE, MoreExecutors.sameThreadExecutor());
+        enqueueRemoval(agent, Runnables.emptyRunnable(), MoreExecutors.sameThreadExecutor());
     }
 
     @Override
@@ -139,7 +141,7 @@ public final class DefaultBasicSimulation
             @Override
             public void apply() {
                 agent.activate(contextFactory.createActiveContext(
-                        DefaultBasicSimulation.this, ++agentIdSequence, getTime()));
+                        DefaultBasicSimulation.this, agentIdSequence.incrementAndGet(), getTime()));
                 agents.add(agent);
             }
         });

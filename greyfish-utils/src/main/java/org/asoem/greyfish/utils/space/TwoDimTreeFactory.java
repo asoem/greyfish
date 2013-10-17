@@ -8,5 +8,5 @@ import com.google.common.base.Function;
  * Time: 18:00
  */
 public interface TwoDimTreeFactory<T> {
-    TwoDimTree<Point2D, T> create(Iterable<? extends T> elements, Function<? super T, Point2D> function);
+    TwoDimTree<T> create(Iterable<? extends T> elements, Function<? super T, Point2D> function);
 }

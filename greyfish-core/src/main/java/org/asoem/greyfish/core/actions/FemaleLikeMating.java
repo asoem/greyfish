@@ -17,7 +17,6 @@ import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloner;
-import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +28,9 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 /**
- * @author christoph
+ *
  */
-@Tagged("actions")
-public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
+public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FemaleLikeMating.class);
 
@@ -58,7 +56,7 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
         this.matingProbability = cloneable.matingProbability;
     }
 
-    protected FemaleLikeMating(final AbstractBuilder<A, ? extends FemaleLikeMating<A>, ? extends AbstractBuilder<A, ?,?>> builder) {
+    protected FemaleLikeMating(final AbstractBuilder<A, ? extends FemaleLikeMating<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.interactionRadius = builder.sensorRange;
@@ -178,23 +176,23 @@ public class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractN
          * @param callback the callback function to calculate the mating probability
          * @return this builder
          */
-        public B matingProbability(final Callback<? super FemaleLikeMating<A>, Double> callback) {
+        public final B matingProbability(final Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.matingProbability = checkNotNull(callback);
             return self();
         }
 
-        public B ontology(final String ontology) {
+        public final B ontology(final String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public B interactionRadius(final Callback<? super FemaleLikeMating<A>, Double> callback) {
+        public final B interactionRadius(final Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.sensorRange = callback;
             return self();
         }
 
         @Override
-        protected void checkBuilder() {
+        protected final void checkBuilder() {
             super.checkBuilder();
             if (Strings.isNullOrEmpty(ontology))
                 LOGGER.warn(FemaleLikeMating.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");

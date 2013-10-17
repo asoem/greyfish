@@ -1,5 +1,6 @@
 package org.asoem.greyfish.impl.simulation;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
@@ -14,14 +15,16 @@ import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
-import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpace;
-import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpaceImpl;
+import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
+import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.Point2D;
+import org.asoem.greyfish.utils.space.TwoDimTree;
+import org.asoem.greyfish.utils.space.TwoDimTreeFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -52,7 +55,12 @@ public class DefaultBasic2DSimulationTest {
         // given
         final Population population = Population.named("testPopulation");
         final Basic2DAgent prototype = DefaultBasic2DAgent.builder(population).build();
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
+            @Override
+            public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
+                return mock(TwoDimTree.class);
+            }
+        });
 
         // when
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, ImmutableSet.of(prototype))
@@ -77,7 +85,12 @@ public class DefaultBasic2DSimulationTest {
         final Basic2DAgent agent1 = DefaultBasic2DAgent.builder(population).build();
         final Collection<Basic2DAgent> agents = ImmutableList.of(agent1);
         final Basic2DAgent prototype = DefaultBasic2DAgent.builder(population).build();
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
+            @Override
+            public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
+                return mock(TwoDimTree.class);
+            }
+        });
 
         // when
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation
@@ -129,7 +142,12 @@ public class DefaultBasic2DSimulationTest {
                         return agent;
                     }
                 });
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
+            @Override
+            public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
+                return mock(TwoDimTree.class);
+            }
+        });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
         final DefaultBasic2DSimulation simulation =
                 DefaultBasic2DSimulation.builder(space, prototypes)
@@ -165,7 +183,12 @@ public class DefaultBasic2DSimulationTest {
                         return agent;
                     }
                 });
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
+            @Override
+            public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
+                return mock(TwoDimTree.class);
+            }
+        });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
         final DefaultBasic2DSimulation simulation =
                 DefaultBasic2DSimulation.builder(space, prototypes)
@@ -189,7 +212,12 @@ public class DefaultBasic2DSimulationTest {
         final Population testPopulation = Population.named("TestPopulation");
         given(agent.getPopulation()).willReturn(testPopulation);
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<Basic2DAgent, ?>>of());
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
+            @Override
+            public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
+                return mock(TwoDimTree.class);
+            }
+        });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
                 .build();
@@ -222,7 +250,12 @@ public class DefaultBasic2DSimulationTest {
                         return agent;
                     }
                 });
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
+            @Override
+            public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
+                return mock(TwoDimTree.class);
+            }
+        });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
                 .agentPool(pool)

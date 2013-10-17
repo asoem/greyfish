@@ -5,16 +5,17 @@ import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.asoem.greyfish.utils.space.Tile;
 import org.asoem.greyfish.utils.space.TileDirection;
+import org.asoem.greyfish.utils.space.TwoDimTreeFactory;
 
 /**
  * User: christoph
  * Date: 14.11.12
  * Time: 14:39
  */
-public class DefaultGreyfishTiled2DSpaceImpl extends ForwardingSpace2D<Basic2DAgent, Point2D> implements DefaultGreyfishTiled2DSpace {
+public class DefaultBasicTiled2DSpace extends ForwardingSpace2D<Basic2DAgent, Point2D> implements BasicTiled2DSpace {
     private final TiledSpace<Basic2DAgent, Point2D, WalledTile> space;
 
-    public DefaultGreyfishTiled2DSpaceImpl(final TiledSpace<Basic2DAgent, Point2D, WalledTile> space) {
+    public DefaultBasicTiled2DSpace(final TiledSpace<Basic2DAgent, Point2D, WalledTile> space) {
         this.space = space;
     }
 
@@ -58,7 +59,7 @@ public class DefaultGreyfishTiled2DSpaceImpl extends ForwardingSpace2D<Basic2DAg
         return space.getObjects(tiles);
     }
 
-    public static DefaultGreyfishTiled2DSpace ofSize(final int width, final int height) {
-        return new DefaultGreyfishTiled2DSpaceImpl(WalledPointSpace.<Basic2DAgent>ofSize(width, height));
+    public static BasicTiled2DSpace ofSize(final int width, final int height, final TwoDimTreeFactory<Basic2DAgent> twoDimTreeFactory) {
+        return new DefaultBasicTiled2DSpace(WalledPointSpace.<Basic2DAgent>ofSize(width, height, twoDimTreeFactory));
     }
 }

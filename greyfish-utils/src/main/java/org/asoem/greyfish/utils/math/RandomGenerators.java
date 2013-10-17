@@ -1,9 +1,8 @@
 package org.asoem.greyfish.utils.math;
 
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooLargeException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
@@ -13,10 +12,7 @@ import org.apache.commons.math3.random.Well19937c;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -106,35 +102,80 @@ public final class RandomGenerators {
     }
 
     /**
-     * Randomly sample {@code sampleSize} elements from given {@code elements} using {@code rng}.
-     * {@code sampleSize} must be less than or equal to the size of {@code elements}.
+     * <p>Randomly sample {@code sampleSize} elements from given {@code collection} using {@code rng}.<br>
+     * Each element will be contained in the returned {@code Iterable} exactly once.<br>
+     * {@code sampleSize} must be less than or equal to the size of {@code collection}.</p>
+     *
+     * <p><b>Attention: Although the elements are selected randomly, the order of the returned elements is NOT random.
+     * You should shuffle the the returned elements if this is not acceptable.</b>
+     * </p>
      *
      * @param rng the random number generator to use
-     * @param elements the elements to sample
+     * @param collection the collection to sample from
      * @param sampleSize the number of elements to sample
-     * @param <T> the type of the elements to sample
-     * @return the collection of sampled elements
+     * @return an unmodifiable iterable containing randomly but not repeatedly selected elements of the collection
      */
-    public static <T> Set<T> sampleUnique(final RandomGenerator rng,
-                                          final Set<? extends T> elements, final int sampleSize) {
+    public static <T> Iterable<T> sampleOnce(final RandomGenerator rng,
+                                             final Collection<? extends T> collection, final int sampleSize) {
         checkNotNull(rng);
-        checkNotNull(elements);
-        checkArgument(!elements.isEmpty(),
-                "Cannot sample element from empty list");
-        checkArgument(sampleSize <= elements.size(),
-                "Cannot sample {} unique elements from set of size {}", sampleSize, elements.size());
+        checkNotNull(collection);
+        checkArgument(!collection.isEmpty(),
+                "Cannot sample element from empty collection");
+        checkArgument(sampleSize <= collection.size(),
+                "Cannot sample {} unique elements from collection of size {}", sampleSize, collection.size());
 
-        if (sampleSize == elements.size()) {
-            @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
-            final Set<T> safeElements = (Set<T>) elements;
-            return safeElements;
+        final SortedSet<Integer> indexSet = Sets.newTreeSet();
+        while (indexSet.size() != sampleSize) {
+            indexSet.add(rng.nextInt(collection.size()));
         }
 
-        final Set<T> samples = Sets.newHashSetWithExpectedSize(sampleSize);
-        while (samples.size() < sampleSize) {
-            samples.add(sample(rng, elements));
+        if (collection instanceof List && collection instanceof RandomAccess) {
+            @SuppressWarnings("unchecked") // checked by instanceof
+            final List<T> elementList = (List<T>) collection;
+            return filterByIndex(elementList, indexSet);
+        } else {
+            return filterByStep(collection, indexSet);
         }
-        return samples;
+    }
+
+    private static <T> Iterable<T> filterByIndex(final List<T> elements, final Set<Integer> indexes) {
+        return Iterables.transform(indexes, new Function<Integer, T>() {
+            @Override
+            public T apply(final Integer input) {
+                return elements.get(input);
+            }
+        });
+    }
+
+    private static <T> FluentIterable<T> filterByStep(final Iterable<? extends T> elements, final SortedSet<Integer> indexes) {
+        return new FluentIterable<T>() {
+            @Override
+            public Iterator<T> iterator() {
+                return new AbstractIterator<T>() {
+                    private int index = -1;
+                    private Iterator<Integer> indexIterator = indexes.iterator();
+                    private Iterator<? extends T> elementIterator = elements.iterator();
+
+                    @Override
+                    protected T computeNext() {
+                        if (indexIterator.hasNext()) {
+                            final Integer nextIndex = indexIterator.next();
+                            assert nextIndex > index;
+
+                            T next = null;
+                            while (index != nextIndex && elementIterator.hasNext()) {
+                                next = elementIterator.next();
+                                index++;
+                            }
+
+                            return next;
+                        } else {
+                            return endOfData();
+                        }
+                    }
+                };
+            }
+        };
     }
 
     /**

@@ -28,10 +28,12 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
     private final WalledTile[][] tileMatrix;
 
-    private final SingleElementCache<TwoDimTree<Point2D, O>> tree = SingleElementCache.memoize(new Supplier<TwoDimTree<Point2D, O>>() {
+    private final SingleElementCache<TwoDimTree<O>> tree = SingleElementCache.memoize(new Supplier<TwoDimTree<O>>() {
         @Override
-        public TwoDimTree<Point2D, O> get() {
-            return treeFactory.create(point2DMap.keySet(), Functions.forMap(point2DMap));
+        public TwoDimTree<O> get() {
+            final TwoDimTree<O> twoDimTree = treeFactory.create(point2DMap.keySet(), Functions.forMap(point2DMap));
+            checkNotNull(twoDimTree, "The tree factory must not return null");
+            return twoDimTree;
         }
     });
 
@@ -39,22 +41,13 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
     private final Map<O, Point2D> point2DMap = Maps.newHashMap();
 
-    public WalledPointSpace(final WalledPointSpace<O> space) {
-        this(checkNotNull(space).colCount(), space.rowCount());
+    private WalledPointSpace(final WalledPointSpace<O> space) {
+        this(checkNotNull(space).colCount(), space.rowCount(), space.treeFactory);
         setWalledTiles(space.getWalledTiles());
     }
 
-    public WalledPointSpace(final int width, final int height) {
-        this(width, height, new WalledTile[0], WalledPointSpace.<O>createDefaultTreeFactory());
-    }
-
-    private static <O> TwoDimTreeFactory<O> createDefaultTreeFactory() {
-        return new TwoDimTreeFactory<O>() {
-            @Override
-            public TwoDimTree<Point2D, O> create(final Iterable<? extends O> elements, final Function<? super O, Point2D> function) {
-                return AsoemScalaTwoDimTree.of(elements, function);
-            }
-        };
+    private WalledPointSpace(final int width, final int height, final TwoDimTreeFactory<O> twoDimTreeFactory) {
+        this(width, height, new WalledTile[0], twoDimTreeFactory);
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
@@ -64,7 +57,7 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
     }
 
     private WalledPointSpace(final TiledSpaceBuilder<O> builder) {
-        this(builder.width, builder.height);
+        this(builder.width, builder.height, builder.treeFactory);
         for (final TiledSpaceBuilder.WallDefinition wallDefinition : builder.wallDefinitions) {
             wallDefinition.apply(this);
         }
@@ -87,6 +80,14 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
         }
 
         setWalledTiles(walledTiles);
+    }
+
+    public static <O> WalledPointSpace<O> create(final int width, final int height, final TwoDimTreeFactory<O> twoDimTreeFactory) {
+        return new WalledPointSpace<O>(width, height, twoDimTreeFactory);
+    }
+
+    public static <O> WalledPointSpace<O> create(final WalledPointSpace<O> space) {
+        return new WalledPointSpace<O>(space);
     }
 
     private WalledTile[] getWalledTiles() {
@@ -322,7 +323,12 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
     @Override
     public Iterable<O> findObjects(final double x, final double y, final double radius) {
-        return tree.get().findObjects(x, y, radius);
+        return Iterables.transform(tree.get().findNodes(x, y, radius), new Function<TwoDimTree.SearchResult<O>, O>() {
+            @Override
+            public O apply(final TwoDimTree.SearchResult<O> input) {
+                return input.node().value();
+            }
+        });
     }
 
     @Override
@@ -381,27 +387,32 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
     @Nullable
     public Point2D getProjection(final O object) {
 
-        final BinaryTreeTraverser<KDNode<Point2D, O>> traverser = new BinaryTreeTraverser<KDNode<Point2D, O>>() {
+        final BinaryTreeTraverser<TwoDimTree.Node<O>> traverser = new BinaryTreeTraverser<TwoDimTree.Node<O>>() {
             @Override
-            public Optional<KDNode<Point2D, O>> leftChild(final KDNode<Point2D, O> root) {
+            public Optional<TwoDimTree.Node<O>> leftChild(final TwoDimTree.Node<O> root) {
                 return Optional.fromNullable(root.leftChild());
             }
 
             @Override
-            public Optional<KDNode<Point2D, O>> rightChild(final KDNode<Point2D, O> root) {
+            public Optional<TwoDimTree.Node<O>> rightChild(final TwoDimTree.Node<O> root) {
                 return Optional.fromNullable(root.rightChild());
             }
         };
 
-        final Optional<KDNode<Point2D, O>> node = traverser.postOrderTraversal(tree.get().root()).firstMatch(
-                new Predicate<KDNode<Point2D, O>>() {
-                    @Override
-                    public boolean apply(final KDNode<Point2D, O> input) {
-                        return object.equals(input.value());
-                    }
-                });
+        final TwoDimTree.Node<O> root = tree.get().rootNode().orNull();
 
-        return node.isPresent() ? node.get().point() : null;
+        if (root != null) {
+            final Optional<TwoDimTree.Node<O>> node = traverser.postOrderTraversal(root).firstMatch(
+                    new Predicate<TwoDimTree.Node<O>>() {
+                        @Override
+                        public boolean apply(final TwoDimTree.Node<O> input) {
+                            return object.equals(input.value());
+                        }
+                    });
+            return node.isPresent() ? ImmutablePoint2D.at(node.get().xCoordinate(), node.get().yCoordinate()) : null;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -529,11 +540,11 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
     }
 
     public static <O> WalledPointSpace<O> copyOf(final WalledPointSpace<O> space) {
-        return new WalledPointSpace<O>(space);
+        return create(space);
     }
 
-    public static <O> WalledPointSpace<O> ofSize(final int width, final int height) {
-        return new WalledPointSpace<O>(width, height);
+    public static <O> WalledPointSpace<O> ofSize(final int width, final int height, final TwoDimTreeFactory<O> twoDimTreeFactory) {
+        return create(width, height, twoDimTreeFactory);
     }
 
     public static <O> TiledSpaceBuilder<O> builder(final int width, final int height) {
@@ -607,9 +618,7 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
         @Override
         public WalledPointSpace<O> build() {
-            if (treeFactory == null) {
-                treeFactory = createDefaultTreeFactory();
-            }
+            checkState(treeFactory != null, "You must provide a tree factory");
             return new WalledPointSpace<O>(this);
         }
 

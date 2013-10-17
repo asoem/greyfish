@@ -12,11 +12,12 @@ import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
 import org.asoem.greyfish.impl.simulation.DefaultBasic2DSimulation;
-import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpace;
-import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpaceImpl;
+import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
+import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
+import org.asoem.greyfish.utils.space.SimpleTwoDimTreeFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -84,13 +85,13 @@ public class ResourceInteractionIT {
         provisioner.initialize();
 
 
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, SimpleTwoDimTreeFactory.<Basic2DAgent>newInstance());
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(consumer, provisioner);
         final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes).build();
 
-        simulation.addAgent(consumer, ImmutablePoint2D.at(0,0));
-        simulation.addAgent(provisioner, ImmutablePoint2D.at(0,0));
-        Simulations.proceed(simulation, 4);
+        simulation.enqueueAddition(consumer, ImmutablePoint2D.at(0, 0));
+        simulation.enqueueAddition(provisioner, ImmutablePoint2D.at(0, 0));
+        Simulations.proceed(simulation, 5);
         final ActionState provisionActionState = provisionAction.getState();
         Simulations.proceed(simulation, 1);
         final ActionState consumptionActionState = consumptionAction.getState();

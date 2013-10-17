@@ -3,6 +3,6 @@ package org.asoem.greyfish.utils.collect;
 /**
  * A binary Tree
  */
-public interface BinaryTree<N extends BinaryTreeNode<?>> extends Tree<N> {
+public interface BinaryTree<N extends BinaryTreeNode<N, ?>> extends Tree<N> {
 
 }

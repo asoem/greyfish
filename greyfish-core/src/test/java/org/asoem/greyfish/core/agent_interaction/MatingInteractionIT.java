@@ -13,10 +13,11 @@ import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
 import org.asoem.greyfish.impl.simulation.DefaultBasic2DSimulation;
-import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpace;
-import org.asoem.greyfish.impl.space.DefaultGreyfishTiled2DSpaceImpl;
+import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
+import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
+import org.asoem.greyfish.utils.space.SimpleTwoDimTreeFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -63,12 +64,12 @@ public class MatingInteractionIT {
                 .build();
         male.initialize();
 
-        final DefaultGreyfishTiled2DSpace space = DefaultGreyfishTiled2DSpaceImpl.ofSize(1, 1);
+        final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, SimpleTwoDimTreeFactory.<Basic2DAgent>newInstance());
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(male, female);
         final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes).build();
 
-        simulation.addAgent(male, ImmutablePoint2D.at(0,0));
-        simulation.addAgent(female, ImmutablePoint2D.at(0,0));
+        simulation.enqueueAddition(male, ImmutablePoint2D.at(0, 0));
+        simulation.enqueueAddition(female, ImmutablePoint2D.at(0, 0));
         Simulations.proceed(simulation, 5);
         final ActionState maleLikeMatingState = maleLikeMating.getState();
         Simulations.proceed(simulation, 1);

@@ -1,9 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 /**
- * User: christoph
- * Date: 03.03.11
- * Time: 12:07
+ * An implementation of {@link Point2D} with immutable coordinates.
  */
 public class ImmutablePoint2D extends AbstractPoint2D {
 

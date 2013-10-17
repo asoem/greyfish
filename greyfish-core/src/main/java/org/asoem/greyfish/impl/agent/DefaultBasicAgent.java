@@ -80,9 +80,9 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     private DefaultBasicAgent(final Builder builder) {
         checkNotNull(builder);
         this.population = builder.population;
-        this.actions = ImmutableFunctionalList.copyOf(builder.actions);
-        this.traits = ImmutableFunctionalList.copyOf(builder.traits);
-        this.properties = ImmutableFunctionalList.copyOf(builder.properties);
+        this.actions = ImmutableFunctionalList.<AgentAction<BasicAgent>>copyOf(builder.actions);
+        this.traits = ImmutableFunctionalList.<AgentTrait<BasicAgent, ?>>copyOf(builder.traits);
+        this.properties = ImmutableFunctionalList.<AgentProperty<BasicAgent, ?>>copyOf(builder.properties);
         this.parents = builder.parents;
         this.inBox = builder.inBox;
         this.actionExecutionStrategyFactory = builder.actionExecutionStrategyFactory;
@@ -196,7 +196,13 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
             return this;
         }
 
-        public Builder addAllActions(final Iterable<AgentAction<BasicAgent>> actions) {
+        public Builder addAllActions(final AgentAction<BasicAgent>... actions) {
+            checkNotNull(actions);
+            addAllActions(ImmutableList.copyOf(actions));
+            return this;
+        }
+
+        public Builder addAllActions(final Iterable<? extends AgentAction<BasicAgent>> actions) {
             checkNotNull(actions);
             for (AgentAction<BasicAgent> action : actions) {
                 addAction(action);
@@ -217,7 +223,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
             return this;
         }
 
-        public Builder addAllProperties(final Iterable<AgentProperty<BasicAgent, ?>> properties) {
+        public Builder addAllProperties(final Iterable<? extends AgentProperty<BasicAgent, ?>> properties) {
             checkNotNull(properties);
             for (AgentProperty<BasicAgent, ?> property : properties) {
                 addProperty(property);
@@ -235,6 +241,12 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
             checkNotNull(trait1);
             checkNotNull(trait2);
             addAllTraits(ImmutableList.of(trait1, trait2));
+            return this;
+        }
+
+        public Builder addAllTraits(final AgentTrait<BasicAgent, ?>... traits) {
+            checkNotNull(traits);
+            addAllTraits(ImmutableList.copyOf(traits));
             return this;
         }
 
