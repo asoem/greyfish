@@ -3,6 +3,8 @@ package org.asoem.greyfish.utils.math;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.*;
+import org.apache.commons.math3.distribution.BinomialDistribution;
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooLargeException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
@@ -32,7 +34,7 @@ public final class RandomGenerators {
     /**
      *
      * @return a singleton instance of the default {@link RandomGenerator}.
-     * This method currently delegates to {@code #well1993c}
+     * This method currently delegates to {@link #well1993c()}
      */
     public static RandomGenerator rng() {
         return well1993c();
@@ -40,7 +42,7 @@ public final class RandomGenerators {
 
     /**
      *
-     * @return a singleton instance of {@link Well19937c}
+     * @return a singleton instance of a {@link Well19937c} random generator.
      */
     public static RandomGenerator well1993c() {
         return Well19937cHolder.INSTANCE;
@@ -53,10 +55,7 @@ public final class RandomGenerators {
      * @return {@code true} with probability {@code p}, {@code false} otherwise
      */
     public static boolean nextBoolean(final RandomGenerator rng, final double p) {
-        checkNotNull(rng);
-        checkArgument(p >= 0 || p <= 1, "{} is not in [0,1]", p);
-        final double v = rng.nextDouble();
-        return v < p;
+        return new BinomialDistribution(rng, 1, p).sample() == 1;
     }
 
     /**
@@ -82,7 +81,7 @@ public final class RandomGenerators {
     public static int nextInt(final RandomGenerator rng, final int minIncl, final int maxExcl) {
         checkNotNull(rng);
         checkArgument(maxExcl >= minIncl);
-        return minIncl + rng.nextInt(maxExcl - minIncl);
+        return new UniformIntegerDistribution(rng, minIncl, maxExcl - 1).sample();
     }
 
     /**
@@ -98,7 +97,7 @@ public final class RandomGenerators {
         checkNotNull(rng);
         checkNotNull(elements);
         checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
-        return Iterables.get(elements, rng.nextInt(elements.size()));
+        return Iterables.get(elements, new UniformIntegerDistribution(rng, 0, elements.size() - 1).sample());
     }
 
     /**
@@ -124,9 +123,10 @@ public final class RandomGenerators {
         checkArgument(sampleSize <= collection.size(),
                 "Cannot sample {} unique elements from collection of size {}", sampleSize, collection.size());
 
+        final UniformIntegerDistribution distribution = new UniformIntegerDistribution(rng, 0, collection.size() - 1);
         final SortedSet<Integer> indexSet = Sets.newTreeSet();
         while (indexSet.size() != sampleSize) {
-            indexSet.add(rng.nextInt(collection.size()));
+            indexSet.add(distribution.sample());
         }
 
         if (collection instanceof List && collection instanceof RandomAccess) {
@@ -192,9 +192,13 @@ public final class RandomGenerators {
         checkNotNull(rng);
         checkNotNull(elements);
         checkArgument(!elements.isEmpty(), "Cannot sample element from empty list");
+
+        final UniformIntegerDistribution distribution = new UniformIntegerDistribution(rng, 0, elements.size() - 1);
+        final int[] randomIndexes = distribution.sample(sampleSize);
+
         final List<T> list = new ArrayList<T>(sampleSize);
-        for (int i = 0; i < sampleSize; i++) {
-            list.add(sample(rng, elements));
+        for (int randomIndex : randomIndexes) {
+            list.add(Iterables.get(elements, randomIndex));
         }
         return ImmutableList.copyOf(list);
     }

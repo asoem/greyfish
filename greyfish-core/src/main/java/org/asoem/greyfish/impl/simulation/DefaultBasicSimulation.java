@@ -52,6 +52,8 @@ public final class DefaultBasicSimulation
         this.simulationLogger = logger;
         this.name = name;
         this.contextFactory = simulationContextFactory;
+
+        this.simulationLogger.logSimulation(this);
     }
 
     @Override

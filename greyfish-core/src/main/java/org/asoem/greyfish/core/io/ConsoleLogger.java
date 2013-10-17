@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.simulation.Simulation;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -16,6 +17,11 @@ final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> 
 
     public ConsoleLogger(final PrintStream printStream) {
         this.printStream = checkNotNull(printStream);
+    }
+
+    @Override
+    public void logSimulation(final Simulation<?> simulation) {
+        printStream.println("Created simulation: " + simulation.getName());
     }
 
     @Override

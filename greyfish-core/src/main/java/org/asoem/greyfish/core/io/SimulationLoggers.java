@@ -2,9 +2,13 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.SpatialAgent;
+import org.asoem.greyfish.core.simulation.Simulation;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.io.IOException;
 import java.io.PrintStream;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Utility functions an factories for {@link SimulationLogger}s
@@ -22,7 +26,11 @@ public final class SimulationLoggers {
      * @return a new logger with synchronized methods
      */
     public static <A extends Agent<A, ?>> SimulationLogger<A> synchronizedLogger(final SimulationLogger<A> logger) {
-        return new SynchronizedLogger<A>(logger);
+        if (logger instanceof SynchronizedLogger) {
+            return logger;
+        } else {
+            return new SynchronizedLogger<A>(logger);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -64,11 +72,18 @@ public final class SimulationLoggers {
     }
 
     private static final class SynchronizedLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+        @GuardedBy("this")
         private final SimulationLogger<A> logger;
 
         public SynchronizedLogger(final SimulationLogger<A> logger) {
+            this.logger = checkNotNull(logger);
+        }
 
-            this.logger = logger;
+        @Override
+        public void logSimulation(final Simulation<?> simulation) {
+            synchronized (this) {
+                logger.logSimulation(simulation);
+            }
         }
 
         @Override

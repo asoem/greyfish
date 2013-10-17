@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.simulation.Simulation;
 
 import java.io.Closeable;
 
@@ -8,6 +9,12 @@ import java.io.Closeable;
  * A SimulationLogger defines methods to write simulation events to a given destination of type {@link Closeable}.
  */
 public interface SimulationLogger<A extends Agent<?, ?>> extends Closeable {
+
+    /**
+     * Log a simulation instance.
+     */
+    void logSimulation(final Simulation<?> simulation);
+
     /**
      * Log the creation of an agent.
      * @param agent the agent which got created.

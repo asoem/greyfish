@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.io;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -12,6 +14,7 @@ import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import org.asoem.greyfish.core.agent.SpatialAgent;
+import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -26,6 +29,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,7 +50,20 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     private final ConnectionManager connectionManager;
     private final Disruptor<BindEvent> disruptor;
     private final List<BatchQuery> queries;
-    private final NameIdMap nameIdMap = new NameIdMap();
+
+    private final AtomicInteger nameIdSequence = new AtomicInteger();
+    private final Cache<String, Integer> nameIdCache = CacheBuilder.newBuilder()
+            .build();
+
+    private final LoadingCache<String, Integer> simulationIdCache = CacheBuilder.newBuilder()
+            .build(new CacheLoader<String, Integer>() {
+                private final AtomicInteger sequence = new AtomicInteger();
+
+                @Override
+                public Integer load(final String key) throws Exception {
+                    return sequence.incrementAndGet();
+                }
+            });
 
     private Throwable consumerException;
 
@@ -142,11 +160,18 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     }
 
     @Override
+    public void logSimulation(final Simulation<?> simulation) {
+        addQuery(new InsertSimulationQuery(
+                simulationIdCache.getUnchecked(simulation.getName()),
+                simulation.getName()));
+    }
+
+    @Override
     public void logAgentCreation(final SpatialAgent<?, ?, ?> agent) {
         addQuery(new InsertAgentQuery(
                 agent.getId(),
                 idForName(agent.getPopulation().getName()),
-                (int) agent.getTimeOfBirth()));
+                (int) agent.getTimeOfBirth(), simulationIdCache.getUnchecked(agent.simulation().getName())));
 
         final Set<Integer> parents = agent.getParents();
         for (final Integer parentId : parents) {
@@ -224,15 +249,21 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     }
 
     private short idForName(final String name) {
-        if (!nameIdMap.contains(name)) {
-            synchronized (nameIdMap) {
-                if (!nameIdMap.contains(name)) {
-                    addQuery(new InsertNameQuery(nameIdMap.get(name), name));
+        final Integer id;
+        try {
+            id = nameIdCache.get(name, new Callable<Integer>() {
+                @Override
+                public Integer call() throws Exception {
+                    final int id = nameIdSequence.incrementAndGet();
+                    addQuery(new InsertNameQuery((short) id, name));
+                    return id;
                 }
-            }
+            });
+        } catch (ExecutionException e) {
+            throw Throwables.propagate(e);
         }
 
-        return nameIdMap.get(name);
+        return id.shortValue();
     }
 
     private interface BatchQuery {
@@ -285,15 +316,17 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     }
 
     private static final class InsertAgentQuery implements BatchQuery {
-        private static final String SQL = "INSERT INTO agents (id, population_name_id, activated_at) VALUES (?, ?, ?)";
+        private static final String SQL = "INSERT INTO agents (id, population_name_id, activated_at, simulation_id) VALUES (?, ?, ?, ?)";
         private final int id;
         private final short populationNameId;
         private final int timeOfBirth;
+        private final int simulationId;
 
-        public InsertAgentQuery(final int id, final short populationNameId, final int timeOfBirth) {
+        public InsertAgentQuery(final int id, final short populationNameId, final int timeOfBirth, final int simulationId) {
             this.id = id;
             this.populationNameId = populationNameId;
             this.timeOfBirth = timeOfBirth;
+            this.simulationId = simulationId;
         }
 
         @Override
@@ -303,6 +336,7 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
             preparedStatement.setInt(1, id);
             preparedStatement.setShort(2, populationNameId);
             preparedStatement.setInt(3, timeOfBirth);
+            preparedStatement.setInt(4, simulationId);
 
             return preparedStatement;
         }
@@ -398,37 +432,6 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
         }
     }
 
-    private static final class NameIdMap {
-        private final LoadingCache<String, Short> cache = CacheBuilder.newBuilder()
-                .build(new CacheLoader<String, Short>() {
-                    private AtomicInteger idSequence = new AtomicInteger(0);
-
-                    @Override
-                    public Short load(final String key) throws Exception {
-                        return (short) idSequence.incrementAndGet();
-                    }
-                });
-
-        /**
-         * Check if an id has been generated for {@code name}.
-         * @param name the name
-         * @return {@code true} if an id exists, {@code false} otherwise
-         */
-        public boolean contains(final String name) {
-            return cache.asMap().containsKey(name);
-        }
-
-        /**
-         * Get the id for given {@code name}.
-         * If no id has been generated yet, this method will generate one.
-         * @param name the name
-         * @return the unique id for {@code name}
-         */
-        public short get(final String name) {
-            return cache.getUnchecked(name);
-        }
-    }
-
     private static final class InsertPropertyQuery implements BatchQuery {
         private static final String SQL = "INSERT INTO properties (type, key, value) VALUES (?, ?, ?)";
         private final String type;
@@ -455,5 +458,27 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
 
     private class BindEvent {
         private BatchQuery updateOperation;
+    }
+
+    private static class InsertSimulationQuery implements BatchQuery {
+        private static final String SQL = "INSERT INTO simulation (id, name) VALUES (?, ?)";
+
+        private final int id;
+        private final String name;
+
+        public InsertSimulationQuery(final int id, final String name) {
+            this.name = name;
+            this.id = id;
+        }
+
+        @Override
+        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+            final PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
+
+            preparedStatement.setInt(1, id);
+            preparedStatement.setString(1, name);
+
+            return preparedStatement;
+        }
     }
 }
