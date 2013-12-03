@@ -8,7 +8,7 @@ import com.google.common.base.Predicate;
  * without the need to use the possibly less efficient static methods in {@link com.google.common.collect.Iterators},
  * {@link com.google.common.collect.Iterables}, {@link com.google.common.collect.Collections2} or {@code Lists}.
  */
-public interface Searchable<E> {
+public interface Searchable<E> extends Iterable<E> {
     /**
      * Find the first element which satisfies {@code predicate}.
      * @param predicate the predicate to check the element against

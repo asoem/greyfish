@@ -33,15 +33,19 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
         return EmptyFunctionalList.instance();
     }
 
-    private static <E> FunctionalList<E> of(final E e0, final E e1) {
-        return new ImmutableFunctionalList2<E>(e0, e1);
+    public static <E> FunctionalList<E> of(final E e0) {
+        return new ImmutableFunctionalList1<>(e0);
     }
 
-    private static <E> FunctionalList<E> of(final E e0, final E e1, final E e2) {
-        return new ImmutableFunctionalList3<E>(e0, e1, e2);
+    public static <E> FunctionalList<E> of(final E e0, final E e1) {
+        return new ImmutableFunctionalList2<>(e0, e1);
     }
 
-    private static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3) {
-        return new ImmutableFunctionalList4<E>(e0, e1, e2, e3);
+    public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2) {
+        return new ImmutableFunctionalList3<>(e0, e1, e2);
+    }
+
+    public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3) {
+        return new ImmutableFunctionalList4<>(e0, e1, e2, e3);
     }
 }

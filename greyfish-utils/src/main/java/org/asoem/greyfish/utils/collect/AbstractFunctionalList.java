@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Abstract base class for 'functional' lists.
  */
-public abstract class AbstractFunctionalList<E> extends AbstractList<E> implements FunctionalList<E> {
+abstract class AbstractFunctionalList<E> extends AbstractList<E> implements FunctionalList<E> {
 
     @Override
     public Iterable<E> filter(final Predicate<? super E> predicate) {
@@ -25,7 +25,7 @@ public abstract class AbstractFunctionalList<E> extends AbstractList<E> implemen
 
     @Override
     public Optional<E> findFirst(final Predicate<? super E> predicate) {
-        return Optional.fromNullable(Iterables.find(this, predicate, null));
+        return Iterables.tryFind(this, predicate);
     }
 
     @Override
