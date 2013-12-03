@@ -8,11 +8,11 @@ import java.io.Serializable;
 /**
  * Used to identify agents as being clones of the same prototype. Can be shared.
  */
-public class Population implements Comparable<Population>, Serializable {
+public class PrototypeGroup implements Comparable<PrototypeGroup>, Serializable {
 
     private final String name;
 
-    private Population(final String name) {
+    private PrototypeGroup(final String name) {
         this.name = name;
     }
 
@@ -32,12 +32,12 @@ public class Population implements Comparable<Population>, Serializable {
     }
 
     @Override
-    public int compareTo(final Population o) {
+    public int compareTo(final PrototypeGroup o) {
         return name.compareTo(o.name);
     }
 
-    public static Population named(final String asexualPopulation) {
-        return new Population(asexualPopulation);
+    public static PrototypeGroup named(final String asexualPopulation) {
+        return new PrototypeGroup(asexualPopulation);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class Population implements Comparable<Population>, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Population that = (Population) o;
+        final PrototypeGroup that = (PrototypeGroup) o;
 
         if (!name.equals(that.name)) return false;
 
@@ -61,7 +61,7 @@ public class Population implements Comparable<Population>, Serializable {
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
         if (name == null)
-            throw new InvalidObjectException("Neither name nor color must be null");
+            throw new InvalidObjectException("Name must be null");
     }
 
     private static final long serialVersionUID = 0;

@@ -13,7 +13,7 @@ import org.apache.commons.pool.PoolUtils;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.GenericAction;
 import org.asoem.greyfish.core.agent.Agents;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.impl.agent.BasicAgent;
@@ -51,7 +51,7 @@ public class AgentObjectPoolAT {
         final SummaryStatistics statisticsWithoutObjectPool = new SummaryStatistics();
         final SummaryStatistics statisticsWithObjectPool = new SummaryStatistics();
 
-        final DefaultBasicAgent agent = DefaultBasicAgent.builder(Population.named(""))
+        final DefaultBasicAgent agent = DefaultBasicAgent.builder(PrototypeGroup.named(""))
                 .addAllActions(
                         GenericAction.<BasicAgent>builder()
                                 .name("reproduce")
@@ -92,11 +92,11 @@ public class AgentObjectPoolAT {
     }
 
     private double measureAgentRecycling(final int objects, final BasicAgent agent) throws Exception {
-        final Map<Population, BasicAgent> agentMap = ImmutableMap.of(agent.getPopulation(), agent);
+        final Map<PrototypeGroup, BasicAgent> agentMap = ImmutableMap.of(agent.getPrototypeGroup(), agent);
 
-        final KeyedObjectPool<Population, BasicAgent> objectPool = PoolUtils.synchronizedPool(new StackKeyedObjectPool<Population, BasicAgent>(new BaseKeyedPoolableObjectFactory<Population, BasicAgent>() {
+        final KeyedObjectPool<PrototypeGroup, BasicAgent> objectPool = PoolUtils.synchronizedPool(new StackKeyedObjectPool<PrototypeGroup, BasicAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, BasicAgent>() {
             @Override
-            public BasicAgent makeObject(final Population population) throws Exception {
+            public BasicAgent makeObject(final PrototypeGroup population) throws Exception {
                 return CycleCloner.clone(agentMap.get(population));
             }
         }, objects) {
@@ -105,9 +105,9 @@ public class AgentObjectPoolAT {
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int j = 0; j < objects; j++) {
-            BasicAgent clone = objectPool.borrowObject(agent.getPopulation());
+            BasicAgent clone = objectPool.borrowObject(agent.getPrototypeGroup());
             clone.initialize();
-            objectPool.returnObject(agent.getPopulation(), clone);
+            objectPool.returnObject(agent.getPrototypeGroup(), clone);
         }
         return stopwatch.elapsed(TimeUnit.MILLISECONDS);
     }
@@ -173,24 +173,24 @@ public class AgentObjectPoolAT {
 
     private SynchronizedAgentsSimulation<?> createSimulationWithObjectPool(final int populationSize, final ExecutorService executorService) {
 
-        final Map<Population, BasicAgent> agentMap = Maps.newHashMap();
+        final Map<PrototypeGroup, BasicAgent> agentMap = Maps.newHashMap();
 
-        final KeyedObjectPool<Population, BasicAgent> objectPool = PoolUtils.synchronizedPool(new StackKeyedObjectPool<Population, BasicAgent>(new BaseKeyedPoolableObjectFactory<Population, BasicAgent>() {
+        final KeyedObjectPool<PrototypeGroup, BasicAgent> objectPool = PoolUtils.synchronizedPool(new StackKeyedObjectPool<PrototypeGroup, BasicAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, BasicAgent>() {
             @Override
-            public BasicAgent makeObject(final Population population) throws Exception {
+            public BasicAgent makeObject(final PrototypeGroup population) throws Exception {
                 return CycleCloner.clone(agentMap.get(population));
             }
 
             @Override
-            public void activateObject(final Population key, final BasicAgent obj) throws Exception {
+            public void activateObject(final PrototypeGroup key, final BasicAgent obj) throws Exception {
                 obj.initialize();
             }
         }, populationSize / 2) {
 
         });
 
-        final Population population = Population.named("test");
-        final DefaultBasicAgent prototype = DefaultBasicAgent.builder(population)
+        final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
+        final DefaultBasicAgent prototype = DefaultBasicAgent.builder(prototypeGroup)
                 .addAllActions(
                         GenericAction.<BasicAgent>builder()
                                 .name("reproduce")
@@ -201,7 +201,7 @@ public class AgentObjectPoolAT {
                                         final BasicAgent agent = caller.agent().get();
                                         final BasicAgent clone;
                                         try {
-                                            clone = objectPool.borrowObject(agent.getPopulation());
+                                            clone = objectPool.borrowObject(agent.getPrototypeGroup());
                                             agent.simulation().enqueueAddition(clone);
                                         } catch (Exception e) {
                                             throw new AssertionError(e);
@@ -224,7 +224,7 @@ public class AgentObjectPoolAT {
                                             public void run() {
                                                 try {
                                                     // TODO: agent is not removed yet
-                                                    objectPool.returnObject(agent.getPopulation(), agent);
+                                                    objectPool.returnObject(agent.getPrototypeGroup(), agent);
                                                 } catch (Exception e) {
                                                     throw new AssertionError(e);
                                                 }
@@ -236,7 +236,7 @@ public class AgentObjectPoolAT {
                                 .build())
                 .build();
 
-        agentMap.put(population, prototype);
+        agentMap.put(prototypeGroup, prototype);
         final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("TestSimulation")
                 .executorService(executorService)
                 .build();
@@ -248,8 +248,8 @@ public class AgentObjectPoolAT {
     }
 
     private SynchronizedAgentsSimulation<?> createSimulationWithoutObjectPool(final int populationSize, final ExecutorService executorService) {
-        final Population population = Population.named("test");
-        final DefaultBasicAgent prototype = DefaultBasicAgent.builder(population)
+        final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
+        final DefaultBasicAgent prototype = DefaultBasicAgent.builder(prototypeGroup)
                 .addAllActions(
                         GenericAction.<BasicAgent>builder()
                                 .name("reproduce")

@@ -1,7 +1,5 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.hash.Hashing;
-import com.google.common.io.BaseEncoding;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
@@ -37,7 +35,7 @@ final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> 
                               final String title, final String message) {
         final String logLine = String.format("Event: %d\t%s\t%s\t%s\t%s\t%s",
                 agent.simulation().hashCode(),
-                currentStep, agent.getPopulation(),
+                currentStep, agent.getPrototypeGroup(),
                 source, title, message
         );
         printStream.println(logLine);

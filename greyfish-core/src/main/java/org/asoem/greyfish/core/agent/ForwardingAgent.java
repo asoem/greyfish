@@ -18,13 +18,13 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     protected abstract Agent<A, S> delegate();
 
     @Override
-    public Population getPopulation() {
-        return delegate().getPopulation();
+    public PrototypeGroup getPrototypeGroup() {
+        return delegate().getPrototypeGroup();
     }
 
     @Override
-    public boolean hasPopulation(final Population population) {
-        return delegate().hasPopulation(population);
+    public boolean hasPopulation(final PrototypeGroup prototypeGroup) {
+        return delegate().hasPopulation(prototypeGroup);
     }
 
     /**

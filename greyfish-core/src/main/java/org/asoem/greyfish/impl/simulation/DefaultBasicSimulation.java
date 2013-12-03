@@ -10,7 +10,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.DefaultSimulationContextFactory;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.agent.SimulationContextFactory;
 import org.asoem.greyfish.core.simulation.AbstractSimulation;
 import org.asoem.greyfish.impl.agent.BasicAgent;
@@ -107,8 +107,8 @@ public final class DefaultBasicSimulation
     }
 
     @Override
-    public Iterable<BasicAgent> getAgents(final Population population) {
-        return standardGetAgents(population);
+    public Iterable<BasicAgent> getAgents(final PrototypeGroup prototypeGroup) {
+        return standardGetAgents(prototypeGroup);
     }
 
     @Override
@@ -167,8 +167,8 @@ public final class DefaultBasicSimulation
     }
 
     @Override
-    public int countAgents(final Population population) {
-        return standardCountAgents(population);
+    public int countAgents(final PrototypeGroup prototypeGroup) {
+        return standardCountAgents(prototypeGroup);
     }
 
     @Override

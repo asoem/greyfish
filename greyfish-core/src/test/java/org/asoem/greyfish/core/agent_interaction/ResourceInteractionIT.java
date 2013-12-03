@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
@@ -33,8 +33,8 @@ public class ResourceInteractionIT {
     @Test
     public void testNormalInteraction() throws Exception {
         // given
-        final Population consumerPopulation = Population.named("ConsumerPopulation");
-        final Population providerPopulation = Population.named("ProviderPopulation");
+        final PrototypeGroup consumerPrototypeGroup = PrototypeGroup.named("ConsumerPopulation");
+        final PrototypeGroup providerPrototypeGroup = PrototypeGroup.named("ProviderPopulation");
 
         final String messageClassifier = "mate";
 
@@ -72,12 +72,12 @@ public class ResourceInteractionIT {
                 .executedIf(GenericCondition.<Basic2DAgent>evaluate(Callbacks.iterate(false, true, false)))
                 .build();
 
-        final Basic2DAgent consumer = DefaultBasic2DAgent.builder(consumerPopulation)
+        final Basic2DAgent consumer = DefaultBasic2DAgent.builder(consumerPrototypeGroup)
                 .addProperties(energyStorage)
                 .addAction(consumptionAction)
                 .build();
         consumer.initialize();
-        final Basic2DAgent provisioner = DefaultBasic2DAgent.builder(providerPopulation)
+        final Basic2DAgent provisioner = DefaultBasic2DAgent.builder(providerPrototypeGroup)
                 .addProperties(resourceProperty)
                 .addAction(provisionAction)
                 .build();

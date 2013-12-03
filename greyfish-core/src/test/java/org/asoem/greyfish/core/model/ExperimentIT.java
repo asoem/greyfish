@@ -8,8 +8,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.asoem.greyfish.core.agent.Agents;
-import org.asoem.greyfish.core.agent.Population;
-import org.asoem.greyfish.core.io.SimulationLoggers;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.impl.simulation.BasicSimulation;
@@ -82,7 +81,7 @@ public class ExperimentIT {
             }
 
             private BasicAgent createAgent() {
-                return DefaultBasicAgent.builder(Population.named("test")).build();
+                return DefaultBasicAgent.builder(PrototypeGroup.named("test")).build();
             }
 
             @Override
@@ -171,7 +170,7 @@ public class ExperimentIT {
             }
 
             private BasicAgent createAgent() {
-                return DefaultBasicAgent.builder(Population.named("test")).build();
+                return DefaultBasicAgent.builder(PrototypeGroup.named("test")).build();
             }
 
             @Override

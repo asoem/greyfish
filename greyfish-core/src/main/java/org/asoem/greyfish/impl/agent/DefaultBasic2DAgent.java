@@ -47,7 +47,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private final FunctionalList<AgentTrait<Basic2DAgent, ?>> traits;
     private final ActionExecutionStrategy actionExecutionStrategy;
     private final FunctionalCollection<ACLMessage<Basic2DAgent>> inBox;
-    private Population population;
+    private PrototypeGroup prototypeGroup;
     @Nullable
     private Point2D projection;
     private Motion2D motion = ImmutableMotion2D.noMotion();
@@ -59,7 +59,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private DefaultBasic2DAgent(final DefaultBasic2DAgent frozenAgent, final DeepCloner cloner) {
         cloner.addClone(frozenAgent, this);
         // share
-        this.population = frozenAgent.population;
+        this.prototypeGroup = frozenAgent.prototypeGroup;
         // clone
         this.actions = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.actions, new Function<AgentAction<Basic2DAgent>, AgentAction<Basic2DAgent>>() {
             @SuppressWarnings("unchecked")
@@ -100,14 +100,14 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         for (final AgentTrait<Basic2DAgent, ?> trait : builder.traits) {
             trait.setAgent(this);
         }
-        this.population = builder.population;
+        this.prototypeGroup = builder.prototypeGroup;
         this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
         this.inBox = new FunctionalFifoBuffer<ACLMessage<Basic2DAgent>>();
     }
 
     @Override
-    public Population getPopulation() {
-        return population;
+    public PrototypeGroup getPrototypeGroup() {
+        return prototypeGroup;
     }
 
     @Override
@@ -165,7 +165,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
 
     @Override
     public String toString() {
-        return "Agent[" + getPopulation() + ']' + "#"
+        return "Agent[" + getPrototypeGroup() + ']' + "#"
                 + (getSimulationContext().isPresent() ? getSimulationContext().get().getAgentId() : "null")
                 + "@" + (getSimulationContext().isPresent() ? getSimulationContext().get().getSimulationStep() : "null");
     }
@@ -201,22 +201,22 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         return new DefaultBasic2DAgent(this, cloner);
     }
 
-    public static Builder builder(final Population population) {
-        return new Builder(population);
+    public static Builder builder(final PrototypeGroup prototypeGroup) {
+        return new Builder(prototypeGroup);
     }
 
     public static final class Builder implements Serializable {
-        private final Population population;
+        private final PrototypeGroup prototypeGroup;
         private final List<AgentAction<Basic2DAgent>> actions = Lists.newArrayList();
         private final List<AgentProperty<Basic2DAgent, ?>> properties = Lists.newArrayList();
         private final List<AgentTrait<Basic2DAgent, ?>> traits = Lists.newArrayList();
 
-        protected Builder(final Population population) {
-            this.population = checkNotNull(population, "Population must not be null");
+        protected Builder(final PrototypeGroup prototypeGroup) {
+            this.prototypeGroup = checkNotNull(prototypeGroup, "PrototypeGroup must not be null");
         }
 
         protected Builder(final DefaultBasic2DAgent abstractAgent) {
-            this.population = abstractAgent.population;
+            this.prototypeGroup = abstractAgent.prototypeGroup;
             this.actions.addAll(abstractAgent.actions);
             this.properties.addAll(abstractAgent.properties);
             this.traits.addAll(abstractAgent.traits);

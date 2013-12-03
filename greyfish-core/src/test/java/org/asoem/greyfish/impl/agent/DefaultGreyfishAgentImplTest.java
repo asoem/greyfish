@@ -3,7 +3,7 @@ package org.asoem.greyfish.impl.agent;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.base.CycleCloner;
@@ -36,7 +36,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddGene() throws Exception {
         // given
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(Population.class)).build();
+        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class)).build();
 
         // when
         agent.addTrait(mock(AgentTrait.class));
@@ -48,7 +48,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddAction() throws Exception {
         // given
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(Population.class)).build();
+        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class)).build();
 
         // when
         agent.addAction(mock(AgentAction.class));
@@ -60,7 +60,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testAddProperty() throws Exception {
         // given
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(Population.class)).build();
+        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class)).build();
 
         // when
         agent.addProperty(mock(AgentProperty.class));
@@ -75,7 +75,7 @@ public class DefaultGreyfishAgentImplTest {
         final AgentTrait<Basic2DAgent, Object> gene = mock(AgentTrait.class);
         given(gene.getName()).willReturn("foo");
         given(gene.children()).willReturn(Collections.<AgentNode>emptyList());
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(Population.class)).addTraits(gene).build();
+        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class)).addTraits(gene).build();
 
         // when
         final AgentTrait<Basic2DAgent, Object> ret = (AgentTrait<Basic2DAgent, Object>) agent.getTrait("foo");
@@ -88,7 +88,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(Population.class))
+        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class))
                 .addAction(when(mock(AgentAction.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentAction.class)).<AgentAction<Basic2DAgent>>getMock())
                 .addProperties(when(mock(AgentProperty.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentProperty.class)).<AgentProperty<Basic2DAgent, Object>>getMock())
                 .addTraits(when(mock(AgentTrait.class).deepClone(any(DeepCloner.class))).thenReturn(mock(AgentTrait.class)).<AgentTrait<Basic2DAgent, Object>>getMock())
@@ -104,7 +104,7 @@ public class DefaultGreyfishAgentImplTest {
     @Test
     public void testSerialization() throws Exception {
         // given
-        final DefaultBasic2DAgent frozenAgent = DefaultBasic2DAgent.builder(Population.named("foo"))
+        final DefaultBasic2DAgent frozenAgent = DefaultBasic2DAgent.builder(PrototypeGroup.named("foo"))
                 .addAction(mock(AgentAction.class, withSettings().serializable()))
                 .addProperties(mock(AgentProperty.class, withSettings().serializable()))
                 .addTraits(mock(AgentTrait.class, withSettings().serializable()))
@@ -119,14 +119,14 @@ public class DefaultGreyfishAgentImplTest {
 
     private static Matcher<? super DefaultBasic2DAgent> isSameAs(final DefaultBasic2DAgent agent) {
         return Matchers.<DefaultBasic2DAgent>allOf(
-                has("population " + agent.getPopulation(),
-                        new Function<DefaultBasic2DAgent, Population>() {
+                has("population " + agent.getPrototypeGroup(),
+                        new Function<DefaultBasic2DAgent, PrototypeGroup>() {
                             @Override
-                            public Population apply(final DefaultBasic2DAgent frozenAgent) {
-                                return frozenAgent.getPopulation();
+                            public PrototypeGroup apply(final DefaultBasic2DAgent frozenAgent) {
+                                return frozenAgent.getPrototypeGroup();
                             }
                         },
-                        is(equalTo(agent.getPopulation()))),
+                        is(equalTo(agent.getPrototypeGroup()))),
                 has(agent.getActions().size() + " actions", new Function<DefaultBasic2DAgent, FunctionalList<AgentAction<Basic2DAgent>>>() {
                     @Override
                     public FunctionalList<AgentAction<Basic2DAgent>> apply(final DefaultBasic2DAgent frozenAgent) {

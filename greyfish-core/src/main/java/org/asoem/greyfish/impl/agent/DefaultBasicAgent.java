@@ -32,7 +32,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimulation>
         implements BasicAgent {
-    private final Population population;
+    private final PrototypeGroup prototypeGroup;
     private final FunctionalList<AgentAction<BasicAgent>> actions;
     private final FunctionalList<AgentTrait<BasicAgent, ?>> traits;
     private final FunctionalList<AgentProperty<BasicAgent, ?>> properties;
@@ -48,7 +48,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         checkNotNull(original);
         checkNotNull(cloner);
         cloner.addClone(original, this);
-        this.population = original.population;
+        this.prototypeGroup = original.prototypeGroup;
         this.actions = ImmutableFunctionalList.copyOf(Iterables.transform(original.actions, new Function<AgentAction<BasicAgent>, AgentAction<BasicAgent>>() {
             @Nullable
             @Override
@@ -79,7 +79,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
 
     private DefaultBasicAgent(final Builder builder) {
         checkNotNull(builder);
-        this.population = builder.population;
+        this.prototypeGroup = builder.prototypeGroup;
         this.actions = ImmutableFunctionalList.<AgentAction<BasicAgent>>copyOf(builder.actions);
         this.traits = ImmutableFunctionalList.<AgentTrait<BasicAgent, ?>>copyOf(builder.traits);
         this.properties = ImmutableFunctionalList.<AgentProperty<BasicAgent, ?>>copyOf(builder.properties);
@@ -132,8 +132,8 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    public Population getPopulation() {
-        return population;
+    public PrototypeGroup getPrototypeGroup() {
+        return prototypeGroup;
     }
 
     @Override
@@ -166,12 +166,12 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         return new DefaultBasicAgent(this, cloner);
     }
     
-    public static Builder builder(final Population population) {
-        return new Builder(population);
+    public static Builder builder(final PrototypeGroup prototypeGroup) {
+        return new Builder(prototypeGroup);
     }
 
     public static final class Builder {
-        private Population population;
+        private PrototypeGroup prototypeGroup;
         private final List<AgentAction<BasicAgent>> actions = Lists.newArrayList();
         private final List<AgentTrait<BasicAgent, ?>> traits = Lists.newArrayList();
         private final List<AgentProperty<BasicAgent, ?>> properties = Lists.newArrayList();
@@ -179,8 +179,8 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         private FunctionalCollection<ACLMessage<BasicAgent>> inBox = FunctionalFifoBuffer.withCapacity(8);
         private ActionExecutionStrategyFactory actionExecutionStrategyFactory = DefaultActionExecutionStrategyFactory.INSTANCE;
 
-        private Builder(final Population population) {
-            this.population = checkNotNull(population);
+        private Builder(final PrototypeGroup prototypeGroup) {
+            this.prototypeGroup = checkNotNull(prototypeGroup);
         }
         
         public Builder addAction(final AgentAction<BasicAgent> action) {
@@ -267,7 +267,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         }
         
         public DefaultBasicAgent build() {
-            checkState(population != null);
+            checkState(prototypeGroup != null);
             checkState(inBox != null);
             checkNotNull(actionExecutionStrategyFactory != null);
             return new DefaultBasicAgent(this);

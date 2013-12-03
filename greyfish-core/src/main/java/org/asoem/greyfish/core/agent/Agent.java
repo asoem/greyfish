@@ -25,14 +25,14 @@ public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A
      * Get the population
      * @return the population
      */
-    Population getPopulation();
+    PrototypeGroup getPrototypeGroup();
 
     /**
-     * Check if the population of this agent is equal to {@code population}.
-     * @param population the population to test against
+     * Check if the prototypeGroup of this agent is equal to {@code prototypeGroup}.
+     * @param prototypeGroup the prototypeGroup to test against
      * @return {@code true} if the populations are equal, {@code false} otherwise
      */
-    boolean hasPopulation(Population population);
+    boolean hasPopulation(PrototypeGroup prototypeGroup);
 
     /**
      * Add a new action to this agent.

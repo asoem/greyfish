@@ -52,7 +52,7 @@ public class AvatarTest {
     public void testPersistence() throws Exception {
         /*
         // given
-        final Population population = Population.newPopulation("Test", Color.green);
+        final PrototypeGroup population = PrototypeGroup.newPopulation("Test", Color.green);
         final Agent agent = FrozenAgent.of(population).build();
         final Avatar avatar = new Avatar(agent);
 

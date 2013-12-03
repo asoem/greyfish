@@ -11,7 +11,7 @@ import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
@@ -43,7 +43,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     private final List<NewAgentEvent<P, A>> addAgentMessages;
     private final List<RemoveAgentMessage<A>> removeAgentMessages;
     private final List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages;
-    private final KeyedObjectPool<Population, A> agentPool;
+    private final KeyedObjectPool<PrototypeGroup, A> agentPool;
     private final ExecutorService executorService;
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
@@ -108,26 +108,26 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
     private void releaseAgent(final A agent) {
         try {
-            agentPool.returnObject(agent.getPopulation(), agent);
+            agentPool.returnObject(agent.getPrototypeGroup(), agent);
         } catch (Exception e) {
             LOGGER.error("Error in prototype pool", e);
         }
     }
 
     @Override
-    public final int countAgents(final Population population) {
-        return space.count(population);
+    public final int countAgents(final PrototypeGroup prototypeGroup) {
+        return space.count(prototypeGroup);
     }
 
-    private A createClone(final Population population) {
-        checkNotNull(population);
+    private A createClone(final PrototypeGroup prototypeGroup) {
+        checkNotNull(prototypeGroup);
         try {
-            final A agent = agentPool.borrowObject(population);
+            final A agent = agentPool.borrowObject(prototypeGroup);
             checkNotNull(agent, "borrowObject in agentPool returned null");
             agent.initialize();
             return agent;
         } catch (Exception e) {
-            LOGGER.error("Couldn't borrow Agent from agentPool for population {}", population.getName(), e);
+            LOGGER.error("Couldn't borrow Agent from agentPool for prototypeGroup {}", prototypeGroup.getName(), e);
             throw new AssertionError(e);
         }
     }
@@ -276,8 +276,8 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     }
 
     @Override
-    public final Iterable<A> getAgents(final Population population) {
-        return space.getAgents(population);
+    public final Iterable<A> getAgents(final PrototypeGroup prototypeGroup) {
+        return space.getAgents(prototypeGroup);
     }
 
     @Override
@@ -372,7 +372,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
             extends ForwardingSpace2D<T, P> {
 
         private final Z delegate;
-        private final Multimap<Population, T> agentsByPopulation;
+        private final Multimap<PrototypeGroup, T> agentsByPopulation;
         private final Predicate<T> inactiveAgentPredicate = new Predicate<T>() {
             @Override
             public boolean apply(final T input) {
@@ -392,9 +392,9 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
             return delegate;
         }
 
-        public int count(final Population population) {
-            checkNotNull(population);
-            return agentsByPopulation.get(population).size();
+        public int count(final PrototypeGroup prototypeGroup) {
+            checkNotNull(prototypeGroup);
+            return agentsByPopulation.get(prototypeGroup).size();
         }
 
         @Override
@@ -403,7 +403,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
             checkNotNull(projection, "projection is null");
 
             if (super.insertObject(object, projection)) {
-                final boolean add = agentsByPopulation.get(object.getPopulation()).add(object);
+                final boolean add = agentsByPopulation.get(object.getPrototypeGroup()).add(object);
                 object.setProjection(projection);
                 assert add : "Could not add " + object;
                 return true;
@@ -415,7 +415,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         public boolean removeObject(final T agent) {
             checkNotNull(agent);
             if (super.removeObject(agent)) {
-                final boolean remove = agentsByPopulation.get(agent.getPopulation()).remove(agent);
+                final boolean remove = agentsByPopulation.get(agent.getPrototypeGroup()).remove(agent);
                 agent.setProjection(null);
                 assert remove : "Could not remove " + agent;
                 return true;
@@ -434,15 +434,15 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
             }
         }
 
-        public Iterable<T> getAgents(final Population population) {
-            checkNotNull(population);
-            return agentsByPopulation.get(population);
+        public Iterable<T> getAgents(final PrototypeGroup prototypeGroup) {
+            checkNotNull(prototypeGroup);
+            return agentsByPopulation.get(prototypeGroup);
         }
     }
 
     protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
-        private KeyedObjectPool<Population, A> agentPool;
+        private KeyedObjectPool<PrototypeGroup, A> agentPool;
         private int parallelizationThreshold = 1000;
         private final Z space;
         private final Set<A> prototypes;
@@ -452,20 +452,20 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         public Basic2DSimulationBuilder(final Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
-            agentPool(new StackKeyedObjectPool<Population, A>(new BaseKeyedPoolableObjectFactory<Population, A>() {
+            agentPool(new StackKeyedObjectPool<PrototypeGroup, A>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, A>() {
 
-                private final Map<Population, A> map = Maps.uniqueIndex(prototypes, new Function<A, Population>() {
+                private final Map<PrototypeGroup, A> map = Maps.uniqueIndex(prototypes, new Function<A, PrototypeGroup>() {
                     @Nullable
                     @Override
-                    public Population apply(final A input) {
-                        return input.getPopulation();
+                    public PrototypeGroup apply(final A input) {
+                        return input.getPrototypeGroup();
                     }
                 });
 
                 @SuppressWarnings("unchecked") // casting a clone should be safe
                 @Override
-                public A makeObject(final Population population) throws Exception {
-                    return CycleCloner.clone(map.get(population));
+                public A makeObject(final PrototypeGroup prototypeGroup) throws Exception {
+                    return CycleCloner.clone(map.get(prototypeGroup));
                 }
             }, 1000));
         }
@@ -483,7 +483,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
          * @param pool the pool to use for recycling
          * @return this builder
          */
-        public final B agentPool(final KeyedObjectPool<Population, A> pool) {
+        public final B agentPool(final KeyedObjectPool<PrototypeGroup, A> pool) {
             this.agentPool = checkNotNull(pool);
             return self();
         }

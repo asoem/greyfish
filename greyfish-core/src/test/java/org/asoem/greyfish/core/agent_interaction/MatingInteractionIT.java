@@ -5,7 +5,7 @@ import com.google.inject.Guice;
 import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
@@ -35,8 +35,8 @@ public class MatingInteractionIT {
     @Test
     public void testNormalInteraction() throws Exception {
         // given
-        final Population receiverPopulation = Population.named("receiverPopulation");
-        final Population donorPopulation = Population.named("donorPopulation");
+        final PrototypeGroup receiverPrototypeGroup = PrototypeGroup.named("receiverPopulation");
+        final PrototypeGroup donorPrototypeGroup = PrototypeGroup.named("donorPopulation");
 
         final String messageClassifier = "mate";
         final FemaleLikeMating<Basic2DAgent> femaleLikeMating = FemaleLikeMating.<Basic2DAgent>with()
@@ -54,11 +54,11 @@ public class MatingInteractionIT {
                 .executedIf(GenericCondition.<Basic2DAgent>evaluate(Callbacks.iterate(false, true, false)))
                 .build();
 
-        final Basic2DAgent female = DefaultBasic2DAgent.builder(receiverPopulation)
+        final Basic2DAgent female = DefaultBasic2DAgent.builder(receiverPrototypeGroup)
                 .addAction(femaleLikeMating)
                 .build();
         female.initialize();
-        final Basic2DAgent male = DefaultBasic2DAgent.builder(donorPopulation)
+        final Basic2DAgent male = DefaultBasic2DAgent.builder(donorPrototypeGroup)
                 .addAction(maleLikeMating)
                 .build();
         male.initialize();

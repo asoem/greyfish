@@ -170,7 +170,7 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     public void logAgentCreation(final SpatialAgent<?, ?, ?> agent) {
         addQuery(new InsertAgentQuery(
                 agent.getId(),
-                idForName(agent.getPopulation().getName()),
+                idForName(agent.getPrototypeGroup().getName()),
                 (int) agent.getTimeOfBirth(), simulationIdCache.getUnchecked(agent.simulation().getName())));
 
         final Set<Integer> parents = agent.getParents();

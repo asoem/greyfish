@@ -1,6 +1,6 @@
 package org.asoem.greyfish.impl.agent;
 
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,23 +14,23 @@ public class DefaultBasicAgentTest {
     @Test
     public void testBuilder() throws Exception {
         // given
-        final Population population = mock(Population.class);
+        final PrototypeGroup prototypeGroup = mock(PrototypeGroup.class);
 
         // when
-        final DefaultBasicAgent agent = DefaultBasicAgent.builder(population).build();
+        final DefaultBasicAgent agent = DefaultBasicAgent.builder(prototypeGroup).build();
 
         // then
         assertThat(agent, is(notNullValue()));
-        assertThat(agent.getPopulation(), is(population));
+        assertThat(agent.getPrototypeGroup(), is(prototypeGroup));
     }
 
     @Test(expected = NullPointerException.class)
     public void testBuilderNullPopulation() throws Exception {
         // given
-        final Population population = null;
+        final PrototypeGroup prototypeGroup = null;
 
         // when
-        DefaultBasicAgent.builder(population).build();
+        DefaultBasicAgent.builder(prototypeGroup).build();
 
         // then
         fail();

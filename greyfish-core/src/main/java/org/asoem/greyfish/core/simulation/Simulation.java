@@ -3,21 +3,19 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.Population;
-
-import java.util.Collection;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 
 /**
  * A {@code Simulation} is an environment for interacting agents.
  */
 public interface Simulation<A extends Agent<A, ?>> {
     /**
-     * Get all active {@code Agent}s which are part of the given {@code population}.
+     * Get all active {@code Agent}s which are part of the given {@code prototypeGroup}.
      *
-     * @param population The common population
-     * @return An iterable of all active {@code Agents} with population equal to {@code population}
+     * @param prototypeGroup The common prototypeGroup
+     * @return An iterable of all active {@code Agents} with prototypeGroup equal to {@code prototypeGroup}
      */
-    Iterable<A> getAgents(Population population);
+    Iterable<A> getAgents(PrototypeGroup prototypeGroup);
 
     /**
      * Get all agents in this getSimulation which satisfy the given {@code predicate}.
@@ -49,12 +47,12 @@ public interface Simulation<A extends Agent<A, ?>> {
     int countAgents();
 
     /**
-     * Count all active agents with population equal to {@code population}.
+     * Count all active agents with prototypeGroup equal to {@code prototypeGroup}.
      *
-     * @param population the {@code Population} of the agents to count
-     * @return the number of all active agents with population equal to {@code population}
+     * @param prototypeGroup the {@code PrototypeGroup} of the agents to count
+     * @return the number of all active agents with prototypeGroup equal to {@code prototypeGroup}
      */
-    int countAgents(Population population);
+    int countAgents(PrototypeGroup prototypeGroup);
 
     /**
      * @return the name of this getSimulation

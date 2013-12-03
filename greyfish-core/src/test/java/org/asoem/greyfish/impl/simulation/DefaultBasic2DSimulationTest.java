@@ -9,7 +9,7 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
-import org.asoem.greyfish.core.agent.Population;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
@@ -54,8 +54,8 @@ public class DefaultBasic2DSimulationTest {
     @Test
     public void testNewSimulation() {
         // given
-        final Population population = Population.named("testPopulation");
-        final Basic2DAgent prototype = DefaultBasic2DAgent.builder(population).build();
+        final PrototypeGroup prototypeGroup = PrototypeGroup.named("testPopulation");
+        final Basic2DAgent prototype = DefaultBasic2DAgent.builder(prototypeGroup).build();
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
             @Override
             public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
@@ -65,9 +65,9 @@ public class DefaultBasic2DSimulationTest {
 
         // when
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, ImmutableSet.of(prototype))
-                .agentPool(new StackKeyedObjectPool<Population, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<Population, Basic2DAgent>() {
+                .agentPool(new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final Population o) throws Exception {
+                    public Basic2DAgent makeObject(final PrototypeGroup o) throws Exception {
                         return CycleCloner.clone(prototype);
                     }
                 })).build();
@@ -82,10 +82,10 @@ public class DefaultBasic2DSimulationTest {
     @Test
     public void testCreateSimulationFromAgents() {
         // given
-        final Population population = Population.named("testPopulation");
-        final Basic2DAgent agent1 = DefaultBasic2DAgent.builder(population).build();
+        final PrototypeGroup prototypeGroup = PrototypeGroup.named("testPopulation");
+        final Basic2DAgent agent1 = DefaultBasic2DAgent.builder(prototypeGroup).build();
         final Collection<Basic2DAgent> agents = ImmutableList.of(agent1);
-        final Basic2DAgent prototype = DefaultBasic2DAgent.builder(population).build();
+        final Basic2DAgent prototype = DefaultBasic2DAgent.builder(prototypeGroup).build();
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
             @Override
             public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
@@ -128,18 +128,18 @@ public class DefaultBasic2DSimulationTest {
     public void testCreateAgent() throws Exception {
         // given
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        final Population testPopulation = Population.named("TestPopulation");
-        given(agent.getPopulation()).willReturn(testPopulation);
-        given(agent.hasPopulation(testPopulation)).willReturn(true);
+        final PrototypeGroup testPrototypeGroup = PrototypeGroup.named("TestPopulation");
+        given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
+        given(agent.hasPopulation(testPrototypeGroup)).willReturn(true);
         given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<Basic2DAgent, ?>>of());
         @SuppressWarnings("unchecked")
         final Initializer<Basic2DAgent> initializer = mock(Initializer.class);
 
-        final KeyedObjectPool<Population, Basic2DAgent> pool =
-                new StackKeyedObjectPool<Population, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<Population, Basic2DAgent>() {
+        final KeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
+                new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final Population population) throws Exception {
+                    public Basic2DAgent makeObject(final PrototypeGroup population) throws Exception {
                         return agent;
                     }
                 });
@@ -161,7 +161,7 @@ public class DefaultBasic2DSimulationTest {
 
         // then
         assertThat(simulation.getActiveAgents(), contains(agent));
-        assertThat(simulation.getAgents(testPopulation), contains(agent));
+        assertThat(simulation.getAgents(testPrototypeGroup), contains(agent));
         verify(agent).activate(any(DefaultActiveSimulationContext.class));
     }
 
@@ -169,18 +169,18 @@ public class DefaultBasic2DSimulationTest {
     public void testCreateAgentWithNewChromosome() {
         // given
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        final Population testPopulation = Population.named("TestPopulation");
+        final PrototypeGroup testPrototypeGroup = PrototypeGroup.named("TestPopulation");
         final Chromosome chromosome = mock(Chromosome.class);
         final Point2D point2D = mock(Point2D.class);
         given(agent.getProjection()).willReturn(point2D);
-        given(agent.getPopulation()).willReturn(testPopulation);
-        given(agent.hasPopulation(testPopulation)).willReturn(true);
+        given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
+        given(agent.hasPopulation(testPrototypeGroup)).willReturn(true);
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<Basic2DAgent, ?>>of());
 
-        final KeyedObjectPool<Population, Basic2DAgent> pool =
-                new StackKeyedObjectPool<Population, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<Population, Basic2DAgent>() {
+        final KeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
+                new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final Population population) throws Exception {
+                    public Basic2DAgent makeObject(final PrototypeGroup population) throws Exception {
                         return agent;
                     }
                 });
@@ -210,8 +210,8 @@ public class DefaultBasic2DSimulationTest {
     public void testRemoveAgent() throws Exception {
         // given
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        final Population testPopulation = Population.named("TestPopulation");
-        given(agent.getPopulation()).willReturn(testPopulation);
+        final PrototypeGroup testPrototypeGroup = PrototypeGroup.named("TestPopulation");
+        given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<Basic2DAgent, ?>>of());
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
             @Override
@@ -232,7 +232,7 @@ public class DefaultBasic2DSimulationTest {
 
         // then
         assertThat(simulation.getActiveAgents(), is(emptyIterable()));
-        assertThat(simulation.getAgents(testPopulation), is(emptyIterable()));
+        assertThat(simulation.getAgents(testPrototypeGroup), is(emptyIterable()));
         assertThat(agent.isActive(), is(false));
     }
 
@@ -240,14 +240,14 @@ public class DefaultBasic2DSimulationTest {
     public void testNextStepWithException() throws Exception {
         // given
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        final Population testPopulation = Population.named("TestPopulation");
-        given(agent.getPopulation()).willReturn(testPopulation);
+        final PrototypeGroup testPrototypeGroup = PrototypeGroup.named("TestPopulation");
+        given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<Basic2DAgent, ?>>of());
         doThrow(new RuntimeException()).when(agent).run();
-        final KeyedObjectPool<Population, Basic2DAgent> pool =
-                new StackKeyedObjectPool<Population, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<Population, Basic2DAgent>() {
+        final KeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
+                new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final Population population) throws Exception {
+                    public Basic2DAgent makeObject(final PrototypeGroup population) throws Exception {
                         return agent;
                     }
                 });

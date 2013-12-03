@@ -45,8 +45,8 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     protected abstract A self();
 
     @Override
-    public final boolean hasPopulation(@Nullable final Population population) {
-        return Objects.equal(getPopulation(), population);
+    public final boolean hasPopulation(@Nullable final PrototypeGroup prototypeGroup) {
+        return Objects.equal(getPrototypeGroup(), prototypeGroup);
     }
 
     private <E extends AgentComponent<A>> boolean addComponent(final FunctionalList<E> list, final E element) {
@@ -244,7 +244,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     /*
     @Override
     public void reproduce(Initializer<? super A> initializer) {
-        getSimulation().createAgent(getPopulation(), initializer);
+        getSimulation().createAgent(getPrototypeGroup(), initializer);
     }
     */
 
