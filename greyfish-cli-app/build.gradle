@@ -2,7 +2,6 @@ group = "org.asoem.greyfish"
 version = "1.0.0-SNAPSHOT"
 
 apply plugin: 'java'
-sourceCompatibility = 1.6
 
 apply plugin: 'maven-publish'
 
@@ -21,6 +20,7 @@ dependencies {
             'com.google.guava:guava:15.0',
             'com.google.code.findbugs:jsr305:2.0.1',
             'net.sf.jopt-simple:jopt-simple:4.3'
+
     compile project(':greyfish-core')
 
     runtime 'ch.qos.logback:logback-classic:1.0.13',
