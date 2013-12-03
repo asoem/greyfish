@@ -34,7 +34,7 @@ final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> 
     public void logAgentEvent(final A agent, final long currentStep, final String source,
                               final String title, final String message) {
         final String logLine = String.format("Event: %d\t%s\t%s\t%s\t%s\t%s",
-                agent.simulation().hashCode(),
+                agent.getContext().get().getSimulation().hashCode(),
                 currentStep, agent.getPrototypeGroup(),
                 source, title, message
         );

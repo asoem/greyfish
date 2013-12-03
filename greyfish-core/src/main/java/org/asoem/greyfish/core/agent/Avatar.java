@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
+import com.google.common.base.Optional;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -11,12 +12,9 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph
- * Date: 24.02.12
- * Time: 16:18
- */
-public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D> extends ForwardingSpatialAgent<A, S, P> implements Serializable {
+public final class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
+        extends ForwardingSpatialAgent<A, S, P>
+        implements Serializable {
 
     private final SpatialAgent<A, S, P> delegate;
     private P projection;
@@ -84,6 +82,11 @@ public class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation
     private void readObject(final ObjectInputStream stream)
             throws InvalidObjectException {
         throw new InvalidObjectException("Proxy required");
+    }
+
+    @Override
+    public Optional<BasicSimulationContext<S, A>> getContext() {
+        return delegate().getContext();
     }
 
     private static class SerializedForm<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D> implements Serializable {

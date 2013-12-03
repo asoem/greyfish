@@ -42,7 +42,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
 
     private Set<Integer> parents;
     @Nullable
-    private SimulationContext<BasicSimulation, BasicAgent> simulationContext;
+    private BasicSimulationContext<BasicSimulation, BasicAgent> simulationContext;
 
     private DefaultBasicAgent(final DefaultBasicAgent original, final DeepCloner cloner) {
         checkNotNull(original);
@@ -142,7 +142,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    protected Optional<SimulationContext<BasicSimulation, BasicAgent>> getSimulationContext() {
+    public Optional<BasicSimulationContext<BasicSimulation, BasicAgent>> getContext() {
         return Optional.fromNullable(simulationContext);
     }
 
@@ -152,7 +152,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    protected void setSimulationContext(@Nullable final SimulationContext<BasicSimulation, BasicAgent> simulationContext) {
+    protected void setSimulationContext(@Nullable final BasicSimulationContext<BasicSimulation, BasicAgent> simulationContext) {
         this.simulationContext = simulationContext;
     }
 

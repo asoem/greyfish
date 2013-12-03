@@ -7,8 +7,7 @@ import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
-
-import javax.annotation.Nonnull;
+import org.asoem.greyfish.utils.collect.Functionals;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,11 +22,12 @@ public final class Agents {
     }
 
     /**
-     * Create a fast accessor for properties named {@code propertyName} of agents.
-     * (Fast means faster than {@link Agent#getProperty(String)})
+     * Create a fast accessor for properties named {@code propertyName} of agents. (Fast means faster than {@link
+     * Agent#getProperty(String)})
+     *
      * @param propertyName the name of the property to find
-     * @param <A> the {@link Agent}'s type
-     * @param <T> the type of the property
+     * @param <A>          the {@link Agent}'s type
+     * @param <T>          the type of the property
      * @return a new accessor instance
      */
     public static <A extends Agent<A, ?>, T extends AgentProperty<A, ?>>
@@ -37,21 +37,23 @@ public final class Agents {
                     new ComponentNamePredicate<A>(propertyName);
 
             @Override
-            public T apply(final A input) {
-                return (T) checkNotNull(input).findProperty(componentNamePredicate);
+            public T apply(final A agent) {
+                checkNotNull(agent);
+                return (T) Functionals.tryFind(agent.getProperties(), componentNamePredicate);
             }
         };
     }
 
     /**
-     * Create a fast accessor for traits named {@code traitName} of agents.
-     * (Fast means faster than {@link Agent#getTrait(String)}
+     * Create a fast accessor for traits named {@code traitName} of agents. (Fast means faster than {@link
+     * Agent#getTrait(String)}
+     *
      * @param traitName the name of the trait to find
-     * @param <A> the {@link Agent}'s type
-     * @param <T> the type of the trait
+     * @param <A>       the {@link Agent}'s type
+     * @param <T>       the type of the trait
      * @return a new accessor instance
-     * @deprecated Use {@link #traitAccessor(String, com.google.common.reflect.TypeToken)}
-     * or {@link #traitAccessor(String, Class)} instead
+     * @deprecated Use {@link #traitAccessor(String, com.google.common.reflect.TypeToken)} or {@link
+     * #traitAccessor(String, Class)} instead
      */
     @Deprecated
     public static <A extends Agent<A, ?>, T extends AgentTrait<A, ?>>
@@ -61,19 +63,21 @@ public final class Agents {
                     new ComponentNamePredicate<A>(traitName);
 
             @Override
-            public T apply(final A input) {
-                return (T) checkNotNull(input).findTrait(componentNamePredicate);
+            public T apply(final A agent) {
+                checkNotNull(agent);
+                return (T) Functionals.tryFind(agent.getTraits(), componentNamePredicate);
             }
         };
     }
 
     /**
-     * Create a fast accessor for traits named {@code traitName} of agents.
-     * (Fast means faster than {@link Agent#getTrait(String)}
+     * Create a fast accessor for traits named {@code traitName} of agents. (Fast means faster than {@link
+     * Agent#getTrait(String)}
+     *
      * @param traitName the name of the trait to find
-     * @param tClass the expected class of the trait
-     * @param <A> the {@link Agent}'s type
-     * @param <T> the type of the trait
+     * @param tClass    the expected class of the trait
+     * @param <A>       the {@link Agent}'s type
+     * @param <T>       the type of the trait
      * @return a new accessor instance
      * @throws ClassCastException if the trait could be found but is not of type {@code tClass}
      */
@@ -85,34 +89,34 @@ public final class Agents {
 
             @Override
             public T apply(final A input) {
-                return tClass.cast(checkNotNull(input).findTrait(componentNamePredicate));
+                return tClass.cast(Functionals.tryFind(checkNotNull(input).getTraits(), componentNamePredicate));
             }
         };
     }
 
     /**
-     * Create a fast accessor for traits named {@code traitName} of agents.
-     * (Fast means faster than {@link Agent#getTrait(String)}
+     * Create a fast accessor for traits named {@code traitName} of agents. (Fast means faster than {@link
+     * Agent#getTrait(String)}
+     *
      * @param traitName the name of the trait to find
-     * @param typeToken the expected type of the trait value
-     *      {@link org.asoem.greyfish.core.traits.AgentTrait#getValueType()}
-     * @param <A> the {@link Agent}'s type
-     * @param <V> the value type of the trait
+     * @param typeToken the expected type of the trait value {@link org.asoem.greyfish.core.traits.AgentTrait#getValueType()}
+     * @param <A>       the {@link Agent}'s type
+     * @param <V>       the value type of the trait
      * @return a new accessor instance
-     * @throws IllegalArgumentException if the trait could be found
-     *      but its value type is not assignable to {@code typeToken}
+     * @throws IllegalArgumentException if the trait could be found but its value type is not assignable to {@code
+     *                                  typeToken}
      */
     public static <A extends Agent<A, ?>, V>
     ComponentAccessor<A, AgentTrait<A, V>> traitAccessor(final String traitName, final TypeToken<V> typeToken) {
         return new ComponentAccessor<A, AgentTrait<A, V>>() {
             private final Predicate<AgentComponent<A>> componentNamePredicate
-                    = new ComponentNamePredicate<A>(traitName);
+                    = new ComponentNamePredicate<>(traitName);
 
             // Safe cast if the value type of the trait is assignable from given typeToken
             @SuppressWarnings("unchecked")
             @Override
             public AgentTrait<A, V> apply(final A input) {
-                final AgentTrait<A, ?> trait = checkNotNull(input).findTrait(componentNamePredicate);
+                final AgentTrait<A, ?> trait = Functionals.tryFind(checkNotNull(input).getTraits(), componentNamePredicate).get();
                 if (!typeToken.isAssignableFrom(trait.getValueType())) {
                     final String message = String.format("Value type %s is not assignable from type %s",
                             input, typeToken);

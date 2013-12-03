@@ -5,6 +5,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
@@ -69,7 +71,8 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             return ABORTED;
 
         final int eggCount = call(clutchSize, this);
-        LOGGER.info("{}: Producing {} offspring ", agent().get(), eggCount);
+        final A agent = agent().get();
+        LOGGER.info("{}: Producing {} offspring ", agent, eggCount);
 
         for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
@@ -77,9 +80,10 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
             if ( parents.size() != 1 )
                 throw new AssertionError("Sperm must have an uniparental history");
 
-            final Chromosome chromosome = blend(agent().get().getTraits(), sperm, agent().get().getId(), Iterables.getOnlyElement(parents));
+            final BasicSimulationContext<? extends DiscreteTimeSimulation<A>, A> simulationContext = agent.getContext().get();
+            final Chromosome chromosome = blend(agent.getTraits(), sperm, simulationContext.getAgentId(), Iterables.getOnlyElement(parents));
 
-            agent().get().reproduce(chromosome);
+            agent.reproduce(chromosome);
 
             //agent().get().logEvent(this, "offspringProduced", "");
         }

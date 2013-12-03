@@ -60,19 +60,6 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
 
 
     /**
-     * @return the number of times this {@code AgentAction} was executed when in
-     *         {@link ActionState#INITIAL}
-     */
-    public int getCompletionCount();
-
-    /**
-     *
-     * @param steps
-     * @return {@code true} if this action was not executed for at least the given number of {@code steps}
-     */
-    public boolean wasNotExecutedForAtLeast(final int steps);
-
-    /**
      * @return the last step at which this action reached {@link ActionState#COMPLETED}
      */
     long lastCompletionStep();

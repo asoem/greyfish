@@ -202,7 +202,7 @@ public class AgentObjectPoolAT {
                                         final BasicAgent clone;
                                         try {
                                             clone = objectPool.borrowObject(agent.getPrototypeGroup());
-                                            agent.simulation().enqueueAddition(clone);
+                                            agent.getContext().get().getSimulation().enqueueAddition(clone);
                                         } catch (Exception e) {
                                             throw new AssertionError(e);
                                         }
@@ -219,7 +219,8 @@ public class AgentObjectPoolAT {
                                     @Override
                                     public Void apply(final GenericAction<BasicAgent> caller, final Map<String, ?> args) {
                                         final BasicAgent agent = caller.agent().get();
-                                        agent.simulation().enqueueRemoval(agent, new Runnable() {
+                                        final BasicSimulation simulation = agent.getContext().get().getSimulation();
+                                        simulation.enqueueRemoval(agent, new Runnable() {
                                             @Override
                                             public void run() {
                                                 try {
@@ -260,7 +261,7 @@ public class AgentObjectPoolAT {
                                         final BasicAgent agent = caller.agent().get();
                                         final BasicAgent clone = Agents.createClone(agent).build();
                                         clone.initialize();
-                                        agent.simulation().enqueueAddition(clone);
+                                        agent.getContext().get().getSimulation().enqueueAddition(clone);
                                         return null;
                                     }
                                 })
@@ -271,7 +272,8 @@ public class AgentObjectPoolAT {
                                     @Override
                                     public Void apply(final GenericAction<BasicAgent> caller, final Map<String, ?> args) {
                                         final BasicAgent agent = caller.agent().get();
-                                        agent.simulation().enqueueRemoval(agent);
+                                        final BasicSimulation simulation = agent.getContext().get().getSimulation();
+                                        simulation.enqueueRemoval(agent);
                                         return null;
                                     }
                                 })

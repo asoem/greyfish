@@ -71,8 +71,9 @@ public final class HeritableTraitsChromosome implements Chromosome {
     }
 
     /**
-     * Create a new {@code HeritableTraitsChromosome} from given {@code agent}
-     * by creating {@code TraitVector}s of all it's heritable {@link Trait}s.
+     * Create a new {@code HeritableTraitsChromosome} from given {@code agent} by creating {@code TraitVector}s of all
+     * it's heritable {@link Trait}s.
+     *
      * @param agent the {@code Agent} to get the traits from.
      * @return a new {@code HeritableTraitsChromosome} object
      */
@@ -87,12 +88,13 @@ public final class HeritableTraitsChromosome implements Chromosome {
                         return TraitVector.copyOf(input);
                     }
                 });
-        return new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getId()));
+        return new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getContext().get().getAgentId()));
     }
 
     /**
-     * Create a new {@code HeritableTraitsChromosome} from given {@code agent}
-     * by creating {@code TraitVector}s of all it's heritable {@link Trait}s.
+     * Create a new {@code HeritableTraitsChromosome} from given {@code agent} by creating {@code TraitVector}s of all
+     * it's heritable {@link Trait}s.
+     *
      * @param agent the {@code Agent} to get the traits from.
      * @return a new {@code HeritableTraitsChromosome} object
      */
@@ -113,7 +115,7 @@ public final class HeritableTraitsChromosome implements Chromosome {
                     }
                 });
 
-        return new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getId()));
+        return new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getContext().get().getAgentId()));
     }
 
     private static <T> TraitVector<T> createInitialValueTraitVector(final AgentTrait<?, T> input) {

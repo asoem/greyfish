@@ -1,6 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
+import com.google.common.base.Optional;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
+import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
 import org.asoem.greyfish.utils.base.Callback;
 import org.junit.Test;
 
@@ -27,7 +31,11 @@ public class CachingPropertyTest {
                 .expires(CachingProperty.expiresAtBirth())
                 .build();
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        given(agent.getSimulationStep()).willReturn(0L, 0L, 1L, 1L);
+        final Basic2DSimulation simulationMock = mock(Basic2DSimulation.class);
+        given(simulationMock.getTime()).willReturn(0L, 0L, 1L, 1L);
+        final BasicSimulationContext mock = mock(BasicSimulationContext.class);
+        given(mock.getSimulation()).willReturn(simulationMock);
+        given(agent.getContext()).willReturn(Optional.<BasicSimulationContext<Basic2DSimulation, Basic2DAgent>>of(mock));
         lifetimeProperty.setAgent(agent);
 
         // when
@@ -49,7 +57,9 @@ public class CachingPropertyTest {
                 .expires(CachingProperty.expiresEveryStep())
                 .build();
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        given(agent.getSimulationStep()).willReturn(0L, 0L, 1L, 1L);
+        final BasicSimulationContext contextMock = mock(BasicSimulationContext.class);
+        given(contextMock.getTime()).willReturn(0L, 0L, 1L, 1L);
+        given(agent.getContext()).willReturn(Optional.<BasicSimulationContext<Basic2DSimulation, Basic2DAgent>>of(contextMock));
         lifetimeProperty.setAgent(agent);
 
         // when

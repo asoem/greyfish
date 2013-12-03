@@ -31,43 +31,7 @@ import static org.mockito.Mockito.*;
  * Time: 17:54
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultGreyfishAgentImplTest {
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAddGene() throws Exception {
-        // given
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class)).build();
-
-        // when
-        agent.addTrait(mock(AgentTrait.class));
-
-        // then
-        // UnsupportedOperationException
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAddAction() throws Exception {
-        // given
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class)).build();
-
-        // when
-        agent.addAction(mock(AgentAction.class));
-
-        // then
-        // UnsupportedOperationException
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAddProperty() throws Exception {
-        // given
-        final DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(mock(PrototypeGroup.class)).build();
-
-        // when
-        agent.addProperty(mock(AgentProperty.class));
-
-        // then
-        // UnsupportedOperationException
-    }
+public class DefaultBasic2DAgentTest {
 
     @Test
     public void testGetGene() throws Exception {

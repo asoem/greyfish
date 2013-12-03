@@ -9,11 +9,6 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph
- * Date: 10.10.11
- * Time: 15:39
- */
 @SuppressWarnings("unused")
 public final class MessageTemplates {
 

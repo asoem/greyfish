@@ -90,7 +90,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ?>> extends AbstractA
     public String toString() {
         return this.getClass().getSimpleName() +
                 "[" + getName() + "@" + nextStateKey + "]" +
-                "°<" + ((!agent().isPresent()) ? "null" : String.valueOf(agent().get().getId()) + "><"
+                "°<" + ((!agent().isPresent()) ? "null" : String.valueOf(agent().get().getContext().get().getAgentId()) + "><"
         );
     }
 

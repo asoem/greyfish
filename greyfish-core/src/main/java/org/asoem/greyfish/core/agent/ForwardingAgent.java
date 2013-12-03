@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.agent;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
@@ -12,7 +11,9 @@ import org.asoem.greyfish.utils.collect.FunctionalList;
 
 import java.util.Set;
 
-public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>> extends ForwardingObject implements Agent<A, S> {
+abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>>
+        extends ForwardingObject
+        implements Agent<A, S> {
 
     @Override
     protected abstract Agent<A, S> delegate();
@@ -23,49 +24,13 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     }
 
     @Override
-    public boolean hasPopulation(final PrototypeGroup prototypeGroup) {
-        return delegate().hasPopulation(prototypeGroup);
-    }
-
-    /**
-     * If you wish overwrite {@link Agent#addAction}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
-     */
-    @Override
-    public boolean addAction(final AgentAction<A> action) {
-        return delegate().addAction(action);
-    }
-
-    @Override
-    public boolean removeAction(final AgentAction<A> action) {
-        return delegate().removeAction(action);
-    }
-
-    @Override
-    public void removeAllActions() {
-        delegate().removeAllActions();
+    public boolean isMemberOf(final PrototypeGroup prototypeGroup) {
+        return delegate().isMemberOf(prototypeGroup);
     }
 
     @Override
     public FunctionalList<AgentAction<A>> getActions() {
         return delegate().getActions();
-    }
-
-    /**
-     * If you wish overwrite {@link Agent#addProperty}, make sure to call {@link AgentComponent#setAgent} on {@code action} after addition.
-     */
-    @Override
-    public boolean addProperty(final AgentProperty<A, ?> property) {
-        return delegate().addProperty(property);
-    }
-
-    @Override
-    public boolean removeProperty(final AgentProperty<A, ?> property) {
-        return delegate().removeProperty(property);
-    }
-
-    @Override
-    public void removeAllProperties() {
-        delegate().removeAllProperties();
     }
 
     @Override
@@ -76,21 +41,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     @Override
     public AgentProperty<A, ?> getProperty(final String name) {
         return delegate().getProperty(name);
-    }
-
-    @Override
-    public AgentProperty<A, ?> findProperty(final Predicate<? super AgentProperty<A, ?>> predicate) {
-        return delegate().findProperty(predicate);
-    }
-
-    @Override
-    public int getId() {
-        return delegate().getId();
-    }
-
-    @Override
-    public long getTimeOfBirth() {
-        return delegate().getTimeOfBirth();
     }
 
     @Override
@@ -112,12 +62,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     public void receive(final ACLMessage<A> messages) {
         delegate().receive(messages);
     }
-
-    @Override
-    public long getAge() {
-        return delegate().getAge();
-    }
-
     @Override
     public void run() {
         delegate().run();
@@ -134,12 +78,7 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     }
 
     @Override
-    public S simulation() {
-        return delegate().simulation();
-    }
-
-    @Override
-    public void activate(final SimulationContext<S, A> context) {
+    public void activate(final BasicSimulationContext<S, A> context) {
         delegate().activate(context);
     }
 
@@ -154,21 +93,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     }
 
     @Override
-    public boolean addTrait(final AgentTrait<A, ?> trait) {
-        return delegate().addTrait(trait);
-    }
-
-    @Override
-    public boolean removeGene(final AgentTrait<A, ?> gene) {
-        return delegate().removeGene(gene);
-    }
-
-    @Override
-    public void removeAllGenes() {
-        delegate().removeAllGenes();
-    }
-
-    @Override
     public FunctionalList<AgentTrait<A, ?>> getTraits() {
         return delegate().getTraits();
     }
@@ -176,11 +100,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     @Override
     public void initialize() {
         delegate().initialize();
-    }
-
-    @Override
-    public AgentTrait<A, ?> findTrait(final Predicate<? super AgentTrait<A, ?>> traitPredicate) {
-        return delegate().findTrait(traitPredicate);
     }
 
     @Override
@@ -196,21 +115,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     @Override
     public Set<Integer> getParents() {
         return delegate().getParents();
-    }
-
-    @Override
-    public Iterable<A> filterAgents(final Predicate<? super A> predicate) {
-        return delegate().filterAgents(predicate);
-    }
-
-    @Override
-    public Iterable<A> getAllAgents() {
-        return delegate().getAllAgents();
-    }
-
-    @Override
-    public long getSimulationStep() {
-        return delegate().getSimulationStep();
     }
 
     @Override

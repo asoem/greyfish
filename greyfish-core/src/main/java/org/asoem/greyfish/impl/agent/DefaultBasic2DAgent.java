@@ -52,7 +52,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private Point2D projection;
     private Motion2D motion = ImmutableMotion2D.noMotion();
     @Nullable
-    private SimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext;
+    private BasicSimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext;
     private Set<Integer> parents = Collections.emptySet();
 
     @SuppressWarnings("unchecked") // casting a clone is safe
@@ -155,7 +155,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     public void reproduce(final Chromosome chromosome) {
         final Basic2DAgent clone = CycleCloner.clone(this);
         chromosome.updateAgent(clone);
-        simulation().enqueueAddition(clone, getProjection());
+        getContext().get().getSimulation().enqueueAddition(clone, getProjection());
     }
 
     @Override
@@ -166,12 +166,12 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     @Override
     public String toString() {
         return "Agent[" + getPrototypeGroup() + ']' + "#"
-                + (getSimulationContext().isPresent() ? getSimulationContext().get().getAgentId() : "null")
-                + "@" + (getSimulationContext().isPresent() ? getSimulationContext().get().getSimulationStep() : "null");
+                + (getContext().isPresent() ? getContext().get().getAgentId() : "null")
+                + "@" + (getContext().isPresent() ? getContext().get().getSimulationStep() : "null");
     }
 
     @Override
-    protected Optional<SimulationContext<Basic2DSimulation, Basic2DAgent>> getSimulationContext() {
+    public Optional<BasicSimulationContext<Basic2DSimulation, Basic2DAgent>> getContext() {
         return Optional.fromNullable(simulationContext);
     }
 
@@ -181,7 +181,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    protected void setSimulationContext(@Nullable final SimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext) {
+    protected void setSimulationContext(@Nullable final BasicSimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext) {
         this.simulationContext = simulationContext;
     }
 

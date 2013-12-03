@@ -7,4 +7,5 @@ import org.asoem.greyfish.impl.simulation.BasicSimulation;
  * A basic agent configuration to be simulated in a {@link org.asoem.greyfish.impl.simulation.BasicSimulation}.
  */
 public interface BasicAgent extends Agent<BasicAgent, BasicSimulation> {
+
 }

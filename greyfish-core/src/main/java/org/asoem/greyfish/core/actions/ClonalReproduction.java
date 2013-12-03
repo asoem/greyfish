@@ -36,7 +36,7 @@ public final class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAge
                     });
 
             final HeritableTraitsChromosome chromosome =
-                    new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getId()));
+                    new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getContext().get().getAgentId()));
 
             agent.reproduce(chromosome);
 

@@ -38,7 +38,7 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Synch
         return Iterables.filter(getActiveAgents(), new Predicate<A>() {
             @Override
             public boolean apply(final A agent) {
-                return agent.hasPopulation(prototypeGroup);
+                return agent.isMemberOf(prototypeGroup);
             }
         });
     }

@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.eval.impl;
 
 import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
@@ -58,8 +60,12 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
         final Basic2DAgent agent = mock(Basic2DAgent.class);
         final Basic2DSimulation simulation = mock(Basic2DSimulation.class);
+        final Optional<BasicSimulationContext<Basic2DSimulation, Basic2DAgent>> contextMockOptional =
+                Optional.<BasicSimulationContext<Basic2DSimulation, Basic2DAgent>>of(mock(BasicSimulationContext.class));
+
         given(action.agent()).willReturn(Optional.of(agent));
-        given(agent.simulation()).willReturn(simulation);
+        given(agent.getContext()).willReturn(contextMockOptional);
+        given(contextMockOptional.get().getSimulation()).willReturn(simulation);
 
         // when
         final Object ret = converter.get("this.agent.getSimulation", AgentAction.class).apply(action);
@@ -98,8 +104,11 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
     public void shouldReturnAgentsAgeForAnAction() {
         // given
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        given(agent.getAge()).willReturn(23L);
+        final BasicSimulationContext<Basic2DSimulation, Basic2DAgent> contextMock = mock(BasicSimulationContext.class);
         final AgentAction<Basic2DAgent> action = mock(AgentAction.class);
+
+        given(agent.getContext()).willReturn(Optional.of(contextMock));
+        given(contextMock.getAge()).willReturn(23L);
         given(action.agent()).willReturn(Optional.of(agent));
 
         // when

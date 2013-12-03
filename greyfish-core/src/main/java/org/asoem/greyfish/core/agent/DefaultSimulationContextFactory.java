@@ -16,7 +16,7 @@ public final class DefaultSimulationContextFactory<S extends DiscreteTimeSimulat
     }
 
     @Override
-    public SimulationContext<S, A> createActiveContext(final S simulation, final int agentId, final long simulationStep) {
+    public BasicSimulationContext<S, A> createActiveContext(final S simulation, final int agentId, final long simulationStep) {
         return DefaultActiveSimulationContext.create(simulation, agentId, simulationStep);
     }
 

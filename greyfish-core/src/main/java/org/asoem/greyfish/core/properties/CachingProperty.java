@@ -67,7 +67,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         if (expirationCallback.apply(CachingProperty.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
             valueCache.update();
-            lastModificationStep = agent().get().getSimulationStep();
+            lastModificationStep = agent().get().getContext().get().getTime();
         }
         return valueCache.get();
     }
@@ -169,9 +169,9 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         INSTANCE;
 
         @Override
-        public Boolean apply(final CachingProperty<?,?> caller, final Map<String, ?> args) {
-            final Agent<?,?> agent = caller.agent().get();
-            return caller.getLastModificationStep() < agent.getTimeOfBirth();
+        public Boolean apply(final CachingProperty<?, ?> caller, final Map<String, ?> args) {
+            final Agent<?, ?> agent = caller.agent().get();
+            return caller.getLastModificationStep() < agent.getContext().get().getActivationStep();
         }
     }
 
@@ -183,9 +183,9 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         INSTANCE;
 
         @Override
-        public Boolean apply(final CachingProperty<?,?> caller, final Map<String, ?> args) {
-            final Agent<?,?> agent = caller.agent().get();
-            return caller.getLastModificationStep() != agent.getSimulationStep();
+        public Boolean apply(final CachingProperty<?, ?> caller, final Map<String, ?> args) {
+            final Agent<?, ?> agent = caller.agent().get();
+            return caller.getLastModificationStep() != agent.getContext().get().getTime();
         }
     }
 }

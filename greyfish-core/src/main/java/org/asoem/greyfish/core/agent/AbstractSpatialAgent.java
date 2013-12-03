@@ -11,11 +11,11 @@ public abstract class AbstractSpatialAgent<A extends SpatialAgent<A, S, P>, S ex
 
     @Override
     public double distance(final double degrees) {
-        return simulation().distance(self(), degrees);
+        return getContext().get().getSimulation().distance(self(), degrees);
     }
 
     @Override
     public Iterable<A> findNeighbours(final double radius) {
-        return simulation().findNeighbours(self(), radius);
+        return getContext().get().getSimulation().findNeighbours(self(), radius);
     }
 }

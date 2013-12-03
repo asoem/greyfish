@@ -67,8 +67,8 @@ public final class SimulationLoggers {
      * @param commitThreshold the threshold after which to commit a batch of queries
      * @return a new JDBC logger
      */
-    public static SimulationLogger<SpatialAgent<?, ?, ?>> createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
-        return new JDBCLogger(connectionManager, commitThreshold);
+    public static <A extends SpatialAgent<?, ?, ?>> SimulationLogger<A> createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
+        return new JDBCLogger<>(connectionManager, commitThreshold);
     }
 
     private static final class SynchronizedLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {

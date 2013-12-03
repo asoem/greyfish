@@ -59,9 +59,9 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     @Override
     public final ActionState apply() {
         final A agent = agent().get();
-        assert stepAtLastSuccess < agent.getSimulationStep()
+        assert stepAtLastSuccess < agent.getContext().get().getTime()
                 : "actions must not get executed twice per step: "
-                + stepAtLastSuccess + " >= " + agent.getSimulationStep();
+                + stepAtLastSuccess + " >= " + agent.getContext().get().getTime();
 
         if (INITIAL == actionState) {
             checkPreconditions();
@@ -76,7 +76,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
 
                 case COMPLETED:
                     ++successCount;
-                    stepAtLastSuccess = agent.getSimulationStep();
+                    stepAtLastSuccess = agent.getContext().get().getTime();
                     Callbacks.call(onSuccess, this);
                     break;
 
@@ -141,16 +141,6 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
         if (condition != null) {
             condition.setAction(this);
         }
-    }
-
-    @Override
-    public final int getCompletionCount() {
-        return this.successCount;
-    }
-
-    public final boolean wasNotExecutedForAtLeast(final int steps) {
-        // TODO: logical error: stepAtLastSuccess = 0 does not mean, that it really did execute at 0
-        return agent().get().getSimulationStep() - stepAtLastSuccess >= steps;
     }
 
     @Override

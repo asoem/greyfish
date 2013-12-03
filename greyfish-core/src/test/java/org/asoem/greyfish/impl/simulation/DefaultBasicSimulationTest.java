@@ -1,8 +1,10 @@
 package org.asoem.greyfish.impl.simulation;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.EventBus;
 import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.junit.Test;
@@ -75,7 +77,7 @@ public class DefaultBasicSimulationTest {
         // then
         assertThat(agentCountBeforeStep, is(0));
         assertThat(agentCountAfterStep, is(1));
-        verify(agentMock).activate(any(SimulationContext.class));
+        verify(agentMock).activate(any(BasicSimulationContext.class));
     }
 
     @Test
@@ -84,7 +86,9 @@ public class DefaultBasicSimulationTest {
         final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
         final BasicAgent agentMock = mock(BasicAgent.class);
         given(agentMock.isActive()).willReturn(false, true);
-        given(agentMock.simulation()).willReturn(simulation);
+        final BasicSimulationContext<BasicSimulation, BasicAgent> contextMock = mock(BasicSimulationContext.class);
+        given(agentMock.getContext()).willReturn(Optional.<BasicSimulationContext<BasicSimulation,BasicAgent>>of(contextMock));
+        given(contextMock.getSimulation()).willReturn(simulation);
         simulation.enqueueAddition(agentMock);
         simulation.nextStep();
         checkState(simulation.countAgents() == 1);
@@ -134,7 +138,9 @@ public class DefaultBasicSimulationTest {
                 .eventBus(eventPublisherMock)
                 .build();
         final BasicAgent agentMock = mock(BasicAgent.class);
-        given(agentMock.simulation()).willReturn(simulation);
+        final BasicSimulationContext<BasicSimulation, BasicAgent> contextMock = mock(BasicSimulationContext.class);
+        given(agentMock.getContext()).willReturn(Optional.<BasicSimulationContext<BasicSimulation,BasicAgent>>of(contextMock));
+        given(contextMock.getSimulation()).willReturn(simulation);
         given(agentMock.isActive()).willReturn(false, true, true, false);
 
         // when

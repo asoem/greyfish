@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
+import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -11,7 +12,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @param <S> the type of the getSimulation
  * @param <A> the type of the agent
  */
-public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> implements SimulationContext<S,A> {
+public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> implements BasicSimulationContext<S, A> {
 
     private final S simulation;
 
@@ -48,8 +49,8 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
     @Override
     public long getAge() {
         checkState(getSimulationStep() >= getActivationStep(),
-                "Agent seems to be born in the future: activationStep={} > getSimulationStep()={}",
-                getActivationStep(), getSimulationStep());
+                "Agent seems to be born in the future: activationStep={} > simulation.getTime()={}",
+                getActivationStep(), simulation.getTime());
 
         return getSimulation().getTime() - getActivationStep();
     }
@@ -57,6 +58,21 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
     @Override
     public long getSimulationStep() {
         return getSimulation().getTime();
+    }
+
+    @Override
+    public long getTime() {
+        return getSimulation().getTime();
+    }
+
+    @Override
+    public void deliverMessage(final ACLMessage<A> message) {
+        getSimulation().deliverMessage(message);
+    }
+
+    @Override
+    public String simulationName() {
+        return getSimulation().getName();
     }
 
     private static final long serialVersionUID = 0;

@@ -7,12 +7,9 @@ import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Set;
 
-/**
- * User: christoph
- * Date: 04.12.12
- * Time: 15:19
- */
-public abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D> extends ForwardingAgent<A, S> implements SpatialAgent<A, S, P> {
+abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
+        extends ForwardingAgent<A, S>
+        implements SpatialAgent<A, S, P> {
 
     @Override
     protected abstract SpatialAgent<A, S, P> delegate();

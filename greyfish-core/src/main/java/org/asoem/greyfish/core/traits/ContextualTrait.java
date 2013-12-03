@@ -4,6 +4,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -21,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  *
  */
-public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> {
+public class ContextualTrait<A extends Agent<A, ? extends DiscreteTimeSimulation<A>>, T> extends AbstractTrait<A, T> {
 
     private final Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
@@ -65,7 +66,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         if (expirationCallback.apply(ContextualTrait.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
             valueCache.update();
-            lastModificationStep = agent().get().getSimulationStep();
+            lastModificationStep = agent().get().getContext().get().getTime();
         }
         return valueCache.get();
     }
@@ -179,7 +180,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         @Override
         public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
             final Agent<?,?> agent = caller.agent().get();
-            return caller.getLastModificationStep() < agent.getTimeOfBirth();
+            return caller.getLastModificationStep() < agent.getContext().get().getActivationStep();
         }
     }
 
@@ -193,7 +194,7 @@ public class ContextualTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, 
         @Override
         public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
             final Agent<?,?> agent = caller.agent().get();
-            return caller.getLastModificationStep() != agent.getSimulationStep();
+            return caller.getLastModificationStep() != agent.getContext().get().getTime();
         }
     }
 }

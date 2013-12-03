@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.io;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
@@ -13,8 +14,10 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.dsl.Disruptor;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -39,17 +42,18 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A {@code SimulationLogger} which logs to a JDBC {@link Connection}.
- * This implementation uses a {@link Disruptor} to handle the incoming events and therefore is threadsafe.
+ * A {@code SimulationLogger} which logs to a JDBC {@link Connection}. This implementation uses a {@link Disruptor} to
+ * handle the incoming events and therefore is threadsafe.
  */
-final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
+final class JDBCLogger<A extends SpatialAgent<?, ?, ?>> implements SimulationLogger<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
     private static final int RING_BUFFER_SIZE = 1024;
 
     private final ConnectionManager connectionManager;
     private final Disruptor<BindEvent> disruptor;
-    private final List<BatchQuery> queries;
+    @VisibleForTesting
+    final List<BatchQuery> queries;
 
     private final AtomicInteger nameIdSequence = new AtomicInteger();
     private final Cache<String, Integer> nameIdCache = CacheBuilder.newBuilder()
@@ -72,7 +76,7 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
         this.connectionManager = checkNotNull(connectionManager);
 
         final ExecutorService executor = Executors.newSingleThreadExecutor();
-        disruptor = new Disruptor<BindEvent>(new EventFactory<BindEvent>() {
+        disruptor = new Disruptor<>(new EventFactory<BindEvent>() {
             @Override
             public BindEvent newInstance() {
                 return new BindEvent();
@@ -167,15 +171,17 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     }
 
     @Override
-    public void logAgentCreation(final SpatialAgent<?, ?, ?> agent) {
+    public void logAgentCreation(final A agent) {
+        final BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>> simulationContext =
+                agent.getContext().get();
         addQuery(new InsertAgentQuery(
-                agent.getId(),
+                simulationContext.getAgentId(),
                 idForName(agent.getPrototypeGroup().getName()),
-                (int) agent.getTimeOfBirth(), simulationIdCache.getUnchecked(agent.simulation().getName())));
+                (int) simulationContext.getActivationStep(), simulationIdCache.getUnchecked(simulationContext.simulationName())));
 
         final Set<Integer> parents = agent.getParents();
         for (final Integer parentId : parents) {
-            addQuery(new InsertChromosomeQuery(agent.getId(), parentId));
+            addQuery(new InsertChromosomeQuery(simulationContext.getAgentId(), parentId));
         }
 
         for (final AgentTrait<?, ?> trait : agent.getTraits()) {
@@ -189,12 +195,12 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
 
             if (value instanceof Number) {
                 addQuery(new InsertTraitAsDoubleQuery(
-                        agent.getId(),
+                        simulationContext.getAgentId(),
                         idForName(trait.getName()),
                         Optional.fromNullable((Number) value).or(Double.NaN).doubleValue()));
             } else {
                 addQuery(new InsertTraitAsStringQuery(
-                        agent.getId(),
+                        simulationContext.getAgentId(),
                         idForName(trait.getName()),
                         idForName(String.valueOf(value))));
             }
@@ -214,11 +220,11 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     }
 
     @Override
-    public void logAgentEvent(final SpatialAgent<?, ?, ?> agent, final long currentStep, final String source,
+    public void logAgentEvent(final A agent, final long currentStep, final String source,
                               final String title, final String message) {
         final InsertEventQuery insertEventOperation =
                 new InsertEventQuery(
-                        (int) currentStep, agent.getId(), agent.getProjection(),
+                        (int) currentStep, agent.getContext().get().getAgentId(), agent.getProjection(),
                         idForName(source), idForName(title), message);
         addQuery(insertEventOperation);
     }
@@ -242,6 +248,7 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
 
     /**
      * Flush this logger. Causes the logger to write all cached (not yet stored stored) logs to the database.
+     *
      * @throws SQLException
      */
     public void flush() throws SQLException {
