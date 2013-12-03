@@ -1,8 +1,11 @@
 package org.asoem.greyfish.utils.math;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -13,6 +16,7 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -29,7 +33,8 @@ public class RandomGeneratorsTest {
     @Test
     public void testSampleCollection() throws Exception {
         // given
-        final RandomGenerator rng = RandomGenerators.rng(0);
+        final RandomGenerator rng = new JDKRandomGenerator();
+        rng.setSeed(0);
         final Collection<Integer> elements = ImmutableList.of(0,1,2,3,4,5,6,7,8,9);
         final int sampleSize = 5;
 
@@ -37,7 +42,7 @@ public class RandomGeneratorsTest {
         final Collection<Integer> sample = RandomGenerators.sample(rng, elements, sampleSize);
 
         // then
-        assertThat(sample, contains(6, 1, 1, 5, 0));
+        assertThat(sample, contains(7, 2, 6, 5, 5));
     }
 
     @Test
@@ -51,8 +56,8 @@ public class RandomGeneratorsTest {
             elementsToSample.add(new Random().nextDouble());
         }
 
-        final RandomGenerator rng = mock(RandomGenerator.class);
-        given(rng.nextInt(10)).willReturn(4, 6, 0);
+        final RandomGenerator rng = new JDKRandomGenerator();
+        rng.setSeed(0);
 
         // when
         final Iterable<Double> samples = RandomGenerators.sampleOnce(rng, elementsToSample, sampleSize);
@@ -60,9 +65,10 @@ public class RandomGeneratorsTest {
         // then
         final ImmutableList<Double> actualSamples = ImmutableList.copyOf(samples);
         final ImmutableList<Double> expectedSamples = ImmutableList.of(
-                elementsToSample.get(4),
-                elementsToSample.get(6),
-                elementsToSample.get(0));
+                elementsToSample.get(7),
+                elementsToSample.get(2),
+                elementsToSample.get(6));
+        System.out.println(Joiner.on(",").join(elementsToSample));
         assertThat(actualSamples, Matchers.<Collection<Double>>both(Matchers.hasSize(expectedSamples.size()))
                 .and(everyItem(isIn(expectedSamples))));
     }

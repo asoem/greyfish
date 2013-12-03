@@ -195,7 +195,7 @@ public final class RandomGenerators {
 
         final UniformIntegerDistribution distribution = new UniformIntegerDistribution(rng, 0, elements.size() - 1);
         final int[] randomIndexes = distribution.sample(sampleSize);
-
+        assert randomIndexes.length == sampleSize;
         final List<T> list = new ArrayList<T>(sampleSize);
         for (int randomIndex : randomIndexes) {
             list.add(Iterables.get(elements, randomIndex));
