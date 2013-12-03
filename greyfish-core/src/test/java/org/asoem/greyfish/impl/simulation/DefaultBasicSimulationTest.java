@@ -1,10 +1,9 @@
 package org.asoem.greyfish.impl.simulation;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.eventbus.EventBus;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.SimulationContext;
-import org.asoem.greyfish.core.io.SimulationLoggers;
-import org.asoem.greyfish.core.utils.DiscreteTimeListener;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.junit.Test;
 
@@ -12,8 +11,8 @@ import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -42,7 +41,7 @@ public class DefaultBasicSimulationTest {
     public void testBuilderWithLogger() throws Exception {
         // when
         final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test")
-                .logger(SimulationLoggers.nullLogger()).build();
+                .build();
 
         // then
         assertThat(simulation, is(notNullValue()));
@@ -128,17 +127,30 @@ public class DefaultBasicSimulationTest {
     }
 
     @Test
-    public void testAddTimeChangeListener() throws Exception {
+    public void testEventPublisher() throws Exception {
         // given
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
-        final DiscreteTimeListener timeListenerMock = mock(DiscreteTimeListener.class);
-        final long time = simulation.getTime();
+        EventBus eventPublisherMock = mock(EventBus.class);
+        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test")
+                .eventBus(eventPublisherMock)
+                .build();
+        final BasicAgent agentMock = mock(BasicAgent.class);
+        given(agentMock.simulation()).willReturn(simulation);
+        given(agentMock.isActive()).willReturn(false, true, true, false);
 
         // when
-        simulation.addTimeChangeListener(timeListenerMock);
+        simulation.enqueueAddition(agentMock);
         simulation.nextStep();
 
         // then
-        verify(timeListenerMock).timeChanged(simulation, time, time+1);
+        verify(eventPublisherMock).post(argThat(isA(AgentAddedEvent.class)));
+        verify(eventPublisherMock).post(argThat(isA(TimeChangedEvent.class)));
+
+        // and when
+        simulation.enqueueRemoval(agentMock);
+        simulation.nextStep();
+
+        // then
+        verify(eventPublisherMock).post(argThat(isA(AgentRemovedEvent.class)));
+        verify(eventPublisherMock, times(2)).post(argThat(isA(TimeChangedEvent.class)));
     }
 }

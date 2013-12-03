@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.*;
+import com.google.common.eventbus.EventBus;
 import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
@@ -12,11 +13,9 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.agent.SpatialAgent;
-import org.asoem.greyfish.core.io.SimulationLogger;
-import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.core.utils.DiscreteTimeListener;
+import org.asoem.greyfish.impl.simulation.AgentAddedEvent;
 import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -49,7 +48,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
     private final Set<A> prototypes;
-    private final SimulationLogger<? super A> simulationLogger;
+    private final EventBus eventBus;
     private String title = "untitled";
     private final AtomicInteger agentIdSequence = new AtomicInteger();
     private SimulationState state;
@@ -59,18 +58,18 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
         this.space = new AgentSpace<Z, A, P>(checkNotNull(builder.space));
-        this.simulationLogger = checkNotNull(builder.simulationLogger);
 
         this.addAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<NewAgentEvent<P, A>>newArrayList()));
         this.removeAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()));
         this.deliverAgentMessageMessages = checkNotNull(Collections.synchronizedList(Lists.<DeliverAgentMessageMessage<A>>newArrayList()));
 
         this.snapshotValues = Maps.newConcurrentMap();
-        executorService = builder.executionService;
+        this.executorService = builder.executionService;
+        this.eventBus = builder.eventPublisher;
     }
 
     /**
-     * Add an agent to this simulation at given {@code projection} in space.
+     * Add an agent to this getSimulation at given {@code projection} in space.
      * @param agent the agent insert
      * @param projection the projection
      */
@@ -88,7 +87,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
         LOGGER.debug("Agent activated: {}", agent);
 
-        simulationLogger.logAgentCreation(agent);
+        eventBus.post(new AgentAddedEvent(agent, this));
     }
 
     protected abstract S self();
@@ -193,7 +192,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     }
 
     private void executeAllAgents() throws InterruptedException, ExecutionException {
-        final List<List<A>> partition = Lists.partition(ImmutableList.copyOf(getAgents()), parallelizationThreshold);
+        final List<List<A>> partition = Lists.partition(ImmutableList.copyOf(getActiveAgents()), parallelizationThreshold);
         final Collection<Callable<Void>> callables = Lists.transform(partition, new Function<List<A>, Callable<Void>>() {
             @Override
             public Callable<Void> apply(final List<A> input) {
@@ -224,7 +223,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     }
 
     private void processAgentsMovement() throws InterruptedException {
-        final List<List<A>> partition = Lists.partition(ImmutableList.copyOf(getAgents()), parallelizationThreshold);
+        final List<List<A>> partition = Lists.partition(ImmutableList.copyOf(getActiveAgents()), parallelizationThreshold);
         final Collection<Callable<Void>> callables = Lists.transform(partition, new Function<List<A>, Callable<Void>>() {
             @Override
             public Callable<Void> apply(final List<A> input) {
@@ -244,7 +243,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     }
 
     /**
-     * Remove all agents from this simulation and the underlying {@code #space} as requested by {@link #removeAgentMessages}
+     * Remove all agents from this getSimulation and the underlying {@code #space} as requested by {@link #removeAgentMessages}
      */
     private void processRequestedAgentRemovals() {
         LOGGER.debug("Removing {} agent(s)", removeAgentMessages.size());
@@ -286,11 +285,6 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         return space.agentsByPopulation.size();
     }
 
-    @Override
-    protected final SimulationLogger<? super A> getSimulationLogger() {
-        return simulationLogger;
-    }
-
     private void setState(final SimulationState state) {
         LOGGER.debug("Switching state: {} -> {}", this.state, state);
         this.state = state;
@@ -301,8 +295,8 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     }
 
     @Override
-    public final void addTimeChangeListener(final DiscreteTimeListener timeListener) {
-        throw new UnsupportedOperationException("Not yet implemented"); // TODO implement
+    public final String getStatusInfo() {
+        return String.format("%d agents; %d steps", countAgents(), getTime());
     }
 
     private interface NewAgentEvent<P extends Object2D, A extends SpatialAgent<A, ?, P>> {
@@ -452,8 +446,8 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         private int parallelizationThreshold = 1000;
         private final Z space;
         private final Set<A> prototypes;
-        private SimulationLogger<? super A> simulationLogger = SimulationLoggers.<A>consoleLogger();
         private ExecutorService executionService = Executors.newCachedThreadPool();
+        private EventBus eventPublisher = new EventBus();
 
         public Basic2DSimulationBuilder(final Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
@@ -506,16 +500,6 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         }
 
         /**
-         * Set the simulation logger to use for logging simulation events.
-         * @param simulationLogger the simulation logger
-         * @return this builder
-         */
-        public final B simulationLogger(final SimulationLogger<? super A> simulationLogger) {
-            this.simulationLogger = checkNotNull(simulationLogger);
-            return self();
-        }
-
-        /**
          * Set the executor service used to execute agents.
          * @see org.asoem.greyfish.core.agent.Agent#run()
          * @param executionService the execution servive to use
@@ -523,6 +507,11 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
          */
         public final B executionService(final ExecutorService executionService) {
             this.executionService = checkNotNull(executionService);
+            return self();
+        }
+
+        public final B eventBus(final EventBus eventBus) {
+            this.eventPublisher = checkNotNull(eventBus);
             return self();
         }
     }

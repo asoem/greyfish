@@ -81,7 +81,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
 
             agent().get().reproduce(chromosome);
 
-            agent().get().logEvent(this, "offspringProduced", "");
+            //agent().get().logEvent(this, "offspringProduced", "");
         }
 
         offspringCount += eggCount;

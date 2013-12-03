@@ -25,6 +25,7 @@ import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.asoem.greyfish.utils.space.TwoDimTree;
 import org.asoem.greyfish.utils.space.TwoDimTreeFactory;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -75,7 +76,7 @@ public class DefaultBasic2DSimulationTest {
         simulation.nextStep();
 
         // then
-        assertThat(simulation.getAgents(), hasSize(2));
+        assertThat(simulation.getActiveAgents(), Matchers.<Basic2DAgent>iterableWithSize(2));
     }
 
     @Test
@@ -102,7 +103,7 @@ public class DefaultBasic2DSimulationTest {
         simulation.nextStep();
 
         // then
-        assertThat(simulation.getAgents(), containsInAnyOrder(agents.toArray()));
+        assertThat(simulation.getActiveAgents(), containsInAnyOrder(agents.toArray()));
     }
 
     @Test
@@ -113,13 +114,13 @@ public class DefaultBasic2DSimulationTest {
                 .addWall(0, 0, TileDirection.NORTH)
                 .build();
         final BasicSimulationTemplate scenario = BasicSimulationTemplate.builder("TestScenario", space).build();
-        final BasicSpatialSimulation simulation = scenario.createSimulation(new ParallelizedSimulationFactory(1000));
+        final BasicSpatialSimulation getSimulation = scenario.createSimulation(new ParallelizedSimulationFactory(1000));
 
         // when
-        final BasicSpatialSimulation copy = Persisters.createCopy(simulation, BasicSpatialSimulation.class, persister);
+        final BasicSpatialSimulation copy = Persisters.createCopy(getSimulation, BasicSpatialSimulation.class, persister);
 
         // then
-        assertThat(copy).isEqualTo(simulation); // TODO: Overwritten equals was removed. Fix this test
+        assertThat(copy).isEqualTo(getSimulation); // TODO: Overwritten equals was removed. Fix this test
         */
     }
 
@@ -159,7 +160,7 @@ public class DefaultBasic2DSimulationTest {
         simulation.nextStep();
 
         // then
-        assertThat(simulation.getAgents(), contains(agent));
+        assertThat(simulation.getActiveAgents(), contains(agent));
         assertThat(simulation.getAgents(testPopulation), contains(agent));
         verify(agent).activate(any(DefaultActiveSimulationContext.class));
     }
@@ -200,7 +201,7 @@ public class DefaultBasic2DSimulationTest {
         simulation.nextStep();
 
         // then
-        assertThat(simulation.getAgents(), contains(agent));
+        assertThat(simulation.getActiveAgents(), contains(agent));
         verify(agent).activate(any(DefaultActiveSimulationContext.class));
         verify(agent).setProjection(point2D);
     }
@@ -221,7 +222,7 @@ public class DefaultBasic2DSimulationTest {
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
                 .build();
-        //given(agent.simulation()).willReturn(simulation);
+        //given(agent.getSimulation()).willReturn(getSimulation);
 
         // when
         simulation.addAgent(agent, ImmutablePoint2D.at(0, 0));
@@ -230,7 +231,7 @@ public class DefaultBasic2DSimulationTest {
         simulation.nextStep();
 
         // then
-        assertThat(simulation.getAgents(), is(empty()));
+        assertThat(simulation.getActiveAgents(), is(emptyIterable()));
         assertThat(simulation.getAgents(testPopulation), is(emptyIterable()));
         assertThat(agent.isActive(), is(false));
     }

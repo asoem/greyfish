@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
-import org.asoem.greyfish.core.simulation.Simulatable;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -15,12 +14,12 @@ import org.asoem.greyfish.utils.collect.FunctionalList;
 import java.util.Set;
 
 /**
- * An Agent which is the basic {@link Simulatable} unit of a {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
+ * An Agent which is the basic unit of a {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
  * @param <A> The type of the Agent implementation
  * @param <S> The type of the Simulation implementation
  */
 public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>>
-        extends DeepCloneable, Simulatable<S, A>, AgentNode {
+        extends DeepCloneable, AgentNode, Runnable {
 
     /**
      * Get the population
@@ -100,8 +99,6 @@ public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A
 
     boolean hasMessages(MessageTemplate template);
 
-    void logEvent(Object eventOrigin, String title, String message);
-
     Set<Integer> getParents();
 
     long getSimulationStep();
@@ -109,6 +106,11 @@ public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A
     @Deprecated
     void reproduce(Chromosome chromosome);
 
+    /**
+     * Get all currently active agents from the {@link #simulation() getSimulation} in which this agent is active.
+     * @return an iterable over all active agents returned by {@link #simulation()}
+     * @throws IllegalStateException if this agent is not active in any getSimulation
+     */
     Iterable<A> getAllAgents();
 
     Iterable<A> filterAgents(Predicate<? super A> predicate);
@@ -116,4 +118,16 @@ public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A
     void sendMessage(ACLMessage<A> message);
 
     void setParents(Set<Integer> parents);
+
+    S simulation();
+
+    void activate(SimulationContext<S, A> context);
+
+    /**
+     * Let the agent execute it's next action
+     */
+    @Override
+    void run();
+
+    void deactivate();
 }

@@ -20,8 +20,8 @@ public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends 
     Iterable<A> findNeighbours(A agent, double distance);
 
     /**
-     * Get the space used in this simulation
-     * @return the space used in this simulation
+     * Get the space used in this getSimulation
+     * @return the space used in this getSimulation
      */
     Z getSpace();
 

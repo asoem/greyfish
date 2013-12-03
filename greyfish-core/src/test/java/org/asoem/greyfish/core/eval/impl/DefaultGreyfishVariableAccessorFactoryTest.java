@@ -62,7 +62,7 @@ public class DefaultGreyfishVariableAccessorFactoryTest {
         given(agent.simulation()).willReturn(simulation);
 
         // when
-        final Object ret = converter.get("this.agent.simulation", AgentAction.class).apply(action);
+        final Object ret = converter.get("this.agent.getSimulation", AgentAction.class).apply(action);
 
         // then
         assertEquals(simulation, ret);

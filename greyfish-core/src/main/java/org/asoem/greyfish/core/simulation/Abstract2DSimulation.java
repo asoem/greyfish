@@ -3,8 +3,6 @@ package org.asoem.greyfish.core.simulation;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.Space2D;
 
-import java.util.Collection;
-
 /**
  * Basic class for implementing 2D simulations.
  */
@@ -16,7 +14,7 @@ public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, ?>, Z ex
     }
 
     @Override
-    public Collection<A> getAgents() {
+    public Iterable<A> getActiveAgents() {
         return getSpace().getObjects();
     }
 

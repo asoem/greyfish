@@ -2,6 +2,8 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.agent.SpatialAgent;
+import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.junit.Test;
 
@@ -24,6 +26,9 @@ public class JDBCLoggerTest {
         final SpatialAgent agentMock = mock(SpatialAgent.class);
         when(agentMock.getPopulation()).thenReturn(Population.named(""));
         when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.of());
+        final SpatialSimulation2D simulation2D = mock(SpatialSimulation2D.class);
+        when(simulation2D.getName()).thenReturn("");
+        when(agentMock.simulation()).thenReturn(simulation2D);
 
         // when
         jdbcLogger.logAgentCreation(agentMock); // two commits
@@ -45,6 +50,9 @@ public class JDBCLoggerTest {
         final SpatialAgent agentMock = mock(SpatialAgent.class);
         when(agentMock.getPopulation()).thenReturn(Population.named(""));
         when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.of());
+        final SpatialSimulation2D simulation2D = mock(SpatialSimulation2D.class);
+        when(simulation2D.getName()).thenReturn("");
+        when(agentMock.simulation()).thenReturn(simulation2D);
 
         // when
         jdbcLogger.logAgentCreation(agentMock); // two commits

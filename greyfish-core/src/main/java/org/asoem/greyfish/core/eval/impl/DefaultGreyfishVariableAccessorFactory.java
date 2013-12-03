@@ -74,14 +74,14 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 } else {
                     throw new IllegalArgumentException("Root keywords 'this' of 'self' are not implemented for context " + contextClass);
                 }
-            } else if ("sim".equals(root) || "simulation".equals(root)) {
+            } else if ("sim".equals(root) || "getSimulation".equals(root)) {
                 if (AgentComponent.class.isAssignableFrom(contextClass)) {
                     return simulation(gomParts, new Function<T, Simulation<?>>() {
                         @Override
                         public Simulation<?> apply(final T gfComponent) {
                             final Agent<?, ?> agent = ((AgentComponent<?>) AgentComponent.class.cast(gfComponent)).agent().orNull();
                             return checkNotNull(agent).simulation();
-                            // TODO: We should have direct access to simulation object through a component
+                            // TODO: We should have direct access to getSimulation object through a component
                         }
                     });
                 } else if (DiscreteTimeSimulation.class.isAssignableFrom(contextClass)) {
@@ -264,7 +264,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return agent(parts, Functions.compose(new Function<Simulation<?>, Agent>() {
                     @Override
                     public Agent apply(final Simulation<?> simulation) {
-                        return Iterables.find(checkNotNull(simulation).getAgents(), new Predicate<Agent>() {
+                        return Iterables.find(checkNotNull(simulation).getActiveAgents(), new Predicate<Agent>() {
                             @Override
                             public boolean apply(final Agent agent) {
                                 return agent.getId() == 0; // TODO: get id from regex
@@ -309,7 +309,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             final String nextPart = parts.next();
             Matcher matcher;
 
-            if ("simulation".equals(nextPart)) {
+            if ("getSimulation".equals(nextPart)) {
                 return simulation(parts, Functions.compose(new Function<Agent, Simulation<?>>() {
                     @Override
                     public Simulation<?> apply(final Agent agent) {

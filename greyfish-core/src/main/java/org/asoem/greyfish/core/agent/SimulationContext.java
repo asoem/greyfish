@@ -9,7 +9,7 @@ import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 public interface SimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> {
 
     /**
-     * The step at which this agent was inserted into the simulation.
+     * The step at which this agent was inserted into the getSimulation.
      * @return the activation step
      */
     long getActivationStep();
@@ -21,8 +21,8 @@ public interface SimulationContext<S extends DiscreteTimeSimulation<A>, A extend
     int getAgentId();
 
     /**
-     * Get the simulation for this context.
-     * @return the simulation
+     * Get the getSimulation for this context.
+     * @return the getSimulation
      */
     S getSimulation();
 
@@ -34,21 +34,9 @@ public interface SimulationContext<S extends DiscreteTimeSimulation<A>, A extend
     long getAge();
 
     /**
-     * Log an event which occurred inside an agent. Should be called from inside an {@link Agent} or {@link
-     * org.asoem.greyfish.core.agent.AgentComponent}.
-     * Delegates to {@link org.asoem.greyfish.core.simulation.Simulation#logAgentEvent(Agent, Object, String, String)}
-     *
-     * @param agent       the agent where this event occurred
-     * @param eventOrigin the object where this event occurred
-     * @param title       the title to log
-     * @param message     the message to log
-     */
-    void logEvent(A agent, Object eventOrigin, String title, String message);
-
-    /**
-     * Get the current simulation step.
+     * Get the current getSimulation step.
      * Delegates to {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation#getTime()}
-     * @return the number of executed steps in the simulation
+     * @return the number of executed steps in the getSimulation
      */
     long getSimulationStep();
 

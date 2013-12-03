@@ -104,11 +104,6 @@ public abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteT
     }
 
     @Override
-    public void logEvent(final Object eventOrigin, final String title, final String message) {
-        delegate().logEvent(eventOrigin, title, message);
-    }
-
-    @Override
     public void receiveAll(final Iterable<? extends ACLMessage<A>> messages) {
         delegate().receiveAll(messages);
     }

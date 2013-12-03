@@ -20,7 +20,7 @@ public interface Simulation<A extends Agent<A, ?>> {
     Iterable<A> getAgents(Population population);
 
     /**
-     * Get all agents in this simulation which satisfy the given {@code predicate}.
+     * Get all agents in this getSimulation which satisfy the given {@code predicate}.
      *
      * @param predicate the predicate to check each agent against
      * @return all agents which satisfy the given {@code predicate}
@@ -28,16 +28,16 @@ public interface Simulation<A extends Agent<A, ?>> {
     Iterable<A> filterAgents(Predicate<? super A> predicate);
 
     /**
-     * Get all agents in this simulation.
+     * Get all agents in this getSimulation.
      *
      * @return an unmodifiable view of all active {@code Agent}s
      */
-    Collection<A> getAgents();
+    Iterable<A> getActiveAgents();
 
     /**
      * The number of registered populations which is equal to the number of register prototypes.
      *
-     * @return The number of populations registered for this simulation
+     * @return The number of populations registered for this getSimulation
      */
     int numberOfPopulations();
 
@@ -57,7 +57,7 @@ public interface Simulation<A extends Agent<A, ?>> {
     int countAgents(Population population);
 
     /**
-     * @return the name of this simulation
+     * @return the name of this getSimulation
      */
     String getName();
 
@@ -69,18 +69,13 @@ public interface Simulation<A extends Agent<A, ?>> {
     void deliverMessage(ACLMessage<A> message);
 
     /**
-     * Shutdown this simulation and clean up resources.
+     * Shutdown this getSimulation and clean up resources.
      */
     void shutdown();
 
     /**
-     * Log an event which occurred inside an agent. Should be called from inside an {@link Agent} or {@link
-     * org.asoem.greyfish.core.agent.AgentComponent}.
-     *
-     * @param agent       the agent where this event occurred
-     * @param eventOrigin the object where this event occurred
-     * @param title       the title to log
-     * @param message     the message to log
+     * Get a status info for this getSimulation. The content is implementation specific.
+     * @return a message providing information about this getSimulation
      */
-    void logAgentEvent(A agent, Object eventOrigin, String title, String message);
+    String getStatusInfo();
 }

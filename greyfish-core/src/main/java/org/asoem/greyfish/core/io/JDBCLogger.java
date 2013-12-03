@@ -461,7 +461,7 @@ final class JDBCLogger implements SimulationLogger<SpatialAgent<?, ?, ?>> {
     }
 
     private static class InsertSimulationQuery implements BatchQuery {
-        private static final String SQL = "INSERT INTO simulation (id, name) VALUES (?, ?)";
+        private static final String SQL = "INSERT INTO getSimulation (id, name) VALUES (?, ?)";
 
         private final int id;
         private final String name;

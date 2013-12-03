@@ -72,6 +72,5 @@ public class AgentsTest {
     }
 
     private static interface TestAgent extends Agent<TestAgent, TestSimulation> {}
-    private static interface TestSimulation extends DiscreteTimeSimulation<TestAgent> {
-    }
+    private static interface TestSimulation extends DiscreteTimeSimulation<TestAgent> {}
 }

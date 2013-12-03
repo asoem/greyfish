@@ -65,7 +65,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
 
     private void receiveSperm(final Chromosome chromosome, final A sender) {
         receivedSperm.add(chromosome);
-        agent().get().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
+        //agent().get().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
         LOGGER.debug(agent().orNull() + " received sperm: " + chromosome);
     }
 

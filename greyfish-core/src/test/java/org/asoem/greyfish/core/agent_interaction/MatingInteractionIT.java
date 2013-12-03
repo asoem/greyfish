@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.inject.CoreModule;
-import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
@@ -70,9 +69,13 @@ public class MatingInteractionIT {
 
         simulation.enqueueAddition(male, ImmutablePoint2D.at(0, 0));
         simulation.enqueueAddition(female, ImmutablePoint2D.at(0, 0));
-        Simulations.proceed(simulation, 5);
+        for (int i1 = 0; i1 < 5; i1++) {
+            simulation.nextStep();
+        }
         final ActionState maleLikeMatingState = maleLikeMating.getState();
-        Simulations.proceed(simulation, 1);
+        for (int i = 0; i < 1; i++) {
+            simulation.nextStep();
+        }
         final ActionState femaleLikeMatingState = femaleLikeMating.getState();
 
         // then

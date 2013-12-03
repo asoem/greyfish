@@ -16,7 +16,6 @@ import org.asoem.greyfish.core.agent.Agents;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.conditions.GenericCondition;
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.utils.base.Callback;
@@ -83,7 +82,7 @@ public class AgentObjectPoolAT {
         LOGGER.info("Simulation with object pool vs. without object pool: {}, {}",
                 statisticsWithObjectPool, statisticsWithoutObjectPool);
 
-        assertThat("The mean elapsed time of the simulation with an object pool " +
+        assertThat("The mean elapsed time of the getSimulation with an object pool " +
                 "is not less than the mean elapsed time of the version with an object pool",
                 statisticsWithObjectPool.getMean(), is(lessThan(statisticsWithoutObjectPool.getMean())));
 
@@ -155,7 +154,7 @@ public class AgentObjectPoolAT {
         LOGGER.info("Simulation with object pool vs. without object pool: {}, {}",
                 statisticsWithObjectPool, statisticsWithoutObjectPool);
 
-        assertThat("The mean elapsed time of the simulation with an object pool " +
+        assertThat("The mean elapsed time of the getSimulation with an object pool " +
                 "is not less than the mean elapsed time of the version with an object pool",
                 statisticsWithObjectPool.getMean(), is(lessThan(statisticsWithoutObjectPool.getMean())));
 
@@ -164,7 +163,7 @@ public class AgentObjectPoolAT {
         assertThat("The measured difference is not significant", p, is(lessThan(0.05)));
     }
 
-    private long measureExecutionTime(final DiscreteTimeSimulation<?> simulationWithoutObjectPool, final int steps) {
+    private long measureExecutionTime(final SynchronizedAgentsSimulation<?> simulationWithoutObjectPool, final int steps) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int j = 0; j < steps; j++) {
             simulationWithoutObjectPool.nextStep();
@@ -172,7 +171,7 @@ public class AgentObjectPoolAT {
         return stopwatch.elapsed(TimeUnit.MILLISECONDS);
     }
 
-    private DiscreteTimeSimulation<?> createSimulationWithObjectPool(final int populationSize, final ExecutorService executorService) {
+    private SynchronizedAgentsSimulation<?> createSimulationWithObjectPool(final int populationSize, final ExecutorService executorService) {
 
         final Map<Population, BasicAgent> agentMap = Maps.newHashMap();
 
@@ -242,13 +241,13 @@ public class AgentObjectPoolAT {
                 .executorService(executorService)
                 .build();
         for (int i = 0; i < populationSize; i++) {
-            final DefaultBasicAgent clone = Agents.createClone(prototype).build();
+            final BasicAgent clone = Agents.<BasicAgent>createClone(prototype).build();
             simulation.enqueueAddition(clone);
         }
         return simulation;
     }
 
-    private DiscreteTimeSimulation<?> createSimulationWithoutObjectPool(final int populationSize, final ExecutorService executorService) {
+    private SynchronizedAgentsSimulation<?> createSimulationWithoutObjectPool(final int populationSize, final ExecutorService executorService) {
         final Population population = Population.named("test");
         final DefaultBasicAgent prototype = DefaultBasicAgent.builder(population)
                 .addAllActions(
@@ -283,7 +282,7 @@ public class AgentObjectPoolAT {
                 .executorService(executorService)
                 .build();
         for (int i = 0; i < populationSize; i++) {
-            final DefaultBasicAgent clone = Agents.createClone(prototype).build();
+            final BasicAgent clone = Agents.<BasicAgent>createClone(prototype).build();
             simulation.enqueueAddition(clone);
         }
         return simulation;

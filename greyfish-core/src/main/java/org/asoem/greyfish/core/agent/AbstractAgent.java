@@ -179,15 +179,6 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     @Override
-    public final void logEvent(final Object eventOrigin, final String title, final String message) {
-        checkNotNull(eventOrigin);
-        checkNotNull(title);
-        checkNotNull(message);
-
-        getSimulationContext().get().logEvent(self(), eventOrigin, title, message);
-    }
-
-    @Override
     public final void run() {
         final ActionExecutionStrategy actionExecutionStrategy = getActionExecutionStrategy();
         final boolean executeSuccess = actionExecutionStrategy.execute();
@@ -203,7 +194,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     /**
-     * A hook method which gets called when this agent gets deactivated using {@link org.asoem.greyfish.core.simulation.Simulatable#deactivate()}
+     * A hook method which gets called when this agent gets deactivated using {@link org.asoem.greyfish.core.agent.Agent#deactivate()}
      */
     protected void deactivated() {
     }
@@ -215,7 +206,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
 
     @Override
     public final S simulation() {
-        checkState(isActive(), "A passive Agent has no associated simulation");
+        checkState(isActive(), "A passive Agent has no associated getSimulation");
         return getSimulationContext().get().getSimulation();
     }
 
@@ -223,12 +214,12 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     public final void activate(final SimulationContext<S, A> context) {
         checkNotNull(context);
         setSimulationContext(context);
-        logEvent(this, "activated", "");
+        //logEvent(this, "activated", "");
         activated();
     }
 
     /**
-     * A hook that gets called when this agent was activated with {@link org.asoem.greyfish.core.simulation.Simulatable#activate(SimulationContext)}.
+     * A hook that gets called when this agent was activated with {@link org.asoem.greyfish.core.agent.Agent#activate(SimulationContext)}.
      */
     protected void activated() {
     }
@@ -253,13 +244,13 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     /*
     @Override
     public void reproduce(Initializer<? super A> initializer) {
-        simulation().createAgent(getPopulation(), initializer);
+        getSimulation().createAgent(getPopulation(), initializer);
     }
     */
 
     @Override
     public final Iterable<A> getAllAgents() {
-        return simulation().getAgents();
+        return simulation().getActiveAgents();
     }
 
     @Override
@@ -292,14 +283,14 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     /**
-     * Get the simulation context.
-     * @return the simulation context
+     * Get the getSimulation context.
+     * @return the getSimulation context
      */
     protected abstract Optional<SimulationContext<S, A>> getSimulationContext();
 
     /**
-     * Set the simulation context to {@code simulationContext}.
-     * @param simulationContext the new simulation context
+     * Set the getSimulation context to {@code simulationContext}.
+     * @param simulationContext the new getSimulation context
      */
     protected abstract void setSimulationContext(@Nullable SimulationContext<S, A> simulationContext);
 

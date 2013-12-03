@@ -39,11 +39,17 @@ public final class ModelParameterTypeListener implements TypeListener {
     public <T> void hear(final TypeLiteral<T> typeLiteral, final TypeEncounter<T> typeEncounter) {
         for (final Field field : typeLiteral.getRawType().getDeclaredFields()) {
             if (field.isAnnotationPresent(ModelParameter.class)) {
-                final String annotationValue = field.getAnnotation(ModelParameter.class).value();
+                final ModelParameter fieldAnnotation = field.getAnnotation(ModelParameter.class);
+                final String annotationValue = fieldAnnotation.value();
                 final String parameterName = (annotationValue.isEmpty()) ? field.getName() : annotationValue;
+
                 if (overwriteMap.containsKey(parameterName)) {
                     final Object value = convertInputString(overwriteMap.get(parameterName), field.getType());
                     typeEncounter.register(new ModelParameterFieldInjector<T>(field, value));
+                } else {
+                    if (!fieldAnnotation.optional()) {
+                        throw new IllegalArgumentException("Found no entry for required model parameter field " + field + " annotated with " + fieldAnnotation);
+                    }
                 }
             }
         }

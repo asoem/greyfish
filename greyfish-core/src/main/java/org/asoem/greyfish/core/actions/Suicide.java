@@ -12,7 +12,7 @@ import java.io.Serializable;
 /**
  *
  * @param <A>
- * @deprecated Use a {@link GenericAction} to remove an agent from a simulation
+ * @deprecated Use a {@link GenericAction} to remove an agent from a getSimulation
  */
 @Deprecated
 public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {

@@ -6,9 +6,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * A simulation context which indicates an active state of an agent.
+ * A getSimulation context which indicates an active state of an agent.
  *
- * @param <S> the type of the simulation
+ * @param <S> the type of the getSimulation
  * @param <A> the type of the agent
  */
 public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> implements SimulationContext<S,A> {
@@ -52,15 +52,6 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
                 getActivationStep(), getSimulationStep());
 
         return getSimulation().getTime() - getActivationStep();
-    }
-
-    @Override
-    public void logEvent(final A agent, final Object eventOrigin, final String title, final String message) {
-        checkNotNull(eventOrigin);
-        checkNotNull(title);
-        checkNotNull(message);
-
-        getSimulation().logAgentEvent(agent, eventOrigin, title, message);
     }
 
     @Override

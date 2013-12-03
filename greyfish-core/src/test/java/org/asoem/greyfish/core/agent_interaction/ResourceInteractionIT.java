@@ -7,7 +7,6 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Population;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.properties.DoubleProperty;
-import org.asoem.greyfish.core.simulation.Simulations;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
@@ -91,9 +90,13 @@ public class ResourceInteractionIT {
 
         simulation.enqueueAddition(consumer, ImmutablePoint2D.at(0, 0));
         simulation.enqueueAddition(provisioner, ImmutablePoint2D.at(0, 0));
-        Simulations.proceed(simulation, 5);
+        for (int i1 = 0; i1 < 5; i1++) {
+            simulation.nextStep();
+        }
         final ActionState provisionActionState = provisionAction.getState();
-        Simulations.proceed(simulation, 1);
+        for (int i = 0; i < 1; i++) {
+            simulation.nextStep();
+        }
         final ActionState consumptionActionState = consumptionAction.getState();
 
         // then

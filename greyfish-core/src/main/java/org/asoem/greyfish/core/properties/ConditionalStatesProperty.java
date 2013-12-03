@@ -57,7 +57,7 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
 
     @Override
     public String get() {
-        // TODO: Inefficient if called more than once during one simulation step. Result should be cached.
+        // TODO: Inefficient if called more than once during one getSimulation step. Result should be cached.
         // TODO: Compare performance to a version where evaluates logic from below is inside an expression. Could be faster than evaluation multiple expression.
         return Iterables.find(conditionMap.keySet(), new Predicate<String>() {
             @Override

@@ -25,7 +25,8 @@ public final class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAge
         final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 
-            final Iterable<TraitVector<?>> traitVectors = Iterables.transform(agent().get().getTraits(),
+            final A agent = agent().get();
+            final Iterable<TraitVector<?>> traitVectors = Iterables.transform(agent.getTraits(),
                     new Function<AgentTrait<A, ?>, TraitVector<?>>() {
                         @Override
                         public TraitVector<?> apply(@Nullable final AgentTrait<A, ?> trait) {
@@ -35,11 +36,11 @@ public final class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAge
                     });
 
             final HeritableTraitsChromosome chromosome =
-                    new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent().get().getId()));
+                    new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getId()));
 
-            agent().get().reproduce(chromosome);
+            agent.reproduce(chromosome);
 
-            agent().get().logEvent(this, "offspringProduced", "");
+            //agent.logEvent(this, "offspringProduced", "");
         }
         return ActionState.COMPLETED;
     }
@@ -81,7 +82,7 @@ public final class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAge
     }
 
     public static final class Builder<A extends Agent<A, ?>>
-            extends AbstractBuilder<A, ClonalReproduction<A>, Builder<A>> {
+            extends ClonalReproduction.AbstractBuilder<A, ClonalReproduction<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
             return this;

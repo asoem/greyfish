@@ -23,7 +23,7 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
     ActionState checkPreconditions();
 
     /**
-     * Apply the action on it's agent in the given simulation context
+     * Apply the action on it's agent in the given getSimulation context
      *
      * @return the result of the application
      */

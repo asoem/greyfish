@@ -17,8 +17,8 @@ import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
+import org.asoem.greyfish.core.model.Experiment;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
-import org.asoem.greyfish.core.model.SimulationModel;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public final class GreyfishCLIApplication {
     /* private static final OptionSpecBuilder REPRODUCIBLE_MODE_OPTION_SPEC =
             OPTION_PARSER.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0"); */
     private static final ArgumentAcceptingOptionSpec<String> SIMULATION_NAME_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("n", "name"), "Set simulation name")
+            OPTION_PARSER.acceptsAll(asList("n", "name"), "Set getSimulation name")
                     .withRequiredArg().ofType(String.class);
     private static final ArgumentAcceptingOptionSpec<Integer> PARALLELIZATION_THRESHOLD_OPTION_SPEC =
             OPTION_PARSER.accepts("pt", "Set parallelization threshold")
@@ -80,7 +80,7 @@ public final class GreyfishCLIApplication {
     private static final OptionSpecBuilder QUIET_OPTION_SPEC =
             OPTION_PARSER.accepts("q", "Be quiet. Don't print progress information");
     private static final ArgumentAcceptingOptionSpec<Integer> STEPS_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
+            OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop getSimulation after MAX steps")
                     .withRequiredArg().ofType(Integer.class).required();
     private static final ArgumentAcceptingOptionSpec<Integer> COMMIT_THRESHOLD_SPEC =
             OPTION_PARSER.accepts("ct", "Commit threshold for JDBC batch operations")
@@ -98,7 +98,7 @@ public final class GreyfishCLIApplication {
             protected void configure() {
 
                 if (optionSet.nonOptionArguments().size() != 1) {
-                    exitWithErrorMessage("A single Model CLASS is required");
+                    exitWithErrorMessage("Missing CLASS argument");
                 }
 
                 final String modelClassName = optionSet.nonOptionArguments().get(0);
@@ -123,9 +123,10 @@ public final class GreyfishCLIApplication {
 
                 try {
                     final Class<?> modelClass = Class.forName(modelClassName, true, classLoader);
-                    if (!SimulationModel.class.isAssignableFrom(modelClass))
-                        exitWithErrorMessage("Specified Class does not implement " + SimulationModel.class);
-                    bind(new TypeLiteral<SimulationModel<?>>(){}).to((Class<SimulationModel<?>>) modelClass);
+                    if (!Experiment.class.isAssignableFrom(modelClass)) {
+                        exitWithErrorMessage("Specified Class does not implement " + Experiment.class);
+                    }
+                    bind(Experiment.class).to((Class<Experiment>) modelClass);
                 } catch (ClassNotFoundException e) {
                     LOGGER.error("Unable to load class {}", modelClassName, e);
                     exitWithErrorMessage("Could not find class " + modelClassName);
@@ -211,12 +212,12 @@ public final class GreyfishCLIApplication {
                     commandLineModule
             );
 
-            final SimulationExecutionService simulationExecutionService =
-                    injector.getInstance(SimulationExecutionService.class);
+            final ExperimentExecutionService experimentExecutionService =
+                    injector.getInstance(ExperimentExecutionService.class);
 
             if (!optionSet.has(QUIET_OPTION_SPEC)) {
-                final SimulationMonitorService monitorService =
-                        new SimulationMonitorService(simulationExecutionService.getSimulation(), System.out, optionSet.valueOf(STEPS_OPTION_SPEC));
+                final ExperimentMonitorService monitorService =
+                        new ExperimentMonitorService(experimentExecutionService.getExperiment(), System.out, optionSet.valueOf(STEPS_OPTION_SPEC), null);
 
                 monitorService.addListener(new Service.Listener() {
                     @Override public void starting() {}
@@ -228,7 +229,7 @@ public final class GreyfishCLIApplication {
                     }
                 }, MoreExecutors.sameThreadExecutor());
 
-                simulationExecutionService.addListener(new Service.Listener() {
+                experimentExecutionService.addListener(new Service.Listener() {
                     @Override public void starting() {
                         monitorService.startAsync();
                     }
@@ -243,28 +244,28 @@ public final class GreyfishCLIApplication {
                 }, MoreExecutors.sameThreadExecutor());
             }
 
-            // start simulation
-            simulationExecutionService.startAsync();
+            // start getSimulation
+            experimentExecutionService.startAsync();
 
-            // stop simulation on shutdown request (^C)
+            // stop getSimulation on shutdown request (^C)
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
-                    if (simulationExecutionService.isRunning()) {
-                        simulationExecutionService.stopAsync().awaitTerminated();
+                    if (experimentExecutionService.isRunning()) {
+                        experimentExecutionService.stopAsync().awaitTerminated();
                     }
                 }
             });
 
             try {
-                simulationExecutionService.awaitTerminated();
+                experimentExecutionService.awaitTerminated();
             } catch (IllegalStateException e) {
                 exitWithErrorMessage("Simulation execution failed", e);
             }
         } catch (OptionException e) {
             exitWithErrorMessage("Failed parsing options: ", e, true);
         } catch (Throwable e) {
-            exitWithErrorMessage(String.format("Exception during simulation execution: %s.\n"
+            exitWithErrorMessage(String.format("Exception during getSimulation execution: %s.\n"
                     + "Check log file for detailed information",
                     e.getCause().getMessage()));
         }

@@ -6,9 +6,9 @@ import org.asoem.greyfish.impl.agent.BasicAgent;
 import java.util.concurrent.Executor;
 
 /**
- * The simulation environment for agents of type {@link org.asoem.greyfish.impl.agent.BasicAgent}.
+ * The getSimulation environment for agents of type {@link org.asoem.greyfish.impl.agent.BasicAgent}.
  */
-public interface BasicSimulation extends DiscreteTimeSimulation<BasicAgent> {
+public interface BasicSimulation extends SynchronizedAgentsSimulation<BasicAgent> {
     /**
      * Add the removal of given {@code agent} to this simulations modification queue.
      * @param agent the {@code Agent} to be removed from this {@code Simulation}
