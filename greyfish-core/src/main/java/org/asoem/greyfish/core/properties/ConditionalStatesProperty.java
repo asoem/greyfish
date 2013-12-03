@@ -22,9 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * User: christoph
- * Date: 06.09.11
- * Time: 10:28
+ * User: christoph Date: 06.09.11 Time: 10:28
  */
 @Tagged("properties")
 public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAgentProperty<String, A> implements FiniteStateProperty<String, A> {
@@ -99,18 +97,30 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
         return conditionMap;
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> with() { return new Builder<A>(); }
+    public static <A extends Agent<A, ?>> Builder<A> with() {
+        return new Builder<A>();
+    }
 
     public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, ConditionalStatesProperty<A>, Builder<A>> {
-        @Override protected Builder<A> self() { return this; }
-        @Override public ConditionalStatesProperty<A> checkedBuild() { return new ConditionalStatesProperty<A>(this); }
+        @Override
+        protected Builder<A> self() {
+            return this;
+        }
+
+        @Override
+        public ConditionalStatesProperty<A> checkedBuild() {
+            return new ConditionalStatesProperty<A>(this);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends ConditionalStatesProperty<A>,T extends AbstractBuilder<A,E,T>> extends AbstractAgentProperty.AbstractBuilder<E,A,T> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends ConditionalStatesProperty<A>, T extends AbstractBuilder<A, E, T>> extends AbstractAgentProperty.AbstractBuilder<E, A, T> {
         private final Map<String, GreyfishExpression> phenotypeConditionMap = Maps.newHashMap();
 
-        public T addState(final String state, final String when) { phenotypeConditionMap.put(state, GreyfishExpressionFactoryHolder.compile(when)); return self();}
+        public T addState(final String state, final String when) {
+            phenotypeConditionMap.put(state, GreyfishExpressionFactoryHolder.compile(when));
+            return self();
+        }
     }
 
 }

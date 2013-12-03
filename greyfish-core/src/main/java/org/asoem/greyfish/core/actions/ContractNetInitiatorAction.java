@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends FiniteStateAction<A> {
+public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends FiniteStateAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
@@ -192,7 +193,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
         }
     }
 
-    private static <A extends Agent<A, ?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
+    private static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
         return MessageTemplates.isReplyTo(cfp);
     }
 
@@ -209,16 +210,19 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ?>> extends 
     protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleRefuse(final ACLMessage<A> message) {}
+    protected void handleRefuse(final ACLMessage<A> message) {
+    }
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleFailure(final ACLMessage<A> message) {}
+    protected void handleFailure(final ACLMessage<A> message) {
+    }
 
-    protected void handleInform(final ACLMessage<A> message) {}
+    protected void handleInform(final ACLMessage<A> message) {
+    }
 
     protected abstract String getOntology();
 
-    protected abstract static class AbstractBuilder<A extends Agent<A, ?>,
+    protected abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>,
             C extends ContractNetInitiatorAction<A>,
             B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B>
             implements Serializable {

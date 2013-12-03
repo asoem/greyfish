@@ -9,7 +9,6 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -25,7 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * This class provides a skeletal implementation of the {@code Agent} interface.
  */
-public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>> implements Agent<A, S> {
+public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimulationContext<?, A>> implements Agent<A, C> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends AgentComponent> E findByName(final Iterable<E> elements, final String name) {
@@ -125,7 +124,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     @Override
-    public final void activate(final BasicSimulationContext<S, A> context) {
+    public final void activate(final C context) {
         checkNotNull(context);
         setSimulationContext(context);
         //logEvent(this, "activated", "");
@@ -133,7 +132,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
     }
 
     /**
-     * A hook that gets called when this agent was activated with {@link Agent#activate(BasicSimulationContext)}.
+     * A hook that gets called when this agent was activated with {@link Agent#activate(SimulationContext)}.
      */
     protected void activated() {
     }
@@ -186,7 +185,7 @@ public abstract class AbstractAgent<A extends Agent<A, S>, S extends DiscreteTim
      *
      * @param simulationContext the new getSimulation context
      */
-    protected abstract void setSimulationContext(@Nullable BasicSimulationContext<S, A> simulationContext);
+    protected abstract void setSimulationContext(@Nullable C simulationContext);
 
     /**
      * Get the message box.

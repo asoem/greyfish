@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extends FiniteStateAction<A> {
+public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends FiniteStateAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetParticipantAction.class);
     private static final int TIMEOUT_ACCEPT_STEPS = 1;
@@ -29,7 +30,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
         this.template = cloneable.template;
     }
 
-    protected ContractNetParticipantAction(final AbstractBuilder<A, ? extends ContractNetParticipantAction<A>,? extends AbstractBuilder<A,?,?>> builder) {
+    protected ContractNetParticipantAction(final AbstractBuilder<A, ? extends ContractNetParticipantAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.timeoutCounter = builder.timeoutCounter;
         this.nExpectedProposeAnswers = builder.nExpectedProposeAnswers;
@@ -78,11 +79,9 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                 template = createProposalReplyTemplate(cfpReplies);
                 timeoutCounter = 0;
                 transition(State.WAIT_FOR_ACCEPT);
-            }
-            else
+            } else
                 endTransition(State.NO_CFP);
-        }
-        else if (State.WAIT_FOR_ACCEPT == state) {
+        } else if (State.WAIT_FOR_ACCEPT == state) {
             final Iterable<ACLMessage<A>> receivedMessages = agent().get().getMessages(getTemplate());
             for (final ACLMessage<A> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
@@ -121,8 +120,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                 else
                     transition(State.WAIT_FOR_ACCEPT);
             }
-        }
-        else
+        } else
             throw unknownState();
     }
 
@@ -156,12 +154,14 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD))));
     }
 
-    protected void prepareForCommunication() {}
+    protected void prepareForCommunication() {
+    }
 
     protected abstract ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleReject(final ACLMessage<A> message) {}
+    protected void handleReject(final ACLMessage<A> message) {
+    }
 
     protected abstract ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message);
 
@@ -173,12 +173,13 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ?>> extend
         );
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ContractNetParticipantAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ContractNetParticipantAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
         private int timeoutCounter;
         private int nExpectedProposeAnswers;
         private MessageTemplate template = MessageTemplates.alwaysFalse();
 
-        protected AbstractBuilder() {}
+        protected AbstractBuilder() {
+        }
 
         protected AbstractBuilder(final ContractNetParticipantAction<A> action) {
             super(action);

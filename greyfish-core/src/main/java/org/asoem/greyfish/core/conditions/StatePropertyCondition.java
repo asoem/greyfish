@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import com.google.common.base.Objects;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -9,7 +10,7 @@ import org.asoem.greyfish.utils.base.Tagged;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("conditions")
-public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
+public class StatePropertyCondition<A extends Agent<A, SimulationContext<?>>> extends LeafCondition<A> {
 
     private FiniteStateProperty<?, A> stateProperty;
     // TODO: The stateProperty might get modified during construction phase. Observe this!
@@ -45,19 +46,35 @@ public class StatePropertyCondition<A extends Agent<A, ?>> extends LeafCondition
         return new StatePropertyCondition<A>(this, cloner);
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() { return new Builder<A>(); }
+    public static <A extends Agent<A, SimulationContext<?>>> Builder<A> builder() {
+        return new Builder<A>();
+    }
 
-    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, StatePropertyCondition<A>, Builder<A>> {
-        @Override protected Builder<A> self() { return this; }
-        @Override protected StatePropertyCondition<A> checkedBuild() { return new StatePropertyCondition<A>(this); }
+    public static final class Builder<A extends Agent<A, SimulationContext<?>>> extends AbstractBuilder<A, StatePropertyCondition<A>, Builder<A>> {
+        @Override
+        protected Builder<A> self() {
+            return this;
+        }
+
+        @Override
+        protected StatePropertyCondition<A> checkedBuild() {
+            return new StatePropertyCondition<A>(this);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends StatePropertyCondition<A>,T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, SimulationContext<?>>, E extends StatePropertyCondition<A>, T extends AbstractBuilder<A, E, T>> extends LeafCondition.AbstractBuilder<A, E, T> {
         private FiniteStateProperty<?, A> property;
         private Object state;
 
-        public T property(final FiniteStateProperty<?, A> property) { this.property = checkNotNull(property); return self(); }
-        public T hasState(final Object state) { this.state = checkNotNull(state); return self(); }
+        public T property(final FiniteStateProperty<?, A> property) {
+            this.property = checkNotNull(property);
+            return self();
+        }
+
+        public T hasState(final Object state) {
+            this.state = checkNotNull(state);
+            return self();
+        }
     }
 }

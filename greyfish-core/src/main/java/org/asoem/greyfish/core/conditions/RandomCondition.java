@@ -1,13 +1,14 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Tagged("conditions")
-public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
+public class RandomCondition<A extends Agent<A, SimulationContext<?>>> extends LeafCondition<A> {
 
     private double probability;
 
@@ -35,13 +36,19 @@ public class RandomCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
         super(builder);
     }
 
-    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, RandomCondition<A>, Builder<A>> {
-        @Override protected Builder<A> self() { return this; }
-        public RandomCondition<A> checkedBuild() { return new RandomCondition<A>(this); }
+    public static final class Builder<A extends Agent<A, SimulationContext<?>>> extends AbstractBuilder<A, RandomCondition<A>, Builder<A>> {
+        @Override
+        protected Builder<A> self() {
+            return this;
+        }
+
+        public RandomCondition<A> checkedBuild() {
+            return new RandomCondition<A>(this);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends RandomCondition<A>, T extends AbstractBuilder<A, E,T>> extends LeafCondition.AbstractBuilder<A, E, T> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, SimulationContext<?>>, E extends RandomCondition<A>, T extends AbstractBuilder<A, E, T>> extends LeafCondition.AbstractBuilder<A, E, T> {
         private double probability;
 
         public T probability(final double probability) {

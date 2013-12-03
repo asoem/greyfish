@@ -15,12 +15,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 22.09.11
- * Time: 09:37
+ * User: christoph Date: 22.09.11 Time: 09:37
  */
 @Tagged("traits")
-public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> implements AgentTrait<A,Double> {
+public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends AbstractTrait<A, Double> implements AgentTrait<A, Double> {
 
     private static final TypeToken<Double> DOUBLE_TYPE_TOKEN = TypeToken.of(Double.class);
 
@@ -112,12 +110,13 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
     }
 
     private void readObject(final ObjectInputStream stream)
-            throws InvalidObjectException{
+            throws InvalidObjectException {
         throw new InvalidObjectException("Builder required");
     }
 
     public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, DoublePrecisionRealNumberTrait<A>, Builder<A>> implements Serializable {
-        private Builder() {}
+        private Builder() {
+        }
 
         private Builder(final DoublePrecisionRealNumberTrait<A> quantitativeTrait) {
             super(quantitativeTrait);
@@ -146,9 +145,9 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends DoublePrecisionRealNumberTrait<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
 
-        private static final Callback<Object,Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
-        private static final Callback<Object,Double> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
-        private static final Callback<Object,Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object, Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object, Double> DEFAULT_MUTATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
+        private static final Callback<Object, Double> DEFAULT_SEGREGATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());
 
         private Callback<? super AgentTrait<A, Double>, Double> initializationKernel = DEFAULT_INITIALIZATION_KERNEL;
         private Callback<? super AgentTrait<A, Double>, Double> mutationKernel = DEFAULT_MUTATION_KERNEL;
@@ -163,7 +162,8 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
             this.value = quantitativeTrait.value;
         }
 
-        protected AbstractBuilder() {}
+        protected AbstractBuilder() {
+        }
 
         public B initialization(final Callback<? super AgentTrait<A, Double>, Double> callback) {
             this.initializationKernel = checkNotNull(callback);

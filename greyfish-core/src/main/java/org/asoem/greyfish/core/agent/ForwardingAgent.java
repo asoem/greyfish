@@ -5,18 +5,17 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
 import java.util.Set;
 
-abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>>
+abstract class ForwardingAgent<A extends Agent<A, C>, C extends SimulationContext<?>>
         extends ForwardingObject
-        implements Agent<A, S> {
+        implements Agent<A, C> {
 
     @Override
-    protected abstract Agent<A, S> delegate();
+    protected abstract Agent<A, C> delegate();
 
     @Override
     public PrototypeGroup getPrototypeGroup() {
@@ -62,6 +61,7 @@ abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteTimeSimu
     public void receive(final ACLMessage<A> messages) {
         delegate().receive(messages);
     }
+
     @Override
     public void run() {
         delegate().run();
@@ -78,7 +78,7 @@ abstract class ForwardingAgent<A extends Agent<A, S>, S extends DiscreteTimeSimu
     }
 
     @Override
-    public void activate(final BasicSimulationContext<S, A> context) {
+    public void activate(final C context) {
         delegate().activate(context);
     }
 

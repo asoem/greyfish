@@ -87,6 +87,9 @@ public class JDBCLoggerTest {
         verify(connectionMock, times(1)).commit();
     }
 
-    private interface TestSimulation extends SpatialSimulation2D<TestAgent, Space2D<TestAgent, Object2D>> {}
-    private interface TestAgent extends SpatialAgent<TestAgent, TestSimulation, Object2D> {}
+    private interface TestSimulation extends SpatialSimulation2D<TestAgent, Space2D<TestAgent, Object2D>> {
+    }
+
+    private interface TestAgent extends SpatialAgent<TestAgent, Object2D, BasicSimulationContext<TestSimulation, TestAgent>> {
+    }
 }

@@ -10,7 +10,8 @@ import java.util.List;
 
 public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondition<A> {
 
-    protected LeafCondition() {}
+    protected LeafCondition() {
+    }
 
     protected LeafCondition(final LeafCondition<A> cloneable, final DeepCloner cloner) {
         super(cloneable, cloner);
@@ -21,14 +22,14 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
     }
 
     @Override
-	public final List<ActionCondition<A>> getChildConditions() {
-		return Collections.emptyList();
-	}
+    public final List<ActionCondition<A>> getChildConditions() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public final boolean isLeafCondition() {
-		return true;
-	}
+    @Override
+    public final boolean isLeafCondition() {
+        return true;
+    }
 
     @Override
     public final Iterable<AgentNode> children() {

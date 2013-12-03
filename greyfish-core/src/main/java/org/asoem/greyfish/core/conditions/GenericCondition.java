@@ -14,9 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * User: christoph
- * Date: 04.05.12
- * Time: 11:47
+ * User: christoph Date: 04.05.12 Time: 11:47
  */
 public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> implements Serializable {
 

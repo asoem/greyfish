@@ -13,11 +13,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends AbstractAgentComponent<A> implements AgentProperty<A, T> {
 
-    protected AbstractAgentProperty(final AbstractBuilder<? extends AbstractAgentProperty<T,A>, A, ? extends AbstractBuilder<?,A,?>> builder) {
+    protected AbstractAgentProperty(final AbstractBuilder<? extends AbstractAgentProperty<T, A>, A, ? extends AbstractBuilder<?, A, ?>> builder) {
         super(builder);
     }
 
-    protected AbstractAgentProperty(final AbstractAgentProperty<T,A> cloneable, final DeepCloner map) {
+    protected AbstractAgentProperty(final AbstractAgentProperty<T, A> cloneable, final DeepCloner map) {
         super(cloneable, map);
     }
 
@@ -44,11 +44,12 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
         set((T) supplier.get());
     }
 
-    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty<?,A>, A extends Agent<A, ?>, B extends AbstractBuilder<C,A,B>> extends AbstractAgentComponent.AbstractBuilder<A,C,B>  implements Serializable {
-        protected AbstractBuilder(final AbstractAgentProperty<?,A> abstractAgentProperty) {
+    protected static abstract class AbstractBuilder<C extends AbstractAgentProperty<?, A>, A extends Agent<A, ?>, B extends AbstractBuilder<C, A, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
+        protected AbstractBuilder(final AbstractAgentProperty<?, A> abstractAgentProperty) {
             super(abstractAgentProperty);
         }
 
-        public AbstractBuilder() {}
+        public AbstractBuilder() {
+        }
     }
 }

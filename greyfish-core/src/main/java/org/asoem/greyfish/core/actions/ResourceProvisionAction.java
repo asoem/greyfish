@@ -6,6 +6,7 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -16,7 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetParticipantAction<A> {
+public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends ContractNetParticipantAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
@@ -50,7 +51,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
             return reply.performative(ACLPerformative.REFUSE);
 
         final Object messageContent = message.getContent();
-        if (! (messageContent instanceof ResourceRequestMessage))
+        if (!(messageContent instanceof ResourceRequestMessage))
             throw new NotUnderstoodException("Expected payload of type ResourceRequestMessage");
 
         final ResourceRequestMessage requestMessage = (ResourceRequestMessage) messageContent;
@@ -73,7 +74,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
     @Override
     protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message) {
         final Object messageContent = message.getContent();
-        if (! (messageContent instanceof Double))
+        if (!(messageContent instanceof Double))
             throw new NotUnderstoodException("Expected payload of type Double");
 
         final Double offer = (Double) messageContent;
@@ -98,13 +99,13 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         this.ontology = cloneable.ontology;
     }
 
-    protected ResourceProvisionAction(final AbstractBuilder<A, ? extends ResourceProvisionAction<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    protected ResourceProvisionAction(final AbstractBuilder<A, ? extends ResourceProvisionAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.ontology = builder.ontology;
         this.provides = builder.provides;
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> with() {
+    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> with() {
         return new Builder();
     }
 
@@ -118,7 +119,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         providedAmount = 0;
     }
 
-    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
             return this;
@@ -130,7 +131,7 @@ public class ResourceProvisionAction<A extends Agent<A, ?>> extends ContractNetP
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends ResourceProvisionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ResourceProvisionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction<A>, Double> provides;
 

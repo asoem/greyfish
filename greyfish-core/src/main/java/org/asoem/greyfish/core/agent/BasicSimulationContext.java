@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
  * A SimulationContext is the link between an {@link Agent} and a {@link DiscreteTimeSimulation}. If an agent got
  * activated a newly created context will be set for this agent.
  */
-public interface BasicSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>>
+public interface BasicSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, ? extends SimulationContext<S>>>
         extends SimulationContext<S> {
 
     /**

@@ -7,12 +7,12 @@ import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Set;
 
-abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
-        extends ForwardingAgent<A, S>
-        implements SpatialAgent<A, S, P> {
+abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, P, C>, P extends Object2D, C extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>
+        extends ForwardingAgent<A, C>
+        implements SpatialAgent<A, P, C> {
 
     @Override
-    protected abstract SpatialAgent<A, S, P> delegate();
+    protected abstract SpatialAgent<A, P, C> delegate();
 
     @Override
     public Iterable<A> findNeighbours(final double radius) {

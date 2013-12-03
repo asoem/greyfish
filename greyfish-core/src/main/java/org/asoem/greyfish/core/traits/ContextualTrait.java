@@ -4,7 +4,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  *
  */
-public class ContextualTrait<A extends Agent<A, ? extends DiscreteTimeSimulation<A>>, T> extends AbstractTrait<A, T> {
+public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, T> extends AbstractTrait<A, T> {
 
     private final Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
@@ -86,7 +86,7 @@ public class ContextualTrait<A extends Agent<A, ? extends DiscreteTimeSimulation
         return valueCallback;
     }
 
-    public static <T, A extends Agent<A, ?>> Builder<T, A> builder() {
+    public static <T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<T, A> builder() {
         return new Builder<T, A>();
     }
 
@@ -104,9 +104,10 @@ public class ContextualTrait<A extends Agent<A, ? extends DiscreteTimeSimulation
         return false;
     }
 
-    public static class Builder<T, A extends Agent<A, ?>> extends ContextualTrait.AbstractBuilder<T, A, ContextualTrait<A, T>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends ContextualTrait.AbstractBuilder<T, A, ContextualTrait<A, T>, Builder<T, A>> implements Serializable {
 
-        private Builder() {}
+        private Builder() {
+        }
 
         private Builder(final ContextualTrait<A, T> contextualTrait) {
             super(contextualTrait);
@@ -133,12 +134,13 @@ public class ContextualTrait<A extends Agent<A, ? extends DiscreteTimeSimulation
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends ContextualTrait<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractTrait.AbstractBuilder<A, P, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>, P extends ContextualTrait<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractTrait.AbstractBuilder<A, P, B> implements Serializable {
         private Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
         private Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback = ContextualTrait.expiresAtBirth();
 
-        protected AbstractBuilder() {}
+        protected AbstractBuilder() {
+        }
 
         protected AbstractBuilder(final ContextualTrait<A, T> simulationStepProperty) {
             super(simulationStepProperty);
@@ -178,8 +180,8 @@ public class ContextualTrait<A extends Agent<A, ? extends DiscreteTimeSimulation
         INSTANCE;
 
         @Override
-        public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
-            final Agent<?,?> agent = caller.agent().get();
+        public Boolean apply(final ContextualTrait<?, ?> caller, final Map<String, ?> args) {
+            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() < agent.getContext().get().getActivationStep();
         }
     }
@@ -192,8 +194,8 @@ public class ContextualTrait<A extends Agent<A, ? extends DiscreteTimeSimulation
         INSTANCE;
 
         @Override
-        public Boolean apply(final ContextualTrait<?,?> caller, final Map<String, ?> args) {
-            final Agent<?,?> agent = caller.agent().get();
+        public Boolean apply(final ContextualTrait<?, ?> caller, final Map<String, ?> args) {
+            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() != agent.getContext().get().getTime();
         }
     }

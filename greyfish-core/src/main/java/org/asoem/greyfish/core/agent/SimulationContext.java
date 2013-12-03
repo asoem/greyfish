@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.agent;
 
-public interface SimulationContext<S> {
+import org.asoem.greyfish.core.simulation.Simulation;
+
+public interface SimulationContext<S extends Simulation<?>> {
     /**
      * Get the getSimulation for this context.
      *

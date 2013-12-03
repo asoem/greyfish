@@ -9,8 +9,8 @@ import org.asoem.greyfish.utils.space.Projectable;
 /**
  * An agent for spatial simulations.
  */
-public interface SpatialAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
-        extends Agent<A, S>, Moving<Motion2D>, Projectable<P> {
+public interface SpatialAgent<A extends SpatialAgent<A, P, C>, P extends Object2D, C extends SimulationContext<? extends SpatialSimulation2D<A, ?>>>
+        extends Agent<A, C>, Moving<Motion2D>, Projectable<P> {
 
     /**
      * Measure the distance from this agent to the first obstacle in the given direction (in {@code degrees} [0, 360))
@@ -23,6 +23,7 @@ public interface SpatialAgent<A extends SpatialAgent<A, S, P>, S extends Spatial
 
     /**
      * Find all agent which are located around this agent inside given {@code radius}.
+     *
      * @param radius the radius of the search
      * @return all agents with distance smaller or equal to {@code radius} to this agent
      */

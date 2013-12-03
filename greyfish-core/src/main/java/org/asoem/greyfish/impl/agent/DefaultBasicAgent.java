@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * The default implementation of {@code BasicAgent}.
  */
-public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimulation>
+public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimulationContext<BasicSimulation, BasicAgent>>
         implements BasicAgent {
     private final PrototypeGroup prototypeGroup;
     private final FunctionalList<AgentAction<BasicAgent>> actions;
@@ -165,7 +165,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     public DeepCloneable deepClone(final DeepCloner cloner) {
         return new DefaultBasicAgent(this, cloner);
     }
-    
+
     public static Builder builder(final PrototypeGroup prototypeGroup) {
         return new Builder(prototypeGroup);
     }
@@ -182,7 +182,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         private Builder(final PrototypeGroup prototypeGroup) {
             this.prototypeGroup = checkNotNull(prototypeGroup);
         }
-        
+
         public Builder addAction(final AgentAction<BasicAgent> action) {
             checkNotNull(action);
             actions.add(action);
@@ -265,7 +265,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
             }
             return this;
         }
-        
+
         public DefaultBasicAgent build() {
             checkState(prototypeGroup != null);
             checkState(inBox != null);

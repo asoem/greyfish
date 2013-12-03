@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.traits;
 import com.google.common.collect.Range;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -11,11 +12,9 @@ import org.asoem.greyfish.utils.base.DeepCloner;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * User: christoph
- * Date: 24.04.13
- * Time: 14:32
+ * User: christoph Date: 24.04.13 Time: 14:32
  */
-public class AcquiredTrait<A extends Agent<A, ?>, T extends Comparable<T>> extends AbstractTrait<A, T> implements AgentTrait<A,T> {
+public class AcquiredTrait<A extends Agent<A, SimulationContext<?>>, T extends Comparable<T>> extends AbstractTrait<A, T> implements AgentTrait<A, T> {
 
     private final TypeToken<T> typeToken;
     private final Callback<? super AcquiredTrait<A, T>, T> initializationKernel;

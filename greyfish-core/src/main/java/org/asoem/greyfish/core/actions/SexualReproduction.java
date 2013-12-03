@@ -29,7 +29,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
+public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -52,7 +52,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
     }
 
-    protected SexualReproduction(final AbstractBuilder<A, ? extends SexualReproduction<A>, ? extends AbstractBuilder<A , ?, ?>> builder) {
+    protected SexualReproduction(final AbstractBuilder<A, ? extends SexualReproduction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.spermSupplier = builder.spermStorage;
         this.clutchSize = builder.clutchSize;
@@ -77,7 +77,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
             final Set<Integer> parents = sperm.getParents();
-            if ( parents.size() != 1 )
+            if (parents.size() != 1)
                 throw new AssertionError("Sperm must have an uniparental history");
 
             final BasicSimulationContext<? extends DiscreteTimeSimulation<A>, A> simulationContext = agent.getContext().get();
@@ -93,7 +93,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         return COMPLETED;
     }
 
-    private static <A extends Agent<A, ?>> Chromosome blend(final FunctionalList<AgentTrait<A, ?>> egg, final Chromosome sperm, final int femaleID, final int maleID) {
+    private static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Chromosome blend(final FunctionalList<AgentTrait<A, ?>> egg, final Chromosome sperm, final int femaleID, final int maleID) {
 
         // zip chromosomes
         final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zipped = Products.zip(egg, sperm.getTraitVectors());
@@ -112,7 +112,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> TraitVector<?> combine(final AgentTrait<?,T> trait, final TypedSupplier<?> supplier) {
+    private static <T> TraitVector<?> combine(final AgentTrait<?, T> trait, final TypedSupplier<?> supplier) {
         checkArgument(trait.getValueType().equals(supplier.getValueType()));
         return TraitVector.create(
                 trait.mutate(trait.segregate(trait.get(), (T) supplier.get())),
@@ -132,7 +132,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         offspringCount = 0;
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
+    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> builder() {
         return new Builder<A>();
     }
 
@@ -159,8 +159,9 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, SexualReproduction<A>, Builder<A>> implements Serializable {
-        private Builder() {}
+    public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractBuilder<A, SexualReproduction<A>, Builder<A>> implements Serializable {
+        private Builder() {
+        }
 
         @Override
         protected Builder<A> self() {
@@ -184,7 +185,7 @@ public class SexualReproduction<A extends Agent<A, ?>> extends AbstractAgentActi
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction<A>, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();

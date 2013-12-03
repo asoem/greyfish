@@ -5,7 +5,6 @@ import org.asoem.greyfish.core.acl.MessageConsumer;
 import org.asoem.greyfish.core.acl.MessageProducer;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -15,10 +14,10 @@ import org.asoem.greyfish.utils.collect.FunctionalList;
  * An Agent which is the basic unit of a {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
  *
  * @param <A> The actual type of this agent
- * @param <S> The type of the simulation
+ * @param <C> The type of the simulation context
  */
-public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A>>
-        extends DeepCloneable, AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A>, Descendant {
+public interface Agent<A extends Agent<A, C>, C extends SimulationContext<?>>
+extends DeepCloneable, AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A>, Descendant {
 
     /**
      * Get the population
@@ -99,7 +98,7 @@ public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A
      *
      * @param context the new context for this agent
      */
-    void activate(BasicSimulationContext<S, A> context);
+    void activate(C context);
 
     /**
      * Deactivate this agent. <p>Deactivation will remove the current
@@ -112,7 +111,7 @@ public interface Agent<A extends Agent<A, S>, S extends DiscreteTimeSimulation<A
      *
      * @return the optional simulation context
      */
-    Optional<BasicSimulationContext<S, A>> getContext();
+    Optional<C> getContext();
 
     /**
      * Check if the agent's {@link BasicSimulationContext context} is present.

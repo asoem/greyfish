@@ -22,9 +22,10 @@ import static java.util.Arrays.asList;
 
 
 /**
- * Implementations of <code>BranchCondition</code> should logically concatenate two or more implementations of <code>Condition</code>.
- * @author christoph
+ * Implementations of <code>BranchCondition</code> should logically concatenate two or more implementations of
+ * <code>Condition</code>.
  *
+ * @author christoph
  */
 public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCondition<A> {
 
@@ -125,7 +126,7 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
         return (isRootCondition() ? "*" : "") + Objects.toStringHelper(this).addValue(getChildConditions()).toString();
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends BranchCondition<A>, T extends AbstractBuilder<A, E, T>> extends AbstractCondition.AbstractBuilder<A,E,T> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends BranchCondition<A>, T extends AbstractBuilder<A, E, T>> extends AbstractCondition.AbstractBuilder<A, E, T> implements Serializable {
         private final List<ActionCondition<A>> conditions = Lists.newArrayList();
 
         protected AbstractBuilder() {
@@ -135,8 +136,19 @@ public abstract class BranchCondition<A extends Agent<A, ?>> extends AbstractCon
             addAll(branchCondition.conditions);
         }
 
-        protected T add(final ActionCondition<A> condition) { this.conditions.add(checkNotNull(condition)); return self(); }
-        protected T add(final ActionCondition<A>... conditions) { this.conditions.addAll(asList(checkNotNull(conditions))); return self(); }
-        protected T addAll(final Iterable<? extends ActionCondition<A>> conditions) { Iterables.addAll(this.conditions, checkNotNull(conditions)); return self(); }
+        protected T add(final ActionCondition<A> condition) {
+            this.conditions.add(checkNotNull(condition));
+            return self();
+        }
+
+        protected T add(final ActionCondition<A>... conditions) {
+            this.conditions.addAll(asList(checkNotNull(conditions)));
+            return self();
+        }
+
+        protected T addAll(final Iterable<? extends ActionCondition<A>> conditions) {
+            Iterables.addAll(this.conditions, checkNotNull(conditions));
+            return self();
+        }
     }
 }

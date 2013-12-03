@@ -5,28 +5,38 @@ import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.SimulationContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public interface ActionCondition<A extends Agent<A, ?>> extends AgentComponent<A> {
+public interface ActionCondition<A extends Agent<A, ? extends SimulationContext<?>>> extends AgentComponent<A> {
 
     Optional<AgentAction<A>> getAction();
+
     AgentAction<A> action();
+
     void setAction(AgentAction<A> action);
 
-	List<ActionCondition<A>> getChildConditions();
+    List<ActionCondition<A>> getChildConditions();
+
     ActionCondition<A> getRoot();
+
     void setParent(@Nullable ActionCondition<A> parent);
+
     ActionCondition<A> getParent();
 
     void insert(ActionCondition<A> condition, int index);
+
     void add(ActionCondition<A> condition);
-	void remove(ActionCondition<A> condition);
+
+    void remove(ActionCondition<A> condition);
+
     void removeAll();
 
     boolean isLeafCondition();
-	boolean isRootCondition();
+
+    boolean isRootCondition();
 
     boolean evaluate();
 }

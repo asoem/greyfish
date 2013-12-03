@@ -30,7 +30,7 @@ public final class Agents {
      * @param <T>          the type of the property
      * @return a new accessor instance
      */
-    public static <A extends Agent<A, ?>, T extends AgentProperty<A, ?>>
+    public static <A extends Agent<A, SimulationContext<?>>, T extends AgentProperty<A, ?>>
     ComponentAccessor<A, T> propertyAccessor(final String propertyName) {
         return new ComponentAccessor<A, T>() {
             private final Predicate<? super AgentProperty<A, ?>> componentNamePredicate =
@@ -56,7 +56,7 @@ public final class Agents {
      * #traitAccessor(String, Class)} instead
      */
     @Deprecated
-    public static <A extends Agent<A, ?>, T extends AgentTrait<A, ?>>
+    public static <A extends Agent<A, SimulationContext<?>>, T extends AgentTrait<A, ?>>
     ComponentAccessor<A, T> traitAccessor(final String traitName) {
         return new ComponentAccessor<A, T>() {
             private final Predicate<AgentComponent<A>> componentNamePredicate =
@@ -81,7 +81,7 @@ public final class Agents {
      * @return a new accessor instance
      * @throws ClassCastException if the trait could be found but is not of type {@code tClass}
      */
-    public static <A extends Agent<A, ?>, T extends AgentTrait<A, ?>>
+    public static <A extends Agent<A, SimulationContext<?>>, T extends AgentTrait<A, ?>>
     ComponentAccessor<A, T> traitAccessor(final String traitName, final Class<T> tClass) {
         return new ComponentAccessor<A, T>() {
             private final Predicate<AgentComponent<A>> componentNamePredicate =
@@ -106,7 +106,7 @@ public final class Agents {
      * @throws IllegalArgumentException if the trait could be found but its value type is not assignable to {@code
      *                                  typeToken}
      */
-    public static <A extends Agent<A, ?>, V>
+    public static <A extends Agent<A, SimulationContext<?>>, V>
     ComponentAccessor<A, AgentTrait<A, V>> traitAccessor(final String traitName, final TypeToken<V> typeToken) {
         return new ComponentAccessor<A, AgentTrait<A, V>>() {
             private final Predicate<AgentComponent<A>> componentNamePredicate
@@ -127,7 +127,7 @@ public final class Agents {
         };
     }
 
-    private static class ComponentNamePredicate<A extends Agent<A, ?>> implements Predicate<AgentComponent<A>> {
+    private static class ComponentNamePredicate<A extends Agent<A, SimulationContext<?>>> implements Predicate<AgentComponent<A>> {
         private final String name;
 
         public ComponentNamePredicate(final String name) {
@@ -163,11 +163,11 @@ public final class Agents {
         }
     }
 
-    public static <A extends Agent<A, ?>> CloneBuilder<A> createClone(final A original) {
-        return new CloneBuilder<A>(original);
+    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> CloneBuilder<A> createClone(final A original) {
+        return new CloneBuilder<>(original);
     }
 
-    public static final class CloneBuilder<A extends Agent<A, ?>> {
+    public static final class CloneBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> {
         private final A original;
         private boolean copyTraitValues = false;
 

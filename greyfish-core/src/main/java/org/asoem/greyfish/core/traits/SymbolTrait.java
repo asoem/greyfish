@@ -22,8 +22,9 @@ import static com.google.common.base.Preconditions.*;
 
 /**
  * A qualitative trait which holds arbitrary "symbolic" values.
- * @deprecated Use {@link HeritableTrait} with a
- * {@link org.asoem.greyfish.utils.math.MarkovChain} in the mutation {@link Callback}
+ *
+ * @deprecated Use {@link HeritableTrait} with a {@link org.asoem.greyfish.utils.math.MarkovChain} in the mutation
+ * {@link Callback}
  */
 @Deprecated
 public final class SymbolTrait<A extends Agent<A, ?>>
@@ -166,7 +167,8 @@ public final class SymbolTrait<A extends Agent<A, ?>>
     }
 
     public static class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, SymbolTrait<A>, Builder<A>> implements Serializable {
-        private Builder() {}
+        private Builder() {
+        }
 
         private Builder(final SymbolTrait<A> discreteTrait) {
             super(discreteTrait);

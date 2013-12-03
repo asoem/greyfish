@@ -12,7 +12,8 @@ public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<
 
     protected T value;
 
-    protected CompareCondition() {}
+    protected CompareCondition() {
+    }
 
     protected CompareCondition(final CompareCondition<T, A> condition, final DeepCloner map) {
         super(condition, map);
@@ -37,7 +38,14 @@ public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<
         private CompareOperator compareOperator;
         private E value;
 
-        public T is(final CompareOperator compareOperator) { this.compareOperator = checkNotNull(compareOperator); return self(); }
-        public T to(final E value) { this.value = checkNotNull(value); return self(); }
+        public T is(final CompareOperator compareOperator) {
+            this.compareOperator = checkNotNull(compareOperator);
+            return self();
+        }
+
+        public T to(final E value) {
+            this.value = checkNotNull(value);
+            return self();
+        }
     }
 }

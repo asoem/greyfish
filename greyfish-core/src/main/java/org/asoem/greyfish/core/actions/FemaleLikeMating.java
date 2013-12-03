@@ -12,7 +12,9 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
+import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -30,7 +32,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
 /**
  *
  */
-public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
+public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends ContractNetInitiatorAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FemaleLikeMating.class);
 
@@ -118,6 +120,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
 
     /**
      * The the number of successful matings, equivalent to the size of {@link #getReceivedSperm()}
+     *
      * @return the the number of successful matings
      */
     public int successfulMatings() {
@@ -141,7 +144,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
         return new FemaleLikeMating<A>(this, cloner);
     }
 
-    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
+    public static <A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> Builder<A> with() {
         return new Builder<A>();
     }
 
@@ -153,7 +156,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
         return interactionRadius;
     }
 
-    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, FemaleLikeMating<A>, Builder<A>> {
+    public static final class Builder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends AbstractBuilder<A, FemaleLikeMating<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
             return this;
@@ -166,13 +169,15 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>, C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
         protected String ontology = "mate";
         protected Callback<? super FemaleLikeMating<A>, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating<A>, Double> matingProbability = Callbacks.constant(1.0);
 
         /**
-         * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed as an argument to the callback with key "mate"
+         * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed
+         * as an argument to the callback with key "mate"
+         *
          * @param callback the callback function to calculate the mating probability
          * @return this builder
          */

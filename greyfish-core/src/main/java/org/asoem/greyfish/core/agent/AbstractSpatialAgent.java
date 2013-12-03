@@ -6,8 +6,8 @@ import org.asoem.greyfish.utils.space.Object2D;
 /**
  * Base implementation of a spatial agent
  */
-public abstract class AbstractSpatialAgent<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
-        extends AbstractAgent<A, S> implements SpatialAgent<A, S, P> {
+public abstract class AbstractSpatialAgent<A extends SpatialAgent<A, P, BasicSimulationContext<S, A>>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
+        extends AbstractAgent<A, BasicSimulationContext<S, A>> implements SpatialAgent<A, P, BasicSimulationContext<S, A>> {
 
     @Override
     public double distance(final double degrees) {

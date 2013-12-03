@@ -4,6 +4,7 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -17,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.asoem.greyfish.core.actions.utils.ActionState.*;
 
-public abstract class AbstractAgentAction<A extends Agent<A, ?>>
+public abstract class AbstractAgentAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>>
         extends AbstractAgentComponent<A> implements AgentAction<A> {
 
     @Nullable
@@ -163,7 +164,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ?>>
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected abstract static class AbstractBuilder<A extends Agent<A, ?>,
+    protected abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>,
             T extends AbstractAgentAction<A>,
             B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B>
             implements Serializable {

@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.io.InvalidObjectException;
@@ -10,12 +11,11 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 /**
- *
  * @param <A>
  * @deprecated Use a {@link GenericAction} to remove an agent from a getSimulation
  */
 @Deprecated
-public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
+public class Suicide<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private Suicide() {
@@ -26,7 +26,7 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
         super(cloneable, map);
     }
 
-    private Suicide(final AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A,?,?>> builder) {
+    private Suicide(final AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
     }
 
@@ -54,12 +54,13 @@ public class Suicide<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
+    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
-        private Builder() {}
+    public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
+        private Builder() {
+        }
 
         private Builder(final Suicide<A> suicide) {
             super(suicide);

@@ -10,8 +10,9 @@ import org.asoem.greyfish.utils.base.InheritableBuilder;
 import javax.annotation.Nullable;
 
 /**
- * A class that implements the <code>Condition</code> interface.
- * Can be used to make a <code>AgentAction</code> conditional.
+ * A class that implements the <code>Condition</code> interface. Can be used to make a <code>AgentAction</code>
+ * conditional.
+ *
  * @author christoph
  */
 public abstract class AbstractCondition<A extends Agent<A, ?>> implements ActionCondition<A> {
@@ -22,7 +23,8 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     @Nullable
     private transient AgentAction<A> action;
 
-    protected AbstractCondition() {}
+    protected AbstractCondition() {
+    }
 
     @SuppressWarnings("unchecked") // casting a clone should be safe
     protected AbstractCondition(final AbstractCondition<A> cloneable, final DeepCloner cloner) {

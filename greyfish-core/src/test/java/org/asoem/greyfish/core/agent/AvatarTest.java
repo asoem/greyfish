@@ -19,9 +19,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 /**
- * User: christoph
- * Date: 24.02.12
- * Time: 16:25
+ * User: christoph Date: 24.02.12 Time: 16:25
  */
 public class AvatarTest {
 
@@ -35,14 +33,14 @@ public class AvatarTest {
     @Test
     public void testDeepClone() throws Exception {
         // given
-        final SpatialAgent<Basic2DAgent, Basic2DSimulation, Point2D> agentDelegate = mock(SpatialAgent.class);
+        final SpatialAgent<Basic2DAgent, Point2D, BasicSimulationContext<Basic2DSimulation, Basic2DAgent>> agentDelegate = mock(SpatialAgent.class);
         given(agentDelegate.deepClone(any(DeepCloner.class))).willReturn(agentDelegate);
 
-        final Avatar<Basic2DAgent, Basic2DSimulation, Point2D> avatar =
-                new Avatar<Basic2DAgent, Basic2DSimulation, Point2D>(agentDelegate, mock(Point2D.class));
+        final Avatar<Basic2DAgent, Basic2DSimulation, Point2D, BasicSimulationContext<Basic2DSimulation, Basic2DAgent>> avatar =
+                new Avatar<Basic2DAgent, Basic2DSimulation, Point2D, BasicSimulationContext<Basic2DSimulation, Basic2DAgent>>(agentDelegate, mock(Point2D.class));
 
         // when
-        final Avatar<Basic2DAgent, Basic2DSimulation, Point2D> clone = CycleCloner.clone(avatar);
+        final Avatar<Basic2DAgent, Basic2DSimulation, Point2D, BasicSimulationContext<Basic2DSimulation, Basic2DAgent>> clone = CycleCloner.clone(avatar);
 
         // then
         assertThat(clone, is(equalTo(avatar)));

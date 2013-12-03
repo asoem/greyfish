@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.collect.Products;
@@ -21,10 +22,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class HeritableTraitsChromosome implements Chromosome {
 
-    private static final Predicate<AgentTrait<? extends Agent<?, ?>, ?>> IS_HERITABLE =
-            new Predicate<AgentTrait<? extends Agent<?, ?>, ?>>() {
+    private static final Predicate<AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> IS_HERITABLE =
+            new Predicate<AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>>() {
                 @Override
-                public boolean apply(final AgentTrait<? extends Agent<?, ?>, ?> input) {
+                public boolean apply(final AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?> input) {
                     return input.isHeritable();
                 }
             };
@@ -52,7 +53,7 @@ public final class HeritableTraitsChromosome implements Chromosome {
     }
 
     @Override
-    public <A extends Agent<A, ?>> void updateAgent(final A agent) {
+    public <A extends Agent<A, ? extends BasicSimulationContext<?, ?>>> void updateAgent(final A agent) {
         checkNotNull(agent, "Agent is null");
 
         final FunctionalList<AgentTrait<A, ?>> traits = agent.getTraits();
@@ -77,14 +78,14 @@ public final class HeritableTraitsChromosome implements Chromosome {
      * @param agent the {@code Agent} to get the traits from.
      * @return a new {@code HeritableTraitsChromosome} object
      */
-    public static HeritableTraitsChromosome copyFromAgent(final Agent<?, ?> agent) {
+    public static HeritableTraitsChromosome copyFromAgent(final Agent<?, ? extends BasicSimulationContext<?, ?>> agent) {
         checkNotNull(agent, "Agent is null");
-        final Iterable<? extends AgentTrait<? extends Agent<?, ?>, ?>> traits = agent.getTraits().filter(IS_HERITABLE);
+        final Iterable<? extends AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> traits = agent.getTraits().filter(IS_HERITABLE);
         final Iterable<TraitVector<?>> traitVectors = Iterables.transform(
                 traits,
-                new Function<AgentTrait<? extends Agent<?, ?>, ?>, TraitVector<?>>() {
+                new Function<AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>, TraitVector<?>>() {
                     @Override
-                    public TraitVector<?> apply(final AgentTrait<? extends Agent<?, ?>, ?> input) {
+                    public TraitVector<?> apply(final AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?> input) {
                         return TraitVector.copyOf(input);
                     }
                 });
@@ -98,13 +99,13 @@ public final class HeritableTraitsChromosome implements Chromosome {
      * @param agent the {@code Agent} to get the traits from.
      * @return a new {@code HeritableTraitsChromosome} object
      */
-    public static HeritableTraitsChromosome initializeFromAgent(final Agent<?, ?> agent) {
+    public static HeritableTraitsChromosome initializeFromAgent(final Agent<?, ? extends BasicSimulationContext<?, ?>> agent) {
         checkNotNull(agent, "Agent is null");
 
-        final FunctionalList<? extends AgentTrait<? extends Agent<?, ?>, ?>> traits = agent.getTraits();
+        final FunctionalList<? extends AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> traits = agent.getTraits();
         checkNotNull(traits, "Agent#getTraits() returned null");
 
-        final Iterable<? extends AgentTrait<? extends Agent<?, ?>, ?>> filter = traits.filter(IS_HERITABLE);
+        final Iterable<? extends AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> filter = traits.filter(IS_HERITABLE);
         final Iterable<TraitVector<?>> traitVectors = Iterables.transform(
                 filter,
                 new Function<AgentTrait<?, ?>, TraitVector<?>>() {

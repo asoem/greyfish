@@ -3,20 +3,20 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 
-public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
+public interface AgentAction<A extends Agent<A, ? extends SimulationContext<?>>> extends AgentComponent<A> {
 
     @Override
     AgentAction<A> deepClone(DeepCloner cloner);
 
     /**
-     * Check if all precondition are met for this action.
-     * If so, the action will be in state {@link ActionState#PRECONDITIONS_MET} afterwards,
-     * in {@link ActionState#PRECONDITIONS_FAILED} otherwise.
+     * Check if all precondition are met for this action. If so, the action will be in state {@link
+     * ActionState#PRECONDITIONS_MET} afterwards, in {@link ActionState#PRECONDITIONS_FAILED} otherwise.
      *
      * @return {@code true}, if all preconditions are met
      */
@@ -52,9 +52,8 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent<A> {
     /**
      * Evaluate the this action's condition.
      *
-     * @return {@code true} if this action's condition is {@code null} or evaluates
-     *         ({@link ActionCondition#evaluate()}) to {@code true},
-     *         {@code false} otherwise.
+     * @return {@code true} if this action's condition is {@code null} or evaluates ({@link ActionCondition#evaluate()})
+     * to {@code true}, {@code false} otherwise.
      */
     public boolean evaluateCondition();
 

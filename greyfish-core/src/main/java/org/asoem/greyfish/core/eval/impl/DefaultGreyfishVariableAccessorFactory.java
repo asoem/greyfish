@@ -1,13 +1,12 @@
 package org.asoem.greyfish.core.eval.impl;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.eval.GreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.properties.AgentProperty;
@@ -265,7 +264,12 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         return Iterables.find(checkNotNull(simulation).getActiveAgents(), new Predicate<Agent<?, ?>>() {
                             @Override
                             public boolean apply(final Agent<?, ?> agent) {
-                                return agent.getContext().get().getAgentId() == 0; // TODO: get id from regex
+                                final Optional<? extends SimulationContext<?>> context = agent.getContext();
+                                if (context.isPresent() && context.get() instanceof BasicSimulationContext) {
+                                    return ((BasicSimulationContext) context.get()).getAgentId() == 0; // TODO: get id from regex
+                                } else {
+                                    throw new RuntimeException("agent has no id");
+                                }
                             }
                         });
                     }
@@ -357,7 +361,12 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                 return Functions.compose(new Function<Agent<?, ?>, Object>() {
                     @Override
                     public Object apply(final Agent<?, ?> agent) {
-                        return checkNotNull(agent).getContext().get().getAge();
+                        final Optional<? extends SimulationContext<?>> context = agent.getContext();
+                        if (context.isPresent() && context.get() instanceof BasicSimulationContext) {
+                            return ((BasicSimulationContext) context.get()).getAge();
+                        } else {
+                            throw new RuntimeException("agent has no age");
+                        }
                     }
                 }, ret);
             }

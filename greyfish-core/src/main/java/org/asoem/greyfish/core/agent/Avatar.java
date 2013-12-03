@@ -12,37 +12,37 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D>
-        extends ForwardingSpatialAgent<A, S, P>
+public final class Avatar<A extends SpatialAgent<A, P, C>, S extends SpatialSimulation2D<A, ?>, P extends Object2D, C extends BasicSimulationContext<S, A>>
+        extends ForwardingSpatialAgent<A, P, C>
         implements Serializable {
 
-    private final SpatialAgent<A, S, P> delegate;
+    private final SpatialAgent<A, P, C> delegate;
     private P projection;
 
-    public Avatar(final SpatialAgent<A, S, P> delegate) {
+    public Avatar(final SpatialAgent<A, P, C> delegate) {
         this(delegate, null);
     }
 
     @SuppressWarnings("unchecked") // casting a clone is safe
-    private Avatar(final Avatar<A, S, P> avatar, final DeepCloner cloner) {
+    private Avatar(final Avatar<A, S, P, C> avatar, final DeepCloner cloner) {
         cloner.addClone(avatar, this);
         this.delegate = cloner.getClone(avatar.delegate);
         this.projection = avatar.projection;
     }
 
-    public Avatar(final SpatialAgent<A, S, P> delegate, final P projection) {
+    public Avatar(final SpatialAgent<A, P, C> delegate, final P projection) {
         this.delegate = checkNotNull(delegate);
         this.projection = checkNotNull(projection);
     }
 
     @Override
-    protected SpatialAgent<A, S, P> delegate() {
+    protected SpatialAgent<A, P, C> delegate() {
         return delegate;
     }
 
     @Override
-    public Avatar<A, S, P> deepClone(final DeepCloner cloner) {
-        return new Avatar<A, S, P>(this, cloner);
+    public Avatar<A, S, P, C> deepClone(final DeepCloner cloner) {
+        return new Avatar<>(this, cloner);
     }
 
     @Override
@@ -76,7 +76,7 @@ public final class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
     }
 
     private Object writeReplace() {
-        return new SerializedForm<A, S, P>(this);
+        return new SerializedForm<>(this);
     }
 
     private void readObject(final ObjectInputStream stream)
@@ -85,22 +85,22 @@ public final class Avatar<A extends SpatialAgent<A, S, P>, S extends SpatialSimu
     }
 
     @Override
-    public Optional<BasicSimulationContext<S, A>> getContext() {
+    public Optional<C> getContext() {
         return delegate().getContext();
     }
 
-    private static class SerializedForm<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D> implements Serializable {
-        private final SpatialAgent<A, S, P> delegate;
+    private static class SerializedForm<A extends SpatialAgent<A, P, C>, S extends SpatialSimulation2D<A, ?>, P extends Object2D, C extends BasicSimulationContext<S, A>> implements Serializable {
+        private final SpatialAgent<A, P, C> delegate;
         private final P projection;
 
-        public SerializedForm(final Avatar<A, S, P> avatar) {
+        public SerializedForm(final Avatar<A, S, P, C> avatar) {
             this.delegate = avatar.delegate;
             this.projection = avatar.projection;
         }
 
         private Object readResolve() throws ObjectStreamException {
             try {
-                return new Avatar<A, S, P>(delegate, projection);
+                return new Avatar<>(delegate, projection);
             } catch (IllegalStateException e) {
                 throw new InvalidObjectException("Build failed with: " + e.getMessage());
             }

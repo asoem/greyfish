@@ -9,10 +9,7 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
-import org.asoem.greyfish.core.agent.SpatialAgent;
+import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.impl.simulation.AgentAddedEvent;
@@ -30,10 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.google.common.base.Preconditions.*;
 
 /**
- * A {@code Simulation} that uses a cached thread pool to execute {@link Agent}s
- * and process their addition, removal, migration and communication in parallel.
+ * A {@code Simulation} that uses a cached thread pool to execute {@link Agent}s and process their addition, removal,
+ * migration and communication in parallel.
  */
-public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S extends SpatialSimulation2D<A, Z>,
+public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimulationContext<S, A>>, S extends SpatialSimulation2D<A, Z>,
         Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Generic2DSimulation.class);
@@ -57,7 +54,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         this.prototypes = checkNotNull(builder.prototypes);
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
-        this.space = new AgentSpace<Z, A, P>(checkNotNull(builder.space));
+        this.space = new AgentSpace<>(checkNotNull(builder.space));
 
         this.addAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<NewAgentEvent<P, A>>newArrayList()));
         this.removeAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<RemoveAgentMessage<A>>newArrayList()));
@@ -70,7 +67,8 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
     /**
      * Add an agent to this getSimulation at given {@code projection} in space.
-     * @param agent the agent insert
+     *
+     * @param agent      the agent insert
      * @param projection the projection
      */
     public final void addAgent(final A agent, final P projection) {
@@ -83,7 +81,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         // TODO: check state of agent (should be initialized)
 
         space.insertObject(agent, projection);
-        agent.activate(DefaultActiveSimulationContext.<S, A>create(self(), agentIdSequence.incrementAndGet(), getTime()));
+        agent.activate(DefaultActiveSimulationContext.create(self(), agentIdSequence.incrementAndGet(), getTime()));
 
         LOGGER.debug("Agent activated: {}", agent);
 
@@ -243,7 +241,8 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
     }
 
     /**
-     * Remove all agents from this getSimulation and the underlying {@code #space} as requested by {@link #removeAgentMessages}
+     * Remove all agents from this getSimulation and the underlying {@code #space} as requested by {@link
+     * #removeAgentMessages}
      */
     private void processRequestedAgentRemovals() {
         LOGGER.debug("Removing {} agent(s)", removeAgentMessages.size());
@@ -299,7 +298,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         return String.format("%d agents; %d steps", countAgents(), getTime());
     }
 
-    private interface NewAgentEvent<P extends Object2D, A extends SpatialAgent<A, ?, P>> {
+    private interface NewAgentEvent<P extends Object2D, A extends SpatialAgent<A, P, ?>> {
         A getAgent();
 
         P getProjection();
@@ -317,7 +316,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
         @Override
         public A getAgent() {
-           return agent;
+            return agent;
         }
 
         @Override
@@ -368,7 +367,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
     }
 
-    private static final class AgentSpace<Z extends Space2D<T, P>, T extends SpatialAgent<?, ?, P>, P extends Object2D>
+    private static final class AgentSpace<Z extends Space2D<T, P>, T extends SpatialAgent<?, P, ?>, P extends Object2D>
             extends ForwardingSpace2D<T, P> {
 
         private final Z delegate;
@@ -440,7 +439,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
         }
     }
 
-    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, X, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, P, BasicSimulationContext<X, A>>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<PrototypeGroup, A> agentPool;
         private int parallelizationThreshold = 1000;
@@ -480,6 +479,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
         /**
          * Set the agent pool to use for recycling objects of tye {@code A}.
+         *
          * @param pool the pool to use for recycling
          * @return this builder
          */
@@ -490,6 +490,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
         /**
          * Set the parallelization threshold after above which to parallelize agent executions.
+         *
          * @param parallelizationThreshold the threshold for parallelling agent executions
          * @return this builder
          */
@@ -501,9 +502,10 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, S, P>, S ext
 
         /**
          * Set the executor service used to execute agents.
-         * @see org.asoem.greyfish.core.agent.Agent#run()
+         *
          * @param executionService the execution servive to use
          * @return this builder
+         * @see org.asoem.greyfish.core.agent.Agent#run()
          */
         public final B executionService(final ExecutorService executionService) {
             this.executionService = checkNotNull(executionService);

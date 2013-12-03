@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.core.traits.TraitVector;
@@ -16,7 +17,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.*;
 
-public final class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAgentAction<A> {
+public final class ClonalReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
 
     private Callback<? super ClonalReproduction<A>, Integer> clutchSize;
 
@@ -77,11 +78,11 @@ public final class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAge
         this.clutchSize = clutchSize;
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> with() {
+    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> with() {
         return new Builder<A>();
     }
 
-    public static final class Builder<A extends Agent<A, ?>>
+    public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>>
             extends ClonalReproduction.AbstractBuilder<A, ClonalReproduction<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
@@ -94,7 +95,7 @@ public final class ClonalReproduction<A extends Agent<A, ?>> extends AbstractAge
         }
     }
 
-    private abstract static class AbstractBuilder<A extends Agent<A, ?>, C extends ClonalReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+    private abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ClonalReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
         private Callback<? super ClonalReproduction<A>, Integer> nClones;
         private Callback<? super ClonalReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
 

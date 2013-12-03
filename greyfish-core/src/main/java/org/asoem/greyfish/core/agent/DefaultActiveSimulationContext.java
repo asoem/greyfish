@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @param <S> the type of the getSimulation
  * @param <A> the type of the agent
  */
-public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>> implements BasicSimulationContext<S, A> {
+public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, ? extends SimulationContext<S>>> implements BasicSimulationContext<S, A> {
 
     private final S simulation;
 
@@ -26,9 +26,9 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
         this.activationStep = simulationStep;
     }
 
-    public static <S extends DiscreteTimeSimulation<A>, A extends Agent<A, S>>
+    public static <S extends DiscreteTimeSimulation<A>, A extends Agent<A, ? extends SimulationContext<S>>>
     DefaultActiveSimulationContext<S, A> create(final S simulation, final int agentId, final long simulationStep) {
-        return new DefaultActiveSimulationContext<S, A>(simulation, agentId, simulationStep);
+        return new DefaultActiveSimulationContext<>(simulation, agentId, simulationStep);
     }
 
     @Override

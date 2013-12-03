@@ -45,7 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A {@code SimulationLogger} which logs to a JDBC {@link Connection}. This implementation uses a {@link Disruptor} to
  * handle the incoming events and therefore is threadsafe.
  */
-final class JDBCLogger<A extends SpatialAgent<?, ?, ?>> implements SimulationLogger<A> {
+final class JDBCLogger<A extends SpatialAgent<?, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>>>> implements SimulationLogger<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
     private static final int RING_BUFFER_SIZE = 1024;
@@ -172,8 +172,7 @@ final class JDBCLogger<A extends SpatialAgent<?, ?, ?>> implements SimulationLog
 
     @Override
     public void logAgentCreation(final A agent) {
-        final BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>> simulationContext =
-                agent.getContext().get();
+        final BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>> simulationContext = agent.getContext().get();
         addQuery(new InsertAgentQuery(
                 simulationContext.getAgentId(),
                 idForName(agent.getPrototypeGroup().getName()),

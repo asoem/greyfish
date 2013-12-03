@@ -18,11 +18,12 @@ public class AgentsTest {
         // given
         final TestAgent agentMock = mock(TestAgent.class);
         final AgentTrait<TestAgent, Double> traitMock = mock(AgentTrait.class);
-        final TypeToken<Double> valueType = new TypeToken<Double>() {};
+        final TypeToken<Double> valueType = new TypeToken<Double>() {
+        };
         given(traitMock.getName()).willReturn("testTrait");
         given(traitMock.getValueType()).willReturn(valueType);
         given(agentMock.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<TestAgent, ?>>of(traitMock));
-        final ComponentAccessor<TestAgent,AgentTrait<TestAgent,Double>> accessor
+        final ComponentAccessor<TestAgent, AgentTrait<TestAgent, Double>> accessor
                 = Agents.traitAccessor("testTrait", valueType);
 
         // when
@@ -38,10 +39,12 @@ public class AgentsTest {
         final TestAgent agentMock = mock(TestAgent.class);
         final AgentTrait<TestAgent, Double> traitMock = mock(AgentTrait.class);
         given(traitMock.getName()).willReturn("testTrait");
-        given(traitMock.getValueType()).willReturn(new TypeToken<Double>() {});
+        given(traitMock.getValueType()).willReturn(new TypeToken<Double>() {
+        });
         given(agentMock.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<TestAgent, ?>>of(traitMock));
         final ComponentAccessor<TestAgent, AgentTrait<TestAgent, Number>> accessor
-                = Agents.traitAccessor("testTrait", new TypeToken<Number>() {});
+                = Agents.traitAccessor("testTrait", new TypeToken<Number>() {
+        });
 
         // when
         final AgentTrait<TestAgent, Number> trait = accessor.apply(agentMock);
@@ -56,10 +59,12 @@ public class AgentsTest {
         final TestAgent agentMock = mock(TestAgent.class);
         final AgentTrait<TestAgent, Object> traitMock = mock(AgentTrait.class);
         given(traitMock.getName()).willReturn("testTrait");
-        given(traitMock.getValueType()).willReturn(new TypeToken<Object>() {});
+        given(traitMock.getValueType()).willReturn(new TypeToken<Object>() {
+        });
         given(agentMock.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<TestAgent, ?>>of(traitMock));
         final ComponentAccessor<TestAgent, AgentTrait<TestAgent, Number>> accessor
-                = Agents.traitAccessor("testTrait", new TypeToken<Number>() {});
+                = Agents.traitAccessor("testTrait", new TypeToken<Number>() {
+        });
 
         // when
         accessor.apply(agentMock);
@@ -68,6 +73,9 @@ public class AgentsTest {
         fail();
     }
 
-    private static interface TestAgent extends Agent<TestAgent, TestSimulation> {}
-    private static interface TestSimulation extends DiscreteTimeSimulation<TestAgent> {}
+    private static interface TestAgent extends Agent<TestAgent, SimulationContext<?>> {
+    }
+
+    private static interface TestSimulation extends DiscreteTimeSimulation<TestAgent> {
+    }
 }

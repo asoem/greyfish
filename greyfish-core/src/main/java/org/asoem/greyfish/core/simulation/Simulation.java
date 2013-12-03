@@ -4,11 +4,12 @@ import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
+import org.asoem.greyfish.core.agent.SimulationContext;
 
 /**
  * A {@code Simulation} is an environment for interacting agents.
  */
-public interface Simulation<A extends Agent<A, ?>> {
+public interface Simulation<A extends Agent<A, ? extends SimulationContext<?>>> {
     /**
      * Get all active {@code Agent}s which are part of the given {@code prototypeGroup}.
      *
@@ -73,6 +74,7 @@ public interface Simulation<A extends Agent<A, ?>> {
 
     /**
      * Get a status info for this getSimulation. The content is implementation specific.
+     *
      * @return a message providing information about this getSimulation
      */
     String getStatusInfo();

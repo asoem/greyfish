@@ -22,9 +22,11 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
 
     @Override
     public boolean evaluate() {
-        for (final ActionCondition<A> condition : getChildConditions())
-            if (condition.evaluate())
+        for (final ActionCondition<A> condition : getChildConditions()) {
+            if (condition.evaluate()) {
                 return false;
+            }
+        }
         return true;
     }
 
@@ -62,8 +64,15 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
             super(noneCondition);
         }
 
-        @Override protected Builder<A> self() { return this; }
-        @Override public NoneCondition<A> checkedBuild() { return new NoneCondition<A>(this); }
+        @Override
+        protected Builder<A> self() {
+            return this;
+        }
+
+        @Override
+        public NoneCondition<A> checkedBuild() {
+            return new NoneCondition<A>(this);
+        }
 
         private Object readResolve() throws ObjectStreamException {
             try {

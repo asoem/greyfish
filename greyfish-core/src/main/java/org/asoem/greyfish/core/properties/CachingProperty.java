@@ -4,6 +4,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -18,12 +19,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-/**
- * User: christoph
- * Date: 09.05.12
- * Time: 11:29
- */
-public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProperty<T, A> {
+public final class CachingProperty<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, T> extends AbstractAgentProperty<T, A> {
 
     private final Callback<? super CachingProperty<A, T>, ? extends T> valueCallback;
 
@@ -87,17 +83,18 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         return valueCallback;
     }
 
-    public static <T, A extends Agent<A, ?>> Builder<T, A> builder() {
-        return new Builder<T, A>();
+    public static <T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<T, A> builder() {
+        return new Builder<>();
     }
 
     public long getLastModificationStep() {
         return lastModificationStep;
     }
 
-    public static class Builder<T, A extends Agent<A, ?>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T>, Builder<T, A>> implements Serializable {
 
-        private Builder() {}
+        private Builder() {
+        }
 
         private Builder(final CachingProperty<A, T> simulationStepProperty) {
             super(simulationStepProperty);
@@ -124,12 +121,13 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ?>, P extends CachingProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>, P extends CachingProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
         private Callback<? super CachingProperty<A, T>, ? extends T> valueCallback;
 
         private Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback = CachingProperty.expiresAtBirth();
 
-        protected AbstractBuilder() {}
+        protected AbstractBuilder() {
+        }
 
         protected AbstractBuilder(final CachingProperty<A, T> simulationStepProperty) {
             super(simulationStepProperty);
@@ -153,7 +151,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
     }
 
     private Object writeReplace() {
-        return new Builder<T, A>(this);
+        return new Builder<>(this);
     }
 
     private void readObject(final ObjectInputStream stream)
@@ -170,7 +168,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
 
         @Override
         public Boolean apply(final CachingProperty<?, ?> caller, final Map<String, ?> args) {
-            final Agent<?, ?> agent = caller.agent().get();
+            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() < agent.getContext().get().getActivationStep();
         }
     }
@@ -184,7 +182,7 @@ public class CachingProperty<A extends Agent<A, ?>, T> extends AbstractAgentProp
 
         @Override
         public Boolean apply(final CachingProperty<?, ?> caller, final Map<String, ?> args) {
-            final Agent<?, ?> agent = caller.agent().get();
+            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() != agent.getContext().get().getTime();
         }
     }

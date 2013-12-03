@@ -1,19 +1,15 @@
 package org.asoem.greyfish.core.simulation;
 
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.Space2D;
 
-/**
- * User: christoph
- * Date: 08.10.11
- * Time: 10:50
- */
-public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends Space2D<A, ?>> extends DiscreteTimeSimulation<A> {
+public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ? extends SimulationContext<? extends SpatialSimulation2D<A, Z>>>, Z extends Space2D<A, ?>> extends DiscreteTimeSimulation<A> {
 
     /**
      * Find all neighbours of {@code agent} within the given {@code distance}
      *
-     * @param agent The focal {@code agent}
+     * @param agent    The focal {@code agent}
      * @param distance The maximum allowed distance of an agent to count as a neighbour
      * @return all neighbours of {@code agent} within the given distance
      */
@@ -21,6 +17,7 @@ public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends 
 
     /**
      * Get the space used in this getSimulation
+     *
      * @return the space used in this getSimulation
      */
     Z getSpace();
@@ -28,7 +25,7 @@ public interface SpatialSimulation2D<A extends SpatialAgent<A, ?, ?>, Z extends 
     /**
      * Measure the distance from given agent to the first obstacle in the given direction (in degrees [0, 360))
      *
-     * @param agent the agent which serves as the origin of the distance measure
+     * @param agent   the agent which serves as the origin of the distance measure
      * @param degrees the angle in which direction the distance will be measured
      * @return the distance from agent to the next object in this simulations space
      */

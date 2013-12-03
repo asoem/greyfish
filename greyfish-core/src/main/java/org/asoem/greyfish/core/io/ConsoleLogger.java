@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.simulation.Simulation;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * A logger that logs all messages to {@link System#out}.
  */
-final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+final class ConsoleLogger<A extends Agent<A, SimulationContext<?>>> implements SimulationLogger<A> {
 
     private final PrintStream printStream;
 

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.DeepCloneable;
@@ -18,12 +19,13 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * A generic heritable trait which holds an arbitrary value of type {@code T}.
- * Initialization, mutation and segregation of this value are defined using {@link Callback}s.
+ * A generic heritable trait which holds an arbitrary value of type {@code T}. Initialization, mutation and segregation
+ * of this value are defined using {@link Callback}s.
+ *
  * @param <A> the type of the enclosing {@link Agent}
  * @param <T> the type of the value of this trait
  */
-public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements AgentTrait<A, T> {
+public class HeritableTrait<A extends Agent<A, SimulationContext<?>>, T> extends AbstractTrait<A, T> implements AgentTrait<A, T> {
 
     private final TypeToken<T> typeToken;
 
@@ -107,7 +109,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         return segregationKernel;
     }
 
-    public static <A extends Agent<A, ?>, T> Builder<A, T> builder() {
+    public static <A extends Agent<A, SimulationContext<?>>, T> Builder<A, T> builder() {
         return new Builder<A, T>();
     }
 
@@ -120,8 +122,9 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         throw new InvalidObjectException("Builder required");
     }
 
-    public static class Builder<A extends Agent<A, ?>, T> extends AbstractBuilder<A, HeritableTrait<A, T>, Builder<A, T>, T> implements Serializable {
-        private Builder() {}
+    public static class Builder<A extends Agent<A, SimulationContext<?>>, T> extends AbstractBuilder<A, HeritableTrait<A, T>, Builder<A, T>, T> implements Serializable {
+        private Builder() {
+        }
 
         private Builder(final HeritableTrait<A, T> quantitativeTrait) {
             super(quantitativeTrait);
@@ -148,7 +151,7 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         private static final long serialVersionUID = 0;
     }
 
-    protected abstract static class AbstractBuilder<A extends Agent<A, ?>, C extends HeritableTrait<A, T>, B extends AbstractBuilder<A, C, B, T>, T> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
+    protected abstract static class AbstractBuilder<A extends Agent<A, SimulationContext<?>>, C extends HeritableTrait<A, T>, B extends AbstractBuilder<A, C, B, T>, T> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
 
         private final Callback<Object, T> defaultInitializationKernel = Callbacks.willThrow(new UnsupportedOperationException());
         private final Callback<Object, T> defaultMutationKernel = Callbacks.willThrow(new UnsupportedOperationException());
@@ -169,7 +172,8 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
             this.value = quantitativeTrait.value;
         }
 
-        protected AbstractBuilder() {}
+        protected AbstractBuilder() {
+        }
 
         public final B initialization(final Callback<? super AgentTrait<A, T>, T> callback) {
             this.initializationKernel = checkNotNull(callback);

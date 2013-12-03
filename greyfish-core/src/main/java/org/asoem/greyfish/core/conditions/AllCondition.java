@@ -13,9 +13,10 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 /**
- * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND operator.
- * @author christoph
+ * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical AND
+ * operator.
  *
+ * @author christoph
  */
 @Tagged("conditions")
 public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
@@ -78,8 +79,15 @@ public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
             super(allCondition);
         }
 
-        @Override protected Builder<A> self() { return this; }
-        @Override protected AllCondition<A> checkedBuild() { return new AllCondition<A>(this); }
+        @Override
+        protected Builder<A> self() {
+            return this;
+        }
+
+        @Override
+        protected AllCondition<A> checkedBuild() {
+            return new AllCondition<A>(this);
+        }
 
         private Object readResolve() throws ObjectStreamException {
             try {

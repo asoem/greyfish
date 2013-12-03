@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.asoem.greyfish.core.conditions;
 
@@ -14,8 +14,8 @@ import java.io.Serializable;
 
 /**
  * This class can be used to concatenate two or more <code>Condition</code> implementations with a logical OR operator.
- * @author christoph
  *
+ * @author christoph
  */
 @Tagged("conditions")
 public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
@@ -54,11 +54,11 @@ public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         return new Builder<A>();
     }
 
-    public static <A extends Agent<A, ?>> AnyCondition<A> evaluates(final ActionCondition<A> ... conditions) {
+    public static <A extends Agent<A, ?>> AnyCondition<A> evaluates(final ActionCondition<A>... conditions) {
         return new Builder<A>().add(conditions).build();
     }
 
-    private static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, AnyCondition<A>,Builder<A>> implements Serializable {
+    private static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, AnyCondition<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 
@@ -66,8 +66,15 @@ public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
             super(anyCondition);
         }
 
-        @Override protected Builder<A> self() { return this; }
-        @Override public AnyCondition<A> checkedBuild() { return new AnyCondition<A>(this); }
+        @Override
+        protected Builder<A> self() {
+            return this;
+        }
+
+        @Override
+        public AnyCondition<A> checkedBuild() {
+            return new AnyCondition<A>(this);
+        }
 
         private Object readResolve() throws ObjectStreamException {
             try {
