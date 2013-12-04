@@ -35,13 +35,6 @@ public interface AgentAction<A extends Agent<A, ? extends SimulationContext<?>>>
     void reset();
 
     /**
-     * Set the condition set for this action
-     *
-     * @param rootCondition the condition set for this action
-     */
-    public void setCondition(@Nullable ActionCondition<A> rootCondition);
-
-    /**
      * Get the condition set for this action
      *
      * @return the condition set for this action or {@code null}
