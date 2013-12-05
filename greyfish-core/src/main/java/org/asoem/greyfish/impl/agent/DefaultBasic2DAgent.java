@@ -12,9 +12,7 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
-import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
@@ -152,13 +150,6 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    public void reproduce(final Chromosome chromosome) {
-        final Basic2DAgent clone = CycleCloner.clone(this);
-        chromosome.updateAgent(clone);
-        getContext().get().getSimulation().enqueueAddition(clone, getProjection());
-    }
-
-    @Override
     public void setMotion(final Motion2D motion) {
         this.motion = checkNotNull(motion);
     }
@@ -274,7 +265,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
 
                 @Override
                 public boolean apply(@Nullable final String input) {
-                    return ! nameSet.add(input);
+                    return !nameSet.add(input);
                 }
             }, null);
             checkState(duplicate == null, "You assigned the following name more than once to a component: " + duplicate);

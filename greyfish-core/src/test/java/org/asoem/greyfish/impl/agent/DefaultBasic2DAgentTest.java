@@ -6,8 +6,6 @@ import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.utils.base.CycleCloner;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
@@ -22,13 +20,10 @@ import static org.asoem.greyfish.core.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * User: christoph
- * Date: 20.09.11
- * Time: 17:54
+ * User: christoph Date: 20.09.11 Time: 17:54
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultBasic2DAgentTest {
@@ -49,6 +44,7 @@ public class DefaultBasic2DAgentTest {
         assertThat(ret, is(equalTo(gene)));
     }
 
+    /*
     @Test
     public void testDeepClone() throws Exception {
         // given
@@ -64,6 +60,7 @@ public class DefaultBasic2DAgentTest {
         // then
         assertThat(clone, isSameAs(agent));
     }
+    */
 
     @Test
     public void testSerialization() throws Exception {

@@ -17,7 +17,6 @@ import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
-import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.Initializer;
 import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.asoem.greyfish.utils.persistence.Persister;
@@ -55,7 +54,8 @@ public class DefaultBasic2DSimulationTest {
     public void testNewSimulation() {
         // given
         final PrototypeGroup prototypeGroup = PrototypeGroup.named("testPopulation");
-        final Basic2DAgent prototype = DefaultBasic2DAgent.builder(prototypeGroup).build();
+        final DefaultBasic2DAgent.Builder builder = DefaultBasic2DAgent.builder(prototypeGroup);
+        final Basic2DAgent prototype = builder.build();
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, new TwoDimTreeFactory<Basic2DAgent>() {
             @Override
             public TwoDimTree<Basic2DAgent> create(final Iterable<? extends Basic2DAgent> elements, final Function<? super Basic2DAgent, Point2D> function) {
@@ -68,11 +68,11 @@ public class DefaultBasic2DSimulationTest {
                 .agentPool(new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
                     @Override
                     public Basic2DAgent makeObject(final PrototypeGroup o) throws Exception {
-                        return CycleCloner.clone(prototype);
+                        return builder.build();
                     }
                 })).build();
-        simulation.addAgent(CycleCloner.clone(prototype), ImmutablePoint2D.at(0, 0));
-        simulation.addAgent(CycleCloner.clone(prototype), ImmutablePoint2D.at(0, 0));
+        simulation.addAgent(builder.build(), ImmutablePoint2D.at(0, 0));
+        simulation.addAgent(builder.build(), ImmutablePoint2D.at(0, 0));
         simulation.nextStep();
 
         // then
@@ -96,6 +96,7 @@ public class DefaultBasic2DSimulationTest {
         // when
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation
                 .builder(space, ImmutableSet.of(prototype))
+                .agentPool(mock(StackKeyedObjectPool.class))
                 .build();
         for (Basic2DAgent agent : agents) {
             simulation.addAgent(agent, ImmutablePoint2D.at(0, 0));
@@ -221,6 +222,7 @@ public class DefaultBasic2DSimulationTest {
         });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
+                .agentPool(mock(StackKeyedObjectPool.class))
                 .build();
         //given(agent.getSimulation()).willReturn(getSimulation);
 

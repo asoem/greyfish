@@ -11,7 +11,6 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.impl.simulation.BasicSimulation;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
@@ -114,11 +113,6 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     @Override
     public Set<Integer> getParents() {
         return parents;
-    }
-
-    @Override
-    public void reproduce(final Chromosome chromosome) {
-        throw new UnsupportedOperationException("deprecated");
     }
 
     @Override

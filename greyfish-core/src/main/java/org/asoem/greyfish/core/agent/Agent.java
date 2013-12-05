@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.acl.MessageProducer;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
@@ -17,7 +16,7 @@ import org.asoem.greyfish.utils.collect.FunctionalList;
  * @param <C> The type of the simulation context
  */
 public interface Agent<A extends Agent<A, C>, C extends SimulationContext<?>>
-extends DeepCloneable, AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A>, Descendant {
+        extends DeepCloneable, AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A>, Descendant {
 
     /**
      * Get the population
@@ -83,10 +82,6 @@ extends DeepCloneable, AgentNode, Runnable, MessageConsumer<A>, MessageProducer<
     AgentTrait<A, ?> getTrait(String name);
 
 
-    @Deprecated
-    void reproduce(Chromosome chromosome);
-
-
     /**
      * Let the agent execute it's next action
      */
@@ -101,8 +96,7 @@ extends DeepCloneable, AgentNode, Runnable, MessageConsumer<A>, MessageProducer<
     void activate(C context);
 
     /**
-     * Deactivate this agent. <p>Deactivation will remove the current
-     * {@link BasicSimulationContext context}</p>
+     * Deactivate this agent. <p>Deactivation will remove the current {@link BasicSimulationContext context}</p>
      */
     void deactivate();
 

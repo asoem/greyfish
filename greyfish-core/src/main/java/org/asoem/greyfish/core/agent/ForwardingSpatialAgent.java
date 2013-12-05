@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
-import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -42,11 +41,6 @@ abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, P, C>, P extends
     @Override
     public void setProjection(final P projection) {
         delegate().setProjection(projection);
-    }
-
-    @Override
-    public void reproduce(final Chromosome chromosome) {
-        delegate().reproduce(chromosome);
     }
 
     @Override

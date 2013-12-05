@@ -1,8 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
-import org.asoem.greyfish.utils.base.CycleCloner;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,12 +8,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AllConditionTest {
 
+    /*
     @Test
     public void testDeepClone() throws Exception {
         // given
@@ -30,7 +29,7 @@ public class AllConditionTest {
         assertThat(clone.getChildConditions(), hasSize(allCondition.getChildConditions().size()));
         verify(childMock, times(2)).deepClone(any(DeepCloner.class));
     }
-
+    */
     @Test
     public void testSerialization() throws Exception {
         // given

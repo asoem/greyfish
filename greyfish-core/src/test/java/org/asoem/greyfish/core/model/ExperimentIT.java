@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.model;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -7,8 +8,8 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import org.asoem.greyfish.core.agent.Agents;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
+import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.impl.simulation.BasicSimulation;
@@ -37,7 +38,7 @@ public class ExperimentIT {
 
                 List<BasicAgent> initialAgents = Lists.newArrayList();
                 for (int i = 0; i < 10; i++) {
-                     initialAgents.add(createAgent());
+                    initialAgents.add(createAgent());
                 }
 
                 for (int i = 0; i < nRuns; i++) {
@@ -48,6 +49,7 @@ public class ExperimentIT {
                     // run the getSimulation
                     runSimulation(simulation, new Predicate<BasicSimulation>() {
                         int steps = 10;
+
                         @Override
                         public boolean apply(@Nullable final BasicSimulation input) {
                             return steps-- > 0;
@@ -147,6 +149,18 @@ public class ExperimentIT {
                         // sample agents for new getSimulation
                         final Iterable<BasicAgent> sampledAgents =
                                 sample(rng(), copyOf(simulation.getActiveAgents()), 30);
+
+                        Iterables.transform(sampledAgents, new Function<BasicAgent, BasicAgent>() {
+                            @Nullable
+                            @Override
+                            public BasicAgent apply(@Nullable final BasicAgent input) {
+                                final BasicAgent agent = createAgent();
+                                agent.initialize();
+                                HeritableTraitsChromosome.copyFromAgent(input).updateAgent(agent);
+                                return agent;
+                            }
+                        });
+
                         Iterables.addAll(initialAgents, sampledAgents);
                     }
                 }
@@ -160,7 +174,7 @@ public class ExperimentIT {
 
             private void initializeSimulation(final BasicSimulation simulation, final Iterable<BasicAgent> agents) {
                 for (BasicAgent agent : agents) {
-                    simulation.enqueueAddition(Agents.createClone(agent).build());
+                    simulation.enqueueAddition(agent);
                 }
             }
 

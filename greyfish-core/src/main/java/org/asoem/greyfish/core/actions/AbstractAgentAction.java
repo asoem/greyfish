@@ -136,7 +136,7 @@ public abstract class AbstractAgentAction<A extends Agent<A, ? extends BasicSimu
         return condition;
     }
 
-    private final void setCondition(@Nullable final ActionCondition<A> condition) {
+    private void setCondition(@Nullable final ActionCondition<A> condition) {
         this.condition = condition;
         if (condition != null) {
             condition.setAction(this);

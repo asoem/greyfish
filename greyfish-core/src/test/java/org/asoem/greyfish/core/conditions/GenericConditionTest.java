@@ -6,8 +6,6 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.CycleCloner;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -16,10 +14,6 @@ import org.junit.Test;
 import static org.asoem.greyfish.core.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * User: christoph
@@ -28,6 +22,7 @@ import static org.mockito.Mockito.when;
  */
 public class GenericConditionTest {
 
+    /*
     @Test
     public void testDeepClone() throws Exception {
         // given
@@ -47,6 +42,7 @@ public class GenericConditionTest {
         // then
         assertThat(clone, isSameAs(genericCondition));
     }
+    */
 
     @Test
     public void testSerialization() throws Exception {

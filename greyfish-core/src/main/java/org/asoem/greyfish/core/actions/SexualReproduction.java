@@ -16,9 +16,6 @@ import org.asoem.greyfish.utils.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +26,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
+public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -38,11 +35,6 @@ public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationCont
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
     private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator;
     private int offspringCount;
-
-    @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
-    public SexualReproduction() {
-        this(new Builder<A>());
-    }
 
     private SexualReproduction(final SexualReproduction<A> cloneable, final DeepCloner map) {
         super(cloneable, map);
@@ -77,13 +69,14 @@ public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationCont
         for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
             final Set<Integer> parents = sperm.getParents();
-            if (parents.size() != 1)
+            if (parents.size() != 1) {
                 throw new AssertionError("Sperm must have an uniparental history");
+            }
 
             final BasicSimulationContext<? extends DiscreteTimeSimulation<A>, A> simulationContext = agent.getContext().get();
             final Chromosome chromosome = blend(agent.getTraits(), sperm, simulationContext.getAgentId(), Iterables.getOnlyElement(parents));
 
-            agent.reproduce(chromosome);
+            addAgent(chromosome);
 
             //agent().get().logEvent(this, "offspringProduced", "");
         }
@@ -92,6 +85,8 @@ public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationCont
 
         return COMPLETED;
     }
+
+    protected abstract void addAgent(final Chromosome chromosome);
 
     private static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Chromosome blend(final FunctionalList<AgentTrait<A, ?>> egg, final Chromosome sperm, final int femaleID, final int maleID) {
 
@@ -121,10 +116,10 @@ public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationCont
                 trait.getName());
     }
 
-    @Override
-    public SexualReproduction<A> deepClone(final DeepCloner cloner) {
-        return new SexualReproduction<A>(this, cloner);
-    }
+    /**
+     * @Override public SexualReproduction<A> deepClone(final DeepCloner cloner) { return new
+     * SexualReproduction<A>(this, cloner); }
+     */
 
     @Override
     public void initialize() {
@@ -132,9 +127,10 @@ public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationCont
         offspringCount = 0;
     }
 
-    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> builder() {
-        return new Builder<A>();
-    }
+    /**
+     * public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> builder() { return new
+     * Builder<A>(); }
+     */
 
     public int getOffspringCount() {
         return offspringCount;
@@ -144,46 +140,25 @@ public class SexualReproduction<A extends Agent<A, ? extends BasicSimulationCont
         return clutchSize;
     }
 
-    private Object writeReplace() {
-        return new Builder<A>()
-                .clutchSize(clutchSize)
-                .spermSupplier(spermSupplier)
-                .spermSelectionStrategy(spermSelectionStrategy)
-                .spermFitnessCallback(spermFitnessEvaluator)
-                .executedIf(getCondition())
-                .name(getName());
-    }
-
-    private void readObject(final ObjectInputStream stream)
-            throws InvalidObjectException {
-        throw new InvalidObjectException("Builder required");
-    }
-
-    public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractBuilder<A, SexualReproduction<A>, Builder<A>> implements Serializable {
-        private Builder() {
-        }
-
-        @Override
-        protected Builder<A> self() {
-            return this;
-        }
-
-        @Override
-        protected SexualReproduction<A> checkedBuild() {
-            return new SexualReproduction<A>(this);
-        }
-
-        private Object readResolve() throws ObjectStreamException {
-            try {
-                return build();
-            } catch (IllegalStateException e) {
-                throw new InvalidObjectException("Build failed with: " + e.getMessage());
-            }
-        }
-
-        private static final long serialVersionUID = 0;
-    }
-
+    /**
+     * private Object writeReplace() { return new Builder<A>() .clutchSize(clutchSize) .spermSupplier(spermSupplier)
+     * .spermSelectionStrategy(spermSelectionStrategy) .spermFitnessCallback(spermFitnessEvaluator)
+     * .executedIf(getCondition()) .name(getName()); }
+     * <p/>
+     * private void readObject(final ObjectInputStream stream) throws InvalidObjectException { throw new
+     * InvalidObjectException("Builder required"); }
+     * <p/>
+     * public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends
+     * AbstractBuilder<A, SexualReproduction<A>, Builder<A>> implements Serializable { private Builder() { }
+     *
+     * @Override protected Builder<A> self() { return this; }
+     * @Override protected SexualReproduction<A> checkedBuild() { return new SexualReproduction<A>(this); }
+     * <p/>
+     * private Object readResolve() throws ObjectStreamException { try { return build(); } catch (IllegalStateException
+     * e) { throw new InvalidObjectException("Build failed with: " + e.getMessage()); } }
+     * <p/>
+     * private static final long serialVersionUID = 0; }
+     */
     @SuppressWarnings("UnusedDeclaration")
     protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage;

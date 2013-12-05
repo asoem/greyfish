@@ -5,22 +5,21 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.*;
 import com.google.common.eventbus.EventBus;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.impl.simulation.AgentAddedEvent;
-import org.asoem.greyfish.utils.base.CycleCloner;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -451,22 +450,6 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimu
         public Basic2DSimulationBuilder(final Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
-            agentPool(new StackKeyedObjectPool<PrototypeGroup, A>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, A>() {
-
-                private final Map<PrototypeGroup, A> map = Maps.uniqueIndex(prototypes, new Function<A, PrototypeGroup>() {
-                    @Nullable
-                    @Override
-                    public PrototypeGroup apply(final A input) {
-                        return input.getPrototypeGroup();
-                    }
-                });
-
-                @SuppressWarnings("unchecked") // casting a clone should be safe
-                @Override
-                public A makeObject(final PrototypeGroup prototypeGroup) throws Exception {
-                    return CycleCloner.clone(map.get(prototypeGroup));
-                }
-            }, 1000));
         }
 
         @Override
