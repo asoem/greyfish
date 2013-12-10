@@ -122,7 +122,7 @@ public class ExperimentIT {
                     for (int j = 0; j < parallelSimulations; j++) {
                         // create new getSimulation with predefined set of agents
                         final BasicSimulation simulation = createSimulation(i);
-                        initializeSimulation(simulation, initialAgents);
+                        initializeSimulation(simulation, copy(initialAgents));
 
                         // run the getSimulation
                         Callable<BasicSimulation> runnable = new Callable<BasicSimulation>() {
@@ -150,20 +150,22 @@ public class ExperimentIT {
                         final Iterable<BasicAgent> sampledAgents =
                                 sample(rng(), copyOf(simulation.getActiveAgents()), 30);
 
-                        Iterables.transform(sampledAgents, new Function<BasicAgent, BasicAgent>() {
-                            @Nullable
-                            @Override
-                            public BasicAgent apply(@Nullable final BasicAgent input) {
-                                final BasicAgent agent = createAgent();
-                                agent.initialize();
-                                HeritableTraitsChromosome.copyFromAgent(input).updateAgent(agent);
-                                return agent;
-                            }
-                        });
-
                         Iterables.addAll(initialAgents, sampledAgents);
                     }
                 }
+            }
+
+            private Iterable<BasicAgent> copy(final Iterable<BasicAgent> sampledAgents) {
+                return Iterables.transform(sampledAgents, new Function<BasicAgent, BasicAgent>() {
+                    @Nullable
+                    @Override
+                    public BasicAgent apply(@Nullable final BasicAgent input) {
+                        final BasicAgent agent = createAgent();
+                        HeritableTraitsChromosome.copyFromAgent(input).updateAgent(agent);
+                        agent.initialize();
+                        return agent;
+                    }
+                });
             }
 
             private void runSimulation(final BasicSimulation simulation, final Predicate<? super BasicSimulation> runWhile) {

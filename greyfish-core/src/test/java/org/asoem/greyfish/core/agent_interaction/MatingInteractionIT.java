@@ -1,7 +1,10 @@
 package org.asoem.greyfish.core.agent_interaction;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
+import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
+import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
 import org.asoem.greyfish.core.actions.utils.ActionState;
@@ -54,18 +57,46 @@ public class MatingInteractionIT {
                 .executedIf(GenericCondition.<Basic2DAgent>evaluate(Callbacks.iterate(false, true, false)))
                 .build();
 
-        final Basic2DAgent female = DefaultBasic2DAgent.builder(receiverPrototypeGroup)
-                .addAction(femaleLikeMating)
-                .build();
-        female.initialize();
-        final Basic2DAgent male = DefaultBasic2DAgent.builder(donorPrototypeGroup)
-                .addAction(maleLikeMating)
-                .build();
-        male.initialize();
+
+        final Supplier<DefaultBasic2DAgent> femaleFactory = new Supplier<DefaultBasic2DAgent>() {
+            @Override
+            public DefaultBasic2DAgent get() {
+                DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(receiverPrototypeGroup)
+                        .addAction(femaleLikeMating).build();
+                agent.initialize();
+                return agent;
+            }
+        };
+
+        final Supplier<DefaultBasic2DAgent> maleFactory = new Supplier<DefaultBasic2DAgent>() {
+            @Override
+            public DefaultBasic2DAgent get() {
+                DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(donorPrototypeGroup)
+                        .addAction(maleLikeMating).build();
+                agent.initialize();
+                return agent;
+            }
+        };
+
+        final Basic2DAgent female = femaleFactory.get();
+        final Basic2DAgent male = maleFactory.get();
 
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, SimpleTwoDimTreeFactory.<Basic2DAgent>newInstance());
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(male, female);
-        final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes).build();
+        final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
+                .agentPool(new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
+                    @Override
+                    public Basic2DAgent makeObject(final PrototypeGroup prototypeGroup) throws Exception {
+                        if (receiverPrototypeGroup.equals(prototypeGroup)) {
+                            return femaleFactory.get();
+                        } else if (donorPrototypeGroup.equals(prototypeGroup)) {
+                            return maleFactory.get();
+                        } else {
+                            throw new AssertionError();
+                        }
+                    }
+                }))
+                .build();
 
         simulation.enqueueAddition(male, ImmutablePoint2D.at(0, 0));
         simulation.enqueueAddition(female, ImmutablePoint2D.at(0, 0));

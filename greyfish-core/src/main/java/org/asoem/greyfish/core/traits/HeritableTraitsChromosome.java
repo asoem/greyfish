@@ -1,8 +1,10 @@
 package org.asoem.greyfish.core.traits;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.agent.Agent;
@@ -89,7 +91,8 @@ public final class HeritableTraitsChromosome implements Chromosome {
                         return TraitVector.copyOf(input);
                     }
                 });
-        return new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getContext().get().getAgentId()));
+        final Optional<? extends BasicSimulationContext<?, ?>> context = agent.getContext();
+        return new HeritableTraitsChromosome(traitVectors, context.isPresent() ? ImmutableSet.of(context.get().getAgentId()) : ImmutableSet.<Integer>of());
     }
 
     /**
