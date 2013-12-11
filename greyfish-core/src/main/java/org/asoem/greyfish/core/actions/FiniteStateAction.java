@@ -3,13 +3,12 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
-public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
+public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
 
@@ -22,13 +21,6 @@ public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimula
         this.statefulExecutionCount = builder.statefulExecutionCount;
         this.nextStateKey = builder.nextStateKey;
         this.endStateReached = builder.endStateReached;
-    }
-
-    protected FiniteStateAction(final FiniteStateAction<A> cloneable, final DeepCloner cloner) {
-        super(cloneable, cloner);
-        this.statefulExecutionCount = cloneable.statefulExecutionCount;
-        this.nextStateKey = cloneable.nextStateKey;
-        this.endStateReached = cloneable.endStateReached;
     }
 
     @Override
@@ -99,7 +91,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimula
         return statefulExecutionCount;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends FiniteStateAction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends FiniteStateAction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private int statefulExecutionCount;
         private Object nextStateKey;
         private boolean endStateReached;

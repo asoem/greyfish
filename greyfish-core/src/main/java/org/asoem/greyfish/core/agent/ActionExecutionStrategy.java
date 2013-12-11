@@ -1,34 +1,18 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.actions.utils.ActionState;
-
-import javax.annotation.Nullable;
+import org.asoem.greyfish.core.actions.ComponentContext;
 
 /**
  * An {@code ActionExecutionStrategy} defines how instances of {@code AgentAction} get executed by the {@code Agent}
  * and logs the execution history.
  */
-public interface ActionExecutionStrategy {
+public interface ActionExecutionStrategy<T extends Agent<T, ?>> {
     /**
      * Execute the next action.
      * @return {@code true} if an action got executed, {@code false} otherwise.
+     * @param componentContext
      */
-    boolean execute();
-
-    /**
-     * Get the last {@code AgentAction} which was executed
-     * @return the last action that was executed
-     */
-    @Nullable
-    AgentAction<?> lastExecutedAction();
-
-    /**
-     * Get the last action state of the action that was executed
-     * @return the {@code ActionState} of the last executed action
-     */
-    @Nullable
-    ActionState lastExecutedActionState();
+    boolean execute(final ComponentContext<T, ?> componentContext);
 
     /**
      * Reset the history.

@@ -12,8 +12,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.eval.EvaluationException;
 import org.asoem.greyfish.core.eval.GreyfishExpression;
 import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +38,6 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
         super(builder);
 
         conditionMap = builder.phenotypeConditionMap;
-    }
-
-    protected ConditionalStatesProperty(final ConditionalStatesProperty<A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
-
-        conditionMap = cloneable.conditionMap;
     }
 
     @Override
@@ -81,11 +73,6 @@ public class ConditionalStatesProperty<A extends Agent<A, ?>> extends AbstractAg
                 return GreyfishExpressionFactoryHolder.compile(s);
             }
         });
-    }
-
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return new ConditionalStatesProperty<A>(this, cloner);
     }
 
     @Override

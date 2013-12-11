@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -36,11 +35,6 @@ public class AcquiredTrait<A extends Agent<A, SimulationContext<?>>, T extends C
     @Override
     public T createInitialValue() {
         return Callbacks.call(initializationKernel, this);
-    }
-
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return new AcquiredTrait<A, T>(this, cloner);
     }
 
     @Override

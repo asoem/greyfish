@@ -6,8 +6,6 @@ import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.agent.SimulationContext;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -119,8 +117,4 @@ public abstract class ForwardingCondition<A extends Agent<A, SimulationContext<?
         return delegate().children();
     }
 
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return delegate().deepClone(cloner);
-    }
 }

@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +29,6 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
                     ? extends ContractNetInitiatorAction<A>,
                     ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
-    }
-
-    protected ContractNetInitiatorAction(final ContractNetInitiatorAction<A> cloneable, final DeepCloner cloner) {
-        super(cloneable, cloner);
     }
 
     private MessageTemplate getTemplate() {

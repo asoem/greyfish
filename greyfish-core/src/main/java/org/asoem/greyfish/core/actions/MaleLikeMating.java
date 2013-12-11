@@ -12,7 +12,6 @@ import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +39,6 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private MaleLikeMating() {
         this(new Builder<A>());
-    }
-
-    private MaleLikeMating(final MaleLikeMating<A> cloneable, final DeepCloner cloner) {
-        super(cloneable, cloner);
-        this.ontology = cloneable.ontology;
-        this.matingProbability = cloneable.matingProbability;
-        this.matingCount = cloneable.matingCount;
-        this.proposalSent = cloneable.proposalSent;
     }
 
     private MaleLikeMating(final AbstractBuilder<A, ? extends MaleLikeMating<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
@@ -108,11 +99,6 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
         ++matingCount;
         return ImmutableACLMessage.createReply(message, agent().get())
                 .performative(ACLPerformative.INFORM);
-    }
-
-    @Override
-    public MaleLikeMating<A> deepClone(final DeepCloner cloner) {
-        return new MaleLikeMating<A>(this, cloner);
     }
 
     public static <A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> Builder<A> with() {

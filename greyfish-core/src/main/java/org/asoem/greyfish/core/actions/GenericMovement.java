@@ -7,7 +7,6 @@ import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.space.ImmutableMotion2D;
@@ -24,7 +23,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("actions")
-public class GenericMovement<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends AbstractAgentAction<A> {
+public class GenericMovement<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends BaseAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericMovement.class);
 
@@ -34,12 +33,6 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ? extends BasicSimulat
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public GenericMovement() {
         this(new Builder<A>());
-    }
-
-    private GenericMovement(final GenericMovement<A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
-        this.stepSize = cloneable.stepSize;
-        this.turningAngle = cloneable.turningAngle;
     }
 
     protected GenericMovement(final AbstractBuilder<A, ? extends GenericMovement<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
@@ -58,11 +51,6 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ? extends BasicSimulat
 
         LOGGER.info("{}: Changing movement to {}", agent(), motion);
         return ActionState.COMPLETED;
-    }
-
-    @Override
-    public GenericMovement<A> deepClone(final DeepCloner cloner) {
-        return new GenericMovement<A>(this, cloner);
     }
 
 
@@ -117,7 +105,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ? extends BasicSimulat
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>, C extends GenericMovement<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>, C extends GenericMovement<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super GenericMovement<A>, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement<A>, Double> turningAngle = new Callback<GenericMovement<A>, Double>() {
             @Override

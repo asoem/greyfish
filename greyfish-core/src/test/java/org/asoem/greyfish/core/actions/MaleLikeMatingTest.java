@@ -11,9 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 /**
- * User: christoph
- * Date: 22.02.12
- * Time: 17:49
+ * User: christoph Date: 22.02.12 Time: 17:49
  */
 public class MaleLikeMatingTest {
     @Test
@@ -22,7 +20,6 @@ public class MaleLikeMatingTest {
         final MaleLikeMating<Basic2DAgent> action = MaleLikeMating.<Basic2DAgent>with()
                 .name("foo")
                 .executedIf(AlwaysTrueCondition.<Basic2DAgent>builder().build())
-                .onSuccess(Callbacks.emptyCallback())
                 .ontology("foo")
                 .matingProbability(Callbacks.constant(0.42))
                 .build();

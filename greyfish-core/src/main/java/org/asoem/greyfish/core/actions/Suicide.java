@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.actions;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -15,15 +14,11 @@ import java.io.Serializable;
  * @deprecated Use a {@link GenericAction} to remove an agent from a getSimulation
  */
 @Deprecated
-public class Suicide<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
+public class Suicide<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private Suicide() {
         this(new Builder<A>());
-    }
-
-    private Suicide(final Suicide<A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
     }
 
     private Suicide(final AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
@@ -38,11 +33,6 @@ public class Suicide<A extends Agent<A, ? extends BasicSimulationContext<?, A>>>
         agent().logEvent(this, "dies", "");
         return ActionState.COMPLETED;
         */
-    }
-
-    @Override
-    public Suicide<A> deepClone(final DeepCloner cloner) {
-        return new Suicide<A>(this, cloner);
     }
 
     private Object writeReplace() {

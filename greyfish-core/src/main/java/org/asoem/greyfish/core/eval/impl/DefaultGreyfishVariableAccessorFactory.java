@@ -21,10 +21,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph Date: 13.09.11 Time: 15:56
- */
-public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
+public final class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
 
     private static final Splitter SPLITTER = Splitter.on('.').trimResults(); // TODO: Exclude dots in parentheses
 
@@ -172,8 +169,9 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                     };
                 }
 
-            } else
+            } else {
                 throw new IllegalArgumentException("Key '" + root + "'" + " is not handled");
+            }
         }
 
         throw new IllegalArgumentException("Variable Name does not meet the syntax requirements: " + varName);
@@ -220,15 +218,10 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
             }
 
             if (nextPart.matches("conditions\\[.+\\]")) {
-            } else if (nextPart.equals("stepsSinceLastExecution")) {
-                return Functions.compose(new Function<AgentAction, Long>() {
-                    @Override
-                    public Long apply(final AgentAction o) {
-                        return checkNotNull(o).lastCompletionStep();
-                    }
-                }, ret);
+                throw new UnsupportedOperationException("Not yet implemented");
+            } else {
+                throw new UnsupportedOperationException("AgentAction has no member named " + nextPart);
             }
-            throw new RuntimeException("AgentAction has no member named " + nextPart);
         } else {
             return ret;
         }
@@ -244,8 +237,9 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         return checkNotNull(property).agent().orNull();
                     }
                 }, ret));
-            } else
+            } else {
                 throw new RuntimeException("AgentProperty has no member named " + nextPart);
+            }
         } else {
             return ret;
         }
@@ -255,7 +249,7 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
         if (parts.hasNext()) {
             final String nextPart = parts.next();
 
-            Pattern.compile("agents\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
+            //Pattern.compile("agents\\[[\"'](\\w+)[\"']\\]").matcher(nextPart);
 
             if (nextPart.matches("agents\\[.+\\]")) {
                 return agent(parts, Functions.compose(new Function<Simulation<?>, Agent<?, ?>>() {
@@ -281,8 +275,9 @@ public class DefaultGreyfishVariableAccessorFactory implements GreyfishVariableA
                         return simulation.countAgents();
                     }
                 }, ret);
-            } else
+            } else {
                 throw new RuntimeException("Simulation has no member named " + nextPart);
+            }
         } else {
             return ret;
         }

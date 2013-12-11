@@ -12,13 +12,12 @@ import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.core.traits.TraitVector;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.*;
 
-public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
+public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
 
     private Callback<? super ClonalReproduction<A>, Integer> clutchSize;
 
@@ -59,16 +58,6 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
                 trait.getName());
     }
 
-    /**
-     * @Override public ClonalReproduction<A> deepClone(final DeepCloner cloner) { return new
-     * ClonalReproduction<A>(this, cloner); }
-     */
-
-    public ClonalReproduction(final ClonalReproduction<A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
-        this.clutchSize = cloneable.clutchSize;
-    }
-
     protected ClonalReproduction(final AbstractBuilder<A, ? extends ClonalReproduction<A>,
             ? extends AbstractBuilder<A, ClonalReproduction<A>, ?>> builder) {
         super(builder);
@@ -93,7 +82,7 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
      * @Override protected Builder<A> self() { return this; }
      * @Override protected ClonalReproduction<A> checkedBuild() { return new ClonalReproduction<A>(this); } }
      */
-    private abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ClonalReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+    private abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ClonalReproduction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> {
         private Callback<? super ClonalReproduction<A>, Integer> nClones;
         private Callback<? super ClonalReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
 

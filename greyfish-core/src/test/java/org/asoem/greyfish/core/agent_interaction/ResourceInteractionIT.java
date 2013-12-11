@@ -6,7 +6,6 @@ import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
 import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
-import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.properties.DoubleProperty;
@@ -123,18 +122,11 @@ public class ResourceInteractionIT {
 
         simulation.enqueueAddition(consumer, ImmutablePoint2D.at(0, 0));
         simulation.enqueueAddition(provider, ImmutablePoint2D.at(0, 0));
-        for (int i1 = 0; i1 < 5; i1++) {
+        for (int i1 = 0; i1 < 6; i1++) {
             simulation.nextStep();
         }
-        final ActionState provisionActionState = provisionAction.getState();
-        for (int i = 0; i < 1; i++) {
-            simulation.nextStep();
-        }
-        final ActionState consumptionActionState = consumptionAction.getState();
 
         // then
         assertThat(energyStorage.get(), is(equalTo(2.0)));
-        assertThat(consumptionActionState, is(equalTo(ActionState.COMPLETED)));
-        assertThat(provisionActionState, is(equalTo(ActionState.COMPLETED)));
     }
 }

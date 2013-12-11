@@ -7,7 +7,6 @@ import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import javax.annotation.Nullable;
@@ -46,15 +45,6 @@ public final class SymbolTrait<A extends Agent<A, ?>>
         this.segregationKernel = builder.segregationKernel;
         this.mutationKernel = builder.mutationKernel;
         this.state = builder.state;
-    }
-
-    private SymbolTrait(final SymbolTrait<A> symbolTrait, final DeepCloner cloner) {
-        super(symbolTrait, cloner);
-        this.mutationTable = symbolTrait.mutationTable;
-        this.initializationKernel = symbolTrait.initializationKernel;
-        this.segregationKernel = symbolTrait.segregationKernel;
-        this.mutationKernel = symbolTrait.mutationKernel;
-        this.state = symbolTrait.state;
     }
 
     @Override
@@ -113,11 +103,6 @@ public final class SymbolTrait<A extends Agent<A, ?>>
     @Override
     public TypeToken<String> getValueType() {
         return STRING_TYPE_TOKEN;
-    }
-
-    @Override
-    public AgentTrait<A, String> deepClone(final DeepCloner cloner) {
-        return new SymbolTrait<A>(this, cloner);
     }
 
     @Override

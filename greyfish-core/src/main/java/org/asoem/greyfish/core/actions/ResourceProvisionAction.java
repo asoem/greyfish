@@ -8,7 +8,6 @@ import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,17 +85,6 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
         return ImmutableACLMessage.createReply(message, agent().orNull())
                 .performative(ACLPerformative.INFORM)
                 .content(offer, Double.class);
-    }
-
-    @Override
-    public ResourceProvisionAction<A> deepClone(final DeepCloner cloner) {
-        return new ResourceProvisionAction<A>(this, cloner);
-    }
-
-    protected ResourceProvisionAction(final ResourceProvisionAction<A> cloneable, final DeepCloner cloner) {
-        super(cloneable, cloner);
-        this.provides = cloneable.provides;
-        this.ontology = cloneable.ontology;
     }
 
     protected ResourceProvisionAction(final AbstractBuilder<A, ? extends ResourceProvisionAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {

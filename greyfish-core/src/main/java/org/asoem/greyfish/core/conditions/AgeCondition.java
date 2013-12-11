@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 @Tagged("conditions")
@@ -12,17 +11,8 @@ public class AgeCondition<A extends Agent<A, ? extends BasicSimulationContext<?,
     public AgeCondition() {
     }
 
-    private AgeCondition(final AgeCondition<A> condition, final DeepCloner map) {
-        super(condition, map);
-    }
-
     private AgeCondition(final AbstractBuilder<?, ?, A> builder) {
         super(builder);
-    }
-
-    @Override
-    public AgeCondition<A> deepClone(final DeepCloner cloner) {
-        return new AgeCondition<A>(this, cloner);
     }
 
     @Override

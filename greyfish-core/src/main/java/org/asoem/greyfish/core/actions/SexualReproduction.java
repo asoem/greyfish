@@ -11,7 +11,10 @@ import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.core.traits.TraitVector;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.Tagged;
+import org.asoem.greyfish.utils.base.TypedSupplier;
 import org.asoem.greyfish.utils.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +29,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
+public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -35,14 +38,6 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
     private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
     private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator;
     private int offspringCount;
-
-    private SexualReproduction(final SexualReproduction<A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
-        this.spermSupplier = cloneable.spermSupplier;
-        this.clutchSize = cloneable.clutchSize;
-        this.spermSelectionStrategy = cloneable.spermSelectionStrategy;
-        this.spermFitnessEvaluator = cloneable.spermFitnessEvaluator;
-    }
 
     protected SexualReproduction(final AbstractBuilder<A, ? extends SexualReproduction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
@@ -160,7 +155,7 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
      * private static final long serialVersionUID = 0; }
      */
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> implements Serializable {
         private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction<A>, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();

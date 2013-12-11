@@ -7,8 +7,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
@@ -38,15 +36,6 @@ public class HeritableTrait<A extends Agent<A, SimulationContext<?>>, T> extends
     @Nullable
     private T value;
 
-    private HeritableTrait(final HeritableTrait<A, T> trait, final DeepCloner cloner) {
-        super(trait, cloner);
-        this.initializationKernel = checkNotNull(trait.initializationKernel);
-        this.mutationKernel = checkNotNull(trait.mutationKernel);
-        this.segregationKernel = checkNotNull(trait.segregationKernel);
-        this.typeToken = checkNotNull(trait.typeToken);
-        this.value = trait.value;
-    }
-
     private HeritableTrait(final AbstractBuilder<A, ? extends AgentTrait<A, T>, ? extends AbstractBuilder<A, ?, ?, T>, T> builder) {
         super(builder);
         this.initializationKernel = checkNotNull(builder.initializationKernel);
@@ -54,11 +43,6 @@ public class HeritableTrait<A extends Agent<A, SimulationContext<?>>, T> extends
         this.segregationKernel = checkNotNull(builder.segregationKernel);
         this.typeToken = checkNotNull(builder.typeToken);
         this.value = builder.value;
-    }
-
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return new HeritableTrait<A, T>(this, cloner);
     }
 
     @Override

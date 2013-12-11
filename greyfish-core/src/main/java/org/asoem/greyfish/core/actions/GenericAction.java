@@ -5,7 +5,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
@@ -15,14 +14,9 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
  *
  * @param <A> the type of the agent to which this action will be added to
  */
-public final class GenericAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractAgentAction<A> {
+public final class GenericAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
 
     private Callback<? super GenericAction<A>, Void> callback;
-
-    private GenericAction(final GenericAction<A> genericAction, final DeepCloner cloner) {
-        super(genericAction, cloner);
-        this.callback = genericAction.callback;
-    }
 
     private GenericAction(final AbstractBuilder<A, ? extends GenericAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
@@ -33,11 +27,6 @@ public final class GenericAction<A extends Agent<A, ? extends BasicSimulationCon
     protected ActionState proceed() {
         call(callback, this);
         return ActionState.COMPLETED;
-    }
-
-    @Override
-    public GenericAction<A> deepClone(final DeepCloner cloner) {
-        return new GenericAction<A>(this, cloner);
     }
 
     public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> builder() {
@@ -61,7 +50,7 @@ public final class GenericAction<A extends Agent<A, ? extends BasicSimulationCon
         }
     }
 
-    protected abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends GenericAction<A>, B extends AbstractBuilder<A, C, B>> extends AbstractAgentAction.AbstractBuilder<A, C, B> {
+    protected abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends GenericAction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> {
 
         private Callback<? super GenericAction<A>, Void> callback = Callbacks.emptyCallback();
 

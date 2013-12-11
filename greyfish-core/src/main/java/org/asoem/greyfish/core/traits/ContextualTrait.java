@@ -6,8 +6,6 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.SingleElementCache;
 
 import java.io.InvalidObjectException;
@@ -31,18 +29,6 @@ public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext
     private final SingleElementCache<T> valueCache;
 
     private long lastModificationStep = -1;
-
-    private ContextualTrait(final ContextualTrait<A, T> simulationStepProperty, final DeepCloner cloner) {
-        super(simulationStepProperty, cloner);
-        this.valueCallback = simulationStepProperty.valueCallback;
-        this.expirationCallback = simulationStepProperty.expirationCallback;
-        this.valueCache = SingleElementCache.memoize(new Supplier<T>() {
-            @Override
-            public T get() {
-                return valueCallback.apply(ContextualTrait.this, ImmutableMap.<String, Object>of());
-            }
-        });
-    }
 
     private ContextualTrait(final AbstractBuilder<T, A, ? extends ContextualTrait<A, T>, ? extends Builder<T, A>> builder) {
         super(builder);
@@ -69,11 +55,6 @@ public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext
             lastModificationStep = agent().get().getContext().get().getTime();
         }
         return valueCache.get();
-    }
-
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return new ContextualTrait<A, T>(this, cloner);
     }
 
     @Override

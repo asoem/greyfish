@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.CompareOperator;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -13,12 +12,6 @@ public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<
     protected T value;
 
     protected CompareCondition() {
-    }
-
-    protected CompareCondition(final CompareCondition<T, A> condition, final DeepCloner map) {
-        super(condition, map);
-        this.compareOperator = condition.compareOperator;
-        this.value = condition.value;
     }
 
     protected CompareCondition(final AbstractBuilder<A, ?, ?, T> builder) {

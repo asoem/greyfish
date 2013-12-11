@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
@@ -11,10 +10,6 @@ import java.io.Serializable;
 
 @Tagged("conditions")
 public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
-
-    private NoneCondition(final NoneCondition<A> condition, final DeepCloner map) {
-        super(condition, map);
-    }
 
     private NoneCondition(final Builder<A> builder) {
         super(builder);
@@ -28,11 +23,6 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
             }
         }
         return true;
-    }
-
-    @Override
-    public NoneCondition<A> deepClone(final DeepCloner cloner) {
-        return new NoneCondition<A>(this, cloner);
     }
 
     private Object writeReplace() {

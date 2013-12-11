@@ -11,9 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 /**
- * User: christoph
- * Date: 16.10.12
- * Time: 19:29
+ * User: christoph Date: 16.10.12 Time: 19:29
  */
 public class GenericMovementTest {
     @Test
@@ -23,7 +21,6 @@ public class GenericMovementTest {
                 .name("foo")
                 .stepSize(Callbacks.constant(1.0))
                 .turningAngle(Callbacks.constant(0.42))
-                .onSuccess(Callbacks.emptyCallback())
                 .executedIf(AlwaysTrueCondition.<Basic2DAgent>builder().build())
                 .build();
 

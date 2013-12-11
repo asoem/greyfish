@@ -1,17 +1,12 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AlwaysTrueCondition() {
         this(new Builder<A>());
-    }
-
-    private AlwaysTrueCondition(final AlwaysTrueCondition<A> condition, final DeepCloner map) {
-        super(condition, map);
     }
 
     private AlwaysTrueCondition(final AbstractBuilder<A, ?, ?> builder) {
@@ -21,11 +16,6 @@ public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A>
     @Override
     public boolean evaluate() {
         return true;
-    }
-
-    @Override
-    public AlwaysTrueCondition<A> deepClone(final DeepCloner cloner) {
-        return new AlwaysTrueCondition<A>(this, cloner);
     }
 
     public static <A extends Agent<A, ?>> Builder<A> builder() {

@@ -4,9 +4,6 @@ import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
-import org.asoem.greyfish.utils.base.CycleCloner;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.Functionals;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -163,36 +160,4 @@ public final class Agents {
         }
     }
 
-    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> CloneBuilder<A> createClone(final A original) {
-        return new CloneBuilder<>(original);
-    }
-
-    public static final class CloneBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> {
-        private final A original;
-        private boolean copyTraitValues = false;
-
-        public CloneBuilder(final A original) {
-            this.original = original;
-        }
-
-        public CloneBuilder<A> copyTraitValues() {
-            this.copyTraitValues = true;
-            return this;
-        }
-
-        public A build() {
-            final CycleCloner cycleCloner = CycleCloner.create();
-            return build(cycleCloner);
-        }
-
-        public A build(final DeepCloner cloner) {
-            final A clone = cloner.getClone(original);
-            assert clone != null;
-            clone.initialize();
-            if (copyTraitValues) {
-                HeritableTraitsChromosome.copyFromAgent(original).updateAgent(clone);
-            }
-            return clone;
-        }
-    }
 }

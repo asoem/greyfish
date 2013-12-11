@@ -5,7 +5,9 @@ import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.SimulationContext;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -32,16 +34,6 @@ public class CustomTrait<A extends Agent<A, SimulationContext<?>>, T> extends Ab
     private final TypeToken<T> typeToken;
 
     private T value;
-
-    private CustomTrait(final CustomTrait<A, T> customTrait, final DeepCloner cloner) {
-        super(customTrait, cloner);
-        this.initializationKernel = customTrait.initializationKernel;
-        this.mutationKernel = customTrait.mutationKernel;
-        this.segregationKernel = customTrait.segregationKernel;
-        this.typeToken = customTrait.typeToken;
-        this.valueConstraint = customTrait.valueConstraint;
-        set(customTrait.value);
-    }
 
     private CustomTrait(final AbstractBuilder<A, T, ? extends CustomTrait<A, T>, ? extends AbstractBuilder<A, T, ?, ?>> builder) {
         super(builder);
@@ -76,11 +68,6 @@ public class CustomTrait<A extends Agent<A, SimulationContext<?>>, T> extends Ab
             this.valueConstraint = builder.valueConstraint;
 
         set(builder.value);
-    }
-
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return new CustomTrait<A, T>(this, cloner);
     }
 
     @Override

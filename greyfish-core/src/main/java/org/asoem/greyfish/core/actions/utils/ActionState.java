@@ -1,16 +1,28 @@
 package org.asoem.greyfish.core.actions.utils;
 
-/**
- * User: christoph
- * Date: 10.10.11
- * Time: 10:29
- */
 public enum ActionState {
+    /**
+     * Initial.
+     */
     INITIAL,
+    /**
+     * All preconditions for this actions have been met. Internal usage only.
+     */
     PRECONDITIONS_MET,
-    INTERMEDIATE,
-    COMPLETED,
-    ABORTED,
+    /**
+     * A precondition for this actions has not been met. Internal usage only.
+     */
     PRECONDITIONS_FAILED,
-    INSUFFICIENT_ENERGY
+    /**
+     * Action is not finished yet
+     */
+    INTERMEDIATE,
+    /**
+     * Action is finished
+     */
+    COMPLETED,
+    /**
+     * Action execution was aborted
+     */
+    ABORTED
 }

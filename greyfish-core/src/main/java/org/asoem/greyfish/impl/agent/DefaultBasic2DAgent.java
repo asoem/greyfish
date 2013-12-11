@@ -13,7 +13,6 @@ import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -43,7 +42,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private final FunctionalList<AgentProperty<Basic2DAgent, ?>> properties;
     private final FunctionalList<AgentAction<Basic2DAgent>> actions;
     private final FunctionalList<AgentTrait<Basic2DAgent, ?>> traits;
-    private final ActionExecutionStrategy actionExecutionStrategy;
+    private final ActionExecutionStrategy<Basic2DAgent> actionExecutionStrategy;
     private final FunctionalCollection<ACLMessage<Basic2DAgent>> inBox;
     private PrototypeGroup prototypeGroup;
     @Nullable
@@ -52,38 +51,6 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     @Nullable
     private BasicSimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext;
     private Set<Integer> parents = Collections.emptySet();
-
-    @SuppressWarnings("unchecked") // casting a clone is safe
-    private DefaultBasic2DAgent(final DefaultBasic2DAgent frozenAgent, final DeepCloner cloner) {
-        cloner.addClone(frozenAgent, this);
-        // share
-        this.prototypeGroup = frozenAgent.prototypeGroup;
-        // clone
-        this.actions = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.actions, new Function<AgentAction<Basic2DAgent>, AgentAction<Basic2DAgent>>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public AgentAction<Basic2DAgent> apply(@Nullable final AgentAction<Basic2DAgent> agentAction) {
-                return cloner.getClone(agentAction);
-            }
-        }));
-        this.properties = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.properties, new Function<AgentProperty<Basic2DAgent, ?>, AgentProperty<Basic2DAgent, ?>>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public AgentProperty<Basic2DAgent, ?> apply(@Nullable final AgentProperty<Basic2DAgent, ?> agentProperty) {
-                return cloner.getClone(agentProperty);
-            }
-        }));
-        this.traits = ImmutableFunctionalList.copyOf(Iterables.transform(frozenAgent.traits, new Function<AgentTrait<Basic2DAgent, ?>, AgentTrait<Basic2DAgent, ?>>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public AgentTrait<Basic2DAgent, ?> apply(@Nullable final AgentTrait<Basic2DAgent, ?> agentTrait) {
-                return cloner.getClone(agentTrait);
-            }
-        }));
-        // reconstruct
-        this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
-        this.inBox = new FunctionalFifoBuffer<ACLMessage<Basic2DAgent>>();
-    }
 
     private DefaultBasic2DAgent(final Builder builder) {
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
@@ -99,8 +66,8 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
             trait.setAgent(this);
         }
         this.prototypeGroup = builder.prototypeGroup;
-        this.actionExecutionStrategy = new DefaultActionExecutionStrategy(actions);
-        this.inBox = new FunctionalFifoBuffer<ACLMessage<Basic2DAgent>>();
+        this.actionExecutionStrategy = new DefaultActionExecutionStrategy<>(actions);
+        this.inBox = new FunctionalFifoBuffer<>();
     }
 
     @Override
@@ -177,7 +144,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    protected ActionExecutionStrategy getActionExecutionStrategy() {
+    protected ActionExecutionStrategy<Basic2DAgent> getActionExecutionStrategy() {
         return actionExecutionStrategy;
     }
 
@@ -185,11 +152,6 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     public void setParents(final Set<Integer> parents) {
         checkNotNull(parents);
         this.parents = parents;
-    }
-
-    @Override
-    public DefaultBasic2DAgent deepClone(final DeepCloner cloner) {
-        return new DefaultBasic2DAgent(this, cloner);
     }
 
     public static Builder builder(final PrototypeGroup prototypeGroup) {

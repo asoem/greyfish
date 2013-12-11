@@ -1,9 +1,7 @@
 package org.asoem.greyfish.impl.agent;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.acl.ACLMessage;
@@ -12,8 +10,6 @@ import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.impl.simulation.BasicSimulation;
-import org.asoem.greyfish.utils.base.DeepCloneable;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -36,45 +32,12 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     private final FunctionalList<AgentTrait<BasicAgent, ?>> traits;
     private final FunctionalList<AgentProperty<BasicAgent, ?>> properties;
     private final FunctionalCollection<ACLMessage<BasicAgent>> inBox;
-    private final ActionExecutionStrategyFactory actionExecutionStrategyFactory;
-    private final transient ActionExecutionStrategy actionExecutionStrategy;
+    private final ActionExecutionStrategyFactory<BasicAgent> actionExecutionStrategyFactory; // TODO: field is no longer needed since cloning feature is gone
+    private final transient ActionExecutionStrategy<BasicAgent> actionExecutionStrategy;
 
     private Set<Integer> parents;
     @Nullable
     private BasicSimulationContext<BasicSimulation, BasicAgent> simulationContext;
-
-    private DefaultBasicAgent(final DefaultBasicAgent original, final DeepCloner cloner) {
-        checkNotNull(original);
-        checkNotNull(cloner);
-        cloner.addClone(original, this);
-        this.prototypeGroup = original.prototypeGroup;
-        this.actions = ImmutableFunctionalList.copyOf(Iterables.transform(original.actions, new Function<AgentAction<BasicAgent>, AgentAction<BasicAgent>>() {
-            @Nullable
-            @Override
-            public AgentAction<BasicAgent> apply(@Nullable final AgentAction<BasicAgent> input) {
-                return cloner.getClone(input);
-            }
-        }));
-        this.traits = ImmutableFunctionalList.copyOf(Iterables.transform(original.traits, new Function<AgentTrait<BasicAgent, ?>, AgentTrait<BasicAgent, ?>>() {
-            @Nullable
-            @Override
-            public AgentTrait<BasicAgent, ?> apply(@Nullable final AgentTrait<BasicAgent, ?> input) {
-                return cloner.getClone(input);
-            }
-        }));
-        this.properties = ImmutableFunctionalList.copyOf(Iterables.transform(original.properties, new Function<AgentProperty<BasicAgent, ?>, AgentProperty<BasicAgent, ?>>() {
-            @Nullable
-            @Override
-            public AgentProperty<BasicAgent, ?> apply(@Nullable final AgentProperty<BasicAgent, ?> input) {
-                return cloner.getClone(input);
-            }
-        }));
-        this.parents = original.parents;
-        this.simulationContext = original.simulationContext;
-        this.inBox = original.inBox;
-        this.actionExecutionStrategyFactory = original.actionExecutionStrategyFactory;
-        this.actionExecutionStrategy = actionExecutionStrategyFactory.create(actions);
-    }
 
     private DefaultBasicAgent(final Builder builder) {
         checkNotNull(builder);
@@ -155,11 +118,6 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         return actionExecutionStrategy;
     }
 
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return new DefaultBasicAgent(this, cloner);
-    }
-
     public static Builder builder(final PrototypeGroup prototypeGroup) {
         return new Builder(prototypeGroup);
     }
@@ -171,7 +129,12 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         private final List<AgentProperty<BasicAgent, ?>> properties = Lists.newArrayList();
         private final Set<Integer> parents = Sets.newHashSet();
         private FunctionalCollection<ACLMessage<BasicAgent>> inBox = FunctionalFifoBuffer.withCapacity(8);
-        private ActionExecutionStrategyFactory actionExecutionStrategyFactory = DefaultActionExecutionStrategyFactory.INSTANCE;
+        private ActionExecutionStrategyFactory<BasicAgent> actionExecutionStrategyFactory = new ActionExecutionStrategyFactory<BasicAgent>() {
+            @Override
+            public ActionExecutionStrategy<BasicAgent> create(final List<? extends AgentAction<BasicAgent>> actions) {
+                return new DefaultActionExecutionStrategy<>(actions);
+            }
+        };
 
         private Builder(final PrototypeGroup prototypeGroup) {
             this.prototypeGroup = checkNotNull(prototypeGroup);

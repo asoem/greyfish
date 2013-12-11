@@ -4,7 +4,6 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
@@ -24,21 +23,12 @@ public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         super(builder);
     }
 
-    private AnyCondition(final AnyCondition<A> condition, final DeepCloner map) {
-        super(condition, map);
-    }
-
     @Override
     public boolean evaluate() {
         for (final ActionCondition condition : getChildConditions())
             if (condition.evaluate())
                 return true;
         return false;
-    }
-
-    @Override
-    public AnyCondition<A> deepClone(final DeepCloner cloner) {
-        return new AnyCondition<A>(this, cloner);
     }
 
     private Object writeReplace() {

@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.utils.base.Callback;
-import org.asoem.greyfish.utils.base.DeepCloner;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -20,11 +19,6 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
 
     private final Callback<? super GenericCondition<A>, Boolean> callback;
 
-    private GenericCondition(final GenericCondition<A> genericCondition, final DeepCloner cloner) {
-        super(genericCondition, cloner);
-        this.callback = genericCondition.callback;
-    }
-
     private GenericCondition(final Builder<A> builder) {
         super(builder);
         this.callback = builder.callback;
@@ -33,11 +27,6 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
     @Override
     public boolean evaluate() {
         return callback.apply(this, ImmutableMap.<String, Object>of());
-    }
-
-    @Override
-    public GenericCondition<A> deepClone(final DeepCloner cloner) {
-        return new GenericCondition<A>(this, cloner);
     }
 
     @Override

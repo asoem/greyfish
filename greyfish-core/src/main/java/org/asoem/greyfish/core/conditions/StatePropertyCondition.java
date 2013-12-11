@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.properties.FiniteStateProperty;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,22 +27,10 @@ public class StatePropertyCondition<A extends Agent<A, SimulationContext<?>>> ex
         this.stateProperty = builder.property;
     }
 
-    @SuppressWarnings("unchecked") // casting a clone is safe
-    private StatePropertyCondition(final StatePropertyCondition<A> condition, final DeepCloner cloner) {
-        super(condition, cloner);
-        this.stateProperty = cloner.getClone(condition.stateProperty);
-        this.state = condition.state;
-    }
-
     @Override
     public boolean evaluate() {
         return stateProperty != null &&
                 Objects.equal(stateProperty.get(), state);
-    }
-
-    @Override
-    public StatePropertyCondition<A> deepClone(final DeepCloner cloner) {
-        return new StatePropertyCondition<A>(this, cloner);
     }
 
     public static <A extends Agent<A, SimulationContext<?>>> Builder<A> builder() {

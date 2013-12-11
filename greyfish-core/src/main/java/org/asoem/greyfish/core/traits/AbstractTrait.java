@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.traits;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.TypedSupplier;
 
 import java.util.Collections;
@@ -13,10 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAgentComponent<A> implements AgentTrait<A, T> {
 
-    protected AbstractTrait() {}
-
-    protected AbstractTrait(final AbstractAgentComponent<A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
+    protected AbstractTrait() {
     }
 
     public AbstractTrait(final AbstractBuilder<A, ? extends AbstractTrait<A, T>, ? extends AbstractBuilder<A, ?, ?>> builder) {

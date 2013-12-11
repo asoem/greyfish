@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.acl.MessageProducer;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.utils.base.DeepCloneable;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
 /**
@@ -16,7 +15,7 @@ import org.asoem.greyfish.utils.collect.FunctionalList;
  * @param <C> The type of the simulation context
  */
 public interface Agent<A extends Agent<A, C>, C extends SimulationContext<?>>
-        extends DeepCloneable, AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A>, Descendant {
+        extends AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A>, Descendant {
 
     /**
      * Get the population
@@ -113,4 +112,5 @@ public interface Agent<A extends Agent<A, C>, C extends SimulationContext<?>>
      * @return {@code true} if the context is present, {@code false} if absent
      */
     boolean isActive();
+
 }

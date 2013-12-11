@@ -12,7 +12,6 @@ import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
@@ -103,20 +102,6 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
 
     private void checkValidity() {
         checkNotNull(ontology);
-    }
-
-    @Override
-    public ResourceConsumptionAction<A> deepClone(final DeepCloner cloner) {
-        return new ResourceConsumptionAction<A>(this, cloner);
-    }
-
-    protected ResourceConsumptionAction(final ResourceConsumptionAction<A> cloneable, final DeepCloner cloner) {
-        super(cloneable, cloner);
-        this.ontology = cloneable.ontology;
-        this.interactionRadius = cloneable.interactionRadius;
-        this.requestAmount = cloneable.requestAmount;
-        this.uptakeUtilization = cloneable.uptakeUtilization;
-        this.classification = cloneable.classification;
     }
 
     protected ResourceConsumptionAction(final AbstractBuilder<A, ? extends ResourceConsumptionAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {

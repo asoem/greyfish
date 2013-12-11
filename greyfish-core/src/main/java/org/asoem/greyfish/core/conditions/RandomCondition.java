@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.SimulationContext;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -12,19 +11,9 @@ public class RandomCondition<A extends Agent<A, SimulationContext<?>>> extends L
 
     private double probability;
 
-    private RandomCondition(final RandomCondition<A> condition, final DeepCloner map) {
-        super(condition, map);
-        this.probability = condition.probability;
-    }
-
     @Override
     public boolean evaluate() {
         return Math.random() < probability;
-    }
-
-    @Override
-    public RandomCondition<A> deepClone(final DeepCloner cloner) {
-        return new RandomCondition<A>(this, cloner);
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization

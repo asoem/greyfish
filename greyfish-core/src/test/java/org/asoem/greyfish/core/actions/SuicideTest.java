@@ -3,10 +3,8 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.base.Function;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
-import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
@@ -16,9 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 /**
- * User: christoph
- * Date: 16.10.12
- * Time: 17:40
+ * User: christoph Date: 16.10.12 Time: 17:40
  */
 public class SuicideTest {
     @Test
@@ -27,7 +23,6 @@ public class SuicideTest {
         final Suicide<Basic2DAgent> suicide = Suicide.<Basic2DAgent>builder()
                 .name("foo")
                 .executedIf(AlwaysTrueCondition.<Basic2DAgent>builder().build())
-                .onSuccess(Callbacks.emptyCallback())
                 .build();
 
         // when
@@ -53,14 +48,7 @@ public class SuicideTest {
                     public Object apply(final Suicide<?> input) {
                         return input.getCondition();
                     }
-                }, is(instanceOf(suicide.getCondition().getClass()))),
-                has("onSuccessCallback", new Function<Suicide<?>, Object>() {
-                    @Nullable
-                    @Override
-                    public Object apply(final Suicide<?> input) {
-                        return input.getSuccessCallback();
-                    }
-                }, is(Matchers.<Object>equalTo(suicide.getSuccessCallback())))
+                }, is(instanceOf(suicide.getCondition().getClass())))
         );
     }
 }

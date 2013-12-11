@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.collect.Ordering;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.Tagged;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -19,15 +18,6 @@ public class DoubleProperty<A extends Agent<A, ?>> extends AbstractRangeElementP
 
     protected DoubleProperty(final AbstractBuilder<A, ? extends DoubleProperty<A>, ? extends AbstractBuilder<A, ? extends DoubleProperty<A>, ?>> builder) {
         super(builder);
-    }
-
-    protected DoubleProperty(final DoubleProperty<A> property, final DeepCloner cloner) {
-        super(property, cloner);
-    }
-
-    @Override
-    public DoubleProperty<A> deepClone(final DeepCloner cloner) {
-        return new DoubleProperty<A>(this, cloner);
     }
 
     public void subtract(final double val) {

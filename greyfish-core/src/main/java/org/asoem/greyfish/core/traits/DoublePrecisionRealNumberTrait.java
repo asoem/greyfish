@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.utils.base.*;
+import org.asoem.greyfish.utils.base.Callback;
+import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.base.Tagged;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -30,25 +32,12 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
 
     private double value = 0.0;
 
-    private DoublePrecisionRealNumberTrait(final DoublePrecisionRealNumberTrait<A> doubleMutableGene, final DeepCloner cloner) {
-        super(doubleMutableGene, cloner);
-        this.initializationKernel = doubleMutableGene.initializationKernel;
-        this.mutationKernel = doubleMutableGene.mutationKernel;
-        this.segregationKernel = doubleMutableGene.segregationKernel;
-        this.value = doubleMutableGene.value;
-    }
-
     private DoublePrecisionRealNumberTrait(final AbstractBuilder<A, ? extends AgentTrait<A, Double>, ? extends AbstractBuilder<A, ?, ?>> builder) {
         super(builder);
         this.initializationKernel = builder.initializationKernel;
         this.mutationKernel = builder.mutationKernel;
         this.segregationKernel = builder.segregationKernel;
         this.value = builder.value;
-    }
-
-    @Override
-    public DeepCloneable deepClone(final DeepCloner cloner) {
-        return new DoublePrecisionRealNumberTrait<A>(this, cloner);
     }
 
     @Override

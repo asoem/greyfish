@@ -32,5 +32,5 @@ public interface AgentComponent<A extends Agent<A, ? extends SimulationContext<?
     /**
      * @return the name of this component
      */
-    public String getName();
+    String getName();
 }

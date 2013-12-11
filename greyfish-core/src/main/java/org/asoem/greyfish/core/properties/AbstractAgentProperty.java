@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.properties;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.base.TypedSupplier;
 
 import java.io.Serializable;
@@ -15,10 +14,6 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
 
     protected AbstractAgentProperty(final AbstractBuilder<? extends AbstractAgentProperty<T, A>, A, ? extends AbstractBuilder<?, A, ?>> builder) {
         super(builder);
-    }
-
-    protected AbstractAgentProperty(final AbstractAgentProperty<T, A> cloneable, final DeepCloner map) {
-        super(cloneable, map);
     }
 
     @Override

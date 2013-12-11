@@ -18,7 +18,6 @@ import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.base.DeepCloner;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +48,6 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public FemaleLikeMating() {
         this(new Builder<A>());
-    }
-
-    private FemaleLikeMating(final FemaleLikeMating<A> cloneable, final DeepCloner cloner) {
-        super(cloneable, cloner);
-        this.ontology = cloneable.ontology;
-        this.interactionRadius = cloneable.interactionRadius;
-        this.matingProbability = cloneable.matingProbability;
     }
 
     protected FemaleLikeMating(final AbstractBuilder<A, ? extends FemaleLikeMating<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
@@ -137,11 +129,6 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
     protected boolean canInitiate() {
         sensedMates = ImmutableList.copyOf(agent().get().findNeighbours(call(interactionRadius, this)));
         return !isEmpty(sensedMates);
-    }
-
-    @Override
-    public FemaleLikeMating<A> deepClone(final DeepCloner cloner) {
-        return new FemaleLikeMating<A>(this, cloner);
     }
 
     public static <A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> Builder<A> with() {
