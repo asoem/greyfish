@@ -41,7 +41,9 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
 
     DefaultShapiroWilkTest(final double[] samples) {
         Arrays.sort(samples);
-        int nn2 = (int) Math.floor(samples.length / 2.0);
+        int n = samples.length;
+
+        int nn2 = (int) Math.floor(n / 2.0);
         double[] a = new double[nn2 + 1]; /* 1-based */
 
         /* Local variables */
@@ -51,13 +53,13 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
         double a1, a2, sa, xi, sx, xx, w1;
         double fac, asa, an25, ssa, sax, rsn, ssx, xsx;
 
-        if (samples.length < MIN_SAMPLE_SIZE) {
+        if (n < MIN_SAMPLE_SIZE) {
             throw new IllegalArgumentException();
         }
 
-        final double an = (double) samples.length;
+        final double an = (double) n;
 
-        if (samples.length == 3) {
+        if (n == 3) {
             a[1] = SQRT_1DIV2; /* = sqrt(1/2) */
         } else {
             an25 = an + 0.25;
@@ -73,7 +75,7 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
             a1 = POLYNOMIAL_FUNCTION_1.value(rsn) - a[1] / ssumm2;
 
             /* Normalize a[] */
-            if (samples.length > 5) {
+            if (n > 5) {
                 i1 = 3;
                 a2 = -a[2] / ssumm2 + POLYNOMIAL_FUNCTION_2.value(rsn);
                 fac = sqrt((summ2 - 2. * (a[1] * a[1]) - 2.0 * (a[2] * a[2]))
@@ -91,7 +93,7 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
         }
 
         /* Check for zero range */
-        range = samples[samples.length - 1] - samples[0];
+        range = samples[n - 1] - samples[0];
         if (range < SMALL) {
             throw new IllegalArgumentException("Range to small");
         }
@@ -102,7 +104,7 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
         xx = samples[0] / range;
         sx = xx;
         sa = -a[1];
-        for (i = 1, j = samples.length - 1; i < samples.length; j--) {
+        for (i = 1, j = n - 1; i < n; j--) {
             xi = samples[i] / range;
             if (xx - xi > SMALL) {
                 /* Fortran had: print *, "ANYTHING"
@@ -118,19 +120,19 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
             }
             xx = xi;
         }
-        if (samples.length > MAX_SAMPLE_SIZE) {
+        if (n > MAX_SAMPLE_SIZE) {
             throw new IllegalArgumentException();
         }
 
         /* Calculate W statistic as squared correlation
         between data and coefficients */
 
-        sa /= samples.length;
-        sx /= samples.length;
+        sa /= n;
+        sx /= n;
         ssa = 0.0;
         ssx = 0.0;
         sax = 0.0;
-        for (i = 0, j = samples.length - 1; i < samples.length; i++, j--) {
+        for (i = 0, j = n - 1; i < n; i++, j--) {
             if (i != j) {
                 asa = FastMath.signum(i - j) * a[1 + min(i, j)] - sa;
             } else {
@@ -149,15 +151,15 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
         w1 = (ssassx - sax) * (ssassx + sax) / (ssa * ssx);
         w = 1.0 - w1;
 
-        pw = significance(samples, w);
+        pw = significance(w, samples.length);
     }
 
     /**
      * Calculate significance level for W
      */
-    private static double significance(final double[] samples, final double w) {
+    private static double significance(final double w, final int n) {
 
-        if (samples.length == EXACT_P_SAMPLE_SIZE) { /* exact P value */
+        if (n == EXACT_P_SAMPLE_SIZE) { /* exact P value */
             double pw = PI_6 * (asin(sqrt(w)) - STQR);
             if (pw < 0.0) {
                 pw = 0.0;
@@ -166,11 +168,11 @@ final class DefaultShapiroWilkTest implements ShapiroWilkTest {
         }
 
         double y = log(1 - w);
-        final double an = (double) samples.length;
+        final double an = (double) n;
         final double mean;
         final double sd;
 
-        if (samples.length <= LOWER_APPROXIMATION_MAX_SAMPLE_SIZE) {
+        if (n <= LOWER_APPROXIMATION_MAX_SAMPLE_SIZE) {
             final double gamma = POLYNOMIAL_FUNCTION_GAMMA.value(an);
             if (y >= gamma) {
                 return CLOSE_TO_0; /* an "obvious" value, was 'SMALL' which was 1e-19f */
