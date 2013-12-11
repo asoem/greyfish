@@ -2,15 +2,13 @@ package org.asoem.greyfish.impl.simulation;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
+import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import org.apache.commons.math3.distribution.TDistribution;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.stat.inference.TTest;
-import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.PoolUtils;
-import org.apache.commons.pool.impl.StackObjectPool;
+import org.apache.commons.math3.stat.inference.TestUtils;
 import org.asoem.greyfish.core.actions.GenericAction;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
@@ -19,8 +17,8 @@ import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.collect.ConcurrentObjectPool;
 import org.asoem.greyfish.utils.math.RandomGenerators;
-import org.asoem.greyfish.utils.math.statistics.FTest;
 import org.asoem.greyfish.utils.math.statistics.StatisticalTests;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -28,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -91,33 +88,26 @@ public class AgentObjectPoolAT {
                 statisticsWithObjectPool.getMean(), is(lessThan(statisticsWithoutObjectPool.getMean())));
 
         // Is it also significantly faster? Make a t-test.
-        // Test assumptions for t-test: constant variance ...
-        final FTest fTest = StatisticalTests.f(statisticsWithObjectPool.getValues(), statisticsWithoutObjectPool.getValues());
-        assertThat("The variances of the two samples are not constant", fTest.p(), is(greaterThan(0.05)));
-
-        // ... and normality
+        // Test assumptions for t-test: normality
         assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithObjectPool.getValues()).p(), is(lessThan(0.05)));
         assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithoutObjectPool.getValues()).p(), is(lessThan(0.05)));
 
         // Perform the t-test
+        final double t = new TTest().t(statisticsWithObjectPool, statisticsWithoutObjectPool);
         final double p = new TTest().tTest(statisticsWithObjectPool, statisticsWithoutObjectPool);
-        LOGGER.info("t-test: p={}", p);
-        assertThat("The means are not significantly different", p, is(lessThan(0.05)));
+        LOGGER.info("t-test: t={}, p={}", t, p);
+        double qt = new TDistribution(statisticsWithObjectPool.getN() - 1 + statisticsWithoutObjectPool.getN() - 1).inverseCumulativeProbability(0.975);
+        assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }
 
     private double measureAgentRecycling(final int objects, final Supplier<BasicAgent> agentSupplier) throws Exception {
-        final ObjectPool<BasicAgent> objectPool = PoolUtils.synchronizedPool(new StackObjectPool<>(new BasePoolableObjectFactory<BasicAgent>() {
-            @Override
-            public BasicAgent makeObject() throws Exception {
-                return agentSupplier.get();
-            }
-        }, objects));
+        org.asoem.greyfish.utils.collect.ObjectPool<BasicAgent> objectPool = new ConcurrentObjectPool<>(agentSupplier);
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int j = 0; j < objects; j++) {
-            final BasicAgent clone = objectPool.borrowObject();
+            final BasicAgent clone = objectPool.borrow();
             clone.initialize();
-            objectPool.returnObject(clone);
+            objectPool.release(clone);
         }
         return stopwatch.elapsed(TimeUnit.MICROSECONDS);
     }
@@ -135,12 +125,12 @@ public class AgentObjectPoolAT {
     public void testSignificantPerformanceBenefitInSimulationContext() throws Exception {
         // given
         final int populationSize = 400;
-        final int steps = 1000;
-        final int runs = 1000;
-        final SummaryStatistics statisticsWithoutObjectPool = new SummaryStatistics();
-        final SummaryStatistics statisticsWithObjectPool = new SummaryStatistics();
+        final int steps = 30000;
+        final int runs = 20;
+        final DescriptiveStatistics statisticsWithoutObjectPool = new DescriptiveStatistics();
+        final DescriptiveStatistics statisticsWithObjectPool = new DescriptiveStatistics();
 
-        final ExecutorService executorService = Executors.newFixedThreadPool(10);
+        final ExecutorService executorService = MoreExecutors.sameThreadExecutor();
 
         // when
         for (int i = 0; i < runs; i++) {
@@ -168,9 +158,16 @@ public class AgentObjectPoolAT {
                 "is not less than the mean elapsed time of the version with an object pool",
                 statisticsWithObjectPool.getMean(), is(lessThan(statisticsWithoutObjectPool.getMean())));
 
-        final double p = new TTest().tTest(statisticsWithObjectPool, statisticsWithoutObjectPool);
-        LOGGER.info("t-test: p={}", p);
-        assertThat("The measured difference is not significant", p, is(lessThan(0.05)));
+        // Is it also significantly faster? Make a t-test.
+        // Test assumptions for t-test: normality
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithObjectPool.getValues()).p(), is(lessThan(0.05)));
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithoutObjectPool.getValues()).p(), is(lessThan(0.05)));
+
+        final double t = TestUtils.t(statisticsWithObjectPool, statisticsWithoutObjectPool);
+        final double p = TestUtils.tTest(statisticsWithObjectPool, statisticsWithoutObjectPool);
+        LOGGER.info("t-test: t={}, p={}", t, p);
+        double qt = new TDistribution(statisticsWithObjectPool.getN() - 1 + statisticsWithoutObjectPool.getN() - 1).inverseCumulativeProbability(0.975);
+        assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }
 
     private long measureExecutionTime(final SynchronizedAgentsSimulation<?> simulationWithoutObjectPool, final int steps) {
@@ -183,7 +180,7 @@ public class AgentObjectPoolAT {
 
     public static final class SimulationWithObjectPoolFactory {
 
-        private final ObjectPool<BasicAgent> agentObjectPool;
+        private final org.asoem.greyfish.utils.collect.ObjectPool<BasicAgent> agentObjectPool;
         private final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
         private final int populationSize;
         private final ExecutorService executorService;
@@ -191,21 +188,22 @@ public class AgentObjectPoolAT {
         public SimulationWithObjectPoolFactory(final int populationSize, final ExecutorService executorService) {
             this.populationSize = populationSize;
             this.executorService = executorService;
-            this.agentObjectPool = new StackObjectPool<>(new BasePoolableObjectFactory<BasicAgent>() {
+            this.agentObjectPool = new ConcurrentObjectPool<>(new Supplier<BasicAgent>() {
                 @Override
-                public BasicAgent makeObject() throws Exception {
+                public BasicAgent get() {
                     return createAgent();
                 }
-
-                @Override
-                public void activateObject(final BasicAgent obj) throws Exception {
-                    obj.initialize();
-                }
-            }, populationSize / 2);
+            });
         }
 
         public SynchronizedAgentsSimulation<?> newSimulation() {
             final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("TestSimulation")
+                    .eventBus(new EventBus() {
+                        @Override
+                        public void post(final Object event) {
+                            // NOP
+                        }
+                    })
                     .executorService(executorService)
                     .build();
             for (int i = 0; i < populationSize; i++) {
@@ -227,7 +225,7 @@ public class AgentObjectPoolAT {
                                             final BasicAgent agent = caller.agent().get();
                                             final BasicAgent clone;
                                             try {
-                                                clone = agentObjectPool.borrowObject();
+                                                clone = agentObjectPool.borrow();
                                                 agent.getContext().get().getSimulation().enqueueAddition(clone);
                                             } catch (Exception e) {
                                                 throw new AssertionError(e);
@@ -251,7 +249,7 @@ public class AgentObjectPoolAT {
                                                 public void run() {
                                                     try {
                                                         // TODO: agent is not removed yet
-                                                        agentObjectPool.returnObject(agent);
+                                                        agentObjectPool.release(agent);
                                                     } catch (Exception e) {
                                                         throw new AssertionError(e);
                                                     }
@@ -277,6 +275,12 @@ public class AgentObjectPoolAT {
 
         public SynchronizedAgentsSimulation<?> newSimulation() {
             final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("TestSimulation")
+                    .eventBus(new EventBus() {
+                        @Override
+                        public void post(final Object event) {
+                            // NOP
+                        }
+                    })
                     .executorService(executorService)
                     .build();
             for (int i = 0; i < populationSize; i++) {
