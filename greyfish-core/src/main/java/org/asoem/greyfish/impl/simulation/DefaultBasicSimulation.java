@@ -17,6 +17,7 @@ import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.utils.concurrent.Runnables;
 
 import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -33,12 +34,13 @@ import static com.google.common.base.Preconditions.*;
 /**
  * The default thread safe implementation of BasicSimulation.
  */
+@ThreadSafe
 public final class DefaultBasicSimulation
         extends AbstractSimulation<BasicAgent>
         implements BasicSimulation {
 
     @GuardedBy("this")
-    private final List<BasicAgent> agents = Lists.newArrayList();
+    private final List<BasicAgent> agents = Lists.newLinkedList();
     private final Queue<ModificationEvent> modificationEvents = Queues.newConcurrentLinkedQueue();
     private final ListeningExecutorService executorService;
     private final String name;
@@ -202,6 +204,7 @@ public final class DefaultBasicSimulation
 
     /**
      * Create a new {@code Builder} for a {@code DefaultBasicSimulation} with name equal to given {@code name}.
+     *
      * @param name the name of the getSimulation
      * @return a new {@code Builder}
      */
