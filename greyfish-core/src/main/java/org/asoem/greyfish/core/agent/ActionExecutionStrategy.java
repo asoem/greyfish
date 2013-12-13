@@ -12,7 +12,7 @@ public interface ActionExecutionStrategy<T extends Agent<T, ?>> {
      * @return {@code true} if an action got executed, {@code false} otherwise.
      * @param componentContext
      */
-    boolean execute(final ComponentContext<T, ?> componentContext);
+    boolean executeNext(final ComponentContext<T, ?> componentContext);
 
     /**
      * Reset the history.

@@ -38,7 +38,7 @@ public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
     }
 
     @Override
-    public boolean execute(final ComponentContext<T, ?> componentContext) {
+    public boolean executeNext(final ComponentContext<T, ?> componentContext) {
         checkNotNull(componentContext);
 
         // identify action to execute

@@ -100,7 +100,7 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
     @Override
     public final void run() {
         final ActionExecutionStrategy<A> actionExecutionStrategy = getActionExecutionStrategy();
-        final boolean executeSuccess = actionExecutionStrategy.execute(new ComponentContext<A, C>() {
+        final boolean executeSuccess = actionExecutionStrategy.executeNext(new ComponentContext<A, C>() {
             @Override
             public A agent() {
                 return self();
