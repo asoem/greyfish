@@ -73,7 +73,7 @@ public class AgentsTest {
         fail();
     }
 
-    private static interface TestAgent extends Agent<TestAgent, SimulationContext<?>> {
+    private static interface TestAgent extends Agent<TestAgent, SimulationContext<?>>, Descendant {
     }
 
     private static interface TestSimulation extends DiscreteTimeSimulation<TestAgent> {

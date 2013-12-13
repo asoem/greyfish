@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 
 import javax.annotation.Nullable;
@@ -80,6 +81,21 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+    @Nullable
+    @Override
+    public final AgentNode parent() {
+        return agent().orNull();
+    }
+
+    /**
+     * Get all children of this node. <p>This default implementation simple returns an empty list but other
+     * implementations might overwrite this method, if they add nodes to the tree.</p>
+     */
+    @Override
+    public Iterable<AgentNode> children() {
+        return ImmutableList.of();
     }
 
     protected abstract static class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> implements Serializable {

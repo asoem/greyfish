@@ -15,7 +15,7 @@ import org.asoem.greyfish.utils.collect.FunctionalList;
  * @param <C> The type of the simulation context
  */
 public interface Agent<A extends Agent<A, C>, C extends SimulationContext<?>>
-        extends AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A>, Descendant {
+        extends AgentNode, Runnable, MessageConsumer<A>, MessageProducer<A> {
 
     /**
      * Get the population
@@ -23,14 +23,6 @@ public interface Agent<A extends Agent<A, C>, C extends SimulationContext<?>>
      * @return the population
      */
     PrototypeGroup getPrototypeGroup();
-
-    /**
-     * Check if the prototypeGroup of this agent is equal to {@code prototypeGroup}.
-     *
-     * @param prototypeGroup the prototypeGroup to test against
-     * @return {@code true} if the populations are equal, {@code false} otherwise
-     */
-    boolean isMemberOf(PrototypeGroup prototypeGroup);
 
     /**
      * Get all actions of this agent
@@ -100,17 +92,16 @@ public interface Agent<A extends Agent<A, C>, C extends SimulationContext<?>>
     void deactivate();
 
     /**
-     * Get the simulation context holder for this agent.
-     *
-     * @return the optional simulation context
-     */
-    Optional<C> getContext();
-
-    /**
      * Check if the agent's {@link BasicSimulationContext context} is present.
      *
      * @return {@code true} if the context is present, {@code false} if absent
      */
     boolean isActive();
 
+    /**
+     * Get the simulation context holder for this agent.
+     *
+     * @return the optional simulation context
+     */
+    Optional<C> getContext();
 }

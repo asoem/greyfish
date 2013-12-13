@@ -22,11 +22,6 @@ public abstract class AbstractAgentProperty<T, A extends Agent<A, ?>> extends Ab
     }
 
     @Override
-    public AgentNode parent() {
-        return agent().orNull();
-    }
-
-    @Override
     public void set(final T value) {
         throw new UnsupportedOperationException(
                 "This property does not support a value modification through the set method");

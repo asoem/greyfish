@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.agent;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
@@ -25,7 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * This class provides a skeletal implementation of the {@code Agent} interface.
  */
-public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimulationContext<?, A>> implements Agent<A, C> {
+public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimulationContext<?, A>> implements Agent<A, C>, Descendant {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends AgentComponent> E findByName(final Iterable<E> elements, final String name) {
@@ -50,11 +49,6 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
      * @return the agent instance
      */
     protected abstract A self();
-
-    @Override
-    public final boolean isMemberOf(@Nullable final PrototypeGroup prototypeGroup) {
-        return Objects.equal(getPrototypeGroup(), prototypeGroup);
-    }
 
     @Override
     public final AgentAction<A> getAction(final String name) {

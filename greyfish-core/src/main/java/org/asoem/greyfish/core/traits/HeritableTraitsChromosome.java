@@ -9,6 +9,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.Descendant;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.collect.Products;
@@ -55,7 +56,7 @@ public final class HeritableTraitsChromosome implements Chromosome {
     }
 
     @Override
-    public <A extends Agent<A, ? extends BasicSimulationContext<?, ?>>> void updateAgent(final A agent) {
+    public <A extends Agent<A, ? extends BasicSimulationContext<?, ?>> & Descendant> void updateAgent(final A agent) {
         checkNotNull(agent, "Agent is null");
 
         final FunctionalList<AgentTrait<A, ?>> traits = agent.getTraits();

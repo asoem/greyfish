@@ -8,8 +8,6 @@ import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 
-import java.util.Set;
-
 abstract class ForwardingAgent<A extends Agent<A, C>, C extends SimulationContext<?>>
         extends ForwardingObject
         implements Agent<A, C> {
@@ -20,11 +18,6 @@ abstract class ForwardingAgent<A extends Agent<A, C>, C extends SimulationContex
     @Override
     public PrototypeGroup getPrototypeGroup() {
         return delegate().getPrototypeGroup();
-    }
-
-    @Override
-    public boolean isMemberOf(final PrototypeGroup prototypeGroup) {
-        return delegate().isMemberOf(prototypeGroup);
     }
 
     @Override
@@ -110,11 +103,6 @@ abstract class ForwardingAgent<A extends Agent<A, C>, C extends SimulationContex
     @Override
     public AgentNode parent() {
         return delegate().parent();
-    }
-
-    @Override
-    public Set<Integer> getParents() {
-        return delegate().getParents();
     }
 
     @Override

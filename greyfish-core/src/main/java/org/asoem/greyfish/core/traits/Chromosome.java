@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.Descendant;
 
 import java.util.List;
 import java.util.Set;
@@ -23,7 +24,7 @@ public interface Chromosome {
      * Get the IDs of the agents which created this {@code Chromosome}.
      *
      * @return a set of gent IDs
-     * @see org.asoem.greyfish.core.agent.Agent#getId()
+     * @see org.asoem.greyfish.core.agent.BasicSimulationContext#getAgentId()
      */
     Set<Integer> getParents();
 
@@ -40,7 +41,7 @@ public interface Chromosome {
      *
      * @param agent the agent to update
      * @see Trait#copyFrom(org.asoem.greyfish.utils.base.TypedSupplier)
-     * @see Agent#setParents(java.util.Set)
+     * @see org.asoem.greyfish.core.agent.Descendant#setParents(java.util.Set)
      */
-    <A extends Agent<A, ? extends BasicSimulationContext<?, ?>>> void updateAgent(final A agent);
+    <A extends Agent<A, ? extends BasicSimulationContext<?, ?>> & Descendant> void updateAgent(final A agent);
 }

@@ -122,11 +122,6 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
         return condition != null ? Collections.<AgentNode>singletonList(getCondition()) : Collections.<AgentNode>emptyList();
     }
 
-    @Override
-    public final AgentNode parent() {
-        return agent().orNull();
-    }
-
     private ActionState getActionState() {
         return actionState;
     }

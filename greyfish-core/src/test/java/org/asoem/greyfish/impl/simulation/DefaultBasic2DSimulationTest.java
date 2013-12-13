@@ -131,7 +131,7 @@ public class DefaultBasic2DSimulationTest {
         final Basic2DAgent agent = mock(Basic2DAgent.class);
         final PrototypeGroup testPrototypeGroup = PrototypeGroup.named("TestPopulation");
         given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
-        given(agent.isMemberOf(testPrototypeGroup)).willReturn(true);
+        given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
         given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<Basic2DAgent, ?>>of());
         @SuppressWarnings("unchecked")
@@ -175,7 +175,7 @@ public class DefaultBasic2DSimulationTest {
         final Point2D point2D = mock(Point2D.class);
         given(agent.getProjection()).willReturn(point2D);
         given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
-        given(agent.isMemberOf(testPrototypeGroup)).willReturn(true);
+        given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<Basic2DAgent, ?>>of());
 
         final KeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =

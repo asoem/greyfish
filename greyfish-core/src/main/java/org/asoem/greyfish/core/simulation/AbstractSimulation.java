@@ -16,6 +16,7 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Synch
 
     /**
      * A standard implementation for {@link #numberOfPopulations()} you can use to implement this method.
+     *
      * @return the number of distinct populations of all agents
      */
     protected final int standardNumberOfPopulations() {
@@ -28,9 +29,12 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Synch
     }
 
     /**
-     * A standard implementation for {@link #filterAgents(com.google.common.base.Predicate)} you can use to implement this method.
+     * A standard implementation for {@link #filterAgents(com.google.common.base.Predicate)} you can use to implement
+     * this method.
+     *
      * @param prototypeGroup the population to filter agents for
-     * @return a view of {@link #getActiveAgents()} where all agents have {@link org.asoem.greyfish.core.agent.Agent#getPrototypeGroup()} equal to {@code population}
+     * @return a view of {@link #getActiveAgents()} where all agents have {@link org.asoem.greyfish.core.agent.Agent#getPrototypeGroup()}
+     * equal to {@code population}
      */
     protected final Iterable<A> standardGetAgents(final PrototypeGroup prototypeGroup) {
         checkNotNull(prototypeGroup);
@@ -38,7 +42,7 @@ public abstract class AbstractSimulation<A extends Agent<A, ?>> implements Synch
         return Iterables.filter(getActiveAgents(), new Predicate<A>() {
             @Override
             public boolean apply(final A agent) {
-                return agent.isMemberOf(prototypeGroup);
+                return prototypeGroup.equals(agent.getPrototypeGroup());
             }
         });
     }
