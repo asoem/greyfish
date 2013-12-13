@@ -6,6 +6,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.base.Builder;
 
 import java.util.Map;
@@ -14,22 +15,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
 public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
-    private final Table<S, S, Double> markovMatrix;
+    private final Table<S, S, Double> transitionTable;
+    private final RandomGenerator rng;
 
-    private ImmutableMarkovChain(final Table<S, S, Double> markovMatrix) {
-        this.markovMatrix = markovMatrix;
+    private ImmutableMarkovChain(final Table<S, S, Double> transitionTable, final RandomGenerator rng) {
+        this.transitionTable = transitionTable;
+        this.rng = rng;
     }
 
     @Override
     public S apply(final S state) {
         checkNotNull(state, "State must not be null");
 
-        if (!markovMatrix.containsRow(state)) {
-            if (markovMatrix.containsColumn(state)) {
+        if (!transitionTable.containsRow(state)) {
+            if (transitionTable.containsColumn(state)) {
                 return state;
             } else {
                 final String message = "State '" + state
@@ -40,7 +42,7 @@ public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
         }
 
 
-        final Map<S, Double> row = markovMatrix.row(state);
+        final Map<S, Double> row = transitionTable.row(state);
 
         if (row.isEmpty()) {
             return state;
@@ -60,7 +62,7 @@ public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
     @Override
     public Set<S> getStates() {
-        return Sets.union(markovMatrix.rowKeySet(), markovMatrix.columnKeySet());
+        return Sets.union(transitionTable.rowKeySet(), transitionTable.columnKeySet());
     }
 
     public static <S> ChainBuilder<S> builder() {
@@ -83,7 +85,7 @@ public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
                 final String state1 = matcher.group(1).trim();
                 final String state2 = matcher.group(2).trim();
                 final String p = matcher.group(3).trim();
-                
+
                 builder.put(state1, state2, Double.parseDouble(p));
             } else {
                 throw new IllegalArgumentException("Rule has errors at " + line);
@@ -93,12 +95,22 @@ public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
         return builder.build();
     }
 
+    private RandomGenerator rng() {
+        return rng;
+    }
+
     public static final class ChainBuilder<S> implements Builder<ImmutableMarkovChain<S>> {
 
         private final Table<S, S, Double> table = HashBasedTable.create();
+        private RandomGenerator rng = RandomGenerators.rng();
 
         public ChainBuilder<S> put(final S state, final S nextState, final double p) {
             table.put(state, nextState, p);
+            return this;
+        }
+
+        public ChainBuilder<S> rng(final RandomGenerator rng) {
+            this.rng = checkNotNull(rng);
             return this;
         }
 
@@ -116,13 +128,14 @@ public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
                     throw new IllegalArgumentException(message);
                 }
             }
-            return new ImmutableMarkovChain<S>(ImmutableTable.copyOf(table));
+            rng = RandomGenerators.rng();
+            return new ImmutableMarkovChain<S>(ImmutableTable.copyOf(table), rng);
         }
     }
-    
+
     public String toRule() {
         final StringBuilder builder = new StringBuilder();
-        for (final Map.Entry<S, Map<S, Double>> entry : markovMatrix.rowMap().entrySet()) {
+        for (final Map.Entry<S, Map<S, Double>> entry : transitionTable.rowMap().entrySet()) {
             for (final Map.Entry<S, Double> doubleEntry : entry.getValue().entrySet()) {
                 builder.append(entry.getKey());
                 builder.append(" -> ");
