@@ -42,14 +42,14 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ? extends BasicSimulat
     }
 
     @Override
-    protected ActionState proceed() {
+    protected ActionState proceed(final ExecutionContext<A> context) {
         final double evaluatedTurningAngle = Callbacks.call(turningAngle, this);
         final double evaluatedStepSize = Callbacks.call(stepSize, this);
 
         final Motion2D motion = ImmutableMotion2D.of(evaluatedTurningAngle, evaluatedStepSize);
-        agent().get().setMotion(motion);
+        context.agent().setMotion(motion);
 
-        LOGGER.info("{}: Changing movement to {}", agent(), motion);
+        LOGGER.info("{}: Changing movement to {}", context.agent(), motion);
         return ActionState.COMPLETED;
     }
 

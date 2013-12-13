@@ -24,7 +24,7 @@ public final class GenericAction<A extends Agent<A, ? extends BasicSimulationCon
     }
 
     @Override
-    protected ActionState proceed() {
+    protected ActionState proceed(final ExecutionContext<A> context) {
         call(callback, this);
         return ActionState.COMPLETED;
     }

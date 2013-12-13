@@ -15,7 +15,6 @@ import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.Descendant;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
@@ -46,7 +45,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A {@code SimulationLogger} which logs to a JDBC {@link Connection}. This implementation uses a {@link Disruptor} to
  * handle the incoming events and therefore is threadsafe.
  */
-final class JDBCLogger<A extends SpatialAgent<?, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>>> & Descendant> implements SimulationLogger<A> {
+final class JDBCLogger<A extends SpatialAgent<?, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>>>>
+        implements SimulationLogger<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
     private static final int RING_BUFFER_SIZE = 1024;

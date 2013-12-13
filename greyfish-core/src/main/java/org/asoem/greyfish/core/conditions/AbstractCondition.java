@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.conditions;
 import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 
 import javax.annotation.Nullable;
@@ -21,6 +20,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
 
     @Nullable
     private transient AgentAction<A> action;
+    private Optional<A> agent = Optional.absent();
 
     protected AbstractCondition() {
     }
@@ -62,7 +62,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
 
     @Override
     public void setAgent(@Nullable final A agent) {
-        throw new UnsupportedOperationException();
+        this.agent = Optional.fromNullable(agent);
     }
 
     @Override
@@ -73,13 +73,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     public Optional<A> agent() {
-        final A nullableAgent = getAction().isPresent() ? getAction().get().agent().orNull() : null;
-        return Optional.fromNullable(nullableAgent);
-    }
-
-    @Override
-    public void setName(final String name) {
-        throw new UnsupportedOperationException("Conditions don't use names");
+        return agent;
     }
 
     @Override
@@ -89,11 +83,6 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
 
     @Override
     public void initialize() {
-    }
-
-    @Override
-    public AgentNode parent() {
-        return parentCondition != null ? parentCondition : action;
     }
 
     protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {

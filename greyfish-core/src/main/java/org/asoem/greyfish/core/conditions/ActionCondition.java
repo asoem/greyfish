@@ -10,7 +10,7 @@ import org.asoem.greyfish.core.agent.SimulationContext;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public interface ActionCondition<A extends Agent<A, ? extends SimulationContext<?>>> extends AgentComponent<A> {
+public interface ActionCondition<A extends Agent<A, ? extends SimulationContext<?>>> extends AgentComponent {
 
     Optional<AgentAction<A>> getAction();
 
@@ -39,4 +39,18 @@ public interface ActionCondition<A extends Agent<A, ? extends SimulationContext<
     boolean isRootCondition();
 
     boolean evaluate();
+
+    /**
+     * Get the agent this component was added to.
+     *
+     * @return the agent for this component
+     */
+    Optional<A> agent();
+
+    /**
+     * Sets the connected agent. This method should only be called by an Agent implementation in an addXXX method.
+     *
+     * @param agent the new agent
+     */
+    void setAgent(@Nullable A agent);
 }

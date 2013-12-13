@@ -56,7 +56,7 @@ public final class Agents {
     public static <A extends Agent<A, SimulationContext<?>>, T extends AgentTrait<A, ?>>
     ComponentAccessor<A, T> traitAccessor(final String traitName) {
         return new ComponentAccessor<A, T>() {
-            private final Predicate<AgentComponent<A>> componentNamePredicate =
+            private final Predicate<AgentComponent> componentNamePredicate =
                     new ComponentNamePredicate<A>(traitName);
 
             @Override
@@ -81,7 +81,7 @@ public final class Agents {
     public static <A extends Agent<A, SimulationContext<?>>, T extends AgentTrait<A, ?>>
     ComponentAccessor<A, T> traitAccessor(final String traitName, final Class<T> tClass) {
         return new ComponentAccessor<A, T>() {
-            private final Predicate<AgentComponent<A>> componentNamePredicate =
+            private final Predicate<AgentComponent> componentNamePredicate =
                     new ComponentNamePredicate<A>(traitName);
 
             @Override
@@ -106,7 +106,7 @@ public final class Agents {
     public static <A extends Agent<A, SimulationContext<?>>, V>
     ComponentAccessor<A, AgentTrait<A, V>> traitAccessor(final String traitName, final TypeToken<V> typeToken) {
         return new ComponentAccessor<A, AgentTrait<A, V>>() {
-            private final Predicate<AgentComponent<A>> componentNamePredicate
+            private final Predicate<AgentComponent> componentNamePredicate
                     = new ComponentNamePredicate<>(traitName);
 
             // Safe cast if the value type of the trait is assignable from given typeToken
@@ -124,7 +124,7 @@ public final class Agents {
         };
     }
 
-    private static class ComponentNamePredicate<A extends Agent<A, SimulationContext<?>>> implements Predicate<AgentComponent<A>> {
+    private static class ComponentNamePredicate<A extends Agent<A, SimulationContext<?>>> implements Predicate<AgentComponent> {
         private final String name;
 
         public ComponentNamePredicate(final String name) {
@@ -132,7 +132,7 @@ public final class Agents {
         }
 
         @Override
-        public boolean apply(final AgentComponent<A> input) {
+        public boolean apply(final AgentComponent input) {
             return name.equals(input.getName());
         }
 

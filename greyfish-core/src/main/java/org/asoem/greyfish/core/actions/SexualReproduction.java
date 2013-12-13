@@ -48,18 +48,19 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
     }
 
     @Override
-    protected ActionState proceed() {
+    protected ActionState proceed(final ExecutionContext<A> context) {
         final List<? extends Chromosome> chromosomes = call(spermSupplier, this);
 
-        if (chromosomes == null)
+        if (chromosomes == null) {
             throw new AssertionError("chromosomes is null");
+        }
 
-        if (chromosomes.isEmpty())
+        if (chromosomes.isEmpty()) {
             return ABORTED;
+        }
 
         final int eggCount = call(clutchSize, this);
-        final A agent = agent().get();
-        LOGGER.info("{}: Producing {} offspring ", agent, eggCount);
+        LOGGER.info("{}: Producing {} offspring ", context.agent(), eggCount);
 
         for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
@@ -68,8 +69,8 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
                 throw new AssertionError("Sperm must have an uniparental history");
             }
 
-            final BasicSimulationContext<? extends DiscreteTimeSimulation<A>, A> simulationContext = agent.getContext().get();
-            final Chromosome chromosome = blend(agent.getTraits(), sperm, simulationContext.getAgentId(), Iterables.getOnlyElement(parents));
+            final BasicSimulationContext<? extends DiscreteTimeSimulation<A>, A> simulationContext = context.agent().getContext().get();
+            final Chromosome chromosome = blend(context.agent().getTraits(), sperm, simulationContext.getAgentId(), Iterables.getOnlyElement(parents));
 
             addAgent(chromosome);
 

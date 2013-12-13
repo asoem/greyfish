@@ -44,11 +44,11 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> createCFP() {
+    protected ImmutableACLMessage.Builder<A> createCFP(final ExecutionContext<A> context) {
         final A receiver = Iterables.get(sensedMates, RandomGenerators.rng().nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
         return ImmutableACLMessage.<A>builder()
-                .sender(agent().get())
+                .sender(context.agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
@@ -57,29 +57,31 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message) {
+    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message, final ExecutionContext<A> context) {
 
         final Object messageContent = message.getContent();
-        if (!(messageContent instanceof Double))
+        if (!(messageContent instanceof Double)) {
             throw new NotUnderstoodException("Expected payload of type Double");
+        }
 
         final Double offer = (Double) messageContent;
 
         assert offer != 0 : this + ": Got (double) offer = 0. Should be refused on the provider side";
 
-        return ImmutableACLMessage.createReply(message, agent().get())
+        return ImmutableACLMessage.createReply(message, context.agent())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
                 .content(offer, Double.class);
     }
 
     @Override
-    protected void handleInform(final ACLMessage<A> message) {
+    protected void handleInform(final ACLMessage<A> message, final ExecutionContext<A> context) {
         final Object messageContent = message.getContent();
-        if (!(messageContent instanceof Double))
+        if (!(messageContent instanceof Double)) {
             throw new NotUnderstoodException("Expected a payload of type Double");
+        }
 
         final Double offer = (Double) messageContent;
-        LOGGER.info("{}: Consuming {} {}", agent(), offer, ontology);
+        LOGGER.info("{}: Consuming {} {}", context.agent(), offer, ontology);
         uptakeUtilization.apply(this, ImmutableMap.of("offer", offer));
     }
 
@@ -89,8 +91,8 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @Override
-    protected boolean canInitiate() {
-        sensedMates = agent().get().findNeighbours(call(interactionRadius, this));
+    protected boolean canInitiate(final ExecutionContext<A> context) {
+        sensedMates = context.agent().findNeighbours(call(interactionRadius, this));
         return !isEmpty(sensedMates);
     }
 

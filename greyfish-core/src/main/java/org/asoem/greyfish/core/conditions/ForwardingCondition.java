@@ -10,9 +10,6 @@ import org.asoem.greyfish.core.agent.SimulationContext;
 import javax.annotation.Nullable;
 import java.util.List;
 
-/**
- * User: christoph Date: 06.12.12 Time: 10:29
- */
 public abstract class ForwardingCondition<A extends Agent<A, SimulationContext<?>>> extends ForwardingObject implements ActionCondition<A> {
 
     protected abstract ActionCondition<A> delegate();
@@ -92,11 +89,6 @@ public abstract class ForwardingCondition<A extends Agent<A, SimulationContext<?
     }
 
     @Override
-    public void setName(final String name) {
-        delegate().setName(name);
-    }
-
-    @Override
     public String getName() {
         return delegate().getName();
     }
@@ -104,12 +96,6 @@ public abstract class ForwardingCondition<A extends Agent<A, SimulationContext<?
     @Override
     public void initialize() {
         delegate().initialize();
-    }
-
-    @Override
-    @Nullable
-    public AgentNode parent() {
-        return delegate().parent();
     }
 
     @Override

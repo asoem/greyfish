@@ -8,6 +8,7 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -74,6 +75,11 @@ public final class Avatar<A extends SpatialAgent<A, P, C>, S extends SpatialSimu
     @Override
     public Optional<C> getContext() {
         return delegate().getContext();
+    }
+
+    @Override
+    public Set<Integer> getParents() {
+        return delegate().getParents();
     }
 
     private static class SerializedForm<A extends SpatialAgent<A, P, C>, S extends SpatialSimulation2D<A, ?>, P extends Object2D, C extends BasicSimulationContext<S, A>> implements Serializable {

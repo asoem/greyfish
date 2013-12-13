@@ -5,7 +5,7 @@ package org.asoem.greyfish.core.agent;
  * using {@code Agent#getXXX(String)} by creating a {@link com.google.common.base.Predicate} and delegating accesses to
  * {@code Agent#getXXX(com.google.common.base.Predicate)}.
  */
-public interface ComponentAccessor<A extends Agent<A, SimulationContext<?>>, T extends AgentComponent<A>> {
+public interface ComponentAccessor<A extends Agent<A, SimulationContext<?>>, T extends AgentComponent> {
     /**
      * Get the defined component from {@code agent}.
      *

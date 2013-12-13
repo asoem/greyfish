@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
@@ -26,6 +27,7 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
     @Nullable
     private ActionCondition<A> condition;
     private ActionState actionState;
+    private Optional<A> agent;
 
     protected BaseAgentAction(final AbstractBuilder<A, ? extends BaseAgentAction<A>,
             ? extends AbstractBuilder<A, ?, ?>> builder) {
@@ -42,11 +44,13 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
     /**
      * Called by the {@code Agent} which contains this {@code AgentAction}
      *
-     * @param componentContext the context for this action
+     * @param executionContext the context for this action
      */
     @Override
-    public final ActionExecutionResult apply(final ComponentContext<A, ?> componentContext) {
-        checkNotNull(componentContext);
+    public final ActionExecutionResult apply(final ExecutionContext<A> executionContext) {
+        checkNotNull(executionContext);
+        this.agent = Optional.of(executionContext.agent());
+
         ActionExecutionResult result = null;
 
         while (result == null) {
@@ -62,7 +66,7 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
                     break;
                 case PRECONDITIONS_MET:
                 case INTERMEDIATE:
-                    final ActionState state = proceed();
+                    final ActionState state = proceed(executionContext);
                     setState(state);
                     if (state == INTERMEDIATE) {
                         result = ActionExecutionResult.CONTINUE;
@@ -82,10 +86,12 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
             }
         }
 
+        this.agent = Optional.absent();
+
         return result;
     }
 
-    protected abstract ActionState proceed();
+    protected abstract ActionState proceed(final ExecutionContext<A> context);
 
     private void setState(final ActionState state) {
         assert state != null;
@@ -128,6 +134,13 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
 
     private void setActionState(final ActionState actionState) {
         this.actionState = actionState;
+    }
+
+    /**
+     * @return this components optional {@code Agent}
+     */
+    public final Optional<A> agent() {
+        return agent;
     }
 
     @SuppressWarnings("UnusedDeclaration")

@@ -9,7 +9,7 @@ import org.asoem.greyfish.utils.space.Projectable;
 /**
  * An agent for spatial simulations.
  */
-public interface SpatialAgent<A extends SpatialAgent<A, P, C>, P extends Object2D, C extends SimulationContext<? extends SpatialSimulation2D<A, ?>>>
+public interface SpatialAgent<A extends SpatialAgent<A, P, C> & Descendant, P extends Object2D, C extends SimulationContext<? extends SpatialSimulation2D<A, ?>>>
         extends Agent<A, C>, Moving<Motion2D>, Projectable<P>, Descendant {
 
     /**

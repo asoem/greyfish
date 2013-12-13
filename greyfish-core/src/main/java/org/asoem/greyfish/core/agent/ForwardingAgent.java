@@ -101,11 +101,6 @@ abstract class ForwardingAgent<A extends Agent<A, C>, C extends SimulationContex
     }
 
     @Override
-    public AgentNode parent() {
-        return delegate().parent();
-    }
-
-    @Override
     public void sendMessage(final ACLMessage<A> message) {
         delegate().sendMessage(message);
     }

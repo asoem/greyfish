@@ -58,9 +58,6 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
             property.setAgent(this);
         }
         this.actions = ImmutableFunctionalList.copyOf(builder.actions);
-        for (final AgentAction<Basic2DAgent> action : builder.actions) {
-            action.setAgent(this);
-        }
         this.traits = ImmutableFunctionalList.copyOf(builder.traits);
         for (final AgentTrait<Basic2DAgent, ?> trait : builder.traits) {
             trait.setAgent(this);
@@ -216,9 +213,9 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         }
 
         public DefaultBasic2DAgent build() throws IllegalStateException {
-            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent<Basic2DAgent>, String>() {
+            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent, String>() {
                 @Override
-                public String apply(final AgentComponent<Basic2DAgent> input) {
+                public String apply(final AgentComponent input) {
                     return input.getName();
                 }
             });

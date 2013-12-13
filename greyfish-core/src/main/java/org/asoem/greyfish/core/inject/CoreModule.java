@@ -2,10 +2,11 @@ package org.asoem.greyfish.core.inject;
 
 import com.google.inject.AbstractModule;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.core.eval.*;
-import org.asoem.greyfish.core.eval.impl.CachedGreyfishVariableAccessorFactory;
+import org.asoem.greyfish.core.eval.Evaluator;
+import org.asoem.greyfish.core.eval.EvaluatorFactory;
+import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
+import org.asoem.greyfish.core.eval.GreyfishVariableFactory;
 import org.asoem.greyfish.core.eval.impl.CommonsJEXLEvaluator;
-import org.asoem.greyfish.core.eval.impl.DefaultGreyfishVariableAccessorFactory;
 import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
 import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
 import org.asoem.greyfish.utils.math.RandomGenerators;
@@ -14,11 +15,6 @@ import org.asoem.greyfish.utils.persistence.Persisters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph
- * Date: 11.01.12
- * Time: 14:37
- */
 public class CoreModule extends AbstractModule {
 
     private final RandomGenerator randomGenerator;
@@ -48,9 +44,6 @@ public class CoreModule extends AbstractModule {
                 return new CommonsJEXLEvaluator(expression);
             }
         });
-        bind(GreyfishVariableAccessorFactory.class).toInstance(
-                new CachedGreyfishVariableAccessorFactory(
-                        new DefaultGreyfishVariableAccessorFactory()));
         requestStaticInjection(GreyfishVariableFactory.class);
         requestStaticInjection(GreyfishExpressionFactoryHolder.class);
 

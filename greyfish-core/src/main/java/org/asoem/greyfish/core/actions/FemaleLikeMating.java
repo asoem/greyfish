@@ -57,14 +57,14 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
         this.matingProbability = builder.matingProbability;
     }
 
-    private void receiveSperm(final Chromosome chromosome, final A sender) {
+    private void receiveSperm(final Chromosome chromosome, final A sender, final ExecutionContext<A> context) {
         receivedSperm.add(chromosome);
         //agent().get().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
-        LOGGER.debug(agent().orNull() + " received sperm: " + chromosome);
+        LOGGER.debug(context.agent() + " received sperm: " + chromosome);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> createCFP() {
+    protected ImmutableACLMessage.Builder<A> createCFP(final ExecutionContext<A> context) {
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert (sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
@@ -72,7 +72,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
         sensedMates = ImmutableList.of();
 
         return ImmutableACLMessage.<A>builder()
-                .sender(agent().get())
+                .sender(context.agent())
                 .performative(ACLPerformative.CFP)
                 .ontology(ontology)
                         // Choose randomly one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
@@ -80,8 +80,8 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message) {
-        final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, agent().get());
+    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message, final ExecutionContext<A> context) {
+        final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, context.agent());
         final Object messageContent = message.getContent();
         if (!(messageContent instanceof Chromosome)) {
             throw new NotUnderstoodException("Payload of message is not of type Chromosome: " + messageContent);
@@ -90,7 +90,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
         final Chromosome chromosome = (Chromosome) messageContent;
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (RandomGenerators.nextBoolean(RandomGenerators.rng(), probability)) {
-            receiveSperm(chromosome, message.getSender());
+            receiveSperm(chromosome, message.getSender(), context);
             builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
             LOGGER.debug("Accepted mating with p={}", probability);
         } else {
@@ -126,8 +126,8 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
     }
 
     @Override
-    protected boolean canInitiate() {
-        sensedMates = ImmutableList.copyOf(agent().get().findNeighbours(call(interactionRadius, this)));
+    protected boolean canInitiate(final ExecutionContext<A> context) {
+        sensedMates = ImmutableList.copyOf(context.agent().findNeighbours(call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
 

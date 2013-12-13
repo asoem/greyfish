@@ -22,12 +22,11 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
     private Callback<? super ClonalReproduction<A>, Integer> clutchSize;
 
     @Override
-    protected ActionState proceed() {
+    protected ActionState proceed(final ExecutionContext<A> context) {
         final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 
-            final A agent = agent().get();
-            final Iterable<TraitVector<?>> traitVectors = Iterables.transform(agent.getTraits(),
+            final Iterable<TraitVector<?>> traitVectors = Iterables.transform(context.agent().getTraits(),
                     new Function<AgentTrait<A, ?>, TraitVector<?>>() {
                         @Override
                         public TraitVector<?> apply(@Nullable final AgentTrait<A, ?> trait) {
@@ -37,7 +36,7 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
                     });
 
             final HeritableTraitsChromosome chromosome =
-                    new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getContext().get().getAgentId()));
+                    new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(context.agent().getContext().get().getAgentId()));
 
             //agent.reproduce(chromosome);
 

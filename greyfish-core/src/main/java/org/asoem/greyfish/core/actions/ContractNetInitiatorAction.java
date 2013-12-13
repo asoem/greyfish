@@ -44,16 +44,16 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
     }
 
     @Override
-    protected final void executeState(final Object state) {
+    protected final void executeState(final Object state, final ExecutionContext<A> context) {
         if (State.SEND_CFP.equals(state)) {
-            if (!canInitiate()) {
+            if (!canInitiate(context)) {
                 endTransition(State.NO_RECEIVERS);
             } else {
-                final ImmutableACLMessage<A> cfpMessage = createCFP()
-                        .sender(agent().get())
+                final ImmutableACLMessage<A> cfpMessage = createCFP(context)
+                        .sender(context.agent())
                         .performative(ACLPerformative.CFP).build();
                 LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
-                agent().get().sendMessage(cfpMessage);
+                context.agent().sendMessage(cfpMessage);
 
                 nProposalsMax = cfpMessage.getRecipients().size();
                 timeoutCounter = 0;
@@ -64,7 +64,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
             }
         } else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
             final Collection<ACLMessage<A>> proposeReplies = Lists.newArrayList();
-            for (final ACLMessage<A> receivedMessage : agent().get().getMessages(getTemplate())) {
+            for (final ACLMessage<A> receivedMessage : context.agent().getMessages(getTemplate())) {
                 assert (receivedMessage != null);
 
                 ACLMessage<A> proposeReply;
@@ -72,24 +72,24 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
 
                     case PROPOSE:
                         try {
-                            proposeReply = checkNotNull(handlePropose(receivedMessage)).build();
+                            proposeReply = checkNotNull(handlePropose(receivedMessage, context)).build();
                             proposeReplies.add(proposeReply);
                             ++nProposalsReceived;
                             LOGGER.debug("{}: Received proposal", this, receivedMessage);
                         } catch (NotUnderstoodException e) {
-                            proposeReply = ImmutableACLMessage.createReply(receivedMessage, agent().get())
+                            proposeReply = ImmutableACLMessage.createReply(receivedMessage, context.agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage(), String.class).build();
                             LOGGER.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkProposeReply(proposeReply);
                         LOGGER.debug("{}: Replying to proposal", this, proposeReply);
-                        agent().get().sendMessage(proposeReply);
+                        context.agent().sendMessage(proposeReply);
                         break;
 
                     case REFUSE:
                         LOGGER.debug("{}: CFP was refused: ", this, receivedMessage);
-                        handleRefuse(receivedMessage);
+                        handleRefuse(receivedMessage, context);
                         --nProposalsMax;
                         break;
 
@@ -131,18 +131,18 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
         } else if (State.WAIT_FOR_INFORM.equals(state)) {
             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-            for (final ACLMessage<A> receivedMessage : agent().get().getMessages(getTemplate())) {
+            for (final ACLMessage<A> receivedMessage : context.agent().getMessages(getTemplate())) {
                 assert receivedMessage != null;
 
                 switch (receivedMessage.getPerformative()) {
 
                     case INFORM:
-                        handleInform(receivedMessage);
+                        handleInform(receivedMessage, context);
                         break;
 
                     case FAILURE:
                         LOGGER.debug("{}: Received FAILURE: {}", this, receivedMessage);
-                        handleFailure(receivedMessage);
+                        handleFailure(receivedMessage, context);
                         break;
 
                     case NOT_UNDERSTOOD:
@@ -170,7 +170,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
         }
     }
 
-    protected abstract boolean canInitiate();
+    protected abstract boolean canInitiate(final ExecutionContext<A> context);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage<?>> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages)) {
@@ -200,19 +200,19 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD)));
     }
 
-    protected abstract ImmutableACLMessage.Builder<A> createCFP();
+    protected abstract ImmutableACLMessage.Builder<A> createCFP(final ExecutionContext<A> context);
 
-    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message);
+    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, final ExecutionContext<A> context);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleRefuse(final ACLMessage<A> message) {
+    protected void handleRefuse(final ACLMessage<A> message, final ExecutionContext<A> context) {
     }
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleFailure(final ACLMessage<A> message) {
+    protected void handleFailure(final ACLMessage<A> message, final ExecutionContext<A> context) {
     }
 
-    protected void handleInform(final ACLMessage<A> message) {
+    protected void handleInform(final ACLMessage<A> message, final ExecutionContext<A> context) {
     }
 
     protected abstract String getOntology();

@@ -39,21 +39,21 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
     }
 
     @Override
-    protected void executeState(final Object state) {
+    protected void executeState(final Object state, final ExecutionContext<A> context) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<A>> cfpReplies = Lists.newArrayList();
-            final Iterable<ACLMessage<A>> proposalCalls = agent().get().getMessages(template);
+            final Iterable<ACLMessage<A>> proposalCalls = context.agent().getMessages(template);
             for (final ACLMessage<A> cfp : proposalCalls) {
 
                 ACLMessage<A> cfpReply;
                 try {
-                    cfpReply = checkNotNull(handleCFP(cfp)).build();
+                    cfpReply = checkNotNull(handleCFP(cfp, context)).build();
                 } catch (NotUnderstoodException e) {
-                    cfpReply = ImmutableACLMessage.createReply(cfp, agent().get())
+                    cfpReply = ImmutableACLMessage.createReply(cfp, context.agent())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
                             .content(e.getMessage(), String.class).build();
                     LOGGER.warn("Message not understood {}", cfp, e);
@@ -61,7 +61,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
                 LOGGER.debug("{}: Replying to CFP with {}", this, cfpReply);
-                agent().get().sendMessage(cfpReply);
+                context.agent().sendMessage(cfpReply);
 
                 if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE)))
                     ++nExpectedProposeAnswers;
@@ -71,18 +71,19 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
                 template = createProposalReplyTemplate(cfpReplies);
                 timeoutCounter = 0;
                 transition(State.WAIT_FOR_ACCEPT);
-            } else
+            } else {
                 endTransition(State.NO_CFP);
+            }
         } else if (State.WAIT_FOR_ACCEPT == state) {
-            final Iterable<ACLMessage<A>> receivedMessages = agent().get().getMessages(getTemplate());
+            final Iterable<ACLMessage<A>> receivedMessages = context.agent().getMessages(getTemplate());
             for (final ACLMessage<A> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:
                         ACLMessage<A> informMessage;
                         try {
-                            informMessage = handleAccept(receivedMessage).build();
+                            informMessage = handleAccept(receivedMessage, context).build();
                         } catch (NotUnderstoodException e) {
-                            informMessage = ImmutableACLMessage.createReply(receivedMessage, agent().get())
+                            informMessage = ImmutableACLMessage.createReply(receivedMessage, context.agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage(), String.class).build();
 
@@ -90,7 +91,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
                         }
                         checkAcceptReply(informMessage);
                         LOGGER.debug("{}: Accepting proposal", this);
-                        agent().get().sendMessage(informMessage);
+                        context.agent().sendMessage(informMessage);
                         break;
                     case REJECT_PROPOSAL:
                         handleReject(receivedMessage);
@@ -149,13 +150,13 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
     protected void prepareForCommunication() {
     }
 
-    protected abstract ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message);
+    protected abstract ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message, final ExecutionContext<A> context);
 
     @SuppressWarnings("UnusedParameters") // hook method
     protected void handleReject(final ACLMessage<A> message) {
     }
 
-    protected abstract ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message);
+    protected abstract ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message, final ExecutionContext<A> context);
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         assert ontology != null;

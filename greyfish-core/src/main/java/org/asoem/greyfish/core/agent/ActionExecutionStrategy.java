@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.actions.ComponentContext;
+import org.asoem.greyfish.core.actions.ExecutionContext;
 
 /**
  * An {@code ActionExecutionStrategy} defines how instances of {@code AgentAction} get executed by the {@code Agent} and
@@ -10,10 +10,10 @@ public interface ActionExecutionStrategy<T extends Agent<T, ?>> {
     /**
      * Execute the next action.
      *
-     * @param componentContext the context for the actions
+     * @param executionContext the context for the actions
      * @return {@code true} if an action got executed, {@code false} otherwise.
      */
-    boolean executeNext(final ComponentContext<T, ?> componentContext);
+    boolean executeNext(final ExecutionContext<T> executionContext);
 
     /**
      * Reset the history.

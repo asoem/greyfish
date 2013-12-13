@@ -14,22 +14,16 @@ public final class AgentComponents {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentComponents.class);
 
-    private AgentComponents() {}
+    private AgentComponents() {
+    }
 
-    public static <T extends AgentComponent> T createNewInstance(final Class<T> clazz) throws RuntimeException {
+    public static <T extends AgentComponent> T createNewInstance(final Class<T> clazz) {
         try {
             return clazz.getConstructor().newInstance();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Could not instantiate object for class {}", clazz, e);
             throw new RuntimeException(e);
         }
-    }
-
-    public static <T extends AgentComponent> T createNewInstance(final Class<T> clazz, final String name) throws RuntimeException {
-        final T ret = createNewInstance(clazz);
-        ret.setName(name);
-        return ret;
     }
 
     @Nullable

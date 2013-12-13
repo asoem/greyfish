@@ -1,54 +1,25 @@
 package org.asoem.greyfish.core.agent;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements AgentComponent<A> {
+public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements AgentComponent {
 
-    private String name;
-
-    @Nullable
-    private A agent;
+    private final String name;
 
     protected AbstractAgentComponent() {
-        initializeObject("", null);
+        this.name = "";
     }
 
     protected AbstractAgentComponent(final AbstractBuilder<A, ? extends AbstractAgentComponent<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
-        initializeObject(builder.name, builder.agent);
+        this.name = builder.name;
     }
 
     protected AbstractAgentComponent(final String name) {
-        initializeObject(name, null);
-    }
-
-    protected void initializeObject(final String name, final A agent) {
-        this.name = name;
-        this.agent = agent;
-    }
-
-    /**
-     * @return this components optional {@code Agent}
-     */
-    @Override
-    public final Optional<A> agent() {
-        return Optional.fromNullable(agent);
-    }
-
-    @Override
-    public final void setAgent(@Nullable final A agent) {
-        this.agent = agent;
-    }
-
-    public final void setName(final String name) {
-        Preconditions.checkNotNull(name);
         this.name = name;
     }
 
@@ -83,12 +54,6 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         return name != null ? name.hashCode() : 0;
     }
 
-    @Nullable
-    @Override
-    public final AgentNode parent() {
-        return agent().orNull();
-    }
-
     /**
      * Get all children of this node. <p>This default implementation simple returns an empty list but other
      * implementations might overwrite this method, if they add nodes to the tree.</p>
@@ -101,11 +66,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
     protected abstract static class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> implements Serializable {
         private String name;
 
-        // for serialization only
-        private A agent;
-
         protected AbstractBuilder(final AbstractAgentComponent<A> component) {
-            this.agent = component.agent;
             this.name = component.name;
         }
 

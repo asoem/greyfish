@@ -1,16 +1,21 @@
 package org.asoem.greyfish.core.traits;
 
+import com.google.common.base.Optional;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.utils.base.TypedSupplier;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAgentComponent<A> implements AgentTrait<A, T> {
+
+    @Nullable
+    private A agent;
 
     protected AbstractTrait() {
     }
@@ -55,5 +60,16 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     @Override
     public T mutate(final T allele) {
         return createInitialValue();
+    }
+
+    /**
+     * @return this components optional {@code Agent}
+     */
+    public final Optional<A> agent() {
+        return Optional.fromNullable(agent);
+    }
+
+    public final void setAgent(@Nullable final A agent) {
+        this.agent = agent;
     }
 }

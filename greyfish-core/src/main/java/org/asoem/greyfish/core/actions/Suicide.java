@@ -26,7 +26,7 @@ public class Suicide<A extends Agent<A, ? extends BasicSimulationContext<?, A>>>
     }
 
     @Override
-    protected ActionState proceed() {
+    protected ActionState proceed(final ExecutionContext<A> context) {
         throw new UnsupportedOperationException("");
         /*
         agent().die();

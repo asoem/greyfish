@@ -52,9 +52,6 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         // TODO: write test for the following steps
         this.actionExecutionStrategy = actionExecutionStrategyFactory.create(actions);
         this.simulationContext = null;
-        for (AgentAction<BasicAgent> action : actions) {
-            action.setAgent(this);
-        }
         for (AgentTrait<BasicAgent, ?> trait : traits) {
             trait.setAgent(this);
         }

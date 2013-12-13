@@ -44,10 +44,11 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message) {
-        final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, agent().orNull());
-        if (proposalSent)
+    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message, final ExecutionContext<A> context) {
+        final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, context.agent());
+        if (proposalSent) {
             return reply.performative(ACLPerformative.REFUSE);
+        }
 
         final Object messageContent = message.getContent();
         if (!(messageContent instanceof ResourceRequestMessage))
@@ -61,28 +62,29 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
         if (offeredAmount > 0) {
             reply.performative(ACLPerformative.PROPOSE).content(offeredAmount, Double.class);
             proposalSent = true;
-            LOGGER.trace("{}: Offering {}", agent().get(), offeredAmount);
+            LOGGER.trace("{}: Offering {}", context.agent(), offeredAmount);
         } else {
             reply.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount", String.class);
-            LOGGER.trace("{}: Nothing to offeredAmount", agent().get());
+            LOGGER.trace("{}: Nothing to offeredAmount", context.agent());
         }
 
         return reply;
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message, final ExecutionContext<A> context) {
         final Object messageContent = message.getContent();
-        if (!(messageContent instanceof Double))
+        if (!(messageContent instanceof Double)) {
             throw new NotUnderstoodException("Expected payload of type Double");
+        }
 
         final Double offer = (Double) messageContent;
 
-        LOGGER.info("{}: Provided {}", agent().get(), offer);
+        LOGGER.info("{}: Provided {}", context.agent(), offer);
 
         this.providedAmount += offer;
 
-        return ImmutableACLMessage.createReply(message, agent().orNull())
+        return ImmutableACLMessage.createReply(message, context.agent())
                 .performative(ACLPerformative.INFORM)
                 .content(offer, Double.class);
     }
