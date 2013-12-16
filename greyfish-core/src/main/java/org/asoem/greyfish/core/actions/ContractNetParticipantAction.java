@@ -39,7 +39,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
     }
 
     @Override
-    protected void executeState(final Object state, final ExecutionContext<A> context) {
+    protected void executeState(final Object state, final AgentContext<A> context) {
 
         if (State.CHECK_CFP == state) {
             prepareForCommunication();
@@ -150,13 +150,13 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
     protected void prepareForCommunication() {
     }
 
-    protected abstract ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message, final ExecutionContext<A> context);
+    protected abstract ImmutableACLMessage.Builder<A> handleAccept(ACLMessage<A> message, final AgentContext<A> context);
 
     @SuppressWarnings("UnusedParameters") // hook method
     protected void handleReject(final ACLMessage<A> message) {
     }
 
-    protected abstract ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message, final ExecutionContext<A> context);
+    protected abstract ImmutableACLMessage.Builder<A> handleCFP(ACLMessage<A> message, final AgentContext<A> context);
 
     private static MessageTemplate createCFPTemplate(final String ontology) {
         assert ontology != null;

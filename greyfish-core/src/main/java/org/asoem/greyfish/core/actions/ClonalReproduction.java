@@ -22,7 +22,7 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
     private Callback<? super ClonalReproduction<A>, Integer> clutchSize;
 
     @Override
-    protected ActionState proceed(final ExecutionContext<A> context) {
+    protected ActionState proceed(final AgentContext<A> context) {
         final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 

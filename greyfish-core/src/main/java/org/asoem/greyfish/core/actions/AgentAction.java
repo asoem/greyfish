@@ -8,8 +8,8 @@ public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent {
     /**
      * Apply the action on it's agent in the given simulation context
      *
-     * @param executionContext the context for this call
+     * @param agentContext the context for this call
      * @return the result of the application
      */
-    ActionExecutionResult apply(final ExecutionContext<A> executionContext);
+    ActionExecutionResult apply(final AgentContext<A> agentContext);
 }

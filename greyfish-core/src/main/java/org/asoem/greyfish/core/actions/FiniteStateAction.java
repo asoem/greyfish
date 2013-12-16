@@ -24,7 +24,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimula
     }
 
     @Override
-    protected final ActionState proceed(final ExecutionContext<A> context) {
+    protected final ActionState proceed(final AgentContext<A> context) {
 
         if (endStateReached) {
             resetTransition();
@@ -43,7 +43,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimula
 
     protected abstract Object initialState();
 
-    protected abstract void executeState(Object state, final ExecutionContext<A> context);
+    protected abstract void executeState(Object state, final AgentContext<A> context);
 
     protected final void resetTransition() {
         LOGGER.debug("{}: Reset state to {}", this, initialState());

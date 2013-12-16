@@ -44,7 +44,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> createCFP(final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> createCFP(final AgentContext<A> context) {
         final A receiver = Iterables.get(sensedMates, RandomGenerators.rng().nextInt(Iterables.size(sensedMates)));
         sensedMates = ImmutableList.of();
         return ImmutableACLMessage.<A>builder()
@@ -57,7 +57,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message, final AgentContext<A> context) {
 
         final Object messageContent = message.getContent();
         if (!(messageContent instanceof Double)) {
@@ -74,7 +74,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @Override
-    protected void handleInform(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected void handleInform(final ACLMessage<A> message, final AgentContext<A> context) {
         final Object messageContent = message.getContent();
         if (!(messageContent instanceof Double)) {
             throw new NotUnderstoodException("Expected a payload of type Double");
@@ -91,7 +91,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @Override
-    protected boolean canInitiate(final ExecutionContext<A> context) {
+    protected boolean canInitiate(final AgentContext<A> context) {
         sensedMates = context.agent().findNeighbours(call(interactionRadius, this));
         return !isEmpty(sensedMates);
     }

@@ -44,7 +44,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
     }
 
     @Override
-    protected final void executeState(final Object state, final ExecutionContext<A> context) {
+    protected final void executeState(final Object state, final AgentContext<A> context) {
         if (State.SEND_CFP.equals(state)) {
             if (!canInitiate(context)) {
                 endTransition(State.NO_RECEIVERS);
@@ -170,7 +170,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
         }
     }
 
-    protected abstract boolean canInitiate(final ExecutionContext<A> context);
+    protected abstract boolean canInitiate(final AgentContext<A> context);
 
     private static MessageTemplate createAcceptReplyTemplate(final Iterable<? extends ACLMessage<?>> acceptMessages) {
         if (Iterables.isEmpty(acceptMessages)) {
@@ -200,19 +200,19 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
                 MessageTemplates.performative(ACLPerformative.NOT_UNDERSTOOD)));
     }
 
-    protected abstract ImmutableACLMessage.Builder<A> createCFP(final ExecutionContext<A> context);
+    protected abstract ImmutableACLMessage.Builder<A> createCFP(final AgentContext<A> context);
 
-    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, final ExecutionContext<A> context);
+    protected abstract ImmutableACLMessage.Builder<A> handlePropose(ACLMessage<A> message, final AgentContext<A> context);
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleRefuse(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected void handleRefuse(final ACLMessage<A> message, final AgentContext<A> context) {
     }
 
     @SuppressWarnings("UnusedParameters") // hook method
-    protected void handleFailure(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected void handleFailure(final ACLMessage<A> message, final AgentContext<A> context) {
     }
 
-    protected void handleInform(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected void handleInform(final ACLMessage<A> message, final AgentContext<A> context) {
     }
 
     protected abstract String getOntology();

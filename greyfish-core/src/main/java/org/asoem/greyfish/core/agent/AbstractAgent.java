@@ -7,7 +7,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.actions.ExecutionContext;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
@@ -94,7 +94,7 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
     @Override
     public final void run() {
         final ActionExecutionStrategy<A> actionExecutionStrategy = getActionExecutionStrategy();
-        final boolean executeSuccess = actionExecutionStrategy.executeNext(new ExecutionContext<A>() {
+        final boolean executeSuccess = actionExecutionStrategy.executeNext(new AgentContext<A>() {
             @Override
             public A agent() {
                 return self();

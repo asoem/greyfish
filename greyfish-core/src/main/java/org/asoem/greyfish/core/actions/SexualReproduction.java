@@ -48,7 +48,7 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
     }
 
     @Override
-    protected ActionState proceed(final ExecutionContext<A> context) {
+    protected ActionState proceed(final AgentContext<A> context) {
         final List<? extends Chromosome> chromosomes = call(spermSupplier, this);
 
         if (chromosomes == null) {

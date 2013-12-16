@@ -42,7 +42,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ? extends BasicSimulat
     }
 
     @Override
-    protected ActionState proceed(final ExecutionContext<A> context) {
+    protected ActionState proceed(final AgentContext<A> context) {
         final double evaluatedTurningAngle = Callbacks.call(turningAngle, this);
         final double evaluatedStepSize = Callbacks.call(stepSize, this);
 

@@ -24,12 +24,12 @@ public class BaseAgentActionTest {
         // given
         BaseAgentAction<TestAgent> action = new BaseAgentAction<TestAgent>(mock(ActionCondition.class)) {
             @Override
-            protected ActionState proceed(final ExecutionContext<TestAgent> context) {
+            protected ActionState proceed(final AgentContext<TestAgent> context) {
                 agent().get().hashCode();
                 return ActionState.COMPLETED;
             }
         };
-        ExecutionContext context = mock(ExecutionContext.class);
+        AgentContext context = mock(AgentContext.class);
         TestAgent agent = mock(TestAgent.class);
         given(context.agent()).willReturn(agent);
 

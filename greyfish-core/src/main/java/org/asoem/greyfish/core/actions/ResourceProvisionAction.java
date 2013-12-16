@@ -44,7 +44,7 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message, final AgentContext<A> context) {
         final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, context.agent());
         if (proposalSent) {
             return reply.performative(ACLPerformative.REFUSE);
@@ -72,7 +72,7 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message, final AgentContext<A> context) {
         final Object messageContent = message.getContent();
         if (!(messageContent instanceof Double)) {
             throw new NotUnderstoodException("Expected payload of type Double");

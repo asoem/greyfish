@@ -51,12 +51,12 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
     /**
      * Called by the {@code Agent} which contains this {@code AgentAction}
      *
-     * @param executionContext the context for this action
+     * @param agentContext the context for this action
      */
     @Override
-    public final ActionExecutionResult apply(final ExecutionContext<A> executionContext) {
-        checkNotNull(executionContext);
-        this.agent = Optional.of(executionContext.agent());
+    public final ActionExecutionResult apply(final AgentContext<A> agentContext) {
+        checkNotNull(agentContext);
+        this.agent = Optional.of(agentContext.agent());
 
         ActionExecutionResult result = null;
 
@@ -73,7 +73,7 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
                     break;
                 case PRECONDITIONS_MET:
                 case INTERMEDIATE:
-                    final ActionState state = proceed(executionContext);
+                    final ActionState state = proceed(agentContext);
                     setState(state);
                     if (state == INTERMEDIATE) {
                         result = ActionExecutionResult.CONTINUE;
@@ -98,7 +98,7 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
         return result;
     }
 
-    protected abstract ActionState proceed(final ExecutionContext<A> context);
+    protected abstract ActionState proceed(final AgentContext<A> context);
 
     private void setState(final ActionState state) {
         assert state != null;

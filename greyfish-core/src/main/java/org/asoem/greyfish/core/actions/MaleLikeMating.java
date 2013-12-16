@@ -66,7 +66,7 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> handleCFP(final ACLMessage<A> message, final AgentContext<A> context) {
         final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, context.agent());
 
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
@@ -91,7 +91,7 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> handleAccept(final ACLMessage<A> message, final AgentContext<A> context) {
         // costs for mating define quality of the agentTraitList
 //        DoubleProperty doubleProperty = null;
 //        GeneComponentList sperm = null;

@@ -3,7 +3,7 @@ package org.asoem.greyfish.impl.agent;
 import org.asoem.greyfish.core.actions.AbstractAgentAction;
 import org.asoem.greyfish.core.actions.ActionExecutionResult;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.actions.ExecutionContext;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class DefaultBasicAgentTest {
         final PrototypeGroup prototypeGroup = mock(PrototypeGroup.class);
         final AgentAction<BasicAgent> action = new AbstractAgentAction<BasicAgent>("test action") {
             @Override
-            public ActionExecutionResult apply(final ExecutionContext<BasicAgent> componentContext) {
+            public ActionExecutionResult apply(final AgentContext<BasicAgent> componentContext) {
                 return ActionExecutionResult.BREAK;
             }
         };

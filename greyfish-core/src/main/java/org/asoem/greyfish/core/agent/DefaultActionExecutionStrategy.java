@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.actions.ActionExecutionResult;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.actions.ExecutionContext;
+import org.asoem.greyfish.core.actions.AgentContext;
 
 import javax.annotation.Nullable;
 import java.io.ObjectStreamException;
@@ -38,19 +38,19 @@ public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
     }
 
     @Override
-    public boolean executeNext(final ExecutionContext<T> executionContext) {
-        checkNotNull(executionContext);
+    public boolean executeNext(final AgentContext<T> agentContext) {
+        checkNotNull(agentContext);
 
         // identify action to execute
         if (executionLog.hasUncompletedAction()) {
             final AgentAction<T> nextAction = executionLog.getAction();
             assert nextAction != null;
-            final ActionExecutionResult state = nextAction.apply(executionContext);
+            final ActionExecutionResult state = nextAction.apply(agentContext);
             executionLog = new BasicExecutionLog<>(nextAction, state);
             return true;
         } else {
             for (final AgentAction<T> action : actions) {
-                final ActionExecutionResult state = action.apply(executionContext);
+                final ActionExecutionResult state = action.apply(agentContext);
                 if (state != ActionExecutionResult.NEXT) {
                     executionLog = new BasicExecutionLog<>(action, state);
                     return true;

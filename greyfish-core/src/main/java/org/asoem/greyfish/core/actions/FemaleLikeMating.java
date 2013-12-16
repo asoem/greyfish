@@ -57,14 +57,14 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
         this.matingProbability = builder.matingProbability;
     }
 
-    private void receiveSperm(final Chromosome chromosome, final A sender, final ExecutionContext<A> context) {
+    private void receiveSperm(final Chromosome chromosome, final A sender, final AgentContext<A> context) {
         receivedSperm.add(chromosome);
         //agent().get().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
         LOGGER.debug(context.agent() + " received sperm: " + chromosome);
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> createCFP(final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> createCFP(final AgentContext<A> context) {
         final int sensedMatesCount = Iterables.size(sensedMates);
         assert (sensedMatesCount > 0); // see #evaluateCondition(Simulation)
 
@@ -80,7 +80,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
     }
 
     @Override
-    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message, final ExecutionContext<A> context) {
+    protected ImmutableACLMessage.Builder<A> handlePropose(final ACLMessage<A> message, final AgentContext<A> context) {
         final ImmutableACLMessage.Builder<A> builder = ImmutableACLMessage.createReply(message, context.agent());
         final Object messageContent = message.getContent();
         if (!(messageContent instanceof Chromosome)) {
@@ -126,7 +126,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ? extends Basic
     }
 
     @Override
-    protected boolean canInitiate(final ExecutionContext<A> context) {
+    protected boolean canInitiate(final AgentContext<A> context) {
         sensedMates = ImmutableList.copyOf(context.agent().findNeighbours(call(interactionRadius, this)));
         return !isEmpty(sensedMates);
     }
