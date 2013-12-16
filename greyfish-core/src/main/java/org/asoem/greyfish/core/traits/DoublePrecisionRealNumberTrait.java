@@ -61,13 +61,13 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
     }
 
     @Override
-    public Double mutate(final Double allele) {
+    public Double transform(final Double allele) {
         checkNotNull(allele);
         return mutationKernel.apply(this, ImmutableMap.of("x", allele));
     }
 
     @Override
-    public Double segregate(final Double allele1, final Double allele2) {
+    public Double transform(final Double allele1, final Double allele2) {
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 

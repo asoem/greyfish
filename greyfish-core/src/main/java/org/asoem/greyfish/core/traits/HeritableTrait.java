@@ -63,12 +63,12 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
     }
 
     @Override
-    public T mutate(final T allele) {
+    public T transform(final T allele) {
         return mutationKernel.apply(this, ImmutableMap.of("x", allele));
     }
 
     @Override
-    public T segregate(final T allele1, final T allele2) {
+    public T transform(final T allele1, final T allele2) {
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 

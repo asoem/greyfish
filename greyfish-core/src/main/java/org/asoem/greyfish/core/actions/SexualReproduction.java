@@ -110,7 +110,7 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
     private static <T> TraitVector<?> combine(final AgentTrait<?, T> trait, final TypedSupplier<?> supplier) {
         checkArgument(trait.getValueType().equals(supplier.getValueType()));
         return TraitVector.create(
-                trait.mutate(trait.segregate(trait.get(), (T) supplier.get())),
+                trait.transform(trait.transform(trait.get(), (T) supplier.get())),
                 trait.getValueType(),
                 trait.getName());
     }

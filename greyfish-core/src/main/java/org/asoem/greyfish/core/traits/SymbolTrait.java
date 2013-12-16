@@ -54,7 +54,7 @@ public final class SymbolTrait<A extends Agent<A, ?>>
     }
 
     @Override
-    public String mutate(final String allele) {
+    public String transform(final String allele) {
         checkValidState(allele);
 
         final Map<String, Callback<? super AgentTrait<A, String>, Double>> row = mutationTable.row(allele);
@@ -91,7 +91,7 @@ public final class SymbolTrait<A extends Agent<A, ?>>
     }
 
     @Override
-    public String segregate(final String allele1, final String allele2) {
+    public String transform(final String allele1, final String allele2) {
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 

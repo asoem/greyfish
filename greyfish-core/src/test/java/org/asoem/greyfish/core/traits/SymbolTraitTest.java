@@ -23,9 +23,9 @@ public class SymbolTraitTest {
                 .build();
 
         // when
-        final String mutated1 = discreteTrait.mutate("a");
-        final String mutated2 = discreteTrait.mutate("b");
-        final String mutated3 = discreteTrait.mutate("c");
+        final String mutated1 = discreteTrait.transform("a");
+        final String mutated2 = discreteTrait.transform("b");
+        final String mutated3 = discreteTrait.transform("c");
 
         // then
         assertThat(mutated1, is("b"));
@@ -44,7 +44,7 @@ public class SymbolTraitTest {
                 .build();
 
         // when
-        discreteTrait.mutate("d");
+        discreteTrait.transform("d");
 
         // then
         // IllegalArgumentException

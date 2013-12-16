@@ -51,7 +51,7 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
 
     private static <T> TraitVector<T> mutatedVector(final AgentTrait<?, T> trait) {
         return TraitVector.create(
-                trait.mutate(trait.get()),
+                trait.transform(trait.get()),
                 trait.getValueType(),
                 trait.getName());
     }

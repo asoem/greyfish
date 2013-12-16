@@ -9,9 +9,11 @@ import javax.annotation.Nullable;
 
 public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent, Trait<T> {
 
-    T mutate(T allele);
+    T transform(T allele);
 
-    T segregate(T allele1, T allele2);
+    T transform(T allele1, T allele2);
+
+    T transform(T... alleles);
 
     T createInitialValue();
 

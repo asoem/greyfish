@@ -6,7 +6,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.Descendant;
@@ -14,7 +13,6 @@ import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.collect.Products;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
@@ -96,37 +94,4 @@ public final class HeritableTraitsChromosome implements Chromosome {
         return new HeritableTraitsChromosome(traitVectors, context.isPresent() ? ImmutableSet.of(context.get().getAgentId()) : ImmutableSet.<Integer>of());
     }
 
-    /**
-     * Create a new {@code HeritableTraitsChromosome} from given {@code agent} by creating {@code TraitVector}s of all
-     * it's heritable {@link Trait}s.
-     *
-     * @param agent the {@code Agent} to get the traits from.
-     * @return a new {@code HeritableTraitsChromosome} object
-     */
-    public static HeritableTraitsChromosome initializeFromAgent(final Agent<?, ? extends BasicSimulationContext<?, ?>> agent) {
-        checkNotNull(agent, "Agent is null");
-
-        final FunctionalList<? extends AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> traits = agent.getTraits();
-        checkNotNull(traits, "Agent#getTraits() returned null");
-
-        final Iterable<? extends AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> filter = traits.filter(IS_HERITABLE);
-        final Iterable<TraitVector<?>> traitVectors = Iterables.transform(
-                filter,
-                new Function<AgentTrait<?, ?>, TraitVector<?>>() {
-                    @Nullable
-                    @Override
-                    public TraitVector<?> apply(final AgentTrait<?, ?> input) {
-                        return createInitialValueTraitVector(input);
-                    }
-                });
-
-        return new HeritableTraitsChromosome(traitVectors, Sets.newHashSet(agent.getContext().get().getAgentId()));
-    }
-
-    private static <T> TraitVector<T> createInitialValueTraitVector(final AgentTrait<?, T> input) {
-        return TraitVector.create(
-                input.createInitialValue(),
-                input.getValueType(),
-                input.getName());
-    }
 }

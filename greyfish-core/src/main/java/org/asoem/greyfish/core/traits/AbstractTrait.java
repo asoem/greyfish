@@ -48,12 +48,17 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public T segregate(final T allele1, final T allele2) {
+    public T transform(final T allele1, final T allele2) {
         return createInitialValue();
     }
 
     @Override
-    public T mutate(final T allele) {
+    public T transform(final T... alleles) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public T transform(final T allele) {
         return createInitialValue();
     }
 
