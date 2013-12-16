@@ -5,12 +5,11 @@ import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.agent.SimulationContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public interface ActionCondition<A extends Agent<A, ? extends SimulationContext<?>>> extends AgentComponent {
+public interface ActionCondition<A extends Agent<A, ?>> extends AgentComponent {
 
     Optional<AgentAction<A>> getAction();
 

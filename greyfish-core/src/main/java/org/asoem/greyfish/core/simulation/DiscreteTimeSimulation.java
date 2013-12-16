@@ -1,12 +1,11 @@
 package org.asoem.greyfish.core.simulation;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.utils.DiscreteTime;
 
 /**
  * A Simulation which has discrete time steps.
  */
-public interface DiscreteTimeSimulation<A extends Agent<A, ? extends SimulationContext<?>>> extends Simulation<A>, DiscreteTime {
+public interface DiscreteTimeSimulation<A extends Agent<A, ?>> extends Simulation<A>, DiscreteTime {
 
 }

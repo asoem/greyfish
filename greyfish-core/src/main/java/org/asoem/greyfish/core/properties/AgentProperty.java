@@ -3,12 +3,11 @@ package org.asoem.greyfish.core.properties;
 import com.google.common.base.Optional;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.traits.Trait;
 
 import javax.annotation.Nullable;
 
-public interface AgentProperty<A extends Agent<A, ? extends SimulationContext<?>>, T> extends AgentComponent, Trait<T> {
+public interface AgentProperty<A extends Agent<A, ?>, T> extends AgentComponent, Trait<T> {
     /**
      * Get the agent this component was added to.
      *

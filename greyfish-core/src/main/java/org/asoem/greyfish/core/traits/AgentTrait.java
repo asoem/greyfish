@@ -4,11 +4,10 @@ import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.agent.SimulationContext;
 
 import javax.annotation.Nullable;
 
-public interface AgentTrait<A extends Agent<A, ? extends SimulationContext<?>>, T> extends AgentComponent, Trait<T> {
+public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent, Trait<T> {
 
     T mutate(T allele);
 

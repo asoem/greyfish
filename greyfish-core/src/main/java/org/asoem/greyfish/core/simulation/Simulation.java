@@ -4,12 +4,11 @@ import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
-import org.asoem.greyfish.core.agent.SimulationContext;
 
 /**
  * A {@code Simulation} is an environment for interacting agents.
  */
-public interface Simulation<A extends Agent<A, ? extends SimulationContext<?>>> {
+public interface Simulation<A extends Agent<A, ?>> {
     /**
      * Get all active {@code Agent}s which are part of the given {@code prototypeGroup}.
      *
