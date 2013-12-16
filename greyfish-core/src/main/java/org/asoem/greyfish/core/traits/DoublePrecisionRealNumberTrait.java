@@ -71,7 +71,6 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<A, ?>> extends Abstr
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
-    @Override
     public Double createInitialValue() {
         return initializationKernel.apply(this, ImmutableMap.<String, Object>of());
     }

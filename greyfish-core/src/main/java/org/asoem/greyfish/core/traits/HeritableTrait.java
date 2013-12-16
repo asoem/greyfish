@@ -72,7 +72,6 @@ public class HeritableTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
-    @Override
     public T createInitialValue() {
         return initializationKernel.apply(this, ImmutableMap.<String, Object>of());
     }

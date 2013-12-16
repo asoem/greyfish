@@ -15,8 +15,6 @@ public interface AgentTrait<A extends Agent<A, ?>, T> extends AgentComponent, Tr
 
     T transform(T... alleles);
 
-    T createInitialValue();
-
     boolean isHeritable();
 
     /**

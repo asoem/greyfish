@@ -31,7 +31,6 @@ public class AcquiredTrait<A extends Agent<A, ?>, T extends Comparable<T>> exten
         return typeToken;
     }
 
-    @Override
     public T createInitialValue() {
         return Callbacks.call(initializationKernel, this);
     }

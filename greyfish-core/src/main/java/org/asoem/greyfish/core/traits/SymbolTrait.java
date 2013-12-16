@@ -95,7 +95,6 @@ public final class SymbolTrait<A extends Agent<A, ?>>
         return segregationKernel.apply(this, ImmutableMap.of("x", allele1, "y", allele2));
     }
 
-    @Override
     public String createInitialValue() {
         return Callbacks.call(initializationKernel, SymbolTrait.this);
     }

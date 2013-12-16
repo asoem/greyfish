@@ -72,4 +72,6 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     public final void setAgent(@Nullable final A agent) {
         this.agent = agent;
     }
+
+    public abstract T createInitialValue();
 }
