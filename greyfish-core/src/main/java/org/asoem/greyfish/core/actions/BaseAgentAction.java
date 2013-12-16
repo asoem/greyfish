@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
@@ -28,6 +29,12 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
     private ActionCondition<A> condition;
     private ActionState actionState;
     private Optional<A> agent;
+
+    @VisibleForTesting
+    BaseAgentAction(final ActionCondition<A> condition) {
+        this.condition = condition;
+        this.actionState = INITIAL;
+    }
 
     protected BaseAgentAction(final AbstractBuilder<A, ? extends BaseAgentAction<A>,
             ? extends AbstractBuilder<A, ?, ?>> builder) {

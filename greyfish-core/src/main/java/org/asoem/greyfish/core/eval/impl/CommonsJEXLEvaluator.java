@@ -14,19 +14,19 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 17.02.12
- * Time: 12:14
+ * User: christoph Date: 17.02.12 Time: 12:14
  */
 public class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
     private static final JexlEngine JEXL_ENGINE = new JexlEngine();
+
     static {
         JEXL_ENGINE.setFunctions(ImmutableMap.<String, Object>of(
-                "fish", GreyfishVariableFactory.class,
+                //"fish", GreyfishVariableFactory.class,
                 "math", Math.class,
                 "rand", RandomGenerators.class));
     }
+
     private static final ImmutableMap<String, Object> GLOBAL_VARIABLES = ImmutableMap.<String, Object>builder()
             .put("PI", FastMath.PI)
             .put("HALF_PI", FastMath.PI / 2)
@@ -59,7 +59,7 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
     private static String prepare(final String expression) {
         // This will lift some function in the global namespace and allows users to write 'fun' instead of 'ns:fun'.
         return expression
-                .replaceAll("\\$\\(([^\\)]+)\\)", "fish:\\$($1)")
+                //.replaceAll("\\$\\(([^\\)]+)\\)", "fish:\\$($1)")
                 .replaceAll("((rnorm|rpois|runif)\\([^\\)]+\\))", "rand:$1")
                 .replaceAll("((min|max|abs|sin|cos|tan|log|log10)\\([^\\)]+\\))", "math:$1");
     }
@@ -103,9 +103,11 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
         SerializedForm(final String expression) {
             this.expression = expression;
         }
+
         Object readResolve() {
             return new CommonsJEXLEvaluator(expression);
         }
+
         private static final long serialVersionUID = 0;
     }
 

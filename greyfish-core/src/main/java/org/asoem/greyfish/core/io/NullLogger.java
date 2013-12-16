@@ -1,7 +1,6 @@
 package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.simulation.Simulation;
 
 import java.io.IOException;
@@ -9,7 +8,7 @@ import java.io.IOException;
 /**
  * A logger with empty methods.
  */
-enum NullLogger implements SimulationLogger<Agent<?, SimulationContext<?>>> {
+enum NullLogger implements SimulationLogger<Agent<?, ?>> {
     INSTANCE;
 
     @Override
@@ -18,12 +17,12 @@ enum NullLogger implements SimulationLogger<Agent<?, SimulationContext<?>>> {
     }
 
     @Override
-    public void logAgentCreation(final Agent<?, SimulationContext<?>> agent) {
+    public void logAgentCreation(final Agent<?, ?> agent) {
         // empty
     }
 
     @Override
-    public void logAgentEvent(final Agent<?, SimulationContext<?>> agent, final long currentStep, final String source, final String title, final String message) {
+    public void logAgentEvent(final Agent<?, ?> agent, final long currentStep, final String source, final String title, final String message) {
         // empty
     }
 

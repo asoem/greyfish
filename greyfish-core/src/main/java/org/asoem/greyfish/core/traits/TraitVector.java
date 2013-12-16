@@ -15,13 +15,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class TraitVector<T> implements TypedSupplier<T> {
     @Nullable
     private final T value;
-    private final double recombinationProbability;
     private final TypeToken<T> typeToken;
     private final String name;
 
-    private TraitVector(@Nullable final T value, final double recombinationProbability, final TypeToken<T> typeToken, final String name) {
+    private TraitVector(@Nullable final T value, final TypeToken<T> typeToken, final String name) {
         this.value = value;
-        this.recombinationProbability = recombinationProbability;
         this.typeToken = typeToken;
         this.name = name;
     }
@@ -32,19 +30,15 @@ public class TraitVector<T> implements TypedSupplier<T> {
         return value;
     }
 
-    public double getRecombinationProbability() {
-        return recombinationProbability;
-    }
-
     @Override
     public TypeToken<T> getValueType() {
         return typeToken;
     }
 
-    public static <T> TraitVector<T> create(@Nullable final T value, final double recombinationProbability, final TypeToken<T> typeToken, final String name) {
+    public static <T> TraitVector<T> create(@Nullable final T value, final TypeToken<T> typeToken, final String name) {
         checkNotNull(typeToken);
         checkNotNull(name);
-        return new TraitVector<T>(value, recombinationProbability, typeToken, name);
+        return new TraitVector<T>(value, typeToken, name);
     }
 
     public String getName() {
@@ -53,6 +47,6 @@ public class TraitVector<T> implements TypedSupplier<T> {
 
     public static <T> TraitVector<T> copyOf(final AgentTrait<?, T> input) {
         checkNotNull(input);
-        return create(input.get(), input.getRecombinationProbability(), input.getValueType(), input.getName());
+        return create(input.get(), input.getValueType(), input.getName());
     }
 }

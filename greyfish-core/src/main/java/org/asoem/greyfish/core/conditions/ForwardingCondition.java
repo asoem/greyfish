@@ -5,12 +5,11 @@ import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.core.agent.SimulationContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class ForwardingCondition<A extends Agent<A, SimulationContext<?>>> extends ForwardingObject implements ActionCondition<A> {
+public abstract class ForwardingCondition<A extends Agent<A, ?>> extends ForwardingObject implements ActionCondition<A> {
 
     protected abstract ActionCondition<A> delegate();
 

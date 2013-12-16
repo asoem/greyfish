@@ -4,8 +4,6 @@ import com.google.inject.AbstractModule;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.core.eval.Evaluator;
 import org.asoem.greyfish.core.eval.EvaluatorFactory;
-import org.asoem.greyfish.core.eval.GreyfishExpressionFactoryHolder;
-import org.asoem.greyfish.core.eval.GreyfishVariableFactory;
 import org.asoem.greyfish.core.eval.impl.CommonsJEXLEvaluator;
 import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
 import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
@@ -44,8 +42,8 @@ public class CoreModule extends AbstractModule {
                 return new CommonsJEXLEvaluator(expression);
             }
         });
-        requestStaticInjection(GreyfishVariableFactory.class);
-        requestStaticInjection(GreyfishExpressionFactoryHolder.class);
+        //requestStaticInjection(GreyfishVariableFactory.class);
+        //requestStaticInjection(GreyfishExpressionFactoryHolder.class);
 
         bind(RandomGenerator.class).toInstance(randomGenerator);
         requestStaticInjection(RandomGenerators.class);

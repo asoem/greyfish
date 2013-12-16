@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -21,7 +20,7 @@ import static com.google.common.base.Preconditions.*;
  * User: christoph Date: 07.02.12 Time: 11:28
  */
 @Tagged("traits")
-public class CustomTrait<A extends Agent<A, SimulationContext<?>>, T> extends AbstractTrait<A, T> implements Serializable {
+public class CustomTrait<A extends Agent<A, ?>, T> extends AbstractTrait<A, T> implements Serializable {
 
     private final Callback<? super CustomTrait<A, T>, T> initializationKernel;
 
@@ -118,7 +117,7 @@ public class CustomTrait<A extends Agent<A, SimulationContext<?>>, T> extends Ab
         return true;
     }
 
-    public static <A extends Agent<A, SimulationContext<?>>, T> Builder<A, T> builder(final TypeToken<T> typeToken) {
+    public static <A extends Agent<A, ?>, T> Builder<A, T> builder(final TypeToken<T> typeToken) {
         checkNotNull(typeToken);
         return new Builder<A, T>(typeToken);
     }
@@ -132,7 +131,7 @@ public class CustomTrait<A extends Agent<A, SimulationContext<?>>, T> extends Ab
         throw new InvalidObjectException("Builder required");
     }
 
-    public static class Builder<A extends Agent<A, SimulationContext<?>>, T> extends AbstractBuilder<A, T, CustomTrait<A, T>, Builder<A, T>> implements Serializable {
+    public static class Builder<A extends Agent<A, ?>, T> extends AbstractBuilder<A, T, CustomTrait<A, T>, Builder<A, T>> implements Serializable {
         private Builder(final TypeToken<T> typeToken) {
             super(typeToken);
         }
@@ -162,7 +161,7 @@ public class CustomTrait<A extends Agent<A, SimulationContext<?>>, T> extends Ab
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, SimulationContext<?>>, T, C extends CustomTrait<A, T>, B extends AbstractBuilder<A, T, C, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, T, C extends CustomTrait<A, T>, B extends AbstractBuilder<A, T, C, B>> extends AbstractAgentComponent.AbstractBuilder<A, C, B> implements Serializable {
 
         private final Callback<Object, T> UNSUPPORTED_OPERATION_EXCEPTION = Callbacks.willThrow(new UnsupportedOperationException());
 

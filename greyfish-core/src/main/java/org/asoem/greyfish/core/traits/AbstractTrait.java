@@ -30,11 +30,6 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public double getRecombinationProbability() {
-        return 0.5;
-    }
-
-    @Override
     public void set(final T value) {
         throw new UnsupportedOperationException();
     }

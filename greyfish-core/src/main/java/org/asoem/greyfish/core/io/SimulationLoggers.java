@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
@@ -29,7 +28,7 @@ public final class SimulationLoggers {
      * @param <A>    the {@link Agent} type of the logger
      * @return a new logger with synchronized methods
      */
-    public static <A extends Agent<A, SimulationContext<?>>> SimulationLogger<A> synchronizedLogger(final SimulationLogger<A> logger) {
+    public static <A extends Agent<A, ?>> SimulationLogger<A> synchronizedLogger(final SimulationLogger<A> logger) {
         if (logger instanceof SynchronizedLogger) {
             return logger;
         } else {
@@ -38,7 +37,7 @@ public final class SimulationLoggers {
     }
 
     @SuppressWarnings("unchecked")
-    public static SimulationLogger<Agent<?, SimulationContext<?>>> nullLogger() {
+    public static SimulationLogger<Agent<?, ?>> nullLogger() {
         return NullLogger.INSTANCE;
     }
 
@@ -48,7 +47,7 @@ public final class SimulationLoggers {
      * @param <A> the type of the agent
      * @return a new console logger
      */
-    public static <A extends Agent<A, SimulationContext<?>>> SimulationLogger<A> consoleLogger() {
+    public static <A extends Agent<A, ?>> SimulationLogger<A> consoleLogger() {
         return printStreamLogger(System.out);
     }
 
@@ -58,7 +57,7 @@ public final class SimulationLoggers {
      * @param <A> the type of the agent
      * @return a new print stream logger
      */
-    public static <A extends Agent<A, SimulationContext<?>>> SimulationLogger<A> printStreamLogger(final PrintStream printStream) {
+    public static <A extends Agent<A, ?>> SimulationLogger<A> printStreamLogger(final PrintStream printStream) {
         return new ConsoleLogger<A>(printStream);
     }
 
@@ -76,7 +75,7 @@ public final class SimulationLoggers {
         return new JDBCLogger<>(connectionManager, commitThreshold);
     }
 
-    private static final class SynchronizedLogger<A extends Agent<A, SimulationContext<?>>> implements SimulationLogger<A> {
+    private static final class SynchronizedLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
         @GuardedBy("this")
         private final SimulationLogger<A> logger;
 

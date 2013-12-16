@@ -126,7 +126,6 @@ public final class HeritableTraitsChromosome implements Chromosome {
     private static <T> TraitVector<T> createInitialValueTraitVector(final AgentTrait<?, T> input) {
         return TraitVector.create(
                 input.createInitialValue(),
-                input.getRecombinationProbability(),
                 input.getValueType(),
                 input.getName());
     }

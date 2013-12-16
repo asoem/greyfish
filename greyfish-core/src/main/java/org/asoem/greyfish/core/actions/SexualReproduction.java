@@ -84,7 +84,11 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
 
     protected abstract void addAgent(final Chromosome chromosome);
 
-    private static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Chromosome blend(final FunctionalList<AgentTrait<A, ?>> egg, final Chromosome sperm, final int femaleID, final int maleID) {
+    private static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Chromosome blend(
+            final FunctionalList<AgentTrait<A, ?>> egg,
+            final Chromosome sperm,
+            final int femaleID,
+            final int maleID) {
 
         // zip chromosomes
         final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zipped = Products.zip(egg, sperm.getTraitVectors());
@@ -107,12 +111,11 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
         checkArgument(trait.getValueType().equals(supplier.getValueType()));
         return TraitVector.create(
                 trait.mutate(trait.segregate(trait.get(), (T) supplier.get())),
-                trait.getRecombinationProbability(),
                 trait.getValueType(),
                 trait.getName());
     }
 
-    /**
+    /*
      * @Override public SexualReproduction<A> deepClone(final DeepCloner cloner) { return new
      * SexualReproduction<A>(this, cloner); }
      */
@@ -123,7 +126,7 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
         offspringCount = 0;
     }
 
-    /**
+    /*
      * public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> builder() { return new
      * Builder<A>(); }
      */
@@ -136,7 +139,7 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
         return clutchSize;
     }
 
-    /**
+    /*
      * private Object writeReplace() { return new Builder<A>() .clutchSize(clutchSize) .spermSupplier(spermSupplier)
      * .spermSelectionStrategy(spermSelectionStrategy) .spermFitnessCallback(spermFitnessEvaluator)
      * .executedIf(getCondition()) .name(getName()); }
