@@ -17,7 +17,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
+public final class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
 
     private static int progressiveId;
 
@@ -28,7 +28,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
     @Nullable
     private final T sender;
     private final Set<T> receivers;
-    private final Set<T> reply_to;
+    private final Set<T> replyTo;
 
     @Nullable
     private final Object content;
@@ -44,15 +44,16 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
     private final String protocol;
     private final int conversationId;
     @Nullable
-    private final String reply_with;
+    private final String replyWith;
+
     @Nullable
     private final String inReplyTo;
 
     private ImmutableACLMessage(final Builder<T> builder) {
-        this.reply_to = builder.reply_to;
+        this.replyTo = builder.replyTo;
         this.sender = builder.sender;
         this.receivers = builder.receivers;
-        this.reply_with = builder.reply_with;
+        this.replyWith = builder.replyWith;
         this.content = builder.content;
         this.conversationId = builder.conversationId;
         this.encoding = builder.encoding;
@@ -71,7 +72,7 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
 
     @Override
     public Set<T> getAllReplyTo() {
-        return reply_to;
+        return replyTo;
     }
 
     @Override
@@ -85,9 +86,10 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         return performative;
     }
 
+    @Nullable
     @Override
     public String getReplyWith() {
-        return reply_with;
+        return replyWith;
     }
 
     @Override
@@ -131,12 +133,11 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
     }
 
     /**
-     * create a new ACLMessage that is a reply to this message.
-     * In particular, it sets the following parameters of the new message:
-     * receivers, language, ontology, protocol, conversation-id,
-     * in-reply-to, reply-with.
-     * The programmer needs to set the communicative-act and the StringContent.
-     * Of course, if he wishes to do that, he can reset any of the fields.
+     * create a new ACLMessage that is a reply to this message. In particular, it sets the following parameters of the
+     * new message: receivers, language, ontology, protocol, conversation-id, in-reply-to, reply-with. The programmer
+     * needs to set the communicative-act and the StringContent. Of course, if he wishes to do that, he can reset any of
+     * the fields.
+     *
      * @param sender the sender
      * @return the ACLMessage to send as a reply
      */
@@ -161,14 +162,14 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         return content;
     }
 
-    public String toString(){
+    public String toString() {
         final StringBuilder str = new StringBuilder("(");
 
         str.append(getPerformative()).append("\n");
         str.append(":sender" + " ").append(sender).append("\n");
 
         str.append(":receivers [").append(Joiner.on(" ").join(receivers)).append("]\n");
-        str.append(":reply-to [").append(Joiner.on(" ").join(reply_to)).append("]\n");
+        str.append(":reply-to [").append(Joiner.on(" ").join(replyTo)).append("]\n");
 
         str.append(":Content" + " <").append(this.content).append("> \n");
 
@@ -205,8 +206,8 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         if (performative != that.performative) return false;
         if (protocol != null ? !protocol.equals(that.protocol) : that.protocol != null) return false;
         if (!receivers.equals(that.receivers)) return false;
-        if (!reply_to.equals(that.reply_to)) return false;
-        if (reply_with != null ? !reply_with.equals(that.reply_with) : that.reply_with != null) return false;
+        if (!replyTo.equals(that.replyTo)) return false;
+        if (replyWith != null ? !replyWith.equals(that.replyWith) : that.replyWith != null) return false;
         if (sender != null ? !sender.equals(that.sender) : that.sender != null) return false;
         if (!userDefinedParameter.equals(that.userDefinedParameter)) return false;
 
@@ -219,14 +220,14 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         result = 31 * result + performative.hashCode();
         result = 31 * result + (sender != null ? sender.hashCode() : 0);
         result = 31 * result + receivers.hashCode();
-        result = 31 * result + reply_to.hashCode();
+        result = 31 * result + replyTo.hashCode();
         result = 31 * result + content.hashCode();
         result = 31 * result + (language != null ? language.hashCode() : 0);
         result = 31 * result + (encoding != null ? encoding.hashCode() : 0);
         result = 31 * result + (ontology != null ? ontology.hashCode() : 0);
         result = 31 * result + (protocol != null ? protocol.hashCode() : 0);
         result = 31 * result + conversationId;
-        result = 31 * result + (reply_with != null ? reply_with.hashCode() : 0);
+        result = 31 * result + (replyWith != null ? replyWith.hashCode() : 0);
         result = 31 * result + (inReplyTo != null ? inReplyTo.hashCode() : 0);
         return result;
     }
@@ -249,8 +250,8 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
                 .language(message.getLanguage())
                 .ontology(message.getOntology())
                 .protocol(message.getProtocol())
-                .in_reply_to(message.getReplyWith())
-                .reply_with(generateReplyWith(id))
+                .inReplyTo(message.getReplyWith())
+                .replyWith(generateReplyWith(id))
                 .sender(id)
                 .encoding(message.getEncoding())
                 .conversationId(message.getConversationId());
@@ -266,17 +267,17 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public static class Builder<T> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>>, Serializable {
+    public static final class Builder<T> implements org.asoem.greyfish.utils.base.Builder<ImmutableACLMessage<T>>, Serializable {
         @Nullable
         private ACLPerformative performative;
         @Nullable
         private T sender;
         private final Set<T> receivers = Sets.newHashSet();
-        private final Set<T> reply_to = Sets.newHashSet();
+        private final Set<T> replyTo = Sets.newHashSet();
         @Nullable
         private Object content;
         @Nullable
-        private String reply_with;
+        private String replyWith;
         @Nullable
         private String inReplyTo;
         @Nullable
@@ -294,9 +295,9 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
             this.performative = message.performative;
             this.sender = message.sender;
             this.receivers.addAll(message.receivers);
-            this.reply_to.addAll(message.reply_to);
+            this.replyTo.addAll(message.replyTo);
             this.content = message.content;
-            this.reply_with = message.reply_with;
+            this.replyWith = message.replyWith;
             this.inReplyTo = message.inReplyTo;
             this.encoding = message.encoding;
             this.language = message.language;
@@ -309,27 +310,78 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         public Builder() {
         }
 
-        public Builder<T> performative(final ACLPerformative performative) { this.performative = checkNotNull(performative); return this; }
-        public Builder<T> sender(final T source) { this.sender = source; return this; }
-        public Builder<T> reply_with(final String reply_with) { this.reply_with = reply_with; return this; }
-        public Builder<T> in_reply_to(final String in_reply_to) { this.inReplyTo = in_reply_to; return this; }
+        public Builder<T> performative(final ACLPerformative performative) {
+            this.performative = checkNotNull(performative);
+            return this;
+        }
 
-        public Builder<T> encoding(final String encoding) { this.encoding = encoding; return this; }
-        public Builder<T> language(final String language) { this.language = language; return this; }
-        public Builder<T> ontology(final String ontology) { this.ontology = ontology; return this; }
-        public Builder<T> protocol(final String protocol) { this.protocol = protocol; return this; }
+        public Builder<T> sender(final T source) {
+            this.sender = source;
+            return this;
+        }
 
-        public Builder<T> conversationId(final int conversationId) { this.conversationId = conversationId; return this; }
+        public Builder<T> replyWith(final String reply_with) {
+            this.replyWith = reply_with;
+            return this;
+        }
 
-        public Builder<T> addReceiver(final T receiver) { this.receivers.add(receiver); return this; }
-        public Builder<T> setReceivers(final T ... receivers) { Collections.addAll(this.receivers, receivers); return this; }
+        public Builder<T> inReplyTo(final String in_reply_to) {
+            this.inReplyTo = in_reply_to;
+            return this;
+        }
 
-        public Builder<T> addReplyTo(final T replyTo) { this.reply_to.add(replyTo); return this; }
-        public Builder<T> addReplyTo(final T... replyToReceivers) { Collections.addAll(this.reply_to, replyToReceivers); return this; }
-        public Builder<T> addReplyTo(final Set<T> replyToReceivers) { this.reply_to.addAll(replyToReceivers); return this; }
+        public Builder<T> encoding(final String encoding) {
+            this.encoding = encoding;
+            return this;
+        }
 
-        public <C> Builder<T> content(final C content, final Class<C> contentType) {
-            this.content = checkNotNull(content);
+        public Builder<T> language(final String language) {
+            this.language = language;
+            return this;
+        }
+
+        public Builder<T> ontology(final String ontology) {
+            this.ontology = ontology;
+            return this;
+        }
+
+        public Builder<T> protocol(final String protocol) {
+            this.protocol = protocol;
+            return this;
+        }
+
+        public Builder<T> conversationId(final int conversationId) {
+            this.conversationId = conversationId;
+            return this;
+        }
+
+        public Builder<T> addReceiver(final T receiver) {
+            this.receivers.add(receiver);
+            return this;
+        }
+
+        public Builder<T> setReceivers(final T... receivers) {
+            Collections.addAll(this.receivers, receivers);
+            return this;
+        }
+
+        public Builder<T> addReplyTo(final T replyTo) {
+            this.replyTo.add(replyTo);
+            return this;
+        }
+
+        public Builder<T> addReplyTo(final T... replyToReceivers) {
+            Collections.addAll(this.replyTo, replyToReceivers);
+            return this;
+        }
+
+        public Builder<T> addReplyTo(final Set<T> replyToReceivers) {
+            this.replyTo.addAll(replyToReceivers);
+            return this;
+        }
+
+        public <C> Builder<T> content(final C content) {
+            this.content = checkNotNull(content, "Message content must not be null");
             return this;
         }
 
@@ -344,16 +396,28 @@ public class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable {
         @Override
         public ImmutableACLMessage<T> build() {
             /* FIPA says: "It is only permissible to omit the receivers parameter if the message recipient can be reliably inferred from context" */
-            if (receivers.isEmpty())        throw new  IllegalStateException("No receivers defined");
+            if (receivers.isEmpty()) {
+                throw new IllegalStateException("No receivers defined");
+            }
 
             /* FIPA says: An agent MAY tag ACL messages with a conversation identifier */
-            if (conversationId < 0)   throw new IllegalStateException("Invalid conversation ID: " + conversationId);
-            if (conversationId == 0)   conversationId = ++progressiveId; // TODO: Use a message factory instead which supplies an id generator
+            if (conversationId < 0) {
+                throw new IllegalStateException("Invalid conversation ID: " + conversationId);
+            }
+            if (conversationId == 0) {
+                conversationId = ++progressiveId; // TODO: Use a message factory instead which supplies an id generator
+            }
 
-            if (reply_with == null)     reply_with = generateReplyWith(sender);
-            if (Strings.isNullOrEmpty(reply_with)) throw new IllegalStateException("Invalid reply_with string: '" + reply_with + "'");
+            if (replyWith == null) {
+                replyWith = generateReplyWith(sender);
+            }
+            if (Strings.isNullOrEmpty(replyWith)) {
+                throw new IllegalStateException("Invalid reply_with string: '" + replyWith + "'");
+            }
 
-            if (performative == null)   throw new IllegalStateException("No performative defined");
+            if (performative == null) {
+                throw new IllegalStateException("No performative defined");
+            }
 
             return new ImmutableACLMessage<T>(this);
         }

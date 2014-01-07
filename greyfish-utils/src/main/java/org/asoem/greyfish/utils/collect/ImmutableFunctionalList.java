@@ -14,6 +14,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<E> {
     public static <E> FunctionalList<E> copyOf(final List<? extends E> list) {
         checkNotNull(list);
+        if (list instanceof FunctionalList) {
+            if (list instanceof ImmutableFunctionalList) {
+                return (FunctionalList<E>) list;
+            } else {
+                return DecoratingFunctionalList.decorate(list);
+            }
+        }
+
         final int size = list.size();
         switch (size) {
             case 0: return of();

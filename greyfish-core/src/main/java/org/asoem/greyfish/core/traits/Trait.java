@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.traits;
 
-import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.utils.base.TypedSupplier;
 
 public interface Trait<T> extends TypedSupplier<T> {
@@ -18,9 +17,6 @@ public interface Trait<T> extends TypedSupplier<T> {
      * @param supplier the supplier which holds the value to copy.
      */
     void copyFrom(TypedSupplier<?> supplier);
-
-    @Override
-    TypeToken<T> getValueType();
 
     @Override
     T get();

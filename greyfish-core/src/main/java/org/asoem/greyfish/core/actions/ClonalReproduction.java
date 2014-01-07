@@ -6,32 +6,40 @@ import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.traits.AgentTrait;
+import org.asoem.greyfish.core.agent.RequestAllTraitValues;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
+import org.asoem.greyfish.core.traits.Mutate;
 import org.asoem.greyfish.core.traits.TraitVector;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 
-public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
+public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> extends BaseAgentAction<A, C> {
 
-    private Callback<? super ClonalReproduction<A>, Integer> clutchSize;
+    private Callback<? super ClonalReproduction<A, C>, Integer> clutchSize;
 
     @Override
-    protected ActionState proceed(final AgentContext<A> context) {
+    protected ActionState proceed(final C context) {
         final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 
-            final Iterable<TraitVector<?>> traitVectors = Iterables.transform(context.agent().getTraits(),
-                    new Function<AgentTrait<A, ?>, TraitVector<?>>() {
+            final A agent = context.agent();
+            Map<String, ?> traitValues = agent.ask(new RequestAllTraitValues(), Map.class);
+
+            final Iterable<TraitVector<?>> traitVectors = Iterables.transform(traitValues.entrySet(),
+                    new Function<Map.Entry<String, ?>, TraitVector<?>>() {
+                        @Nullable
                         @Override
-                        public TraitVector<?> apply(@Nullable final AgentTrait<A, ?> trait) {
-                            assert trait != null;
-                            return mutatedVector(trait);
+                        public TraitVector<?> apply(@Nullable final Map.Entry<String, ?> input) {
+                            Object value = input.getValue();
+                            return TraitVector.of(
+                                    input.getKey(), agent.ask(new Mutate(input.getKey(), value), Object.class)
+                            );
                         }
                     });
 
@@ -49,24 +57,17 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
 
     protected abstract void addAgent(final Chromosome chromosome);
 
-    private static <T> TraitVector<T> mutatedVector(final AgentTrait<?, T> trait) {
-        return TraitVector.create(
-                trait.transform(trait.get()),
-                trait.getValueType(),
-                trait.getName());
-    }
-
-    protected ClonalReproduction(final AbstractBuilder<A, ? extends ClonalReproduction<A>,
-            ? extends AbstractBuilder<A, ClonalReproduction<A>, ?>> builder) {
+    protected ClonalReproduction(final AbstractBuilder<A, ? extends ClonalReproduction<A, C>,
+            ? extends AbstractBuilder<A, ClonalReproduction<A, C>, ?, C>, C> builder) {
         super(builder);
         this.clutchSize = builder.nClones;
     }
 
-    public Callback<? super ClonalReproduction<A>, Integer> getClutchSize() {
+    public Callback<? super ClonalReproduction<A, C>, Integer> getClutchSize() {
         return clutchSize;
     }
 
-    public void setClutchSize(final Callback<? super ClonalReproduction<A>, Integer> clutchSize) {
+    public void setClutchSize(final Callback<? super ClonalReproduction<A, C>, Integer> clutchSize) {
         this.clutchSize = clutchSize;
     }
 
@@ -80,21 +81,26 @@ public abstract class ClonalReproduction<A extends Agent<A, ? extends BasicSimul
      * @Override protected Builder<A> self() { return this; }
      * @Override protected ClonalReproduction<A> checkedBuild() { return new ClonalReproduction<A>(this); } }
      */
-    private abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ClonalReproduction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> {
-        private Callback<? super ClonalReproduction<A>, Integer> nClones;
-        private Callback<? super ClonalReproduction<A>, Void> offspringInitializer = Callbacks.emptyCallback();
+    private abstract static class AbstractBuilder<
+            A extends Agent<? extends BasicSimulationContext<?, A>>,
+            C extends ClonalReproduction<A, AC>,
+            B extends AbstractBuilder<A, C, B, AC>,
+            AC extends AgentContext<A>>
+            extends BaseAgentAction.AbstractBuilder<A, C, B, AC> {
+        private Callback<? super ClonalReproduction<A, AC>, Integer> nClones;
+        private Callback<? super ClonalReproduction<A, AC>, Void> offspringInitializer = Callbacks.emptyCallback();
 
         public B nClones(final int n) {
             checkArgument(n >= 0);
             return nClones(Callbacks.constant(n));
         }
 
-        public B nClones(final Callback<? super ClonalReproduction<A>, Integer> nClones) {
+        public B nClones(final Callback<? super ClonalReproduction<A, AC>, Integer> nClones) {
             this.nClones = checkNotNull(nClones);
             return self();
         }
 
-        public B offspringInitializer(final Callback<? super ClonalReproduction<A>, Void> projectionFactory) {
+        public B offspringInitializer(final Callback<? super ClonalReproduction<A, AC>, Void> projectionFactory) {
             this.offspringInitializer = checkNotNull(projectionFactory);
             return self();
         }

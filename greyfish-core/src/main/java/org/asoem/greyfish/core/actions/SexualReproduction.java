@@ -1,21 +1,14 @@
 package org.asoem.greyfish.core.actions;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
-import org.asoem.greyfish.core.traits.AgentTrait;
+import org.asoem.greyfish.core.agent.CreateRecombinedChromosome;
 import org.asoem.greyfish.core.traits.Chromosome;
-import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
-import org.asoem.greyfish.core.traits.TraitVector;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.base.TypedSupplier;
-import org.asoem.greyfish.utils.collect.*;
+import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
+import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +22,7 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.COMPLETED;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
+public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAction<A, AgentContext<A>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
 
@@ -69,8 +62,12 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
                 throw new AssertionError("Sperm must have an uniparental history");
             }
 
-            final BasicSimulationContext<? extends DiscreteTimeSimulation<A>, A> simulationContext = context.agent().getContext().get();
-            final Chromosome chromosome = blend(context.agent().getTraits(), sperm, simulationContext.getAgentId(), Iterables.getOnlyElement(parents));
+            final Chromosome chromosome = context.agent().ask(new CreateRecombinedChromosome(sperm), Chromosome.class);
+                        /*
+            final int agentId = context.getAgentId();
+            final int parentId = Iterables.getOnlyElement(parents);
+            final Chromosome chromosome = blend(traits, sperm, agentId, parentId, context);
+              */
 
             addAgent(chromosome);
 
@@ -84,22 +81,23 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
 
     protected abstract void addAgent(final Chromosome chromosome);
 
-    private static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Chromosome blend(
-            final FunctionalList<AgentTrait<A, ?>> egg,
+    /*
+    private static <A extends Agent<A, ?>> Chromosome blend(
+            final FunctionalList<AgentTrait<?, ?>> egg,
             final Chromosome sperm,
             final int femaleID,
-            final int maleID) {
+            final int maleID, final AgentContext<A, ?> context) {
 
         // zip chromosomes
-        final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zipped = Products.zip(egg, sperm.getTraitVectors());
+        final Iterable<Product2<AgentTrait<?, ?>, TraitVector<?>>> zipped = Products.zip(egg, sperm.getTraitVectors());
 
         // segregate
-        final Iterable<TraitVector<?>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<A, ?>, TraitVector<?>>, TraitVector<?>>() {
+        final Iterable<TraitVector<?>> genes = Iterables.transform(zipped, new Function<Product2<AgentTrait<?, ?>, TraitVector<?>>, TraitVector<?>>() {
             @Override
-            public TraitVector<?> apply(final Product2<AgentTrait<A, ?>, TraitVector<?>> tuple) {
-                final AgentTrait<A, ?> trait = tuple._1();
+            public TraitVector<?> apply(final Product2<AgentTrait<?, ?>, TraitVector<?>> tuple) {
+                final AgentTrait<?, ?> trait = tuple._1();
                 final TraitVector<?> traitVector = tuple._2();
-                return combine(trait, traitVector);
+                return combine(trait, traitVector, context);
             }
         });
 
@@ -107,13 +105,12 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> TraitVector<?> combine(final AgentTrait<?, T> trait, final TypedSupplier<?> supplier) {
-        checkArgument(trait.getValueType().equals(supplier.getValueType()));
-        return TraitVector.create(
-                trait.transform(trait.transform(trait.get(), (T) supplier.get())),
-                trait.getValueType(),
-                trait.getName());
+    private static <T, A extends Agent<A, ?>> TraitVector<?> combine(final AgentTrait<?, T> trait, final TypedSupplier<?> supplier, final AgentContext<A, ?> context) {
+        return TraitVector.of(
+                trait.getName(), trait.transform(context, trait.transform(context, (T) trait.value(context), (T) supplier.get())._1())
+        );
     }
+    */
 
     /*
      * @Override public SexualReproduction<A> deepClone(final DeepCloner cloner) { return new
@@ -159,7 +156,7 @@ public abstract class SexualReproduction<A extends Agent<A, ? extends BasicSimul
      * private static final long serialVersionUID = 0; }
      */
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B, AgentContext<A>> implements Serializable {
         private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction<A>, Integer> clutchSize = Callbacks.constant(1);
         private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();

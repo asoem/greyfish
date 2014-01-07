@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
 
-public abstract class LongCompareCondition<A extends Agent<A, ?>> extends CompareCondition<Long, A> {
+public abstract class LongCompareCondition<A extends Agent<?>> extends CompareCondition<Long, A> {
     protected LongCompareCondition() {
     }
 
@@ -10,6 +10,6 @@ public abstract class LongCompareCondition<A extends Agent<A, ?>> extends Compar
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<E extends LongCompareCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<A, ?>> extends CompareCondition.AbstractBuilder<A, E, T, Long> {
+    protected static abstract class AbstractBuilder<E extends LongCompareCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<?>> extends CompareCondition.AbstractBuilder<A, E, T, Long> {
     }
 }

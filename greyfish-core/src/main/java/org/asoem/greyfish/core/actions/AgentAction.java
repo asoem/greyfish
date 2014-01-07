@@ -1,15 +1,13 @@
 package org.asoem.greyfish.core.actions;
 
-import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentComponent;
 
-public interface AgentAction<A extends Agent<A, ?>> extends AgentComponent {
+public interface AgentAction<C> extends AgentComponent<C> {
 
     /**
      * Apply the action on it's agent in the given simulation context
      *
-     * @param agentContext the context for this call
-     * @return the result of the application
+     * @param context@return the result of the application
      */
-    ActionExecutionResult apply(final AgentContext<A> agentContext);
+    ActionExecutionResult apply(C context);
 }

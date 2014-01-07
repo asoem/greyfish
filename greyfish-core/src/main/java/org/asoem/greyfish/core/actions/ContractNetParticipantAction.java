@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends FiniteStateAction<A> {
+public abstract class ContractNetParticipantAction<A extends Agent<?>> extends FiniteStateAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetParticipantAction.class);
     private static final int TIMEOUT_ACCEPT_STEPS = 1;
@@ -46,7 +45,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
             template = createCFPTemplate(getOntology());
 
             final List<ACLMessage<A>> cfpReplies = Lists.newArrayList();
-            final Iterable<ACLMessage<A>> proposalCalls = context.agent().getMessages(template);
+            final Iterable<ACLMessage<A>> proposalCalls = context.getMessages(template);
             for (final ACLMessage<A> cfp : proposalCalls) {
 
                 ACLMessage<A> cfpReply;
@@ -55,13 +54,13 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
                 } catch (NotUnderstoodException e) {
                     cfpReply = ImmutableACLMessage.createReply(cfp, context.agent())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
-                            .content(e.getMessage(), String.class).build();
+                            .content(e.getMessage()).build();
                     LOGGER.warn("Message not understood {}", cfp, e);
                 }
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
                 LOGGER.debug("{}: Replying to CFP with {}", this, cfpReply);
-                context.agent().sendMessage(cfpReply);
+                context.sendMessage(cfpReply);
 
                 if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE)))
                     ++nExpectedProposeAnswers;
@@ -75,7 +74,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
                 endTransition(State.NO_CFP);
             }
         } else if (State.WAIT_FOR_ACCEPT == state) {
-            final Iterable<ACLMessage<A>> receivedMessages = context.agent().getMessages(getTemplate());
+            final Iterable<ACLMessage<A>> receivedMessages = context.getMessages(getTemplate());
             for (final ACLMessage<A> receivedMessage : receivedMessages) {
                 switch (receivedMessage.getPerformative()) {
                     case ACCEPT_PROPOSAL:
@@ -85,13 +84,13 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
                         } catch (NotUnderstoodException e) {
                             informMessage = ImmutableACLMessage.createReply(receivedMessage, context.agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
-                                    .content(e.getMessage(), String.class).build();
+                                    .content(e.getMessage()).build();
 
                             LOGGER.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkAcceptReply(informMessage);
                         LOGGER.debug("{}: Accepting proposal", this);
-                        context.agent().sendMessage(informMessage);
+                        context.sendMessage(informMessage);
                         break;
                     case REJECT_PROPOSAL:
                         handleReject(receivedMessage);
@@ -166,7 +165,7 @@ public abstract class ContractNetParticipantAction<A extends Agent<A, ? extends 
         );
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ContractNetParticipantAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends ContractNetParticipantAction<A>, B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B> implements Serializable {
         private int timeoutCounter;
         private int nExpectedProposeAnswers;
         private MessageTemplate template = MessageTemplates.alwaysFalse();

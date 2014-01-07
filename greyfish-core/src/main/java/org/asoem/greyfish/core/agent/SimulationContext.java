@@ -2,11 +2,15 @@ package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.simulation.Simulation;
 
-public interface SimulationContext<S extends Simulation<?>> {
+public interface SimulationContext<S extends Simulation<?>, A extends Agent<?>> {
     /**
-     * Get the getSimulation for this context.
+     * Get the simulation for this context.
      *
-     * @return the getSimulation
+     * @return the simulation
      */
     S getSimulation();
+
+    Iterable<A> getActiveAgents();
+
+    Iterable<A> getAgents(PrototypeGroup prototypeGroup);
 }

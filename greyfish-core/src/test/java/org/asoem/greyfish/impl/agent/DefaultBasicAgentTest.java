@@ -3,7 +3,6 @@ package org.asoem.greyfish.impl.agent;
 import org.asoem.greyfish.core.actions.AbstractAgentAction;
 import org.asoem.greyfish.core.actions.ActionExecutionResult;
 import org.asoem.greyfish.core.actions.AgentAction;
-import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.junit.Test;
 
@@ -18,9 +17,9 @@ public class DefaultBasicAgentTest {
     public void testBuilder() throws Exception {
         // given
         final PrototypeGroup prototypeGroup = mock(PrototypeGroup.class);
-        final AgentAction<BasicAgent> action = new AbstractAgentAction<BasicAgent>("test action") {
+        final AgentAction<Object> action = new AbstractAgentAction<Object>("test action") {
             @Override
-            public ActionExecutionResult apply(final AgentContext<BasicAgent> componentContext) {
+            public ActionExecutionResult apply(final Object context) {
                 return ActionExecutionResult.BREAK;
             }
         };
@@ -34,7 +33,7 @@ public class DefaultBasicAgentTest {
         // then
         assertThat(agent, is(notNullValue()));
         assertThat(agent.getPrototypeGroup(), is(prototypeGroup));
-        assertThat(agent.getActions(), contains(action));
+        assertThat(agent.getActions(), contains((Object) action));
     }
 
     @Test(expected = NullPointerException.class)

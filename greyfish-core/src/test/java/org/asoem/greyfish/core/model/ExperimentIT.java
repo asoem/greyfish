@@ -1,16 +1,23 @@
 package org.asoem.greyfish.core.model;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import org.asoem.greyfish.core.actions.AbstractAgentAction;
+import org.asoem.greyfish.core.actions.ActionExecutionResult;
+import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
-import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
+import org.asoem.greyfish.core.agent.RequestAllTraitValues;
+import org.asoem.greyfish.core.traits.AbstractTrait;
 import org.asoem.greyfish.impl.agent.BasicAgent;
+import org.asoem.greyfish.impl.agent.BasicAgentContext;
 import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.impl.simulation.BasicSimulation;
 import org.asoem.greyfish.impl.simulation.DefaultBasicSimulation;
@@ -18,6 +25,7 @@ import org.junit.Test;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -112,7 +120,7 @@ public class ExperimentIT {
 
                 List<BasicAgent> initialAgents = Lists.newArrayList();
                 for (int i = 0; i < 10; i++) {
-                    initialAgents.add(createAgent());
+                    initialAgents.add(createAgent(ImmutableMap.<String, Object>of()));
                 }
 
                 for (int i = 0; i < nRuns; i++) {
@@ -160,8 +168,9 @@ public class ExperimentIT {
                     @Nullable
                     @Override
                     public BasicAgent apply(@Nullable final BasicAgent input) {
-                        final BasicAgent agent = createAgent();
-                        HeritableTraitsChromosome.copyFromAgent(input).updateAgent(agent);
+                        Map<String, ?> traitValues = input.ask(new RequestAllTraitValues(), Map.class);
+                        final BasicAgent agent = createAgent(traitValues);
+                        //HeritableTraitsChromosome.copyFromAgent(input).updateAgent(agent);
                         agent.initialize();
                         return agent;
                     }
@@ -185,8 +194,37 @@ public class ExperimentIT {
                         .build();
             }
 
-            private BasicAgent createAgent() {
-                return DefaultBasicAgent.builder(PrototypeGroup.named("test")).build();
+            private BasicAgent createAgent(final Map<String, ?> traitValues) {
+                final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
+                return DefaultBasicAgent
+                        .builder(prototypeGroup)
+                        .addAction(new AbstractAgentAction<BasicAgentContext<BasicAgent>>("action") {
+                            @Override
+                            public ActionExecutionResult apply(final BasicAgentContext<BasicAgent> context) {
+                                final Iterable<BasicAgent> activeAgents = context.getAgents(prototypeGroup);
+                                double sum = 0.0;
+                                for (Agent<?> activeAgent : activeAgents) {
+                                    sum += activeAgent.getPropertyValue("trait", Double.class);
+                                }
+                                System.out.println(sum);
+
+                                context.addAgent(createAgent(ImmutableMap.of("trait", sum)));
+                                context.removeAgent(context.agent());
+
+                                return ActionExecutionResult.BREAK;
+                            }
+                        })
+                        .addProperty(new AbstractTrait<BasicAgent, BasicAgentContext<BasicAgent>, Double>("trait") {
+
+                            private final Double traitValue = Optional.fromNullable((Double) traitValues.get("trait")).or(1.0);
+
+                            @Override
+                            public Double value(final BasicAgentContext<BasicAgent> context) {
+                                return traitValue;
+                            }
+
+                        })
+                        .build();
             }
 
             @Override

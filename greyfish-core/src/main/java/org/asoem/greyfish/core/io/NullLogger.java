@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * A logger with empty methods.
  */
-enum NullLogger implements SimulationLogger<Agent<?, ?>> {
+enum NullLogger implements SimulationLogger<Agent<?>> {
     INSTANCE;
 
     @Override
@@ -17,12 +17,12 @@ enum NullLogger implements SimulationLogger<Agent<?, ?>> {
     }
 
     @Override
-    public void logAgentCreation(final Agent<?, ?> agent) {
+    public void logAgentCreation(final Agent<?> agent) {
         // empty
     }
 
     @Override
-    public void logAgentEvent(final Agent<?, ?> agent, final long currentStep, final String source, final String title, final String message) {
+    public void logAgentEvent(final Agent<?> agent, final long currentStep, final String source, final String title, final String message) {
         // empty
     }
 

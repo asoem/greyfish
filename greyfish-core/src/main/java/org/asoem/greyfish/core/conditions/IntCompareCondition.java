@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
 
-public abstract class IntCompareCondition<A extends Agent<A, ?>> extends CompareCondition<Integer, A> {
+public abstract class IntCompareCondition<A extends Agent<?>> extends CompareCondition<Integer, A> {
 
     protected IntCompareCondition() {
     }
@@ -11,6 +11,6 @@ public abstract class IntCompareCondition<A extends Agent<A, ?>> extends Compare
         super(builder);
     }
 
-    protected static abstract class AbstractBuilder<E extends IntCompareCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<A, ?>> extends CompareCondition.AbstractBuilder<A, E, T, Integer> {
+    protected static abstract class AbstractBuilder<E extends IntCompareCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<?>> extends CompareCondition.AbstractBuilder<A, E, T, Integer> {
     }
 }

@@ -9,7 +9,7 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 @Tagged("conditions")
-public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
+public class NoneCondition<A extends Agent<?>> extends BranchCondition<A> {
 
     private NoneCondition(final Builder<A> builder) {
         super(builder);
@@ -34,19 +34,19 @@ public class NoneCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(final ActionCondition<A> condition) {
+    public static <A extends Agent<?>> NoneCondition<A> evaluates(final ActionCondition<A> condition) {
         return new Builder<A>().add(condition).build();
     }
 
-    public static <A extends Agent<A, ?>> NoneCondition<A> evaluates(final ActionCondition<A>... conditions) {
+    public static <A extends Agent<?>> NoneCondition<A> evaluates(final ActionCondition<A>... conditions) {
         return new Builder<A>().add(conditions).build();
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
+    public static <A extends Agent<?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, NoneCondition<A>, Builder<A>> implements Serializable {
+    public static final class Builder<A extends Agent<?>> extends BranchCondition.AbstractBuilder<A, NoneCondition<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 

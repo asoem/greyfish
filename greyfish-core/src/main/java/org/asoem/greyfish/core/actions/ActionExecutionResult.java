@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.actions;
 
 /**
- * Defined the result of an {@link AgentAction#apply(AgentContext) action execution}.
+ * Defined the result of an {@link AgentAction#apply(Object) action execution}.
  */
 public enum ActionExecutionResult {
     /**

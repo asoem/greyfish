@@ -8,7 +8,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
@@ -36,13 +38,13 @@ import static java.util.Arrays.asList;
 /**
  * The default implementation of {@code Basic2DAgent}.
  */
-public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basic2DSimulation, Point2D>
+public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basic2DSimulation, Point2D, Basic2DAgentContext>
         implements Basic2DAgent, Serializable {
 
-    private final FunctionalList<AgentProperty<Basic2DAgent, ?>> properties;
-    private final FunctionalList<AgentAction<Basic2DAgent>> actions;
-    private final FunctionalList<AgentTrait<Basic2DAgent, ?>> traits;
-    private final ActionExecutionStrategy<Basic2DAgent> actionExecutionStrategy;
+    private final FunctionalList<AgentProperty<? super Basic2DAgentContext, ?>> properties;
+    private final List<AgentAction<? super Basic2DAgentContext>> actions;
+    private final FunctionalList<AgentTrait<? super Basic2DAgentContext, ?>> traits;
+    private final ActionExecutionStrategy<Basic2DAgentContext> actionExecutionStrategy;
     private final FunctionalCollection<ACLMessage<Basic2DAgent>> inBox;
     private PrototypeGroup prototypeGroup;
     @Nullable
@@ -54,16 +56,10 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
 
     private DefaultBasic2DAgent(final Builder builder) {
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
-        for (final AgentProperty<Basic2DAgent, ?> property : builder.properties) {
-            property.setAgent(this);
-        }
         this.actions = ImmutableFunctionalList.copyOf(builder.actions);
         this.traits = ImmutableFunctionalList.copyOf(builder.traits);
-        for (final AgentTrait<Basic2DAgent, ?> trait : builder.traits) {
-            trait.setAgent(this);
-        }
         this.prototypeGroup = builder.prototypeGroup;
-        this.actionExecutionStrategy = new DefaultActionExecutionStrategy<>(actions);
+        this.actionExecutionStrategy = new DefaultActionExecutionStrategy<Basic2DAgent, Basic2DAgentContext>(actions);
         this.inBox = new FunctionalFifoBuffer<>();
     }
 
@@ -73,13 +69,55 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
+    public void activate(final BasicSimulationContext<Basic2DSimulation, Basic2DAgent> context) {
+        this.simulationContext = context;
+    }
+
+    @Override
     protected Basic2DAgent self() {
         return this;
     }
 
-    @Override
-    public FunctionalList<AgentTrait<Basic2DAgent, ?>> getTraits() {
+    public FunctionalList<AgentTrait<? super Basic2DAgentContext, ?>> getTraits() {
         return traits;
+    }
+
+    @Override
+    protected Basic2DAgentContext agentContext() {
+        return new Basic2DAgentContext() {
+            @Override
+            public Basic2DAgent agent() {
+                return DefaultBasic2DAgent.this;
+            }
+
+            @Override
+            public Iterable<Basic2DAgent> getActiveAgents() {
+                return getContext().get().getActiveAgents();
+            }
+
+            @Override
+            public Iterable<Basic2DAgent> getAgents(final PrototypeGroup prototypeGroup) {
+                return getContext().get().getAgents(prototypeGroup);
+            }
+
+            @Override
+            public void receive(final ACLMessage<Basic2DAgent> message) {
+                inBox.add(message);
+            }
+
+            @Override
+            public Iterable<ACLMessage<Basic2DAgent>> getMessages(final MessageTemplate template) {
+                return inBox.filter(template);
+            }
+
+            @Override
+            public void sendMessage(final ACLMessage<Basic2DAgent> message) {
+                final Set<Basic2DAgent> recipients = message.getRecipients();
+                for (Basic2DAgent recipient : recipients) {
+                    recipient.ask(message, Void.class);
+                }
+            }
+        };
     }
 
     @Override
@@ -88,13 +126,13 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    public FunctionalList<AgentProperty<Basic2DAgent, ?>> getProperties() {
+    public FunctionalList<AgentProperty<? super Basic2DAgentContext, ?>> getProperties() {
         return properties;
     }
 
     @Override
-    public FunctionalList<AgentAction<Basic2DAgent>> getActions() {
-        return actions;
+    public FunctionalList<AgentAction<? super Basic2DAgentContext>> getActions() {
+        return ImmutableFunctionalList.copyOf(actions);
     }
 
     @Nullable
@@ -131,6 +169,11 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
+    public <T> T getPropertyValue(final String traitName, final Class<T> valueType) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     protected FunctionalCollection<ACLMessage<Basic2DAgent>> getInBox() {
         return inBox;
     }
@@ -141,7 +184,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    protected ActionExecutionStrategy<Basic2DAgent> getActionExecutionStrategy() {
+    protected ActionExecutionStrategy<Basic2DAgentContext> getActionExecutionStrategy() {
         return actionExecutionStrategy;
     }
 
@@ -155,11 +198,16 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         return new Builder(prototypeGroup);
     }
 
+    @Override
+    public Iterable<ACLMessage<Basic2DAgent>> getMessages(final MessageTemplate template) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     public static final class Builder implements Serializable {
         private final PrototypeGroup prototypeGroup;
-        private final List<AgentAction<Basic2DAgent>> actions = Lists.newArrayList();
-        private final List<AgentProperty<Basic2DAgent, ?>> properties = Lists.newArrayList();
-        private final List<AgentTrait<Basic2DAgent, ?>> traits = Lists.newArrayList();
+        private final List<AgentAction<? super Basic2DAgentContext>> actions = Lists.newArrayList();
+        private final List<AgentProperty<? super Basic2DAgentContext, ?>> properties = Lists.newArrayList();
+        private final List<AgentTrait<? super Basic2DAgentContext, ?>> traits = Lists.newArrayList();
 
         protected Builder(final PrototypeGroup prototypeGroup) {
             this.prototypeGroup = checkNotNull(prototypeGroup, "PrototypeGroup must not be null");
@@ -172,50 +220,50 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
             this.traits.addAll(abstractAgent.traits);
         }
 
-        public Builder addTraits(final AgentTrait<Basic2DAgent, ?>... traits) {
+        public Builder addTraits(final AgentTrait<? super Basic2DAgentContext, ?>... traits) {
             this.traits.addAll(asList(checkNotNull(traits)));
             return this;
         }
 
-        public Builder addTraits(final Iterable<? extends AgentTrait<Basic2DAgent, ?>> traits) {
+        public Builder addTraits(final Iterable<? extends AgentTrait<? super Basic2DAgentContext, ?>> traits) {
             Iterables.addAll(this.traits, checkNotNull(traits));
             return this;
         }
 
-        public Builder addAction(final AgentAction<Basic2DAgent> action) {
+        public Builder addAction(final AgentAction<? super AgentContext<Basic2DAgent>> action) {
             this.actions.add(checkNotNull(action));
             return this;
         }
 
-        public Builder addActions(final AgentAction<Basic2DAgent> action1, final AgentAction<Basic2DAgent> action2) {
-            addActions(ImmutableList.of(action1, action2));
+        public Builder addActions(final AgentAction<? super AgentContext<Basic2DAgent>> action1, final AgentAction<? super AgentContext<Basic2DAgent>> action2) {
+            addActions(ImmutableList.<AgentAction<? super AgentContext<Basic2DAgent>>>of(action1, action2));
             return this;
         }
 
-        public Builder addActions(final AgentAction<Basic2DAgent>... actions) {
+        public Builder addActions(final AgentAction<? super AgentContext<Basic2DAgent>>... actions) {
             addActions(asList(checkNotNull(actions)));
             return this;
         }
 
-        public Builder addActions(final Iterable<? extends AgentAction<Basic2DAgent>> actions) {
+        public Builder addActions(final Iterable<? extends AgentAction<? super AgentContext<Basic2DAgent>>> actions) {
             Iterables.addAll(this.actions, checkNotNull(actions));
             return this;
         }
 
-        public Builder addProperties(final AgentProperty<Basic2DAgent, ?>... properties) {
+        public Builder addProperties(final AgentProperty<? super Basic2DAgentContext, ?>... properties) {
             this.properties.addAll(asList(checkNotNull(properties)));
             return this;
         }
 
-        public Builder addProperties(final Iterable<? extends AgentProperty<Basic2DAgent, ?>> properties) {
+        public Builder addProperties(final Iterable<? extends AgentProperty<? super Basic2DAgentContext, ?>> properties) {
             Iterables.addAll(this.properties, checkNotNull(properties));
             return this;
         }
 
         public DefaultBasic2DAgent build() throws IllegalStateException {
-            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent, String>() {
+            final Iterable<String> nameWithPossibleDuplicates = Iterables.transform(Iterables.concat(actions, properties, traits), new Function<AgentComponent<?>, String>() {
                 @Override
-                public String apply(final AgentComponent input) {
+                public String apply(final AgentComponent<?> input) {
                     return input.getName();
                 }
             });

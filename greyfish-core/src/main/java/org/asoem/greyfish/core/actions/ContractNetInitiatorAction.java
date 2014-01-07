@@ -5,7 +5,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.asoem.greyfish.core.acl.*;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,7 @@ import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends FiniteStateAction<A> {
+public abstract class ContractNetInitiatorAction<A extends Agent<?>> extends FiniteStateAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
@@ -53,7 +52,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
                         .sender(context.agent())
                         .performative(ACLPerformative.CFP).build();
                 LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
-                context.agent().sendMessage(cfpMessage);
+                context.sendMessage(cfpMessage);
 
                 nProposalsMax = cfpMessage.getRecipients().size();
                 timeoutCounter = 0;
@@ -64,7 +63,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
             }
         } else if (State.WAIT_FOR_PROPOSALS.equals(state)) {
             final Collection<ACLMessage<A>> proposeReplies = Lists.newArrayList();
-            for (final ACLMessage<A> receivedMessage : context.agent().getMessages(getTemplate())) {
+            for (final ACLMessage<A> receivedMessage : context.getMessages(getTemplate())) {
                 assert (receivedMessage != null);
 
                 ACLMessage<A> proposeReply;
@@ -79,12 +78,12 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
                         } catch (NotUnderstoodException e) {
                             proposeReply = ImmutableACLMessage.createReply(receivedMessage, context.agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
-                                    .content(e.getMessage(), String.class).build();
+                                    .content(e.getMessage()).build();
                             LOGGER.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkProposeReply(proposeReply);
                         LOGGER.debug("{}: Replying to proposal", this, proposeReply);
-                        context.agent().sendMessage(proposeReply);
+                        context.sendMessage(proposeReply);
                         break;
 
                     case REFUSE:
@@ -131,7 +130,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
         } else if (State.WAIT_FOR_INFORM.equals(state)) {
             assert timeoutCounter == 0 && nInformReceived == 0 || timeoutCounter != 0;
 
-            for (final ACLMessage<A> receivedMessage : context.agent().getMessages(getTemplate())) {
+            for (final ACLMessage<A> receivedMessage : context.getMessages(getTemplate())) {
                 assert receivedMessage != null;
 
                 switch (receivedMessage.getPerformative()) {
@@ -188,7 +187,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
         }
     }
 
-    private static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
+    private static <A extends Agent<?>> MessageTemplate createCFPReplyTemplate(final ACLMessage<A> cfp) {
         return MessageTemplates.isReplyTo(cfp);
     }
 
@@ -217,7 +216,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<A, ? extends Ba
 
     protected abstract String getOntology();
 
-    protected abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>,
+    protected abstract static class AbstractBuilder<A extends Agent<?>,
             C extends ContractNetInitiatorAction<A>,
             B extends AbstractBuilder<A, C, B>> extends FiniteStateAction.AbstractBuilder<A, C, B>
             implements Serializable {

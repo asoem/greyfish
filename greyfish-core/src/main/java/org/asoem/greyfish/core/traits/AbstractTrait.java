@@ -1,45 +1,23 @@
 package org.asoem.greyfish.core.traits;
 
-import com.google.common.base.Optional;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.utils.base.TypedSupplier;
+import org.asoem.greyfish.core.agent.RequestTraitValue;
+import org.asoem.greyfish.utils.collect.Product2;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+public abstract class AbstractTrait<A extends Agent<?>, C extends AgentContext<A>, T> extends AbstractAgentComponent<C> implements AgentTrait<C, T> {
 
-public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAgentComponent<A> implements AgentTrait<A, T> {
-
-    @Nullable
-    private A agent;
-
-    protected AbstractTrait() {
+    protected AbstractTrait(final String name) {
+        super(name);
     }
 
-    public AbstractTrait(final AbstractBuilder<A, ? extends AbstractTrait<A, T>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    protected AbstractTrait(final AbstractBuilder<? extends AbstractTrait<A, C, T>, ? extends AbstractBuilder<?, ?>> builder) {
         super(builder);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + getName() + ":" + String.valueOf(get()) + "]";
-    }
-
-    @Override
-    public void set(final T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @SuppressWarnings("unchecked") // should be safe if TypedSupplier is implemented correctly
-    @Override
-    public void copyFrom(final TypedSupplier<?> supplier) {
-        checkNotNull(supplier);
-        checkArgument(supplier.getValueType().equals(this.getValueType()));
-        set((T) supplier.get());
     }
 
     @Override
@@ -48,30 +26,25 @@ public abstract class AbstractTrait<A extends Agent<A, ?>, T> extends AbstractAg
     }
 
     @Override
-    public T transform(final T allele1, final T allele2) {
-        return createInitialValue();
+    public Product2<T, T> transform(final C context, final T allele1, final T allele2) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public T transform(final T... alleles) {
-        throw new UnsupportedOperationException();
+    public List<T> transform(final C context, final List<? extends T> alleles) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public T transform(final T allele) {
-        return createInitialValue();
+    public T transform(final C context, final T value) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
-    /**
-     * @return this components optional {@code Agent}
-     */
-    public final Optional<A> agent() {
-        return Optional.fromNullable(agent);
+    @Override
+    public <T> T tell(final C context, final Object message, final Class<T> replyType) {
+        if (message instanceof RequestTraitValue) {
+            return replyType.cast(value(context));
+        }
+        throw new IllegalArgumentException("Can't handle message: " + message);
     }
-
-    public final void setAgent(@Nullable final A agent) {
-        this.agent = agent;
-    }
-
-    public abstract T createInitialValue();
 }

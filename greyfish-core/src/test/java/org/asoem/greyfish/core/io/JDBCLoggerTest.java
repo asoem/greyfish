@@ -1,14 +1,11 @@
 package org.asoem.greyfish.core.io;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.space.Space2D;
-import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.junit.Test;
 
@@ -31,11 +28,11 @@ public class JDBCLoggerTest {
         final JDBCLogger<TestAgent> jdbcLogger = new JDBCLogger<>(mock, commitThreshold);
         final TestAgent agentMock = mock(TestAgent.class);
         when(agentMock.getPrototypeGroup()).thenReturn(PrototypeGroup.named(""));
-        when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.<AgentTrait<TestAgent, ?>>of());
+        //when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.<AgentTrait<?, ?>>of());
         final TestSimulation simulation2D = mock(TestSimulation.class);
         when(simulation2D.getName()).thenReturn("testSimulation");
         final BasicSimulationContext<TestSimulation, TestAgent> contextMock = mock(BasicSimulationContext.class);
-        given(agentMock.getContext()).willReturn(Optional.of(contextMock));
+        //given(agentMock.getContext()).willReturn(Optional.of(contextMock));
         when(contextMock.getSimulation()).thenReturn(simulation2D);
         when(contextMock.simulationName()).thenReturn("testSimulation");
 
@@ -70,11 +67,11 @@ public class JDBCLoggerTest {
         SimulationLogger<TestAgent> jdbcLogger = SimulationLoggers.createJDBCLogger(mock, commitThreshold);
         final TestAgent agentMock = mock(TestAgent.class);
         when(agentMock.getPrototypeGroup()).thenReturn(PrototypeGroup.named(""));
-        when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.<AgentTrait<TestAgent, ?>>of());
+        //when(agentMock.getTraits()).thenReturn(ImmutableFunctionalList.<AgentTrait<?, ?>>of());
         final TestSimulation simulation2D = mock(TestSimulation.class);
         when(simulation2D.getName()).thenReturn("");
         final BasicSimulationContext<TestSimulation, TestAgent> contextMock = mock(BasicSimulationContext.class);
-        given(agentMock.getContext()).willReturn(Optional.of(contextMock));
+        //given(agentMock.getContext()).willReturn(Optional.of(contextMock));
         when(contextMock.getSimulation()).thenReturn(simulation2D);
         when(contextMock.simulationName()).thenReturn("testSimulation");
 
@@ -90,6 +87,8 @@ public class JDBCLoggerTest {
     private interface TestSimulation extends SpatialSimulation2D<TestAgent, Space2D<TestAgent, Object2D>> {
     }
 
-    private interface TestAgent extends SpatialAgent<TestAgent, Object2D, BasicSimulationContext<TestSimulation, TestAgent>> {
+    private interface TestAgent extends SpatialAgent<TestAgent, TestSimulationContext, Object2D> {
     }
+
+    private interface TestSimulationContext extends BasicSimulationContext<TestSimulation, TestAgent> {}
 }

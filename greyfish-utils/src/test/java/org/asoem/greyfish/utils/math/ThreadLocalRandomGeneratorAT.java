@@ -3,21 +3,27 @@ package org.asoem.greyfish.utils.math;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
+import org.apache.commons.math3.distribution.TDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.TTest;
 import org.asoem.greyfish.utils.collect.Tuple2;
+import org.asoem.greyfish.utils.math.statistics.StatisticalTests;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.*;
 
 import static org.asoem.greyfish.utils.math.SignificanceLevel.HIGHLY_SIGNIFICANT;
+import static org.asoem.greyfish.utils.math.SignificanceLevel.SIGNIFICANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class ThreadLocalRandomGeneratorAT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadLocalRandomGeneratorAT.class);
 
     private final TaskFactory taskFactory = new TaskFactory() {
         @Override
@@ -40,15 +46,27 @@ public class ThreadLocalRandomGeneratorAT {
         final int nThreads = 2;
 
         // when
-        final Tuple2<SummaryStatistics, SummaryStatistics> results =
+        final Tuple2<DescriptiveStatistics, DescriptiveStatistics> results =
                 measure(nThreads, generatorSupplier, nMeasurements, taskFactory);
 
         // then
         assertThat(results._2().getMean(), is(lessThan(results._1().getMean())));
 
-        double p = new TTest().tTest(results._1(), results._2());
-        System.out.println("t-Test: p=" + p);
-        assertThat(p, is(lessThanOrEqualTo(HIGHLY_SIGNIFICANT.getAlpha())));
+        assertThat("The mean elapsed time of the thread local generator" +
+                "is not less than the mean elapsed time of the synchronized generator",
+                results._2().getMean(), is(lessThan(results._1().getMean())));
+
+        // Is it also significantly faster? Make a t-test.
+        // Test assumptions for t-test: normality
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(results._2().getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(results._1().getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
+
+        // Perform the t-test
+        final double t = new TTest().t(results._2(), results._1());
+        final double p = new TTest().tTest(results._2(), results._1());
+        LOGGER.info("t-test: t={}, p={}", t, p);
+        double qt = new TDistribution(results._2().getN() - 1 + results._1().getN() - 1).inverseCumulativeProbability(1 - SIGNIFICANT.getAlpha() / 2);
+        assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }
 
     @Test
@@ -57,7 +75,7 @@ public class ThreadLocalRandomGeneratorAT {
         final int nThreads = 10;
 
         // when
-        final Tuple2<SummaryStatistics, SummaryStatistics> results =
+        final Tuple2<DescriptiveStatistics, DescriptiveStatistics> results =
                 measure(nThreads, generatorSupplier, nMeasurements, taskFactory);
 
         // then
@@ -68,7 +86,7 @@ public class ThreadLocalRandomGeneratorAT {
         assertThat(p, is(lessThanOrEqualTo(HIGHLY_SIGNIFICANT.getAlpha())));
     }
 
-    private static Tuple2<SummaryStatistics, SummaryStatistics> measure(final int nThreads, final Supplier<RandomGenerator> generatorSupplier, final int nMeasurements, final TaskFactory taskFactory) throws InterruptedException, ExecutionException {
+    private static Tuple2<DescriptiveStatistics, DescriptiveStatistics> measure(final int nThreads, final Supplier<RandomGenerator> generatorSupplier, final int nMeasurements, final TaskFactory taskFactory) throws InterruptedException, ExecutionException {
         // given
         final RandomGenerator synchronizedRandomGenerator = RandomGenerators.synchronizedGenerator(generatorSupplier.get());
         final RandomGenerator threadLocalRandomGenerator = RandomGenerators.threadLocalGenerator(generatorSupplier);
@@ -82,7 +100,7 @@ public class ThreadLocalRandomGeneratorAT {
             final Future<Long> future = executorService.submit(task);
             futuresSynchronized.add(future);
         }
-        final SummaryStatistics statisticsSynchronized = new SummaryStatistics();
+        final DescriptiveStatistics statisticsSynchronized = new DescriptiveStatistics();
         for (Future<Long> longFuture : futuresSynchronized) {
             statisticsSynchronized.addValue(longFuture.get());
         }
@@ -93,7 +111,7 @@ public class ThreadLocalRandomGeneratorAT {
             final Future<Long> future = executorService.submit(task);
             futuresThreadLocal.add(future);
         }
-        final SummaryStatistics statisticsThreadLocal = new SummaryStatistics();
+        final DescriptiveStatistics statisticsThreadLocal = new DescriptiveStatistics();
         for (Future<Long> longFuture : futuresThreadLocal) {
             statisticsThreadLocal.addValue(longFuture.get());
         }

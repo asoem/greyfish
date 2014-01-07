@@ -7,7 +7,9 @@ import com.google.common.collect.*;
 import com.google.common.eventbus.EventBus;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.agent.*;
+import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.PrototypeGroup;
+import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.impl.simulation.AgentAddedEvent;
@@ -29,7 +31,7 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a cached thread pool to execute {@link Agent}s and process their addition, removal,
  * migration and communication in parallel.
  */
-public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimulationContext<S, A>>, S extends SpatialSimulation2D<A, Z>,
+public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P>, S extends SpatialSimulation2D<A, Z>,
         Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Generic2DSimulation.class);
@@ -46,7 +48,6 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimu
     private final Set<A> prototypes;
     private final EventBus eventBus;
     private String title = "untitled";
-    private final AtomicInteger agentIdSequence = new AtomicInteger();
     private SimulationState state;
 
     protected Generic2DSimulation(final Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
@@ -80,12 +81,14 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimu
         // TODO: check state of agent (should be initialized)
 
         space.insertObject(agent, projection);
-        agent.activate(DefaultActiveSimulationContext.create(self(), agentIdSequence.incrementAndGet(), getTime()));
+        activateAgent(agent);
 
         LOGGER.debug("Agent activated: {}", agent);
 
         eventBus.post(new AgentAddedEvent(agent, this));
     }
+
+    protected abstract void activateAgent(final A agent);
 
     protected abstract S self();
 
@@ -182,7 +185,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimu
     private void processAgentMessageDelivery() {
         for (final DeliverAgentMessageMessage<A> message : deliverAgentMessageMessages) {
             for (final A agent : message.message.getRecipients()) {
-                agent.receive(message.message);
+                agent.ask(message.message, Void.class);
             }
         }
         deliverAgentMessageMessages.clear();
@@ -297,7 +300,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimu
         return String.format("%d agents; %d steps", countAgents(), getTime());
     }
 
-    private interface NewAgentEvent<P extends Object2D, A extends SpatialAgent<A, P, ?>> {
+    private interface NewAgentEvent<P extends Object2D, A extends SpatialAgent<A, ?, P>> {
         A getAgent();
 
         P getProjection();
@@ -366,7 +369,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimu
 
     }
 
-    private static final class AgentSpace<Z extends Space2D<T, P>, T extends SpatialAgent<?, P, ?>, P extends Object2D>
+    private static final class AgentSpace<Z extends Space2D<T, P>, T extends SpatialAgent<?, ?, P>, P extends Object2D>
             extends ForwardingSpace2D<T, P> {
 
         private final Z delegate;
@@ -438,7 +441,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, P, BasicSimu
         }
     }
 
-    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, P, BasicSimulationContext<X, A>>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, ?, P>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
         private KeyedObjectPool<PrototypeGroup, A> agentPool;
         private int parallelizationThreshold = 1000;

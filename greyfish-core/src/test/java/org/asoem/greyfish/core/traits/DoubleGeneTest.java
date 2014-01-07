@@ -1,6 +1,7 @@
 package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgentContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.persistence.Persisters;
 import org.hamcrest.MatcherAssert;
@@ -21,7 +22,7 @@ public class DoubleGeneTest {
     public void testPersistence() throws Exception {
         // given
         final Callback<Object, Double> callback = constant(1.0);
-        final AgentTrait<Basic2DAgent, Double> doubleGene = DoublePrecisionRealNumberTrait.<Basic2DAgent>builder()
+        final AgentTrait<?, Double> doubleGene = DoublePrecisionRealNumberTrait.<Basic2DAgent, Basic2DAgentContext>builder()
                 .name("test")
                 .initialization(constant(1.0))
                 .mutation(constant(1.0))
@@ -29,9 +30,9 @@ public class DoubleGeneTest {
                 .build();
 
         // when
-        final AgentTrait<Basic2DAgent, Double> copy = Persisters.copyAsync(doubleGene, Persisters.javaSerialization());
+        final AgentTrait<?, Double> copy = Persisters.copyAsync(doubleGene, Persisters.javaSerialization());
 
         // then
-        MatcherAssert.assertThat(copy, is(equalTo(doubleGene)));
+        MatcherAssert.assertThat(copy, is(equalTo((Object) doubleGene)));
     }
 }

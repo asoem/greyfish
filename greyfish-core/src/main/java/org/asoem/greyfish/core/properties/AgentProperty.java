@@ -1,24 +1,15 @@
 package org.asoem.greyfish.core.properties;
 
-import com.google.common.base.Optional;
-import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.AgentComponent;
-import org.asoem.greyfish.core.traits.Trait;
 
-import javax.annotation.Nullable;
-
-public interface AgentProperty<A extends Agent<A, ?>, T> extends AgentComponent, Trait<T> {
-    /**
-     * Get the agent this component was added to.
-     *
-     * @return the agent for this component
-     */
-    Optional<A> agent();
+public interface AgentProperty<C extends AgentContext<?>, T> extends AgentComponent<C> {
 
     /**
-     * Sets the connected agent. This method should only be called by an Agent implementation in an addXXX method.
+     * Get the value for this property in the given {@code context}.
      *
-     * @param agent the new agent
+     * @param context the context for this trait
+     * @return the value for the context
      */
-    void setAgent(@Nullable A agent);
+    T value(final C context);
 }

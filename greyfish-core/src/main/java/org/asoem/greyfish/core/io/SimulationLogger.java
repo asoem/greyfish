@@ -8,7 +8,7 @@ import java.io.Closeable;
 /**
  * A SimulationLogger defines methods to write getSimulation events to a given destination of type {@link Closeable}.
  */
-public interface SimulationLogger<A extends Agent<?, ?>> extends Closeable {
+public interface SimulationLogger<A extends Agent<?>> extends Closeable {
 
     /**
      * Log a getSimulation instance.

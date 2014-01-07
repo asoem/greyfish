@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @author christoph
  */
 @Tagged("conditions")
-public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
+public class AllCondition<A extends Agent<?>> extends BranchCondition<A> {
 
     private AllCondition(final Builder<A> builder) {
         super(builder);
@@ -41,27 +41,27 @@ public class AllCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(final ActionCondition<A> condition) {
+    public static <A extends Agent<?>> AllCondition<A> evaluates(final ActionCondition<A> condition) {
         return new Builder<A>().add(condition).build();
     }
 
-    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(final ActionCondition<A> condition1, final ActionCondition<A> condition2) {
+    public static <A extends Agent<?>> AllCondition<A> evaluates(final ActionCondition<A> condition1, final ActionCondition<A> condition2) {
         return new Builder<A>().add(condition1).add(condition2).build();
     }
 
-    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(final ActionCondition<A> condition1, final ActionCondition<A> condition2, final ActionCondition<A> condition3) {
+    public static <A extends Agent<?>> AllCondition<A> evaluates(final ActionCondition<A> condition1, final ActionCondition<A> condition2, final ActionCondition<A> condition3) {
         return new Builder<A>().add(condition1).add(condition2).add(condition3).build();
     }
 
-    public static <A extends Agent<A, ?>> AllCondition<A> evaluates(final ActionCondition<A>... conditions) {
+    public static <A extends Agent<?>> AllCondition<A> evaluates(final ActionCondition<A>... conditions) {
         return new Builder<A>().add(conditions).build();
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
+    public static <A extends Agent<?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    private static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, AllCondition<A>, Builder<A>> implements Serializable {
+    private static final class Builder<A extends Agent<?>> extends BranchCondition.AbstractBuilder<A, AllCondition<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 

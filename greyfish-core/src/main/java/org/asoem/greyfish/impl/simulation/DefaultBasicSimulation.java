@@ -187,7 +187,7 @@ public final class DefaultBasicSimulation
             public void apply() {
                 final Set<BasicAgent> recipients = message.getRecipients();
                 for (BasicAgent recipient : recipients) {
-                    recipient.receive(message);
+                    recipient.ask(message, Void.class);
                 }
             }
         });

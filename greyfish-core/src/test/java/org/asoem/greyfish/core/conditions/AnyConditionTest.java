@@ -36,7 +36,7 @@ public class AnyConditionTest {
         assertThat(copy, isCopyOf(anyCondition));
     }
 
-    private static <A extends Agent<A, ?>> Matcher<AnyCondition<A>> isCopyOf(final AnyCondition<A> allCondition) {
+    private static <A extends Agent<?>> Matcher<AnyCondition<A>> isCopyOf(final AnyCondition<A> allCondition) {
         return allOf(
                 is(not(sameInstance(allCondition))),
                 has("equal child conditions",

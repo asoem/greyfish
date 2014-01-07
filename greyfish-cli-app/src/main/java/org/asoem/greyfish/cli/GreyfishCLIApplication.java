@@ -16,14 +16,11 @@ import com.google.inject.util.Providers;
 import joptsimple.*;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.model.Experiment;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
@@ -163,8 +160,7 @@ public final class GreyfishCLIApplication {
                 try {
                     final GreyfishH2ConnectionManager connectionSupplier =
                             GreyfishH2ConnectionManager.create(path);
-                    final SimulationLogger<SpatialAgent<?, ?, BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>>>> jdbcLogger =
-                            SimulationLoggers.createJDBCLogger(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
+                    SimulationLogger<?> jdbcLogger = SimulationLoggers.createJDBCLogger(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
 
                     CLOSER.register(connectionSupplier);
                     CLOSER.register(jdbcLogger); // Must be closed before the connection (put on stack after the connection)

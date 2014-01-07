@@ -13,13 +13,13 @@ import javax.annotation.Nullable;
  *
  * @author christoph
  */
-public abstract class AbstractCondition<A extends Agent<A, ?>> implements ActionCondition<A> {
+public abstract class AbstractCondition<A extends Agent<?>> implements ActionCondition<A> {
 
     @Nullable
     private ActionCondition<A> parentCondition;
 
     @Nullable
-    private transient AgentAction<A> action;
+    private transient AgentAction<?> action;
     private Optional<A> agent = Optional.absent();
 
     protected AbstractCondition() {
@@ -40,18 +40,18 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     }
 
     @Override
-    public void setAction(@Nullable final AgentAction<A> action) {
+    public void setAction(@Nullable final AgentAction<?> action) {
         this.action = action;
         assert parentCondition == null || parentCondition.getAction().orNull() == action;
     }
 
     @Override
-    public Optional<AgentAction<A>> getAction() {
-        return Optional.fromNullable(action);
+    public Optional<AgentAction<?>> getAction() {
+        return Optional.<AgentAction<?>>fromNullable(action);
     }
 
     @Override
-    public AgentAction<A> action() {
+    public AgentAction<?> action() {
         return Optional.fromNullable(action).get();
     }
 
@@ -85,7 +85,7 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     public void initialize() {
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> {
         public AbstractBuilder(final AbstractCondition<A> leafCondition) {
         }
 
@@ -96,5 +96,10 @@ public abstract class AbstractCondition<A extends Agent<A, ?>> implements Action
     @Override
     public String toString() {
         return getParent() + "<-" + this.getClass().getSimpleName();
+    }
+
+    @Override
+    public <T> T tell(final A context, final Object message, final Class<T> replyType) {
+        throw new UnsupportedOperationException();
     }
 }

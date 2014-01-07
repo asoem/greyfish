@@ -4,7 +4,6 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.io.IOException;
@@ -28,7 +27,7 @@ public final class SimulationLoggers {
      * @param <A>    the {@link Agent} type of the logger
      * @return a new logger with synchronized methods
      */
-    public static <A extends Agent<A, ?>> SimulationLogger<A> synchronizedLogger(final SimulationLogger<A> logger) {
+    public static <A extends Agent<?>> SimulationLogger<A> synchronizedLogger(final SimulationLogger<A> logger) {
         if (logger instanceof SynchronizedLogger) {
             return logger;
         } else {
@@ -37,7 +36,7 @@ public final class SimulationLoggers {
     }
 
     @SuppressWarnings("unchecked")
-    public static SimulationLogger<Agent<?, ?>> nullLogger() {
+    public static SimulationLogger<Agent<?>> nullLogger() {
         return NullLogger.INSTANCE;
     }
 
@@ -47,7 +46,7 @@ public final class SimulationLoggers {
      * @param <A> the type of the agent
      * @return a new console logger
      */
-    public static <A extends Agent<A, ?>> SimulationLogger<A> consoleLogger() {
+    public static <A extends Agent<?>> SimulationLogger<A> consoleLogger() {
         return printStreamLogger(System.out);
     }
 
@@ -57,7 +56,7 @@ public final class SimulationLoggers {
      * @param <A> the type of the agent
      * @return a new print stream logger
      */
-    public static <A extends Agent<A, ?>> SimulationLogger<A> printStreamLogger(final PrintStream printStream) {
+    public static <A extends Agent<?>> SimulationLogger<A> printStreamLogger(final PrintStream printStream) {
         return new ConsoleLogger<A>(printStream);
     }
 
@@ -71,11 +70,12 @@ public final class SimulationLoggers {
      * @param commitThreshold   the threshold after which to commit a batch of queries
      * @return a new JDBC logger
      */
-    public static <A extends SpatialAgent<?, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>>>> SimulationLogger<A> createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
+    public static <A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?>>
+    SimulationLogger<A> createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
         return new JDBCLogger<>(connectionManager, commitThreshold);
     }
 
-    private static final class SynchronizedLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+    private static final class SynchronizedLogger<A extends Agent<?>> implements SimulationLogger<A> {
         @GuardedBy("this")
         private final SimulationLogger<A> logger;
 

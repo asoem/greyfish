@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.reflect.TypeToken;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
@@ -17,17 +17,17 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public final class CachingProperty<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, T> extends AbstractAgentProperty<T, A> {
+public final class CachingProperty<A extends Agent<? extends BasicSimulationContext<?, A>>, T, C extends AgentContext<A>> extends AbstractAgentProperty<T, A, C> {
 
-    private final Callback<? super CachingProperty<A, T>, ? extends T> valueCallback;
+    private final Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback;
 
-    private final Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback;
+    private final Callback<? super CachingProperty<A, T, C>, ? extends Boolean> expirationCallback;
 
     private final SingleElementCache<T> valueCache;
 
     private long lastModificationStep = -1;
 
-    private CachingProperty(final AbstractBuilder<T, A, ? extends CachingProperty<A, T>, ? extends Builder<T, A>> builder) {
+    private CachingProperty(final AbstractBuilder<T, A, ? extends CachingProperty<A, T, C>, ? extends Builder<T, A, C>, C> builder) {
         super(builder);
         this.valueCallback = builder.valueCallback;
         this.expirationCallback = builder.expirationCallback;
@@ -40,12 +40,7 @@ public final class CachingProperty<A extends Agent<A, ? extends BasicSimulationC
     }
 
     @Override
-    public TypeToken<T> getValueType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public T get() {
+    public T value(final C context) {
         if (expirationCallback.apply(CachingProperty.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
             valueCache.update();
@@ -60,11 +55,11 @@ public final class CachingProperty<A extends Agent<A, ? extends BasicSimulationC
         lastModificationStep = -1;
     }
 
-    public Callback<? super CachingProperty<A, T>, ? extends T> getValueCallback() {
+    public Callback<? super CachingProperty<A, T, C>, ? extends T> getValueCallback() {
         return valueCallback;
     }
 
-    public static <T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<T, A> builder() {
+    public static <T, A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> Builder<T, A, C> builder() {
         return new Builder<>();
     }
 
@@ -72,23 +67,23 @@ public final class CachingProperty<A extends Agent<A, ? extends BasicSimulationC
         return lastModificationStep;
     }
 
-    public static class Builder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T, C>, Builder<T, A, C>, C> implements Serializable {
 
         private Builder() {
         }
 
-        private Builder(final CachingProperty<A, T> simulationStepProperty) {
+        private Builder(final CachingProperty<A, T, C> simulationStepProperty) {
             super(simulationStepProperty);
         }
 
         @Override
-        protected Builder<T, A> self() {
+        protected Builder<T, A, C> self() {
             return this;
         }
 
         @Override
-        protected CachingProperty<A, T> checkedBuild() {
-            return new CachingProperty<A, T>(this);
+        protected CachingProperty<A, T, C> checkedBuild() {
+            return new CachingProperty<A, T, C>(this);
         }
 
         private Object readResolve() throws ObjectStreamException {
@@ -102,25 +97,25 @@ public final class CachingProperty<A extends Agent<A, ? extends BasicSimulationC
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>, P extends CachingProperty<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
-        private Callback<? super CachingProperty<A, T>, ? extends T> valueCallback;
+    private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, P extends CachingProperty<A, T, C>, B extends AbstractBuilder<T, A, P, B, C>, C extends AgentContext<A>> extends AbstractAgentProperty.AbstractBuilder<P, A, B> implements Serializable {
+        private Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback;
 
-        private Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback = CachingProperty.expiresAtBirth();
+        private Callback<? super CachingProperty<A, T, C>, ? extends Boolean> expirationCallback = CachingProperty.expiresAtBirth();
 
         protected AbstractBuilder() {
         }
 
-        protected AbstractBuilder(final CachingProperty<A, T> simulationStepProperty) {
+        protected AbstractBuilder(final CachingProperty<A, T, C> simulationStepProperty) {
             super(simulationStepProperty);
             this.valueCallback = simulationStepProperty.valueCallback;
         }
 
-        public B value(final Callback<? super CachingProperty<A, T>, ? extends T> valueCallback) {
+        public B value(final Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback) {
             this.valueCallback = checkNotNull(valueCallback);
             return self();
         }
 
-        public B expires(final Callback<? super CachingProperty<A, T>, ? extends Boolean> expirationCallback) {
+        public B expires(final Callback<? super CachingProperty<A, T, C>, ? extends Boolean> expirationCallback) {
             this.expirationCallback = checkNotNull(expirationCallback);
             return self();
         }
@@ -140,30 +135,30 @@ public final class CachingProperty<A extends Agent<A, ? extends BasicSimulationC
         throw new InvalidObjectException("Builder required");
     }
 
-    public static Callback<CachingProperty<?, ?>, Boolean> expiresAtBirth() {
+    public static Callback<CachingProperty<?, ?, ?>, Boolean> expiresAtBirth() {
         return BirthExpirationCallback.INSTANCE;
     }
 
-    private enum BirthExpirationCallback implements Callback<CachingProperty<?, ?>, Boolean> {
+    private enum BirthExpirationCallback implements Callback<CachingProperty<?, ?, ?>, Boolean> {
         INSTANCE;
 
         @Override
-        public Boolean apply(final CachingProperty<?, ?> caller, final Map<String, ?> args) {
-            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
+        public Boolean apply(final CachingProperty<?, ?, ?> caller, final Map<String, ?> args) {
+            final Agent<? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() < agent.getContext().get().getActivationStep();
         }
     }
 
-    public static Callback<CachingProperty<?, ?>, Boolean> expiresEveryStep() {
+    public static Callback<CachingProperty<?, ?, ?>, Boolean> expiresEveryStep() {
         return StepExpirationCallback.INSTANCE;
     }
 
-    private enum StepExpirationCallback implements Callback<CachingProperty<?, ?>, Boolean> {
+    private enum StepExpirationCallback implements Callback<CachingProperty<?, ?, ?>, Boolean> {
         INSTANCE;
 
         @Override
-        public Boolean apply(final CachingProperty<?, ?> caller, final Map<String, ?> args) {
-            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
+        public Boolean apply(final CachingProperty<?, ?, ?> caller, final Map<String, ?> args) {
+            final Agent<? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() != agent.getContext().get().getTime();
         }
     }

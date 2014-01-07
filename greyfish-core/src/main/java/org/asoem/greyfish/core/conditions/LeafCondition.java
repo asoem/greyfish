@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.agent.AgentNode;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondition<A> {
+public abstract class LeafCondition<A extends Agent<?>> extends AbstractCondition<A> {
 
     protected LeafCondition() {
     }
@@ -56,7 +56,7 @@ public abstract class LeafCondition<A extends Agent<A, ?>> extends AbstractCondi
         return (isRootCondition() ? "*" : "") + Objects.toStringHelper(this).toString();
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends AbstractCondition.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends AbstractCondition<A>, B extends AbstractBuilder<A, C, B>> extends AbstractCondition.AbstractBuilder<A, C, B> {
         protected AbstractBuilder(final LeafCondition<A> leafCondition) {
             super(leafCondition);
         }

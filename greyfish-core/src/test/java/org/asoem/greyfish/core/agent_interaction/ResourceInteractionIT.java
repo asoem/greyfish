@@ -10,6 +10,7 @@ import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgentContext;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
 import org.asoem.greyfish.impl.simulation.DefaultBasic2DSimulation;
@@ -28,6 +29,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResourceInteractionIT {
@@ -40,7 +42,7 @@ public class ResourceInteractionIT {
 
         final String messageClassifier = "mate";
 
-        final DoubleProperty<Basic2DAgent> energyStorage = DoubleProperty.<Basic2DAgent>with()
+        final DoubleProperty<Basic2DAgent, Basic2DAgentContext> energyStorage = DoubleProperty.<Basic2DAgent, Basic2DAgentContext>with()
                 .name("resourceStorage")
                 .lowerBound(0.0)
                 .upperBound(2.0)
@@ -53,7 +55,8 @@ public class ResourceInteractionIT {
                 .uptakeUtilization(new Callback<ResourceConsumptionAction<Basic2DAgent>, Void>() {
                     @Override
                     public Void apply(final ResourceConsumptionAction<Basic2DAgent> caller, final Map<String, ?> args) {
-                        ((DoubleProperty<Basic2DAgent>) caller.agent().get().getProperty("resourceStorage")).add((Double) args.get("offer") * 2);
+                        Basic2DAgent basic2DAgent = caller.agent().get();
+                        basic2DAgent.ask(new DoubleProperty.Add("resourceStorage", (Double) args.get("offer") * 2), Void.class);
                         return null;
                     }
                 })
@@ -61,7 +64,7 @@ public class ResourceInteractionIT {
                 .build();
 
 
-        final DoubleProperty<Basic2DAgent> resourceProperty = new DoubleProperty.Builder<Basic2DAgent>()
+        final DoubleProperty<Basic2DAgent, Basic2DAgentContext> resourceProperty = new DoubleProperty.Builder<Basic2DAgent, Basic2DAgentContext>()
                 .name("test")
                 .lowerBound(0.0)
                 .upperBound(1.0)
@@ -127,6 +130,6 @@ public class ResourceInteractionIT {
         }
 
         // then
-        assertThat(energyStorage.get(), is(equalTo(2.0)));
+        assertThat(energyStorage.value(mock(Basic2DAgentContext.class)), is(equalTo(2.0)));
     }
 }

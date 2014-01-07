@@ -1,6 +1,8 @@
 package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Optional;
+import org.asoem.greyfish.core.acl.ACLMessage;
+import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -12,24 +14,24 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class Avatar<A extends SpatialAgent<A, P, C>, S extends SpatialSimulation2D<A, ?>, P extends Object2D, C extends BasicSimulationContext<S, A>>
-        extends ForwardingSpatialAgent<A, P, C>
+public final class Avatar<A extends SpatialAgent<A, C, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D, C extends BasicSimulationContext<S, A>>
+        extends ForwardingSpatialAgent<A, C, P>
         implements Serializable {
 
-    private final SpatialAgent<A, P, C> delegate;
+    private final SpatialAgent<A, C, P> delegate;
     private P projection;
 
-    public Avatar(final SpatialAgent<A, P, C> delegate) {
+    public Avatar(final SpatialAgent<A, C, P> delegate) {
         this(delegate, null);
     }
 
-    public Avatar(final SpatialAgent<A, P, C> delegate, final P projection) {
+    public Avatar(final SpatialAgent<A, C, P> delegate, final P projection) {
         this.delegate = checkNotNull(delegate);
         this.projection = checkNotNull(projection);
     }
 
     @Override
-    protected SpatialAgent<A, P, C> delegate() {
+    protected SpatialAgent<A, C, P> delegate() {
         return delegate;
     }
 
@@ -78,12 +80,22 @@ public final class Avatar<A extends SpatialAgent<A, P, C>, S extends SpatialSimu
     }
 
     @Override
+    public <T> T getPropertyValue(final String traitName, final Class<T> valueType) {
+        return delegate().getPropertyValue(traitName, valueType);
+    }
+
+    @Override
     public Set<Integer> getParents() {
         return delegate().getParents();
     }
 
-    private static class SerializedForm<A extends SpatialAgent<A, P, C>, S extends SpatialSimulation2D<A, ?>, P extends Object2D, C extends BasicSimulationContext<S, A>> implements Serializable {
-        private final SpatialAgent<A, P, C> delegate;
+    @Override
+    public Iterable<ACLMessage<A>> getMessages(final MessageTemplate template) {
+        return delegate().getMessages(template);
+    }
+
+    private static class SerializedForm<A extends SpatialAgent<A, C, P>, S extends SpatialSimulation2D<A, ?>, P extends Object2D, C extends BasicSimulationContext<S, A>> implements Serializable {
+        private final SpatialAgent<A, C, P> delegate;
         private final P projection;
 
         public SerializedForm(final Avatar<A, S, P, C> avatar) {

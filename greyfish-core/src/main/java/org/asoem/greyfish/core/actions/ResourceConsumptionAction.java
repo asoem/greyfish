@@ -7,9 +7,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -22,7 +20,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends ContractNetInitiatorAction<A> {
+public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceConsumptionAction.class);
 
@@ -53,7 +51,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
                 .ontology(getOntology())
                         // Choose only one receiver. Adding evaluates possible candidates as receivers will decrease the performance in high density populations!
                 .addReceiver(receiver)
-                .content(new ResourceRequestMessage(call(requestAmount, this), call(classification, this)), ResourceRequestMessage.class);
+                .content(new ResourceRequestMessage(call(requestAmount, this), call(classification, this)));
     }
 
     @Override
@@ -70,7 +68,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
 
         return ImmutableACLMessage.createReply(message, context.agent())
                 .performative(ACLPerformative.ACCEPT_PROPOSAL)
-                .content(offer, Double.class);
+                .content(offer);
     }
 
     @Override
@@ -115,7 +113,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
         this.classification = builder.classification;
     }
 
-    public static <A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> Builder<A> with() {
+    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
         return new Builder();
     }
 
@@ -131,7 +129,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
         return uptakeUtilization;
     }
 
-    public static final class Builder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
+    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
             return this;
@@ -144,7 +142,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ? extends Ba
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction<A>, Double> requestAmount = Callbacks.constant(1.0);

@@ -64,9 +64,9 @@ public class GenericConditionTest {
                         return input.getCallback();
                     }
                 }, is(Matchers.<Callback<? super GenericCondition<Basic2DAgent>, Boolean>>equalTo(genericCondition.getCallback()))),
-                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<Basic2DAgent>, Optional<AgentAction<Basic2DAgent>>>() {
+                has("action ~= " + genericCondition.getAction(), new Function<GenericCondition<Basic2DAgent>, Optional<AgentAction<?>>>() {
                     @Override
-                    public Optional<AgentAction<Basic2DAgent>> apply(final GenericCondition<Basic2DAgent> input) {
+                    public Optional<AgentAction<?>> apply(final GenericCondition<Basic2DAgent> input) {
                         return input.getAction();
                     }
                 }, is(instanceOf(Optional.class))),

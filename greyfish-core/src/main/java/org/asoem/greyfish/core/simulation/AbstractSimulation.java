@@ -11,7 +11,7 @@ import org.asoem.greyfish.impl.simulation.SynchronizedAgentsSimulation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractSimulation<A extends Agent<A, ?>> implements SynchronizedAgentsSimulation<A> {
+public abstract class AbstractSimulation<A extends Agent<?>> implements SynchronizedAgentsSimulation<A> {
 
 
     /**

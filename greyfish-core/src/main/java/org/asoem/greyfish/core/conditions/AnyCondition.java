@@ -17,7 +17,7 @@ import java.io.Serializable;
  * @author christoph
  */
 @Tagged("conditions")
-public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
+public class AnyCondition<A extends Agent<?>> extends BranchCondition<A> {
 
     private AnyCondition(final Builder<A> builder) {
         super(builder);
@@ -40,15 +40,15 @@ public class AnyCondition<A extends Agent<A, ?>> extends BranchCondition<A> {
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
+    public static <A extends Agent<?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static <A extends Agent<A, ?>> AnyCondition<A> evaluates(final ActionCondition<A>... conditions) {
+    public static <A extends Agent<?>> AnyCondition<A> evaluates(final ActionCondition<A>... conditions) {
         return new Builder<A>().add(conditions).build();
     }
 
-    private static final class Builder<A extends Agent<A, ?>> extends BranchCondition.AbstractBuilder<A, AnyCondition<A>, Builder<A>> implements Serializable {
+    private static final class Builder<A extends Agent<?>> extends BranchCondition.AbstractBuilder<A, AnyCondition<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 

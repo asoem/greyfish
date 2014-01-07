@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -14,14 +13,14 @@ import java.io.Serializable;
  * @deprecated Use a {@link GenericAction} to remove an agent from a getSimulation
  */
 @Deprecated
-public class Suicide<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
+public class Suicide<A extends Agent<?>> extends BaseAgentAction<A, AgentContext<A>> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     private Suicide() {
         this(new Builder<A>());
     }
 
-    private Suicide(final AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    private Suicide(final AbstractBuilder<A, ? extends Suicide<A>, ? extends AbstractBuilder<A, ?, ?, AgentContext<A>>, AgentContext<A>> builder) {
         super(builder);
     }
 
@@ -44,11 +43,11 @@ public class Suicide<A extends Agent<A, ? extends BasicSimulationContext<?, A>>>
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> builder() {
+    public static <A extends Agent<?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractBuilder<A, Suicide<A>, Builder<A>> implements Serializable {
+    public static final class Builder<A extends Agent<?>> extends AbstractBuilder<A, Suicide<A>, Builder<A>, AgentContext<A>> implements Serializable {
         private Builder() {
         }
 

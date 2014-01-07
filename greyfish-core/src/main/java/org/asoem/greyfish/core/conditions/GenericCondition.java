@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * User: christoph Date: 04.05.12 Time: 11:47
  */
-public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> implements Serializable {
+public class GenericCondition<A extends Agent<?>> extends LeafCondition<A> implements Serializable {
 
     private final Callback<? super GenericCondition<A>, Boolean> callback;
 
@@ -47,15 +47,15 @@ public class GenericCondition<A extends Agent<A, ?>> extends LeafCondition<A> im
         throw new InvalidObjectException("Builder required");
     }
 
-    public static <A extends Agent<A, ?>> GenericCondition<A> evaluate(final Callback<? super GenericCondition<A>, Boolean> callback) {
+    public static <A extends Agent<?>> GenericCondition<A> evaluate(final Callback<? super GenericCondition<A>, Boolean> callback) {
         return new Builder<A>().callback(callback).build();
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
+    public static <A extends Agent<?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    private static final class Builder<A extends Agent<A, ?>> extends LeafCondition.AbstractBuilder<A, GenericCondition<A>, Builder<A>> implements Serializable {
+    private static final class Builder<A extends Agent<?>> extends LeafCondition.AbstractBuilder<A, GenericCondition<A>, Builder<A>> implements Serializable {
         public Callback<? super GenericCondition<A>, Boolean> callback;
 
         private Builder() {

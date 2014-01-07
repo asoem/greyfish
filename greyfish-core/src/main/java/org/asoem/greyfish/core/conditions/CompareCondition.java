@@ -5,7 +5,7 @@ import org.asoem.greyfish.utils.base.CompareOperator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<A, ?>> extends LeafCondition<A> {
+public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<?>> extends LeafCondition<A> {
 
     protected CompareOperator compareOperator = CompareOperator.EQUAL;
 
@@ -27,7 +27,7 @@ public abstract class CompareCondition<T extends Comparable<T>, A extends Agent<
 
     protected abstract T getCompareValue();
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends CompareCondition<?, A>, T extends AbstractBuilder<A, C, T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<A, C, T> {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends CompareCondition<?, A>, T extends AbstractBuilder<A, C, T, E>, E extends Comparable<E>> extends LeafCondition.AbstractBuilder<A, C, T> {
         private CompareOperator compareOperator;
         private E value;
 

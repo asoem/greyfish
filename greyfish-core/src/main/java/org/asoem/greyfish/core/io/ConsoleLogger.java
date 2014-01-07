@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * A logger that logs all messages to {@link System#out}.
  */
-final class ConsoleLogger<A extends Agent<A, ?>> implements SimulationLogger<A> {
+final class ConsoleLogger<A extends Agent<?>> implements SimulationLogger<A> {
 
     private final PrintStream printStream;
 

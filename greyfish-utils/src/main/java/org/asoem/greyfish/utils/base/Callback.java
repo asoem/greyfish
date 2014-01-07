@@ -2,11 +2,6 @@ package org.asoem.greyfish.utils.base;
 
 import java.util.Map;
 
-/**
- * User: christoph
- * Date: 15.05.12
- * Time: 11:39
- */
 public interface Callback<C, R> {
     /**
      *

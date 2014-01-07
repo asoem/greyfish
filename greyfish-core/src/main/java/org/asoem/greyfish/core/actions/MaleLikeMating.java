@@ -5,11 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.core.traits.Chromosome;
-import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -27,7 +24,7 @@ import static org.asoem.greyfish.utils.math.RandomGenerators.nextBoolean;
 import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
 @Tagged("actions")
-public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends ContractNetParticipantAction<A> {
+public class MaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractNetParticipantAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MaleLikeMating.class);
 
@@ -74,9 +71,8 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
 
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (nextBoolean(rng(), probability)) {
-
-            final Chromosome chromosome = HeritableTraitsChromosome.copyFromAgent(context.agent());
-            reply.content(chromosome, Chromosome.class)
+            final Chromosome chromosome = null;//HeritableTraitsChromosome.copyFromAgent(context.agent());
+            reply.content(chromosome)
                     .performative(ACLPerformative.PROPOSE);
 
             proposalSent = true;
@@ -101,7 +97,7 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
                 .performative(ACLPerformative.INFORM);
     }
 
-    public static <A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> Builder<A> with() {
+    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
         return new Builder<A>();
     }
 
@@ -122,7 +118,7 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
+    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, MaleLikeMating<A>, Builder<A>> {
         private Builder(final MaleLikeMating<A> maleLikeMating) {
             super(maleLikeMating);
         }
@@ -151,7 +147,7 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ? extends BasicSimulati
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<A, ?>, A>>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
         private String ontology = "mate";
         private Callback<? super MaleLikeMating<A>, Double> matingProbabilityExpression = Callbacks.constant(1.0);
         private int matingCount;

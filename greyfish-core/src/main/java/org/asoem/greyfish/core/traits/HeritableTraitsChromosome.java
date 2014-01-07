@@ -1,17 +1,6 @@
 package org.asoem.greyfish.core.traits;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.Descendant;
-import org.asoem.greyfish.utils.collect.FunctionalList;
-import org.asoem.greyfish.utils.collect.Product2;
-import org.asoem.greyfish.utils.collect.Products;
 
 import java.util.List;
 import java.util.Set;
@@ -23,13 +12,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class HeritableTraitsChromosome implements Chromosome {
 
-    private static final Predicate<AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> IS_HERITABLE =
-            new Predicate<AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>>() {
-                @Override
-                public boolean apply(final AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?> input) {
-                    return input.isHeritable();
-                }
-            };
     private final List<TraitVector<?>> traitVectors;
     private final Set<Integer> parents;
 
@@ -51,47 +33,6 @@ public final class HeritableTraitsChromosome implements Chromosome {
     @Override
     public int size() {
         return traitVectors.size();
-    }
-
-    @Override
-    public <A extends Agent<A, ? extends BasicSimulationContext<?, ?>> & Descendant> void updateAgent(final A agent) {
-        checkNotNull(agent, "Agent is null");
-
-        final FunctionalList<AgentTrait<A, ?>> traits = agent.getTraits();
-        final Iterable<AgentTrait<A, ?>> filter = traits.filter(IS_HERITABLE);
-        final List<TraitVector<?>> traitVectors1 = getTraitVectors();
-        final Iterable<Product2<AgentTrait<A, ?>, TraitVector<?>>> zip = Products.zip(filter, traitVectors1);
-
-        for (final Product2<AgentTrait<A, ?>, TraitVector<?>> tuple2 : zip) {
-            final AgentTrait<A, ?> trait = tuple2._1();
-            final TraitVector<?> supplier = tuple2._2();
-            assert trait.getName().equals(supplier.getName());
-            trait.copyFrom(supplier);
-        }
-
-        agent.setParents(getParents());
-    }
-
-    /**
-     * Create a new {@code HeritableTraitsChromosome} from given {@code agent} by creating {@code TraitVector}s of all
-     * it's heritable {@link Trait}s.
-     *
-     * @param agent the {@code Agent} to get the traits from.
-     * @return a new {@code HeritableTraitsChromosome} object
-     */
-    public static HeritableTraitsChromosome copyFromAgent(final Agent<?, ? extends BasicSimulationContext<?, ?>> agent) {
-        checkNotNull(agent, "Agent is null");
-        final Iterable<? extends AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>> traits = agent.getTraits().filter(IS_HERITABLE);
-        final Iterable<TraitVector<?>> traitVectors = Iterables.transform(
-                traits,
-                new Function<AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?>, TraitVector<?>>() {
-                    @Override
-                    public TraitVector<?> apply(final AgentTrait<? extends Agent<?, ? extends BasicSimulationContext<?, ?>>, ?> input) {
-                        return TraitVector.copyOf(input);
-                    }
-                });
-        final Optional<? extends BasicSimulationContext<?, ?>> context = agent.getContext();
-        return new HeritableTraitsChromosome(traitVectors, context.isPresent() ? ImmutableSet.of(context.get().getAgentId()) : ImmutableSet.<Integer>of());
     }
 
 }

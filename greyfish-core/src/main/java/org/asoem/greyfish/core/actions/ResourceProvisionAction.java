@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.acl.ACLPerformative;
 import org.asoem.greyfish.core.acl.ImmutableACLMessage;
 import org.asoem.greyfish.core.acl.NotUnderstoodException;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Tagged;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Tagged("actions")
-public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends ContractNetParticipantAction<A> {
+public class ResourceProvisionAction<A extends Agent<?>> extends ContractNetParticipantAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
@@ -60,11 +59,11 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
         final double offeredAmount = Math.min(requestAmount, providedAmount);
 
         if (offeredAmount > 0) {
-            reply.performative(ACLPerformative.PROPOSE).content(offeredAmount, Double.class);
+            reply.performative(ACLPerformative.PROPOSE).content(offeredAmount);
             proposalSent = true;
             LOGGER.trace("{}: Offering {}", context.agent(), offeredAmount);
         } else {
-            reply.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount", String.class);
+            reply.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount");
             LOGGER.trace("{}: Nothing to offeredAmount", context.agent());
         }
 
@@ -86,7 +85,7 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
 
         return ImmutableACLMessage.createReply(message, context.agent())
                 .performative(ACLPerformative.INFORM)
-                .content(offer, Double.class);
+                .content(offer);
     }
 
     protected ResourceProvisionAction(final AbstractBuilder<A, ? extends ResourceProvisionAction<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
@@ -95,7 +94,7 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
         this.provides = builder.provides;
     }
 
-    public static <A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<A> with() {
+    public static <A extends Agent<?>> Builder<A> with() {
         return new Builder();
     }
 
@@ -109,7 +108,7 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
         providedAmount = 0;
     }
 
-    public static final class Builder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<?>> extends AbstractBuilder<A, ResourceProvisionAction<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
             return this;
@@ -121,7 +120,7 @@ public class ResourceProvisionAction<A extends Agent<A, ? extends BasicSimulatio
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends ResourceProvisionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends ResourceProvisionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction<A>, Double> provides;
 

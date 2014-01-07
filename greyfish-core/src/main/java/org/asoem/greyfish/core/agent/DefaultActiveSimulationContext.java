@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -12,7 +11,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @param <S> the type of the getSimulation
  * @param <A> the type of the agent
  */
-public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<A, ? extends SimulationContext<S>>> implements BasicSimulationContext<S, A> {
+public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<?>> implements BasicSimulationContext<S, A> {
 
     private final S simulation;
 
@@ -26,7 +25,7 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
         this.activationStep = simulationStep;
     }
 
-    public static <S extends DiscreteTimeSimulation<A>, A extends Agent<A, ? extends SimulationContext<S>>>
+    public static <S extends DiscreteTimeSimulation<A>, A extends Agent<?>>
     DefaultActiveSimulationContext<S, A> create(final S simulation, final int agentId, final long simulationStep) {
         return new DefaultActiveSimulationContext<>(simulation, agentId, simulationStep);
     }
@@ -47,6 +46,16 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
     }
 
     @Override
+    public Iterable<A> getActiveAgents() {
+        return simulation.getActiveAgents();
+    }
+
+    @Override
+    public Iterable<A> getAgents(final PrototypeGroup prototypeGroup) {
+        return simulation.getAgents(prototypeGroup);
+    }
+
+    @Override
     public long getAge() {
         checkState(getSimulationStep() >= getActivationStep(),
                 "Agent seems to be born in the future: activationStep={} > simulation.getTime()={}",
@@ -63,11 +72,6 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
     @Override
     public long getTime() {
         return getSimulation().getTime();
-    }
-
-    @Override
-    public void deliverMessage(final ACLMessage<A> message) {
-        getSimulation().deliverMessage(message);
     }
 
     @Override

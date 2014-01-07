@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements AgentComponent {
+public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
 
     private final String name;
 
@@ -15,7 +15,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         this.name = "";
     }
 
-    protected AbstractAgentComponent(final AbstractBuilder<A, ? extends AbstractAgentComponent<A>, ? extends AbstractBuilder<A, ?, ?>> builder) {
+    protected AbstractAgentComponent(final AbstractBuilder<? extends AbstractAgentComponent<C>, ? extends AbstractBuilder<?, ?>> builder) {
         this.name = builder.name;
     }
 
@@ -42,7 +42,7 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final AbstractAgentComponent that = (AbstractAgentComponent) o;
+        final AbstractAgentComponent<C> that = (AbstractAgentComponent<C>) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
@@ -63,10 +63,10 @@ public abstract class AbstractAgentComponent<A extends Agent<A, ?>> implements A
         return ImmutableList.of();
     }
 
-    protected abstract static class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractAgentComponent<A>, B extends AbstractBuilder<A, C, B>> extends InheritableBuilder<C, B> implements Serializable {
+    protected abstract static class AbstractBuilder<C extends AbstractAgentComponent<?>, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> implements Serializable {
         private String name;
 
-        protected AbstractBuilder(final AbstractAgentComponent<A> component) {
+        protected AbstractBuilder(final AbstractAgentComponent<?> component) {
             this.name = component.name;
         }
 

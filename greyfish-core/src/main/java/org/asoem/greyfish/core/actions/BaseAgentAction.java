@@ -6,7 +6,6 @@ import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.conditions.ActionCondition;
 
 import javax.annotation.Nullable;
@@ -22,8 +21,9 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.*;
  *
  * @param <A> the type of the agent
  */
-public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>>
-        extends AbstractAgentComponent<A> implements AgentAction<A> {
+public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext<A>>
+        extends AbstractAgentComponent<C>
+        implements AgentAction<C> {
 
     @Nullable
     private ActionCondition<A> condition;
@@ -36,8 +36,8 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
         this.actionState = INITIAL;
     }
 
-    protected BaseAgentAction(final AbstractBuilder<A, ? extends BaseAgentAction<A>,
-            ? extends AbstractBuilder<A, ?, ?>> builder) {
+    protected BaseAgentAction(final AbstractBuilder<A, ? extends BaseAgentAction<A, C>,
+            ? extends AbstractBuilder<A, ?, ?, C>, C> builder) {
         super(builder);
         this.setActionState(builder.actionState);
 
@@ -51,10 +51,10 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
     /**
      * Called by the {@code Agent} which contains this {@code AgentAction}
      *
-     * @param agentContext the context for this action
+     * @param agentContext
      */
     @Override
-    public final ActionExecutionResult apply(final AgentContext<A> agentContext) {
+    public final ActionExecutionResult apply(final C agentContext) {
         checkNotNull(agentContext);
         this.agent = Optional.of(agentContext.agent());
 
@@ -98,7 +98,7 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
         return result;
     }
 
-    protected abstract ActionState proceed(final AgentContext<A> context);
+    protected abstract ActionState proceed(final C context);
 
     private void setState(final ActionState state) {
         assert state != null;
@@ -150,10 +150,18 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
         return agent;
     }
 
+    @Override
+    public <T> T tell(final C context, final Object message, final Class<T> replyType) {
+        throw new IllegalArgumentException();
+    }
+
     @SuppressWarnings("UnusedDeclaration")
-    protected abstract static class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>,
-            T extends BaseAgentAction<A>,
-            B extends AbstractBuilder<A, T, B>> extends AbstractAgentComponent.AbstractBuilder<A, T, B>
+    protected abstract static class AbstractBuilder<
+            A extends Agent<?>,
+            T extends BaseAgentAction<A, C>,
+            B extends AbstractBuilder<A, T, B, C>,
+            C extends AgentContext<A>>
+            extends AbstractAgentComponent.AbstractBuilder<T, B>
             implements Serializable {
         private ActionCondition<A> condition;
         private int successCount;
@@ -162,7 +170,7 @@ public abstract class BaseAgentAction<A extends Agent<A, ? extends BasicSimulati
         protected AbstractBuilder() {
         }
 
-        protected AbstractBuilder(final BaseAgentAction<A> action) {
+        protected AbstractBuilder(final BaseAgentAction<A, C> action) {
             super(action);
             this.condition = action.condition;
             this.actionState = action.getActionState();

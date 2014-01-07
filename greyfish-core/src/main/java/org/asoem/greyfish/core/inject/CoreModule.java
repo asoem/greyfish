@@ -5,8 +5,6 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.core.eval.Evaluator;
 import org.asoem.greyfish.core.eval.EvaluatorFactory;
 import org.asoem.greyfish.core.eval.impl.CommonsJEXLEvaluator;
-import org.asoem.greyfish.core.utils.AgentComponentClassFinder;
-import org.asoem.greyfish.core.utils.AnnotatedAgentComponentClassFinder;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.persistence.Persisters;
@@ -28,10 +26,6 @@ public class CoreModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // Utils
-        bind(AgentComponentClassFinder.class)
-                .to(AnnotatedAgentComponentClassFinder.class).asEagerSingleton();
-
         // Persister
         bind(Persister.class).toInstance(Persisters.javaSerialization());
 

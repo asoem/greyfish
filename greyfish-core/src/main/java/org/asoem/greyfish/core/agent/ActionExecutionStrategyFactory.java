@@ -7,12 +7,13 @@ import java.util.List;
 /**
  * A factory for instances of {@link ActionExecutionStrategy}.
  */
-public interface ActionExecutionStrategyFactory<A extends Agent<A, ?>> {
+public interface ActionExecutionStrategyFactory<C> {
 
     /**
      * Create a strategy for given {@code actions}.
+     *
      * @param actions the actions to execute
      * @return a new strategy
      */
-    ActionExecutionStrategy<A> create(final List<? extends AgentAction<A>> actions);
+    ActionExecutionStrategy<C> create(final List<? extends AgentAction<? super C>> actions);
 }

@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.Agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 
-public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>, A extends Agent<A, ?>> extends AbstractAgentProperty<E, A> implements RangeElementProperty<A, E> {
+public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>, A extends Agent<?>, C extends AgentContext<A>> extends AbstractAgentProperty<E, A, C> implements RangeElementProperty<A, E, C> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
 
@@ -24,8 +25,15 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
 
     protected E value;
 
+    protected AbstractRangeElementProperty(final AbstractBuilder<A, ? extends AbstractRangeElementProperty<E, A, C>, ?, E, C> builder) {
+        super(builder);
+        this.lowerBound = builder.lowerBound;
+        this.upperBound = builder.upperBound;
+        this.initialValue = builder.initialValue;
+    }
+
     @Override
-    public E get() {
+    public E value(final C context) {
         return value;
     }
 
@@ -53,14 +61,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         checkAndSet(initialValue);
     }
 
-    protected AbstractRangeElementProperty(final AbstractBuilder<A, ? extends AbstractRangeElementProperty<E, A>, ? extends AbstractBuilder<A, ?, ?, E>, E> builder) {
-        super(builder);
-        this.lowerBound = builder.lowerBound;
-        this.upperBound = builder.upperBound;
-        this.initialValue = builder.initialValue;
-    }
-
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, C extends AbstractRangeElementProperty<?, A>, T extends AbstractBuilder<A, C, T, E>, E extends Comparable<E>> extends AbstractAgentProperty.AbstractBuilder<C, A, T> {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends AbstractRangeElementProperty<?, A, AC>, T extends AbstractBuilder<A, C, T, E, AC>, E extends Comparable<E>, AC extends AgentContext<A>> extends AbstractAgentProperty.AbstractBuilder<C, A, T> {
         protected E upperBound;
         protected E lowerBound;
         protected E initialValue;

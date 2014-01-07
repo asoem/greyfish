@@ -1,8 +1,6 @@
 package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.Descendant;
 
 import java.util.List;
 import java.util.Set;
@@ -35,13 +33,4 @@ public interface Chromosome {
      */
     int size();
 
-    /**
-     * Inject the values of the {@link TraitVector}s in {@link #getTraitVectors()} into the appropriate {@link Trait}s
-     * of the given {@code agent}.
-     *
-     * @param agent the agent to update
-     * @see Trait#copyFrom(org.asoem.greyfish.utils.base.TypedSupplier)
-     * @see org.asoem.greyfish.core.agent.Descendant#setParents(java.util.Set)
-     */
-    <A extends Agent<A, ? extends BasicSimulationContext<?, ?>> & Descendant> void updateAgent(final A agent);
 }

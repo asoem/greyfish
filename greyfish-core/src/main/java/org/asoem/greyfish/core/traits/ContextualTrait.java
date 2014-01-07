@@ -1,13 +1,15 @@
 package org.asoem.greyfish.core.traits;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.reflect.TypeToken;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.SingleElementCache;
 
+import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
@@ -20,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  *
  */
-public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, T> extends AbstractTrait<A, T> {
+public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?, A>>, T> extends AbstractTrait<A, AgentContext<A>, T> {
 
     private final Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
@@ -29,6 +31,8 @@ public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext
     private final SingleElementCache<T> valueCache;
 
     private long lastModificationStep = -1;
+    @Nullable
+    private A agent;
 
     private ContextualTrait(final AbstractBuilder<T, A, ? extends ContextualTrait<A, T>, ? extends Builder<T, A>> builder) {
         super(builder);
@@ -43,16 +47,11 @@ public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext
     }
 
     @Override
-    public TypeToken<T> getValueType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public T get() {
+    public T value(final AgentContext<A> context) {
         if (expirationCallback.apply(ContextualTrait.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
             valueCache.update();
-            lastModificationStep = agent().get().getContext().get().getTime();
+            lastModificationStep = context.agent().getContext().get().getTime();
         }
         return valueCache.get();
     }
@@ -63,29 +62,27 @@ public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext
         lastModificationStep = -1;
     }
 
+    public Optional<A> agent() {
+        return Optional.absent();
+    }
+
     public Callback<? super ContextualTrait<A, T>, ? extends T> getValueCallback() {
         return valueCallback;
     }
 
-    public static <T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> Builder<T, A> builder() {
-        return new Builder<T, A>();
+    public static <T, A extends Agent<? extends BasicSimulationContext<?, A>>> Builder<T, A> builder() {
+        return new Builder<>();
     }
 
     public long getLastModificationStep() {
         return lastModificationStep;
     }
 
-    @Override
-    public T createInitialValue() {
-        throw new UnsupportedOperationException();
+    public final void setAgent(@Nullable final A agent) {
+        this.agent = agent;
     }
 
-    @Override
-    public boolean isHeritable() {
-        return false;
-    }
-
-    public static class Builder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends ContextualTrait.AbstractBuilder<T, A, ContextualTrait<A, T>, Builder<T, A>> implements Serializable {
+    public static class Builder<T, A extends Agent<? extends BasicSimulationContext<?, A>>> extends ContextualTrait.AbstractBuilder<T, A, ContextualTrait<A, T>, Builder<T, A>> implements Serializable {
 
         private Builder() {
         }
@@ -115,7 +112,7 @@ public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<A, ? extends BasicSimulationContext<?, A>>, P extends ContextualTrait<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractTrait.AbstractBuilder<A, P, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, P extends ContextualTrait<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractTrait.AbstractBuilder<P, B> implements Serializable {
         private Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
         private Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback = ContextualTrait.expiresAtBirth();
@@ -153,30 +150,30 @@ public class ContextualTrait<A extends Agent<A, ? extends BasicSimulationContext
         throw new InvalidObjectException("Builder required");
     }
 
-    public static Callback<ContextualTrait<?, ?>, Boolean> expiresAtBirth() {
+    public static <T, A extends Agent<? extends BasicSimulationContext<?, A>>> Callback<? super ContextualTrait<A, T>, Boolean> expiresAtBirth() {
         return BirthExpirationCallback.INSTANCE;
     }
 
-    private enum BirthExpirationCallback implements Callback<ContextualTrait<?, ?>, Boolean> {
+    private enum BirthExpirationCallback implements Callback<ContextualTrait<? extends Agent<? extends BasicSimulationContext<?, ?>>, ?>, Boolean> {
         INSTANCE;
 
         @Override
-        public Boolean apply(final ContextualTrait<?, ?> caller, final Map<String, ?> args) {
-            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
+        public Boolean apply(final ContextualTrait<? extends Agent<? extends BasicSimulationContext<?, ?>>, ?> caller, final Map<String, ?> args) {
+            final Agent<? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() < agent.getContext().get().getActivationStep();
         }
     }
 
-    public static Callback<ContextualTrait<?, ?>, Boolean> expiresEveryStep() {
+    public static <T, A extends Agent<? extends BasicSimulationContext<?, A>>> Callback<? super ContextualTrait<A, T>, Boolean> expiresEveryStep() {
         return StepExpirationCallback.INSTANCE;
     }
 
-    private enum StepExpirationCallback implements Callback<ContextualTrait<?, ?>, Boolean> {
+    private enum StepExpirationCallback implements Callback<ContextualTrait<? extends Agent<? extends BasicSimulationContext<?, ?>>, ?>, Boolean> {
         INSTANCE;
 
         @Override
-        public Boolean apply(final ContextualTrait<?, ?> caller, final Map<String, ?> args) {
-            final Agent<?, ? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
+        public Boolean apply(final ContextualTrait<? extends Agent<? extends BasicSimulationContext<?, ?>>, ?> caller, final Map<String, ?> args) {
+            final Agent<? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() != agent.getContext().get().getTime();
         }
     }

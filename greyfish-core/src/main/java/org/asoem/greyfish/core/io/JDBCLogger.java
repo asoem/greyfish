@@ -15,10 +15,9 @@ import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.RequestAllTraitValues;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
-import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A {@code SimulationLogger} which logs to a JDBC {@link Connection}. This implementation uses a {@link Disruptor} to
  * handle the incoming events and therefore is threadsafe.
  */
-final class JDBCLogger<A extends SpatialAgent<?, ?, ? extends BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>>>>
+final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?>>
         implements SimulationLogger<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
@@ -173,7 +173,7 @@ final class JDBCLogger<A extends SpatialAgent<?, ?, ? extends BasicSimulationCon
 
     @Override
     public void logAgentCreation(final A agent) {
-        final BasicSimulationContext<? extends SpatialSimulation2D<?, ?>, ? extends SpatialAgent<?, ?, ?>> simulationContext = agent.getContext().get();
+        BasicSimulationContext<?, A> simulationContext = agent.getContext().get();
         addQuery(new InsertAgentQuery(
                 simulationContext.getAgentId(),
                 idForName(agent.getPrototypeGroup().getName()),
@@ -184,24 +184,27 @@ final class JDBCLogger<A extends SpatialAgent<?, ?, ? extends BasicSimulationCon
             addQuery(new InsertChromosomeQuery(simulationContext.getAgentId(), parentId));
         }
 
-        for (final AgentTrait<?, ?> trait : agent.getTraits()) {
-            assert trait != null;
+        Map<String, Object> traitValues = (Map<String, Object>) agent.ask(new RequestAllTraitValues(), Map.class);
 
-            final TypeToken<?> valueType = trait.getValueType();
-            final Object rawValue = trait.get();
-            final Object value = rawValue != null && TypeToken.of(Storeable.class).isAssignableFrom(valueType)
-                    ? ((Storeable) rawValue).convert()
-                    : rawValue;
+        for (Map.Entry<String, Object> stringObjectEntry : traitValues.entrySet()) {
+            final String traitName = stringObjectEntry.getKey();
+            final Object traitValue = stringObjectEntry.getValue();
+
+            final TypeToken<?> valueType = TypeToken.of(traitValue.getClass());
+
+            final Object value = traitValue != null && TypeToken.of(Storeable.class).isAssignableFrom(valueType)
+                    ? ((Storeable) traitValue).convert()
+                    : traitValue;
 
             if (value instanceof Number) {
                 addQuery(new InsertTraitAsDoubleQuery(
                         simulationContext.getAgentId(),
-                        idForName(trait.getName()),
+                        idForName(traitName),
                         Optional.fromNullable((Number) value).or(Double.NaN).doubleValue()));
             } else {
                 addQuery(new InsertTraitAsStringQuery(
                         simulationContext.getAgentId(),
-                        idForName(trait.getName()),
+                        idForName(traitName),
                         idForName(String.valueOf(value))));
             }
         }

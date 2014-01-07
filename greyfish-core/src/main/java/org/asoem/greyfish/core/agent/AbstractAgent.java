@@ -5,32 +5,29 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
-import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.core.traits.AgentTrait;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalList;
 import org.asoem.greyfish.utils.collect.Functionals;
+import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * This class provides a skeletal implementation of the {@code Agent} interface.
  */
-public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimulationContext<?, A>> implements Agent<A, C>, Descendant {
+public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulationContext<?, A>, AC extends AgentContext<A>> implements Agent<C>, Descendant {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
-    private static <E extends AgentComponent> E findByName(final Iterable<E> elements, final String name) {
-        final Optional<E> element = Functionals.tryFind(elements, new Predicate<AgentComponent>() {
+    private static <E extends AgentComponent<?>> E findByName(final Iterable<E> elements, final String name) {
+        final Optional<E> element = Functionals.tryFind(elements, new Predicate<AgentComponent<?>>() {
             @Override
-            public boolean apply(final AgentComponent agentAction) {
+            public boolean apply(final AgentComponent<?> agentAction) {
                 return agentAction.getName().equals(name);
             }
         });
@@ -50,61 +47,26 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
      */
     protected abstract A self();
 
-    @Override
-    public final AgentAction<A> getAction(final String name) {
-        return findByName(getActions(), name);
-    }
-
-    @Override
-    public final AgentProperty<A, ?> getProperty(final String name) {
+    @Nullable
+    public final AgentProperty<? super AC, ?> getProperty(final String name) {
         return findByName(getProperties(), name);
     }
 
-    @Override
-    public abstract FunctionalList<AgentTrait<A, ?>> getTraits();
-
-    @Override
-    @Nullable
-    public final AgentTrait<A, ?> getTrait(final String name) {
-        return findByName(getTraits(), name);
-    }
-
-    @Override
     public final void receive(final ACLMessage<A> message) {
         LOGGER.debug("{} received a message: {}", this, message);
         getInBox().add(message);
     }
 
     @Override
-    public final void receiveAll(final Iterable<? extends ACLMessage<A>> messages) {
-        LOGGER.debug("{} received {} messages: {}", this, Iterables.size(messages), messages);
-        Iterables.addAll(getInBox(), messages);
-    }
-
-    @Override
-    public final Iterable<ACLMessage<A>> getMessages(final MessageTemplate template) {
-        return getInBox().remove(template);
-    }
-
-    @Override
-    public final boolean hasMessages(final MessageTemplate template) {
-        return Iterables.any(getInBox(), template);
-    }
-
-    @Override
     public final void run() {
-        final ActionExecutionStrategy<A> actionExecutionStrategy = getActionExecutionStrategy();
-        final boolean executeSuccess = actionExecutionStrategy.executeNext(new AgentContext<A>() {
-            @Override
-            public A agent() {
-                return self();
-            }
-
-        });
+        final ActionExecutionStrategy<AC> actionExecutionStrategy = getActionExecutionStrategy();
+        final boolean executeSuccess = actionExecutionStrategy.executeNext(agentContext());
         if (executeSuccess) {
             LOGGER.debug("{} executed {}", this, actionExecutionStrategy);
         }
     }
+
+    protected abstract AC agentContext();
 
     @Override
     public final void deactivate() {
@@ -124,6 +86,38 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
         return getContext().isPresent();
     }
 
+    public <T> T ask(final ComponentMessage message, final Class<T> replyType) {
+        final String traitName = message.componentName();
+        final AgentProperty<? super AC, ?> trait = getProperty(traitName);
+        if (trait == null) {
+            throw new UnsupportedOperationException("Could not find trait with name = " + traitName);
+        }
+        return replyType.cast(trait.tell(agentContext(), message, replyType));
+    }
+
+    @Override
+    public <T> T ask(final Object message, final Class<T> replyType) {
+        if (message instanceof ComponentMessage) {
+            final ComponentMessage request = (ComponentMessage) message;
+            return replyType.cast(ask(request, replyType));
+        } else if (message instanceof ACLMessage) {
+            receive((ACLMessage<A>) message);
+            return replyType.cast(null);
+        } else if (message instanceof RequestAllTraitValues) {
+            FunctionalList<AgentProperty<? super AC, ?>> traits = getProperties();
+            final ImmutableMapBuilder<String, Object> builder = ImmutableMapBuilder.newInstance();
+            for (AgentProperty<? super AC, ?> trait : traits) {
+                String traitName = trait.getName();
+                Object traitValue = trait.value(agentContext());
+                builder.put(traitName, traitValue);
+            }
+            return replyType.cast(builder.build());
+        }
+
+        throw new IllegalArgumentException();
+    }
+
+    /*
     @Override
     public final void activate(final C context) {
         checkNotNull(context);
@@ -131,12 +125,7 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
         //logEvent(this, "activated", "");
         activated();
     }
-
-    /**
-     * A hook that gets called when this agent was activated with {@link Agent#activate(SimulationContext)}.
-     */
-    protected void activated() {
-    }
+    */
 
     @Override
     public final void initialize() {
@@ -149,11 +138,9 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
         }
     }
 
-    @Override
-    public abstract FunctionalList<AgentProperty<A, ?>> getProperties();
+    public abstract FunctionalList<AgentProperty<? super AC, ?>> getProperties();
 
-    @Override
-    public abstract FunctionalList<AgentAction<A>> getActions();
+    public abstract FunctionalList<AgentAction<? super AC>> getActions();
 
     /*
     @Override
@@ -163,16 +150,10 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
     */
 
     @Override
-    public final void sendMessage(final ACLMessage<A> message) {
-        getContext().get().deliverMessage(message);
-    }
-
-    @Override
     public final Iterable<AgentNode> children() {
         return Iterables.<AgentNode>concat(
                 getProperties(),
-                getActions(),
-                getTraits()
+                getActions()
         );
     }
 
@@ -195,6 +176,6 @@ public abstract class AbstractAgent<A extends Agent<A, C>, C extends BasicSimula
      *
      * @return the action execution strategy
      */
-    protected abstract ActionExecutionStrategy<A> getActionExecutionStrategy();
+    protected abstract ActionExecutionStrategy<AC> getActionExecutionStrategy();
 
 }

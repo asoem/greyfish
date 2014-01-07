@@ -9,13 +9,13 @@ import org.asoem.greyfish.core.agent.AgentComponent;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public interface ActionCondition<A extends Agent<A, ?>> extends AgentComponent {
+public interface ActionCondition<A extends Agent<?>> extends AgentComponent<A> {
 
-    Optional<AgentAction<A>> getAction();
+    Optional<AgentAction<?>> getAction();
 
-    AgentAction<A> action();
+    AgentAction<?> action();
 
-    void setAction(AgentAction<A> action);
+    void setAction(AgentAction<?> action);
 
     List<ActionCondition<A>> getChildConditions();
 

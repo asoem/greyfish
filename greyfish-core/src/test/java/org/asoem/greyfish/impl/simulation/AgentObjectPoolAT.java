@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.asoem.greyfish.utils.math.SignificanceLevel.SIGNIFICANT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.spy;
 
 /**
  * Test whether we accept an object pool for agent recycling as an recommended strategy.
@@ -46,7 +46,7 @@ public class AgentObjectPoolAT {
         final DescriptiveStatistics statisticsWithoutObjectPool = new DescriptiveStatistics();
         final DescriptiveStatistics statisticsWithObjectPool = new DescriptiveStatistics();
 
-        final Supplier<BasicAgent> agentFactory = spy(new Supplier<BasicAgent>() {
+        final Supplier<BasicAgent> agentFactory = new Supplier<BasicAgent>() {
 
             @Override
             public BasicAgent get() {
@@ -63,7 +63,7 @@ public class AgentObjectPoolAT {
                                         .executes(Callbacks.emptyCallback())
                                         .build()).build();
             }
-        });
+        };
 
         // when
         final int objects = 1000;
@@ -89,14 +89,14 @@ public class AgentObjectPoolAT {
 
         // Is it also significantly faster? Make a t-test.
         // Test assumptions for t-test: normality
-        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithObjectPool.getValues()).p(), is(lessThan(0.05)));
-        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithoutObjectPool.getValues()).p(), is(lessThan(0.05)));
+                assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithObjectPool.getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithoutObjectPool.getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
 
         // Perform the t-test
         final double t = new TTest().t(statisticsWithObjectPool, statisticsWithoutObjectPool);
         final double p = new TTest().tTest(statisticsWithObjectPool, statisticsWithoutObjectPool);
         LOGGER.info("t-test: t={}, p={}", t, p);
-        double qt = new TDistribution(statisticsWithObjectPool.getN() - 1 + statisticsWithoutObjectPool.getN() - 1).inverseCumulativeProbability(0.975);
+        double qt = new TDistribution(statisticsWithObjectPool.getN() - 1 + statisticsWithoutObjectPool.getN() - 1).inverseCumulativeProbability(1 - SIGNIFICANT.getAlpha() / 2);
         assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }
 
@@ -248,7 +248,6 @@ public class AgentObjectPoolAT {
                                                 @Override
                                                 public void run() {
                                                     try {
-                                                        // TODO: agent is not removed yet
                                                         agentObjectPool.release(agent);
                                                     } catch (Exception e) {
                                                         throw new AssertionError(e);

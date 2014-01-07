@@ -5,6 +5,6 @@ import org.asoem.greyfish.core.agent.CloneFactory;
 
 import java.util.Set;
 
-public interface SimulationFactory<S extends DiscreteTimeSimulation<A>, A extends Agent<A, ?>> {
+public interface SimulationFactory<S extends DiscreteTimeSimulation<A>, A extends Agent<?>> {
     public Simulation<A> createSimulation(S space, Set<? extends A> prototypes, CloneFactory<A> cloneFactory);
 }

@@ -5,13 +5,13 @@ import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 /**
  * Default implementation of {@code SimulationContextFactory}.
  */
-public final class DefaultSimulationContextFactory<S extends DiscreteTimeSimulation<A>, A extends Agent<A, ? extends SimulationContext<S>>>
+public final class DefaultSimulationContextFactory<S extends DiscreteTimeSimulation<A>, A extends Agent<?>>
         implements SimulationContextFactory<S, A> {
 
     private DefaultSimulationContextFactory() {
     }
 
-    public static <S extends DiscreteTimeSimulation<A>, A extends Agent<A, ? extends SimulationContext<S>>> DefaultSimulationContextFactory<S, A> create() {
+    public static <S extends DiscreteTimeSimulation<A>, A extends Agent<?>> DefaultSimulationContextFactory<S, A> create() {
         return new DefaultSimulationContextFactory<>();
     }
 

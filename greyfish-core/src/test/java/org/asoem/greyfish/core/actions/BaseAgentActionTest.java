@@ -22,7 +22,7 @@ public class BaseAgentActionTest {
     public void testPresenceOfAgentDuringProceed() throws Exception {
 
         // given
-        BaseAgentAction<TestAgent> action = new BaseAgentAction<TestAgent>(mock(ActionCondition.class)) {
+        BaseAgentAction<TestAgent, AgentContext<TestAgent>> action = new BaseAgentAction<TestAgent, AgentContext<TestAgent>>(mock(ActionCondition.class)) {
             @Override
             protected ActionState proceed(final AgentContext<TestAgent> context) {
                 agent().get().hashCode();
@@ -40,7 +40,7 @@ public class BaseAgentActionTest {
         verify(agent).hashCode();
     }
 
-    private interface TestAgent extends Agent<TestAgent, TestContext> {
+    private interface TestAgent extends Agent<TestContext> {
     }
 
     private interface TestContext extends BasicSimulationContext<TestSimulation, TestAgent> {

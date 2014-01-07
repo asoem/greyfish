@@ -15,42 +15,42 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * The default implementation of an {@code ActionExecutionStrategy}.
  */
-public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
-        implements ActionExecutionStrategy<T>, Serializable {
+public final class DefaultActionExecutionStrategy<A extends Agent<?>, C extends AgentContext<A>>
+        implements ActionExecutionStrategy<C>, Serializable {
 
-    private final List<? extends AgentAction<T>> actions;
+    private final List<? extends AgentAction<? super C>> actions;
 
-    private ExecutionLog<T> executionLog;
+    private ExecutionLog<? super C> executionLog;
 
-    public DefaultActionExecutionStrategy(final List<? extends AgentAction<T>> actions) {
+    public DefaultActionExecutionStrategy(final List<? extends AgentAction<? super C>> actions) {
         this.actions = checkNotNull(actions);
         this.executionLog = emptyLog();
     }
 
     @SuppressWarnings("unchecked")
-    private ExecutionLog<T> emptyLog() {
-        return (ExecutionLog<T>) EmptyExecutionLog.INSTANCE;
+    private ExecutionLog<Object> emptyLog() {
+        return (ExecutionLog<Object>) EmptyExecutionLog.INSTANCE;
     }
 
-    private DefaultActionExecutionStrategy(final List<? extends AgentAction<T>> agentActions, final ExecutionLog<T> executionLog) {
+    private DefaultActionExecutionStrategy(final List<? extends AgentAction<? super C>> agentActions, final ExecutionLog<? super C> executionLog) {
         this.actions = agentActions;
         this.executionLog = executionLog;
     }
 
     @Override
-    public boolean executeNext(final AgentContext<T> agentContext) {
-        checkNotNull(agentContext);
+    public boolean executeNext(final C context) {
+        checkNotNull(context);
 
         // identify action to execute
         if (executionLog.hasUncompletedAction()) {
-            final AgentAction<T> nextAction = executionLog.getAction();
+            final AgentAction<? super C> nextAction = executionLog.getAction();
             assert nextAction != null;
-            final ActionExecutionResult state = nextAction.apply(agentContext);
+            final ActionExecutionResult state = nextAction.apply(context);
             executionLog = new BasicExecutionLog<>(nextAction, state);
             return true;
         } else {
-            for (final AgentAction<T> action : actions) {
-                final ActionExecutionResult state = action.apply(agentContext);
+            for (final AgentAction<? super C> action : actions) {
+                final ActionExecutionResult state = action.apply(context);
                 if (state != ActionExecutionResult.NEXT) {
                     executionLog = new BasicExecutionLog<>(action, state);
                     return true;
@@ -79,11 +79,11 @@ public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
         return new SerializedForm<>(this);
     }
 
-    private static class SerializedForm<T extends Agent<T, ?>> implements Serializable {
-        private final List<? extends AgentAction<T>> actions;
-        private final ExecutionLog<T> executionLog;
+    private static class SerializedForm<A extends Agent<?>, C extends AgentContext<A>> implements Serializable {
+        private final List<? extends AgentAction<? super C>> actions;
+        private final ExecutionLog<? super C> executionLog;
 
-        SerializedForm(final DefaultActionExecutionStrategy<T> strategy) {
+        SerializedForm(final DefaultActionExecutionStrategy<A, C> strategy) {
             this.actions = strategy.actions;
             this.executionLog = strategy.executionLog;
         }
@@ -93,17 +93,17 @@ public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
                 checkNotNull(executionLog.getState());
                 checkState(actions.contains(executionLog.getAction()));
             }
-            return new DefaultActionExecutionStrategy<>(actions, executionLog);
+            return new DefaultActionExecutionStrategy<A, C>(actions, executionLog);
         }
 
         private static final long serialVersionUID = 0;
     }
 
-    private static class BasicExecutionLog<T extends Agent<T, ?>> implements ExecutionLog<T>, Serializable {
-        private final AgentAction<T> action;
+    private static class BasicExecutionLog<C> implements ExecutionLog<C>, Serializable {
+        private final AgentAction<C> action;
         private final ActionExecutionResult state;
 
-        private BasicExecutionLog(final AgentAction<T> action, final ActionExecutionResult state) {
+        private BasicExecutionLog(final AgentAction<C> action, final ActionExecutionResult state) {
             this.action = action;
             this.state = state;
         }
@@ -114,7 +114,7 @@ public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
         }
 
         @Override
-        public AgentAction<T> getAction() {
+        public AgentAction<C> getAction() {
             return action;
         }
 
@@ -143,7 +143,7 @@ public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
         }
 
         @Override
-        public AgentAction<?> getAction() {
+        public AgentAction getAction() {
             return null;
         }
 
@@ -153,11 +153,11 @@ public final class DefaultActionExecutionStrategy<T extends Agent<T, ?>>
         }
     }
 
-    private interface ExecutionLog<T extends Agent<T, ?>> {
+    private interface ExecutionLog<C> {
         boolean hasUncompletedAction();
 
         @Nullable
-        AgentAction<T> getAction();
+        AgentAction<C> getAction();
 
         ActionExecutionResult getState();
     }

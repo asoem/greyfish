@@ -2,7 +2,7 @@ package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
 
-public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A> {
+public class AlwaysTrueCondition<A extends Agent<?>> extends LeafCondition<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AlwaysTrueCondition() {
@@ -18,11 +18,11 @@ public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A>
         return true;
     }
 
-    public static <A extends Agent<A, ?>> Builder<A> builder() {
+    public static <A extends Agent<?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
-    public static final class Builder<A extends Agent<A, ?>> extends AbstractBuilder<A, AlwaysTrueCondition<A>, Builder<A>> {
+    public static final class Builder<A extends Agent<?>> extends AbstractBuilder<A, AlwaysTrueCondition<A>, Builder<A>> {
         private Builder() {
         }
 
@@ -37,6 +37,6 @@ public class AlwaysTrueCondition<A extends Agent<A, ?>> extends LeafCondition<A>
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ?>, E extends AlwaysTrueCondition<A>, T extends AbstractBuilder<A, E, T>> extends LeafCondition.AbstractBuilder<A, E, T> {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, E extends AlwaysTrueCondition<A>, T extends AbstractBuilder<A, E, T>> extends LeafCondition.AbstractBuilder<A, E, T> {
     }
 }

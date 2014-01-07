@@ -2,8 +2,8 @@ package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Optional;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.SimulationContext;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
+import org.asoem.greyfish.impl.agent.Basic2DAgentContext;
 import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
 import org.asoem.greyfish.utils.base.Callback;
 import org.junit.Test;
@@ -24,9 +24,9 @@ public class CachingPropertyTest {
     @Test
     public void testDefaultLifetimeExpiration() throws Exception {
         // given
-        final Callback<CachingProperty<Basic2DAgent, Object>, Object> function = mock(Callback.class);
+        final Callback<CachingProperty<Basic2DAgent, Object, Basic2DAgentContext>, Object> function = mock(Callback.class);
         given(function.apply(any(CachingProperty.class), any(Map.class))).willReturn(mock(Object.class));
-        final CachingProperty<Basic2DAgent, Object> lifetimeProperty = CachingProperty.<Object, Basic2DAgent>builder()
+        final CachingProperty<Basic2DAgent, Object, Basic2DAgentContext> lifetimeProperty = CachingProperty.<Object, Basic2DAgent, Basic2DAgentContext>builder()
                 .value(function)
                 .expires(CachingProperty.expiresAtBirth())
                 .build();
@@ -39,8 +39,8 @@ public class CachingPropertyTest {
         lifetimeProperty.setAgent(agent);
 
         // when
-        lifetimeProperty.get();
-        lifetimeProperty.get();
+        lifetimeProperty.value(mock(Basic2DAgentContext.class));
+        lifetimeProperty.value(mock(Basic2DAgentContext.class));
 
         // then
         verify(function, times(1)).apply(any(CachingProperty.class), any(Map.class));
@@ -50,9 +50,9 @@ public class CachingPropertyTest {
     @Test
     public void testStepExpiration() throws Exception {
         // given
-        final Callback<CachingProperty<Basic2DAgent, Object>, Object> function = mock(Callback.class);
+        final Callback<CachingProperty<Basic2DAgent, Object, Basic2DAgentContext>, Object> function = mock(Callback.class);
         given(function.apply(any(CachingProperty.class), any(Map.class))).willReturn(mock(Object.class));
-        final CachingProperty<Basic2DAgent, Object> lifetimeProperty = CachingProperty.<Object, Basic2DAgent>builder()
+        final CachingProperty<Basic2DAgent, Object, Basic2DAgentContext> lifetimeProperty = CachingProperty.<Object, Basic2DAgent, Basic2DAgentContext>builder()
                 .value(function)
                 .expires(CachingProperty.expiresEveryStep())
                 .build();
@@ -63,8 +63,8 @@ public class CachingPropertyTest {
         lifetimeProperty.setAgent(agent);
 
         // when
-        lifetimeProperty.get();
-        lifetimeProperty.get();
+        lifetimeProperty.value(mock(Basic2DAgentContext.class));
+        lifetimeProperty.value(mock(Basic2DAgentContext.class));
 
         // then
         verify(function, times(2)).apply(any(CachingProperty.class), any(Map.class));

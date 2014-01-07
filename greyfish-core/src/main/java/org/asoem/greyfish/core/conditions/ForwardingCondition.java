@@ -9,21 +9,21 @@ import org.asoem.greyfish.core.agent.AgentNode;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class ForwardingCondition<A extends Agent<A, ?>> extends ForwardingObject implements ActionCondition<A> {
+public abstract class ForwardingCondition<A extends Agent<?>> extends ForwardingObject implements ActionCondition<A> {
 
     protected abstract ActionCondition<A> delegate();
 
     @Override
-    public Optional<AgentAction<A>> getAction() {
+    public Optional<AgentAction<?>> getAction() {
         return delegate().getAction();
     }
 
     @Override
-    public AgentAction<A> action() {
+    public AgentAction<?> action() {
         return delegate().action();
     }
 
-    public void setAction(final AgentAction<A> action) {
+    public void setAction(final AgentAction<?> action) {
         delegate().setAction(action);
     }
 

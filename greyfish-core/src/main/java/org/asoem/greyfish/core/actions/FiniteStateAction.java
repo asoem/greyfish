@@ -2,13 +2,12 @@ package org.asoem.greyfish.core.actions;
 
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
-public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimulationContext<?, A>>> extends BaseAgentAction<A> {
+public abstract class FiniteStateAction<A extends Agent<?>> extends BaseAgentAction<A, AgentContext<A>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
 
@@ -89,7 +88,7 @@ public abstract class FiniteStateAction<A extends Agent<A, ? extends BasicSimula
         return statefulExecutionCount;
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<A, ? extends BasicSimulationContext<?, A>>, C extends FiniteStateAction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends FiniteStateAction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B, AgentContext<A>> implements Serializable {
         private int statefulExecutionCount;
         private Object nextStateKey;
         private boolean endStateReached;

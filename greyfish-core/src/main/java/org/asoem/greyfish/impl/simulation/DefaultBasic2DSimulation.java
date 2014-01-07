@@ -1,19 +1,27 @@
 package org.asoem.greyfish.impl.simulation;
 
 import com.google.common.collect.ImmutableSet;
+import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
 import org.asoem.greyfish.core.simulation.Generic2DSimulation;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.utils.space.Point2D;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class DefaultBasic2DSimulation
         extends Generic2DSimulation<Basic2DAgent, Basic2DSimulation, BasicTiled2DSpace, Point2D>
         implements Basic2DSimulation {
+    private final AtomicInteger agentIdSequence = new AtomicInteger();
 
     private DefaultBasic2DSimulation(final Builder builder) {
         super(builder);
+    }
+
+    @Override
+    protected void activateAgent(final Basic2DAgent agent) {
+        agent.activate(DefaultActiveSimulationContext.create(self(), agentIdSequence.incrementAndGet(), getTime()));
     }
 
     @Override
