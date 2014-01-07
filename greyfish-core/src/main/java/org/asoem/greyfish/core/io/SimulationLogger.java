@@ -1,37 +1,27 @@
 package org.asoem.greyfish.core.io;
 
-import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.Closeable;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A SimulationLogger defines methods to write getSimulation events to a given destination of type {@link Closeable}.
  */
-public interface SimulationLogger<A extends Agent<?>> extends Closeable {
+public interface SimulationLogger extends Closeable {
 
     /**
      * Log a getSimulation instance.
      */
     void logSimulation(final Simulation<?> simulation);
 
-    /**
-     * Log the creation of an agent.
-     *
-     * @param agent the agent which got created.
-     */
-    void logAgentCreation(A agent);
+    void logAgentCreation(int agentId, String prototypeGroupName, int activationStep,
+                          String simulationName, Set<Integer> parents,
+                          Map<String, Object> traitValues);
 
-    /**
-     * Log an arbitrary event inside an agent.
-     *
-     * @param agent       the agent which activated the event
-     * @param currentStep the step at which the event was activated
-     * @param source      the source (class) of the event
-     * @param title       the title of the event
-     * @param message     the message for the event
-     */
-    void logAgentEvent(A agent, long currentStep, String source, String title, String message);
+    void logAgentEvent(int currentStep, String source, String title, String message, int agentId, Object2D projection);
 
     /**
      * Log a property of type {@code marker}

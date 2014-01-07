@@ -160,7 +160,7 @@ public final class GreyfishCLIApplication {
                 try {
                     final GreyfishH2ConnectionManager connectionSupplier =
                             GreyfishH2ConnectionManager.create(path);
-                    SimulationLogger<?> jdbcLogger = SimulationLoggers.createJDBCLogger(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
+                    SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
 
                     CLOSER.register(connectionSupplier);
                     CLOSER.register(jdbcLogger); // Must be closed before the connection (put on stack after the connection)

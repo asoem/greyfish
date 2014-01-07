@@ -2,7 +2,6 @@ package org.asoem.greyfish.core.agent;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.actions.AgentAction;
@@ -21,7 +20,7 @@ import java.util.NoSuchElementException;
 /**
  * This class provides a skeletal implementation of the {@code Agent} interface.
  */
-public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulationContext<?, A>, AC extends AgentContext<A>> implements Agent<C>, Descendant {
+public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulationContext<?, A>, AC extends AgentContext<A>> implements Agent<C> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends AgentComponent<?>> E findByName(final Iterable<E> elements, final String name) {
@@ -131,16 +130,12 @@ public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulatio
     public final void initialize() {
         setSimulationContext(null);
         getInBox().clear();
-        setParents(ImmutableSet.<Integer>of());
+        //setParents(ImmutableSet.<Integer>of());
         getActionExecutionStrategy().reset();
         for (final AgentNode node : children()) {
             node.initialize();
         }
     }
-
-    public abstract FunctionalList<AgentProperty<? super AC, ?>> getProperties();
-
-    public abstract FunctionalList<AgentAction<? super AC>> getActions();
 
     /*
     @Override
@@ -156,6 +151,10 @@ public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulatio
                 getActions()
         );
     }
+
+    protected abstract FunctionalList<AgentProperty<? super AC, ?>> getProperties();
+
+    protected abstract FunctionalList<AgentAction<? super AC>> getActions();
 
     /**
      * Set the getSimulation context to {@code simulationContext}.

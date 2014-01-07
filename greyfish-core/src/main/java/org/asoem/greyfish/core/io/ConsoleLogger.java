@@ -2,16 +2,19 @@ package org.asoem.greyfish.core.io;
 
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A logger that logs all messages to {@link System#out}.
  */
-final class ConsoleLogger<A extends Agent<?>> implements SimulationLogger<A> {
+final class ConsoleLogger<A extends Agent<?>> implements SimulationLogger {
 
     private final PrintStream printStream;
 
@@ -25,17 +28,16 @@ final class ConsoleLogger<A extends Agent<?>> implements SimulationLogger<A> {
     }
 
     @Override
-    public void logAgentCreation(final A agent) {
-        final String message = String.format("Created Agent: %s", agent);
+    public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep, final String simulationName, final Set<Integer> parents, final Map<String, Object> traitValues) {
+        final String message = String.format("Created Agent: %s", agentId);
         printStream.println(message);
     }
 
     @Override
-    public void logAgentEvent(final A agent, final long currentStep, final String source,
-                              final String title, final String message) {
-        final String logLine = String.format("Event: %d\t%s\t%s\t%s\t%s\t%s",
-                agent.getContext().get().getSimulation().hashCode(),
-                currentStep, agent.getPrototypeGroup(),
+    public void logAgentEvent(final int currentStep, final String source, final String title, final String message, final int agentId, final Object2D projection) {
+        final String logLine = String.format("Event: %d\t%s\t%s\t%s\t%s",
+                agentId,
+                currentStep,
                 source, title, message
         );
         printStream.println(logLine);

@@ -18,7 +18,7 @@ public interface Simulation<A extends Agent<?>> {
     Iterable<A> getAgents(PrototypeGroup prototypeGroup);
 
     /**
-     * Get all agents in this getSimulation which satisfy the given {@code predicate}.
+     * Get all agents in this simulation which satisfy the given {@code predicate}.
      *
      * @param predicate the predicate to check each agent against
      * @return all agents which satisfy the given {@code predicate}
@@ -26,7 +26,7 @@ public interface Simulation<A extends Agent<?>> {
     Iterable<A> filterAgents(Predicate<? super A> predicate);
 
     /**
-     * Get all agents in this getSimulation.
+     * Get all agents in this simulation.
      *
      * @return an unmodifiable view of all active {@code Agent}s
      */
@@ -35,7 +35,7 @@ public interface Simulation<A extends Agent<?>> {
     /**
      * The number of registered populations which is equal to the number of register prototypes.
      *
-     * @return The number of populations registered for this getSimulation
+     * @return The number of populations registered for this simulation
      */
     int numberOfPopulations();
 
@@ -55,7 +55,7 @@ public interface Simulation<A extends Agent<?>> {
     int countAgents(PrototypeGroup prototypeGroup);
 
     /**
-     * @return the name of this getSimulation
+     * @return the name of this simulation
      */
     String getName();
 
@@ -67,14 +67,9 @@ public interface Simulation<A extends Agent<?>> {
     void deliverMessage(ACLMessage<A> message);
 
     /**
-     * Shutdown this getSimulation and clean up resources.
-     */
-    void shutdown();
-
-    /**
-     * Get a status info for this getSimulation. The content is implementation specific.
+     * Get a status info for this simulation. The content is implementation specific.
      *
-     * @return a message providing information about this getSimulation
+     * @return a message providing information about this simulation
      */
     String getStatusInfo();
 }

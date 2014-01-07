@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -52,7 +51,37 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private Motion2D motion = ImmutableMotion2D.noMotion();
     @Nullable
     private BasicSimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext;
-    private Set<Integer> parents = Collections.emptySet();
+    private final Basic2DAgentContext agentContext = new Basic2DAgentContext() {
+        @Override
+        public Basic2DAgent agent() {
+            return DefaultBasic2DAgent.this;
+        }
+
+        @Override
+        public Iterable<Basic2DAgent> getActiveAgents() {
+            return getContext().get().getActiveAgents();
+        }
+
+        @Override
+        public Iterable<Basic2DAgent> getAgents(final PrototypeGroup prototypeGroup) {
+            return getContext().get().getAgents(prototypeGroup);
+        }
+
+        @Override
+        public void receive(final ACLMessage<Basic2DAgent> message) {
+            inBox.add(message);
+        }
+
+        @Override
+        public Iterable<ACLMessage<Basic2DAgent>> getMessages(final MessageTemplate template) {
+            return inBox.remove(template);
+        }
+
+        @Override
+        public void sendMessage(final ACLMessage<Basic2DAgent> message) {
+            getContext().get().getSimulation().deliverMessage(message);
+        }
+    };
 
     private DefaultBasic2DAgent(final Builder builder) {
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
@@ -84,40 +113,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
 
     @Override
     protected Basic2DAgentContext agentContext() {
-        return new Basic2DAgentContext() {
-            @Override
-            public Basic2DAgent agent() {
-                return DefaultBasic2DAgent.this;
-            }
-
-            @Override
-            public Iterable<Basic2DAgent> getActiveAgents() {
-                return getContext().get().getActiveAgents();
-            }
-
-            @Override
-            public Iterable<Basic2DAgent> getAgents(final PrototypeGroup prototypeGroup) {
-                return getContext().get().getAgents(prototypeGroup);
-            }
-
-            @Override
-            public void receive(final ACLMessage<Basic2DAgent> message) {
-                inBox.add(message);
-            }
-
-            @Override
-            public Iterable<ACLMessage<Basic2DAgent>> getMessages(final MessageTemplate template) {
-                return inBox.filter(template);
-            }
-
-            @Override
-            public void sendMessage(final ACLMessage<Basic2DAgent> message) {
-                final Set<Basic2DAgent> recipients = message.getRecipients();
-                for (Basic2DAgent recipient : recipients) {
-                    recipient.ask(message, Void.class);
-                }
-            }
-        };
+        return agentContext;
     }
 
     @Override
@@ -147,20 +143,8 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    public Set<Integer> getParents() {
-        return parents;
-    }
-
-    @Override
     public void setMotion(final Motion2D motion) {
         this.motion = checkNotNull(motion);
-    }
-
-    @Override
-    public String toString() {
-        return "Agent[" + getPrototypeGroup() + ']' + "#"
-                + (getContext().isPresent() ? getContext().get().getAgentId() : "null")
-                + "@" + (getContext().isPresent() ? getContext().get().getSimulationStep() : "null");
     }
 
     @Override
@@ -186,12 +170,6 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     @Override
     protected ActionExecutionStrategy<Basic2DAgentContext> getActionExecutionStrategy() {
         return actionExecutionStrategy;
-    }
-
-    @Override
-    public void setParents(final Set<Integer> parents) {
-        checkNotNull(parents);
-        this.parents = parents;
     }
 
     public static Builder builder(final PrototypeGroup prototypeGroup) {

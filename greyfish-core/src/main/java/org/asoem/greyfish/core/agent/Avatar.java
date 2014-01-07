@@ -10,7 +10,6 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -82,11 +81,6 @@ public final class Avatar<A extends SpatialAgent<A, C, P>, S extends SpatialSimu
     @Override
     public <T> T getPropertyValue(final String traitName, final Class<T> valueType) {
         return delegate().getPropertyValue(traitName, valueType);
-    }
-
-    @Override
-    public Set<Integer> getParents() {
-        return delegate().getParents();
     }
 
     @Override

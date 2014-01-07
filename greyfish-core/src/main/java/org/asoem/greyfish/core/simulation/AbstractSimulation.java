@@ -53,10 +53,6 @@ public abstract class AbstractSimulation<A extends Agent<?>> implements Synchron
     }
 
     @Override
-    public void shutdown() {
-    }
-
-    @Override
     public final Iterable<A> filterAgents(final Predicate<? super A> predicate) {
         return Iterables.filter(getActiveAgents(), predicate);
     }

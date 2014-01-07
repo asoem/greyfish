@@ -7,9 +7,12 @@ import org.asoem.greyfish.core.conditions.ActionCondition;
 import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class BaseAgentActionTest {
 
@@ -22,10 +25,11 @@ public class BaseAgentActionTest {
     public void testPresenceOfAgentDuringProceed() throws Exception {
 
         // given
+        final AtomicInteger integer = new AtomicInteger(0);
         BaseAgentAction<TestAgent, AgentContext<TestAgent>> action = new BaseAgentAction<TestAgent, AgentContext<TestAgent>>(mock(ActionCondition.class)) {
             @Override
             protected ActionState proceed(final AgentContext<TestAgent> context) {
-                agent().get().hashCode();
+                integer.incrementAndGet();
                 return ActionState.COMPLETED;
             }
         };
@@ -37,7 +41,7 @@ public class BaseAgentActionTest {
         action.apply(context);
 
         // then
-        verify(agent).hashCode();
+        assertThat(integer.get(), is(1));
     }
 
     private interface TestAgent extends Agent<TestContext> {

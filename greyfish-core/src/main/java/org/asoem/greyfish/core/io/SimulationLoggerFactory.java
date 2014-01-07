@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.agent.SpatialAgent;
  * User: christoph Date: 18.12.12 Time: 11:53
  */
 public interface SimulationLoggerFactory {
-    <A extends Agent<?>> SimulationLogger<A> createLogger();
+    <A extends Agent<?>> SimulationLogger createLogger();
 
-    <A extends SpatialAgent<A, ?, ?>> SimulationLogger<A> createSpatialLogger();
+    <A extends SpatialAgent<A, ?, ?>> SimulationLogger createSpatialLogger();
 }

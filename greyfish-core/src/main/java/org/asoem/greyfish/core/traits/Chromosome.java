@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.traits;
 import org.asoem.greyfish.core.agent.Agent;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * A Chromosome is a carrier for {@link TraitVector}s and used to transmit values of heritable {@link Trait}s from one
@@ -17,14 +16,6 @@ public interface Chromosome {
      * @return a list of trait vectors
      */
     List<TraitVector<?>> getTraitVectors();
-
-    /**
-     * Get the IDs of the agents which created this {@code Chromosome}.
-     *
-     * @return a set of gent IDs
-     * @see org.asoem.greyfish.core.agent.BasicSimulationContext#getAgentId()
-     */
-    Set<Integer> getParents();
 
     /**
      * Get the size of this chromosome, which is the equal to the size of the trait vector {@link #getTraitVectors()}.

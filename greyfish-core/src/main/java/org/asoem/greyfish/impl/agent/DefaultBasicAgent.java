@@ -33,21 +33,59 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     private final FunctionalList<AgentAction<? super BasicAgentContext<BasicAgent>>> actions;
     private final FunctionalList<AgentProperty<? super BasicAgentContext<BasicAgent>, ?>> properties;
     private final FunctionalCollection<ACLMessage<BasicAgent>> inBox;
-    private final ActionExecutionStrategyFactory<BasicAgentContext<BasicAgent>> actionExecutionStrategyFactory; // TODO: field is no longer needed since cloning feature is gone
     private final transient ActionExecutionStrategy<BasicAgentContext<BasicAgent>> actionExecutionStrategy;
 
-    private Set<Integer> parents;
     @Nullable
     private BasicSimulationContext<BasicSimulation, BasicAgent> simulationContext;
+    private final BasicAgentContext<BasicAgent> agentContext = new BasicAgentContext<BasicAgent>() {
+        @Override
+        public void addAgent(final BasicAgent agent) {
+            getContext().get().getSimulation().enqueueAddition(agent);
+        }
+
+        @Override
+        public void removeAgent(final BasicAgent agent) {
+            getContext().get().getSimulation().enqueueRemoval(agent);
+        }
+
+        @Override
+        public BasicAgent agent() {
+            return DefaultBasicAgent.this;
+        }
+
+        @Override
+        public Iterable<BasicAgent> getActiveAgents() {
+            return getContext().get().getActiveAgents();
+        }
+
+        @Override
+        public Iterable<BasicAgent> getAgents(final PrototypeGroup prototypeGroup) {
+            return getContext().get().getAgents(prototypeGroup);
+        }
+
+        @Override
+        public void receive(final ACLMessage<BasicAgent> message) {
+            ask(message, Void.class);
+        }
+
+        @Override
+        public Iterable<ACLMessage<BasicAgent>> getMessages(final MessageTemplate template) {
+            return inBox.remove(template);
+        }
+
+        @Override
+        public void sendMessage(final ACLMessage<BasicAgent> message) {
+            getContext().get().getSimulation().deliverMessage(message);
+        }
+    };
 
     private DefaultBasicAgent(final Builder builder) {
         checkNotNull(builder);
         this.prototypeGroup = builder.prototypeGroup;
         this.actions = ImmutableFunctionalList.copyOf(builder.actions);
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
-        this.parents = builder.parents;
         this.inBox = builder.inBox;
-        this.actionExecutionStrategyFactory = builder.actionExecutionStrategyFactory;
+        final ActionExecutionStrategyFactory<BasicAgentContext<BasicAgent>> actionExecutionStrategyFactory = builder.actionExecutionStrategyFactory;
 
         // TODO: write test for the following steps
         this.actionExecutionStrategy = actionExecutionStrategyFactory.create(actions);
@@ -61,63 +99,9 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
 
     @Override
     protected BasicAgentContext<BasicAgent> agentContext() {
-        return new BasicAgentContext<BasicAgent>() {
-            @Override
-            public void addAgent(final BasicAgent agent) {
-                getContext().get().getSimulation().enqueueAddition(agent);
-            }
-
-            @Override
-            public void removeAgent(final BasicAgent agent) {
-                getContext().get().getSimulation().enqueueRemoval(agent);
-            }
-
-            @Override
-            public BasicAgent agent() {
-                return DefaultBasicAgent.this;
-            }
-
-            @Override
-            public Iterable<BasicAgent> getActiveAgents() {
-                return getContext().get().getActiveAgents();
-            }
-
-            @Override
-            public Iterable<BasicAgent> getAgents(final PrototypeGroup prototypeGroup) {
-                return getContext().get().getAgents(prototypeGroup);
-            }
-
-            @Override
-            public void receive(final ACLMessage<BasicAgent> message) {
-                ask(message, Void.class);
-            }
-
-            @Override
-            public Iterable<ACLMessage<BasicAgent>> getMessages(final MessageTemplate template) {
-                return inBox.remove(template);
-            }
-
-            @Override
-            public void sendMessage(final ACLMessage<BasicAgent> message) {
-                final Set<BasicAgent> recipients = message.getRecipients();
-                for (BasicAgent recipient : recipients) {
-                    recipient.ask(message, Void.class);
-                }
-            }
-        };
+        return agentContext;
     }
 
-    @Override
-    public Set<Integer> getParents() {
-        return parents;
-    }
-
-    @Override
-    public void setParents(final Set<Integer> parents) {
-        this.parents = checkNotNull(parents);
-    }
-
-    @Override
     public FunctionalList<AgentProperty<? super BasicAgentContext<BasicAgent>, ?>> getProperties() {
         return properties;
     }
@@ -132,8 +116,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         this.simulationContext = context;
     }
 
-    @Override
-    public FunctionalList<AgentAction<? super BasicAgentContext<BasicAgent>>> getActions() {
+    protected FunctionalList<AgentAction<? super BasicAgentContext<BasicAgent>>> getActions() {
         return ImmutableFunctionalList.copyOf(actions);
     }
 
@@ -159,7 +142,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
 
     private RuntimeException noSuchProperty(final String traitName) {
         return new IllegalArgumentException("Agent has no property named '" + traitName + "'. " +
-                "Available properties: [" + Joiner.on(", ").join(getProperties()) + "]");
+                "Available properties: [" + Joiner.on(", ").join(properties) + "]");
     }
 
     @Override

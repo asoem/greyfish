@@ -3,8 +3,6 @@ package org.asoem.greyfish.core.agent;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
-import java.util.Set;
-
 abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, C, P>, C extends SimulationContext<?, A>, P extends Object2D>
         extends ForwardingAgent<C>
         implements SpatialAgent<A, C, P> {
@@ -40,11 +38,6 @@ abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, C, P>, C extends
     @Override
     public void setProjection(final P projection) {
         delegate().setProjection(projection);
-    }
-
-    @Override
-    public void setParents(final Set<Integer> parents) {
-        delegate().setParents(parents);
     }
 
     @Override

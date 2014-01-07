@@ -16,13 +16,6 @@ public interface BasicSimulationContext<S extends DiscreteTimeSimulation<?>, A e
     long getActivationStep();
 
     /**
-     * Get the id of this agent in this context.
-     *
-     * @return the id of this agent
-     */
-    int getAgentId();
-
-    /**
      * Get the age of this agent. Same as calling {@code getSimulation().getSteps() - getActivationStep()}
      *
      * @return the difference between the activation step and current step

@@ -36,11 +36,6 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
     }
 
     @Override
-    public int getAgentId() {
-        return agentId;
-    }
-
-    @Override
     public S getSimulation() {
         return simulation;
     }

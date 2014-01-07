@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
 import static org.asoem.greyfish.core.actions.utils.ActionState.ABORTED;
@@ -57,10 +56,12 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
 
         for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 
+            /*
             final Set<Integer> parents = sperm.getParents();
             if (parents.size() != 1) {
                 throw new AssertionError("Sperm must have an uniparental history");
             }
+            */
 
             final Chromosome chromosome = context.agent().ask(new CreateRecombinedChromosome(sperm), Chromosome.class);
                         /*

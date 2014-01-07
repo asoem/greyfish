@@ -15,7 +15,6 @@ import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.RequestAllTraitValues;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -46,7 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * handle the incoming events and therefore is threadsafe.
  */
 final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?>>
-        implements SimulationLogger<A> {
+        implements SimulationLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
     private static final int RING_BUFFER_SIZE = 1024;
@@ -172,19 +171,17 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
     }
 
     @Override
-    public void logAgentCreation(final A agent) {
-        BasicSimulationContext<?, A> simulationContext = agent.getContext().get();
+    public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep,
+                                  final String simulationName, final Set<Integer> parents,
+                                  final Map<String, Object> traitValues) {
         addQuery(new InsertAgentQuery(
-                simulationContext.getAgentId(),
-                idForName(agent.getPrototypeGroup().getName()),
-                (int) simulationContext.getActivationStep(), simulationIdCache.getUnchecked(simulationContext.simulationName())));
+                agentId,
+                idForName(prototypeGroupName),
+                activationStep, simulationIdCache.getUnchecked(simulationName)));
 
-        final Set<Integer> parents = agent.getParents();
         for (final Integer parentId : parents) {
-            addQuery(new InsertChromosomeQuery(simulationContext.getAgentId(), parentId));
+            addQuery(new InsertChromosomeQuery(agentId, parentId));
         }
-
-        Map<String, Object> traitValues = (Map<String, Object>) agent.ask(new RequestAllTraitValues(), Map.class);
 
         for (Map.Entry<String, Object> stringObjectEntry : traitValues.entrySet()) {
             final String traitName = stringObjectEntry.getKey();
@@ -198,12 +195,12 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
 
             if (value instanceof Number) {
                 addQuery(new InsertTraitAsDoubleQuery(
-                        simulationContext.getAgentId(),
+                        agentId,
                         idForName(traitName),
                         Optional.fromNullable((Number) value).or(Double.NaN).doubleValue()));
             } else {
                 addQuery(new InsertTraitAsStringQuery(
-                        simulationContext.getAgentId(),
+                        agentId,
                         idForName(traitName),
                         idForName(String.valueOf(value))));
             }
@@ -223,11 +220,10 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
     }
 
     @Override
-    public void logAgentEvent(final A agent, final long currentStep, final String source,
-                              final String title, final String message) {
+    public void logAgentEvent(final int currentStep, final String source, final String title, final String message, final int agentId, final Object2D projection) {
         final InsertEventQuery insertEventOperation =
                 new InsertEventQuery(
-                        (int) currentStep, agent.getContext().get().getAgentId(), agent.getProjection(),
+                        currentStep, agentId, projection,
                         idForName(source), idForName(title), message);
         addQuery(insertEventOperation);
     }

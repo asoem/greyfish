@@ -4,10 +4,13 @@ import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -27,7 +30,7 @@ public final class SimulationLoggers {
      * @param <A>    the {@link Agent} type of the logger
      * @return a new logger with synchronized methods
      */
-    public static <A extends Agent<?>> SimulationLogger<A> synchronizedLogger(final SimulationLogger<A> logger) {
+    public static <A extends Agent<?>> SimulationLogger synchronizedLogger(final SimulationLogger logger) {
         if (logger instanceof SynchronizedLogger) {
             return logger;
         } else {
@@ -36,7 +39,7 @@ public final class SimulationLoggers {
     }
 
     @SuppressWarnings("unchecked")
-    public static SimulationLogger<Agent<?>> nullLogger() {
+    public static SimulationLogger nullLogger() {
         return NullLogger.INSTANCE;
     }
 
@@ -46,7 +49,7 @@ public final class SimulationLoggers {
      * @param <A> the type of the agent
      * @return a new console logger
      */
-    public static <A extends Agent<?>> SimulationLogger<A> consoleLogger() {
+    public static <A extends Agent<?>> SimulationLogger consoleLogger() {
         return printStreamLogger(System.out);
     }
 
@@ -56,7 +59,7 @@ public final class SimulationLoggers {
      * @param <A> the type of the agent
      * @return a new print stream logger
      */
-    public static <A extends Agent<?>> SimulationLogger<A> printStreamLogger(final PrintStream printStream) {
+    public static <A extends Agent<?>> SimulationLogger printStreamLogger(final PrintStream printStream) {
         return new ConsoleLogger<A>(printStream);
     }
 
@@ -71,15 +74,15 @@ public final class SimulationLoggers {
      * @return a new JDBC logger
      */
     public static <A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?>>
-    SimulationLogger<A> createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
-        return new JDBCLogger<>(connectionManager, commitThreshold);
+    SimulationLogger createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
+        return new JDBCLogger(connectionManager, commitThreshold);
     }
 
-    private static final class SynchronizedLogger<A extends Agent<?>> implements SimulationLogger<A> {
+    private static final class SynchronizedLogger<A extends Agent<?>> implements SimulationLogger {
         @GuardedBy("this")
-        private final SimulationLogger<A> logger;
+        private final SimulationLogger logger;
 
-        public SynchronizedLogger(final SimulationLogger<A> logger) {
+        public SynchronizedLogger(final SimulationLogger logger) {
             this.logger = checkNotNull(logger);
         }
 
@@ -91,17 +94,16 @@ public final class SimulationLoggers {
         }
 
         @Override
-        public void logAgentCreation(final A agent) {
+        public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep, final String simulationName, final Set<Integer> parents, final Map<String, Object> traitValues) {
             synchronized (this) {
-                logger.logAgentCreation(agent);
+                logger.logAgentCreation(agentId, prototypeGroupName, activationStep, simulationName, parents, traitValues);
             }
         }
 
         @Override
-        public void logAgentEvent(final A agent, final long currentStep, final String source,
-                                  final String title, final String message) {
+        public void logAgentEvent(final int currentStep, final String source, final String title, final String message, final int agentId, final Object2D projection) {
             synchronized (this) {
-                logger.logAgentEvent(agent, currentStep, source, title, message);
+                logger.logAgentEvent(currentStep, source, title, message, agentId, projection);
             }
         }
 

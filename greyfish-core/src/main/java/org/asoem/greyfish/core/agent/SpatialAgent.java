@@ -15,10 +15,10 @@ import org.asoem.greyfish.utils.space.Projectable;
  * @param <P> the type of the projection
  */
 public interface SpatialAgent<
-        A extends SpatialAgent<A, C, P> & Descendant,
+        A extends SpatialAgent<A, C, P>,
         C extends SimulationContext<?, A>,
         P extends Object2D>
-        extends Agent<C>, Moving<Motion2D>, Projectable<P>, Descendant {
+        extends Agent<C>, Moving<Motion2D>, Projectable<P> {
 
     /**
      * Measure the distance from this agent to the first obstacle in the given direction (in {@code degrees} [0, 360))
@@ -38,4 +38,5 @@ public interface SpatialAgent<
     Iterable<A> findNeighbours(double radius);
 
     Iterable<ACLMessage<A>> getMessages(MessageTemplate template);
+
 }
