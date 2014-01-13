@@ -19,7 +19,7 @@ enum NullLogger implements SimulationLogger {
     }
 
     @Override
-    public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep, final String simulationName, final Set<Integer> parents, final Map<String, Object> traitValues) {
+    public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep, final String simulationName, final Set<Integer> parents, final Map<String, ?> traitValues) {
         // empty
     }
 

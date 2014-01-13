@@ -2,6 +2,7 @@ package org.asoem.greyfish.core.agent;
 
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Moving;
@@ -15,9 +16,10 @@ import org.asoem.greyfish.utils.space.Projectable;
  * @param <P> the type of the projection
  */
 public interface SpatialAgent<
-        A extends SpatialAgent<A, C, P>,
+        A extends SpatialAgent<A, C, P, ?>,
         C extends SimulationContext<?, A>,
-        P extends Object2D>
+        P extends Object2D,
+        AC extends AgentContext<A>>
         extends Agent<C>, Moving<Motion2D>, Projectable<P> {
 
     /**

@@ -20,7 +20,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
 @Tagged("actions")
-public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
+public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceConsumptionAction.class);
 
@@ -113,7 +113,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
         this.classification = builder.classification;
     }
 
-    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
+    public static <A extends SpatialAgent<A, ?, ?, ?>> Builder<A> with() {
         return new Builder();
     }
 
@@ -129,7 +129,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
         return uptakeUtilization;
     }
 
-    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
+    public static final class Builder<A extends SpatialAgent<A, ?, ?, ?>> extends AbstractBuilder<A, ResourceConsumptionAction<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
             return this;
@@ -142,7 +142,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?>> extends 
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction<A>, Double> requestAmount = Callbacks.constant(1.0);

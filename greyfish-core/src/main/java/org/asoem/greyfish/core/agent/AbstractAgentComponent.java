@@ -15,7 +15,7 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
         this.name = "";
     }
 
-    protected AbstractAgentComponent(final AbstractBuilder<? extends AbstractAgentComponent<C>, ? extends AbstractBuilder<?, ?>> builder) {
+    protected AbstractAgentComponent(final AbstractBuilder<?, ?> builder) {
         this.name = builder.name;
     }
 
@@ -35,6 +35,11 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
 
     @Override
     public void initialize() {
+    }
+
+    @Override
+    public <T> T tell(final C context, final Object message, final Class<T> replyType) {
+        throw new UnsupportedOperationException("Cannot handle message " + message);
     }
 
     @Override
@@ -64,7 +69,7 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
     }
 
     protected abstract static class AbstractBuilder<C extends AbstractAgentComponent<?>, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> implements Serializable {
-        private String name;
+        protected String name;
 
         protected AbstractBuilder(final AbstractAgentComponent<?> component) {
             this.name = component.name;

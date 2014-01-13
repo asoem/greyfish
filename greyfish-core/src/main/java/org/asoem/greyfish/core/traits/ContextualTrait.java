@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  *
  */
-public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?, A>>, T> extends AbstractTrait<A, AgentContext<A>, T> {
+public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?, A>>, T> extends AbstractAgentTrait<AgentContext<A>, T> {
 
     private final Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
@@ -112,7 +112,7 @@ public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?,
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, P extends ContextualTrait<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractTrait.AbstractBuilder<P, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, P extends ContextualTrait<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentTrait.AbstractBuilder<P, B> implements Serializable {
         private Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
         private Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback = ContextualTrait.expiresAtBirth();

@@ -4,8 +4,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.AgentContext;
-import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.properties.AbstractAgentProperty;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.Tagged;
@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("traits")
 public class DoublePrecisionRealNumberTrait<A extends Agent<?>, C extends AgentContext<A>>
-        extends AbstractTrait<A, C, Double>
+        extends AbstractAgentTrait<C, Double>
         implements AgentTrait<C, Double> {
 
     private static final TypeToken<Double> DOUBLE_TYPE_TOKEN = TypeToken.of(Double.class);
@@ -130,12 +130,12 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<?>, C extends AgentC
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<
+    protected abstract static class AbstractBuilder<
             A extends Agent<?>,
             C extends DoublePrecisionRealNumberTrait<A, AC>,
             B extends AbstractBuilder<A, C, B, AC>,
             AC extends AgentContext<A>>
-            extends AbstractAgentComponent.AbstractBuilder<C, B>
+            extends AbstractAgentProperty.AbstractBuilder<C, B>
             implements Serializable {
 
         private static final Callback<Object, Double> DEFAULT_INITIALIZATION_KERNEL = Callbacks.willThrow(new UnsupportedOperationException());

@@ -1,12 +1,11 @@
 package org.asoem.greyfish.core.traits;
 
-import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.collect.Product2;
 
 import java.util.List;
 
-public interface AgentTrait<C extends AgentContext<?>, T> extends AgentProperty<C, T> {
+public interface AgentTrait<C, T> extends AgentProperty<C, T> {
 
     /**
      * Transform the given {@code value}. <p>This method is intended to be used for mutation</p>

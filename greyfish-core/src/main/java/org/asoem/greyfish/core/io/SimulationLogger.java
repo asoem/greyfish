@@ -19,7 +19,7 @@ public interface SimulationLogger extends Closeable {
 
     void logAgentCreation(int agentId, String prototypeGroupName, int activationStep,
                           String simulationName, Set<Integer> parents,
-                          Map<String, Object> traitValues);
+                          Map<String, ?> traitValues);
 
     void logAgentEvent(int currentStep, String source, String title, String message, int agentId, Object2D projection);
 

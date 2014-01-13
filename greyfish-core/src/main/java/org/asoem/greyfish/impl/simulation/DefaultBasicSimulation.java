@@ -1,6 +1,6 @@
 package org.asoem.greyfish.impl.simulation;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.eventbus.EventBus;
@@ -39,7 +39,7 @@ public final class DefaultBasicSimulation
         extends AbstractSimulation<BasicAgent>
         implements BasicSimulation {
 
-    @GuardedBy("this")
+    @GuardedBy("agents")
     private final List<BasicAgent> agents = Lists.newLinkedList();
     private final Queue<ModificationEvent> modificationEvents = Queues.newConcurrentLinkedQueue();
     private final ListeningExecutorService executorService;
@@ -99,11 +99,13 @@ public final class DefaultBasicSimulation
     }
 
     private void removeInactiveAgents() {
-        for (Iterator<BasicAgent> iterator = agents.iterator(); iterator.hasNext(); ) {
-            BasicAgent agent = iterator.next();
-            if (!agent.isActive()) {
-                iterator.remove();
-                eventBus.post(new AgentRemovedEvent(agent, this));
+        synchronized (agents) {
+            for (Iterator<BasicAgent> iterator = agents.iterator(); iterator.hasNext(); ) {
+                BasicAgent agent = iterator.next();
+                if (!agent.isActive()) {
+                    iterator.remove();
+                    eventBus.post(new AgentRemovedEvent(agent, this));
+                }
             }
         }
     }
@@ -115,7 +117,9 @@ public final class DefaultBasicSimulation
 
     @Override
     public Iterable<BasicAgent> getActiveAgents() {
-        return Iterables.unmodifiableIterable(agents);
+        synchronized (agents) {
+            return ImmutableList.copyOf(agents);
+        }
     }
 
     @Override
@@ -152,9 +156,12 @@ public final class DefaultBasicSimulation
     }
 
     private void activateAgent(final BasicAgent agent) {
+        assert agent != null;
         agent.activate(contextFactory.createActiveContext(
                 this, agentIdSequence.incrementAndGet(), getTime()));
-        agents.add(agent);
+        synchronized (agents) {
+            agents.add(agent);
+        }
         eventBus.post(new AgentAddedEvent(agent, this));
     }
 
@@ -218,7 +225,7 @@ public final class DefaultBasicSimulation
      */
     public static class Builder {
         private final String name;
-        private ExecutorService executorService = Executors.newCachedThreadPool();
+        private ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         private DefaultSimulationContextFactory<BasicSimulation, BasicAgent> simulationContextFactory =
                 DefaultSimulationContextFactory.<BasicSimulation, BasicAgent>create();
         private EventBus eventPublisher = new EventBus();

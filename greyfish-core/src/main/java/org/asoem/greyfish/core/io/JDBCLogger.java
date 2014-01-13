@@ -44,7 +44,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A {@code SimulationLogger} which logs to a JDBC {@link Connection}. This implementation uses a {@link Disruptor} to
  * handle the incoming events and therefore is threadsafe.
  */
-final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?>>
+final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?, ?>>
         implements SimulationLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
@@ -152,7 +152,11 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
                 preparedStatement.addBatch();
             }
             for (PreparedStatement preparedStatement : cache.asMap().values()) {
-                preparedStatement.executeBatch();
+                try {
+                    preparedStatement.executeBatch();
+                } catch (SQLException e) {
+                    throw Throwables.propagate(e);
+                }
             }
             connection.commit();
         } finally {
@@ -172,8 +176,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
 
     @Override
     public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep,
-                                  final String simulationName, final Set<Integer> parents,
-                                  final Map<String, Object> traitValues) {
+                                 final String simulationName, final Set<Integer> parents,
+                                 final Map<String, ?> traitValues) {
         addQuery(new InsertAgentQuery(
                 agentId,
                 idForName(prototypeGroupName),
@@ -183,7 +187,7 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
             addQuery(new InsertChromosomeQuery(agentId, parentId));
         }
 
-        for (Map.Entry<String, Object> stringObjectEntry : traitValues.entrySet()) {
+        for (Map.Entry<String, ?> stringObjectEntry : traitValues.entrySet()) {
             final String traitName = stringObjectEntry.getKey();
             final Object traitValue = stringObjectEntry.getValue();
 
@@ -467,7 +471,7 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
     }
 
     private static class InsertSimulationQuery implements BatchQuery {
-        private static final String SQL = "INSERT INTO getSimulation (id, name) VALUES (?, ?)";
+        private static final String SQL = "INSERT INTO simulation (id, name) VALUES (?, ?)";
 
         private final int id;
         private final String name;
@@ -482,7 +486,7 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
             final PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setInt(1, id);
-            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, name);
 
             return preparedStatement;
         }

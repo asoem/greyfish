@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.inject;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.core.eval.Evaluator;
@@ -11,23 +12,29 @@ import org.asoem.greyfish.utils.persistence.Persisters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class CoreModule extends AbstractModule {
+public final class CoreModule extends AbstractModule {
 
     private final RandomGenerator randomGenerator;
+    private final EventBus eventBus;
 
     public CoreModule() {
-        this.randomGenerator = RandomGenerators.rng();
+        this(RandomGenerators.rng());
     }
 
     public CoreModule(final RandomGenerator randomGenerator) {
-        checkNotNull(randomGenerator);
-        this.randomGenerator = randomGenerator;
+        this(randomGenerator, new EventBus());
+    }
+
+    public CoreModule(final RandomGenerator randomGenerator, final EventBus eventBus) {
+        this.randomGenerator = checkNotNull(randomGenerator);
+        this.eventBus = checkNotNull(eventBus);
     }
 
     @Override
     protected void configure() {
         // Persister
         bind(Persister.class).toInstance(Persisters.javaSerialization());
+        bind(EventBus.class).toInstance(eventBus);
 
         // GreyfishExpression
         bind(EvaluatorFactory.class).toInstance(new EvaluatorFactory() {

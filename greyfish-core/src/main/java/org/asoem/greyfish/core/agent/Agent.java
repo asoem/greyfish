@@ -70,4 +70,5 @@ public interface Agent<C extends SimulationContext<?, ?>>
      * @throws java.lang.IllegalStateException if no trait with name equal to {@code traitName} could be found.
      */
     <T> T getPropertyValue(String traitName, Class<T> valueType);
+
 }

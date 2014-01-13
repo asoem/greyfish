@@ -9,5 +9,5 @@ import org.asoem.greyfish.core.agent.SpatialAgent;
 public interface SimulationLoggerFactory {
     <A extends Agent<?>> SimulationLogger createLogger();
 
-    <A extends SpatialAgent<A, ?, ?>> SimulationLogger createSpatialLogger();
+    <A extends SpatialAgent<A, ?, ?, ?>> SimulationLogger createSpatialLogger();
 }

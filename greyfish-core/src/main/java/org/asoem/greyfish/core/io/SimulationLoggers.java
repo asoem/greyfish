@@ -1,8 +1,5 @@
 package org.asoem.greyfish.core.io;
 
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Object2D;
 
@@ -27,14 +24,13 @@ public final class SimulationLoggers {
      * Make {@code logger} thread safe by synchronizing its methods.
      *
      * @param logger the logger to wrap
-     * @param <A>    the {@link Agent} type of the logger
      * @return a new logger with synchronized methods
      */
-    public static <A extends Agent<?>> SimulationLogger synchronizedLogger(final SimulationLogger logger) {
+    public static SimulationLogger synchronizedLogger(final SimulationLogger logger) {
         if (logger instanceof SynchronizedLogger) {
             return logger;
         } else {
-            return new SynchronizedLogger<A>(logger);
+            return new SynchronizedLogger(logger);
         }
     }
 
@@ -46,21 +42,19 @@ public final class SimulationLoggers {
     /**
      * This logger prints all messages to {@link System#out}. Same as calling {@code printStreamLogger(System.out)}.
      *
-     * @param <A> the type of the agent
      * @return a new console logger
      */
-    public static <A extends Agent<?>> SimulationLogger consoleLogger() {
+    public static SimulationLogger consoleLogger() {
         return printStreamLogger(System.out);
     }
 
     /**
      * This logger prints all messages to given {@code printStream}.
      *
-     * @param <A> the type of the agent
      * @return a new print stream logger
      */
-    public static <A extends Agent<?>> SimulationLogger printStreamLogger(final PrintStream printStream) {
-        return new ConsoleLogger<A>(printStream);
+    public static SimulationLogger printStreamLogger(final PrintStream printStream) {
+        return new ConsoleLogger(printStream);
     }
 
     /**
@@ -73,12 +67,11 @@ public final class SimulationLoggers {
      * @param commitThreshold   the threshold after which to commit a batch of queries
      * @return a new JDBC logger
      */
-    public static <A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?>>
-    SimulationLogger createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
+    public static SimulationLogger createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
         return new JDBCLogger(connectionManager, commitThreshold);
     }
 
-    private static final class SynchronizedLogger<A extends Agent<?>> implements SimulationLogger {
+    private static final class SynchronizedLogger implements SimulationLogger {
         @GuardedBy("this")
         private final SimulationLogger logger;
 
@@ -94,7 +87,7 @@ public final class SimulationLoggers {
         }
 
         @Override
-        public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep, final String simulationName, final Set<Integer> parents, final Map<String, Object> traitValues) {
+        public void logAgentCreation(final int agentId, final String prototypeGroupName, final int activationStep, final String simulationName, final Set<Integer> parents, final Map<String, ?> traitValues) {
             synchronized (this) {
                 logger.logAgentCreation(agentId, prototypeGroupName, activationStep, simulationName, parents, traitValues);
             }

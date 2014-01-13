@@ -13,7 +13,7 @@ import org.asoem.greyfish.utils.space.Point2D;
  * A basic configuration of a spatial agent with an {@link Point2D} projection into space to get simulated in an {@link
  * Basic2DSimulation}.
  */
-public interface Basic2DAgent extends SpatialAgent<Basic2DAgent, BasicSimulationContext<Basic2DSimulation, Basic2DAgent>, Point2D> {
+public interface Basic2DAgent extends SpatialAgent<Basic2DAgent, BasicSimulationContext<Basic2DSimulation, Basic2DAgent>, Point2D, Basic2DAgentContext> {
     /**
      * Get all actions of this agent
      *
@@ -26,7 +26,7 @@ public interface Basic2DAgent extends SpatialAgent<Basic2DAgent, BasicSimulation
      *
      * @return the traits of this agent
      */
-    FunctionalList<AgentTrait<?  super Basic2DAgentContext, ?>> getTraits();
+    FunctionalList<AgentTrait<? super Basic2DAgentContext, ?>> getTraits();
 
     /**
      * Get all properties of this agent

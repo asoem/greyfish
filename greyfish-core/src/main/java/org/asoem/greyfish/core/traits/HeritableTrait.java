@@ -4,8 +4,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import org.asoem.greyfish.core.actions.AgentContext;
-import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.properties.AbstractAgentProperty;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.collect.Product2;
@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @param <A> the type of the enclosing {@link Agent}
  * @param <T> the type of the value of this trait
  */
-public class HeritableTrait<A extends Agent<?>, T, C extends AgentContext<A>> extends AbstractTrait<A, C, T> implements AgentTrait<C, T> {
+public class HeritableTrait<A extends Agent<?>, T, C extends AgentContext<A>> extends AbstractAgentTrait<C, T> implements AgentTrait<C, T> {
 
     private final TypeToken<T> typeToken;
 
@@ -131,7 +131,8 @@ public class HeritableTrait<A extends Agent<?>, T, C extends AgentContext<A>> ex
         private static final long serialVersionUID = 0;
     }
 
-    protected abstract static class AbstractBuilder<A extends Agent<?>, C extends HeritableTrait<A, T, AC>, B extends AbstractBuilder<A, C, B, T, AC>, T, AC extends AgentContext<A>> extends AbstractAgentComponent.AbstractBuilder<C, B> implements Serializable {
+    protected abstract static class AbstractBuilder<A extends Agent<?>, C extends HeritableTrait<A, T, AC>, B extends AbstractBuilder<A, C, B, T, AC>, T, AC extends AgentContext<A>>
+            extends AbstractAgentProperty.AbstractBuilder<C, B> implements Serializable {
 
         private final Callback<Object, T> defaultInitializationKernel = Callbacks.willThrow(new UnsupportedOperationException());
         private final Callback<Object, T> defaultMutationKernel = Callbacks.willThrow(new UnsupportedOperationException());

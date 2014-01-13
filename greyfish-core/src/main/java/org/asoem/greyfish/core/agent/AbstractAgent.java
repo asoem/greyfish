@@ -103,12 +103,12 @@ public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulatio
             receive((ACLMessage<A>) message);
             return replyType.cast(null);
         } else if (message instanceof RequestAllTraitValues) {
-            FunctionalList<AgentProperty<? super AC, ?>> traits = getProperties();
+            FunctionalList<AgentProperty<? super AC, ?>> properties = getProperties();
             final ImmutableMapBuilder<String, Object> builder = ImmutableMapBuilder.newInstance();
-            for (AgentProperty<? super AC, ?> trait : traits) {
-                String traitName = trait.getName();
-                Object traitValue = trait.value(agentContext());
-                builder.put(traitName, traitValue);
+            for (AgentProperty<? super AC, ?> property : properties) {
+                String name = property.getName();
+                Object value = property.value(agentContext());
+                builder.put(name, value);
             }
             return replyType.cast(builder.build());
         }

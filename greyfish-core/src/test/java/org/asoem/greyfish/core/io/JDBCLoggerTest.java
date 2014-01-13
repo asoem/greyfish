@@ -3,6 +3,7 @@ package org.asoem.greyfish.core.io;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
@@ -70,7 +71,7 @@ public class JDBCLoggerTest {
     private interface TestSimulation extends SpatialSimulation2D<TestAgent, Space2D<TestAgent, Object2D>> {
     }
 
-    private interface TestAgent extends SpatialAgent<TestAgent, TestSimulationContext, Object2D> {
+    private interface TestAgent extends SpatialAgent<TestAgent, TestSimulationContext, Object2D, AgentContext<TestAgent>> {
     }
 
     private interface TestSimulationContext extends BasicSimulationContext<TestSimulation, TestAgent> {

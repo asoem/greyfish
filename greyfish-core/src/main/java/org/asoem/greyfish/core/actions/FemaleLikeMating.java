@@ -29,7 +29,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
 /**
  *
  */
-public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends ContractNetInitiatorAction<A> {
+public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends ContractNetInitiatorAction<A> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FemaleLikeMating.class);
 
@@ -129,7 +129,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
         return !isEmpty(sensedMates);
     }
 
-    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> with() {
+    public static <A extends SpatialAgent<A, ?, ?, ?>> Builder<A> with() {
         return new Builder<A>();
     }
 
@@ -141,7 +141,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
         return interactionRadius;
     }
 
-    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, FemaleLikeMating<A>, Builder<A>> {
+    public static final class Builder<A extends SpatialAgent<A, ?, ?, ?>> extends AbstractBuilder<A, FemaleLikeMating<A>, Builder<A>> {
         @Override
         protected Builder<A> self() {
             return this;
@@ -154,7 +154,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?>> extends Con
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>, C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
         protected String ontology = "mate";
         protected Callback<? super FemaleLikeMating<A>, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating<A>, Double> matingProbability = Callbacks.constant(1.0);

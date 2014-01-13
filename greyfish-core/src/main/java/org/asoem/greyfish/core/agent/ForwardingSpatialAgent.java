@@ -1,14 +1,15 @@
 package org.asoem.greyfish.core.agent;
 
+import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Object2D;
 
-abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, C, P>, C extends SimulationContext<?, A>, P extends Object2D>
-        extends ForwardingAgent<C>
-        implements SpatialAgent<A, C, P> {
+abstract class ForwardingSpatialAgent<A extends SpatialAgent<A, C, P, ?>, C extends SimulationContext<?, A>, P extends Object2D, AC extends AgentContext<A>>
+        extends ForwardingAgent<C, AC>
+        implements SpatialAgent<A, C, P, AC> {
 
     @Override
-    protected abstract SpatialAgent<A, C, P> delegate();
+    protected abstract SpatialAgent<A, C, P, ?> delegate();
 
     @Override
     public Iterable<A> findNeighbours(final double radius) {

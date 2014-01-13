@@ -21,7 +21,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Tagged("actions")
-public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends BaseAgentAction<A, AgentContext<A>> {
+public class GenericMovement<A extends SpatialAgent<A, ?, ?, ?>> extends BaseAgentAction<A, AgentContext<A>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericMovement.class);
 
@@ -52,7 +52,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends BaseAgentA
     }
 
 
-    public static <A extends SpatialAgent<A, ?, ?>> Builder<A> builder() {
+    public static <A extends SpatialAgent<A, ?, ?, ?>> Builder<A> builder() {
         return new Builder<A>();
     }
 
@@ -73,7 +73,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends BaseAgentA
         throw new InvalidObjectException("Builder required");
     }
 
-    public static final class Builder<A extends SpatialAgent<A, ?, ?>> extends AbstractBuilder<A, GenericMovement<A>, Builder<A>> implements Serializable {
+    public static final class Builder<A extends SpatialAgent<A, ?, ?, ?>> extends AbstractBuilder<A, GenericMovement<A>, Builder<A>> implements Serializable {
         private Builder() {
         }
 
@@ -103,7 +103,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?>> extends BaseAgentA
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?>, C extends GenericMovement<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B, AgentContext<A>> implements Serializable {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>, C extends GenericMovement<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B, AgentContext<A>> implements Serializable {
         private Callback<? super GenericMovement<A>, Double> stepSize = Callbacks.constant(0.1);
         private Callback<? super GenericMovement<A>, Double> turningAngle = new Callback<GenericMovement<A>, Double>() {
             @Override

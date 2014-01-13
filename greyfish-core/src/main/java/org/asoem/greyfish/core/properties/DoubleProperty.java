@@ -10,7 +10,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Doubles.asList;
 
 @Tagged("properties")
-public class DoubleProperty<A extends Agent<?>, C extends AgentContext<A>> extends AbstractRangeElementProperty<Double, A, C> implements AgentProperty<C, Double> {
+public class DoubleProperty<A extends Agent<?>, C> extends AbstractRangeElementProperty<Double, A, C> implements AgentProperty<C, Double> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public DoubleProperty() {
@@ -38,7 +38,7 @@ public class DoubleProperty<A extends Agent<?>, C extends AgentContext<A>> exten
         return new Builder<A, C>();
     }
 
-    public static final class Builder<A extends Agent<?>, C extends AgentContext<A>> extends AbstractBuilder<A, DoubleProperty<A, C>, Builder<A, C>, C> {
+    public static final class Builder<A extends Agent<?>, C> extends AbstractBuilder<A, DoubleProperty<A, C>, Builder<A, C>, C> {
         public Builder() {
             lowerBound(0.0).upperBound(0.0).initialValue(0.0);
         }
@@ -58,7 +58,7 @@ public class DoubleProperty<A extends Agent<?>, C extends AgentContext<A>> exten
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?>, E extends DoubleProperty<A, C>, T extends AbstractBuilder<A, E, T, C>, C extends AgentContext<A>> extends AbstractRangeElementProperty.AbstractBuilder<A, E, T, Double, C> {
+    protected static abstract class AbstractBuilder<A extends Agent<?>, E extends DoubleProperty<A, C>, T extends AbstractBuilder<A, E, T, C>, C> extends AbstractRangeElementProperty.AbstractBuilder<A, E, T, Double, C> {
     }
 
     @Override

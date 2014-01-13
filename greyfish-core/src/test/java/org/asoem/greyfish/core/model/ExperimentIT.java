@@ -13,14 +13,17 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.asoem.greyfish.core.actions.AbstractAgentAction;
 import org.asoem.greyfish.core.actions.ActionExecutionResult;
 import org.asoem.greyfish.core.agent.Agent;
+import org.asoem.greyfish.core.agent.PropertyValueRequest;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.agent.RequestAllTraitValues;
-import org.asoem.greyfish.core.traits.AbstractTrait;
+import org.asoem.greyfish.core.traits.AbstractAgentTrait;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.impl.agent.BasicAgentContext;
 import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
+import org.asoem.greyfish.impl.agent.TraitMutateValueRequest;
 import org.asoem.greyfish.impl.simulation.BasicSimulation;
 import org.asoem.greyfish.impl.simulation.DefaultBasicSimulation;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
@@ -198,31 +201,42 @@ public class ExperimentIT {
                 final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
                 return DefaultBasicAgent
                         .builder(prototypeGroup)
-                        .addAction(new AbstractAgentAction<BasicAgentContext<BasicAgent>>("action") {
+                        .addAction(new AbstractAgentAction<BasicAgentContext>("action") {
                             @Override
-                            public ActionExecutionResult apply(final BasicAgentContext<BasicAgent> context) {
-                                final Iterable<BasicAgent> activeAgents = context.getAgents(prototypeGroup);
-                                double sum = 0.0;
-                                for (Agent<?> activeAgent : activeAgents) {
-                                    sum += activeAgent.getPropertyValue("trait", Double.class);
-                                }
-                                System.out.println(sum);
+                            public ActionExecutionResult apply(final BasicAgentContext context) {
+                                double sum = sumTraitValues(context);
 
-                                context.addAgent(createAgent(ImmutableMap.of("trait", sum)));
+                                final BasicAgent offspring = createAgent(ImmutableMap.of("trait", sum));
+                                context.addAgent(offspring);
                                 context.removeAgent(context.agent());
 
                                 return ActionExecutionResult.BREAK;
                             }
-                        })
-                        .addProperty(new AbstractTrait<BasicAgent, BasicAgentContext<BasicAgent>, Double>("trait") {
 
+                            private double sumTraitValues(final BasicAgentContext context) {
+                                final Iterable<BasicAgent> activeAgents = context.getAgents(prototypeGroup);
+                                double sum = 0.0;
+                                for (Agent<?> activeAgent : activeAgents) {
+                                    final Double value = activeAgent.ask(new PropertyValueRequest("trait"), Double.class);
+                                    final Double mutatedValue = activeAgent.ask(new TraitMutateValueRequest("trait", value), Double.class);
+                                    sum += mutatedValue;
+                                }
+                                System.out.println(sum);
+                                return sum;
+                            }
+                        })
+                        .addProperty(new AbstractAgentTrait<BasicAgentContext, Double>("trait") {
                             private final Double traitValue = Optional.fromNullable((Double) traitValues.get("trait")).or(1.0);
 
                             @Override
-                            public Double value(final BasicAgentContext<BasicAgent> context) {
+                            public Double value(final BasicAgentContext context) {
                                 return traitValue;
                             }
 
+                            @Override
+                            public Double transform(final BasicAgentContext context, final Double value) {
+                                return value + RandomGenerators.rng().nextDouble();
+                            }
                         })
                         .build();
             }

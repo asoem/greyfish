@@ -1,19 +1,21 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
-import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.Agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 
-public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>, A extends Agent<?>, C extends AgentContext<A>> extends AbstractAgentProperty<E, A, C> implements RangeElementProperty<A, E, C> {
+public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>, A extends Agent<?>, C> extends AbstractAgentProperty<C, E> implements RangeElementProperty<A, E, C> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
 
@@ -24,6 +26,8 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     protected E initialValue;
 
     protected E value;
+    @Nullable
+    private A agent;
 
     protected AbstractRangeElementProperty(final AbstractBuilder<A, ? extends AbstractRangeElementProperty<E, A, C>, ?, E, C> builder) {
         super(builder);
@@ -61,7 +65,18 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         checkAndSet(initialValue);
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends AbstractRangeElementProperty<?, A, AC>, T extends AbstractBuilder<A, C, T, E, AC>, E extends Comparable<E>, AC extends AgentContext<A>> extends AbstractAgentProperty.AbstractBuilder<C, A, T> {
+    /**
+     * @return this components optional {@code Agent}
+     */
+    public final Optional<A> agent() {
+        return Optional.fromNullable(agent);
+    }
+
+    public final void setAgent(@Nullable final A agent) {
+        this.agent = agent;
+    }
+
+    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends AbstractRangeElementProperty<?, A, AC>, T extends AbstractBuilder<A, C, T, E, AC>, E extends Comparable<E>, AC> extends AbstractAgentProperty.AbstractBuilder<C, T> {
         protected E upperBound;
         protected E lowerBound;
         protected E initialValue;
