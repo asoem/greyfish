@@ -20,7 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * This service monitors a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation} and prints messages to a given {@link OutputStream} every second.
+ * This service monitors a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation} and prints messages
+ * to a given {@link OutputStream} every second.
  */
 final class ExperimentMonitorService extends AbstractScheduledService {
 
@@ -37,6 +38,7 @@ final class ExperimentMonitorService extends AbstractScheduledService {
         this.steps = steps;
         this.experiment = checkNotNull(experiment);
 
+        checkNotNull(eventBus);
         eventBus.register(this);
 
         checkNotNull(outputStream);
@@ -52,7 +54,7 @@ final class ExperimentMonitorService extends AbstractScheduledService {
 
 
     @Subscribe
-    private void simulationCreatedEventHandler(final SimulationCreatedEvent event) {
+    public void simulationCreatedEventHandler(final SimulationCreatedEvent event) {
         checkNotNull(event);
         activeSimulations.add(new ObservedSimulation(event));
     }
@@ -99,9 +101,11 @@ final class ExperimentMonitorService extends AbstractScheduledService {
 
     private static class ObservedSimulation {
         private final SimulationCreatedEvent event;
+        private final long timestamp;
 
         public ObservedSimulation(final SimulationCreatedEvent event) {
             this.event = event;
+            timestamp = System.currentTimeMillis();
         }
 
         public Simulation<?> simulation() {
@@ -109,7 +113,7 @@ final class ExperimentMonitorService extends AbstractScheduledService {
         }
 
         public long timestamp() {
-            return System.currentTimeMillis();
+            return timestamp;
         }
     }
 }

@@ -2,6 +2,7 @@ package org.asoem.greyfish.cli;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -205,7 +206,8 @@ public final class GreyfishCLIApplication {
                             return new Well19937c();
                         }
                     });
-            final Module coreModule = new CoreModule(randomGenerator);
+            final EventBus eventBus = new EventBus();
+            final Module coreModule = new CoreModule(randomGenerator, eventBus);
 
             final Injector injector = Guice.createInjector(
                     coreModule,
@@ -217,7 +219,7 @@ public final class GreyfishCLIApplication {
 
             if (!optionSet.has(QUIET_OPTION_SPEC)) {
                 final ExperimentMonitorService monitorService =
-                        new ExperimentMonitorService(experimentExecutionService.getExperiment(), System.out, optionSet.valueOf(STEPS_OPTION_SPEC), null);
+                        new ExperimentMonitorService(experimentExecutionService.getExperiment(), System.out, optionSet.valueOf(STEPS_OPTION_SPEC), eventBus);
 
                 monitorService.addListener(new Service.Listener() {
                     @Override
@@ -245,7 +247,7 @@ public final class GreyfishCLIApplication {
                 experimentExecutionService.addListener(new Service.Listener() {
                     @Override
                     public void starting() {
-                        monitorService.startAsync();
+                        monitorService.startAsync().awaitRunning();
                     }
 
                     @Override
@@ -291,7 +293,7 @@ public final class GreyfishCLIApplication {
         } catch (Throwable e) {
             exitWithErrorMessage(String.format("Exception during getSimulation execution: %s.\n"
                     + "Check log file for detailed information",
-                    e.getCause().getMessage()));
+                    e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
         }
 
         System.exit(0);
