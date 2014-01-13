@@ -5,7 +5,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.math3.random.JDKRandomGenerator;
-import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -16,26 +15,91 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.logging.Logger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-/**
- * User: christoph
- * Date: 24.07.13
- * Time: 10:29
- */
 public class RandomGeneratorsTest {
+    @Test(expected = IllegalArgumentException.class)
+    public void testSampleEmptyCollection() throws Exception {
+        // given
+        final Collection<Integer> elements = ImmutableList.of();
+        final RandomGenerator rng = mock(RandomGenerator.class);
+
+        // when
+        RandomGenerators.sample(rng, elements);
+
+        // then
+        fail();
+    }
+
     @Test
-    public void testSampleCollection() throws Exception {
+    public void testSampleCollectionWithOneElement() throws Exception {
+        // given
+        final Collection<Integer> elements = ImmutableList.of(42);
+        final RandomGenerator rng = mock(RandomGenerator.class);
+
+        // when
+        final Integer sample = RandomGenerators.sample(rng, elements);
+
+        // then
+        assertThat(sample, is(equalTo(42)));
+        verifyZeroInteractions(rng);
+    }
+
+    @Test
+    public void testSampleCollectionWithNElements() throws Exception {
         // given
         final RandomGenerator rng = new JDKRandomGenerator();
         rng.setSeed(0);
-        final Collection<Integer> elements = ImmutableList.of(0,1,2,3,4,5,6,7,8,9);
+        final Collection<Integer> elements = ImmutableList.of(42, 4, 543, 65, 34, 2);
+
+        // when
+        final Integer sample = RandomGenerators.sample(rng, elements);
+
+        // then
+        assertThat(sample, is(equalTo(34)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSampleNEmptyCollection() throws Exception {
+        // given
+        final Collection<Integer> elements = ImmutableList.of();
+        final int sampleSize = 5;
+        final RandomGenerator rng = mock(RandomGenerator.class);
+
+        // when
+        RandomGenerators.sample(rng, elements, sampleSize);
+
+        // then
+        fail();
+    }
+
+    @Test
+    public void testSampleNCollectionWithOneElement() throws Exception {
+        // given
+        final Collection<Integer> elements = ImmutableList.of(42);
+        final RandomGenerator rng = mock(RandomGenerator.class);
+        final int sampleSize = 5;
+
+        // when
+        final Collection<Integer> sample = RandomGenerators.sample(rng, elements, sampleSize);
+
+        // then
+        assertThat(sample, is(equalTo((Object) ImmutableList.of(42, 42, 42, 42, 42))));
+        verifyZeroInteractions(rng);
+    }
+
+    @Test
+    public void testSampleNCollection() throws Exception {
+        // given
+        final RandomGenerator rng = new JDKRandomGenerator();
+        rng.setSeed(0);
+        final Collection<Integer> elements = ImmutableList.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         final int sampleSize = 5;
 
         // when
