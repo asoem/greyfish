@@ -41,7 +41,7 @@ public final class DefaultBasicSimulation
 
     @GuardedBy("agents")
     private final List<BasicAgent> agents = Lists.newLinkedList();
-    private final Queue<ModificationEvent> modificationEvents = Queues.newConcurrentLinkedQueue();
+    private final Queue<DelayedModification> delayedModifications = Queues.newConcurrentLinkedQueue();
     private final ListeningExecutorService executorService;
     private final String name;
     private final SimulationContextFactory<BasicSimulation, BasicAgent> contextFactory;
@@ -65,10 +65,10 @@ public final class DefaultBasicSimulation
     @Override
     public void nextStep() {
         synchronized (this) {
-            checkState(this.phase.compareAndSet(Phase.IDLE, Phase.MODIFICATION));
+            checkState(this.phase.compareAndSet(Phase.IDLE, Phase.UPDATE));
             applyModifications();
 
-            checkState(this.phase.compareAndSet(Phase.MODIFICATION, Phase.EXECUTION));
+            checkState(this.phase.compareAndSet(Phase.UPDATE, Phase.EXECUTION));
             executeAgents();
 
             incrementTime(); // TODO: verify that this is the correct place to increment
@@ -83,10 +83,10 @@ public final class DefaultBasicSimulation
     }
 
     private void applyModifications() {
-        for (ModificationEvent modificationEvent : modificationEvents) {
-            modificationEvent.apply();
+        for (DelayedModification delayedModification : delayedModifications) {
+            delayedModification.apply();
         }
-        modificationEvents.clear();
+        delayedModifications.clear();
         removeInactiveAgents();
     }
 
@@ -132,8 +132,8 @@ public final class DefaultBasicSimulation
         checkNotNull(agent);
         checkArgument(agent.isActive(), "Agent is not active");
         checkArgument(this.equals(agent.getContext().get().getSimulation()), "Agent is active in another getSimulation");
-        checkState(!Phase.MODIFICATION.equals(phase.get()));
-        this.modificationEvents.add(new ModificationEvent() {
+        checkState(!Phase.UPDATE.equals(phase.get()));
+        this.delayedModifications.add(new DelayedModification() {
             @Override
             public void apply() {
                 agent.deactivate();
@@ -146,13 +146,9 @@ public final class DefaultBasicSimulation
     public void enqueueAddition(final BasicAgent agent) {
         checkNotNull(agent);
         checkArgument(!agent.isActive(), "Agent is active");
-        checkState(!Phase.MODIFICATION.equals(phase.get()));
-        this.modificationEvents.add(new ModificationEvent() {
-            @Override
-            public void apply() {
-                activateAgent(agent);
-            }
-        });
+        // TODO: inactive agents can enqueued multiple times. Should this be prevented?
+        checkState(!Phase.UPDATE.equals(phase.get()));
+        this.delayedModifications.add(new AgentActivation(agent));
     }
 
     private void activateAgent(final BasicAgent agent) {
@@ -188,8 +184,8 @@ public final class DefaultBasicSimulation
     @Override
     public void deliverMessage(final ACLMessage<BasicAgent> message) {
         checkNotNull(message);
-        checkState(!Phase.MODIFICATION.equals(phase.get()));
-        modificationEvents.add(new ModificationEvent() {
+        checkState(!Phase.UPDATE.equals(phase.get()));
+        delayedModifications.add(new DelayedModification() {
             @Override
             public void apply() {
                 final Set<BasicAgent> recipients = message.getRecipients();
@@ -205,7 +201,7 @@ public final class DefaultBasicSimulation
         return String.format("%d agents; %d steps", countAgents(), getTime());
     }
 
-    private interface ModificationEvent {
+    private interface DelayedModification {
         void apply();
     }
 
@@ -250,8 +246,47 @@ public final class DefaultBasicSimulation
     }
 
     private enum Phase {
+        /**
+         * In this phase the simulation is idle and waits for the next call to {@link #nextStep()}
+         */
         IDLE,
-        MODIFICATION,
+        /**
+         * In this phase the state of the simulation gets updated internally
+         */
+        UPDATE,
+        /**
+         * In this state agents interact with the simulation and enqueue modifications
+         */
         EXECUTION
+    }
+
+    private class AgentActivation implements DelayedModification {
+        private final BasicAgent agent;
+
+        public AgentActivation(final BasicAgent agent) {
+            this.agent = agent;
+        }
+
+        @Override
+        public void apply() {
+            activateAgent(agent);
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            final AgentActivation that = (AgentActivation) o;
+
+            if (!agent.equals(that.agent)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return agent.hashCode();
+        }
     }
 }
