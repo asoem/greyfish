@@ -1,5 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -9,8 +10,8 @@ import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalList;
-import org.asoem.greyfish.utils.collect.Functionals;
 import org.asoem.greyfish.utils.collect.ImmutableMapBuilder;
+import org.asoem.greyfish.utils.collect.Searchable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +24,11 @@ import java.util.NoSuchElementException;
 public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulationContext<?, A>, AC extends AgentContext<A>> implements Agent<C> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgent.class);
 
-    private static <E extends AgentComponent<?>> E findByName(final Iterable<E> elements, final String name) {
-        final Optional<E> element = Functionals.tryFind(elements, new Predicate<AgentComponent<?>>() {
+    private static <E extends AgentComponent<?>> E findByName(final Searchable<E> elements, final String name) {
+        final Optional<E> element = elements.findFirst(new Predicate<E>() {
             @Override
-            public boolean apply(final AgentComponent<?> agentAction) {
-                return agentAction.getName().equals(name);
+            public boolean apply(final E input) {
+                return Objects.equal(name, input.getName());
             }
         });
 
@@ -85,7 +86,7 @@ public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulatio
         return getContext().isPresent();
     }
 
-    public <T> T ask(final ComponentMessage message, final Class<T> replyType) {
+    public final <T> T ask(final ComponentMessage message, final Class<T> replyType) {
         final String traitName = message.componentName();
         final AgentProperty<? super AC, ?> trait = getProperty(traitName);
         if (trait == null) {
@@ -98,7 +99,7 @@ public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulatio
     public <T> T ask(final Object message, final Class<T> replyType) {
         if (message instanceof ComponentMessage) {
             final ComponentMessage request = (ComponentMessage) message;
-            return replyType.cast(ask(request, replyType));
+            return ask(request, replyType);
         } else if (message instanceof ACLMessage) {
             receive((ACLMessage<A>) message);
             return replyType.cast(null);

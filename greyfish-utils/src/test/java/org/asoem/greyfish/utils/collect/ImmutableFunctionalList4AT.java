@@ -14,7 +14,7 @@ public class ImmutableFunctionalList4AT extends ImmutableFunctionalListAT {
     @Test
     public void testFindFirst() throws Exception {
         final int runs = 1000;
-        final ImmutableFunctionalList<String> functionalList = new ImmutableFunctionalList4<>("a", "b", "c", "d");
+        final FunctionalList<String> functionalList = new UnrolledList5<>(ImmutableList.of("a", "b", "c", "d"));
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
         final Iterable<Predicate<String>> predicates = Iterables.transform(

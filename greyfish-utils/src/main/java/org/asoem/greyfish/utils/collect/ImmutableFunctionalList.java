@@ -19,18 +19,20 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
         switch (size) {
             case 0:
                 return of();
+            case 1:
+                return new UnrolledList1<>(list.get(0));
             case 2:
-                return of(list.get(0), list.get(1));
+                return new UnrolledList2<>(list);
             case 3:
-                return of(list.get(0), list.get(1), list.get(2));
+                return new UnrolledList3<>(list);
             case 4:
-                return of(list.get(0), list.get(1), list.get(2), list.get(3));
+                return new UnrolledList4<>(list);
             case 5:
-                return of(list.get(0), list.get(1), list.get(2), list.get(3), list.get(4));
+                return new UnrolledList5<>(list);
             case 6:
-                return of(list.get(0), list.get(1), list.get(2), list.get(3), list.get(4), list.get(5));
+                return new UnrolledList6<>(list);
             default:
-                return DecoratingFunctionalList.decorate(ImmutableList.copyOf(list));
+                return new ImmutableFunctionalListN<>(list);
         }
     }
 
@@ -43,26 +45,39 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
     }
 
     public static <E> FunctionalList<E> of(final E e0) {
-        return new ImmutableFunctionalList1<>(e0);
+        return new UnrolledList1<>(e0);
     }
 
     public static <E> FunctionalList<E> of(final E e0, final E e1) {
-        return new ImmutableFunctionalList2<>(e0, e1);
+        return new UnrolledList2<>(ImmutableList.of(e0, e1));
     }
 
     public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2) {
-        return new ImmutableFunctionalList3<>(e0, e1, e2);
+        return new UnrolledList3<>(ImmutableList.of(e0, e1, e2));
     }
 
     public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3) {
-        return new ImmutableFunctionalList4<>(e0, e1, e2, e3);
+        return new UnrolledList4<>(ImmutableList.of(e0, e1, e2, e3));
     }
 
     public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3, final E e4) {
-        return new ImmutableFunctionalList5<>(e0, e1, e2, e3, e4);
+        return new UnrolledList5<>(ImmutableList.of(e0, e1, e2, e3, e4));
     }
 
     public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3, final E e4, final E e5) {
-        return new ImmutableFunctionalList6<>(e0, e1, e2, e3, e4, e5);
+        return new UnrolledList6<>(ImmutableList.of(e0, e1, e2, e3, e4, e5));
+    }
+
+    private static class ImmutableFunctionalListN<E> extends DelegatingImmutableFunctionalList<E> {
+        private List<E> delegate;
+
+        public ImmutableFunctionalListN(final Iterable<? extends E> elements) {
+            delegate = ImmutableList.copyOf(elements);
+        }
+
+        @Override
+        protected List<E> delegate() {
+            return delegate;
+        }
     }
 }

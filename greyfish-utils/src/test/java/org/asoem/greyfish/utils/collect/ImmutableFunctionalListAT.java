@@ -42,7 +42,7 @@ abstract class ImmutableFunctionalListAT {
         return stopwatch.elapsed(TimeUnit.MICROSECONDS);
     }
 
-    protected void testFindFirst(final int runs, final List<String> controlList, final FunctionalList<String> functionalList, final Iterable<Predicate<String>> predicates) {
+    protected static void testFindFirst(final int runs, final List<String> controlList, final FunctionalList<String> functionalList, final Iterable<Predicate<String>> predicates) {
         // given
         final DescriptiveStatistics statisticsFunctional = new DescriptiveStatistics();
         final DescriptiveStatistics statisticsControl = new DescriptiveStatistics();
@@ -51,6 +51,32 @@ abstract class ImmutableFunctionalListAT {
             @Override
             public void run() {
                 statisticsControl.addValue(measureFindFirstArray(controlList, predicates));
+            }
+        };
+
+        final Runnable runnable2 = new Runnable() {
+            @Override
+            public void run() {
+                statisticsFunctional.addValue(measureFindFirstUnrolled(functionalList, predicates));
+            }
+        };
+
+        // when
+        executeRandomized(runs, RandomGenerators.rng(), runnable1, runnable2);
+
+        // then
+        Statistics.assertSignificantDecrease(statisticsControl, statisticsFunctional, SIGNIFICANT.getAlpha());
+    }
+
+    protected static void testFindFirst(final int runs, final FunctionalList<String> controlList, final FunctionalList<String> functionalList, final Iterable<Predicate<String>> predicates) {
+        // given
+        final DescriptiveStatistics statisticsFunctional = new DescriptiveStatistics();
+        final DescriptiveStatistics statisticsControl = new DescriptiveStatistics();
+
+        final Runnable runnable1 = new Runnable() {
+            @Override
+            public void run() {
+                statisticsControl.addValue(measureFindFirstUnrolled(controlList, predicates));
             }
         };
 

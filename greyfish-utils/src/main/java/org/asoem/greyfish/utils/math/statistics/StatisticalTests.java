@@ -34,7 +34,7 @@ public final class StatisticalTests {
     public static ShapiroWilkTest shapiroWilk(final double[] sample) {
         checkNotNull(sample);
         checkArgument(sample.length >= 3 && sample.length <= 5000,
-                "sample size is too small or too big: {}", sample.length);
+                "Sample size must be in range [3, 5000], was %s", sample.length);
         return new DefaultShapiroWilkTest(sample);
     }
 }

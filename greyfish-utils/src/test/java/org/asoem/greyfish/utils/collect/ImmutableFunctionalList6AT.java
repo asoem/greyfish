@@ -15,7 +15,7 @@ public class ImmutableFunctionalList6AT extends ImmutableFunctionalListAT {
     @Test
     public void testFindFirst() throws Exception {
         final int runs = 1000;
-        final ImmutableFunctionalList<String> functionalList = new ImmutableFunctionalList6<>("a", "b", "c", "d", "e", "f");
+        final FunctionalList<String> functionalList = new UnrolledList6<>(ImmutableList.of("a", "b", "c", "d", "e", "f"));
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
         final Collection<String> toFind = RandomGenerators.sample(RandomGenerators.rng(), immutableList, predicateCount);
