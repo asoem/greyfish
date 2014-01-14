@@ -21,4 +21,6 @@ dependencies {
             "org.mockito:mockito-core:1.9.5",
             "org.objenesis:objenesis:1.2",
             'org.slf4j:slf4j-api:1.7.5'
+
+    testRuntime 'ch.qos.logback:logback-classic:1.0.13'
 }

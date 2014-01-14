@@ -11,12 +11,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndex;
 
-/**
- * User: christoph
- * Date: 21.09.12
- * Time: 15:37
- */
-class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements Serializable, FunctionalList<E> {
+final class ImmutableFunctionalList2<E> extends ImmutableFunctionalList<E> implements Serializable, FunctionalList<E> {
 
     private final E e0;
     private final E e1;

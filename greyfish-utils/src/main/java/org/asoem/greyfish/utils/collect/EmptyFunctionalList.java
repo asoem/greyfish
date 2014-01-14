@@ -8,15 +8,11 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
 
-/**
-* User: christoph
-* Date: 10.10.12
-* Time: 22:15
-*/
-class EmptyFunctionalList extends AbstractFunctionalList<Object> implements Serializable {
-    private static transient final EmptyFunctionalList INSTANCE = new EmptyFunctionalList();
+final class EmptyFunctionalList extends AbstractFunctionalList<Object> implements Serializable {
+    private static final transient EmptyFunctionalList INSTANCE = new EmptyFunctionalList();
 
-    private EmptyFunctionalList() {}
+    private EmptyFunctionalList() {
+    }
 
     @Override
     public Object get(final int index) {

@@ -6,10 +6,11 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.List;
 
-public class DecoratingFunctionalList<E> extends AbstractFunctionalList<E> implements Serializable {
+public final class DecoratingFunctionalList<E> extends AbstractFunctionalList<E> implements Serializable {
 
     private final List<E> list;
 
+    @SuppressWarnings("unchecked")
     public DecoratingFunctionalList(final List<? extends E> list) {
         this.list = (List<E>) list;
     }

@@ -11,18 +11,22 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkPositionIndex;
 
-final class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> implements Serializable, FunctionalList<E> {
+final class ImmutableFunctionalList6<E> extends ImmutableFunctionalList<E> implements Serializable, FunctionalList<E> {
 
     private final E e0;
     private final E e1;
     private final E e2;
     private final E e3;
+    private final E e4;
+    private final E e5;
 
-    ImmutableFunctionalList4(final E e0, final E e1, final E e2, final E e3) {
+    ImmutableFunctionalList6(final E e0, final E e1, final E e2, final E e3, final E e4, final E e5) {
         this.e0 = checkNotNull(e0);
         this.e1 = checkNotNull(e1);
         this.e2 = checkNotNull(e2);
         this.e3 = checkNotNull(e3);
+        this.e4 = checkNotNull(e4);
+        this.e5 = checkNotNull(e5);
     }
 
     @Override
@@ -36,6 +40,10 @@ final class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> imple
                 return e2;
             case 3:
                 return e3;
+            case 4:
+                return e4;
+            case 5:
+                return e5;
             default:
                 checkPositionIndex(index, size());
                 throw new AssertionError("unreachable");
@@ -44,7 +52,7 @@ final class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> imple
 
     @Override
     public int size() {
-        return 4;
+        return 6;
     }
 
     @Override
@@ -58,21 +66,24 @@ final class ImmutableFunctionalList4<E> extends ImmutableFunctionalList<E> imple
             return Optional.of(e2);
         } else if (predicate.apply(e3)) {
             return Optional.of(e3);
+        } else if (predicate.apply(e4)) {
+            return Optional.of(e4);
+        } else if (predicate.apply(e5)) {
+            return Optional.of(e5);
         } else {
             return Optional.absent();
         }
     }
 
-
     private void readObject(final ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        if (e0 == null || e1 == null || e2 == null) {
+        if (e0 == null || e1 == null || e2 == null || e3 == null || e4 == null || e5 == null) {
             throw new InvalidObjectException("Class does not accept null values");
         }
     }
 
-    public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3) {
-        return new ImmutableFunctionalList4<>(e0, e1, e2, e3);
+    public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3, final E e4, final E e5) {
+        return new ImmutableFunctionalList6<>(e0, e1, e2, e3, e4, e5);
     }
 }
