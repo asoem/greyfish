@@ -233,7 +233,12 @@ public final class RandomGenerators {
         checkNotNull(rng);
         checkArgument(sigma > 0, "Sigma must be strictly positive, was: %s", sigma);
         final double gaussian = rng.nextGaussian();
-        return sigma * gaussian + mu;
+        final double v = sigma * gaussian + mu;
+        if (Double.isNaN(v)) { // this shouldn't happen, but it does
+            return rnorm(rng, mu, sigma);
+        } else {
+            return v;
+        }
     }
 
     /**
